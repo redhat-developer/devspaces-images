@@ -18,6 +18,7 @@ import { ClusterInfo } from '@eclipse-che/common';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import { AppState } from '../..';
 import * as testStore from '..';
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 describe('clusterInfo store', () => {
   const clusterInfo: ClusterInfo = {
@@ -59,6 +60,7 @@ describe('clusterInfo store', () => {
       const expectedActions: testStore.KnownAction[] = [
         {
           type: testStore.Type.REQUEST_CLUSTER_INFO,
+          check: AUTHORIZED,
         },
         {
           type: testStore.Type.RECEIVE_CLUSTER_INFO,
@@ -87,6 +89,7 @@ describe('clusterInfo store', () => {
       const expectedActions: testStore.KnownAction[] = [
         {
           type: testStore.Type.REQUEST_CLUSTER_INFO,
+          check: AUTHORIZED,
         },
         {
           type: testStore.Type.RECEIVE_CLUSTER_INFO_ERROR,
@@ -102,6 +105,7 @@ describe('clusterInfo store', () => {
     it('should return initial state', () => {
       const incomingAction: testStore.RequestClusterInfoAction = {
         type: testStore.Type.REQUEST_CLUSTER_INFO,
+        check: AUTHORIZED,
       };
       const initialState = testStore.reducer(undefined, incomingAction);
 
@@ -146,6 +150,7 @@ describe('clusterInfo store', () => {
       };
       const incomingAction: testStore.RequestClusterInfoAction = {
         type: testStore.Type.REQUEST_CLUSTER_INFO,
+        check: AUTHORIZED,
       };
 
       const newState = testStore.reducer(initialState, incomingAction);

@@ -17,9 +17,10 @@ import { createObject } from '../../helpers';
 import { ContainerCredentials, RegistryEntry } from '../types';
 import { State } from '../dockerConfigState';
 import * as UserPreferences from '../../UserPreferences';
+import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 export * from '../dockerConfigState';
 
-export interface RequestCredentialsAction extends Action {
+export interface RequestCredentialsAction extends Action, SanityCheckAction {
   type: 'REQUEST_CHEWORKSPACE_CREDENTIALS';
 }
 
@@ -44,7 +45,7 @@ export const actionCreators: ActionCreators = {
   requestCredentials:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS' });
+      await dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS', check: AUTHORIZED });
       const {
         userPreferences: { preferences },
       } = getState();
@@ -78,7 +79,7 @@ export const actionCreators: ActionCreators = {
   updateCredentials:
     (registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS' });
+      await dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS', check: AUTHORIZED });
       const {
         userPreferences: { preferences },
       } = getState();
@@ -115,11 +116,15 @@ const unloadedState: State = {
   error: undefined,
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, action: KnownAction): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
 
+  const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_CHEWORKSPACE_CREDENTIALS':
       return createObject(state, {

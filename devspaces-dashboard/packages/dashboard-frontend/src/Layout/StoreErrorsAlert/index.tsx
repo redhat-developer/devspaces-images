@@ -23,17 +23,44 @@ import { selectInfrastructureNamespacesError } from '../../store/InfrastructureN
 import { selectUserProfileError } from '../../store/UserProfile/selectors';
 import { selectWorkspacesSettingsError } from '../../store/Workspaces/Settings/selectors';
 import { selectWorkspacesError } from '../../store/Workspaces/selectors';
+import { selectSanityCheckError } from '../../store/SanityCheck/selectors';
 import { AlertVariant } from '@patternfly/react-core';
 import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
 
 type Props = MappedProps;
 
-export class PreloadIssuesAlert extends React.PureComponent<Props> {
+export class StoreErrorsAlert extends React.PureComponent<Props> {
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
 
+  public componentDidUpdate(prevProps: Props) {
+    // sanity check error
+    if (this.props.sanityCheckError && prevProps.sanityCheckError === undefined) {
+      this.appAlerts.showAlert({
+        key: 'authorization-error',
+        title: this.props.sanityCheckError,
+        variant: AlertVariant.danger,
+        timeout: false,
+      });
+      // do not show other errors if any
+      return;
+    }
+  }
+
   public componentDidMount(): void {
+    // sanity check error
+    if (this.props.sanityCheckError) {
+      this.appAlerts.showAlert({
+        key: 'authorization-error',
+        title: this.props.sanityCheckError,
+        variant: AlertVariant.danger,
+        timeout: false,
+      });
+      // do not show other errors if any
+      return;
+    }
+
     // workspaces errors
     if (this.props.workspacesError) {
       this.appAlerts.showAlert({
@@ -110,6 +137,7 @@ export class PreloadIssuesAlert extends React.PureComponent<Props> {
 const mapStateToProps = (state: AppState) => ({
   registriesErrors: selectRegistriesErrors(state),
   pluginsError: selectPluginsError(state),
+  sanityCheckError: selectSanityCheckError(state),
   dwDefaultEditorError: selectDwDefaultEditorError(state),
   infrastructureNamespacesError: selectInfrastructureNamespacesError(state),
   devfileSchemaError: selectDevfileSchemaError(state),
@@ -121,4 +149,4 @@ const mapStateToProps = (state: AppState) => ({
 const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
-export default connector(PreloadIssuesAlert);
+export default connector(StoreErrorsAlert);

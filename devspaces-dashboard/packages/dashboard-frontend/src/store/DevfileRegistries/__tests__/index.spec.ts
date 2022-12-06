@@ -19,6 +19,7 @@ import { AppState } from '../..';
 import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AnyAction } from 'redux';
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 // mute error outputs
 console.error = jest.fn();
@@ -61,6 +62,7 @@ describe('Devfile registries', () => {
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
         {
           type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+          check: AUTHORIZED,
         },
         {
           type: devfileRegistriesStore.Type.RECEIVE_REGISTRY_METADATA,
@@ -114,6 +116,7 @@ describe('Devfile registries', () => {
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
         {
           type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+          check: AUTHORIZED,
         },
         {
           type: devfileRegistriesStore.Type.RECEIVE_REGISTRY_METADATA,
@@ -157,6 +160,7 @@ describe('Devfile registries', () => {
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
         {
           type: devfileRegistriesStore.Type.REQUEST_DEVFILE,
+          check: AUTHORIZED,
         },
         {
           type: devfileRegistriesStore.Type.RECEIVE_DEVFILE,
@@ -191,6 +195,7 @@ describe('Devfile registries', () => {
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
         {
           type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
+          check: AUTHORIZED,
         },
         {
           type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
@@ -231,6 +236,7 @@ describe('Devfile registries', () => {
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
         {
           type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
+          check: AUTHORIZED,
         },
         {
           type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
@@ -269,6 +275,7 @@ describe('Devfile registries', () => {
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
         {
           type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
+          check: AUTHORIZED,
         },
         {
           type: devfileRegistriesStore.Type.RECEIVE_SCHEMA_ERROR,
@@ -285,6 +292,7 @@ describe('Devfile registries', () => {
     it('should return initial state', () => {
       const incomingAction: devfileRegistriesStore.RequestRegistryMetadataAction = {
         type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+        check: AUTHORIZED,
       };
       const initialState = devfileRegistriesStore.reducer(undefined, incomingAction);
 
@@ -336,6 +344,7 @@ describe('Devfile registries', () => {
       };
       const incomingAction: devfileRegistriesStore.RequestRegistryMetadataAction = {
         type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+        check: AUTHORIZED,
       };
       const newState = devfileRegistriesStore.reducer(initialState, incomingAction);
 
@@ -423,6 +432,7 @@ describe('Devfile registries', () => {
       };
       const incomingAction: devfileRegistriesStore.RequestDevfileAction = {
         type: devfileRegistriesStore.Type.REQUEST_DEVFILE,
+        check: AUTHORIZED,
       };
       const newState = devfileRegistriesStore.reducer(initialState, incomingAction);
 
@@ -479,6 +489,7 @@ describe('Devfile registries', () => {
       };
       const incomingAction: devfileRegistriesStore.RequestSchemaAction = {
         type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
+        check: AUTHORIZED,
       };
       const newState = devfileRegistriesStore.reducer(initialState, incomingAction);
 

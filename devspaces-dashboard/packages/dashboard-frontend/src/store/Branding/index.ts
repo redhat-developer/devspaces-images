@@ -18,10 +18,9 @@ import axios from 'axios';
 import common from '@eclipse-che/common';
 import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/branding.constant';
 import { createObject } from '../helpers';
-import { isForbidden, isInternalServerError } from '../../services/workspace-client/helpers';
-import { signIn } from '../../services/helpers/login';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
-const ASSET_PREFIX = './assets/branding/';
+export const ASSET_PREFIX = './assets/branding/';
 
 export interface State {
   isLoading: boolean;
@@ -29,7 +28,7 @@ export interface State {
   error?: string;
 }
 
-export interface RequestBrandingAction {
+export interface RequestBrandingAction extends Action, SanityCheckAction {
   type: 'REQUEST_BRANDING';
 }
 
@@ -55,8 +54,9 @@ export const actionCreators: ActionCreators = {
     async (dispatch): Promise<void> => {
       const url = `${ASSET_PREFIX}product.json`;
 
-      dispatch({
+      await dispatch({
         type: 'REQUEST_BRANDING',
+        check: AUTHORIZED,
       });
 
       let branding: BrandingData;
@@ -150,10 +150,7 @@ async function getApiInfo(): Promise<{
     return data;
   } catch (e) {
     const errorMessage = common.helpers.errors.getMessage(e);
-    if (isInternalServerError(e) || isForbidden(e)) {
-      signIn();
-    }
-    throw errorMessage;
+    throw new Error(errorMessage);
   }
 }
 

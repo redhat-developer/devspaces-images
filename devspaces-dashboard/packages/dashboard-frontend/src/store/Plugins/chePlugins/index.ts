@@ -15,6 +15,7 @@ import { Action, Reducer } from 'redux';
 import common from '@eclipse-che/common';
 import { AppThunk } from '../..';
 import { createObject } from '../../helpers';
+import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 
 // create new instance of `axios` to avoid adding an authorization header
 const axiosInstance = axios.create();
@@ -25,7 +26,7 @@ export interface State {
   error?: string;
 }
 
-interface RequestPluginsAction {
+interface RequestPluginsAction extends Action, SanityCheckAction {
   type: 'REQUEST_PLUGINS';
 }
 
@@ -49,7 +50,7 @@ export const actionCreators: ActionCreators = {
   requestPlugins:
     (registryUrl: string): AppThunk<KnownAction, Promise<che.Plugin[]>> =>
     async (dispatch): Promise<che.Plugin[]> => {
-      dispatch({ type: 'REQUEST_PLUGINS' });
+      await dispatch({ type: 'REQUEST_PLUGINS', check: AUTHORIZED });
 
       try {
         const response = await axiosInstance.request<che.Plugin[]>({

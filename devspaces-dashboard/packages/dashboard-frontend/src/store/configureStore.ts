@@ -10,24 +10,25 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { applyMiddleware, combineReducers, compose, createStore, Store } from 'redux';
-import thunk from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { History } from 'history';
+import { applyMiddleware, combineReducers, compose, createStore, Store } from 'redux';
+import thunk from 'redux-thunk';
 import { AppState, reducers } from '.';
+import { sanityCheckMiddleware } from './sanityCheckMiddleware';
 
 export default function configureStore(history: History, initialState?: AppState): Store<AppState> {
-  const middleware = [thunk, routerMiddleware(history)];
-
   const rootReducer = combineReducers({
     ...reducers,
     router: connectRouter(history),
   });
 
-  const enhancers: any[] = [];
-  const windowIfDefined = typeof window === 'undefined' ? null : (window as any);
-  if (windowIfDefined && windowIfDefined.__REDUX_DEVTOOLS_EXTENSION__) {
-    enhancers.push(windowIfDefined.__REDUX_DEVTOOLS_EXTENSION__() as any);
+  const middleware = [thunk, routerMiddleware(history), sanityCheckMiddleware];
+
+  const enhancers: Array<() => void> = [];
+  const windowIfDefined = typeof window === 'undefined' ? null : (window as Window);
+  if (windowIfDefined && windowIfDefined['__REDUX_DEVTOOLS_EXTENSION__']) {
+    enhancers.push(windowIfDefined['__REDUX_DEVTOOLS_EXTENSION__']());
   }
 
   return createStore(

@@ -14,6 +14,7 @@ import { injectable } from 'inversify';
 
 export type IssueType =
   | 'cert'
+  | 'sessionExpired'
   | 'sso'
   | 'workspaceInactive'
   | 'workspaceRunTimeout'

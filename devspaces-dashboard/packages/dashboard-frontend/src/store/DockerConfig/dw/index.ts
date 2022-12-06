@@ -17,9 +17,10 @@ import { createObject } from '../../helpers';
 import * as DwApi from '../../../services/dashboard-backend-client/devWorkspaceApi';
 import { RegistryEntry } from '../types';
 import { State } from '../dockerConfigState';
+import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 export * from '../dockerConfigState';
 
-export interface RequestCredentialsAction extends Action {
+export interface RequestCredentialsAction extends Action, SanityCheckAction {
   type: 'REQUEST_DEVWORKSPACE_CREDENTIALS';
 }
 
@@ -48,7 +49,7 @@ export const actionCreators: ActionCreators = {
   requestCredentials:
     (namespace: string): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS', check: AUTHORIZED });
       try {
         const { registries, resourceVersion } = await getDockerConfig(namespace);
         dispatch({
@@ -69,7 +70,7 @@ export const actionCreators: ActionCreators = {
   updateCredentials:
     (namespace: string, registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS', check: AUTHORIZED });
       const { dwDockerConfig } = getState();
       try {
         const { resourceVersion } = await putDockerConfig(
@@ -153,11 +154,15 @@ const unloadedState: State = {
   error: undefined,
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, action: KnownAction): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
 
+  const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_DEVWORKSPACE_CREDENTIALS':
       return createObject(state, {

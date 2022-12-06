@@ -28,6 +28,7 @@ import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
 import { getYamlResolver } from '../../services/dashboard-backend-client/yamlResolverApi';
 import { DEFAULT_REGISTRY } from '../DevfileRegistries';
 import { isOAuthResponse } from '../../services/oauth';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -60,7 +61,7 @@ export interface State {
   error?: string;
 }
 
-interface RequestFactoryResolverAction {
+interface RequestFactoryResolverAction extends Action, SanityCheckAction {
   type: 'REQUEST_FACTORY_RESOLVER';
 }
 
@@ -130,7 +131,7 @@ export const actionCreators: ActionCreators = {
       overrideParams?: { [params: string]: string },
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
+      await dispatch({ type: 'REQUEST_FACTORY_RESOLVER', check: AUTHORIZED });
       const state = getState();
       const namespace = selectDefaultNamespace(state).name;
       const optionalFilesContent = {};

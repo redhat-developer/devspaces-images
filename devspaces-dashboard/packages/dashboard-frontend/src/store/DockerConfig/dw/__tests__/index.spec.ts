@@ -17,6 +17,7 @@ import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import * as dwDockerConfigStore from '..';
 import { AppState } from '../../..';
 import { AnyAction } from 'redux';
+import { AUTHORIZED } from '../../../sanityCheckMiddleware';
 
 // mute the outputs
 console.error = jest.fn();
@@ -50,6 +51,7 @@ describe('dwDockerConfig store', () => {
       const expectedActions: dwDockerConfigStore.KnownAction[] = [
         {
           type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         },
         {
           type: 'SET_DEVWORKSPACE_CREDENTIALS',
@@ -94,6 +96,7 @@ describe('dwDockerConfig store', () => {
       const expectedActions: dwDockerConfigStore.KnownAction[] = [
         {
           type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         },
         {
           type: 'SET_DEVWORKSPACE_CREDENTIALS',
@@ -115,6 +118,7 @@ describe('dwDockerConfig store', () => {
       it('should return initial state', () => {
         const incomingAction: dwDockerConfigStore.RequestCredentialsAction = {
           type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         };
         const initialState = dwDockerConfigStore.reducer(undefined, incomingAction);
 
@@ -179,6 +183,7 @@ describe('dwDockerConfig store', () => {
         };
         const incomingAction: dwDockerConfigStore.RequestCredentialsAction = {
           type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         };
 
         const newState = dwDockerConfigStore.reducer(initialState, incomingAction);

@@ -23,6 +23,7 @@ import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
 import devfileApi from '../../services/devfileApi';
 import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
 import updateDevWorkspacePlugins from './updateDevWorkspacePlugins';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
@@ -71,12 +72,11 @@ export enum Type {
   REQUEST_SCHEMA = 'REQUEST_SCHEMA',
   RECEIVE_SCHEMA = 'RECEIVE_SCHEMA',
   RECEIVE_SCHEMA_ERROR = 'RECEIVE_SCHEMA_ERROR',
-  UPDATE_PREBUILT_TEMPLATES = 'UPDATE_PREBUILT_TEMPLATES',
   SET_FILTER = 'SET_FILTER',
   CLEAR_FILTER = 'CLEAR_FILTER',
 }
 
-export interface RequestRegistryMetadataAction {
+export interface RequestRegistryMetadataAction extends Action, SanityCheckAction {
   type: Type.REQUEST_REGISTRY_METADATA;
 }
 
@@ -92,7 +92,7 @@ export interface ReceiveRegistryErrorAction {
   error: string;
 }
 
-export interface RequestDevfileAction {
+export interface RequestDevfileAction extends Action, SanityCheckAction {
   type: Type.REQUEST_DEVFILE;
 }
 
@@ -102,7 +102,7 @@ export interface ReceiveDevfileAction {
   devfile: string;
 }
 
-export interface RequestResourcesAction {
+export interface RequestResourcesAction extends Action, SanityCheckAction {
   type: Type.REQUEST_RESOURCES;
 }
 
@@ -119,7 +119,7 @@ export interface ReceiveResourcesErrorAction {
   error: string;
 }
 
-export interface RequestSchemaAction {
+export interface RequestSchemaAction extends Action, SanityCheckAction {
   type: Type.REQUEST_SCHEMA;
 }
 
@@ -174,7 +174,7 @@ export const actionCreators: ActionCreators = {
   requestRegistriesMetadata:
     (registryUrls: string): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: Type.REQUEST_REGISTRY_METADATA });
+      await dispatch({ type: Type.REQUEST_REGISTRY_METADATA, check: AUTHORIZED });
 
       const registries: string[] = registryUrls.split(' ');
       if (DEFAULT_REGISTRY) {
@@ -216,7 +216,7 @@ export const actionCreators: ActionCreators = {
   requestDevfile:
     (url: string): AppThunk<KnownAction, Promise<string>> =>
     async (dispatch): Promise<string> => {
-      dispatch({ type: Type.REQUEST_DEVFILE });
+      await dispatch({ type: Type.REQUEST_DEVFILE, check: AUTHORIZED });
       try {
         const devfile = await fetchDevfile(url);
         dispatch({ type: Type.RECEIVE_DEVFILE, devfile, url });
@@ -229,7 +229,7 @@ export const actionCreators: ActionCreators = {
   requestResources:
     (resourcesUrl: string): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: Type.REQUEST_RESOURCES });
+      await dispatch({ type: Type.REQUEST_RESOURCES, check: AUTHORIZED });
 
       try {
         const resourcesContent = await fetchResources(resourcesUrl);
@@ -270,7 +270,7 @@ export const actionCreators: ActionCreators = {
   requestJsonSchema:
     (): AppThunk<KnownAction, any> =>
     async (dispatch, getState): Promise<any> => {
-      dispatch({ type: Type.REQUEST_SCHEMA });
+      await dispatch({ type: Type.REQUEST_SCHEMA, check: AUTHORIZED });
       try {
         const state = getState();
         const schemav1 = await WorkspaceClient.restApiClient.getDevfileSchema<{

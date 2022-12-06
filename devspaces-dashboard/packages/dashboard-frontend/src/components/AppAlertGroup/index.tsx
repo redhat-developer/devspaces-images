@@ -47,7 +47,11 @@ class AppAlertGroup extends React.PureComponent<Props, State> {
     this.appAlerts.unsubscribe(this.showAlertHandler);
   }
 
-  private getTime(variant: AlertVariant): number {
+  private getTime(variant: AlertVariant, timeout?: boolean | number): boolean | number {
+    if (timeout !== undefined) {
+      return timeout;
+    }
+
     let time: number;
 
     switch (variant) {
@@ -65,19 +69,17 @@ class AppAlertGroup extends React.PureComponent<Props, State> {
   }
 
   private getAlert(item: AlertItem): React.ReactElement {
-    const { variant, title, key, children } = item;
-    const showAlertTimer = setTimeout(() => {
-      this.appAlerts.removeAlert(key);
-    }, this.getTime(variant));
+    const { variant, title, key, children, timeout } = item;
     return (
       <Alert
         variant={variant}
         title={title}
         key={key}
+        timeout={this.getTime(variant, timeout)}
+        onTimeout={() => this.appAlerts.removeAlert(key)}
         actionClose={
           <AlertActionCloseButton
             onClose={() => {
-              clearTimeout(showAlertTimer);
               this.appAlerts.removeAlert(key);
             }}
           />

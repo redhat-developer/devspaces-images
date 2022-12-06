@@ -14,11 +14,9 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { Flex, FlexItem, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { AppState } from '../../../store';
-import ProgressIndicator from '../../../components/Progress';
 import { SamplesListHeader } from './SamplesListHeader';
 import SamplesListToolbar from './SamplesListToolbar';
 import SamplesListGallery from './SamplesListGallery';
-import { selectIsLoading } from '../../../store/Workspaces/selectors';
 import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
 import stringify from '../../../services/helpers/editor';
@@ -109,12 +107,10 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const isLoading = this.props.isLoading;
     const storageType = this.getStorageType();
 
     return (
       <>
-        <ProgressIndicator isLoading={isLoading} />
         <PageSection variant={PageSectionVariants.default} style={{ background: '#f0f0f0' }}>
           <PageSection variant={PageSectionVariants.light}>
             <ImportFromGit
@@ -154,7 +150,6 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  isLoading: selectIsLoading(state),
   workspacesSettings: selectWorkspacesSettings(state),
   preferredStorageType: selectPvcStrategy(state),
 });

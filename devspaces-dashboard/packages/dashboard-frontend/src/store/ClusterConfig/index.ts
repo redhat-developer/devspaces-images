@@ -17,6 +17,7 @@ import { createObject } from '../helpers';
 import * as BannerAlertStore from '../BannerAlert';
 import { fetchClusterConfig } from '../../services/dashboard-backend-client/clusterConfig';
 import { AddBannerAction } from '../BannerAlert';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;
@@ -30,7 +31,7 @@ export enum Type {
   RECEIVE_CLUSTER_CONFIG_ERROR = 'RECEIVE_CLUSTER_CONFIG_ERROR',
 }
 
-export interface RequestClusterConfigAction {
+export interface RequestClusterConfigAction extends Action, SanityCheckAction {
   type: Type.REQUEST_CLUSTER_CONFIG;
 }
 
@@ -58,8 +59,9 @@ export const actionCreators: ActionCreators = {
   requestClusterConfig:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({
+      await dispatch({
         type: Type.REQUEST_CLUSTER_CONFIG,
+        check: AUTHORIZED,
       });
 
       try {

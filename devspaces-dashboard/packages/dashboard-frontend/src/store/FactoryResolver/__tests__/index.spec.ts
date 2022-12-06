@@ -27,6 +27,7 @@ import {
   convertDevfileV2toDevfileV1,
   convertDevfileV1toDevfileV2,
 } from '../../../services/devfile/converters';
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 jest.mock('../normalizeDevfileV1.ts');
 (normalizeDevfileV1 as jest.Mock).mockImplementation(devfile => {
@@ -164,6 +165,7 @@ describe('FactoryResolver store', () => {
       const expectedActions: factoryResolverStore.KnownAction[] = [
         {
           type: 'REQUEST_FACTORY_RESOLVER',
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
@@ -202,6 +204,7 @@ describe('FactoryResolver store', () => {
       const expectedActions: factoryResolverStore.KnownAction[] = [
         {
           type: 'REQUEST_FACTORY_RESOLVER',
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
@@ -265,6 +268,7 @@ describe('FactoryResolver store', () => {
     it('should return initial state', () => {
       const incomingAction: factoryResolverStore.KnownAction = {
         type: 'REQUEST_FACTORY_RESOLVER',
+        check: AUTHORIZED,
       };
 
       const initialState = factoryResolverStore.reducer(undefined, incomingAction);
@@ -297,6 +301,7 @@ describe('FactoryResolver store', () => {
       };
       const incomingAction: factoryResolverStore.KnownAction = {
         type: 'REQUEST_FACTORY_RESOLVER',
+        check: AUTHORIZED,
       };
 
       const newState = factoryResolverStore.reducer(initialState, incomingAction);

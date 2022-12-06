@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Reducer } from 'redux';
+import { Action, Reducer } from 'redux';
 import common from '@eclipse-che/common';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { createObject } from '../../helpers';
+import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -25,7 +26,7 @@ export interface State {
   error?: string;
 }
 
-interface RequestWorkspaceSettingsAction {
+interface RequestWorkspaceSettingsAction extends Action, SanityCheckAction {
   type: 'REQUEST_WORKSPACE_SETTINGS';
 }
 
@@ -51,7 +52,7 @@ export const actionCreators: ActionCreators = {
   requestSettings:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_WORKSPACE_SETTINGS' });
+      await dispatch({ type: 'REQUEST_WORKSPACE_SETTINGS', check: AUTHORIZED });
 
       try {
         const settings =
@@ -77,11 +78,15 @@ const unloadedState: State = {
   isLoading: false,
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, action: KnownAction): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
 
+  const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_WORKSPACE_SETTINGS':
       return createObject(state, {

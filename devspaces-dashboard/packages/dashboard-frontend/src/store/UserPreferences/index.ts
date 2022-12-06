@@ -18,6 +18,7 @@ import { createObject } from '../helpers';
 import { AppThunk } from '..';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -26,7 +27,7 @@ export interface State {
   isLoading: boolean;
 }
 
-interface RequestUserPreferencesAction {
+interface RequestUserPreferencesAction extends Action, SanityCheckAction {
   type: 'REQUEST_USER_PREFERENCES';
 }
 
@@ -48,7 +49,7 @@ export const actionCreators: ActionCreators = {
   requestUserPreferences:
     (filter: string | undefined): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_USER_PREFERENCES' });
+      await dispatch({ type: 'REQUEST_USER_PREFERENCES', check: AUTHORIZED });
 
       try {
         const data = await WorkspaceClient.restApiClient.getUserPreferences(filter);
@@ -63,7 +64,7 @@ export const actionCreators: ActionCreators = {
   replaceUserPreferences:
     (preferences: che.UserPreferences): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_USER_PREFERENCES' });
+      await dispatch({ type: 'REQUEST_USER_PREFERENCES', check: AUTHORIZED });
 
       try {
         await WorkspaceClient.restApiClient.replaceUserPreferences(preferences);

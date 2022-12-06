@@ -15,6 +15,7 @@ import common, { ClusterInfo } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
 import { fetchClusterInfo } from '../../services/dashboard-backend-client/clusterInfo';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;
@@ -28,7 +29,7 @@ export enum Type {
   RECEIVE_CLUSTER_INFO_ERROR = 'RECEIVE_CLUSTER_INFO_ERROR',
 }
 
-export interface RequestClusterInfoAction {
+export interface RequestClusterInfoAction extends Action, SanityCheckAction {
   type: Type.REQUEST_CLUSTER_INFO;
 }
 
@@ -55,8 +56,9 @@ export const actionCreators: ActionCreators = {
   requestClusterInfo:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({
+      await dispatch({
         type: Type.REQUEST_CLUSTER_INFO,
+        check: AUTHORIZED,
       });
 
       try {

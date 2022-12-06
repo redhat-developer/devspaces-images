@@ -24,6 +24,7 @@ import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { DisposableCollection } from '../../../services/helpers/disposable';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import { selectDevworkspacesEnabled } from '../Settings/selectors';
+import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -35,7 +36,7 @@ export interface State {
   workspacesLogs: WorkspacesLogs;
 }
 
-interface RequestWorkspacesAction {
+interface RequestWorkspacesAction extends Action, SanityCheckAction {
   type: 'CHE_REQUEST_WORKSPACES';
 }
 
@@ -203,7 +204,7 @@ export const actionCreators: ActionCreators = {
   requestWorkspaces:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'CHE_REQUEST_WORKSPACES' });
+      await dispatch({ type: 'CHE_REQUEST_WORKSPACES', check: AUTHORIZED });
       const state = getState();
 
       try {
@@ -244,7 +245,7 @@ export const actionCreators: ActionCreators = {
   requestWorkspace:
     (workspace: che.Workspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'CHE_REQUEST_WORKSPACES' });
+      await dispatch({ type: 'CHE_REQUEST_WORKSPACES', check: AUTHORIZED });
 
       try {
         const update = await cheWorkspaceClient.restApiClient.getById<che.Workspace>(workspace.id);
@@ -373,7 +374,7 @@ export const actionCreators: ActionCreators = {
   updateWorkspace:
     (workspace: che.Workspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'CHE_REQUEST_WORKSPACES' });
+      await dispatch({ type: 'CHE_REQUEST_WORKSPACES', check: AUTHORIZED });
 
       try {
         const updatedWorkspace = await cheWorkspaceClient.restApiClient.update<che.Workspace>(
@@ -404,7 +405,7 @@ export const actionCreators: ActionCreators = {
       attributes: { [key: string]: string } = {},
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'CHE_REQUEST_WORKSPACES' });
+      await dispatch({ type: 'CHE_REQUEST_WORKSPACES', check: AUTHORIZED });
       try {
         const param = { attributes, namespace, infrastructureNamespace };
         const workspace = await cheWorkspaceClient.restApiClient.create<che.Workspace>(
@@ -443,11 +444,15 @@ const unloadedState: State = {
   workspacesLogs: new Map<string, string[]>(),
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, action: KnownAction): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
 
+  const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'CHE_REQUEST_WORKSPACES':
       return createObject(state, {

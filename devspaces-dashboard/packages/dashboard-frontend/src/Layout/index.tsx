@@ -18,7 +18,7 @@ import { matchPath } from 'react-router';
 
 import Header from './Header';
 import Sidebar from './Sidebar';
-import PreloadIssuesAlert from './PreloadIssuesAlert';
+import StoreErrorsAlert from './StoreErrorsAlert';
 import { ThemeVariant } from './themeVariant';
 import { AppState } from '../store';
 import { lazyInject } from '../inversify.config';
@@ -203,7 +203,7 @@ export class Layout extends React.PureComponent<Props, State> {
           isManagedSidebar={IS_MANAGED_SIDEBAR}
         >
           <ErrorBoundary>
-            <PreloadIssuesAlert />
+            <StoreErrorsAlert />
             <BannerAlert />
             {this.props.children}
           </ErrorBoundary>

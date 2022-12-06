@@ -17,6 +17,7 @@ import { Action, Reducer } from 'redux';
 import { fetchUserProfile } from '../../services/dashboard-backend-client/userProfileApi';
 import { createObject } from '../helpers';
 import { AppThunk } from '../index';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
   userProfile: api.IUserProfile;
@@ -30,7 +31,7 @@ export enum Type {
   RECEIVE_USER_PROFILE_ERROR = 'RECEIVE_USER_PROFILE_ERROR',
 }
 
-export interface RequestUserProfileAction {
+export interface RequestUserProfileAction extends Action, SanityCheckAction {
   type: Type.REQUEST_USER_PROFILE;
 }
 
@@ -57,7 +58,7 @@ export const actionCreators: ActionCreators = {
   requestUserProfile:
     (namespace: string): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: Type.REQUEST_USER_PROFILE });
+      await dispatch({ type: Type.REQUEST_USER_PROFILE, check: AUTHORIZED });
 
       try {
         const userProfile = await fetchUserProfile(namespace);

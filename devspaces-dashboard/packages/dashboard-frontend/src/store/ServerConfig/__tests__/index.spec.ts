@@ -15,6 +15,7 @@ import mockAxios from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
 import { AppState } from '../..';
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 import * as dwServerConfigStore from '../../ServerConfig';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 
@@ -79,6 +80,7 @@ describe('dwPlugins store', () => {
       const expectedActions: dwServerConfigStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_SERVER_CONFIG',
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_SERVER_CONFIG',
@@ -108,6 +110,7 @@ describe('dwPlugins store', () => {
     const expectedActions: dwServerConfigStore.KnownAction[] = [
       {
         type: 'REQUEST_DW_SERVER_CONFIG',
+        check: AUTHORIZED,
       },
       {
         type: 'RECEIVE_DW_SERVER_CONFIG_ERROR',

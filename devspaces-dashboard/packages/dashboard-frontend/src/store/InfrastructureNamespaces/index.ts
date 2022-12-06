@@ -16,6 +16,7 @@ import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -25,7 +26,7 @@ export interface State {
   error?: string;
 }
 
-interface RequestNamespacesAction {
+interface RequestNamespacesAction extends Action, SanityCheckAction {
   type: 'REQUEST_NAMESPACES';
 }
 
@@ -49,7 +50,7 @@ export const actionCreators: ActionCreators = {
   requestNamespaces:
     (): AppThunk<KnownAction, Promise<Array<che.KubernetesNamespace>>> =>
     async (dispatch): Promise<Array<che.KubernetesNamespace>> => {
-      dispatch({ type: 'REQUEST_NAMESPACES' });
+      await dispatch({ type: 'REQUEST_NAMESPACES', check: AUTHORIZED });
 
       await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
 

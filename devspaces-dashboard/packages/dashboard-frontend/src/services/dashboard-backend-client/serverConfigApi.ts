@@ -21,7 +21,7 @@ import { prefix } from './const';
  * default plug-ins for the specified editor,
  * default editor and default components
  */
-export async function getServerConfig(): Promise<api.IServerConfig> {
+export async function fetchServerConfig(): Promise<api.IServerConfig> {
   const url = `${prefix}/server-config`;
   const response = await axios.get(url);
   return response.data ? response.data : [];

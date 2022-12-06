@@ -72,6 +72,10 @@ export class FakeStoreBuilder {
       isLoading: false,
       plugins: [],
     } as PluginsState,
+    sanityCheck: {
+      authorized: Promise.resolve(true),
+      lastFetched: 0,
+    },
     workspaces: {
       isLoading: false,
       namespace: '',
@@ -377,5 +381,17 @@ export class FakeStoreBuilder {
     const middlewares = [mockThunk];
     const mockStore = createMockStore(middlewares);
     return mockStore(this.state);
+  }
+
+  public withSanityCheck(options: {
+    authorized?: Promise<boolean>;
+    error?: string;
+    lastFetched?: number;
+  }) {
+    this.state.sanityCheck = Object.assign({}, this.state.sanityCheck, options);
+    if (this.state.sanityCheck.lastFetched === undefined) {
+      this.state.sanityCheck.lastFetched = Date.now();
+    }
+    return this;
   }
 }

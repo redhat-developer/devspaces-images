@@ -16,6 +16,7 @@ import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import * as cheDockerConfigStore from '..';
 import { AppState } from '../../..';
 import { AnyAction } from 'redux';
+import { AUTHORIZED } from '../../../sanityCheckMiddleware';
 
 jest.mock('../../../UserPreferences', () => {
   return {
@@ -53,6 +54,7 @@ describe('cheDockerConfig store', () => {
       const expectedActions: cheDockerConfigStore.KnownAction[] = [
         {
           type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         },
         {
           type: 'SET_CHEWORKSPACE_CREDENTIALS',
@@ -95,6 +97,7 @@ describe('cheDockerConfig store', () => {
       const expectedActions: cheDockerConfigStore.KnownAction[] = [
         {
           type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         },
         {
           type: 'SET_CHEWORKSPACE_CREDENTIALS',
@@ -115,6 +118,7 @@ describe('cheDockerConfig store', () => {
       it('should return initial state', () => {
         const incomingAction: cheDockerConfigStore.RequestCredentialsAction = {
           type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         };
         const initialState = cheDockerConfigStore.reducer(undefined, incomingAction);
 
@@ -174,6 +178,7 @@ describe('cheDockerConfig store', () => {
         };
         const incomingAction: cheDockerConfigStore.RequestCredentialsAction = {
           type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+          check: AUTHORIZED,
         };
 
         const newState = cheDockerConfigStore.reducer(initialState, incomingAction);

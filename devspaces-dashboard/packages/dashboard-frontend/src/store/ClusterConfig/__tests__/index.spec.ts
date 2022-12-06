@@ -18,6 +18,7 @@ import { ClusterConfig } from '@eclipse-che/common';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import { AppState } from '../..';
 import * as testStore from '..';
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 describe('clusterConfig store', () => {
   const clusterConfig: ClusterConfig = {
@@ -54,6 +55,7 @@ describe('clusterConfig store', () => {
       const expectedActions: testStore.KnownAction[] = [
         {
           type: testStore.Type.REQUEST_CLUSTER_CONFIG,
+          check: AUTHORIZED,
         },
         {
           type: testStore.Type.RECEIVE_CLUSTER_CONFIG,
@@ -86,6 +88,7 @@ describe('clusterConfig store', () => {
       const expectedActions: testStore.KnownAction[] = [
         {
           type: testStore.Type.REQUEST_CLUSTER_CONFIG,
+          check: AUTHORIZED,
         },
         {
           type: testStore.Type.RECEIVE_CLUSTER_CONFIG_ERROR,
@@ -101,6 +104,7 @@ describe('clusterConfig store', () => {
     it('should return initial state', () => {
       const incomingAction: testStore.RequestClusterConfigAction = {
         type: testStore.Type.REQUEST_CLUSTER_CONFIG,
+        check: AUTHORIZED,
       };
       const initialState = testStore.reducer(undefined, incomingAction);
 
@@ -137,6 +141,7 @@ describe('clusterConfig store', () => {
       };
       const incomingAction: testStore.RequestClusterConfigAction = {
         type: testStore.Type.REQUEST_CLUSTER_CONFIG,
+        check: AUTHORIZED,
       };
 
       const newState = testStore.reducer(initialState, incomingAction);

@@ -15,6 +15,7 @@ import common, { api } from '@eclipse-che/common';
 import { AppThunk } from '../';
 import { createObject } from '../helpers';
 import * as ServerConfigApi from '../../services/dashboard-backend-client/serverConfigApi';
+import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;
@@ -22,7 +23,7 @@ export interface State {
   error?: string;
 }
 
-export interface RequestDwServerConfigAction {
+export interface RequestDwServerConfigAction extends Action, SanityCheckAction {
   type: 'REQUEST_DW_SERVER_CONFIG';
 }
 
@@ -48,11 +49,12 @@ export const actionCreators: ActionCreators = {
   requestServerConfig:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({
+      await dispatch({
         type: 'REQUEST_DW_SERVER_CONFIG',
+        check: AUTHORIZED,
       });
       try {
-        const config = await ServerConfigApi.getServerConfig();
+        const config = await ServerConfigApi.fetchServerConfig();
         dispatch({
           type: 'RECEIVE_DW_SERVER_CONFIG',
           config,

@@ -27,6 +27,7 @@ describe('AppAlertGroup component', () => {
       key,
       title,
       variant,
+      timeout: 1000,
     });
   };
 
@@ -62,7 +63,7 @@ describe('AppAlertGroup component', () => {
     expect(screen.queryAllByText(title).length).toEqual(1);
 
     // Fast-forward until pending timers have been executed
-    jest.runOnlyPendingTimers();
+    jest.runAllTimers();
 
     expect(screen.queryAllByText(title).length).toEqual(0);
   });

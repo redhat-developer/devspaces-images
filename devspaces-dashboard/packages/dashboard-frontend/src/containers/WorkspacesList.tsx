@@ -14,11 +14,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { History } from 'history';
 import { AppState } from '../store';
-import {
-  selectAllWorkspaces,
-  selectIsLoading,
-  selectWorkspacesError,
-} from '../store/Workspaces/selectors';
+import { selectAllWorkspaces, selectIsLoading } from '../store/Workspaces/selectors';
 import * as WorkspacesStore from '../store/Workspaces';
 import Fallback from '../components/Fallback';
 import WorkspacesList from '../pages/WorkspacesList';
@@ -26,7 +22,6 @@ import WorkspaceActionsProvider from '../contexts/WorkspaceActions/Provider';
 import { WorkspaceActionsConsumer } from '../contexts/WorkspaceActions';
 import { lazyInject } from '../inversify.config';
 import { AppAlerts } from '../services/alerts/appAlerts';
-import { AlertVariant } from '@patternfly/react-core';
 import { selectBranding } from '../store/Branding/selectors';
 import { isDevWorkspace } from '../services/devfileApi';
 
@@ -40,19 +35,6 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
     const { isLoading, requestWorkspaces } = this.props;
     if (!isLoading) {
       requestWorkspaces();
-    }
-  }
-
-  public componentDidUpdate(): void {
-    const { error } = this.props;
-    if (error) {
-      const key = 'workspaces-error';
-      this.appAlerts.removeAlert(key);
-      this.appAlerts.showAlert({
-        key,
-        title: error,
-        variant: AlertVariant.danger,
-      });
     }
   }
 
@@ -102,7 +84,6 @@ const mapStateToProps = (state: AppState) => {
     branding: selectBranding(state),
     allWorkspaces: selectAllWorkspaces(state),
     isLoading: selectIsLoading(state),
-    error: selectWorkspacesError(state),
   };
 };
 

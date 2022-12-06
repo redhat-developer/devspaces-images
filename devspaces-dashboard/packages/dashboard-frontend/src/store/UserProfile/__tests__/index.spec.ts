@@ -17,6 +17,7 @@ import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
 import * as testStore from '..';
 import { AppState } from '../..';
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 
 const namespace = 'user1-che';
@@ -59,6 +60,7 @@ describe('UserPreferences store', () => {
       const expectedActions: testStore.KnownAction[] = [
         {
           type: testStore.Type.REQUEST_USER_PROFILE,
+          check: AUTHORIZED,
         },
         {
           type: testStore.Type.RECEIVE_USER_PROFILE,
@@ -86,6 +88,7 @@ describe('UserPreferences store', () => {
       const expectedActions: testStore.KnownAction[] = [
         {
           type: testStore.Type.REQUEST_USER_PROFILE,
+          check: AUTHORIZED,
         },
         {
           type: testStore.Type.RECEIVE_USER_PROFILE_ERROR,
@@ -101,6 +104,7 @@ describe('UserPreferences store', () => {
     it('should return initial state', () => {
       const incomingAction: testStore.RequestUserProfileAction = {
         type: testStore.Type.REQUEST_USER_PROFILE,
+        check: AUTHORIZED,
       };
       const initialState = testStore.reducer(undefined, incomingAction);
 
@@ -149,6 +153,7 @@ describe('UserPreferences store', () => {
       };
       const incomingAction: testStore.RequestUserProfileAction = {
         type: testStore.Type.REQUEST_USER_PROFILE,
+        check: AUTHORIZED,
       };
 
       const newState = testStore.reducer(initialState, incomingAction);

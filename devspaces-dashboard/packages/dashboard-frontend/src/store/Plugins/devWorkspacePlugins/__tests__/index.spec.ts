@@ -19,6 +19,7 @@ import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import * as dwPluginsStore from '..';
 import { AppState } from '../../..';
 import axios from 'axios';
+import { AUTHORIZED } from '../../../sanityCheckMiddleware';
 
 // mute the outputs
 console.error = jest.fn();
@@ -55,6 +56,7 @@ describe('dwPlugins store', () => {
         {
           type: 'REQUEST_DW_PLUGIN',
           url,
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_PLUGIN',
@@ -90,6 +92,7 @@ describe('dwPlugins store', () => {
         {
           type: 'REQUEST_DW_PLUGIN',
           url,
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_PLUGIN_ERROR',
@@ -121,11 +124,13 @@ describe('dwPlugins store', () => {
       const expectedActions: dwPluginsStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_DEFAULT_EDITOR',
+          check: AUTHORIZED,
         },
         {
           type: 'REQUEST_DW_EDITOR',
           editorName: 'default-editor',
           url: 'plugin-registry-location/plugins/default-editor/devfile.yaml',
+          check: AUTHORIZED,
         },
         {
           editorName: 'default-editor',
@@ -169,6 +174,7 @@ describe('dwPlugins store', () => {
           type: 'REQUEST_DW_EDITOR',
           url: 'https://my-fake-editor.yaml',
           editorName: editorLink,
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_EDITOR',
@@ -214,6 +220,7 @@ describe('dwPlugins store', () => {
           type: 'REQUEST_DW_EDITOR',
           url: 'https://my-fake-editor.yaml',
           editorName: editorLink,
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_EDITOR_ERROR',
@@ -249,6 +256,7 @@ describe('dwPlugins store', () => {
       const expectedActions: dwPluginsStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_DEFAULT_EDITOR',
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
@@ -286,6 +294,7 @@ describe('dwPlugins store', () => {
       const expectedActions: dwPluginsStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_DEFAULT_EDITOR',
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_EDITOR_ERROR',
@@ -340,6 +349,7 @@ describe('dwPlugins store', () => {
       const expectedActions: dwPluginsStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_DEFAULT_PLUGINS',
+          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_DEFAULT_PLUGINS',
@@ -357,6 +367,7 @@ describe('dwPlugins store', () => {
       const incomingAction: dwPluginsStore.RequestDwPluginAction = {
         type: 'REQUEST_DW_PLUGIN',
         url: 'devfile-location',
+        check: AUTHORIZED,
       };
       const initialState = dwPluginsStore.reducer(undefined, incomingAction);
 
@@ -406,6 +417,7 @@ describe('dwPlugins store', () => {
       const incomingAction: dwPluginsStore.RequestDwPluginAction = {
         type: 'REQUEST_DW_PLUGIN',
         url: 'devfile-location',
+        check: AUTHORIZED,
       };
 
       const newState = dwPluginsStore.reducer(initialState, incomingAction);
@@ -440,6 +452,7 @@ describe('dwPlugins store', () => {
         type: 'REQUEST_DW_EDITOR',
         editorName: 'foo',
         url: 'editor-location',
+        check: AUTHORIZED,
       };
 
       const newState = dwPluginsStore.reducer(initialState, incomingAction);
@@ -469,6 +482,7 @@ describe('dwPlugins store', () => {
       };
       const incomingAction: dwPluginsStore.RequestDwDefaultEditorAction = {
         type: 'REQUEST_DW_DEFAULT_EDITOR',
+        check: AUTHORIZED,
       };
 
       const newState = dwPluginsStore.reducer(initialState, incomingAction);
@@ -665,6 +679,7 @@ describe('dwPlugins store', () => {
       };
       const incomingAction: dwPluginsStore.RequestDwDefaultPluginsAction = {
         type: 'REQUEST_DW_DEFAULT_PLUGINS',
+        check: AUTHORIZED,
       };
 
       const newState = dwPluginsStore.reducer(initialState, incomingAction);

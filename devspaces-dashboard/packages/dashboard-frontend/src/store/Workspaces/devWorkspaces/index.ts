@@ -38,6 +38,7 @@ import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
 import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
 import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
+import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 import * as DwServerConfigStore from '../../ServerConfig';
 import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
 import { deleteLogs, mergeLogs } from '../logs';
@@ -63,7 +64,7 @@ export class RunningWorkspacesExceededError extends Error {
   }
 }
 
-interface RequestDevWorkspacesAction extends Action {
+interface RequestDevWorkspacesAction extends Action, SanityCheckAction {
   type: 'REQUEST_DEVWORKSPACE';
 }
 
@@ -215,7 +216,7 @@ export const actionCreators: ActionCreators = {
   requestWorkspaces:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
 
       try {
         const defaultKubernetesNamespace = selectDefaultNamespace(getState());
@@ -258,7 +259,7 @@ export const actionCreators: ActionCreators = {
   requestWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
 
       try {
         const namespace = workspace.metadata.namespace;
@@ -304,7 +305,7 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
-      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
       try {
         checkRunningWorkspacesLimit(getState());
 
@@ -486,7 +487,7 @@ export const actionCreators: ActionCreators = {
   updateWorkspaceAnnotation:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
 
       try {
         const updated = await devWorkspaceClient.updateAnnotation(workspace);
@@ -509,7 +510,7 @@ export const actionCreators: ActionCreators = {
   updateWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
 
       try {
         const updated = await devWorkspaceClient.update(workspace);
@@ -618,7 +619,7 @@ export const actionCreators: ActionCreators = {
 
       // refresh state
       state = getState();
-      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
       try {
         // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
@@ -667,11 +668,15 @@ const unloadedState: State = {
   workspacesLogs: new Map<string, string[]>(),
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, action: KnownAction): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
 
+  const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_DEVWORKSPACE':
       return createObject(state, {

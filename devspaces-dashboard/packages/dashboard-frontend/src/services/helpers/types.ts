@@ -26,6 +26,7 @@ export interface AlertItem {
   children?: React.ReactNode;
   actionCallbacks?: ActionCallback[];
   error?: never;
+  timeout?: boolean | number;
 }
 
 export interface FactoryResolver {

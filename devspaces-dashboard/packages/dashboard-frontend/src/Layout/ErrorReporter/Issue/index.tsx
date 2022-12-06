@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { TextContent, Text, TextVariants } from '@patternfly/react-core';
+import { TextContent, Text, TextVariants, Button, ButtonVariant } from '@patternfly/react-core';
 import { InfoIcon, WarningTriangleIcon } from '@patternfly/react-icons';
 import React from 'react';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
 import { Issue, WorkspaceData } from '../../../services/bootstrap/issuesReporter';
+import { signIn } from '../../../services/helpers/login';
 
 import styles from './index.module.css';
 
@@ -30,6 +31,8 @@ export class IssueComponent extends React.PureComponent<Props> {
     switch (issue.type) {
       case 'cert':
         return this.renderCertError();
+      case 'sessionExpired':
+        return this.renderSessionExpired(issue.error);
       case 'sso':
         return this.renderSsoError(issue.error);
       case 'workspaceInactive':
@@ -67,6 +70,29 @@ export class IssueComponent extends React.PureComponent<Props> {
         </Text>
         <Text component={TextVariants.p}>
           <a href="/">Refresh Now</a>
+        </Text>
+      </TextContent>
+    );
+  }
+
+  private renderSessionExpired(error: Error): React.ReactNode {
+    const errorTextbox = !error ? undefined : (
+      <Text component={TextVariants.pre} className={styles.errorMessage}>
+        {error.message}
+      </Text>
+    );
+
+    return (
+      <TextContent className={styles.messageContainer}>
+        <Text component={TextVariants.h1}>
+          <WarningTriangleIcon className={styles.warningIcon} />
+          Error
+        </Text>
+        {errorTextbox}
+        <Text component={TextVariants.p}>
+          <Button onClick={() => signIn()} variant={ButtonVariant.link} isInline>
+            Sign in
+          </Button>
         </Text>
       </TextContent>
     );

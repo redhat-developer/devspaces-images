@@ -22,6 +22,7 @@ import * as DwDockerConfigStore from './DockerConfig/dw';
 import * as FactoryResolverStore from './FactoryResolver';
 import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
 import * as PluginsStore from './Plugins/chePlugins';
+import * as SanityCheckStore from './SanityCheck';
 import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
 import * as DwServerConfigStore from './ServerConfig';
 import * as UserPreferences from './UserPreferences';
@@ -47,6 +48,7 @@ export interface AppState {
   factoryResolver: FactoryResolverStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
   plugins: PluginsStore.State;
+  sanityCheck: SanityCheckStore.State;
   userPreferences: UserPreferences.State;
   userProfile: UserProfileStore.State;
   workspaces: WorkspacesStore.State;
@@ -68,6 +70,7 @@ export const reducers = {
   factoryResolver: FactoryResolverStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
   plugins: PluginsStore.reducer,
+  sanityCheck: SanityCheckStore.reducer,
   userPreferences: UserPreferences.reducer,
   userProfile: UserProfileStore.reducer,
   workspaces: WorkspacesStore.reducer,
