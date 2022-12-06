@@ -298,8 +298,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
-		# CRW-3243, CRW-2798 skip Freshmaker and z-stream respins that went out before the 3.2.0 release
-		['.metadata.annotations.skipRange']='>=3.0.0 <=3.2.0'
+		# CRW-3243, CRW-2798 skip Freshmaker and z-stream respins that went out before this release
+		['.metadata.annotations.skipRange']=">=3.0.0 <${CSV_VERSION}"
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
