@@ -875,7 +875,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:54382e587d12188b05a0e3a35f23ff5eb7d7b86421a6e5e0567b37c5e66edda7
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:0a7408d296406d4e8c89fa29d9889a29622b992a170481d13ad5b398b7c29ac6
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:1fc645229e6ef0961f2a9673a2b25b4ae654afe047c601cf8822fe5822f5eeeb
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDICQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:ac26e6861d1c9e23b0c6adae881414893e7cd9b04f67eaa1b9c390d73aaf0c23
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDICQ_
@@ -897,9 +897,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDICQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:2004ef6d0bdd358761a7bf46a79210fa9c8a98a88d339bd002bce0314812ea10
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDICQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:80be330b70fdc493c0a7c3ce912a6c4d71e89dea22b2ee9d84e617b3da30fa27
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDICQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:80be330b70fdc493c0a7c3ce912a6c4d71e89dea22b2ee9d84e617b3da30fa27
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ff451e94d2f31812e266ab0d7e548afb2d0ec1d461e0f43262b58d69b5d08a8e
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1272,7 +1272,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:54382e587d12188b05a0e3a35f23ff5eb7d7b86421a6e5e0567b37c5e66edda7
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:0a7408d296406d4e8c89fa29d9889a29622b992a170481d13ad5b398b7c29ac6
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:1fc645229e6ef0961f2a9673a2b25b4ae654afe047c601cf8822fe5822f5eeeb
   - name: devspaces_code_devfile_registry_image_gmxdicq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:ac26e6861d1c9e23b0c6adae881414893e7cd9b04f67eaa1b9c390d73aaf0c23
   - name: devspaces_code_plugin_registry_image_gmxdicq_
@@ -1294,9 +1294,9 @@ spec:
   - name: devspaces_theia_plugin_registry_image_gmxdicq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:2004ef6d0bdd358761a7bf46a79210fa9c8a98a88d339bd002bce0314812ea10
   - name: devspaces_udi_devfile_registry_image_gmxdicq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:80be330b70fdc493c0a7c3ce912a6c4d71e89dea22b2ee9d84e617b3da30fa27
   - name: devspaces_udi_plugin_registry_image_gmxdicq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:80be330b70fdc493c0a7c3ce912a6c4d71e89dea22b2ee9d84e617b3da30fa27
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ff451e94d2f31812e266ab0d7e548afb2d0ec1d461e0f43262b58d69b5d08a8e
   - name: gateway_authentication_sidecar
