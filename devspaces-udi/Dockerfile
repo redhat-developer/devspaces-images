@@ -272,7 +272,7 @@ RUN \
 xdebug.client_port = 9000\n\
 xdebug.mode = debug\n\
 xdebug.start_with_request = yes\n\
-xdebug.remote_log=/tmp/xdebug.log" >> /etc/php.ini && \
+xdebug.log=/tmp/xdebug.log" >> /etc/php.ini && \
     if [[ -f /etc/php.ini ]]; then grep xdebug /etc/php.ini; fi && \
     # set up httpd
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
