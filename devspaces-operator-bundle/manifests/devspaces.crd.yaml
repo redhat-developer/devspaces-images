@@ -2281,7 +2281,7 @@ spec:
                     workspaceDefaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:8a71907d254d09518fd4006da34fcab791297ee2da6781e1b1753ab9ac692f63
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile does
@@ -5401,7 +5401,7 @@ spec:
                   default:
                     defaultComponents:
                       - container:
-                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:8a71907d254d09518fd4006da34fcab791297ee2da6781e1b1753ab9ac692f63
+                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
                         name: universal-developer-image
                     defaultEditor: che-incubator/che-code/insiders
                     defaultNamespace:
@@ -5426,7 +5426,7 @@ spec:
                     defaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:8a71907d254d09518fd4006da34fcab791297ee2da6781e1b1753ab9ac692f63
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:67bdfb2c571d3313ce23c0c4628f461dd95ed6f9770f329f5d70c35f98fedee3
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile, that
