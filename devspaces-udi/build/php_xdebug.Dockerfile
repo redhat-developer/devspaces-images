@@ -34,7 +34,7 @@ RUN \
     # compile xdebug
     cd $REMOTE_SOURCES_DIR/xdebug && \
     # ls -la . && \
-    # note that we need the same value from phpize and phpize | grep "Extension Api"
+    # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
     # Zend Extension Build => API320180731,NTS
     # Zend Extension Api No:   320180731
     php -i | grep "Zend Extension Build" && phpize | grep "Extension Api" && \

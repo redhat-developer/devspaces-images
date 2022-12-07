@@ -52,7 +52,7 @@ ENV \
     HOME=/home/user \
     NODEJS_VERSION="16" \
     PYTHON_VERSION="3.9" \
-    PHP_VERSION="7.3" \
+    PHP_VERSION="7.4" \
     XDEBUG_VERSION="3.1.6"
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
@@ -258,7 +258,7 @@ RUN \
     # compile xdebug
     cd $REMOTE_SOURCES_DIR/xdebug && \
     # ls -la . && \
-    # note that we need the same value from phpize and phpize | grep "Extension Api"
+    # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
     # Zend Extension Build => API320180731,NTS
     # Zend Extension Api No:   320180731
     php -i | grep "Zend Extension Build" && phpize | grep "Extension Api" && \
