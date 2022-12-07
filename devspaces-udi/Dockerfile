@@ -52,7 +52,7 @@ ENV \
     HOME=/home/user \
     NODEJS_VERSION="16" \
     PYTHON_VERSION="3.9" \
-    PHP_VERSION="7.4" \
+    PHP_VERSION="8.0" \
     XDEBUG_VERSION="3.1.6" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
@@ -261,8 +261,8 @@ RUN \
     cd $REMOTE_SOURCES_DIR/xdebug && \
     # ls -la . && \
     # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
-    # Zend Extension Build => API320180731,NTS
-    # Zend Extension Api No:   320180731
+    # Zend Extension Build => API420200930,NTS
+    # Zend Extension Api No:   420200930
     php -i | grep "Zend Extension Build" && phpize | grep "Extension Api" && \
     ./configure --enable-xdebug && make && make install && \
     # do we need all these settings? or just the zend_extension?
@@ -270,7 +270,7 @@ RUN \
 xdebug.client_port = 9000\n\
 xdebug.mode = debug\n\
 xdebug.start_with_request = yes\n\
-xdebug.remote_log=/tmp/xdebug.log" > /etc/php.ini && \
+xdebug.log=/tmp/xdebug.log" > /etc/php.ini && \
     # set up httpd
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
