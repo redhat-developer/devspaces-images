@@ -259,8 +259,8 @@ RUN \
     cd $REMOTE_SOURCES_DIR/xdebug && \
     # ls -la . && \
     # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
-    # Zend Extension Build => API320180731,NTS
-    # Zend Extension Api No:   320180731
+    # Zend Extension Build => API420200930,NTS
+    # Zend Extension Api No:   420200930
     php -i | grep "Zend Extension Build" && phpize | grep "Extension Api" && \
     ./configure --enable-xdebug && make && make install && \
     # do we need all these settings? or just the zend_extension?
