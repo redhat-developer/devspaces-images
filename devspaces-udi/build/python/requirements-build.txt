@@ -87,7 +87,7 @@ yq==3.1.0
 # The following packages are considered to be unsafe in a requirements file:
 pip==22.3.1
     # via -r requirements-build.in
-setuptools==65.5.1
+setuptools==65.6.3
     # via
     #   -r requirements-build.in
     #   setuptools-scm
