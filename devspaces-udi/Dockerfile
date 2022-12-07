@@ -53,6 +53,7 @@ ENV \
     NODEJS_VERSION="16" \
     PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
+    XDEBUG_VERSION="3.1.6"
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
@@ -253,16 +254,29 @@ RUN \
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
     ########################################################################
     dnf -y -q module enable php:$PHP_VERSION && \
-    dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
-    tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / && \
+    dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make && \
+    # compile xdebug
+    cd $REMOTE_SOURCES_DIR/xdebug && \
+    # ls -la . && \
+    # note that we need the same value from phpize and phpize | grep "Extension Api"
+    # Zend Extension Build => API320180731,NTS
+    # Zend Extension Api No:   320180731
+    php -i | grep "Zend Extension Build" && phpize | grep "Extension Api" && \
+    ./configure --enable-xdebug && make && make install && \
+    # do we need all these settings? or just the zend_extension?
+    echo -e "zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
+xdebug.client_port = 9000\n\
+xdebug.mode = debug\n\
+xdebug.start_with_request = yes\n\
+xdebug.remote_log=/tmp/xdebug.log" > /etc/php.ini && \
+    # set up httpd
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/ErrorLog \"|\/usr\/bin\/cat\"/ErrorLog \"\/var\/log\/httpd\/error_log\"/' /etc/httpd/conf/httpd.conf && \
     chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ && \
-    mkdir -p ${HOME}/che/ls-php/php-language-server && \
-    tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
-    cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
+    # verify xdebug works
+    php --ini; echo "<?php xdebug_info() ?>" | php; php -v
 
     ########################################################################
     # Cleanup and Summaries
