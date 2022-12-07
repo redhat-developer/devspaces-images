@@ -259,7 +259,7 @@ RUN \
     dnf -y -q install php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make
 RUN \
     # compile xdebug
-    cd $REMOTE_SOURCES_DIR/xdebug && \
+    cd $REMOTE_SOURCES_DIR/xdebug/app/xdebug && \
     ls -la . && set -x && \
     # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
     # Zend Extension Build => API320180731,NTS
