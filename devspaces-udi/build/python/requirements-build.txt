@@ -8,12 +8,16 @@ argcomplete==2.0.0
     # via
     #   -r requirements-build.in
     #   yq
+astroid==2.12.13
+    # via pylint
 attrs==22.1.0
     # via
     #   -r requirements-build.in
     #   pytest
 cython==0.29.32
     # via -r requirements-build.in
+dill==0.3.6
+    # via pylint
 distlib==0.3.6
     # via virtualenv
 editables==0.3
@@ -40,6 +44,12 @@ iniconfig==1.1.1
     # via
     #   -r requirements-build.in
     #   pytest
+isort==5.10.1
+    # via pylint
+lazy-object-proxy==1.8.0
+    # via astroid
+mccabe==0.7.0
+    # via pylint
 packaging==21.3
     # via
     #   -r requirements-build.in
@@ -49,12 +59,16 @@ packaging==21.3
 pathspec==0.10.2
     # via hatchling
 platformdirs==2.6.0
-    # via virtualenv
+    # via
+    #   pylint
+    #   virtualenv
 pluggy==1.0.0
     # via
     #   -r requirements-build.in
     #   hatchling
     #   pytest
+pylint==2.15.8
+    # via -r requirements-build.in
 pyparsing==3.0.9
     # via
     #   -r requirements-build.in
@@ -81,8 +95,11 @@ tomli==2.0.1
     #   -r requirements-build.in
     #   flit-scm
     #   hatchling
+    #   pylint
     #   pytest
     #   setuptools-scm
+tomlkit==0.11.6
+    # via pylint
 typing-extensions==4.4.0
     # via
     #   -r requirements-build.in
@@ -91,6 +108,8 @@ virtualenv==20.17.1
     # via -r requirements-build.in
 wheel==0.38.4
     # via -r requirements-build.in
+wrapt==1.14.1
+    # via astroid
 xmltodict==0.13.0
     # via
     #   -r requirements-build.in

@@ -191,7 +191,7 @@ RUN \
     # update pip & other dependencies from cachito
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest virtualenv yq && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest pylint virtualenv yq && \
     # python/pip/pylint/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
