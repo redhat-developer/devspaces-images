@@ -23,7 +23,7 @@ RUN \
     microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng 
 RUN \
     dnf -y -q module enable php:$PHP_VERSION && \
-    dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make
+    dnf -y -q install php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make
 
 # COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 ENV REMOTE_SOURCES_DIR=/tmp/

@@ -30,8 +30,12 @@ flit-core==3.8.0
     #   flit-scm
 flit-scm==1.7.0
     # via -r requirements-build.in
-hatchling==1.11.1
+hatch-vcs==0.2.1
     # via -r requirements-build.in
+hatchling==1.11.1
+    # via
+    #   -r requirements-build.in
+    #   hatch-vcs
 iniconfig==1.1.1
     # via
     #   -r requirements-build.in
@@ -65,6 +69,7 @@ setuptools-scm==7.0.5
     # via
     #   -r requirements-build.in
     #   flit-scm
+    #   hatch-vcs
 six==1.16.0
     # via -r requirements-build.in
 toml==0.10.2
