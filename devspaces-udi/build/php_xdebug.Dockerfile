@@ -27,18 +27,19 @@ RUN \
 
 # COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 ENV REMOTE_SOURCES_DIR=/tmp/
-RUN cd $REMOTE_SOURCES_DIR; curl -sSLkO https://github.com/xdebug/xdebug/archive/refs/tags/${XDEBUG_VERSION}.tar.gz && \
-    tar xvzf ${XDEBUG_VERSION}.tar.gz && mv xdebug-${XDEBUG_VERSION} xdebug
+RUN mkdir -p $REMOTE_SOURCES_DIR/xdebug/; cd $REMOTE_SOURCES_DIR/xdebug/; \
+    curl -sSLkO https://github.com/xdebug/xdebug/archive/refs/tags/${XDEBUG_VERSION}.tar.gz && \
+    tar xvzf ${XDEBUG_VERSION}.tar.gz && mv xdebug-${XDEBUG_VERSION} app
 
 RUN \
-    # compile xdebug
-    cd $REMOTE_SOURCES_DIR/xdebug && \
+    # compile xdebug from the container-yaml-name/app/ folder
+    cd $REMOTE_SOURCES_DIR/xdebug/app/ && \
     # ls -la . && \
     # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
     # Zend Extension Build => API320180731,NTS
     # Zend Extension Api No:   320180731
-    php -i | grep "Zend Extension Build" && phpize | grep "Extension Api" && \
-    ./configure --enable-xdebug && make && make install && \
+    php -i | grep "Zend Extension Build"; phpize | grep "Extension Api" ; \
+    ./configure --enable-xdebug; make; make install && \
     # do we need all these settings? or just the zend_extension?
     echo -e "zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
 xdebug.client_port = 9000\n\
