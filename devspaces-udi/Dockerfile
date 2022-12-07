@@ -258,16 +258,13 @@ RUN \
     dnf -y -q module enable php:$PHP_VERSION && \
     dnf -y -q install php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make
 RUN \
-    # compile xdebug
-    cd $REMOTE_SOURCES_DIR/xdebug/app/xdebug && \
-    ls -la . && set -x && \
+    # compile xdebug from the container-yaml-name/app/ folder
+    cd $REMOTE_SOURCES_DIR/xdebug/app/ && ls -la . && set -x && \
     # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
     # Zend Extension Build => API320180731,NTS
     # Zend Extension Api No:   320180731
-    php -i | grep "Zend Extension Build" && \
-    phpize | grep "Extension Api" && \
-    ./configure --enable-xdebug; \
-    make; make install && \
+    php -i | grep "Zend Extension Build"; phpize | grep "Extension Api" ; \
+    ./configure --enable-xdebug; make; make install && \
     # do we need all these settings? or just the zend_extension?
     if [[ -f /etc/php.ini ]]; then cat /etc/php.ini; fi
     echo -e "zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
