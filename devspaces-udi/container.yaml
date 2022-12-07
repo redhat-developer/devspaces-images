@@ -38,6 +38,14 @@ remote_sources:
       - pip
     packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
 
+# https://issues.redhat.com/browse/CRW-3487 use php xdebug 3.1.6
+# https://github.com/xdebug/xdebug/releases/tag/3.1.6 => https://github.com/xdebug/xdebug/commit/2fe95fed7ee9f1f679680db641f4f48c3f381057
+- name: xdebug
+  remote_source:
+    repo: https://github.com/xdebug/xdebug
+    ref: 2fe95fed7ee9f1f679680db641f4f48c3f381057
+    pkg_managers: []
+
 # CRW-3193 disable until we have a camel-k sample again
 # - name: camelk
 #   remote_source:
