@@ -191,7 +191,7 @@ RUN \
     # update pip & other dependencies from cachito
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest virtualenv yq && \
     # python/pip/pylint/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
@@ -208,6 +208,8 @@ RUN \
     SL=/usr/local/bin/pytest; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pytest${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
     chmod +x /usr/local/bin/* && \
+    # set up ~/.venv
+    mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
 
 # CRW-3193 disable until we have a camel-k sample again
@@ -311,7 +313,7 @@ RUN \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \
     echo "========" && \
-    echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
+    echo "python venv install:"; source ${HOME}/.venv/bin/activate && python -V; \
     echo -n "pip:    "; pip -V; \
     echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "pytest: "; pytest --version; \

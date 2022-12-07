@@ -14,10 +14,14 @@ attrs==22.1.0
     #   pytest
 cython==0.29.32
     # via -r requirements-build.in
+distlib==0.3.6
+    # via virtualenv
 exceptiongroup==1.0.1
     # via
     #   -r requirements-build.in
     #   pytest
+filelock==3.8.2
+    # via virtualenv
 flit-core==3.8.0
     # via
     #   -r requirements-build.in
@@ -33,6 +37,8 @@ packaging==21.3
     #   -r requirements-build.in
     #   pytest
     #   setuptools-scm
+platformdirs==2.6.0
+    # via virtualenv
 pluggy==1.0.0
     # via
     #   -r requirements-build.in
@@ -67,6 +73,8 @@ typing-extensions==4.4.0
     # via
     #   -r requirements-build.in
     #   setuptools-scm
+virtualenv==20.17.1
+    # via -r requirements-build.in
 wheel==0.38.4
     # via -r requirements-build.in
 xmltodict==0.13.0
