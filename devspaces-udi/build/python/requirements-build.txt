@@ -16,6 +16,8 @@ cython==0.29.32
     # via -r requirements-build.in
 distlib==0.3.6
     # via virtualenv
+editables==0.3
+    # via hatchling
 exceptiongroup==1.0.1
     # via
     #   -r requirements-build.in
@@ -28,6 +30,8 @@ flit-core==3.8.0
     #   flit-scm
 flit-scm==1.7.0
     # via -r requirements-build.in
+hatchling==1.11.1
+    # via -r requirements-build.in
 iniconfig==1.1.1
     # via
     #   -r requirements-build.in
@@ -35,13 +39,17 @@ iniconfig==1.1.1
 packaging==21.3
     # via
     #   -r requirements-build.in
+    #   hatchling
     #   pytest
     #   setuptools-scm
+pathspec==0.10.2
+    # via hatchling
 platformdirs==2.6.0
     # via virtualenv
 pluggy==1.0.0
     # via
     #   -r requirements-build.in
+    #   hatchling
     #   pytest
 pyparsing==3.0.9
     # via
@@ -67,6 +75,7 @@ tomli==2.0.1
     # via
     #   -r requirements-build.in
     #   flit-scm
+    #   hatchling
     #   pytest
     #   setuptools-scm
 typing-extensions==4.4.0

@@ -8,6 +8,7 @@ Cython==0.29.32
 exceptiongroup==1.0.1
 flit_scm==1.7.0
 flit_core==3.8.0
+hatchling>=1.11.1
 iniconfig==1.1.1
 packaging==21.3
 pip==22.3.1
