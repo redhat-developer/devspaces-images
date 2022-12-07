@@ -258,21 +258,22 @@ RUN \
     dnf -y -q module enable php:$PHP_VERSION && \
     dnf -y -q install php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make
 RUN \
+    set -x; \
     # compile xdebug from the container-yaml-name/app/ folder
-    cd $REMOTE_SOURCES_DIR/xdebug/app/ && ls -la . && set -x && \
+    cd $REMOTE_SOURCES_DIR/xdebug/app/ && \
+    # ls -la . && \
     # According to https://xdebug.org/docs/faq#api, must have the same value from php -i | grep "Zend Extension Build" and phpize | grep "Extension Api"
     # Zend Extension Build => API320180731,NTS
     # Zend Extension Api No:   320180731
     php -i | grep "Zend Extension Build"; phpize | grep "Extension Api" ; \
     ./configure --enable-xdebug; make; make install && \
     # do we need all these settings? or just the zend_extension?
-    if [[ -f /etc/php.ini ]]; then cat /etc/php.ini; fi
     echo -e "zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
 xdebug.client_port = 9000\n\
 xdebug.mode = debug\n\
 xdebug.start_with_request = yes\n\
-xdebug.remote_log=/tmp/xdebug.log" > /etc/php.ini && \
-    if [[ -f /etc/php.ini ]]; then cat /etc/php.ini; fi
+xdebug.remote_log=/tmp/xdebug.log" >> /etc/php.ini && \
+    if [[ -f /etc/php.ini ]]; then grep xdebug /etc/php.ini; fi && \
     # set up httpd
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
