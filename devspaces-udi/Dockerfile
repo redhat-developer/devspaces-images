@@ -187,13 +187,7 @@ RUN \
     dnf -y -q module enable python39:${PYTHON_VERSION} && \
     dnf -y -q install python39 python39-devel python39-setuptools python39-pip jq && \
     # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
-    # python lang server
-    mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
-    for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
-    for d in bin lib lib64; do cp -R /tmp/py-unpack/${d}/* /usr/${d}; done; \
-    cp -R /tmp/py-unpack/.venv ${HOME} && chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
-    rm -fr /tmp/py-unpack && \
-    # update pip & other dependencies, that came with Cachito repository
+    # update pip & other dependencies from cachito
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
     python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq && \
