@@ -208,6 +208,11 @@ RUN \
     SL=/usr/local/bin/pytest; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pytest${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
     chmod +x /usr/local/bin/* && \
+    echo -n "/usr/local/bin/python: "; /usr/local/bin/python -V && \
+    echo -n "/usr/local/bin/pip: ";    /usr/local/bin/pip -V && \
+    echo -n "/usr/local/bin/pylint: "; /usr/local/bin/pylint --version && \
+    echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
+    echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
     mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
