@@ -192,26 +192,26 @@ RUN \
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
     set -xe; \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest pylint virtualenv yq && \
-    # python/pip/pylint/yq symlinks
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq && \
+    # python/pip/flake8/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip${PYTHON_VERSION} && \
-    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint && \
-    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint${PYTHON_VERSION} && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m flake8 \$*" | sed -r -e "s@#@#\!@" > /usr/bin/flake8 && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m flake8 \$*" | sed -r -e "s@#@#\!@" > /usr/bin/flake8${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m yq \$*" | sed -r -e "s@#@#\!@" > /usr/bin/yq && \
     chmod +x /usr/bin/pip* /usr/bin/py* /usr/bin/yq && \
     SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
-    SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/flake8; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/flake8${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pytest; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pytest${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
     chmod +x /usr/local/bin/* && \
     echo -n "/usr/local/bin/python: "; /usr/local/bin/python -V && \
     echo -n "/usr/local/bin/pip: ";    /usr/local/bin/pip -V && \
-    echo -n "/usr/local/bin/pylint: "; /usr/local/bin/pylint --version && \
+    echo -n "/usr/local/bin/flake8: "; /usr/local/bin/flake8 --version && \
     echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
@@ -317,14 +317,14 @@ RUN \
     echo "========" && \
     echo "python basic install:"; python -V; \
     echo -n "pip:    "; pip -V; \
-    echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "flake8: "; flake8 --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "pytest: "; pytest --version; \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \
     echo "========" && \
     echo "python venv install:"; source ${HOME}/.venv/bin/activate && python -V; \
     echo -n "pip:    "; pip -V; \
-    echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "flake8: "; flake8 --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "pytest: "; pytest --version; \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \
