@@ -106,7 +106,7 @@ typing-extensions==4.4.0
     #   setuptools-scm
 virtualenv==20.17.1
     # via -r requirements-build.in
-wheel==0.38.4
+wheel==0.37.1
     # via -r requirements-build.in
 wrapt==1.14.1
     # via astroid
