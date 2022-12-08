@@ -67,6 +67,8 @@ pluggy==1.0.0
     #   -r requirements-build.in
     #   hatchling
     #   pytest
+poetry-core==1.4.0
+    # via -r requirements-build.in
 pylint==2.15.8
     # via -r requirements-build.in
 pyparsing==3.0.9

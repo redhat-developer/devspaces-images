@@ -13,6 +13,7 @@ hatchling>=1.11.1
 iniconfig==1.1.1
 packaging==21.3
 pip==22.3.1
+poetry-core>=1.0.0
 pluggy==1.0.0
 pylint==2.15.8
 pyparsing==3.0.9
