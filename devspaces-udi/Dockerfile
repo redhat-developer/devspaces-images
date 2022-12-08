@@ -21,7 +21,7 @@ RUN \
     ########################################################################
     # Build all Golang projects fetched from Cachito
     ########################################################################
-    dnf -y -q install golang make gzip which dnf openshift-clients && \
+    dnf -y -q install golang make gzip which openshift-clients && \
     # BEGIN Gopls
     mkdir /home/user/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
@@ -46,8 +46,6 @@ FROM ubi8-minimal:8.7-923.1669829893
 
 USER root
 
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-
 ENV \
     HOME=/home/user \
     NODEJS_VERSION="16" \
@@ -67,43 +65,88 @@ ENV \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/usr/share/maven" \
-    PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+    PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
+    # Rootless podman install #1:
+    # Set up environment variables to note that this is
+    # not starting with usernamespace and default to
+    # isolate the filesystem with chroot.
+    _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot \
+    SUMMARY="Red Hat OpenShift Dev Spaces - Universal Developer Image container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - Universal Developer Image container" \
+    PRODNAME="devspaces" \
+    COMPNAME="udi-rhel8"
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$DESCRIPTION" \
+      io.openshift.tags="$PRODNAME,$COMPNAME" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
+      name="$PRODNAME/$COMPNAME" \
+      version="3.4" \
+      license="EPLv2" \
+      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      io.openshift.expose-services="" \
+      usage=""
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
-
-RUN mkdir -p /projects
-
-COPY . /tmp/assets/
+ADD etc/entrypoint.sh /entrypoint.sh
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 COPY etc/docker.sh /usr/local/bin/docker
+# see fetch-artifacts-pnc.yaml
+COPY artifacts/lombok.jar /lombok.jar
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-    ########################################################################
-    # Common Installations and Configuration
-    ########################################################################
+########################################################################
+# Common Installations and Configuration
+########################################################################
 
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree \
-    # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
-    # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
-    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.x86_64.rpm
-    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.s390x.rpm
-    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.ppc64le.rpm
-    odo-3.3.0-1.el8 helm-3.9.0-3.el8 openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8 && \
+    # install all the rpms and modules
+    microdnf install -y dnf &&
+    dnf -y -q module reset   container-tools       maven     nodejs                 python39                   php; \
+    dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION python39:${PYTHON_VERSION} php:$PHP_VERSION && \
+    dnf -y -q install --setopt=tsflags=nodocs \
+        golang \
+        java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
+            java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
+            java-17-openjdk java-17-openjdk-devel java-17-openjdk-headless \
+        nodejs npm nodejs-nodemon nss_wrapper \
+        make cmake gcc gcc-c++ \
+            llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb \
+        php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl \
+        python39 python39-devel python39-setuptools python39-pip jq \
+        podman buildah skopeo fuse-overlayfs \
+        e2fsprogs libatomic_ops git openssl-devel ca-certificates \
+        bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree
+        # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
+        # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
+        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.x86_64.rpm
+        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.s390x.rpm
+        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.ppc64le.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.x86_64.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.s390x.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.ppc64le.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.x86_64.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.s390x.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.ppc64le.rpm
+        odo-3.3.0-1.el8 helm-3.9.0-3.el8 openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8 \
+    && \
+    dnf -y -q reinstall shadow-utils && \
+    # fetch CVE updates (can exclude rpms to prevent update, eg., --exclude=odo)
+    dnf -y -q update && \
+    dnf -y -q clean all --enablerepo='*' && \
+    dnf -y -q clean all && rm -rf /var/cache/yum && \
     mkdir -p /opt && \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
     # Setup $PS1 for a consistent and reasonable prompt
     echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> "${HOME}"/.bashrc && \
     # Change permissions to let any arbitrary user
+    mkdir -p /projects && \
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
@@ -114,66 +157,37 @@ RUN \
     > ${HOME}/passwd.template && \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
-    > ${HOME}/group.template
-
-## Rootless podman install #1: install podman buildah skopeo e2fsprogs
-RUN dnf -y module enable container-tools:rhel8 && \
-    dnf -y -q update --exclude=odo && \
-    dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs e2fsprogs
-
-## Rootless podman install #2
-# Set up environment variables to note that this is
-# not starting with usernamespace and default to
-# isolate the filesystem with chroot.
-ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
-
-## Rootless podman install #3
-# Tweaks to make rootless buildah work
-RUN touch /etc/subgid /etc/subuid  && \
+    > ${HOME}/group.template && \
+    ## Rootless podman install #2: install podman buildah skopeo e2fsprogs (above)
+    ## Rootless podman install #3: tweaks to make rootless buildah work
+    touch /etc/subgid /etc/subuid  && \
     chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
     echo user:10000:65536 > /etc/subuid  && \
-    echo user:10000:65536 > /etc/subgid
-
-## Rootless podman install #4
-# Adjust storage.conf to enable Fuse storage.
-RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
-RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
+    echo user:10000:65536 > /etc/subgid && \
+    ## Rootless podman install #4: adjust storage.conf to enable Fuse storage.
+    sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf && \
+    mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-images/images.lock; \
-    touch /var/lib/shared/overlay-layers/layers.lock
-
-## Rootless podman install #5
-# But use VFS since we were not able to make Fuse work yet...
-RUN mkdir -p "${HOME}"/.config/containers && \
-   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
-
-# see fetch-artifacts-pnc.yaml
-COPY artifacts/lombok.jar /lombok.jar
-RUN \
+    touch /var/lib/shared/overlay-layers/layers.lock && \
+    ## Rootless podman install #5: but use VFS since we were not able to make Fuse work yet...
+    # TODO switch this to fuse in OCP 4.12?
+    mkdir -p "${HOME}"/.config/containers && \
+    (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
+    # set up go/bin folder
+    mkdir /home/user/go/bin -p && \
+    # configure runtimes
     ########################################################################
-    # Java 8 11 17
+    # Java
     ########################################################################
-    dnf -y -q install java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
-    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
-    java-17-openjdk java-17-openjdk-devel java-17-openjdk-headless && \
     mkdir -p ${HOME}/.java/current && \
     rm -f /usr/bin/java && \
     ln -s /usr/lib/jvm/java-11-openjdk/* ${HOME}/.java/current && \
     ########################################################################
-    # Maven
-    ########################################################################
-    dnf module reset maven; dnf module install maven:3.6 -y -q && \
-    ########################################################################
-    # nodejs
+    # Nodejs
     ########################################################################
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
-    dnf -y -q module enable nodejs:$NODEJS_VERSION && \
-    MODULE_DEPS="make gcc gcc-c++ libatomic_ops git openssl-devel" && \
-    INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     ln -s /usr/libexec/platform-python /usr/bin/python3 && \
-    dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
     ########################################################################
     # additional node stuff
@@ -184,9 +198,6 @@ RUN \
     # Python
     ########################################################################
     # BEGIN update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
-    dnf -y -q module reset python39 && \
-    dnf -y -q module enable python39:${PYTHON_VERSION} && \
-    dnf -y -q install python39 python39-devel python39-setuptools python39-pip jq && \
     # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     # update pip & other dependencies from cachito
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
@@ -215,28 +226,15 @@ RUN \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
     mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
-    echo "<== Create python symlinks (or display existing ones)"
-
-# CRW-3193 disable until we have a camel-k sample again
-# RUN \
-#     ########################################################################
-#     # Kamel
-#     ########################################################################
-#     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi;
-
-# COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /usr/local/bin/kamel
-
-RUN \
+    echo "<== Create python symlinks (or display existing ones)" && \
     ########################################################################
     # C/C++ (Tech Preview)
     ########################################################################
-    dnf -y -q install llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
-    # to see what requires kernel-headers, use in line above: dnf install --exclude=kernel*
+    # to see what requires kernel-headers, use: dnf install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
-    chmod +x ${HOME}/che/ls-clangd/launch.sh
-RUN \
+    chmod +x ${HOME}/che/ls-clangd/launch.sh && \
     ########################################################################
     # .NET (dotnet) 3.1 (x64 only) + 6.0 (s390x and x64 only) + 7.0 (ppc64le, s390x and x64 only) (Tech Preview)
     ########################################################################
@@ -248,21 +246,10 @@ RUN \
         dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0 dotnet-sdk-7.0; \
     elif [[ "$(uname -m)" == 'ppc64le' ]]; then \
         dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-7.0; \
-    fi
-RUN \
-    ########################################################################
-    # Golang (Tech Preview)
-    ########################################################################
-    dnf -y -q install golang && \
-    mkdir /home/user/go/bin -p
-COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls /home/user/go/bin/gopls
-RUN \
+    fi && \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
     ########################################################################
-    dnf -y -q module enable php:$PHP_VERSION && \
-    dnf -y -q install php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates make
-RUN \
     set -x; \
     # compile xdebug from the container-yaml-name/app/ folder
     cd $REMOTE_SOURCES_DIR/xdebug/app/ && \
@@ -288,15 +275,23 @@ xdebug.log=/tmp/xdebug.log" >> /etc/php.ini && \
     # verify xdebug works
     php --ini; echo "<?php xdebug_info() ?>" | php; php -v
 
+# CRW-3193 disable until we have a camel-k sample again
+# RUN \
+#     ########################################################################
+#     # Kamel
+#     ########################################################################
+#     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi;
+
+# COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /usr/local/bin/kamel
+
+# see container.yaml
+COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls $HOME/go/bin/gopls
+
     ########################################################################
     # Cleanup and Summaries
     ########################################################################
 RUN \
-    # fetch CVE updates (but don't update odo 2.x to 3.x)
-    dnf -y -q update --exclude=odo && \
-    dnf -y -q clean all --enablerepo='*' && \
-    dnf -y -q clean all && rm -rf /var/cache/yum && \
-    rm -fr /tmp/assets/ $REMOTE_SOURCES_DIR && \
+    rm -fr $REMOTE_SOURCES_DIR && \
     chmod 755 /usr/local/bin/* && \
     chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
@@ -352,26 +347,7 @@ RUN \
     echo -n "php:    "; php -v; \
     echo "========"
 
-ADD etc/entrypoint.sh /entrypoint.sh
-
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - Universal Developer Image container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - Universal Developer Image container" \
-    PRODNAME="devspaces" \
-    COMPNAME="udi-rhel8"
-
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="3.4" \
-      license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""
