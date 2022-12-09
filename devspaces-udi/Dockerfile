@@ -157,7 +157,9 @@ RUN \
     > ${HOME}/passwd.template && \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
-    > ${HOME}/group.template && \
+    > ${HOME}/group.template
+
+RUN \
     ## Rootless podman install #2: install podman buildah skopeo e2fsprogs (above)
     ## Rootless podman install #3: tweaks to make rootless buildah work
     touch /etc/subgid /etc/subuid  && \
@@ -174,7 +176,9 @@ RUN \
     mkdir -p "${HOME}"/.config/containers && \
     (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
     # set up go/bin folder
-    mkdir /home/user/go/bin -p && \
+    mkdir /home/user/go/bin -p
+
+RUN \
     # configure runtimes
     ########################################################################
     # Java
@@ -193,7 +197,9 @@ RUN \
     # additional node stuff
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
-    for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done && \
+    for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done
+
+RUN \
     ########################################################################
     # Python
     ########################################################################
@@ -227,13 +233,15 @@ RUN \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
     mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
-    echo "<== Create python symlinks (or display existing ones)" && \
+    echo "<== Create python symlinks (or display existing ones)"
     # TODO: to enable flake8 as default linter, add this to project's .vscode/settings.json file
     # {
     #     "python.linting.flake8Enabled": true,
     #     "python.linting.enabled": true,
     #     "python.linting.pylintEnabled": false
     # }
+
+RUN \
     ########################################################################
     # C/C++ (Tech Preview)
     ########################################################################
@@ -359,4 +367,3 @@ RUN \
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null
-
