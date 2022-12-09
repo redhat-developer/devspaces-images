@@ -117,7 +117,7 @@ RUN \
         nodejs npm nodejs-nodemon nss_wrapper \
         make cmake gcc gcc-c++ \
             llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb \
-        php php-cli php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl \
+        php php-cli php-fpm php-opcache php-devel php-pear php-gd php-intl php-mysqli php-zlib php-curl \
         python39 python39-devel python39-setuptools python39-pip jq \
         podman buildah skopeo fuse-overlayfs \
         e2fsprogs libatomic_ops git openssl-devel ca-certificates \
@@ -202,31 +202,38 @@ RUN \
     # update pip & other dependencies from cachito
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest pylint virtualenv yq && \
-    # python/pip/pylint/yq symlinks
+    set -xe; \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq && \
+    # python/pip/flake8/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip${PYTHON_VERSION} && \
-    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint && \
-    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint${PYTHON_VERSION} && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m flake8 \$*" | sed -r -e "s@#@#\!@" > /usr/bin/flake8 && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m flake8 \$*" | sed -r -e "s@#@#\!@" > /usr/bin/flake8${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m yq \$*" | sed -r -e "s@#@#\!@" > /usr/bin/yq && \
     chmod +x /usr/bin/pip* /usr/bin/py* /usr/bin/yq && \
     SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
-    SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/flake8; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/flake8${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pytest; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pytest${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
     chmod +x /usr/local/bin/* && \
     echo -n "/usr/local/bin/python: "; /usr/local/bin/python -V && \
     echo -n "/usr/local/bin/pip: ";    /usr/local/bin/pip -V && \
-    echo -n "/usr/local/bin/pylint: "; /usr/local/bin/pylint --version && \
+    echo -n "/usr/local/bin/flake8: "; /usr/local/bin/flake8 --version && \
     echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
     mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)" && \
+    # TODO: to enable flake8 as default linter, add this to project's .vscode/settings.json file
+    # {
+    #     "python.linting.flake8Enabled": true,
+    #     "python.linting.enabled": true,
+    #     "python.linting.pylintEnabled": false
+    # }
     ########################################################################
     # C/C++ (Tech Preview)
     ########################################################################
@@ -260,18 +267,20 @@ RUN \
     php -i | grep "Zend Extension Build"; phpize | grep "Extension Api" ; \
     ./configure --enable-xdebug; make; make install && \
     # do we need all these settings? or just the zend_extension?
-    echo -e "zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
-xdebug.client_port = 9000\n\
+    echo -e "[xdebug]
+zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
+xdebug.client_port = 9001\n\
 xdebug.mode = debug\n\
 xdebug.start_with_request = yes\n\
-xdebug.log=/tmp/xdebug.log" >> /etc/php.ini && \
+xdebug.log=\${HOME}/xdebug.log" >> /etc/php.ini && \
     if [[ -f /etc/php.ini ]]; then grep xdebug /etc/php.ini; fi && \
     # set up httpd
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/ErrorLog \"|\/usr\/bin\/cat\"/ErrorLog \"\/var\/log\/httpd\/error_log\"/' /etc/httpd/conf/httpd.conf && \
-    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ && \
+    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ \
+        /etc/httpd/conf/httpd.conf /etc/php.ini ${HOME}/xdebug.log && \
     # verify xdebug works
     php --ini; echo "<?php xdebug_info() ?>" | php; php -v
 
@@ -311,14 +320,14 @@ RUN \
     echo "========" && \
     echo "python basic install:"; python -V; \
     echo -n "pip:    "; pip -V; \
-    echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "flake8: "; flake8 --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "pytest: "; pytest --version; \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \
     echo "========" && \
     echo "python venv install:"; source ${HOME}/.venv/bin/activate && python -V; \
     echo -n "pip:    "; pip -V; \
-    echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "flake8: "; flake8 --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "pytest: "; pytest --version; \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \

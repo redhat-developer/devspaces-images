@@ -14,11 +14,10 @@ iniconfig==1.1.1
 packaging==21.3
 pip==22.3.1
 pluggy==1.0.0
-pylint==2.15.8
 pyparsing==3.0.9
 pytest==7.2.0
 PyYAML==6.0
-setuptools~=62.6
+setuptools
 setuptools-scm==7.0.5
 six==1.16.0
 toml==0.10.2
@@ -26,5 +25,12 @@ tomli==2.0.1
 typing_extensions==4.4.0
 virtualenv
 xmltodict==0.13.0
-wheel~=0.37.1
+wheel
 yq==3.1.0
+
+# instead of pylint, try using flake8 as it has fewer dependencies and might not collide with setuptools requirement?
+# pylint==2.15.8
+flake8>=6.0.0
+mccabe>=0.7.0
+pycodestyle>=2.10.0
+pyflakes>=3.0.1
