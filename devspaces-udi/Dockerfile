@@ -106,7 +106,7 @@ COPY artifacts/lombok.jar /lombok.jar
 
 RUN \
     # install all the rpms and modules
-    microdnf install -y dnf &&
+    microdnf install -y dnf && \
     dnf -y -q module reset   container-tools       maven     nodejs                 python39                   php; \
     dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION python39:${PYTHON_VERSION} php:$PHP_VERSION && \
     dnf -y -q install --setopt=tsflags=nodocs \
@@ -121,7 +121,7 @@ RUN \
         python39 python39-devel python39-setuptools python39-pip jq \
         podman buildah skopeo fuse-overlayfs \
         e2fsprogs libatomic_ops git openssl-devel ca-certificates \
-        bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree
+        bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree \
         # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
         # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.x86_64.rpm
