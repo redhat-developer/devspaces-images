@@ -218,6 +218,13 @@ RUN \
     mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
 
+    # TODO: to enable flake8 as default linter, add this to project's .vscode/settings.json file
+    # {
+    #     "python.linting.flake8Enabled": true,
+    #     "python.linting.enabled": true,
+    #     "python.linting.pylintEnabled": false
+    # }
+
 # CRW-3193 disable until we have a camel-k sample again
 # RUN \
 #     ########################################################################
@@ -285,7 +292,8 @@ xdebug.log=/tmp/xdebug.log" >> /etc/php.ini && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/ErrorLog \"|\/usr\/bin\/cat\"/ErrorLog \"\/var\/log\/httpd\/error_log\"/' /etc/httpd/conf/httpd.conf && \
-    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ && \
+    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ \
+        /etc/httpd/conf/httpd.conf /etc/php.ini /tmp/xdebug.log && \
     # verify xdebug works
     php --ini; echo "<?php xdebug_info() ?>" | php; php -v
 
