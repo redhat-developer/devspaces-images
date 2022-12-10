@@ -274,7 +274,7 @@ RUN \
     php -i | grep "Zend Extension Build"; phpize | grep "Extension Api" ; \
     ./configure --enable-xdebug; make; make install && \
     # do we need all these settings? or just the zend_extension?
-    echo -e "[xdebug]
+    echo -e "[xdebug]\n\
 zend_extension=$(find /usr/lib64/php/modules -name xdebug.so)\n\
 xdebug.client_port = 9001\n\
 xdebug.mode = debug\n\
