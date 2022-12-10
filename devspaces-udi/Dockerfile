@@ -189,10 +189,9 @@ RUN \
     ########################################################################
     # Nodejs
     ########################################################################
-    # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
-    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-    ln -s /usr/libexec/platform-python /usr/bin/python3 && \
-    # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
+    # see https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
+    SL=/usr/bin/nodemon; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/bin/python3; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/libexec/platform-python ${SL}; else ls -la ${SL}; fi && \
     ########################################################################
     # additional node stuff
     mkdir -p /opt/app-root/src/.npm-global/bin && \
