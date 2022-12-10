@@ -192,6 +192,18 @@ wait
             currentBuild.description+="; <b style='color:orange'>Warning: <a href=${jobPath}/>" + (jobPath.replaceAll("/job/","/")) + "</a></b>"
           } // try push-latest-container-to-quay job trigger
 
+          // collect related images for operator-bundle:NEW_TAG, and make them into HTML links
+          if (NEW_TAG?.trim() && QUAY_REPO_PATHs.contains("operator-bundle")){
+            currentBuild.description+=";<br />" +
+            "<blockquote>" + 
+              "Bundle <a href=https://github.com/redhat-developer/devspaces-images/blob/" + MIDSTM_BRANCH + "/devspaces-operator-bundle-generated/manifests/devspaces.csv.yaml>CSV</a> related images:" + 
+              sh(returnStdout:true, script:'''
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/checkImagesInCSV.sh && chmod +x checkImagesInCSV.sh
+./checkImagesInCSV.sh registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:'''+NEW_TAG+''' --quay -qq
+''').trim().replaceAll("(quay.io.+)","<br />- <a href='https://\$1'>\$1</a>").replaceAll("(registry.redhat.io/([^/]+/[^/]+):.+)","<br />= <a href='https://catalog.redhat.com/software/containers/search?q=\$2'>\$1</a>") + 
+          "</blockquote>"
+          }
+
           // comment on the PR with this job's build description
           if (util.globalVar({comments_url})?.trim()) {
             println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
