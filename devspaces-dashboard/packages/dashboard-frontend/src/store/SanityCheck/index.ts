@@ -10,15 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
+import { container } from '../../inversify.config';
 import { getDefer } from '../../services/helpers/deferred';
+import { delay } from '../../services/helpers/delay';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { isForbidden, isUnauthorized } from '../../services/workspace-client/helpers';
 import { createObject } from '../helpers';
 
+const WorkspaceClient = container.get(CheWorkspaceClient);
+
 const secToStale = 5;
 const timeToStale = secToStale * 1000;
+const maxAttemptsNumber = 2;
 
 export interface State {
   authorized: Promise<boolean>;
@@ -85,12 +90,23 @@ export const actionCreators: ActionCreators = {
           lastFetched: Date.now(),
         });
 
-        await axios.get('/api/kubernetes/namespace');
-        deferred.resolve(true);
+        for (let attempt = 1; attempt <= maxAttemptsNumber; attempt++) {
+          try {
+            await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
 
-        dispatch({
-          type: Type.RECEIVED_BACKEND_CHECK,
-        });
+            deferred.resolve(true);
+            dispatch({
+              type: Type.RECEIVED_BACKEND_CHECK,
+            });
+
+            break;
+          } catch (e) {
+            if (attempt === maxAttemptsNumber) {
+              throw e;
+            }
+            delay(1000);
+          }
+        }
       } catch (e) {
         let errorMessage =
           'Backend in not available. Try to refresh the page or re-login to the Dashboard.';
