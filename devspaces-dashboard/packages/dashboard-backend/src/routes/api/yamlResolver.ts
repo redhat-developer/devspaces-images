@@ -27,8 +27,8 @@ export function registerYamlResolverRoute(server: FastifyInstance) {
     `${baseApiPath}/namespace/:namespace/yaml/resolver`,
     getSchema({ tags, params: namespacedSchema, body: yamlResolverSchema }),
     async function (request: FastifyRequest, reply: FastifyReply): Promise<string | void> {
-      const { url } = request.body as restParams.IYamlResolverParam;
-      const { namespace } = request.params as restParams.INamespacedParam;
+      const { url } = request.body as restParams.IYamlResolverParams;
+      const { namespace } = request.params as restParams.INamespacedParams;
       const token = getToken(request);
       const { dockerConfigApi } = getDevWorkspaceClient(token);
 

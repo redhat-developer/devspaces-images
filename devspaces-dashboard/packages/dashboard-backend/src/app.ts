@@ -32,6 +32,7 @@ import { registerUserProfileRoute } from './routes/api/userProfile';
 import { registerYamlResolverRoute } from './routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from './routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from './routes/workspaceRedirect';
+import { registerDevfileSchemaRoute } from './routes/api/devfileSchema';
 
 export default async function buildApp(server: FastifyInstance): Promise<void> {
   const cheHost = process.env.CHE_HOST as string;
@@ -97,4 +98,6 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerUserProfileRoute(server);
 
   registerYamlResolverRoute(server);
+
+  registerDevfileSchemaRoute(server);
 }

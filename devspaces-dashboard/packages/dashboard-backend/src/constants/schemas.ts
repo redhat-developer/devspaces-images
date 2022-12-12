@@ -127,6 +127,17 @@ export const dockerConfigSchema: JSONSchema7 = {
   required: ['dockerconfig'],
 };
 
+export const devfileVersionSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    version: {
+      type: 'string',
+      pattern: '^[1-2]\\.[0-2]\\.[0-2]$',
+    },
+  },
+  required: ['version'],
+};
+
 export const yamlResolverSchema: JSONSchema7 = {
   type: 'object',
   properties: {

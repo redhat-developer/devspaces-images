@@ -25,7 +25,7 @@ export function registerDockerConfigRoutes(server: FastifyInstance) {
     `${baseApiPath}/namespace/:namespace/dockerconfig`,
     getSchema({ tags, params: namespacedSchema }),
     async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParam;
+      const { namespace } = request.params as restParams.INamespacedParams;
       const token = getToken(request);
       const { dockerConfigApi } = getDevWorkspaceClient(token);
 
@@ -37,7 +37,7 @@ export function registerDockerConfigRoutes(server: FastifyInstance) {
     `${baseApiPath}/namespace/:namespace/dockerconfig`,
     getSchema({ tags, params: namespacedSchema, body: dockerConfigSchema }),
     async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParam;
+      const { namespace } = request.params as restParams.INamespacedParams;
       const dockerCfg = request.body as restParams.IDockerConfigParams;
       const token = getToken(request);
       const { dockerConfigApi } = getDevWorkspaceClient(token);

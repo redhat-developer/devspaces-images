@@ -15,8 +15,6 @@ import common from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { fetchRegistryMetadata, fetchDevfile } from '../../services/registry/devfiles';
 import { createObject } from '../helpers';
-import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { selectPlugins } from '../Plugins/chePlugins/selectors';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
@@ -24,8 +22,8 @@ import devfileApi from '../../services/devfileApi';
 import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
 import updateDevWorkspacePlugins from './updateDevWorkspacePlugins';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
+import { getDevfileSchema } from '../../services/dashboard-backend-client/devWorkspaceApi';
 
-const WorkspaceClient = container.get(CheWorkspaceClient);
 export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
 
 export type DevWorkspaceResources = [devfileApi.DevWorkspace, devfileApi.DevWorkspaceTemplate];
@@ -273,9 +271,9 @@ export const actionCreators: ActionCreators = {
       await dispatch({ type: Type.REQUEST_SCHEMA, check: AUTHORIZED });
       try {
         const state = getState();
-        const schemav1 = await WorkspaceClient.restApiClient.getDevfileSchema<{
+        const schemav1 = (await getDevfileSchema('1.0.0')) as {
           [key: string]: any;
-        }>('1.0.0');
+        };
         const items = selectPlugins(state);
         const components = schemav1?.properties?.components;
         if (components) {
@@ -325,12 +323,13 @@ export const actionCreators: ActionCreators = {
           );
           const parsedSchemaV1 = JSON.parse(patchedJSONString);
 
-          const schemav200 = await fetchAndUpdateDevfileSchema(WorkspaceClient, '2.0.0');
-          const schemav210 = await fetchAndUpdateDevfileSchema(WorkspaceClient, '2.1.0');
-          const schemav220 = await fetchAndUpdateDevfileSchema(WorkspaceClient, '2.2.0');
+          const schemav200 = await fetchAndUpdateDevfileSchema('2.0.0');
+          const schemav210 = await fetchAndUpdateDevfileSchema('2.1.0');
+          const schemav220 = await fetchAndUpdateDevfileSchema('2.2.0');
+          const schemav221alpha = await fetchAndUpdateDevfileSchema('2.2.1-alpha');
 
           schema = {
-            oneOf: [parsedSchemaV1, schemav200, schemav210, schemav220],
+            oneOf: [parsedSchemaV1, schemav200, schemav210, schemav220, schemav221alpha],
           };
         }
 

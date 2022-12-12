@@ -14,7 +14,7 @@ import { IDevWorkspaceTemplate } from '../devworkspaceClient';
 import { V1alpha2DevWorkspace } from '@devfile/api';
 
 declare namespace restParams {
-  export interface INamespacedParam {
+  export interface INamespacedParams {
     namespace: string;
   }
 
@@ -23,15 +23,15 @@ declare namespace restParams {
     resourceVersion?: string;
   }
 
-  export interface INamespacedWorkspaceParam extends INamespacedParam {
+  export interface INamespacedWorkspaceParams extends INamespacedParams {
     workspaceName: string;
   }
 
-  export interface INamespacedTemplateParam extends INamespacedParam {
+  export interface INamespacedTemplateParams extends INamespacedParams {
     templateName: string;
   }
 
-  export interface INamespacedPodParam extends INamespacedParam {
+  export interface INamespacedPodParams extends INamespacedParams {
     devworkspaceId: string;
   }
 
@@ -39,15 +39,19 @@ declare namespace restParams {
     [key: string]: any;
   }
 
-  export interface ITemplateBodyParam {
+  export interface ITemplateBodyParams {
     template: IDevWorkspaceTemplate;
   }
 
-  export interface IDevWorkspaceSpecParam {
+  export interface IDevWorkspaceSpecParams {
     devworkspace: V1alpha2DevWorkspace;
   }
 
-  export interface IYamlResolverParam {
+  export interface IDevfileVersionParams {
+    version: string;
+  }
+
+  export interface IYamlResolverParams {
     url: string;
   }
 }

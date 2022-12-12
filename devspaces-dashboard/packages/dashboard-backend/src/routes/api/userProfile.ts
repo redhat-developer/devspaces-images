@@ -25,7 +25,7 @@ export function registerUserProfileRoute(server: FastifyInstance) {
     `${baseApiPath}/userprofile/:namespace`,
     getSchema({ tags, params: namespacedSchema }),
     async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParam;
+      const { namespace } = request.params as restParams.INamespacedParams;
       const token = getToken(request);
       const { userProfileApi } = getDevWorkspaceClient(token);
       return userProfileApi.getUserProfile(namespace);

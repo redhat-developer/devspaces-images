@@ -13,24 +13,9 @@
 import fetchAndUpdateDevfileSchema from '../fetchAndUpdateDevfileSchema';
 import { JSONSchema7 } from 'json-schema';
 import { cloneDeep } from 'lodash';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
-import { IRemoteAPI } from '@eclipse-che/workspace-client';
-import { container } from '../../../inversify.config';
+import mockAxios from 'axios';
 
 describe('Get devfile schema', () => {
-  const mockGetDevfileSchema = jest.fn();
-
-  beforeEach(() => {
-    class MockCheWorkspaceClient extends CheWorkspaceClient {
-      get restApiClient() {
-        return {
-          getDevfileSchema: async () => mockGetDevfileSchema(),
-        } as IRemoteAPI;
-      }
-    }
-    container.rebind(CheWorkspaceClient).to(MockCheWorkspaceClient).inSingletonScope();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -52,10 +37,11 @@ describe('Get devfile schema', () => {
       },
     } as JSONSchema7;
 
-    const mockWorkspaceClient = container.get(CheWorkspaceClient);
-    mockGetDevfileSchema.mockResolvedValueOnce(cloneDeep(schemaWithVersionConst));
+    (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+      data: cloneDeep(schemaWithVersionConst),
+    });
 
-    const targetSchema = await fetchAndUpdateDevfileSchema(mockWorkspaceClient, '2.0.0');
+    const targetSchema = await fetchAndUpdateDevfileSchema('2.0.0');
 
     expect(targetSchema).toEqual(schemaWithVersionConst);
   });
@@ -76,10 +62,11 @@ describe('Get devfile schema', () => {
       },
     } as JSONSchema7;
 
-    const mockWorkspaceClient = container.get(CheWorkspaceClient);
-    mockGetDevfileSchema.mockResolvedValueOnce(cloneDeep(schemaWithoutVersionConst));
+    (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+      data: cloneDeep(schemaWithoutVersionConst),
+    });
 
-    const targetSchema = await fetchAndUpdateDevfileSchema(mockWorkspaceClient, '2.0.0');
+    const targetSchema = await fetchAndUpdateDevfileSchema('2.0.0');
 
     expect(targetSchema).not.toEqual(schemaWithoutVersionConst);
 

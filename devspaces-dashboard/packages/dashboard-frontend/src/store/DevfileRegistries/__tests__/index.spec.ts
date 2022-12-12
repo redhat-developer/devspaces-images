@@ -16,8 +16,6 @@ import { ThunkDispatch } from 'redux-thunk';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import * as devfileRegistriesStore from '..';
 import { AppState } from '../..';
-import { container } from '../../../inversify.config';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AnyAction } from 'redux';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
@@ -174,10 +172,9 @@ describe('Devfile registries', () => {
 
     it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA when fetching the devfile v1 schema', async () => {
       const schemaV1 = getSchemaV1();
-      const cheWorkspaceClient = container.get(CheWorkspaceClient);
-      const spyGetDevfileSchema = jest
-        .spyOn(cheWorkspaceClient.restApiClient, 'getDevfileSchema')
-        .mockResolvedValueOnce(schemaV1);
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: schemaV1,
+      });
 
       const store = new FakeStoreBuilder()
         .withWorkspacesSettings({
@@ -204,7 +201,6 @@ describe('Devfile registries', () => {
       ];
 
       expect(actions).toEqual(expectedActions);
-      spyGetDevfileSchema.mockRestore();
     });
 
     it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA when fetching all devfile schemas', async () => {
@@ -212,13 +208,22 @@ describe('Devfile registries', () => {
       const schemaV200 = getSchemaV200();
       const schemaV210 = getSchemaV210();
       const schemaV220 = getSchemaV220();
-      const cheWorkspaceClient = container.get(CheWorkspaceClient);
-      const spyGetDevfileSchema = jest
-        .spyOn(cheWorkspaceClient.restApiClient, 'getDevfileSchema')
-        .mockResolvedValueOnce(schemaV1)
-        .mockResolvedValueOnce(schemaV200)
-        .mockResolvedValueOnce(schemaV210)
-        .mockResolvedValueOnce(schemaV220);
+      const schemav221alpha = getSchemaV221Alpha();
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: schemaV1,
+      });
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: schemaV200,
+      });
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: schemaV210,
+      });
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: schemaV220,
+      });
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: schemav221alpha,
+      });
 
       const store = new FakeStoreBuilder()
         .withWorkspacesSettings({
@@ -241,21 +246,23 @@ describe('Devfile registries', () => {
         {
           type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
           schema: {
-            oneOf: expect.arrayContaining([schemaV1, schemaV200, schemaV210, schemaV220]),
+            oneOf: expect.arrayContaining([
+              schemaV1,
+              schemaV200,
+              schemaV210,
+              schemaV220,
+              schemav221alpha,
+            ]),
           },
         },
       ];
 
       expect(actions).toEqual(expectedActions);
-      spyGetDevfileSchema.mockRestore();
     });
 
     it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA_ERROR when failed to fetch devfile schemas', async () => {
-      const cheWorkspaceClient = container.get(CheWorkspaceClient);
       const errorMessage = 'error message';
-      const spyGetDevfileSchema = jest
-        .spyOn(cheWorkspaceClient.restApiClient, 'getDevfileSchema')
-        .mockRejectedValueOnce(errorMessage);
+      (mockAxios.get as jest.Mock).mockRejectedValueOnce(errorMessage);
 
       const store = new FakeStoreBuilder()
         .withWorkspacesSettings({
@@ -284,7 +291,6 @@ describe('Devfile registries', () => {
       ];
 
       expect(actions).toEqual(expectedActions);
-      spyGetDevfileSchema.mockRestore();
     });
   });
 
@@ -660,7 +666,26 @@ function getSchemaV220() {
     description:
       'Devfile describes the structure of a cloud-native devworkspace and development environment.',
     type: 'object',
-    title: 'Devfile schema - Version 2.2.0-alpha',
+    title: 'Devfile schema - Version 2.2.0',
+    required: ['schemaVersion'],
+    properties: {
+      schemaVersion: {
+        description: 'Devfile schema version',
+        type: 'string',
+        pattern:
+          '^([2-9])\\.([0-9]+)\\.([0-9]+)(\\-[0-9a-z-]+(\\.[0-9a-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$',
+      },
+    },
+    additionalProperties: false,
+  };
+}
+
+function getSchemaV221Alpha() {
+  return {
+    description:
+      'Devfile describes the structure of a cloud-native devworkspace and development environment.',
+    type: 'object',
+    title: 'Devfile schema - Version 2.2.1-alpha',
     required: ['schemaVersion'],
     properties: {
       schemaVersion: {

@@ -14,6 +14,7 @@ import axios from 'axios';
 import { helpers, api } from '@eclipse-che/common';
 import devfileApi, { IDevWorkspacesList } from '../devfileApi';
 import { prefix } from './const';
+import { JSONSchema7 } from 'json-schema';
 
 export async function createWorkspace(
   devworkspace: devfileApi.DevWorkspace,
@@ -110,5 +111,16 @@ export async function injectKubeConfig(namespace: string, devworkspaceId: string
     );
   } catch (e) {
     throw `Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`;
+  }
+}
+
+export async function getDevfileSchema(
+  schemaVersion: string,
+): Promise<JSONSchema7 | { [key: string]: any }> {
+  try {
+    const response = await axios.get(`${prefix}/devfile?version=${schemaVersion}`);
+    return response.data;
+  } catch (e) {
+    throw `Failed to get devfile schema '${schemaVersion}'. ${helpers.errors.getMessage(e)}`;
   }
 }

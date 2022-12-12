@@ -11,14 +11,12 @@
  */
 
 import { JSONSchema7 } from 'json-schema';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import { getDevfileSchema } from '../../services/dashboard-backend-client/devWorkspaceApi';
 
 export default async function fetchAndUpdateDevfileSchema(
-  workspaceClient: CheWorkspaceClient,
   schemaVersion: string,
 ): Promise<JSONSchema7> {
-  const schema = await workspaceClient.restApiClient.getDevfileSchema<JSONSchema7>(schemaVersion);
-
+  const schema = (await getDevfileSchema(schemaVersion)) as JSONSchema7;
   if (
     typeof schema?.properties?.schemaVersion === 'object' &&
     schema.properties.schemaVersion.const === undefined
