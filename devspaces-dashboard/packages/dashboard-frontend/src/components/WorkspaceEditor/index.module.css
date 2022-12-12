@@ -10,41 +10,24 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-.devfileEditor {
+.workspaceEditor {
   width: 100%;
   height: 100%;
   min-height: 50vh;
 }
 
-.devfileEditor .monaco {
+.workspaceEditor .monaco {
   position: relative;
   width: 100%;
   height: calc(100% - 38px);
   min-height: inherit;
 }
 
-.devfileEditor .monaco .monaco-editor {
+.workspaceEditor .monaco .monaco-editor {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
   border: 1px solid var(--pf-global--BorderColor--100);
-}
-
-.devfileEditor .monaco .devfileEditorDecoration {
-  background-color: rgb(241 192 80 / 50%);
-}
-
-.devfileEditor .error {
-  height: 16px;
-  color: #e22812;
-  font-size: 15px;
-}
-
-.devfileEditor a {
-  color: #3782c4;
-  font-size: 15px;
-  line-height: 25px;
-  text-decoration: none;
 }

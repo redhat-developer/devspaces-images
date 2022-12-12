@@ -136,8 +136,8 @@ describe('Routes', () => {
       expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
-    it('should handle "/workspace/namespace/name?tab=Logs"', async () => {
-      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.LOGS);
+    it('should handle "/workspace/namespace/name?tab=Devworkspace"', async () => {
+      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVWRKSPACE);
       render(getComponent(location));
 
       await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());

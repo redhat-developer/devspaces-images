@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { safeDump } from 'js-yaml';
+import { dump } from 'js-yaml';
 import {
   LanguageConfiguration,
   IMonarchLanguage,
@@ -53,11 +53,13 @@ function sortKeys(key1: keyof che.WorkspaceDevfile, key2: keyof che.WorkspaceDev
 /**
  * Provides a devfile stringify function.
  */
-export default function stringify(devfile: che.WorkspaceDevfile | devfileApi.Devfile): string {
-  if (!devfile) {
+export default function stringify(
+  obj: che.WorkspaceDevfile | che.Workspace | devfileApi.Devfile | devfileApi.DevWorkspace,
+): string {
+  if (!obj) {
     return '';
   }
-  return safeDump(devfile, { lineWidth, sortKeys });
+  return dump(obj, { lineWidth, sortKeys });
 }
 
 /**

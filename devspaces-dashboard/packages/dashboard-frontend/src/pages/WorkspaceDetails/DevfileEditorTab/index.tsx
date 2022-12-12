@@ -28,7 +28,7 @@ import * as lodash from 'lodash';
 import { safeLoad } from 'js-yaml';
 import common from '@eclipse-che/common';
 import DevfileEditor, { DevfileEditor as Editor } from '../../../components/DevfileEditor';
-import EditorTools from './EditorTools';
+import EditorTools from '../../../components/EditorTools';
 import { constructWorkspace, isCheWorkspace, Workspace } from '../../../services/workspace-adapter';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../../../services/devfileApi';
 import {
@@ -60,7 +60,7 @@ export type State = {
   additionSchema?: { [key: string]: any };
 };
 
-export class EditorTab extends React.PureComponent<Props, State> {
+export class DevfileEditorTab extends React.PureComponent<Props, State> {
   private originDevfile: che.WorkspaceDevfile | devfileApi.Devfile | undefined;
   private readonly devfileEditorRef: React.RefObject<Editor>;
   private devworkspaceClient: DevWorkspaceClient;
@@ -207,7 +207,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
             </AlertGroup>
           )}
           <EditorTools
-            devfile={devfile as che.WorkspaceDevfile}
+            content={devfile}
             handleExpand={isExpanded => {
               this.setState({ isExpanded });
             }}
@@ -419,4 +419,4 @@ export class EditorTab extends React.PureComponent<Props, State> {
   }
 }
 
-export default EditorTab;
+export default DevfileEditorTab;

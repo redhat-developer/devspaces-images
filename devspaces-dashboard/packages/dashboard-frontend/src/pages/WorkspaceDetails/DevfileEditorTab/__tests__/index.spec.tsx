@@ -31,7 +31,7 @@ import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 
 // uses the Devfile Editor mock
 jest.mock('../../../../components/DevfileEditor');
-jest.mock('../EditorTools', () => {
+jest.mock('../../../../components/EditorTools', () => {
   const FakeEditorTools = () => <div>Editor Tools</div>;
   FakeEditorTools.displayName = 'EditorTools';
   return FakeEditorTools;

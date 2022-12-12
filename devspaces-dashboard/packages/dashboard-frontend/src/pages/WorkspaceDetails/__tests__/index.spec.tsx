@@ -26,8 +26,12 @@ import devfileApi from '../../../services/devfileApi';
 const mockOnConvert = jest.fn();
 const mockOnSave = jest.fn();
 
-jest.mock('../EditorTab');
+jest.mock('../DevfileEditorTab');
 jest.mock('../OverviewTab/StorageType');
+
+jest.mock('../DevworkspaceEditorTab', () => {
+  return () => '';
+});
 
 let history: History;
 

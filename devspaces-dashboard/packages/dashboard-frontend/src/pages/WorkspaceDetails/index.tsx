@@ -29,7 +29,8 @@ import { HeaderActionSelect } from './Header/Actions';
 import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
 import OverviewTab, { OverviewTab as Overview } from './OverviewTab';
-import EditorTab, { EditorTab as Editor } from './EditorTab';
+import DevfileEditorTab, { DevfileEditorTab as Editor } from './DevfileEditorTab';
+import DevworkspaceEditorTab from './DevworkspaceEditorTab';
 import { History, UnregisterCallback, Location } from 'history';
 import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import UnsavedChangesModal from '../../components/UnsavedChangesModal';
@@ -147,8 +148,14 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   private getActiveTabKey(search: History.Search): WorkspaceDetailsTab {
     if (search) {
       const searchParam = new URLSearchParams(search.substring(1));
-      if (searchParam.has('tab') && searchParam.get('tab') === WorkspaceDetailsTab.DEVFILE) {
-        return WorkspaceDetailsTab.DEVFILE;
+      const tab = searchParam.get('tab') || '';
+      switch (tab) {
+        case WorkspaceDetailsTab.OVERVIEW:
+          return WorkspaceDetailsTab.OVERVIEW;
+        case WorkspaceDetailsTab.DEVFILE:
+          return WorkspaceDetailsTab.DEVFILE;
+        case WorkspaceDetailsTab.DEVWRKSPACE:
+          return WorkspaceDetailsTab.DEVWRKSPACE;
       }
     }
     return WorkspaceDetailsTab.OVERVIEW;
@@ -266,12 +273,19 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
             </Tab>
             <Tab eventKey={WorkspaceDetailsTab.DEVFILE} title={WorkspaceDetailsTab.DEVFILE}>
               <ProgressIndicator isLoading={this.props.isLoading} />
-              <EditorTab
+              <DevfileEditorTab
                 ref={this.editorTabPageRef}
                 workspace={workspace}
                 isRunning={workspace.isRunning}
                 onSave={workspace => this.handleOnSave(workspace)}
                 onDevWorkspaceWarning={() => this.handleRestartWarning()}
+              />
+            </Tab>
+            <Tab eventKey={WorkspaceDetailsTab.DEVWRKSPACE} title={WorkspaceDetailsTab.DEVWRKSPACE}>
+              <ProgressIndicator isLoading={this.props.isLoading} />
+              <DevworkspaceEditorTab
+                workspace={workspace}
+                isActive={WorkspaceDetailsTab.DEVWRKSPACE === this.state.activeTabKey}
               />
             </Tab>
           </Tabs>
