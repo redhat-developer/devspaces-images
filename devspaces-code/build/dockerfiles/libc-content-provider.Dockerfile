@@ -8,6 +8,9 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
+# NOTE: this file is no longer used in Brew/OSBS build (as its steps have been merged into ../../Dockerfile), 
+# but remains here for reference, so that you can build /checode-linux-libc locally should you want to do so.
+
 # https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=overview
 FROM registry.access.redhat.com/ubi8/nodejs-16:1-37.1652296488 as builder
 
