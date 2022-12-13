@@ -1,12 +1,10 @@
 #!/bin/bash -xe
-
+# script to trigger rhpkg - after building sources: TODO switch to cachito
+#
 verbose=0
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-# NOTE: --pull-assets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
-# here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
-# so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
 
 tmpContainer=pluginregistry:tmp
@@ -155,9 +153,9 @@ if [[ ${TAR_DIFF} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "${tmpfile}"
+		taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
+		ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
@@ -168,9 +166,9 @@ else
 	if [[ ${forceBuild} -eq 1 ]]; then
 		log "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "${tmpfile}"
+		taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
+		ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
