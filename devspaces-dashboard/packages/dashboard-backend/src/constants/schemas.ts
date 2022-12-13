@@ -132,7 +132,7 @@ export const devfileVersionSchema: JSONSchema7 = {
   properties: {
     version: {
       type: 'string',
-      pattern: '^[1-2]\\.[0-2]\\.[0-2]$',
+      pattern: '^[1-2]\\.[0-2]\\.[0-2](?:-alpha)?$',
     },
   },
   required: ['version'],
