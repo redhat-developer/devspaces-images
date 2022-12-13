@@ -89,8 +89,9 @@ sed_in_place() {
 sed_in_place -r \ '/"native-keymap":*/d' "${TARGETDIR}"/code/package.json
 
 sed_in_place -r \
-  `# Update DevSpaces version for Dockerfile` \
+  `# Update DevSpaces version in Dockerfile` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
+  -e "s@(rh-osbs/machineexec-rhel8):([0-9.]+) (as .+)@\1:${DS_VERSION} \2@" \
   "${TARGETDIR}"/Dockerfile
 
   (cd "$TARGETDIR/branding" && ./branding.sh)
