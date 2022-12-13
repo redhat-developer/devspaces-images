@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # get binary from latest build from OSBS
-FROM registry-proxy.engineering.redhat.com/rh-osbs/machineexec-rhel8:3.4 as machineexec-builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.4 as machineexec-builder
 
 # https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=overview
 FROM registry.access.redhat.com/ubi8/nodejs-16:1-37.1652296488 as checode-linux-libc-builder
