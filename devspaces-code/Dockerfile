@@ -46,8 +46,9 @@ RUN git init .
 # change network timeout (slow using multi-arch build)
 RUN yarn config set network-timeout 600000 -g
 
-# Grab dependencies (and force to rebuild them)
-RUN yarn install --force
+# cachito:yarn step 3: configure yarn & install deps
+# see https://source.redhat.com/groups/public/container-build-system/container_build_system_wiki/containers_from_source_multistage_builds_in_osbs#jive_content_id_Cachito_Integration_for_yarn
+RUN yarn config set nodedir /usr; yarn config set unsafe-perm true && yarn install
 
 RUN echo "$(ulimit -a)"
 
