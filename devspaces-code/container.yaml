@@ -19,8 +19,10 @@ remote_sources:
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
     ref: 7e4756a605cea5f9b9a2a4f647acaa7a6073bb65
-    pkg_managers:
-      - yarn
+    pkg_managers: [gomod, yarn]
+    flags: [gomod-vendor-check]
     packages: 
+      gomod: 
+        - path: devspaces-machineexec
       yarn: 
-      - path: devspaces-code
+        - path: devspaces-code

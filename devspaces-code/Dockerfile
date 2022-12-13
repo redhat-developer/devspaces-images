@@ -8,8 +8,18 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# get binary from latest build from OSBS
-FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.4 as machineexec-builder
+# NOTE: can't use scatch images in OSBS, because unable to start container process: exec: \"/bin/sh\": stat /bin/sh: no such file or directory
+# so we must rebuild machineexec binary in this build
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
+FROM rhel8/go-toolset:1.18.4-8 as machineexec-builder
+ENV GOPATH=/go/
+USER root
+# cachito
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
+    mkdir -p /rootfs/go/bin && cp -rf $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec/che-machine-exec /rootfs/go/bin
 
 # https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=overview
 FROM registry.access.redhat.com/ubi8/nodejs-16:1-37.1652296488 as checode-linux-libc-builder
