@@ -67,7 +67,6 @@ code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
 devfile.yaml
 get-sources.sh
 rebase.sh
-sources
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
@@ -94,4 +93,4 @@ sed_in_place -r \
   -e "s@(rh-osbs/machineexec-rhel8):([0-9.]+) (as .+)@\1:${DS_VERSION} \2@" \
   "${TARGETDIR}"/Dockerfile
 
-  (cd "$TARGETDIR/branding" && ./branding.sh)
+(cd "$TARGETDIR/branding" && ./branding.sh)
