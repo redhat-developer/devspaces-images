@@ -15,7 +15,7 @@ ENV GOPATH=/go/
 ARG SKIP_TESTS="false"
 USER root
 
-# cachito
+# cachito:gomod step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-operator/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator

@@ -14,7 +14,7 @@
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.7-923.1669829893
 
-# cachito
+# cachito:gomod step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-configbump/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-configbump/app/devspaces-configbump

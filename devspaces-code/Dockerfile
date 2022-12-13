@@ -14,9 +14,10 @@
 FROM rhel8/go-toolset:1.18.4-8 as machineexec-builder
 ENV GOPATH=/go/
 USER root
-# cachito
+
+# cachito step 0: copy cachito sources where we can use them; set working dir
+# because no pkg manager, no env vars to source
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec
 RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
     mkdir -p /rootfs/go/bin && cp -rf $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec/che-machine-exec /rootfs/go/bin
@@ -36,7 +37,7 @@ USER root
 RUN yum install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ python2 git git-core-doc openssh less libX11-devel libxkbcommon bash tar gzip rsync patch \
     && yum -y clean all && rm -rf /var/cache/yum \
 
-# cachito
+# cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code
