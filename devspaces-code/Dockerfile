@@ -8,19 +8,9 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# NOTE: can't use scatch images in OSBS, because unable to start container process: exec: \"/bin/sh\": stat /bin/sh: no such file or directory
-# so we must rebuild machineexec binary in this build
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.18.4-8 as machineexec-builder
-ENV GOPATH=/go/
-USER root
-
-# cachito step 0: copy cachito sources where we can use them; set working dir
-# because no pkg manager, no env vars to source
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
-    mkdir -p /rootfs/go/bin && cp -rf $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec/che-machine-exec /rootfs/go/bin
+#########################################################################
+############################# BUILD 1: libc #############################
+#########################################################################
 
 # https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=overview
 FROM registry.access.redhat.com/ubi8/nodejs-16:1-37.1652296488 as checode-linux-libc-builder
@@ -35,7 +25,7 @@ USER root
 # RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi
 
 RUN yum install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ python2 git git-core-doc openssh less libX11-devel libxkbcommon bash tar gzip rsync patch \
-    && yum -y clean all && rm -rf /var/cache/yum \
+    && yum -y clean all && rm -rf /var/cache/yum
 
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
@@ -75,6 +65,28 @@ RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
 RUN chmod a+x /checode/out/server-main.js \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
+#########################################################################
+############################# BUILD 2: machineexec#######################
+#########################################################################
+
+# NOTE: can't use scatch images in OSBS, because unable to start container process: exec: \"/bin/sh\": stat /bin/sh: no such file or directory
+# so we must rebuild machineexec binary in this build
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
+FROM rhel8/go-toolset:1.18.4-8 as machineexec-builder
+ENV GOPATH=/go/
+USER root
+
+# cachito step 0: copy cachito sources where we can use them; set working dir
+# because no pkg manager, no env vars to source
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
+    mkdir -p /rootfs/go/bin && cp -rf $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-machineexec/che-machine-exec /rootfs/go/bin
+
+#########################################################################
+############################# BUILD 3: rootfs assembly ##################
+#########################################################################
+
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
 FROM ubi8:8.7-1026 as ubi-builder
 
@@ -97,6 +109,10 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" 
        done
 
 RUN rm /mnt/rootfs/etc/hosts
+
+#########################################################################
+############################# BUILD 4: minimal final image ##############
+#########################################################################
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.7-923.1669829893
