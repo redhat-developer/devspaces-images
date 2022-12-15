@@ -116,7 +116,7 @@ RUN rm /mnt/rootfs/etc/hosts
 #########################################################################
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.7-923.1669829893
+FROM ubi8-minimal:8.7-1031
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che
 USER 1001
