@@ -301,7 +301,7 @@ chmod +x updateGeneratedOperatorMetadata.sh
                 currentBuild.description+="; bundle-generated updated"
             }
             def OCP_VERSIONS = sh(script: '''
-curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
     | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "
 ''', returnStdout: true).trim()
             println "####################################################################################################################"

@@ -16,7 +16,7 @@ timeout(240) {
     stage("Collect 3rd party sources") {
       wrap([$class: 'TimestamperBuildWrapper']) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+            file(credentialsId: 'devspaces-build-keytab', variable: 'DS_KEYTAB')]) {
           sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
           def util = load "${WORKSPACE}/util2.groovy"
           cleanWs()
@@ -48,7 +48,7 @@ python3 --version; echo "-----"
             currentBuild.description="Tagging " + CSV_VERSION + "..."
             sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/ds/product/ && ./tagRelease.sh -t ''' + DS_VERSION + ''' -v ''' + CSV_VERSION + ''' \
-  -gh ''' + MIDSTM_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN + ''' -pd ''' + DWNSTM_BRANCH + ''' -pduser crw-build
+  -gh ''' + MIDSTM_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN + ''' -pd ''' + DWNSTM_BRANCH + ''' -pduser devspaces-build
 '''
             currentBuild.description="Tagged " + CSV_VERSION + "; Collecting manifests for " + CSV_VERSION
           } else {

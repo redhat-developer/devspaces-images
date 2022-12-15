@@ -28,7 +28,7 @@ for (JB in JOB_BRANCHES) {
 
 <li>push those to pkgs.devel repo w/ rhpkg, and 
 <li>trigger a new <a 
-href=https://brewweb.engineering.redhat.com/brew/tasks?state=all&owner=crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com&view=flat&method=buildContainer&order=-id>
+href=https://brewweb.engineering.redhat.com/brew/tasks?state=all&owner=devspaces-build&view=flat&method=buildContainer&order=-id>
 OSBS build</a>
 <li>Then <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''/>push the latest container to quay</a>
 
@@ -62,7 +62,7 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
             parameters{
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
                 stringParam("DWNSTM_BRANCH", MIDSTM_BRANCH, "Default to same value as midstream; or, use a pkgs.devel private-username-topic branch for scratch builds")
-                stringParam("GIT_PATHs", "containers/devspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
+                stringParam("GIT_PATHs", "containers/devspaces", '''git path to clone from ssh://devspaces-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
 update sources, and run rhpkg container-build: <br/>
 * containers/devspaces-server, <br/>
 * containers/devspaces-operator, <br/>

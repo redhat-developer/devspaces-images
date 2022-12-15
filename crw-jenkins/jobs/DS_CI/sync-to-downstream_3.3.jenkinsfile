@@ -201,11 +201,11 @@ timeout(600) {
             if (REPOS.contains("-udi")) { 
               def OPENSHIFT_CONTENT_SET_VERSION = sh( 
                 script: '''
-curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
                 ''', returnStdout: true).trim()
               def OCP_TOOLS_CONTENT_SET_VERSION = sh( 
                 script: '''
-curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OCP_TOOLS_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OCP_TOOLS_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
                 ''', returnStdout: true).trim() // @since 3.2
               if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null") && 
                   OCP_TOOLS_CONTENT_SET_VERSION?.trim() && !OCP_TOOLS_CONTENT_SET_VERSION.equals("null")) {
@@ -238,7 +238,7 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 println "########################################################################################################"
                 println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+                util.cloneRepo("ssh://devspaces-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
                 // Sync
                 // TODO CRW-3080 remove sources from the exclude list, so that we can delete it from downstream if it doesn't exist in midstream
@@ -272,7 +272,7 @@ if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
       SHA=''' + SOURCE_SHA + '''
     else
       name=$(cat ${yaml} | yq ".remote_sources[]|select(.remote_source.repo==\\"$repo\\")" | yq ".name")
-      branchOrTag=$(curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r ".Other[$name].\\"''' + JOB_BRANCH + '''\\"")
+      branchOrTag=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r ".Other[$name].\\"''' + JOB_BRANCH + '''\\"")
       #Try branch first
       SHA=$(git ls-remote $repo refs/heads/$branchOrTag | sed -r -e "s@(.+)\\t.+@\\1@g")
 
@@ -308,7 +308,7 @@ cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
 git add Dockerfile get-sources.sh container.yaml || true
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
-  export KRB5CCNAME=/var/tmp/crw-build_ccache
+  export KRB5CCNAME=/var/tmp/devspaces-build_ccache
   git add . -A -f
   git commit -s -m "ci: [mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
   git push origin ''' + MIDSTM_BRANCH + ''' || true
@@ -317,7 +317,7 @@ fi
 
                 // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
                 sh('''#!/bin/bash -xe
-export KRB5CCNAME=/var/tmp/crw-build_ccache
+export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
 if [[ -f get-sources.sh ]]; then
   ./get-sources.sh --pull-assets --nobuild -v ''' + CSV_VERSION + ''' | tee get-sources.sh.log.txt
