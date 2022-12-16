@@ -32,7 +32,177 @@ def String nodeLabelAnyArch = (REPOS.contains("theia")) ?
     'x86_64-rhel8||ppc64le-rhel8'
   )
 def String nodeLabelXArch = (REPOS.contains("theia")||REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
+
 currentBuild.description=""
+for (int i=0; i < SYNC_REPOS.size(); i++) {
+  SYNC_REPOi="${SYNC_REPOS[i]}"
+  def Map tasks = [failFast: true]
+  if (SYNC_REPOi?.trim()) { // filter out nullstring values
+    // CRW-3135 - remove configbump as there's no need to do the multi-arch delete+publish flow anymore
+    // CRW-2744 - include code build in the multiarch flow for now - TODO: move to cachito in future
+    // TODO CRW-3080 remove all prebuilt binaries and switch to cachito
+    if (SYNC_REPOi.contains("-code")) {
+      currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
+      def String nodeLabelString = ""
+      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+        node(nodeLabelAnyArch){
+          // prestage #0 - get arches on which to build
+          stage("Get arches + delete old assets"){
+            withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
+              cleanWs()
+              // might be already defined by the referring job
+              CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+              println("[INFO] Using CSV version = " + CSV_VERSION)
+              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+
+              // comment on the PR with links to this job
+              if (util.globalVar({comments_url})?.trim()) {
+                println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+              }
+              commentedOnPullRequestBuildLinks="true"
+
+              nodeLabelString = sh( 
+                script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
+                ''', returnStdout: true).trim()
+              currentBuild.description+="arches = " + nodeLabelString + "; "
+              // prestage #1 for building lang servers - delete previous GitHub release if present
+              sh('''#!/bin/bash -xe
+pushd sources/''' + SYNC_REPOi + '''
+if [[ -f get-sources.sh ]]; then 
+  ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
+
+  # in case API is running slow, sleep for a bit before trying to push files into the freshly created release
+  sleep 10s
+else 
+  echo "[ERROR] Could not run get-sources.sh --delete-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+fi
+popd
+              ''')
+              currentBuild.description+="deleted old " + SYNC_REPOi + " assets; "
+            } // with
+          } // stage
+        }//node
+      }//timeout
+      def List nodeLabels = nodeLabelString.tokenize("\n")
+      def String nodeLabel = nodeLabelXArch // by default assume we're on x64
+      for (int j=0; j < nodeLabels.size(); j++) {
+        switch(nodeLabels[j]) {
+          case "s390x":
+            // CRW-3281 - crwjen-1.s390 has only 4GB RAM; can't use it for code-rhel8 builds
+            nodeLabel = REPOS.contains("code") ? "s390x-rhel8&&!crwjen-1.s390" : "s390x-rhel8"
+            break
+          case "ppc64le":
+            nodeLabel = "ppc64le-rhel8"
+            break
+        }
+        print "[" + (i+1) + "/" + SYNC_REPOS.size() + "] [" + (j+1) + "/" + nodeLabels.size() + "] " + 
+          "Create task to build assets: " + SYNC_REPOi + " " + nodeLabel
+        def String thisArch=nodeLabel
+        // prestage #2 for building lang servers - create assets and publish to GH releases
+        tasks[SYNC_REPOi + " " + thisArch] = { ->
+          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+            node(thisArch){
+              stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  def util = load "${WORKSPACE}/util2.groovy"
+                  cleanWs()
+
+                  if (debugDiskUsage) {
+                    sh(script: '''#!/bin/bash
+echo "############### df -h before building #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h before building #################"
+''', returnStatus: true)
+                  }
+
+                  // might be already defined by the referring job
+                  CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+                  println("[INFO] Using CSV version = " + CSV_VERSION)
+
+
+// CRW-3493 hack no longer needed as jenkins builders ONLY have python 3.10 (3.11 doesn't work with node-gyp)
+// enable python 3.10 for theia builds, 3.11 for all others
+//                   def pyver = REPOS.contains("theia") ? "3.10.8" : "3.11.0"
+//                   sh(script: '''#!/bin/bash
+// pyver="'''+pyver+'''"
+// pyenv install ${pyver} -s
+// pyenv global ${pyver} || true
+// pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
+// $HOME/.pyenv/shims/python --version
+// export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
+// echo $PATH
+// python --version
+// ''', returnStdout: true)
+
+                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+                  sh('''#!/bin/bash -xe
+                    pushd sources/''' + SYNC_REPOi + '''
+                    if [[ -f get-sources.sh ]]; then
+                      ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
+                    else
+                      echo "[ERROR] Could not run get-sources.sh --publish-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+                    fi
+                    popd
+                  ''')
+                  currentBuild.description+="${thisArch} built; "
+                }//creds
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after building assets #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after building assets #################"
+''', returnStatus: true)
+                }
+
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after cleanWs() assets #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after cleanWs() assets #################"
+''', returnStatus: true)
+                }
+
+                // cleanup temp containers and gradle
+                sh(script: '''#!/bin/bash
+sudo rm -fr  /home/hudson/.local/share/containers /home/hudson/.gradle/
+''', returnStatus: true)
+
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after purging ~/.local/share/containers and ~/.gradle #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after purging ~/.local/share/containers and ~/.gradle #################"
+''', returnStatus: true)
+                }
+              }//stage
+            }//node
+          }//timeout
+        }// tasks
+      }// for
+
+      stage("Asset builds") {
+        println "########################################################################################################"
+        println "##  Build assets for " + SYNC_REPOi
+        println "########################################################################################################"
+        parallel(tasks)
+      }
+    }//if
+  }//if not null
+}//for
 
 // NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
 timeout(600) {

@@ -65,7 +65,7 @@ Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/r
 <p><blockquote>
     If the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
     <p><pre>
-        kinit kinit -k -t /path/to/devspaces-build.keytab devspaces-build@IPA.REDHAT.COM
+        kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
         ssh devspaces-build@rcm-guest.hosts.prod.psi.bos.redhat.com
 
         [devspaces-build@rcm-guest ~]$ /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release devspaces-3.yy.z
