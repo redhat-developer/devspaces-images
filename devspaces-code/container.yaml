@@ -22,4 +22,4 @@ remote_sources:
     pkg_managers: [yarn]
     packages: 
       yarn: 
-        - path: devspaces-code
+        - path: devspaces-code/code

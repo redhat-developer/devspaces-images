@@ -26,7 +26,7 @@ if [[ ${forceBuild} -eq 1 ]] || [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	git status || true
 	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} ${targetFlag} --nowait | tee 2>&1 "${tmpfile}"
 	taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
-	ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
+	ERRORS="$(grep -E "Build failed|image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 	if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
