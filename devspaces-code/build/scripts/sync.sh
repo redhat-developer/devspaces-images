@@ -67,6 +67,7 @@ code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
 devfile.yaml
 get-sources.sh
 rebase.sh
+sources
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
@@ -88,9 +89,8 @@ sed_in_place() {
 sed_in_place -r \ '/"native-keymap":*/d' "${TARGETDIR}"/code/package.json
 
 sed_in_place -r \
-  `# Update DevSpaces version in Dockerfile` \
+  `# Update DevSpaces version for Dockerfile` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
-  -e "s@(rh-osbs/machineexec-rhel8):([0-9.]+) (as .+)@\1:${DS_VERSION} \3@" \
   "${TARGETDIR}"/Dockerfile
 
-(cd "$TARGETDIR/branding" && ./branding.sh)
+  (cd "$TARGETDIR/branding" && ./branding.sh)
