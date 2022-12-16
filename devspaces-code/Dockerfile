@@ -24,19 +24,22 @@ USER root
 # # For example, vscode ripgrep downloading is an example of such case.
 # RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi
 
-RUN yum install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ python2 git git-core-doc openssh less libX11-devel libxkbcommon bash tar gzip rsync patch \
-    && yum -y clean all && rm -rf /var/cache/yum
+RUN yum install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ python2 \
+    git git-core-doc openssh openssl-devel ca-certificates \
+    less libX11-devel libxkbcommon bash tar gzip rsync patch tree
 
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code
+RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env; \
+       cat $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env 
+# && \
+#  tree -L 2 $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/; \
+#  tree -L 2 $REMOTE_SOURCES_DIR/devspaces-images-code/deps/yarn -d;
 
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn 
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn
 
-COPY code /checode-compilation
-WORKDIR /checode-compilation
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
@@ -46,19 +49,32 @@ RUN git init .
 # change network timeout (slow using multi-arch build)
 RUN yarn config set network-timeout 600000 -g
 
+# TODO get ripgrep-prebuilt tarball and unpack the correct version for this arch into node_modules/@vscode/ripgrep/bin/
+# will this be a PNC build or a rcm-guest/staging/devspaces/ koji fetch?
+
 # cachito:yarn step 3: configure yarn & install deps
 # see https://source.redhat.com/groups/public/container-build-system/container_build_system_wiki/containers_from_source_multistage_builds_in_osbs#jive_content_id_Cachito_Integration_for_yarn
-RUN yarn config set nodedir /usr; yarn config set unsafe-perm true && yarn install
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/deps/yarn \
+          $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/node_modules; \
+    # symlink from code/node_modules/proxy-from-env to code/node_modules/@vscode/ripgrep/node_modules/ to resolve missing dep
+    mkdir -p $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/node_modules/@vscode/ripgrep; \
+    ln -s    $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/node_modules/ \
+             $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/node_modules/@vscode/ripgrep/node_modules; \
+    tree -L 3 -d $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/; \
+    tree -L 3 -d $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/node_modules/@vscode/ripgrep/node_modules/; \
+    yarn config set nodedir /usr; yarn config set unsafe-perm true && \
+    yarn install --prefer-offline 
+    # --force
 
 RUN echo "$(ulimit -a)"
 
 # Compile
 RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
-    && NODE_VERSION=$(cat /checode-compilation/remote/.yarnrc | grep target | cut -d ' ' -f 2 | tr -d '"') \
+    && NODE_VERSION=$(cat $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/remote/.yarnrc | grep target | cut -d ' ' -f 2 | tr -d '"') \
     # cache node from this image to avoid to grab it from within the build
-    && mkdir -p /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH} \
-    && echo "caching /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH}/node" \
-    && cp /usr/bin/node /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH}/node \
+    && mkdir -p $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH} \
+    && echo "caching $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH}/node" \
+    && cp /usr/bin/node $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH}/node \
     && NODE_OPTIONS="--max_old_space_size=8500" ./node_modules/.bin/gulp --tasks \
     && NODE_OPTIONS="--max_old_space_size=8500" ./node_modules/.bin/gulp vscode-reh-web-linux-${NODE_ARCH}-min \
     && cp -r ../vscode-reh-web-linux-${NODE_ARCH} /checode
