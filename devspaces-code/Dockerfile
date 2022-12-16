@@ -89,7 +89,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -instal
 #########################################################################
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
-FROM ubi8:8.7-1026 as ubi-builder
+FROM ubi8:8.7-1037 as ubi-builder
 
 RUN mkdir -p /mnt/rootfs/projects /mnt/rootfs/home/che
 RUN yum install --installroot /mnt/rootfs tar gzip brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
