@@ -1,0 +1,442 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   CONTAINERS
+//   MIDSTM_BRANCH
+//   FLOATING_QUAY_TAGS
+//   OCP_VERSIONS
+//   CLEAN_ON_FAILURE = "true"
+
+def checkFailureQuay(arrayLines,errorOccurred)
+{
+    int numGoodLines=0
+    arrayLines.each  { 
+        line -> if (line?.toString().indexOf("No tags matching")>-1 || line?.toString().indexOf("ERROR")>-1) { 
+            errorOccurred = errorOccurred + line + '\n'; 
+            currentBuild.result = 'FAILURE'
+        } else if (line?.toString().length()>=20) {
+            numGoodLines++
+        }
+    }
+    if (numGoodLines<1) {
+        errorOccurred = errorOccurred + "[file is empty!]" + '\n'; 
+        currentBuild.description+="; Could not load images from Quay!"
+        currentBuild.result = 'FAILURE'
+    }
+    return errorOccurred
+}
+
+def errorOccurred = ""
+@Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
+
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
+
+def copyContainersToQuayTimeout=120
+
+currentBuild.description="Copying " + CONTAINERS + "..."
+timeout(copyContainersToQuayTimeout) {
+    node(nodeLabel) {
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+
+        // comment on the PR with links to this job
+        if (util.globalVar({comments_url})?.trim()) {
+            println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+        }
+
+        try { 
+            stage("Copy from OSBS to Quay") {
+                currentBuild.description="Copying: " + CONTAINERS.trim().replaceAll(" ",", ")
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    cleanWs()
+                    DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                    println "DS_VERSION = '" + DS_VERSION + "'"
+                    sh (
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
+                        returnStdout: true).trim().split( '\n' )
+
+                    def NEW_NVR = ""
+                    parallel copy_to_quay: {
+                        def statusCode = sh(script: '''#!/bin/bash -xe
+echo " ########################################### "
+echo " Copy latest images in osbs to quay: ''' + CONTAINERS + '''"
+echo " ########################################### "
+for c in ''' + CONTAINERS + '''; do
+    d=${c}
+    # special case for operator and bundle; all other images follow the pattern
+    # registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1-24
+    # registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.1-155
+    if [[ $c == *"operator-bundle" ]]; then 
+        d=operator-bundle
+    elif [[ $c == *"operator" ]]; then 
+        d=operator
+    fi 
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c devspaces-${d} --osbs --hide --pushtoquay="''' + DS_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+done
+wait
+                        ''', returnStatus: true)
+                        if (statusCode > 0) {
+                            errorOccurred = errorOccurred + 'error pushing to quay\n'; 
+                            currentBuild.description+="; error pushing to quay!"
+                            currentBuild.result = 'FAILURE'
+                        }
+                    }, 
+                    nvr_check: {
+                        NEW_NVR = sh (
+                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                            returnStdout: true).trim().split( '\n' )
+                    }, 
+                    get_latest_images: {
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/dependencies/LATEST_IMAGES')
+                    }
+
+                    def NEW_QUAY = ""
+                    NEW_QUAY = sh (
+                        script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                        returnStdout: true).trim().split( '\n' )
+                    errorOccurred = checkFailureQuay(NEW_QUAY, errorOccurred)
+
+                    def LATEST_IMAGES_QUAY = sh (script: 'cat ${WORKSPACE}/LATEST_IMAGES.quay || true', returnStdout: true).trim()
+                    if (!LATEST_IMAGES_QUAY?.trim() || LATEST_IMAGES_QUAY.trim().matches("file is empty")) { // file is empty so throw an error
+                        println "ERROR: Could not load images from Quay!"
+                        currentBuild.description+="; Could not load images from Quay!"
+                        currentBuild.result = 'ABORTED'
+                    }
+
+                    sh (
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
+                        returnStdout: true).trim().split( '\n' )
+
+                    // diff quay tag list vs. nvr tag list
+                    sh(script: '''#!/bin/bash -xe
+${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.quay) -s > ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly
+${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
+                    ''', returnStdout: true)
+                    def DIFF_LATEST_IMAGES_QUAY_V_NVR = sh (
+                        script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,nvr}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
+                        returnStdout: true
+                    ).trim()
+
+                    currentBuild.description="Copied: " + CONTAINERS.trim().replaceAll(" ",", ")
+                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("")) {
+                        // error! quay and nvr versions do not match
+                        errorOccurred = errorOccurred + 'Error: Quay & Brew image versions not aligned:\n' + 
+                        "=================== QUAY v NVR ===================\n" + 
+                        DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
+                        ' Failure!\n'
+                        currentBuild.description+="; Quay/Brew version mismatch"
+                        currentBuild.result = 'UNSTABLE'
+                        sh(script: '''#!/bin/bash -xe
+./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide --pushtoquay="''' + DS_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
+                        ''', returnStatus: true)
+                        currentBuild.description+="; all Quay images updated"
+                    }
+
+                    DIFF_LATEST_IMAGES_QUAY_V_STORED = sh (
+                        script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES{,.quay} | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
+                        returnStdout: true
+                    ).trim()
+
+                    def NEW_QUAY_L=""; NEW_QUAY.each { line -> if (line?.trim()) { NEW_QUAY_L=NEW_QUAY_L+"  ${line}\n" } }
+                    def NEW_NVR_L="";  NEW_NVR.each  { line -> if (line?.trim()) { NEW_NVR_L=NEW_NVR_L + "  ${line}\n" } } 
+                    echo '''
+Quay Images:
+''' + NEW_QUAY_L + '''
+
+Brew NVRs:
+''' + NEW_NVR_L
+                    cleanWs(
+                        cleanWhenSuccess: true,
+                        cleanWhenUnstable: true,
+                        cleanWhenNotBuilt: false,
+                        cleanWhenFailure: CLEAN_ON_FAILURE,
+                        cleanWhenAborted: true,
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true
+                    )
+                } // wrap 
+            } // stage
+            if (!errorOccurred.equals("")) {
+                echo errorOccurred
+            }
+        } catch (e) {
+            if (!errorOccurred.equals("")) {
+                echo errorOccurred
+                util.notifyBuildFailed()
+                return
+            }
+            throw e
+        } // try
+      } // with
+    } // node
+} // timeout
+
+
+node(nodeLabel){ 
+  stage ("Update plugin registry GH page + rebuild devfile registry") {
+    // echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && CONTAINERS.trim().contains("pluginregistry")) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+
+        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+        println "DS_VERSION = '" + DS_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+        // trigger GH action plugin-registry-build-publish-content-gh-pages.yaml, which will 
+        // publish new plugin registry GH page content and rebuild the devfile registry
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            sh('''#!/bin/bash -e
+this_repo="redhat-developer/devspaces"
+this_action_name="Plugin Registry - GH Pages - Publish Registry Content"
+workflow_id="18838921" # see https://github.com/eclipse-che/che-release/blob/main/utils/util.sh#L9-L17
+this_github_token="''' + GITHUB_TOKEN + '''"
+workflow_ref="''' + MIDSTM_BRANCH + '''"
+if [[ "''' + MIDSTM_BRANCH + '''" == "devspaces-3-rhel-8" ]]; then
+    inputsJson="{\\"TAG\\": \\"next\\"}"
+else
+    inputsJson="{\\"TAG\\": \\"''' + JOB_BRANCH + '''\\"}"
+fi
+actionURL="https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml"
+echo "[INFO] Invoking $actionURL with branch=$workflow_ref and $inputsJson ..."
+
+curl -sSL "https://api.github.com/repos/${this_repo}/actions/workflows/${workflow_id}/dispatches" \
+    -X POST -H "Authorization: token ${this_github_token}" -H "Accept: application/vnd.github.v3+json" \
+    -d "{\\"ref\\":\\"${workflow_ref}\\",\\"inputs\\": ${inputsJson} }" || \
+    die_with "[ERROR] Problem invoking $actionURL with branch=$workflow_ref and $inputsJson"
+''')
+        }
+    } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  }
+}
+
+node(nodeLabel){ 
+  stage ("Update metadata") {
+    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        echo "currentBuild.result = " + currentBuild.result
+        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+            DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+            println "DS_VERSION = '" + DS_VERSION + "'"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+            // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
+            // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
+            if (CONTAINERS.trim().contains("operator-bundle")) {
+                println "NOTE: Skip scheduling update-digests for this update, as we have just updated operator-bundle."
+                // currentBuild.description+="; update-digests NOT triggered"
+            } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
+                println "Scheduling update-digests for this update:"
+                println DIFF_LATEST_IMAGES_QUAY_V_STORED
+                jobPath='/job/DS_CI/job/update-digests_' + JOB_BRANCH
+                final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: false,
+                    propagate: false,
+                    quietPeriod: 0,
+                    parameters: [
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'comments_url',
+                            value: util.globalVar({comments_url})
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'token',
+                            value: "CI_BUILD"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'cause',
+                            value: "push-latest-containers-to-quay+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                        ],
+                        [
+                            $class: 'BooleanParameterValue',
+                            name: 'CLEAN_ON_FAILURE',
+                            value: CLEAN_ON_FAILURE
+                        ]
+                    ]
+                )
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+            } else {
+                println "No changes to LATEST_IMAGES; no need to trigger update-digests " + DS_VERSION
+                currentBuild.result = 'UNSTABLE'
+                currentBuild.description+="; update-digests NOT triggered"
+            }
+
+            // CRW-2095 publish operator-bundle-generated too
+            if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*")) {
+                // https://issues.redhat.com/browse/CRW-1564 if an update to operator-bundle, push new csv content into devspaces-images repo, 
+                // in devspaces-operator-bundle-generated folder (outside where we sync from up->mid->down, as this should NOT
+                // be synced to downstream or overwritten by upstream)
+                SOURCE_REPO="redhat-developer/devspaces-images"
+                println "####################################################################################################################"
+                println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
+                println "####################################################################################################################"
+
+                util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+                sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
+chmod +x updateGeneratedOperatorMetadata.sh
+./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + DS_VERSION + ''' \
+    -s ${WORKSPACE}/sources -d devspaces-operator-bundle-generated -c quay.io/devspaces/devspaces-operator-bundle
+''')
+                currentBuild.description+="; bundle-generated updated"
+            }
+            def OCP_VERSIONS = sh(script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
+    | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "
+''', returnStdout: true).trim()
+            println "####################################################################################################################"
+            println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
+            println "####################################################################################################################"
+            jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
+            // trigger copyIIBsToQuay job
+            final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
+                wait: false,
+                propagate: false,
+                quietPeriod: 0,
+                parameters: [
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'comments_url',
+                        value: util.globalVar({comments_url})
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "filter+and+copy+IIBs+to+quay"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'MIDSTM_BRANCH',
+                        value: MIDSTM_BRANCH
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'DS_VERSION',
+                        value: DS_VERSION
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'OCP_VERSIONS',
+                        value: OCP_VERSIONS
+
+                    ]
+                ]
+            )            
+            println("triggered build(" + jobPath + ") [no wait]")
+            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+            currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
+        } // if 
+
+        // TODO when theia is dead, enable util.commentOnPullRequestBuildDescription block here
+        // comment on the PR with this job's build description
+        // if (util.globalVar({comments_url})?.trim()) {
+        //     println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+        // }
+
+    } // with
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  } // stage
+} //node
+
+// https://issues.redhat.com/browse/CRW-1011 trigger theia-akamai job 
+node(nodeLabel){ 
+  stage ("Enable Akamai CDN support for DS Theia image") {
+    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        echo "currentBuild.result = " + currentBuild.result
+        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+            // if CONTAINERS contains theia-endpoint
+            // println "Containers: " + CONTAINERS.trim()
+            if (CONTAINERS.trim().matches(".*theia-endpoint.*")) {
+                DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                println "DS_VERSION = '" + DS_VERSION + "'"
+                println "Scheduling theia-akamai"
+                JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+                jobPath='/job/DS_CI/job/theia-akamai_' + JOB_BRANCH
+                final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: false,
+                    propagate: false,
+                    quietPeriod: 0,
+                    parameters: [
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'comments_url',
+                            value: util.globalVar({comments_url})
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'token',
+                            value: "CI_BUILD"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'cause',
+                            value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                        ],
+                        [
+                            $class: 'BooleanParameterValue',
+                            name: 'CLEAN_ON_FAILURE',
+                            value: CLEAN_ON_FAILURE
+                        ]
+                    ]
+                )
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+            } // if 2
+        } // if
+
+        // comment on the PR with this job's build description
+        if (util.globalVar({comments_url})?.trim()) {
+            println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+        }
+    }
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  } // stage
+} //node

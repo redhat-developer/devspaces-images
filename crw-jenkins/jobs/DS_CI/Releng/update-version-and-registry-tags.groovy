@@ -5,7 +5,7 @@ def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devs
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-// for 2.yy, return 2.yy+1
+// for 3.yy, return 3.yy+1
 def computeNextVersion(String ver){
     verBits=ver.tokenize(".")
     int vb1=Integer.parseInt(verBits[1])
