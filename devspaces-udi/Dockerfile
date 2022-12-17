@@ -42,7 +42,7 @@ RUN \
     # END Kamel
 
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.7-923.1669829893
+FROM ubi8-minimal:8.7-1031
 
 USER root
 
