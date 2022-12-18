@@ -10,7 +10,7 @@
 ###
 # Builder Image
 #
-FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-dev-rhel8:3.4 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-dev-rhel8:3.5 as builder
 
 WORKDIR ${HOME}
 
