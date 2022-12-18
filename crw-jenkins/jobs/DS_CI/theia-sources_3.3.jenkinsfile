@@ -81,7 +81,7 @@ echo -n $THEIA_COMMIT_SHA
 
           // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
           sh """
-. ~/crw_env ${DS_VERSION}
+. ~/node_env ${DS_VERSION}
 pushd ${WORKSPACE}/devspaces-theia-prepare >/dev/null
 echo nodeVersion=${nodeVersion} > BUILD_PARAMS
 echo yarnVersion=${yarnVersion} >> BUILD_PARAMS
@@ -165,7 +165,7 @@ cd devspaces-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUIL
                 ansiColor('xterm') {
                   echo "[INFO] Build images: " + CONTAINERS
                   buildStatusCode = sh script:'''#!/bin/bash -e
-. ~/crw_env ''' + DS_VERSION + ''' || { echo "[ERROR] Problem running on ''' + nodeLabel + ''': . ~/crw_env ''' + DS_VERSION + '''"; exit 1; }
+. ~/node_env ''' + DS_VERSION + ''' || { echo "[ERROR] Problem running on ''' + nodeLabel + ''': . ~/node_env ''' + DS_VERSION + '''"; exit 1; }
 echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 

@@ -30,9 +30,10 @@ See <a href=https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-
 https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/tagRelease.sh</a>
 
 <p>Pass in values like these to create/update the ''' + PREV_VERSION + ''' and 3.x (''' + JOB_BRANCH + ''') branches, including devfiles in sample projects:
-<ul><li>DS_VERSION = ''' + PREV_VERSION + '''</li>
-<li><li>MIDSTM_BRANCH = devspaces-3-rhel-8 (''' + JOB_BRANCH + ''')</li>
-<li><li>NEW_BRANCH = devspaces-''' + PREV_VERSION + '''-rhel-8</li>
+<ul>
+    <li>DS_VERSION = ''' + PREV_VERSION + '''</li>
+    <li>NEW_BRANCH = devspaces-''' + PREV_VERSION + '''-rhel-8</li>
+    <li>MIDSTM_BRANCH = devspaces-3-rhel-8 (''' + JOB_BRANCH + ''')</li>
 </ul>
 </p>
 
@@ -56,8 +57,8 @@ https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/ta
 
         parameters{
             stringParam("DS_VERSION",PREV_VERSION,"version to use in NEW_BRANCH; " + MIDSTM_BRANCH + " branch will also be updated to " + JOB_BRANCH)
-            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use as source of the new branches")
             stringParam("NEW_BRANCH",NEW_BRANCH,"branches to create")
+            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use as source of the new branches")
             booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
         }
 

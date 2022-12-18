@@ -44,7 +44,7 @@ timeout(240) {
             echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
             retry(2) {
               sh('''#!/bin/bash
-. ~/crw_env ''' + DS_VERSION + '''
+. ~/node_env ''' + DS_VERSION + '''
 echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 

@@ -26,7 +26,7 @@ timeout(240) {
 # TODO this should move into a dockerfile so we can run the manifest collection w/o installing anything locally
 sudo dnf -y install tree php-devel php-json || sudo dnf -y update tree php-devel php-json
 
-. ~/crw_env ''' + DS_VERSION + '''
+. ~/node_env ''' + DS_VERSION + '''
 echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
@@ -59,7 +59,7 @@ cd ${WORKSPACE}/ds/product/ && ./tagRelease.sh -t ''' + DS_VERSION + ''' -v ''' 
 CSV_VERSION="''' + CSV_VERSION + '''"
 echo CSV_VERSION = ${CSV_VERSION}
 
-. ~/crw_env ''' + DS_VERSION + '''
+. ~/node_env ''' + DS_VERSION + '''
 
 # generate source files
 cd ${WORKSPACE}/ds/product/manifest/

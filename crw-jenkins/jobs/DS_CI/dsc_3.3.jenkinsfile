@@ -52,7 +52,7 @@ timeout(90) {
           currentBuild.description="Building with Node " + nodeVersion + "..."
           sh('''#!/bin/bash -e
 # default node version
-. ~/crw_env ''' + DS_VERSION + ''' 
+. ~/node_env ''' + DS_VERSION + ''' 
 # special node version for dsc only
 nvm install ''' + nodeVersion + '''; . $HOME/.nvm/nvm.sh; nvm use ''' + nodeVersion + '''
 echo "Node: $(node --version) ( $(which node) )"
