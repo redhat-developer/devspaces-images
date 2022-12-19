@@ -30,7 +30,6 @@ import { buildUserEnvironment } from 'vs/server/node/extensionHostConnection';
 import { IServerEnvironmentService } from 'vs/server/node/serverEnvironmentService';
 import { IProductService } from 'vs/platform/product/common/productService';
 import { IExtensionManagementService } from 'vs/platform/extensionManagement/common/extensionManagement';
-import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 
 class CustomVariableResolver extends AbstractVariableResolverService {
 	constructor(
@@ -99,7 +98,6 @@ export class RemoteTerminalChannel extends Disposable implements IServerChannel<
 		private readonly _ptyService: IPtyService,
 		private readonly _productService: IProductService,
 		private readonly _extensionManagementService: IExtensionManagementService,
-		private readonly _configurationService: IConfigurationService
 	) {
 		super();
 	}
@@ -195,7 +193,7 @@ export class RemoteTerminalChannel extends Disposable implements IServerChannel<
 		};
 
 
-		const baseEnv = await buildUserEnvironment(args.resolverEnv, !!args.shellLaunchConfig.useShellEnvironment, platform.language, this._environmentService, this._logService, this._configurationService);
+		const baseEnv = await buildUserEnvironment(args.resolverEnv, !!args.shellLaunchConfig.useShellEnvironment, platform.language, this._environmentService, this._logService);
 		this._logService.trace('baseEnv', baseEnv);
 
 		const reviveWorkspaceFolder = (workspaceData: IWorkspaceFolderData): IWorkspaceFolder => {

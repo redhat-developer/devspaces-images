@@ -597,12 +597,7 @@ export enum FileSystemProviderErrorCode {
 	Unknown = 'Unknown'
 }
 
-export interface IFileSystemProviderError extends Error {
-	readonly name: string;
-	readonly code: FileSystemProviderErrorCode;
-}
-
-export class FileSystemProviderError extends Error implements IFileSystemProviderError {
+export class FileSystemProviderError extends Error {
 
 	constructor(message: string, readonly code: FileSystemProviderErrorCode) {
 		super(message);

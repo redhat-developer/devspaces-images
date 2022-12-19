@@ -11,6 +11,7 @@ import { ITerminalInstance } from 'vs/workbench/contrib/terminal/browser/termina
 export const GitCommandLineRegex = /git/;
 export const GitPushCommandLineRegex = /git\s+push/;
 export const GitTwoDashesRegex = /error: did you mean `--(.+)` \(with two dashes\)\?/;
+const AnyCommandLineRegex = /.+/;
 export const GitSimilarOutputRegex = /(?:(most similar (command|commands) (is|are)))((\n\s*(?<fixedCommand>[^\s]+))+)/m;
 export const FreePortOutputRegex = /address already in use (0\.0\.0\.0|127\.0\.0\.1|localhost|::):(?<portNumber>\d{4,5})|Unable to bind [^ ]*:(\d{4,5})|can't listen on port (\d{4,5})|listen EADDRINUSE [^ ]*:(\d{4,5})/;
 export const GitPushOutputRegex = /git push --set-upstream origin (?<branchName>[^\s]+)/;
@@ -88,7 +89,7 @@ export function freePort(terminalInstance?: Partial<ITerminalInstance>): IIntern
 	return {
 		id: 'Free Port',
 		type: 'internal',
-		commandLineMatcher: /.+/,
+		commandLineMatcher: AnyCommandLineRegex,
 		outputMatcher: {
 			lineMatcher: FreePortOutputRegex,
 			anchor: 'bottom',

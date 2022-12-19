@@ -342,10 +342,6 @@ export interface IEditorOptions {
 	 */
 	colorDecorators?: boolean;
 	/**
-	 * Controls the max number of color decorators that can be rendered in an editor at once.
-	 */
-	colorDecoratorsLimit?: number;
-	/**
 	 * Control the behaviour of comments in the editor.
 	 */
 	comments?: IEditorCommentsOptions;
@@ -4248,11 +4244,6 @@ class EditorSuggest extends BaseEditorOption<EditorOption.suggest, ISuggestOptio
 					default: defaults.shareSuggestSelections,
 					markdownDescription: nls.localize('suggest.shareSuggestSelections', "Controls whether remembered suggestion selections are shared between multiple workspaces and windows (needs `#editor.suggestSelection#`).")
 				},
-				'editor.suggest.selectQuickSuggestions': {
-					type: 'boolean',
-					default: defaults.selectQuickSuggestions,
-					markdownDescription: nls.localize('suggest.selectQuickSuggestions', "Controls whether the suggest widget becomes active when triggered via quick suggest or trigger characters.")
-				},
 				'editor.suggest.snippetsPreventQuickSuggestions': {
 					type: 'boolean',
 					default: defaults.snippetsPreventQuickSuggestions,
@@ -4741,7 +4732,6 @@ export const enum EditorOption {
 	codeLensFontFamily,
 	codeLensFontSize,
 	colorDecorators,
-	colorDecoratorsLimit,
 	columnSelection,
 	comments,
 	contextmenu,
@@ -5004,12 +4994,6 @@ export const EditorOptions = {
 	colorDecorators: register(new EditorBooleanOption(
 		EditorOption.colorDecorators, 'colorDecorators', true,
 		{ description: nls.localize('colorDecorators', "Controls whether the editor should render the inline color decorators and color picker.") }
-	)),
-	colorDecoratorsLimit: register(new EditorIntOption(
-		EditorOption.colorDecoratorsLimit, 'colorDecoratorsLimit', 500, 1, 1000000,
-		{
-			markdownDescription: nls.localize('colorDecoratorsLimit', "Controls the max number of color decorators that can be rendered in an editor at once.")
-		}
 	)),
 	columnSelection: register(new EditorBooleanOption(
 		EditorOption.columnSelection, 'columnSelection', false,

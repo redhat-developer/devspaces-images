@@ -37,15 +37,12 @@ import { ITerminalCapabilityStore, ITerminalCommand, TerminalCapability } from '
 import { Emitter } from 'vs/base/common/event';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 
-const enum RenderConstants {
-	/**
-	 * How long in milliseconds should an average frame take to render for a notification to appear
-	 * which suggests the fallback DOM-based renderer.
-	 */
-	SlowCanvasRenderThreshold = 50,
-	NumberOfFramestoMeasure = 20,
-	SmoothScrollDuration = 125
-}
+
+// How long in milliseconds should an average frame take to render for a notification to appear
+// which suggests the fallback DOM-based renderer
+const SLOW_CANVAS_RENDER_THRESHOLD = 50;
+const NUMBER_OF_FRAMES_TO_MEASURE = 20;
+const SMOOTH_SCROLL_DURATION = 125;
 
 let CanvasAddon: typeof CanvasAddonType;
 let SearchAddon: typeof SearchAddonType;
@@ -219,7 +216,7 @@ export class XtermTerminal extends DisposableStore implements IXtermTerminal, II
 			scrollSensitivity: config.mouseWheelScrollSensitivity,
 			wordSeparator: config.wordSeparators,
 			overviewRulerWidth: 10,
-			smoothScrollDuration: config.smoothScrolling ? RenderConstants.SmoothScrollDuration : 0
+			smoothScrollDuration: config.smoothScrolling ? SMOOTH_SCROLL_DURATION : 0
 		}));
 		this._core = (this.raw as any)._core as IXtermCore;
 
@@ -313,7 +310,7 @@ export class XtermTerminal extends DisposableStore implements IXtermTerminal, II
 		this.raw.options.rightClickSelectsWord = config.rightClickBehavior === 'selectWord';
 		this.raw.options.wordSeparator = config.wordSeparators;
 		this.raw.options.customGlyphs = config.customGlyphs;
-		this.raw.options.smoothScrollDuration = config.smoothScrolling ? RenderConstants.SmoothScrollDuration : 0;
+		this.raw.options.smoothScrollDuration = config.smoothScrolling ? SMOOTH_SCROLL_DURATION : 0;
 		if (this._shouldLoadWebgl()) {
 			this._enableWebglRenderer();
 		} else {
@@ -623,7 +620,7 @@ export class XtermTerminal extends DisposableStore implements IXtermTerminal, II
 			frameTimes.shift();
 
 			const medianTime = frameTimes.sort((a, b) => a - b)[Math.floor(frameTimes.length / 2)];
-			if (medianTime > RenderConstants.SlowCanvasRenderThreshold) {
+			if (medianTime > SLOW_CANVAS_RENDER_THRESHOLD) {
 				if (this._configHelper.config.gpuAcceleration === 'auto') {
 					XtermTerminal._suggestedRendererType = 'dom';
 					this.updateConfig();
@@ -656,7 +653,7 @@ export class XtermTerminal extends DisposableStore implements IXtermTerminal, II
 			const startTime = performance.now();
 			originalOnGridChanged.call(textRenderLayer, terminal, firstRow, lastRow);
 			frameTimes.push(performance.now() - startTime);
-			if (frameTimes.length === RenderConstants.NumberOfFramestoMeasure) {
+			if (frameTimes.length === NUMBER_OF_FRAMES_TO_MEASURE) {
 				evaluateCanvasRenderer();
 				// Restore original function
 				textRenderLayer.onGridChanged = originalOnGridChanged;

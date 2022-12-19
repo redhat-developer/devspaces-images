@@ -352,6 +352,5 @@ export const enum GitErrorCodes {
 	UnknownPath = 'UnknownPath',
 	EmptyCommitMessage = 'EmptyCommitMessage',
 	BranchFastForwardRejected = 'BranchFastForwardRejected',
-	BranchNotYetBorn = 'BranchNotYetBorn',
 	TagConflict = 'TagConflict'
 }

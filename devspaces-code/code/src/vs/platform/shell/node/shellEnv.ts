@@ -8,7 +8,7 @@ import { basename } from 'vs/base/common/path';
 import { localize } from 'vs/nls';
 import { CancellationToken, CancellationTokenSource } from 'vs/base/common/cancellation';
 import { toErrorMessage } from 'vs/base/common/errorMessage';
-import { CancellationError, isCancellationError } from 'vs/base/common/errors';
+import { canceled, isCancellationError } from 'vs/base/common/errors';
 import { IProcessEnvironment, isWindows, OS } from 'vs/base/common/platform';
 import { generateUuid } from 'vs/base/common/uuid';
 import { getSystemShell } from 'vs/base/node/shell';
@@ -16,8 +16,13 @@ import { NativeParsedArgs } from 'vs/platform/environment/common/argv';
 import { isLaunchedFromCli } from 'vs/platform/environment/node/argvHelper';
 import { ILogService } from 'vs/platform/log/common/log';
 import { Promises } from 'vs/base/common/async';
-import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { clamp } from 'vs/base/common/numbers';
+
+/**
+ * The maximum of time we accept to wait on resolving the shell
+ * environment before giving up. This ensures we are not blocking
+ * other tasks from running for a too long time period.
+ */
+const MAX_SHELL_RESOLVE_TIME = 10000;
 
 let unixShellEnvPromise: Promise<typeof process.env> | undefined = undefined;
 
@@ -29,7 +34,7 @@ let unixShellEnvPromise: Promise<typeof process.env> | undefined = undefined;
  * - we hit a timeout of `MAX_SHELL_RESOLVE_TIME`
  * - any other error from spawning a shell to figure out the environment
  */
-export async function getResolvedShellEnv(configurationService: IConfigurationService, logService: ILogService, args: NativeParsedArgs, env: IProcessEnvironment): Promise<typeof process.env> {
+export async function getResolvedShellEnv(logService: ILogService, args: NativeParsedArgs, env: IProcessEnvironment): Promise<typeof process.env> {
 
 	// Skip if --force-disable-user-env
 	if (args['force-disable-user-env']) {
@@ -67,17 +72,11 @@ export async function getResolvedShellEnv(configurationService: IConfigurationSe
 			unixShellEnvPromise = Promises.withAsyncBody<NodeJS.ProcessEnv>(async (resolve, reject) => {
 				const cts = new CancellationTokenSource();
 
-				let timeoutValue = 10000; // default to 10 seconds
-				const configuredTimeoutValue = configurationService.getValue<unknown>('application.shellEnvironmentResolutionTimeout');
-				if (typeof configuredTimeoutValue === 'number') {
-					timeoutValue = clamp(configuredTimeoutValue, 1, 120) * 1000 /* convert from seconds */;
-				}
-
 				// Give up resolving shell env after some time
 				const timeout = setTimeout(() => {
 					cts.dispose(true);
 					reject(new Error(localize('resolveShellEnvTimeout', "Unable to resolve your shell environment in a reasonable time. Please review your shell configuration and restart.")));
-				}, timeoutValue);
+				}, MAX_SHELL_RESOLVE_TIME);
 
 				// Resolve shell env and handle errors
 				try {
@@ -122,7 +121,7 @@ async function doResolveUnixShellEnv(logService: ILogService, token: Cancellatio
 
 	return new Promise<typeof process.env>((resolve, reject) => {
 		if (token.isCancellationRequested) {
-			return reject(new CancellationError());
+			return reject(canceled());
 		}
 
 		// handle popular non-POSIX shells
@@ -155,7 +154,7 @@ async function doResolveUnixShellEnv(logService: ILogService, token: Cancellatio
 		token.onCancellationRequested(() => {
 			child.kill();
 
-			return reject(new CancellationError());
+			return reject(canceled());
 		});
 
 		child.on('error', err => {

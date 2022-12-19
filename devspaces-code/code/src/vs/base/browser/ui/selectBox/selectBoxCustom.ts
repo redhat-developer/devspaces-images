@@ -147,7 +147,7 @@ export class SelectBoxList extends Disposable implements ISelectBoxDelegate, ILi
 	// IDelegate - List renderer
 
 	getHeight(): number {
-		return 22;
+		return 18;
 	}
 
 	getTemplateId(): string {

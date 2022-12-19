@@ -15,26 +15,21 @@ import { XtermAttributes, IXtermCore } from 'vs/workbench/contrib/terminal/brows
 import { DEFAULT_LOCAL_ECHO_EXCLUDE, IBeforeProcessDataEvent, ITerminalConfiguration, ITerminalProcessManager } from 'vs/workbench/contrib/terminal/common/terminal';
 import type { IBuffer, IBufferCell, IDisposable, ITerminalAddon, Terminal } from 'xterm';
 
-const enum VT {
-	Esc = '\x1b',
-	Csi = `\x1b[`,
-	ShowCursor = `\x1b[?25h`,
-	HideCursor = `\x1b[?25l`,
-	DeleteChar = `\x1b[X`,
-	DeleteRestOfLine = `\x1b[K`,
-}
-
+const ESC = '\x1b';
+const CSI = `${ESC}[`;
+const SHOW_CURSOR = `${CSI}?25h`;
+const HIDE_CURSOR = `${CSI}?25l`;
+const DELETE_CHAR = `${CSI}X`;
+const DELETE_REST_OF_LINE = `${CSI}K`;
 const CSI_STYLE_RE = /^\x1b\[[0-9;]*m/;
 const CSI_MOVE_RE = /^\x1b\[?([0-9]*)(;[35])?O?([DC])/;
 const NOT_WORD_RE = /[^a-z0-9]/i;
 
-const enum StatsConstants {
-	StatsBufferSize = 24,
-	StatsSendTelemetryEvery = 1000 * 60 * 5, // how often to collect stats
-	StatsMinSamplesToTurnOn = 5,
-	StatsMinAccuracyToTurnOn = 0.3,
-	StatsToggleOffThreshold = 0.5, // if latency is less than `threshold * this`, turn off
-}
+const statsBufferSize = 24;
+const statsSendTelemetryEvery = 1000 * 60 * 5; // how often to collect stats
+const statsMinSamplesToTurnOn = 5;
+const statsMinAccuracyToTurnOn = 0.3;
+const statsToggleOffThreshold = 0.5; // if latency is less than `threshold * this`, turn off
 
 /**
  * Codes that should be omitted from sending to the prediction engine and instead omitted directly:
@@ -137,7 +132,7 @@ class Cursor implements ICoordinate {
 			this._y = 0;
 		}
 
-		return `${VT.Csi}${this._y + 1};${this._x + 1}H`;
+		return `${CSI}${this._y + 1};${this._x + 1}H`;
 	}
 }
 
@@ -405,7 +400,7 @@ class CharacterPrediction implements IPrediction {
 		}
 
 		const { oldAttributes, oldChar, pos } = this.appliedAt;
-		const r = cursor.moveTo(pos) + (oldChar ? `${oldAttributes}${oldChar}${cursor.moveTo(pos)}` : VT.DeleteChar);
+		const r = cursor.moveTo(pos) + (oldChar ? `${oldAttributes}${oldChar}${cursor.moveTo(pos)}` : DELETE_CHAR);
 		return r;
 	}
 
@@ -465,7 +460,7 @@ class BackspacePrediction implements IPrediction {
 			? { isLastChar, pos, oldAttributes: attributesToSeq(cell), oldChar: cell.getChars() }
 			: { isLastChar, pos, oldAttributes: '', oldChar: '' };
 
-		return move + VT.DeleteChar;
+		return move + DELETE_CHAR;
 	}
 
 	rollback(cursor: Cursor) {
@@ -475,7 +470,7 @@ class BackspacePrediction implements IPrediction {
 
 		const { oldAttributes, oldChar, pos } = this._appliedAt;
 		if (!oldChar) {
-			return cursor.moveTo(pos) + VT.DeleteChar;
+			return cursor.moveTo(pos) + DELETE_CHAR;
 		}
 
 		return oldAttributes + oldChar + cursor.moveTo(pos) + attributesToSeq(core(this._terminal)._inputHandler._curAttrData);
@@ -487,7 +482,7 @@ class BackspacePrediction implements IPrediction {
 
 	matches(input: StringReader) {
 		if (this._appliedAt?.isLastChar) {
-			const r1 = input.eatGradually(`\b${VT.Csi}K`);
+			const r1 = input.eatGradually(`\b${CSI}K`);
 			if (r1 !== MatchResult.Failure) {
 				return r1;
 			}
@@ -540,7 +535,7 @@ class LinewrapPrediction extends NewlinePrediction implements IPrediction {
 		const r = input.eatGradually(' \r');
 		if (r !== MatchResult.Failure) {
 			// zshell additionally adds a clear line after wrapping to be safe -- eat it
-			const r2 = input.eatGradually(VT.DeleteRestOfLine);
+			const r2 = input.eatGradually(DELETE_REST_OF_LINE);
 			return r2 === MatchResult.Buffer ? MatchResult.Buffer : r;
 		}
 
@@ -613,7 +608,7 @@ class CursorMovePrediction implements IPrediction {
 		// arg can be omitted to move one character. We don't eatGradually() here
 		// or below moves that don't go as far as the cursor would be buffered
 		// indefinitely
-		if (input.eatStr(`${VT.Csi}${direction}`.repeat(amount))) {
+		if (input.eatStr(`${CSI}${direction}`.repeat(amount))) {
 			return MatchResult.Success;
 		}
 
@@ -633,7 +628,7 @@ class CursorMovePrediction implements IPrediction {
 		}
 
 		// check for a relative move in the direction
-		return input.eatGradually(`${VT.Csi}${amount}${direction}`);
+		return input.eatGradually(`${CSI}${amount}${direction}`);
 	}
 }
 
@@ -703,7 +698,7 @@ export class PredictionStats extends Disposable {
 	private _pushStat(correct: boolean, prediction: IPrediction) {
 		const started = this._addedAtTime.get(prediction)!;
 		this._stats[this._index] = [Date.now() - started, correct];
-		this._index = (this._index + 1) % StatsConstants.StatsBufferSize;
+		this._index = (this._index + 1) % statsBufferSize;
 		this._changeEmitter.fire();
 	}
 }
@@ -924,7 +919,7 @@ export class PredictionTimeline {
 		}
 
 		// prevent cursor flickering while typing
-		output = VT.HideCursor + output + VT.ShowCursor;
+		output = HIDE_CURSOR + output + SHOW_CURSOR;
 
 		return output;
 	}
@@ -1065,7 +1060,7 @@ const attributesToArgs = (cell: XtermAttributes) => {
 /**
  * Gets the escape sequence to restore state/appearance in the cell.
  */
-const attributesToSeq = (cell: XtermAttributes) => `${VT.Csi}${attributesToArgs(cell).join(';')}m`;
+const attributesToSeq = (cell: XtermAttributes) => `${CSI}${attributesToArgs(cell).join(';')}m`;
 
 const arrayHasPrefixAt = <T>(a: ReadonlyArray<T>, ai: number, b: ReadonlyArray<T>) => {
 	if (a.length - ai > b.length) {
@@ -1118,7 +1113,7 @@ const getColorWidth = (params: (number | number[])[], pos: number) => {
 
 class TypeAheadStyle implements IDisposable {
 	private static _compileArgs(args: ReadonlyArray<number>) {
-		return `${VT.Csi}${args.join(';')}m`;
+		return `${CSI}${args.join(';')}m`;
 	}
 
 	/**
@@ -1347,7 +1342,7 @@ export class TypeAheadAddon extends Disposable implements ITerminalAddon {
 				nextStatsSend = setTimeout(() => {
 					this._sendLatencyStats(stats);
 					nextStatsSend = undefined;
-				}, StatsConstants.StatsSendTelemetryEvery);
+				}, statsSendTelemetryEvery);
 			}
 
 			if (timeline.length === 0) {
@@ -1403,11 +1398,11 @@ export class TypeAheadAddon extends Disposable implements ITerminalAddon {
 			timeline.setShowPredictions(false);
 		} else if (this._typeaheadThreshold === 0) {
 			timeline.setShowPredictions(true);
-		} else if (stats.sampleSize > StatsConstants.StatsMinSamplesToTurnOn && stats.accuracy > StatsConstants.StatsMinAccuracyToTurnOn) {
+		} else if (stats.sampleSize > statsMinSamplesToTurnOn && stats.accuracy > statsMinAccuracyToTurnOn) {
 			const latency = stats.latency.median;
 			if (latency >= this._typeaheadThreshold) {
 				timeline.setShowPredictions(true);
-			} else if (latency < this._typeaheadThreshold / StatsConstants.StatsToggleOffThreshold) {
+			} else if (latency < this._typeaheadThreshold / statsToggleOffThreshold) {
 				timeline.setShowPredictions(false);
 			}
 		}
@@ -1523,12 +1518,12 @@ export class TypeAheadAddon extends Disposable implements ITerminalAddon {
 				continue;
 			}
 
-			if (reader.eatStr(`${VT.Esc}f`)) {
+			if (reader.eatStr(`${ESC}f`)) {
 				addRightNavigating(new CursorMovePrediction(CursorMoveDirection.Forwards, true, 1));
 				continue;
 			}
 
-			if (reader.eatStr(`${VT.Esc}b`)) {
+			if (reader.eatStr(`${ESC}b`)) {
 				addLeftNavigating(new CursorMovePrediction(CursorMoveDirection.Back, true, 1));
 				continue;
 			}

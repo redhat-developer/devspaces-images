@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as path from 'path';
-import * as testRunner from '../../../../test/integration/electron/testrunner';
+const path = require('path');
+const testRunner = require('../../../../test/integration/electron/testrunner');
 
-const options: import('mocha').MochaOptions = {
+const options: any = {
 	ui: 'tdd',
 	color: true,
 	timeout: 60000

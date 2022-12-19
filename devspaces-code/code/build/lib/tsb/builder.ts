@@ -3,14 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as fs from 'fs';
+import { statSync, readFileSync } from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import * as utils from './utils';
 import * as colors from 'ansi-colors';
 import * as ts from 'typescript';
 import * as Vinyl from 'vinyl';
-import { RawSourceMap, SourceMapConsumer, SourceMapGenerator } from 'source-map';
 
 export interface IConfiguration {
 	logFn: (topic: string, message: string) => void;
@@ -159,81 +158,8 @@ export function createTypeScriptBuilder(config: IConfiguration, projectFile: str
 								const dirname = path.dirname(vinyl.relative);
 								const tsname = (dirname === '.' ? '' : dirname + '/') + basename + '.ts';
 
-								let sourceMap = <RawSourceMap>JSON.parse(sourcemapFile.text);
+								const sourceMap = JSON.parse(sourcemapFile.text);
 								sourceMap.sources[0] = tsname.replace(/\\/g, '/');
-
-								// check for an "input source" map and combine them
-								// in step 1 we extract all line edit from the input source map, and
-								// in step 2 we apply the line edits to the typescript source map
-								const snapshot = host.getScriptSnapshot(fileName);
-								if (snapshot instanceof VinylScriptSnapshot && snapshot.sourceMap) {
-									const inputSMC = new SourceMapConsumer(snapshot.sourceMap);
-									const tsSMC = new SourceMapConsumer(sourceMap);
-									let didChange = false;
-									const smg = new SourceMapGenerator({
-										file: sourceMap.file,
-										sourceRoot: sourceMap.sourceRoot
-									});
-
-									// step 1
-									const lineEdits = new Map<number, [from: number, to: number][]>();
-									inputSMC.eachMapping(m => {
-										if (m.originalLine === m.generatedLine) {
-											// same line mapping
-											let array = lineEdits.get(m.originalLine);
-											if (!array) {
-												array = [];
-												lineEdits.set(m.originalLine, array);
-											}
-											array.push([m.originalColumn, m.generatedColumn]);
-										} else {
-											// NOT SUPPORTED
-										}
-									});
-
-									// step 2
-									tsSMC.eachMapping(m => {
-										didChange = true;
-										const edits = lineEdits.get(m.originalLine);
-										let originalColumnDelta = 0;
-										if (edits) {
-											for (const [from, to] of edits) {
-												if (to >= m.originalColumn) {
-													break;
-												}
-												originalColumnDelta = from - to;
-											}
-										}
-										smg.addMapping({
-											source: m.source,
-											name: m.name,
-											generated: { line: m.generatedLine, column: m.generatedColumn },
-											original: { line: m.originalLine, column: m.originalColumn + originalColumnDelta }
-										});
-									});
-
-									if (didChange) {
-
-										[tsSMC, inputSMC].forEach((consumer) => {
-											(<SourceMapConsumer & { sources: string[] }>consumer).sources.forEach((sourceFile: any) => {
-												(<any>smg)._sources.add(sourceFile);
-												const sourceContent = consumer.sourceContentFor(sourceFile);
-												if (sourceContent !== null) {
-													smg.setSourceContent(sourceFile, sourceContent);
-												}
-											});
-										});
-
-										sourceMap = JSON.parse(smg.toString());
-
-										// const filename = '/Users/jrieken/Code/vscode/src2/' + vinyl.relative + '.map';
-										// fs.promises.mkdir(path.dirname(filename), { recursive: true }).then(async () => {
-										// 	await fs.promises.writeFile(filename, smg.toString());
-										// 	await fs.promises.writeFile('/Users/jrieken/Code/vscode/src2/' + vinyl.relative, vinyl.contents);
-										// });
-									}
-								}
-
 								(<any>vinyl).sourceMap = sourceMap;
 							}
 						}
@@ -471,12 +397,9 @@ class VinylScriptSnapshot extends ScriptSnapshot {
 
 	private readonly _base: string;
 
-	readonly sourceMap?: RawSourceMap;
-
-	constructor(file: Vinyl & { sourceMap?: RawSourceMap }) {
+	constructor(file: Vinyl) {
 		super(file.contents!.toString(), file.stat!.mtime);
 		this._base = file.base;
-		this.sourceMap = file.sourceMap;
 	}
 
 	getBase(): string {
@@ -551,9 +474,9 @@ class LanguageServiceHost implements ts.LanguageServiceHost {
 			try {
 				result = new VinylScriptSnapshot(new Vinyl(<any>{
 					path: filename,
-					contents: fs.readFileSync(filename),
+					contents: readFileSync(filename),
 					base: this.getCompilationSettings().outDir,
-					stat: fs.statSync(filename)
+					stat: statSync(filename)
 				}));
 				this.addScriptSnapshot(filename, result);
 			} catch (e) {

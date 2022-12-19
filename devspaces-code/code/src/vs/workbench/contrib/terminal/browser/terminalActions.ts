@@ -116,6 +116,8 @@ export const terminalSendSequenceCommand = (accessor: ServicesAccessor, args: { 
 	});
 };
 
+const terminalIndexRe = /^([0-9]+): /;
+
 export class TerminalLaunchHelpAction extends Action {
 
 	constructor(
@@ -1213,7 +1215,7 @@ export function registerTerminalActions() {
 		}
 		run(accessor: ServicesAccessor) {
 			accessor.get(ITerminalService).doWithActiveInstance(t => {
-				t.xterm?.markTracker.scrollToPreviousMark(undefined, undefined, t.capabilities.has(TerminalCapability.CommandDetection));
+				t.xterm?.markTracker.scrollToPreviousMark();
 			});
 		}
 	});
@@ -2433,8 +2435,6 @@ export function registerTerminalActions() {
 				accessor.get(IConfigurationService).updateValue(TerminalSettingId.TabsEnabled, true);
 				return;
 			}
-
-			const terminalIndexRe = /^([0-9]+): /;
 			const indexMatches = terminalIndexRe.exec(item);
 			if (indexMatches) {
 				terminalGroupService.setActiveGroupByIndex(Number(indexMatches[1]) - 1);

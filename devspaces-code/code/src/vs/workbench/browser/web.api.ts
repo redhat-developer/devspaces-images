@@ -147,8 +147,6 @@ export interface IWorkbenchConstructionOptions {
 
 	/**
 	 * A provider for resource URIs.
-	 *
-	 * *Note*: This will only be invoked after the `connectionToken` is resolved.
 	 */
 	readonly resourceUriProvider?: IResourceUriProvider;
 

@@ -250,6 +250,7 @@ export class ContextMenuController implements IEditorContribution {
 
 			onHide: (wasCancelled: boolean) => {
 				this._contextMenuIsBeingShownCount--;
+				this._editor.focus();
 				this._editor.updateOptions({
 					hover: oldHoverSetting
 				});

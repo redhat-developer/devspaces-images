@@ -93,7 +93,7 @@ export class MarkNavigationAddon extends Disposable implements IMarkTracker, ITe
 		return this._getMarkers(true).indexOf(marker) === -1;
 	}
 
-	scrollToPreviousMark(scrollPosition: ScrollPosition = ScrollPosition.Middle, retainSelection: boolean = false, skipEmptyCommands: boolean = false): void {
+	scrollToPreviousMark(scrollPosition: ScrollPosition = ScrollPosition.Middle, retainSelection: boolean = false, skipEmptyCommands?: boolean): void {
 		if (!this._terminal) {
 			return;
 		}

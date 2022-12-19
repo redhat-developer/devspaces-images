@@ -6,14 +6,12 @@
 
 const fs = require('fs');
 const webpack = require('webpack');
-const fancyLog = require('fancy-log');
-const ansiColors = require('ansi-colors');
 const { Mangler } = require('../build/lib/mangleTypeScript');
 
 /**
  * Map of project paths to mangled file contents
  *
- * @type {Map<string, Map<string, { out: string; sourceMap?: string }>>}
+ * @type {Map<string, Map<string, string>>}
  */
 const mangleMap = new Map();
 
@@ -23,9 +21,8 @@ const mangleMap = new Map();
 function getMangledFileContents(projectPath) {
 	let entry = mangleMap.get(projectPath);
 	if (!entry) {
-		const log = (...data) => fancyLog(ansiColors.blue('[mangler]'), ...data);
-		log(`Mangling ${projectPath}`);
-		const ts2tsMangler = new Mangler(projectPath, log);
+		console.log(`Mangling ${projectPath}`);
+		const ts2tsMangler = new Mangler(projectPath, console.log);
 		entry = ts2tsMangler.computeNewFileContents();
 		mangleMap.set(projectPath, entry);
 	}
@@ -49,5 +46,5 @@ module.exports = async function (source, sourceMap, meta) {
 	const fileContentsMap = getMangledFileContents(options.configFile);
 
 	const newContents = fileContentsMap.get(this.resourcePath);
-	callback(null, newContents?.out ?? source, sourceMap, meta);
+	callback(null, newContents ?? source, sourceMap, meta);
 };

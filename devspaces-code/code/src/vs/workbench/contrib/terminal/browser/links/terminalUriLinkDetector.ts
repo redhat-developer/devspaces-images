@@ -76,45 +76,32 @@ export class TerminalUriLinkDetector implements ITerminalLinkDetector {
 				continue;
 			}
 
-			// As a fallback URI, treat the authority as local to the workspace. This is required
-			// for `ls --hyperlink` support for example which includes the hostname in the URI like
-			// `file://Some-Hostname/mnt/c/foo/bar`.
-			const uriCandidates: URI[] = [uri];
-			if (uri.authority.length > 0) {
-				uriCandidates.push(URI.from({ ...uri, authority: undefined }));
-			}
+			const linkStat = await this._resolvePath(text, uri);
 
-			// Iterate over all candidates, pushing the candidate on the first that's verified
-			for (const uriCandidate of uriCandidates) {
-				const linkStat = await this._resolvePath(text, uriCandidate);
-
-				// Create the link if validated
-				if (linkStat) {
-					let type: TerminalBuiltinLinkType;
-					if (linkStat.isDirectory) {
-						if (this._isDirectoryInsideWorkspace(uriCandidate)) {
-							type = TerminalBuiltinLinkType.LocalFolderInWorkspace;
-						} else {
-							type = TerminalBuiltinLinkType.LocalFolderOutsideWorkspace;
-						}
+			// Create the link if validated
+			if (linkStat) {
+				let type: TerminalBuiltinLinkType;
+				if (linkStat.isDirectory) {
+					if (this._isDirectoryInsideWorkspace(linkStat.uri)) {
+						type = TerminalBuiltinLinkType.LocalFolderInWorkspace;
 					} else {
-						type = TerminalBuiltinLinkType.LocalFile;
+						type = TerminalBuiltinLinkType.LocalFolderOutsideWorkspace;
 					}
-					links.push({
-						// Use computedLink.url if it's a string to retain the line/col suffix
-						text: typeof computedLink.url === 'string' ? computedLink.url : linkStat.link,
-						uri: uriCandidate,
-						bufferRange,
-						type
-					});
-					resolvedLinkCount++;
+				} else {
+					type = TerminalBuiltinLinkType.LocalFile;
+				}
+				links.push({
+					// Use computedLink.url if it's a string to retain the line/col suffix
+					text: typeof computedLink.url === 'string' ? computedLink.url : linkStat.link,
+					uri: linkStat.uri,
+					bufferRange,
+					type
+				});
+
+				// Stop early if too many links exist in the line
+				if (++resolvedLinkCount >= Constants.MaxResolvedLinksInLine) {
 					break;
 				}
-			}
-
-			// Stop early if too many links exist in the line
-			if (++resolvedLinkCount >= Constants.MaxResolvedLinksInLine) {
-				break;
 			}
 		}
 

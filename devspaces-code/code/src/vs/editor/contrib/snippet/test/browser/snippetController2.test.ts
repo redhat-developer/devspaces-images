@@ -60,11 +60,7 @@ suite('SnippetController2', function () {
 		model = createTextModel('if\n    $state\nfi');
 		const serviceCollection = new ServiceCollection(
 			[ILabelService, new class extends mock<ILabelService>() { }],
-			[IWorkspaceContextService, new class extends mock<IWorkspaceContextService>() {
-				override getWorkspace() {
-					return { id: 'foo', folders: [] };
-				}
-			}],
+			[IWorkspaceContextService, new class extends mock<IWorkspaceContextService>() { }],
 			[ILogService, new NullLogService()],
 			[IContextKeyService, contextKeys],
 		);
@@ -339,7 +335,7 @@ suite('SnippetController2', function () {
 		assertContextKeys(contextKeys, false, false, false);
 	});
 
-	test('Problems with nested snippet insertion #39594 (part2)', function () {
+	test('Problems with nested snippet insertion #39594', function () {
 		// ensure selection-change-to-cancel logic isn't too aggressive
 		const ctrl = instaService.createInstance(SnippetController2, editor);
 
@@ -724,18 +720,5 @@ suite('SnippetController2', function () {
 
 		assert.deepStrictEqual(editor.getSelections(), [new Selection(1, 11, 1, 14), new Selection(2, 11, 2, 14), new Selection(4, 11, 4, 14)]);
 
-	});
-
-	test('"Surround With" code action snippets use incorrect indentation levels and styles #169319', function () {
-		model.setValue('function foo(f, x, condition) {\n    f();\n    return x;\n}');
-		const sel = new Range(2, 5, 3, 14);
-		editor.setSelection(sel);
-		const ctrl = instaService.createInstance(SnippetController2, editor);
-		ctrl.apply([{
-			range: sel,
-			template: 'if (${1:condition}) {\n\t$TM_SELECTED_TEXT$0\n}'
-		}]);
-
-		assert.strictEqual(model.getValue(), `function foo(f, x, condition) {\n    if (condition) {\n        f();\n        return x;\n    }\n}`);
 	});
 });

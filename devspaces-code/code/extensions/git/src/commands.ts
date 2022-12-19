@@ -36,7 +36,16 @@ class CheckoutItem implements QuickPickItem {
 		const config = workspace.getConfiguration('git', Uri.file(this.repository.root));
 		const pullBeforeCheckout = config.get<boolean>('pullBeforeCheckout', false) === true;
 
-		await this.repository.checkout(this.ref.name, { ...opts, pullBeforeCheckout });
+		if (pullBeforeCheckout) {
+			try {
+				await this.repository.fastForwardBranch(this.ref.name!);
+			}
+			catch (err) {
+				// noop
+			}
+		}
+
+		await this.repository.checkout(this.ref.name, opts);
 	}
 }
 
@@ -1399,20 +1408,7 @@ export class CommandCenter {
 
 	@command('git.clean')
 	async clean(...resourceStates: SourceControlResourceState[]): Promise<void> {
-		// Remove duplicate resources
-		const resourceUris = new Set<string>();
-		resourceStates = resourceStates.filter(s => {
-			if (s === undefined) {
-				return false;
-			}
-
-			if (resourceUris.has(s.resourceUri.toString())) {
-				return false;
-			}
-
-			resourceUris.add(s.resourceUri.toString());
-			return true;
-		});
+		resourceStates = resourceStates.filter(s => !!s);
 
 		if (resourceStates.length === 0 || (resourceStates[0] && !(resourceStates[0].resourceUri instanceof Uri))) {
 			const resource = this.getSCMResource();
@@ -2044,21 +2040,16 @@ export class CommandCenter {
 					throw err;
 				}
 
-				const stash = l10n.t('Stash & Checkout');
-				const migrate = l10n.t('Migrate Changes');
 				const force = l10n.t('Force Checkout');
-				const choice = await window.showWarningMessage(l10n.t('Your local changes would be overwritten by checkout.'), { modal: true }, stash, migrate, force);
+				const stash = l10n.t('Stash & Checkout');
+				const choice = await window.showWarningMessage(l10n.t('Your local changes would be overwritten by checkout.'), { modal: true }, force, stash);
 
 				if (choice === force) {
 					await this.cleanAll(repository);
 					await item.run(opts);
-				} else if (choice === stash || choice === migrate) {
+				} else if (choice === stash) {
 					await this.stash(repository);
 					await item.run(opts);
-
-					if (choice === migrate) {
-						await this.stashPopLatest(repository);
-					}
 				}
 			}
 		}
@@ -2961,16 +2952,7 @@ export class CommandCenter {
 			return;
 		}
 
-		try {
-			await repository.createStash(message, includeUntracked);
-		} catch (err) {
-			if (/You do not have the initial commit yet/.test(err.stderr || '')) {
-				window.showInformationMessage(l10n.t('The repository does not have any commits. Please make an initial commit before creating a stash.'));
-				return;
-			}
-
-			throw err;
-		}
+		await repository.createStash(message, includeUntracked);
 	}
 
 	@command('git.stash', { repository: true })

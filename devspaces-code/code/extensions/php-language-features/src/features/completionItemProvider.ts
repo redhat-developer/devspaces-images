@@ -4,8 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { CompletionItemProvider, CompletionItem, CompletionItemKind, CancellationToken, TextDocument, Position, Range, TextEdit, workspace, CompletionContext } from 'vscode';
-import * as phpGlobals from './phpGlobals';
-import * as phpGlobalFunctions from './phpGlobalFunctions';
+import phpGlobals = require('./phpGlobals');
+import phpGlobalFunctions = require('./phpGlobalFunctions');
 
 export default class PHPCompletionItemProvider implements CompletionItemProvider {
 

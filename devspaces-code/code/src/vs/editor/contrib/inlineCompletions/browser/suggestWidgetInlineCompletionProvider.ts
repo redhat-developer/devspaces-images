@@ -231,7 +231,7 @@ function suggestionToSuggestItemInfo(suggestController: SuggestController, posit
 			return undefined;
 		}
 
-		SnippetSession.adjustWhitespace(model, position, true, snippet);
+		SnippetSession.adjustWhitespace(model, position, snippet, true);
 		insertText = snippet.toString();
 		isSnippetText = true;
 	}

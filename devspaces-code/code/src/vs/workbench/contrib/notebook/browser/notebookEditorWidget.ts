@@ -96,8 +96,7 @@ export function getDefaultNotebookCreationOptions(): INotebookEditorCreationOpti
 		'editor.contrib.dirtydiff',
 		'editor.contrib.testingOutputPeek',
 		'editor.contrib.testingDecorations',
-		'store.contrib.stickyScrollController',
-		'editor.contrib.findController'
+		'store.contrib.stickyScrollController'
 	];
 	const contributions = EditorExtensionsRegistry.getEditorContributions().filter(c => skipContributions.indexOf(c.id) === -1);
 
@@ -2512,7 +2511,7 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 			return;
 		}
 
-		if (!this.viewModel || !this._list.viewModel) {
+		if (!this.viewModel) {
 			return;
 		}
 

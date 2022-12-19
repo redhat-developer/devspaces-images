@@ -7,7 +7,7 @@ import { TextDecoder } from 'util';
 import { commands, env, ProgressLocation, Uri, window, workspace, QuickPickOptions, FileType, l10n } from 'vscode';
 import { getOctokit } from './auth';
 import { GitErrorCodes, PushErrorHandler, Remote, Repository } from './typings/git';
-import * as path from 'path';
+import path = require('path');
 
 type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
 

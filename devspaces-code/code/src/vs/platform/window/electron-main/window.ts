@@ -124,7 +124,7 @@ export interface IWindowState {
 	x?: number;
 	y?: number;
 	mode?: WindowMode;
-	readonly display?: number;
+	display?: number;
 }
 
 export const defaultWindowState = function (mode = WindowMode.Normal): IWindowState {
@@ -143,8 +143,8 @@ export const enum WindowMode {
 }
 
 export interface ILoadEvent {
-	readonly workspace: IWorkspaceIdentifier | ISingleFolderWorkspaceIdentifier | undefined;
-	readonly reason: LoadReason;
+	workspace: IWorkspaceIdentifier | ISingleFolderWorkspaceIdentifier | undefined;
+	reason: LoadReason;
 }
 
 export const enum WindowError {

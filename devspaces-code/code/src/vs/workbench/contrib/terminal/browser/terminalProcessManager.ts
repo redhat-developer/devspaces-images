@@ -39,18 +39,15 @@ import { TaskSettingId } from 'vs/workbench/contrib/tasks/common/tasks';
 import Severity from 'vs/base/common/severity';
 import { INotificationService } from 'vs/platform/notification/common/notification';
 
-const enum ProcessConstants {
-	/**
-	 * The amount of time to consider terminal errors to be related to the launch.
-	 */
-	ErrorLaunchThresholdDuration = 500,
-	/**
-	 * The minimum amount of time between latency requests.
-	 */
-	LatencyMeasuringInterval = 1000,
-}
+/** The amount of time to consider terminal errors to be related to the launch */
+const LAUNCHING_DURATION = 500;
 
-const enum ProcessType {
+/**
+ * The minimum amount of time between latency requests.
+ */
+const LATENCY_MEASURING_INTERVAL = 1000;
+
+enum ProcessType {
 	Process,
 	PsuedoTerminal
 }
@@ -380,7 +377,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 			if (this.processState === ProcessState.Launching) {
 				this._setProcessState(ProcessState.Running);
 			}
-		}, ProcessConstants.ErrorLaunchThresholdDuration);
+		}, LAUNCHING_DURATION);
 
 		const result = await newProcess.start();
 		if (result) {
@@ -600,7 +597,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 		if (!this._process) {
 			return Promise.resolve(0);
 		}
-		if (this._latencyLastMeasured === 0 || this._latencyLastMeasured + ProcessConstants.LatencyMeasuringInterval < Date.now()) {
+		if (this._latencyLastMeasured === 0 || this._latencyLastMeasured + LATENCY_MEASURING_INTERVAL < Date.now()) {
 			const latencyRequest = this._process.getLatency();
 			this._latency = await latencyRequest;
 			this._latencyLastMeasured = Date.now();

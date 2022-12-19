@@ -431,7 +431,8 @@ export function cloneNotebookCellTextModel(cell: NotebookCellTextModel) {
 			outputs: output.outputs,
 			/* paste should generate new outputId */ outputId: UUID.generateUuid()
 		})),
-		metadata: {}
+		metadata: { ...cell.metadata },
+		// Don't include internalMetadata, ie execution state, this is not to be shared
 	};
 }
 

@@ -297,11 +297,4 @@ export class ReplModel {
 			this._onDidChangeElements.fire();
 		}
 	}
-
-	/** Returns a new REPL model that's a copy of this one. */
-	clone() {
-		const newRepl = new ReplModel(this.configurationService);
-		newRepl.replElements = this.replElements.slice();
-		return newRepl;
-	}
 }

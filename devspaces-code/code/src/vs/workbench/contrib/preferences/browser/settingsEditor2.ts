@@ -1078,7 +1078,7 @@ export class SettingsEditor2 extends EditorPane {
 			value = undefined;
 		}
 
-		return this.configurationService.updateValue(key, value, overrides, configurationTarget, { handleDirtyFile: 'save' })
+		return this.configurationService.updateValue(key, value, overrides, configurationTarget)
 			.then(() => {
 				const query = this.searchWidget.getValue();
 				if (query.includes(`@${MODIFIED_SETTING_TAG}`)) {

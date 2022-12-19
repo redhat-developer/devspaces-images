@@ -27,7 +27,6 @@ import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 import { KeybindingWeight } from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import { getSelectionHighlightDecorationOptions } from 'vs/editor/contrib/wordHighlighter/browser/highlightDecorations';
-import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 
 function announceCursorChange(previousCursorState: CursorState[], cursorState: CursorState[]): void {
 	const cursorDiff = cursorState.filter(cs => !previousCursorState.find(pcs => pcs.equals(cs)));
@@ -668,18 +667,14 @@ export abstract class MultiCursorSelectionControllerAction extends EditorAction 
 		if (!multiCursorController) {
 			return;
 		}
+		const findController = CommonFindController.get(editor);
+		if (!findController) {
+			return;
+		}
 		const viewModel = editor._getViewModel();
 		if (viewModel) {
 			const previousCursorState = viewModel.getCursorStates();
-			const findController = CommonFindController.get(editor);
-			if (findController) {
-				this._run(multiCursorController, findController);
-			} else {
-				const newFindController = accessor.get(IInstantiationService).createInstance(CommonFindController, editor);
-				this._run(multiCursorController, newFindController);
-				newFindController.dispose();
-			}
-
+			this._run(multiCursorController, findController);
 			announceCursorChange(previousCursorState, viewModel.getCursorStates());
 		}
 	}

@@ -65,7 +65,6 @@ export interface IProcessDetails {
 	hideFromUser?: boolean;
 	isFeatureTerminal?: boolean;
 	type?: TerminalType;
-	hasChildProcesses: boolean;
 }
 
 export type ITerminalTabLayoutInfoDto = IRawTerminalTabLayoutInfo<IProcessDetails>;

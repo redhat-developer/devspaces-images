@@ -176,11 +176,6 @@ export class Repl extends FilterViewPane implements IHistoryNavigationWidget {
 			}
 			this.multiSessionRepl.set(this.isMultiSessionView);
 		}));
-		this._register(this.debugService.onDidEndSession(async session => {
-			// Update view, since orphaned sessions might now be separate
-			await Promise.resolve(); // allow other listeners to go first, so sessions can update parents
-			this.multiSessionRepl.set(this.isMultiSessionView);
-		}));
 		this._register(this.themeService.onDidColorThemeChange(() => {
 			this.refreshReplElements(false);
 			if (this.isVisible()) {
@@ -489,6 +484,10 @@ export class Repl extends FilterViewPane implements IHistoryNavigationWidget {
 		this.replInputContainer.style.height = `${replInputHeight}px`;
 
 		this.replInput.layout({ width: width - 30, height: replInputHeight });
+	}
+
+	override shouldShowFilterInHeader(): boolean {
+		return true;
 	}
 
 	collapseAll(): void {

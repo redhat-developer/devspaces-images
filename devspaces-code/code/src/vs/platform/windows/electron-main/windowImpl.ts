@@ -52,18 +52,18 @@ import { hostname, release } from 'os';
 import { resolveMachineId } from 'vs/platform/telemetry/electron-main/telemetryUtils';
 
 export interface IWindowCreationOptions {
-	readonly state: IWindowState;
-	readonly extensionDevelopmentPath?: string[];
-	readonly isExtensionTestHost?: boolean;
+	state: IWindowState;
+	extensionDevelopmentPath?: string[];
+	isExtensionTestHost?: boolean;
 }
 
 interface ITouchBarSegment extends SegmentedControlSegment {
-	readonly id: string;
+	id: string;
 }
 
 interface ILoadOptions {
-	readonly isReload?: boolean;
-	readonly disableExtensions?: boolean;
+	isReload?: boolean;
+	disableExtensions?: boolean;
 }
 
 const enum ReadyState {
@@ -133,13 +133,11 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		if (!this.config) {
 			return undefined;
 		}
-
 		const profile = this.userDataProfilesService.profiles.find(profile => profile.id === this.config?.profiles.profile.id);
 		if (this.isExtensionDevelopmentHost && profile) {
 			return profile;
 		}
-
-		return this.userDataProfilesService.getOrSetProfileForWorkspace(this.config.workspace ?? 'empty-window', this.userDataProfilesService.defaultProfile);
+		return this.userDataProfilesService.getOrSetProfileForWorkspace(this.config.workspace ?? 'empty-window', profile ?? this.userDataProfilesService.defaultProfile);
 	}
 
 	get remoteAuthority(): string | undefined { return this._config?.remoteAuthority; }

@@ -6,9 +6,7 @@
 import { IPtyHostProcessReplayEvent } from 'vs/platform/terminal/common/capabilities/capabilities';
 import { ReplayEntry } from 'vs/platform/terminal/common/terminalProcess';
 
-const enum Constants {
-	MaxRecorderDataSize = 1024 * 1024 // 1MB
-}
+const MAX_RECORDER_DATA_SIZE = 1024 * 1024; // 1MB
 
 interface RecorderEntry {
 	cols: number;
@@ -60,9 +58,9 @@ export class TerminalRecorder {
 		lastEntry.data.push(data);
 
 		this._totalDataLength += data.length;
-		while (this._totalDataLength > Constants.MaxRecorderDataSize) {
+		while (this._totalDataLength > MAX_RECORDER_DATA_SIZE) {
 			const firstEntry = this._entries[0];
-			const remainingToDelete = this._totalDataLength - Constants.MaxRecorderDataSize;
+			const remainingToDelete = this._totalDataLength - MAX_RECORDER_DATA_SIZE;
 			if (remainingToDelete >= firstEntry.data[0].length) {
 				// the first data piece must be deleted
 				this._totalDataLength -= firstEntry.data[0].length;

@@ -1939,7 +1939,7 @@ class SCMInputWidget {
 			fontFamily: fontFamily,
 			wrappingStrategy: 'advanced',
 			wrappingIndent: 'none',
-			padding: { top: 2, bottom: 2 },
+			padding: { top: 3, bottom: 3 },
 			quickSuggestions: false,
 			scrollbar: { alwaysConsumeMouseWheel: false },
 			overflowWidgetsDomNode,

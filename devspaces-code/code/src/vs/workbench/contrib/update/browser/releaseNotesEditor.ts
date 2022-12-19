@@ -223,7 +223,7 @@ export class ReleaseNotesManager {
 		const content = await renderMarkdownDocument(text, this._extensionService, this._languageService, false);
 		const colorMap = TokenizationRegistry.getColorMap();
 		const css = colorMap ? generateTokensCSSForColorMap(colorMap) : '';
-		const showReleaseNotes = Boolean(this._configurationService.getValue<boolean>('update.showReleaseNotes'));
+		const showReleaseNotes = this._configurationService.getValue<boolean>('update.showReleaseNotes');
 
 		return `<!DOCTYPE html>
 		<html>
@@ -238,41 +238,23 @@ export class ReleaseNotesManager {
 				</style>
 			</head>
 			<body>
+				<header>
+					<input type="checkbox" id="showReleaseNotes" ${showReleaseNotes ? 'checked' : ''}>
+					<label for="showReleaseNotes">${nls.localize('showOnUpdate', "Show release notes after an update")}</label>
+				</header>
 				${content}
 				<script nonce="${nonce}">
 					const vscode = acquireVsCodeApi();
-					const container = document.createElement('p');
-					container.style.display = 'flex';
-					container.style.alignItems = 'center';
-
-					const input = document.createElement('input');
-					input.type = 'checkbox';
-					input.id = 'showReleaseNotes';
-					input.checked = ${showReleaseNotes};
-					container.appendChild(input);
-
-					const label = document.createElement('label');
-					label.htmlFor = 'showReleaseNotes';
-					label.textContent = '${nls.localize('showOnUpdate', "Show release notes after an update")}';
-					container.appendChild(label);
-
-					const beforeElement = document.querySelector("body > h1")?.nextElementSibling;
-					console.log(beforeElement);
-
-					if (beforeElement) {
-						document.body.insertBefore(container, beforeElement);
-					} else {
-						document.body.appendChild(container);
-					}
+					const checkbox = document.getElementById('showReleaseNotes');
 
 					window.addEventListener('message', event => {
 						if (event.data.type === 'showReleaseNotes') {
-							input.checked = event.data.value;
+							checkbox.checked = event.data.value;
 						}
 					});
 
-					input.addEventListener('change', event => {
-						vscode.postMessage({ type: 'showReleaseNotes', value: input.checked }, '*');
+					checkbox.addEventListener('change', event => {
+						vscode.postMessage({ type: 'showReleaseNotes', value: checkbox.checked }, '*');
 					});
 				</script>
 			</body>

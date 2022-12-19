@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { workspace, Disposable, EventEmitter, Memento, window, MessageItem, ConfigurationTarget, Uri, ConfigurationChangeEvent, l10n } from 'vscode';
-import { Repository, OperationKind } from './repository';
+import { Repository, Operation } from './repository';
 import { eventToPromise, filterEvent, onceEvent } from './util';
 import { GitErrorCodes } from './api/git';
 
-function isRemoteOperation(operation: OperationKind): boolean {
-	return operation === OperationKind.Pull || operation === OperationKind.Push || operation === OperationKind.Sync || operation === OperationKind.Fetch;
+function isRemoteOperation(operation: Operation): boolean {
+	return operation === Operation.Pull || operation === Operation.Push || operation === Operation.Sync || operation === Operation.Fetch;
 }
 
 export class AutoFetcher {

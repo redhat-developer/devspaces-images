@@ -305,7 +305,6 @@ export interface IDebugSession extends ITreeElement {
 	readonly suppressDebugToolbar: boolean;
 	readonly suppressDebugStatusbar: boolean;
 	readonly suppressDebugView: boolean;
-	readonly lifecycleManagedByParent: boolean;
 
 	setSubId(subId: string | undefined): void;
 
