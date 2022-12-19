@@ -1,4 +1,4 @@
-FROM quay.io/devspaces/machineexec-rhel8:3.4 as machine-exec
+FROM quay.io/devspaces/machineexec-rhel8:3.5 as machine-exec
 
 # https://registry.access.redhat.com/ubi8/ubi-micro
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-1
