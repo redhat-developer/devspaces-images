@@ -1,0 +1,770 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> 2bc34bf9672
+STEP 3/23: ARG BOOTSTRAP=true
+--> 1775eee52d5
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 138c7397af2
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> bfcc05cb3b3
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 972740b1aa2
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 8c066e91413
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 22dbad6ffd7
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 24e2e56b3e4
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 59f56d3f219
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-4.el8_6.x86_64                                                    
+  dnf-4.7.0-11.el8.noarch                                                       
+  dnf-data-4.7.0-11.el8.noarch                                                  
+  nodejs-1:14.20.1-2.module+el8.7.0+16991+b0a68a3e.x86_64                       
+  nodejs-docs-1:14.20.1-2.module+el8.7.0+16991+b0a68a3e.noarch                  
+  nodejs-full-i18n-1:14.20.1-2.module+el8.7.0+16991+b0a68a3e.x86_64             
+  npm-1:6.14.17-1.14.20.1.2.module+el8.7.0+16991+b0a68a3e.x86_64                
+  python3-dnf-4.7.0-11.el8.noarch                                               
+  python38-3.8.13-1.module+el8.7.0+15641+2ece4388.x86_64                        
+  python38-devel-3.8.13-1.module+el8.7.0+15641+2ece4388.x86_64                  
+  python38-libs-3.8.13-1.module+el8.7.0+15641+2ece4388.x86_64                   
+  python38-pip-19.3.1-6.module+el8.7.0+15823+8950cfa7.noarch                    
+  tar-2:1.30-6.el8.x86_64                                                       
+  yum-4.7.0-11.el8.noarch                                                       
+Installed:
+  containers-common-2:1-43.module+el8.7.0+17064+3b31f55c.x86_64                 
+  criu-3.15-3.module+el8.7.0+17064+3b31f55c.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.9-1.module+el8.7.0+17064+3b31f55c.x86_64                     
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-23.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-3.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-41.0-1.el8.x86_64                                                  
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.7.0+17064+3b31f55c.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.7.0+17064+3b31f55c.x86_64                           
+  skopeo-2:1.9.3-1.module+el8.7.0+17064+3b31f55c.x86_64                         
+  slirp4netns-1.2.0-2.module+el8.7.0+17064+3b31f55c.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Installing collected packages: xmltodict, argcomplete, PyYAML, toml, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.13
+yq: yq 3.1.0
+jq: jq-1.6
+--> f430bde60d7
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 948f33504d5
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> a0bc15b472b
+STEP 14/23: COPY ./VERSION /
+--> 416df4e44d9
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 4c3d54c1d1c
+STEP 16/23: WORKDIR /build/
+--> 3194de91735
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
+added 120 packages from 183 contributors and audited 120 packages in 9.902s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
++ @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
+added 2 packages from 1 contributor and audited 239 packages in 2.951s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+--> d6ecd9e5ed7
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 0e3dbd53ac9
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.5 PASS - 3.5 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 3334f8ed989
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 23787edfeaa
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 4af91aace4c
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> b53fdb69f0b
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> bad6024c044
+Successfully tagged localhost/devfileregistry:tmp
+bad6024c044f3e5c233c89d8d0de7e443b5094407a3f5de3c645837f305794a9
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -58,7 +58,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -66,7 +66,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -74,7 +74,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -65,7 +65,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -73,7 +73,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -81,7 +81,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -61,7 +61,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -69,7 +69,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -77,7 +77,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -57,7 +57,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -65,7 +65,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -73,7 +73,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -62,7 +62,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -70,7 +70,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -78,7 +78,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.875642233 -0500
+@@ -60,7 +60,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -68,7 +68,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -76,7 +76,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.875642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.875642233 -0500
+@@ -59,7 +59,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -67,7 +67,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -75,7 +75,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.875642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.875642233 -0500
+@@ -62,7 +62,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -70,7 +70,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -78,7 +78,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.875642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -59,7 +59,7 @@
+             - name: code-redirect-1
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13131
+               exposure: public
+@@ -67,7 +67,7 @@
+             - name: code-redirect-2
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13132
+               exposure: public
+@@ -75,7 +75,7 @@
+             - name: code-redirect-3
+               attributes:
+                 discoverable: false
+-                urlRewriteSupported: true
++                urlRewriteSupported: false
+                 contributed-by: che-code.eclipse.org
+               targetPort: 13133
+               exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.uEqvDPIzd6/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml /tmp/tmp.aBVAnxAOvy/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.uEqvDPIzd6/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml	2022-12-20 10:03:41.000000000 -0500
++++ /tmp/tmp.aBVAnxAOvy/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml	2022-12-22 09:54:41.876642233 -0500
+@@ -76,21 +76,21 @@
+           - name: theia-redirect-1
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+             protocol: http
+           - name: theia-redirect-2
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+             protocol: http
+           - name: theia-redirect-3
+             attributes:
+               discoverable: false
+-              urlRewriteSupported: true
++              urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+             protocol: http
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: bad6024c044f3e5c233c89d8d0de7e443b5094407a3f5de3c645837f305794a9
+Deleted: b53fdb69f0b7196873ea64f6a1ed444cb317c68c35de3c253fad76ecdeb41ea3
+Deleted: 4af91aace4c8ba78bb9a6aa97698a64605ebedf8759407b0655b42a4efb1049c
+Deleted: 23787edfeaa203495a2eb3a7b9870b01b19206d5763a3834f451a435493beeaa
+Deleted: 3334f8ed98991b44e1dfdbcc2c91cf20b68f8ba26301e6177678a6d2e58fd9aa
+Deleted: 0e3dbd53ac9c14b3c23b783068ed67979a41239b01a1641f32ccababbe2c58a2
+Deleted: d6ecd9e5ed7fa09271889cd075e7598693e4f34dca18eb209ffb7467b641583e
+Deleted: 3194de9173547b3a28f1b4b7c14adcc9b99b7b3584677ae72517a8e93410f22a
+Deleted: 4c3d54c1d1cc0a1f8c1ca2edaad51aaf34bd17aa9bb1566819e47362bd2472de
+Deleted: 416df4e44d9c90e8ac59d8f7fa1574205e966b0c2fd49dcccbbdd01aacd2f94f
+Deleted: a0bc15b472b962e540d1005a9718f8f1740c65cd101a6effe468ae5925c345d0
+Deleted: 948f33504d53f73e971cb379ccbfce3d0a5d0dbecdbf90d9c410e95e99354ab8
+Deleted: f430bde60d7bb59bf7598d5d697307b5204d6dd76f3145e1467d35d1059c272c
+Deleted: 59f56d3f2199037b82998d402bec37abb9acfedfac132ddcb960d8d43c9913a3
+Deleted: 24e2e56b3e4f395a9fdecd0b59b3ce9789c584dc000dd5f5d1a40f26c78b8489
+Deleted: 22dbad6ffd72014b19b745e103fb9269a825bb9cbe7dc1e89ac536bc14996425
+Deleted: 8c066e91413dbf2642d068382aa3bbd6bc71533944d264042efdbaf465360ea3
+Deleted: 972740b1aa2048034ad7f2dabb1469e55bca17ed39f6094ce146cb2a180d94fe
+Deleted: bfcc05cb3b3673fb26cc618d52c45935f8fd6aa401917ce4ed4b53585a766e70
+Deleted: 138c7397af285f0daa2e7fa6f6c77287d870e159fe50b151969e296a1c34a121
+Deleted: 1775eee52d596f8f2dab3bcbf70d229db2ad9eb1cb8ad2478185a50f54770db4
+Deleted: 2bc34bf9672ae0d4dda0f2e09d91fafd9cd3f102e99bc1dcb3a95df353c89e3b
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
