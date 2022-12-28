@@ -47,6 +47,7 @@ export interface IServerConfig {
   timeouts: {
     inactivityTimeout: number;
     runTimeout: number;
+    startTimeout: number;
   };
   cheNamespace: string;
 }

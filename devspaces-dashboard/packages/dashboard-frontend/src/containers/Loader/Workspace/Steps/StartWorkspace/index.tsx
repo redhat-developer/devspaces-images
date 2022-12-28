@@ -23,11 +23,12 @@ import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../../service
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { filterErrorLogs } from '../../../../../services/helpers/filterErrorLogs';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RUN_SEC } from '../../../const';
+import { MIN_STEP_DURATION_MS } from '../../../const';
 import findTargetWorkspace from '../../../findTargetWorkspace';
 import workspaceStatusIs from '../workspaceStatusIs';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { selectStartTimeout } from '../../../../../store/ServerConfig/selectors';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -143,7 +144,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
         await new Promise<void>((resolve, reject) => {
           const timeoutId = window.setTimeout(() => {
             reject();
-          }, TIMEOUT_TO_RUN_SEC * 1000);
+          }, this.props.startTimeout * 1000);
           this.toDispose.push({
             dispose: () => {
               window.clearTimeout(timeoutId);
@@ -156,7 +157,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
         return false;
       } catch (e) {
         throw new Error(
-          `The workspace status remains "${workspace.status}" in the last ${TIMEOUT_TO_RUN_SEC} seconds.`,
+          `The workspace status remains "${workspace.status}" in the last ${this.props.startTimeout} seconds.`,
         );
       }
     }
@@ -226,6 +227,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   workspacesLogs: selectLogs(state),
+  startTimeout: selectStartTimeout(state),
 });
 
 const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {

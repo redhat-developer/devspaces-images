@@ -21,6 +21,7 @@ import {
 } from '../types';
 import { createError } from './helpers/createError';
 import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
+import { startTimeoutSeconds } from '../../constants/server-config';
 
 const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 
@@ -120,5 +121,9 @@ export class ServerConfigApiService implements IServerConfigApi {
 
   getWorkspaceRunTimeout(cheCustomResource: CustomResourceDefinition): number {
     return cheCustomResource.spec.devEnvironments?.secondsOfRunBeforeIdling || -1;
+  }
+
+  getWorkspaceStartTimeout(cheCustomResource: CustomResourceDefinition): number {
+    return cheCustomResource.spec.devEnvironments?.startTimeoutSeconds || startTimeoutSeconds;
   }
 }

@@ -118,6 +118,7 @@ export type CustomResourceDefinitionSpecDevEnvironments = {
   disableContainerBuildCapabilities?: boolean;
   secondsOfInactivityBeforeIdling?: number;
   secondsOfRunBeforeIdling?: number;
+  startTimeoutSeconds?: number;
   storage?: {
     pvcStrategy?: string;
   };
@@ -192,6 +193,11 @@ export interface IServerConfigApi {
    * Returns the workspace run timeout
    */
   getWorkspaceRunTimeout(cheCustomResource: CustomResourceDefinition): number;
+
+  /**
+   * Returns the workspace start timeout
+   */
+  getWorkspaceStartTimeout(cheCustomResource: CustomResourceDefinition): number;
 }
 
 export interface IKubeConfigApi {

@@ -39,7 +39,7 @@ describe('Server Config Route', () => {
       },
       defaults: { components: [], plugins: [], pvcStrategy: '' },
       pluginRegistry: { openVSXURL: 'openvsx-url' },
-      timeouts: { inactivityTimeout: 0, runTimeout: 0 },
+      timeouts: { inactivityTimeout: 0, runTimeout: 0, startTimeout: 0 },
     });
   });
 });

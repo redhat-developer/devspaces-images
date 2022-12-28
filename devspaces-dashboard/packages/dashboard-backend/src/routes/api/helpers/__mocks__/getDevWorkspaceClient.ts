@@ -42,6 +42,7 @@ export const stubPvcStrategy = '';
 export const stubRunningWorkspacesLimit = 2;
 export const stubWorkspaceInactivityTimeout = 0;
 export const stubWorkspaceRunTimeout = 0;
+export const stubWorkspaceStartupTimeout = 0;
 
 export const stubDevWorkspacesList: IDevWorkspaceList = {
   apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -90,6 +91,7 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       getRunningWorkspacesLimit: _cheCustomResource => stubRunningWorkspacesLimit,
       getWorkspaceInactivityTimeout: _cheCustomResource => stubWorkspaceInactivityTimeout,
       getWorkspaceRunTimeout: _cheCustomResource => stubWorkspaceRunTimeout,
+      getWorkspaceStartTimeout: _cheCustomResource => stubWorkspaceStartupTimeout,
     } as IServerConfigApi,
     devworkspaceApi: {
       create: (_devworkspace, _namespace) => Promise.resolve(stubDevWorkspace),

@@ -26,10 +26,11 @@ import {
   buildLoaderSteps,
   getWorkspaceLoadingSteps,
 } from '../../../../../../components/Loader/Step/buildSteps';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RUN_SEC } from '../../../../const';
+import { MIN_STEP_DURATION_MS } from '../../../../const';
 import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
 import StepStartWorkspace, { State } from '..';
 import { StateMock } from '@react-mock/state';
+import { api } from '@eclipse-che/common';
 
 jest.mock('../../../../../../pages/Loader/Workspace');
 
@@ -61,6 +62,25 @@ const matchParams: WorkspaceParams = {
 const stepId = LoadingStep.START_WORKSPACE.toString();
 const currentStepIndex = 2;
 const loadingSteps = getWorkspaceLoadingSteps();
+const startTimeout = 300;
+const serverConfig: api.IServerConfig = {
+  containerBuild: {},
+  defaults: {
+    editor: undefined,
+    components: [],
+    plugins: [],
+    pvcStrategy: '',
+  },
+  pluginRegistry: {
+    openVSXURL: '',
+  },
+  timeouts: {
+    inactivityTimeout: -1,
+    runTimeout: -1,
+    startTimeout,
+  },
+  cheNamespace: '',
+};
 
 describe('Workspace Loader, step START_WORKSPACE', () => {
   let loaderSteps: List<LoaderStep>;
@@ -253,6 +273,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
 
   test('workspace is STARTING more than TIMEOUT_TO_RUN_SEC seconds', async () => {
     const store = new FakeStoreBuilder()
+      .withDwServerConfig(serverConfig)
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
@@ -278,7 +299,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     expect(hasError.textContent).toEqual('false');
 
     // wait a bit more than necessary to end the workspace run timeout
-    const time = (TIMEOUT_TO_RUN_SEC + 1) * 1000;
+    const time = (startTimeout + 1) * 1000;
     jest.advanceTimersByTime(time);
 
     // there should be the error message
@@ -297,6 +318,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
 
   test('workspace is STARTING then RUNNING', async () => {
     const store = new FakeStoreBuilder()
+      .withDwServerConfig(serverConfig)
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
@@ -316,7 +338,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
 
     // wait less than necessary to end the workspace run timeout
-    const time = (TIMEOUT_TO_RUN_SEC - 1) * 1000;
+    const time = (startTimeout - 1) * 1000;
     jest.advanceTimersByTime(time);
 
     const currentStep = screen.getByTestId(stepId);
@@ -346,6 +368,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
 
   test('workspace is STARTING then STOPPING', async () => {
     const store = new FakeStoreBuilder()
+      .withDwServerConfig(serverConfig)
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
@@ -365,7 +388,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
 
     // wait less than necessary to end the workspace run timeout
-    const time = (TIMEOUT_TO_RUN_SEC - 1) * 1000;
+    const time = (startTimeout - 1) * 1000;
     jest.advanceTimersByTime(time);
 
     const currentStep = screen.getByTestId(stepId);
@@ -409,6 +432,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
 
   test('workspace is STARTING then STOPPED', async () => {
     const store = new FakeStoreBuilder()
+      .withDwServerConfig(serverConfig)
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
@@ -428,7 +452,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
 
     // wait less than necessary to end the workspace run timeout
-    const time = (TIMEOUT_TO_RUN_SEC - 1) * 1000;
+    const time = (startTimeout - 1) * 1000;
     jest.advanceTimersByTime(time);
 
     const currentStep = screen.getByTestId(stepId);
@@ -472,6 +496,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
 
   test('workspace is STARTING then FAILING', async () => {
     const store = new FakeStoreBuilder()
+      .withDwServerConfig(serverConfig)
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
@@ -491,7 +516,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
 
     // wait less than necessary to end the workspace run timeout
-    const time = (TIMEOUT_TO_RUN_SEC - 1) * 1000;
+    const time = (startTimeout - 1) * 1000;
     jest.advanceTimersByTime(time);
 
     const currentStep = screen.getByTestId(stepId);
@@ -535,6 +560,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
 
   test('workspace is STARTING then FAILED', async () => {
     const store = new FakeStoreBuilder()
+      .withDwServerConfig(serverConfig)
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
@@ -554,7 +580,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
 
     // wait less than necessary to end the workspace run timeout
-    const time = (TIMEOUT_TO_RUN_SEC - 1) * 1000;
+    const time = (startTimeout - 1) * 1000;
     jest.advanceTimersByTime(time);
 
     const currentStep = screen.getByTestId(stepId);

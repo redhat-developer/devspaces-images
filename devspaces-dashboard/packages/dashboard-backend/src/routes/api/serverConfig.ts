@@ -31,6 +31,7 @@ export function registerServerConfigRoute(server: FastifyInstance) {
     const components = serverConfigApi.getDefaultComponents(cheCustomResource);
     const inactivityTimeout = serverConfigApi.getWorkspaceInactivityTimeout(cheCustomResource);
     const runTimeout = serverConfigApi.getWorkspaceRunTimeout(cheCustomResource);
+    const startTimeout = serverConfigApi.getWorkspaceStartTimeout(cheCustomResource);
     const openVSXURL = serverConfigApi.getOpenVSXURL(cheCustomResource);
     const pvcStrategy = serverConfigApi.getPvcStrategy(cheCustomResource);
 
@@ -47,6 +48,7 @@ export function registerServerConfigRoute(server: FastifyInstance) {
       timeouts: {
         inactivityTimeout,
         runTimeout,
+        startTimeout,
       },
       pluginRegistry: {
         openVSXURL,
