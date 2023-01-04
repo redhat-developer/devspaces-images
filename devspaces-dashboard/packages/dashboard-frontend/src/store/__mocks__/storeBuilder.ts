@@ -224,9 +224,13 @@ export class FakeStoreBuilder {
   ): FakeStoreBuilder {
     if (options.resolver) {
       this.state.factoryResolver.resolver = Object.assign({}, options.resolver as ResolverState);
+    } else {
+      delete this.state.factoryResolver.resolver;
     }
     if (options.converted) {
       this.state.factoryResolver.converted = Object.assign({}, options.converted as ConvertedState);
+    } else {
+      delete this.state.factoryResolver.converted;
     }
     this.state.factoryResolver.isLoading = isLoading;
     return this;

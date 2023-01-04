@@ -16,6 +16,7 @@ export const ERROR_CODE_ATTR = 'error_code';
 export const FACTORY_URL_ATTR = 'url';
 export const POLICIES_CREATE_ATTR = 'policies.create';
 export const STORAGE_TYPE_ATTR = 'storageType';
+export const REMOTES_ATTR = 'remotes';
 export const PROPAGATE_FACTORY_ATTRS = [
   'workspaceDeploymentAnnotations',
   'workspaceDeploymentLabels',
@@ -24,6 +25,7 @@ export const PROPAGATE_FACTORY_ATTRS = [
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
   STORAGE_TYPE_ATTR,
+  REMOTES_ATTR,
 ];
 export const OVERRIDE_ATTR_PREFIX = 'override.';
 

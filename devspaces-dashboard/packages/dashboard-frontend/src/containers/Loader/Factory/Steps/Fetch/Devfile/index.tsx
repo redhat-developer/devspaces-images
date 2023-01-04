@@ -117,11 +117,20 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
   private init() {
     const { factoryResolver } = this.props;
     const { factoryParams, useDefaultDevfile } = this.state;
-    const { sourceUrl } = factoryParams;
+    const { sourceUrl, remotes } = factoryParams;
     if (sourceUrl && (useDefaultDevfile || sourceUrl === factoryResolver?.location)) {
       // prevent a resource being fetched one more time
       this.setState({
         shouldResolve: false,
+      });
+    }
+
+    // make it possible to start a workspace without a sourceUrl as long as
+    // remotes are specified
+    if (!sourceUrl && remotes) {
+      this.setState({
+        shouldResolve: false,
+        useDefaultDevfile: true,
       });
     }
 

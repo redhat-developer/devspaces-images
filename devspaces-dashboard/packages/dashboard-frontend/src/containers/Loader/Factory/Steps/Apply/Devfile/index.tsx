@@ -39,6 +39,9 @@ import { AlertItem } from '../../../../../../services/helpers/types';
 import { selectDefaultDevfile } from '../../../../../../store/DevfileRegistries/selectors';
 import ExpandableWarning from '../../../../../../components/ExpandableWarning';
 import { getProjectFromUrl } from './getProjectFromUrl';
+import { getGitRemotes } from './getGitRemotes';
+import { V220DevfileProjects } from '@devfile/api';
+import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {
@@ -139,7 +142,8 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
   private updateCurrentDevfile(devfile: devfileApi.Devfile): void {
     const { factoryResolver, allWorkspaces, defaultDevfile } = this.props;
     const { factoryParams } = this.state;
-    const { factoryId, policiesCreate, storageType } = factoryParams;
+    const { factoryId, policiesCreate, sourceUrl, storageType, remotes } = factoryParams;
+
     // when using the default devfile instead of a user devfile
     if (factoryResolver === undefined && isEqual(devfile, defaultDevfile)) {
       if (devfile.projects === undefined) {
@@ -147,13 +151,20 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
       }
       if (devfile.projects.length === 0) {
         // adds a default project from the source URL
-        const project = getProjectFromUrl(factoryParams.sourceUrl);
-        devfile.projects[0] = project;
-        // change default name
-        devfile.metadata.name = project.name;
-        devfile.metadata.generateName = project.name;
+        if (sourceUrl) {
+          const project = getProjectFromUrl(factoryParams.sourceUrl);
+          devfile.projects[0] = project;
+          // change default name
+          devfile.metadata.name = project.name;
+          devfile.metadata.generateName = project.name;
+        }
       }
     }
+
+    if (remotes) {
+      this.configureProjectRemotes(devfile, remotes, isEqual(devfile, defaultDevfile));
+    }
+
     // test the devfile name to decide if we need to append a suffix to is
     const nameConflict = allWorkspaces.some(w => devfile.metadata.name === w.name);
     const appendSuffix = policiesCreate === 'perclick' || nameConflict;
@@ -302,6 +313,64 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
         },
       ],
     };
+  }
+
+  private configureProjectRemotes(
+    devfile: devfileApi.Devfile,
+    remotes: string,
+    isDefaultDevfile: boolean,
+  ) {
+    const parsedRemotes = getGitRemotes(remotes);
+    const gitRemotes = parsedRemotes.reduce((map, remote) => {
+      map[remote.name] = remote.url;
+      return map;
+    }, {});
+
+    const projectName = getProjectName(parsedRemotes[0].url);
+
+    const gitProject = this.getGitProjectForRemotes(devfile.projects);
+    if (gitProject) {
+      // edit existing Git project remote
+      gitProject.remotes = gitRemotes;
+      gitProject.checkoutFrom = { remote: parsedRemotes[0].name };
+    } else {
+      devfile.projects = [
+        {
+          git: {
+            remotes: gitRemotes,
+            checkoutFrom: { remote: parsedRemotes[0].name },
+          },
+          name: projectName,
+        },
+      ];
+    }
+
+    if (isDefaultDevfile) {
+      devfile.metadata.name = projectName;
+      devfile.metadata.generateName = projectName;
+    }
+  }
+
+  /**
+   * Returns the Git project to replace remotes for
+   */
+  private getGitProjectForRemotes(projects: V220DevfileProjects[] | undefined) {
+    if (!projects) {
+      return undefined;
+    }
+
+    const gitProjects = projects.filter(project => project.git);
+    if (gitProjects.length > 1) {
+      throw new Error(
+        'Configuring remotes is not supported when multiple Git projects found in Devfile.',
+      );
+    }
+
+    if (gitProjects.length === 1) {
+      return gitProjects[0].git;
+    }
+
+    return undefined;
   }
 
   render(): React.ReactElement {

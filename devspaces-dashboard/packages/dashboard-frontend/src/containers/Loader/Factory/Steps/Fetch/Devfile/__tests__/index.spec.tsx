@@ -32,6 +32,7 @@ import {
   MIN_STEP_DURATION_MS,
   OVERRIDE_ATTR_PREFIX,
   TIMEOUT_TO_RESOLVE_SEC,
+  REMOTES_ATTR,
 } from '../../../../../const';
 import { StateMock } from '@react-mock/state';
 import buildFactoryParams from '../../../../buildFactoryParams';
@@ -130,6 +131,21 @@ describe('Factory Loader container, step CREATE_WORKSPACE__FETCH_DEVFILE', () =>
     userEvent.click(restartButton);
 
     expect(mockOnRestart).toHaveBeenCalled();
+  });
+
+  test('no project url, remotes exist', async () => {
+    const store = new FakeStoreBuilder().build();
+
+    const remotesAttr =
+      '{{test-1,http://git-test-1.git},{test-2,http://git-test-2.git},{test-3,http://git-test-3.git}}';
+    searchParams.append(REMOTES_ATTR, remotesAttr);
+    searchParams.delete(FACTORY_URL_ATTR);
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
   });
 
   describe('step title', () => {

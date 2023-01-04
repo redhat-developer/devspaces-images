@@ -82,12 +82,12 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
   protected async runStep(): Promise<boolean> {
     await delay(MIN_STEP_DURATION_MS);
 
-    const { useDevworkspaceResources, sourceUrl, errorCode, policiesCreate } =
+    const { useDevworkspaceResources, sourceUrl, errorCode, policiesCreate, remotes } =
       this.state.factoryParams;
 
     if (useDevworkspaceResources === true && sourceUrl === '') {
       throw new Error('Devworkspace resources URL is missing.');
-    } else if (useDevworkspaceResources === false && sourceUrl === '') {
+    } else if (useDevworkspaceResources === false && sourceUrl === '' && !remotes) {
       const factoryPath = generatePath(ROUTE.FACTORY_LOADER_URL, {
         url: 'your-repository-url',
       });

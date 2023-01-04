@@ -532,7 +532,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
       },
     ];
     return DwApi.patchWorkspace(namespace, name, patch);
-    await delay();
   }
 
   /**
