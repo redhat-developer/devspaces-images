@@ -19,6 +19,7 @@ import {
   OVERRIDE_ATTR_PREFIX,
   POLICIES_CREATE_ATTR,
   STORAGE_TYPE_ATTR,
+  REMOTES_ATTR,
 } from '../const';
 import { ErrorCode, FactoryParams, PoliciesCreate } from './types';
 
@@ -32,6 +33,7 @@ export default function (searchParams: URLSearchParams): FactoryParams {
     policiesCreate: getPoliciesCreate(searchParams),
     sourceUrl: getSourceUrl(searchParams),
     storageType: getStorageType(searchParams),
+    remotes: getRemotes(searchParams),
     useDevworkspaceResources: getDevworkspaceResourcesUrl(searchParams) !== undefined,
   };
 }
@@ -72,6 +74,10 @@ function getEditorId(searchParams: URLSearchParams): string | undefined {
 
 function getErrorCode(searchParams: URLSearchParams): ErrorCode | undefined {
   return (searchParams.get(ERROR_CODE_ATTR) as ErrorCode) || undefined;
+}
+
+function getRemotes(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(REMOTES_ATTR) || undefined;
 }
 
 function buildFactoryId(searchParams: URLSearchParams): string {

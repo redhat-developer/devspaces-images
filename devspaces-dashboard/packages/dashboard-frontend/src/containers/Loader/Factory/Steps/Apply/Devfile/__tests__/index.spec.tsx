@@ -33,11 +33,14 @@ import {
   MIN_STEP_DURATION_MS,
   POLICIES_CREATE_ATTR,
   TIMEOUT_TO_CREATE_SEC,
+  REMOTES_ATTR,
 } from '../../../../../const';
 import userEvent from '@testing-library/user-event';
 import { StateMock } from '@react-mock/state';
 import buildFactoryParams from '../../../../buildFactoryParams';
 import { prepareDevfile } from '../prepareDevfile';
+import { dump } from 'js-yaml';
+import { api } from '@eclipse-che/common';
 
 jest.mock('../prepareDevfile.ts');
 jest.mock('../../../../../../../pages/Loader/Factory');
@@ -109,6 +112,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
     };
     const store = getStoreBuilder()
       .withFactoryResolver({
+        resolver: {},
         converted: {
           devfileV2: devfile,
         },
@@ -151,6 +155,216 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 
+  describe('configure remotes', () => {
+    test('remotes configured with urls', async () => {
+      const store = getStoreBuilder()
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: devfile,
+          },
+        })
+        .build();
+
+      const remotesAttr = '{http://git-test-1.git,http://git-test-2.git,http://git-test-3.git}';
+      searchParams.append(REMOTES_ATTR, remotesAttr);
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+      );
+
+      expect(devfile.projects).not.toBe(undefined);
+      expect(devfile.projects?.length).toBe(1);
+      expect(devfile.projects?.[0]).toMatchObject({
+        git: {
+          checkoutFrom: {
+            remote: 'origin',
+          },
+          remotes: {
+            origin: 'http://git-test-1.git',
+            upstream: 'http://git-test-2.git',
+            fork1: 'http://git-test-3.git',
+          },
+        },
+      });
+    });
+
+    test('remotes configured with urls and names', async () => {
+      const store = getStoreBuilder()
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: devfile,
+          },
+        })
+        .build();
+
+      const remotesAttr =
+        '{{test1,http://git-test-1.git},{test2,http://git-test-2.git},{test3,http://git-test-3.git}}';
+      searchParams.append(REMOTES_ATTR, remotesAttr);
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+      );
+
+      expect(devfile.projects).not.toBe(undefined);
+      expect(devfile.projects!.length).toBe(1);
+      expect(devfile.projects![0]).toMatchObject({
+        git: {
+          checkoutFrom: {
+            remote: 'test1',
+          },
+          remotes: {
+            test1: 'http://git-test-1.git',
+            test2: 'http://git-test-2.git',
+            test3: 'http://git-test-3.git',
+          },
+        },
+      });
+    });
+
+    test('checkoutFrom set to first remote', async () => {
+      const store = getStoreBuilder()
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: devfile,
+          },
+        })
+        .build();
+
+      const remotesAttr =
+        '{{test2,http://git-test-2.git},{test1,http://git-test-1.git},{test3,http://git-test-3.git}}';
+      searchParams.append(REMOTES_ATTR, remotesAttr);
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+      );
+
+      expect(devfile.projects).not.toBe(undefined);
+      expect(devfile.projects!.length).toBe(1);
+      expect(devfile.projects![0]).toMatchObject({
+        git: {
+          checkoutFrom: {
+            remote: 'test2',
+          },
+          remotes: {
+            test1: 'http://git-test-1.git',
+            test2: 'http://git-test-2.git',
+            test3: 'http://git-test-3.git',
+          },
+        },
+      });
+    });
+
+    test('use default devfile when there is no project url, but remotes exist', async () => {
+      const registryUrl = 'https://registry-url';
+      const sampleResourceUrl = 'https://resources-url';
+      const registryMetadata = {
+        displayName: 'Empty Workspace',
+        description: 'Start an empty remote development environment',
+        tags: ['Empty'],
+        icon: '/images/empty.svg',
+        links: {
+          v2: sampleResourceUrl,
+        },
+      } as che.DevfileMetaData;
+      const sampleContent = dump({
+        schemaVersion: '2.1.0',
+        metadata: {
+          generateName: 'empty',
+        },
+      } as devfileApi.Devfile);
+      const defaultComponents = [
+        {
+          name: 'universal-developer-image',
+          container: {
+            image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+          },
+        },
+      ];
+
+      const store = getStoreBuilder()
+        .withFactoryResolver({ resolver: undefined, converted: undefined })
+        .withDevfileRegistries({
+          registries: {
+            [registryUrl]: {
+              metadata: [registryMetadata],
+            },
+          },
+          devfiles: {
+            [sampleResourceUrl]: {
+              content: sampleContent,
+            },
+          },
+        })
+        .withDwServerConfig({
+          defaults: {
+            components: defaultComponents,
+          },
+        } as api.IServerConfig)
+        .build();
+
+      const remotesAttr = '{https://github.com/eclipse-che/che-dashboard.git}';
+      searchParams.append(REMOTES_ATTR, remotesAttr);
+      searchParams.delete(FACTORY_URL_ATTR);
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      const expectedDevfile = {
+        schemaVersion: '2.1.0',
+        metadata: {
+          generateName: 'che-dashboard',
+          name: 'che-dashboard',
+        },
+        components: [
+          {
+            container: {
+              image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+            },
+            name: 'universal-developer-image',
+          },
+        ],
+        projects: [
+          {
+            git: {
+              checkoutFrom: { remote: 'origin' },
+              remotes: {
+                origin: 'https://github.com/eclipse-che/che-dashboard.git',
+              },
+            },
+            name: 'che-dashboard',
+          },
+        ],
+      };
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(
+          expectedDevfile,
+          `${REMOTES_ATTR}=${remotesAttr}`,
+          undefined,
+          false,
+        ),
+      );
+    });
+  });
+
   describe('handle name conflicts', () => {
     test('name conflict', async () => {
       const store = getStoreBuilder()
@@ -158,6 +372,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
           workspaces: [new DevWorkspaceBuilder().withName(devfileName).build()],
         })
         .withFactoryResolver({
+          resolver: {},
           converted: {
             devfileV2: devfile,
           },
@@ -178,6 +393,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
           workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
         })
         .withFactoryResolver({
+          resolver: {},
           converted: {
             devfileV2: devfile,
           },
@@ -201,6 +417,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
           workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
         })
         .withFactoryResolver({
+          resolver: {},
           converted: {
             devfileV2: devfile,
           },
@@ -219,6 +436,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
   test('the workspace took more than TIMEOUT_TO_CREATE_SEC to create', async () => {
     const store = getStoreBuilder()
       .withFactoryResolver({
+        resolver: {},
         converted: {
           devfileV2: devfile,
         },
@@ -264,6 +482,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
   test('the workspace created successfully', async () => {
     const store = getStoreBuilder()
       .withFactoryResolver({
+        resolver: {},
         converted: {
           devfileV2: devfile,
         },
@@ -299,6 +518,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
     // build next store
     const nextStore = getStoreBuilder()
       .withFactoryResolver({
+        resolver: {},
         converted: {
           devfileV2: devfile,
         },

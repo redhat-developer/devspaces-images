@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { PROPAGATE_FACTORY_ATTRS } from '../containers/Loader/const';
+import { PROPAGATE_FACTORY_ATTRS, REMOTES_ATTR } from '../containers/Loader/const';
 import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
 
 (function acceptNewFactoryLink(): void {
@@ -28,6 +28,13 @@ import SessionStorageService, { SessionStorageKey } from '../services/session-st
     }
     window.location.href =
       window.location.origin + '/dashboard' + buildFactoryLoaderPath(factoryUrl);
+  } else if (
+    window.location.search.startsWith(`?${REMOTES_ATTR}=`) ||
+    window.location.search.includes(`&${REMOTES_ATTR}=`)
+  ) {
+    // allow starting workspaces when no project url, but remotes are provided
+    window.location.href =
+      window.origin + '/dashboard' + buildFactoryLoaderPath(window.location.href, false);
   } else {
     window.location.href = window.location.origin + '/dashboard/';
   }
@@ -39,7 +46,7 @@ export function storePathIfNeeded(path: string) {
   }
 }
 
-export function buildFactoryLoaderPath(url: string): string {
+export function buildFactoryLoaderPath(url: string, appendUrl = true): string {
   const fullUrl = new window.URL(url);
 
   const initParams = PROPAGATE_FACTORY_ATTRS.map(paramName => {
@@ -57,7 +64,10 @@ export function buildFactoryLoaderPath(url: string): string {
   }
 
   const searchParams = new URLSearchParams(initParams);
-  searchParams.append('url', fullUrl.toString());
+
+  if (appendUrl) {
+    searchParams.append('url', fullUrl.toString());
+  }
 
   return '/f?' + searchParams.toString();
 }

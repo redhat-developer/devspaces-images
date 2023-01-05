@@ -20,6 +20,7 @@ export type FactoryParams = {
   errorCode: ErrorCode | undefined;
   storageType: che.WorkspaceStorageType | undefined;
   cheEditor: string | undefined;
+  remotes: string | undefined;
 };
 
 export type PoliciesCreate = 'perclick' | 'peruser';
