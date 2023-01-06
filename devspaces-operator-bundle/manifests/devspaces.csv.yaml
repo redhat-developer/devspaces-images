@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2018-2022 Red Hat, Inc.
+#  Copyright (c) 2018-2023 Red Hat, Inc.
 #    This program and the accompanying materials are made
 #    available under the terms of the Eclipse Public License 2.0
 #    which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -69,7 +69,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.5
-    createdAt: "2022-12-19T22:37:31+00:00"
+    createdAt: "2023-01-06T14:03:38+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1319,4 +1319,11 @@ spec:
       targetPort: 9443
       type: ConversionWebhook
       webhookPath: /convert
+  components:
+    dashboard:
+      headerMessage:
+        show: 'true'
+        text: Microsoft Visual Studio Code - Open Source is the default <a href="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide">editor</a>
+          for new workspaces. Eclipse Theia is <a href="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3405">deprecated</a>
+          and will be removed in a future release.
   replaces: devspacesoperator.v3.3.0
