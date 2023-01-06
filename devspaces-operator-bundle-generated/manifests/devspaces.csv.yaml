@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2018-2022 Red Hat, Inc.
+#  Copyright (c) 2018-2023 Red Hat, Inc.
 #    This program and the accompanying materials are made
 #    available under the terms of the Eclipse Public License 2.0
 #    which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -57,7 +57,14 @@ metadata:
             "namespace": "openshift-devspaces"
           },
           "spec": {
-            "components": {},
+            "components": {
+              "dashboard": {
+                "headerMessage": {
+                  "show": "true",
+                  "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3663'>deprecated</a> and will be removed in a future release."
+                }
+              }
+            },
             "containerRegistry": {},
             "devEnvironments": {},
             "gitServices": {},
@@ -69,7 +76,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:f35441367e15f8b1d8baadb10ee48bdd8fb8b2b304720983016d5f6b6b8d0ecf
-    createdAt: "2022-12-19T22:37:31+00:00"
+    createdAt: "2023-01-06T15:56:42+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -891,9 +898,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDKCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:bfcad82a9dcdfc886c276c720d45c962dc0eaf6257614af4eb36a7b18de74181
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:41b169a0cbe89f08c37bebf984ac2a2c9f65670a749249883add63356d1b7dfe
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ff0fee34cd130fb88164a45faf3fb120e60e78648e866d8f02457e2658ce4d37
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:41b169a0cbe89f08c37bebf984ac2a2c9f65670a749249883add63356d1b7dfe
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ff0fee34cd130fb88164a45faf3fb120e60e78648e866d8f02457e2658ce4d37
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDKCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:bfcad82a9dcdfc886c276c720d45c962dc0eaf6257614af4eb36a7b18de74181
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDKCQ_
@@ -1288,9 +1295,9 @@ spec:
   - name: devspaces_theia_devfile_registry_image_gmxdkcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:bfcad82a9dcdfc886c276c720d45c962dc0eaf6257614af4eb36a7b18de74181
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:41b169a0cbe89f08c37bebf984ac2a2c9f65670a749249883add63356d1b7dfe
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ff0fee34cd130fb88164a45faf3fb120e60e78648e866d8f02457e2658ce4d37
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:41b169a0cbe89f08c37bebf984ac2a2c9f65670a749249883add63356d1b7dfe
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ff0fee34cd130fb88164a45faf3fb120e60e78648e866d8f02457e2658ce4d37
   - name: devspaces_theia_plugin_registry_image_gmxdkcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:bfcad82a9dcdfc886c276c720d45c962dc0eaf6257614af4eb36a7b18de74181
   - name: devspaces_udi_devfile_registry_image_gmxdkcq_
