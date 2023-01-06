@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: openshift-workspaces-metrics-exporter
+  name: openshift-devspaces-metrics-exporter
 spec:
   endpoints:
   - interval: 30s
@@ -9,7 +9,8 @@ spec:
     scheme: http
   namespaceSelector:
     matchNames:
-    - openshift-workspaces
+    - openshift-operators
+    - openshift-devspaces
   selector:
     matchLabels:
       app.kubernetes.io/component: devspaces
