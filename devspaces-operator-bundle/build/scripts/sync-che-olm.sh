@@ -298,6 +298,13 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
 		# CRW-3243, CRW-2798 skip Freshmaker and z-stream respins that went out before this release
 		['.metadata.annotations.skipRange']=">=3.0.0 <${CSV_VERSION}"
+		# CRW-3488 (3.4 issue), CRW-3405 (3.4 RN) add Theia deprecation warning to dashboard
+		# TODO change to a removal notice in future release
+		# TODO also remove theia editor option from dashboard 
+		# TODO also remove theia from factory support 
+		# TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
+		['.spec.components.dashboard.headerMessage.show']='true'
+		['.spec.components.dashboard.headerMessage.text']='Microsoft Visual Studio Code - Open Source is the default <a href="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/'${DS_VERSION}'/html-single/user_guide/index#selecting-a-workspace-ide">editor</a> for new workspaces. Eclipse Theia is <a href="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/'${DS_VERSION}'/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3405">deprecated</a> and will be removed in a future release.'
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
