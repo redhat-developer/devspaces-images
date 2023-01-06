@@ -15,14 +15,14 @@
 SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
-CSV_VERSION=2.y.0 # csv 2.y.0
-DS_VERSION=${CSV_VERSION%.*} # tag 2.y
+CSV_VERSION=3.y.0 # csv 3.y.0
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 GET_YARN=1
 
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard"
+Example: $0 -v 3.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard"
 #echo "Options:
 #    --no-vendor # don't rebuild the vendor folder"
     exit
@@ -44,7 +44,7 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+if [ "${CSV_VERSION}" == "3.y.0" ]; then usage; fi
 
 # step one - build the builder image
 BUILDER=$(command -v podman || true)

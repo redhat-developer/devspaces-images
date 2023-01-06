@@ -16,8 +16,8 @@
 set -e
 
 # defaults
-CSV_VERSION=2.y.0 # csv 2.y.0
-DS_VERSION=${CSV_VERSION%.*} # tag 2.y
+CSV_VERSION=3.y.0 # csv 3.y.0
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 
 UPSTM_NAME="che-plugin-registry"
 MIDSTM_NAME="pluginregistry"
@@ -25,7 +25,7 @@ MIDSTM_NAME="pluginregistry"
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b DS_BRANCH]
-Example: $0 -v 2.y.0 -s ${HOME}/devspaces -t /tmp/devspaces-images/devspaces-${MIDSTM_NAME} -b devspaces-3.y-rhel-8
+Example: $0 -v 3.y.0 -s ${HOME}/devspaces -t /tmp/devspaces-images/devspaces-${MIDSTM_NAME} -b devspaces-3.y-rhel-8
 "
     exit
 }
@@ -47,7 +47,7 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+if [ "${CSV_VERSION}" == "3.y.0" ]; then usage; fi
 
 # try to compute branches from currently checked out branch; else fall back to hard coded value for where to find 
 # https://github.com/redhat-developer/devspaces-images/blob/${DS_BRANCH}/devspaces-operator-bundle-generated/manifests/devspaces.csv.yaml

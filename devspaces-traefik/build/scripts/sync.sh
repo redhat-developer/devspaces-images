@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -15,8 +15,8 @@
 set -e
 
 # defaults
-CSV_VERSION=2.y.0 # csv 2.y.0
-DS_VERSION=${CSV_VERSION%.*} # tag 2.y
+CSV_VERSION=3.y.0 # csv 3.y.0
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 TRAEFIK_VERSION="v2.8.1"
 GOLANG_VERSION="1.16.2"
 UPSTM_NAME="traefik"
@@ -25,7 +25,7 @@ MIDSTM_NAME="traefik"
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME}"
+Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME}"
     exit
 }
 
@@ -47,7 +47,7 @@ done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 
 # ignore changes in these files
 echo ".github/

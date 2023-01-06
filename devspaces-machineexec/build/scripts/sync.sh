@@ -15,8 +15,8 @@
 set -e
 
 # defaults
-CSV_VERSION=2.y.0 # csv 2.y.0
-DS_VERSION=${CSV_VERSION%.*} # tag 2.y
+CSV_VERSION=3.y.0 # csv 3.y.0
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 
 UPSTM_NAME="che-machine-exec"
 MIDSTM_NAME="machineexec"
@@ -24,7 +24,7 @@ MIDSTM_NAME="machineexec"
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME}"
+Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME}"
     exit
 }
 
@@ -43,7 +43,7 @@ done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 
 # ignore changes in these files
 echo ".github/
