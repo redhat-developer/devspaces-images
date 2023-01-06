@@ -17,8 +17,8 @@ set -e
 SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 
 # defaults
-CSV_VERSION=2.y.0 # csv 2.y.0
-DS_VERSION=${CSV_VERSION%.*} # tag 2.y
+CSV_VERSION=3.y.0 # csv 3.y.0
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator"
@@ -29,8 +29,8 @@ DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] -s [/path/to/${UPSTM_NAME}] -t [/path/to/generated] [--dwob DEV_WORKSPACE_CONTROLLER branch] [--hrtpb DEV_HEADER_REWRITE_TRAEFIK_PLUGIN branch]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob v0.13.0 --hrtpb v0.1.2
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob main  --hrtpb main"
+Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob v0.13.0 --hrtpb v0.1.2
+Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob main  --hrtpb main"
     exit
 }
 
@@ -51,7 +51,7 @@ done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 
 # ignore changes in these files
 echo ".github/
