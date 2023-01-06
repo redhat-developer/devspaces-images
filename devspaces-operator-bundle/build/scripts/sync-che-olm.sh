@@ -315,13 +315,32 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	echo "${COPYRIGHT}$(cat "${CSVFILE}2")" > "${CSVFILE}"
 	rm -f "${CSVFILE}2"
 	if [[ $(diff -q -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
-		echo "    ${0##*/} :: Inserted (yq #5) ${CSVFILE}:"
+		echo "    ${0##*/} :: Inserted (yq #4) ${CSVFILE}:"
 		for updateName in "${!operator_replacements[@]}"; do
 			echo -n " * $updateName: "
 			# shellcheck disable=SC2016
 			yq --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env? | .[] | select(.name == $updateName) | .value' "${CSVFILE}" 2>/dev/null
 		done
 	fi
+
+	# TODO CRW-3662 (3.5 issue), CRW-3663 (3.5 RN) change to Theia removal warning in dashboard
+	# TODO CRW-3489 also remove theia editor option from dashboard
+		# TODO also remove theia from factory support 
+		# TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
+	# CRW-3488 (3.4 issue), CRW-3405 (3.4 RN) add Theia deprecation warning to dashboard
+	headerMessage="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3405'>deprecated</a> and will be removed in a future release."
+	# get existing alm-example json
+	almExampleJSON=$(yq -r '.metadata.annotations."alm-examples"' ${CSVFILE})
+	# transform json to insert these:
+	# 	['.spec.components.dashboard.headerMessage.show']="true"
+	# 	['.spec.components.dashboard.headerMessage.text']="headerMessage"
+	# update only the second entry, where "apiVersion" == "org.eclipse.che/v2" ==> .[1]
+	almExampleJSON=$(echo $almExampleJSON | jq -r --arg headerMessage "${headerMessage}" '.[1].spec.components|={"dashboard":{"headerMessage":{"show":"true","text":"'"$headerMessage"'"}}}')
+	# replace old annotation with new one:
+	yq -Y --arg almExampleJSON "${almExampleJSON}" '.metadata.annotations."alm-examples"|=$almExampleJSON' "${CSVFILE}" > "${CSVFILE}2"
+	echo "${COPYRIGHT}$(cat "${CSVFILE}2")" > "${CSVFILE}"
+	rm -f "${CSVFILE}2"
+	echo;echo "Inserted headerMessage (yq #5) ${CSVFILE}"
 done
 
 # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
