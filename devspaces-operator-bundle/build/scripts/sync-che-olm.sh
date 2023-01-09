@@ -335,7 +335,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	# 	['.spec.components.dashboard.headerMessage.show']="true"
 	# 	['.spec.components.dashboard.headerMessage.text']="headerMessage"
 	# update only the second entry, where "apiVersion" == "org.eclipse.che/v2" ==> .[1]
-	almExampleJSON=$(echo $almExampleJSON | jq -r --arg headerMessage "${headerMessage}" '.[1].spec.components|={"dashboard":{"headerMessage":{show:"true","text":"'"$headerMessage"'"}}}')
+	almExampleJSON=$(echo $almExampleJSON | jq -r --arg headerMessage "${headerMessage}" '.[1].spec.components|={"dashboard":{"headerMessage":{"show":true,"text":"'"$headerMessage"'"}}}')
 	# replace old annotation with new one:
 	yq -Y --arg almExampleJSON "${almExampleJSON}" '.metadata.annotations."alm-examples"|=$almExampleJSON' "${CSVFILE}" > "${CSVFILE}2"
 	echo "${COPYRIGHT}$(cat "${CSVFILE}2")" > "${CSVFILE}"
