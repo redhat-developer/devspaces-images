@@ -60,7 +60,7 @@ metadata:
             "components": {
               "dashboard": {
                 "headerMessage": {
-                  "show": "true",
+                  "show": true,
                   "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3663'>deprecated</a> and will be removed in a future release."
                 }
               }
@@ -75,8 +75,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0a6054d74deccc2ba2ecb28401c882a0854612e80dd6571f99703c4153a87e0d
-    createdAt: "2023-01-06T15:56:42+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:818ff23e4974d6f83d62c9ffa676634b0c2e3b60707058ed54e0991bd50a9124
+    createdAt: "2023-01-09T09:08:27+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -933,7 +933,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0a6054d74deccc2ba2ecb28401c882a0854612e80dd6571f99703c4153a87e0d
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:818ff23e4974d6f83d62c9ffa676634b0c2e3b60707058ed54e0991bd50a9124
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1270,10 +1270,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.3.0
   relatedImages:
-  - name: devspaces-rhel8-operator-0a6054d74deccc2ba2ecb28401c882a0854612e80dd6571f99703c4153a87e0d-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0a6054d74deccc2ba2ecb28401c882a0854612e80dd6571f99703c4153a87e0d
+  - name: devspaces-rhel8-operator-818ff23e4974d6f83d62c9ffa676634b0c2e3b60707058ed54e0991bd50a9124-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:818ff23e4974d6f83d62c9ffa676634b0c2e3b60707058ed54e0991bd50a9124
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0a6054d74deccc2ba2ecb28401c882a0854612e80dd6571f99703c4153a87e0d
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:818ff23e4974d6f83d62c9ffa676634b0c2e3b60707058ed54e0991bd50a9124
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:65101ca51e7253ffbda91d69e633edc8c7eb398c358e11e0b96733ab48a44753
   - name: dashboard
