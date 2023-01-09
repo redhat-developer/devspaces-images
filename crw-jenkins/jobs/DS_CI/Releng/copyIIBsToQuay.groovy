@@ -24,7 +24,7 @@ for (JB in JOB_BRANCHES) {
         pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
             disabled(false)
             description('''
-Copy latest IIBs to Quay''')
+Copy latest filtered IIBs to <a href=https://quay.io/devspaces/iib>https://quay.io/devspaces/iib</a>''')
 
             properties {
                 ownership {
