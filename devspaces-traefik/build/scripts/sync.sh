@@ -17,7 +17,7 @@ set -e
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 3.y
-TRAEFIK_VERSION="v2.8.1"
+TRAEFIK_VERSION="v2.9.6"
 GOLANG_VERSION="1.16.2"
 UPSTM_NAME="traefik"
 MIDSTM_NAME="traefik"
