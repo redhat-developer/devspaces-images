@@ -1,0 +1,2295 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> 203fd03d176
+STEP 3/23: ARG BOOTSTRAP=true
+--> 0b518282800
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 094ac916b68
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 69fe4ea23a2
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> a2690efcc50
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> ad66e410955
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 4a7009be35e
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> ab95449a288
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 47d0849c539
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-4.el8_6.ppc64le                                                   
+  dnf-4.7.0-11.el8.noarch                                                       
+  dnf-data-4.7.0-11.el8.noarch                                                  
+  nodejs-1:14.21.1-2.module+el8.7.0+17528+a329cd47.ppc64le                      
+  nodejs-docs-1:14.21.1-2.module+el8.7.0+17528+a329cd47.noarch                  
+  nodejs-full-i18n-1:14.21.1-2.module+el8.7.0+17528+a329cd47.ppc64le            
+  npm-1:6.14.17-1.14.21.1.2.module+el8.7.0+17528+a329cd47.ppc64le               
+  python3-dnf-4.7.0-11.el8.noarch                                               
+  python38-3.8.13-1.module+el8.7.0+15641+2ece4388.ppc64le                       
+  python38-devel-3.8.13-1.module+el8.7.0+15641+2ece4388.ppc64le                 
+  python38-libs-3.8.13-1.module+el8.7.0+15641+2ece4388.ppc64le                  
+  python38-pip-19.3.1-6.module+el8.7.0+15823+8950cfa7.noarch                    
+  tar-2:1.30-6.el8.ppc64le                                                      
+  yum-4.7.0-11.el8.noarch                                                       
+Installed:
+  containers-common-2:1-43.module+el8.7.0+17064+3b31f55c.ppc64le                
+  criu-3.15-3.module+el8.7.0+17064+3b31f55c.ppc64le                             
+  fuse-common-3.3.0-16.el8.ppc64le                                              
+  fuse-overlayfs-1.9-1.module+el8.7.0+17064+3b31f55c.ppc64le                    
+  fuse3-3.3.0-16.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-16.el8.ppc64le                                               
+  iptables-libs-1.8.4-23.el8.ppc64le                                            
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-3.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-41.0-1.el8.ppc64le                                                 
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.7.0+17064+3b31f55c.ppc64le                        
+  nftables-1:0.9.3-26.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  rpm-plugin-systemd-inhibit-4.14.3-23.el8.ppc64le                              
+  runc-1:1.1.4-1.module+el8.7.0+17064+3b31f55c.ppc64le                          
+  skopeo-2:1.9.3-1.module+el8.7.0+17064+3b31f55c.ppc64le                        
+  slirp4netns-1.2.0-2.module+el8.7.0+17064+3b31f55c.ppc64le                     
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/36/2b/61d51a2c4f25ef062ae3f74576b01638bebad5e045f747ff12643df63844/PyYAML-6.0.tar.gz (124kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+    Preparing wheel metadata: started
+    Preparing wheel metadata: finished with status 'done'
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (PEP 517): started
+  Building wheel for PyYAML (PEP 517): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0-cp38-cp38-linux_ppc64le.whl size=45333 sha256=3878198909c70c42d8787d0269462c70f74e96cb1fbccc3d380b5fa1dba1f55b
+  Stored in directory: /tmp/pip-ephem-wheel-cache-v7su4w7_/wheels/95/84/67/ebeac632c63797cfbeb90128ca41073117721540dad526d213
+Successfully built PyYAML
+Installing collected packages: argcomplete, xmltodict, toml, PyYAML, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.13
+yq: yq 3.1.0
+jq: jq-1.6
+--> dd206c0f979
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> a4b6051f154
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 749df905ea0
+STEP 14/23: COPY ./VERSION /
+--> b9d905dd627
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> e57ce93a98f
+STEP 16/23: WORKDIR /build/
+--> 79fe67255f2
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-c8bd5c0
+added 119 packages from 183 contributors and audited 119 packages in 8.059s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 5 vulnerabilities (4 low, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-theia-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-theia-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-theia-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-theia-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-theia-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-theia-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-theia-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-theia-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-theia-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> fcf7fdf6666
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 977b96f60c6
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.5 PASS - 3.5 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.5 PASS - 3.5 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> dea47ec3a1a
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 98132bc0b2d
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 175cb369bb7
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> f4086f4e7ba
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 20a5ba525a5
+Successfully tagged localhost/devfileregistry:tmp
+20a5ba525a5d98d6fa978df050f9b2893f368bc63a18394341c9b764d7542b96
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/external_images_by_devfile.txt /tmp/tmp.Rpp4JLtoWi/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.GyWnbR9uXt/devfiles/external_images_by_devfile.txt	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/external_images_by_devfile.txt	2023-01-10 22:24:51.629434660 +0000
+@@ -7,6 +7,15 @@
+ registry.redhat.io/devspaces/code-rhel8:3.5	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.5	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.5	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.5	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/machineexec-rhel8:3.5	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/machineexec-rhel8:3.5	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/machineexec-rhel8:3.5	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+@@ -35,22 +44,32 @@
+ registry.redhat.io/devspaces/theia-rhel8:3.5	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/theia-rhel8:3.5	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.5	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/external_images.txt /tmp/tmp.Rpp4JLtoWi/devfiles/external_images.txt
+--- /tmp/tmp.GyWnbR9uXt/devfiles/external_images.txt	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/external_images.txt	2023-01-10 22:24:51.619434903 +0000
+@@ -1,4 +1,5 @@
+ registry.redhat.io/devspaces/code-rhel8:3.5
++registry.redhat.io/devspaces/idea-rhel8:3.5
+ registry.redhat.io/devspaces/machineexec-rhel8:3.5
+ registry.redhat.io/devspaces/theia-endpoint-rhel8:3.5
+ registry.redhat.io/devspaces/theia-rhel8:3.5
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/index.json /tmp/tmp.Rpp4JLtoWi/devfiles/index.json
+--- /tmp/tmp.GyWnbR9uXt/devfiles/index.json	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/index.json	2023-01-10 22:24:51.629434660 +0000
+@@ -14,6 +14,7 @@
+       "v2": "https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -33,6 +34,7 @@
+       "v2": "https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -52,6 +54,7 @@
+       "v2": "https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -70,6 +73,7 @@
+       "v2": "https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -87,6 +91,7 @@
+       "v2": "https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -110,6 +115,7 @@
+       "v2": "https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -132,6 +138,7 @@
+       "v2": "https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -150,6 +157,7 @@
+       "v2": "https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml"
+       }
+     }
+@@ -167,6 +175,7 @@
+       "v2": "https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8",
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml",
++        "eclipse/che-idea/latest": "/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml"
+       }
+     }
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -37,78 +86,20 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+-          memoryLimit: 4Gi
++          memoryLimit: 3Gi
+           endpoints:
+             - exposure: none
+               name: debug
+               protocol: tcp
+               targetPort: 5005
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-            - name: checode
+-              path: /checode
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 3Gi
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
++          controller.devfile.io/merge-contribution: true
+       - name: m2
+         volume:
+           size: 1G
+-      - name: che-code-java-lombok
+-        plugin:
+-          kubernetes:
+-            name: che-code-java-lombok
+     commands:
+       - id: build
+         exec:
+@@ -121,4 +112,8 @@
+     projects:
+       - name: lombok-project-sample
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/lombok-project-sample.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/lombok-project-sample.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-java-lombok
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -182,40 +182,11 @@
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          env:
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/java-0.82.0-369.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/vscode-java-debug-0.26.0.vsix
+-            - >-
+-              relative:extension/resources/open-vsx_org/api/vscjava/vscode-java-test/0_28_1/file/vscjava.vscode-java-test-0.28.1.vsix
+-            - >-
+-              relative:extension/resources/github_com/fabric8-analytics/fabric8-analytics-vscode-extension/releases/download/0_3_6/fabric8-analytics-0.3.6.vsix
+-          che-theia.eclipse.org/vscode-preferences:
+-            java.server.launchMode: Standard
+-            java.jdt.ls.vmargs: '-javaagent:/lombok.jar'
+-          app.kubernetes.io/name: tools
++          controller.devfile.io/merge-contribution: true
+       - name: m2
+         volume:
+           size: 1G
+-      - name: che-theia-java-lombok
+-        plugin:
+-          kubernetes:
+-            name: che-theia-java-lombok
+     commands:
+       - id: build
+         exec:
+@@ -228,4 +199,8 @@
+     projects:
+       - name: lombok-project-sample
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/lombok-project-sample.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/lombok-project-sample.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-java-lombok
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,4 +11,5 @@
+   v2: https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -50,74 +99,16 @@
+               protocol: http
+               targetPort: 8080
+               path: /hello/greeting/devspaces-user
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-            - name: checode
+-              path: /checode
+-          memoryLimit: 5.07G
++          memoryLimit: 4G
+           mountSources: true
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 4G
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
++          controller.devfile.io/merge-contribution: true
+       - name: m2
+         volume:
+           size: 1G
+-      - name: che-code-quarkus-quickstart
+-        plugin:
+-          kubernetes:
+-            name: che-code-quarkus-quickstart
+     commands:
+       - id: 1-package
+         exec:
+@@ -139,4 +130,8 @@
+     projects:
+       - name: quarkus-quickstarts
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/quarkus-quickstarts.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/quarkus-quickstarts.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-quarkus-quickstart
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -176,10 +176,6 @@
+           env:
+             - name: QUARKUS_HTTP_HOST
+               value: 0.0.0.0
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+           endpoints:
+             - exposure: none
+               name: debug
+@@ -193,40 +189,13 @@
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+           memoryLimit: 4G
+           mountSources: true
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/java-0.82.0-369.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/vscode-java-debug-0.26.0.vsix
+-            - >-
+-              relative:extension/resources/open-vsx_org/api/vscjava/vscode-java-test/0_28_1/file/vscjava.vscode-java-test-0.28.1.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/vscode-microprofile-0.1.1-48.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/vscode-quarkus-1.7.0-437.vsix
+-            - >-
+-              relative:extension/resources/github_com/fabric8-analytics/fabric8-analytics-vscode-extension/releases/download/0_3_6/fabric8-analytics-0.3.6.vsix
+-          che-theia.eclipse.org/vscode-preferences:
+-            java.server.launchMode: Standard
+-          app.kubernetes.io/name: tools
++          controller.devfile.io/merge-contribution: true
+       - name: m2
+         volume:
+           size: 1G
+-      - name: che-theia-quarkus-quickstart
+-        plugin:
+-          kubernetes:
+-            name: che-theia-quarkus-quickstart
+     commands:
+       - id: 1-package
+         exec:
+@@ -248,4 +217,8 @@
+     projects:
+       - name: quarkus-quickstarts
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/quarkus-quickstarts.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/quarkus-quickstarts.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-quarkus-quickstart
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,4 +11,5 @@
+   v2: https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -46,67 +95,13 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+-          memoryLimit: 2.07G
++          memoryLimit: 1G
+           mountSources: true
+           volumeMounts:
+             - name: npm
+               path: /home/user/.npm
+-            - name: checode
+-              path: /checode
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 1G
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: nodejs
++          controller.devfile.io/merge-contribution: true
+       - name: npm
+         volume:
+           size: 1G
+@@ -134,10 +129,6 @@
+       - name: mongo-storage
+         volume:
+           size: 1G
+-      - name: che-code-nodejs-mongodb
+-        plugin:
+-          kubernetes:
+-            name: che-code-nodejs-mongodb
+     commands:
+       - id: 1-run
+         exec:
+@@ -150,4 +141,8 @@
+     projects:
+       - name: nodejs-mongodb-sample
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/nodejs-mongodb-sample.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/nodejs-mongodb-sample.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-nodejs-mongodb
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -178,10 +178,6 @@
+               value: 220fd770-c028-480d-8f95-f84353c7d55a
+             - name: NODE_ENV
+               value: production
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/nodejs
+           endpoints:
+             - exposure: public
+               name: nodejs
+@@ -191,21 +187,8 @@
+           volumeMounts:
+             - name: npm
+               path: /home/user/.npm
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/open-vsx_org/api/ms-vscode/js-debug/1_66_0/file/ms-vscode.js-debug-1.66.0.vsix
+-            - >-
+-              relative:extension/resources/github_com/fabric8-analytics/fabric8-analytics-vscode-extension/releases/download/0_3_6/fabric8-analytics-0.3.6.vsix
+-          app.kubernetes.io/name: nodejs
++          controller.devfile.io/merge-contribution: true
+       - name: npm
+         volume:
+           size: 1G
+@@ -233,10 +216,6 @@
+       - name: mongo-storage
+         volume:
+           size: 1G
+-      - name: che-theia-nodejs-mongodb
+-        plugin:
+-          kubernetes:
+-            name: che-theia-nodejs-mongodb
+     commands:
+       - id: 1-run
+         exec:
+@@ -249,4 +228,8 @@
+     projects:
+       - name: nodejs-mongodb-sample
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/nodejs-mongodb-sample.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/nodejs-mongodb-sample.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-nodejs-mongodb
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,4 +11,5 @@
+   v2: https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.629434660 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -42,74 +91,16 @@
+               name: nodejs
+               protocol: http
+               targetPort: 3000
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+-          memoryLimit: 2.07G
++          memoryLimit: 1G
+           mountSources: true
+           volumeMounts:
+             - name: npm
+               path: /home/user/.npm
+-            - name: checode
+-              path: /checode
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 1G
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
++          controller.devfile.io/merge-contribution: true
+       - name: npm
+         volume:
+           size: 1G
+-      - name: che-code-nodejs-web-app
+-        plugin:
+-          kubernetes:
+-            name: che-code-nodejs-web-app
+     commands:
+       - id: 1-dependencies
+         exec:
+@@ -158,4 +149,8 @@
+     projects:
+       - name: web-nodejs-sample
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/web-nodejs-sample.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/web-nodejs-sample.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-nodejs-web-app
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.629434660 +0000
+@@ -183,33 +183,11 @@
+           volumeMounts:
+             - name: npm
+               path: /home/user/.npm
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          env:
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/open-vsx_org/api/ms-vscode/js-debug/1_66_0/file/ms-vscode.js-debug-1.66.0.vsix
+-            - >-
+-              relative:extension/resources/github_com/fabric8-analytics/fabric8-analytics-vscode-extension/releases/download/0_3_6/fabric8-analytics-0.3.6.vsix
+-          app.kubernetes.io/name: tools
++          controller.devfile.io/merge-contribution: true
+       - name: npm
+         volume:
+           size: 1G
+-      - name: che-theia-nodejs-web-app
+-        plugin:
+-          kubernetes:
+-            name: che-theia-nodejs-web-app
+     commands:
+       - id: 1-dependencies
+         exec:
+@@ -258,4 +236,8 @@
+     projects:
+       - name: web-nodejs-sample
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/web-nodejs-sample.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/web-nodejs-sample.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-nodejs-web-app
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__web-nodejs-sample/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/nodejs__web-nodejs-sample/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/nodejs__web-nodejs-sample/meta.yaml	2023-01-10 22:24:51.629434660 +0000
+@@ -10,4 +10,5 @@
+   v2: https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -40,72 +89,13 @@
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+-            - name: checode
+-              path: /checode
+-          memoryLimit: 3.07G
++          memoryLimit: 2G
+           mountSources: true
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          endpoints:
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 2G
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: python
++          controller.devfile.io/merge-contribution: true
+       - name: venv
+         volume:
+           size: 1G
+-      - name: che-code-python-hello-world
+-        plugin:
+-          kubernetes:
+-            name: che-code-python-hello-world
+     commands:
+       - id: run
+         exec:
+@@ -120,4 +110,8 @@
+     projects:
+       - name: python-hello-world
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/python-hello-world.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/python-hello-world.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-python-hello-world
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -176,37 +176,13 @@
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+           memoryLimit: 2G
+           mountSources: true
+-          env:
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/python
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/github_com/microsoft/vscode-python/releases/download/2020_7_94776/ms-python-release.vsix
+-            - >-
+-              relative:extension/resources/github_com/fabric8-analytics/fabric8-analytics-vscode-extension/releases/download/0_3_6/fabric8-analytics-0.3.6.vsix
+-          che-theia.eclipse.org/vscode-preferences:
+-            python.globalModuleInstallation: true
+-          app.kubernetes.io/name: python
++          controller.devfile.io/merge-contribution: true
+       - name: venv
+         volume:
+           size: 1G
+-      - name: che-theia-python-hello-world
+-        plugin:
+-          kubernetes:
+-            name: che-theia-python-hello-world
+     commands:
+       - id: run
+         exec:
+@@ -221,4 +197,8 @@
+     projects:
+       - name: python-hello-world
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/python-hello-world.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/python-hello-world.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-python-hello-world
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/python__python-hello-world/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/python__python-hello-world/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/python__python-hello-world/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -9,4 +9,5 @@
+   v2: https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -37,70 +86,10 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+-          memoryLimit: 3Gi
++          memoryLimit: 2Gi
+           mountSources: true
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          volumeMounts:
+-            - name: checode
+-              path: /checode
+-          endpoints:
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 2Gi
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
+-      - name: che-code-cpp
+-        plugin:
+-          kubernetes:
+-            name: che-code-cpp
++          controller.devfile.io/merge-contribution: true
+     commands:
+       - id: build-current-algorithm
+         exec:
+@@ -121,4 +110,8 @@
+     projects:
+       - name: c-plus-plus
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/c-plus-plus.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/c-plus-plus.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-cpp
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -175,36 +175,8 @@
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+           memoryLimit: 2Gi
+           mountSources: true
+-          env:
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+-          volumeMounts:
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/cdt-vscode-0.0.7-75cf95.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/cdt-gdb-vscode-0.0.91-2cbbb8.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/vscode-clangd-0.1.5-562d00.vsix
+-          che-theia.eclipse.org/vscode-preferences:
+-            clangd.path: /usr/bin/clangd
+-            cdt.clangd.binaries.enable: false
+-          app.kubernetes.io/name: tools
+-      - name: che-theia-cpp
+-        plugin:
+-          kubernetes:
+-            name: che-theia-cpp
++          controller.devfile.io/merge-contribution: true
+     commands:
+       - id: build-current-algorithm
+         exec:
+@@ -225,4 +197,8 @@
+     projects:
+       - name: c-plus-plus
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/c-plus-plus.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/c-plus-plus.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-cpp
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__cpp__c-plus-plus/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__cpp__c-plus-plus/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__cpp__c-plus-plus/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -15,4 +15,5 @@
+   v2: https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -37,79 +86,21 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+-          memoryLimit: 3Gi
++          memoryLimit: 2Gi
+           mountSources: true
+           endpoints:
+             - exposure: public
+               name: hello-endpoint
+               protocol: http
+               targetPort: 5032
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+           volumeMounts:
+             - name: nuget
+               path: /home/user/.nuget
+-            - name: checode
+-              path: /checode
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 2Gi
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
++          controller.devfile.io/merge-contribution: true
+       - name: nuget
+         volume:
+           size: 1G
+-      - name: che-code-dotnet
+-        plugin:
+-          kubernetes:
+-            name: che-code-dotnet
+     commands:
+       - id: 1-update-dependencies
+         exec:
+@@ -135,4 +126,8 @@
+     projects:
+       - name: dotnet-web-simple
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/dotnet-web-simple.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/dotnet-web-simple.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-dotnet
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -104,8 +104,7 @@
+             exposure: public
+             secure: false
+             protocol: wss
+-      attributes:
+-        che-theia.eclipse.org/vscode-extensions: []
++      attributes: {}
+     - name: plugins
+       volume: {}
+     - name: theia-local
+@@ -184,29 +183,11 @@
+           volumeMounts:
+             - name: nuget
+               path: /home/user/.nuget
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          env:
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions: []
+-          app.kubernetes.io/name: tools
++          controller.devfile.io/merge-contribution: true
+       - name: nuget
+         volume:
+           size: 1G
+-      - name: che-theia-dotnet
+-        plugin:
+-          kubernetes:
+-            name: che-theia-dotnet
+     commands:
+       - id: 1-update-dependencies
+         exec:
+@@ -232,4 +213,8 @@
+     projects:
+       - name: dotnet-web-simple
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/dotnet-web-simple.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/dotnet-web-simple.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-dotnet
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -14,4 +14,5 @@
+   v2: https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -37,7 +86,7 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+-          memoryLimit: 3Gi
++          memoryLimit: 2Gi
+           mountSources: true
+           env:
+             - name: GOCACHE
+@@ -47,67 +96,8 @@
+               name: health-check-endpoint
+               protocol: http
+               targetPort: 8080
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          volumeMounts:
+-            - name: checode
+-              path: /checode
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 2Gi
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
+-      - name: che-code-golang
+-        plugin:
+-          kubernetes:
+-            name: che-code-golang
++          controller.devfile.io/merge-contribution: true
+     commands:
+       - id: build
+         exec:
+@@ -126,4 +116,8 @@
+     projects:
+       - name: golang-health-check
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/golang-health-check.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/golang-health-check.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-golang
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -178,35 +178,13 @@
+           env:
+             - name: GOCACHE
+               value: /tmp/.cache
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+           endpoints:
+             - exposure: public
+               name: health-check-endpoint
+               protocol: http
+               targetPort: 8080
+-          volumeMounts:
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/github_com/golang/vscode-go/releases/download/v0_23_0/go-0.23.0.vsix
+-            - >-
+-              relative:extension/resources/github_com/fabric8-analytics/fabric8-analytics-vscode-extension/releases/download/0_3_6/fabric8-analytics-0.3.6.vsix
+-          app.kubernetes.io/name: tools
+-      - name: che-theia-golang
+-        plugin:
+-          kubernetes:
+-            name: che-theia-golang
++          controller.devfile.io/merge-contribution: true
+     commands:
+       - id: build
+         exec:
+@@ -225,4 +203,8 @@
+     projects:
+       - name: golang-health-check
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/golang-health-check.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/golang-health-check.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-golang
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__go__golang-health-check/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__go__golang-health-check/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__go__golang-health-check/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -10,4 +10,5 @@
+   v2: https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -11,6 +11,55 @@
+     preStart:
+       - init-container-command
+   components:
++    - name: che-code-runtime-description
++      container:
++        image: registry.redhat.io/devspaces/udi-rhel8:3.5
++        command:
++          - /checode/entrypoint-volume.sh
++        volumeMounts:
++          - name: checode
++            path: /checode
++        memoryLimit: 1024Mi
++        memoryRequest: 256Mi
++        cpuLimit: 500m
++        cpuRequest: 30m
++        endpoints:
++          - name: che-code
++            attributes:
++              type: main
++              cookiesAuthEnabled: true
++              discoverable: false
++              urlRewriteSupported: true
++            targetPort: 3100
++            exposure: public
++            path: '?tkn=eclipse-che'
++            secure: false
++            protocol: https
++          - name: code-redirect-1
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13131
++            exposure: public
++            protocol: http
++          - name: code-redirect-2
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13132
++            exposure: public
++            protocol: http
++          - name: code-redirect-3
++            attributes:
++              discoverable: false
++              urlRewriteSupported: false
++            targetPort: 13133
++            exposure: public
++            protocol: http
++      attributes:
++        app.kubernetes.io/component: che-code-runtime
++        app.kubernetes.io/part-of: che-code.eclipse.org
++        controller.devfile.io/container-contribution: true
+     - name: checode
+       volume: {}
+     - name: che-code-injector
+@@ -37,69 +86,9 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+-          memoryLimit: 2Gi
+-          command:
+-            - /checode/entrypoint-volume.sh
+-          volumeMounts:
+-            - name: checode
+-              path: /checode
+-          endpoints:
+-            - name: che-code
+-              attributes:
+-                type: main
+-                cookiesAuthEnabled: true
+-                discoverable: false
+-                urlRewriteSupported: true
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 3100
+-              exposure: public
+-              path: '?tkn=eclipse-che'
+-              secure: false
+-              protocol: https
+-            - name: code-redirect-1
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13131
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-2
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13132
+-              exposure: public
+-              protocol: http
+-            - name: code-redirect-3
+-              attributes:
+-                discoverable: false
+-                urlRewriteSupported: false
+-                contributed-by: che-code.eclipse.org
+-              targetPort: 13133
+-              exposure: public
+-              protocol: http
+-          memoryRequest: 256Mi
+-          cpuLimit: 500m
+-          cpuRequest: 30m
++          memoryLimit: 1Gi
+         attributes:
+-          che-code.eclipse.org/contribute-entry-point: true
+-          che-code.eclipse.org/contribute-volume-mount/checode: /checode
+-          che-code.eclipse.org/contribute-endpoint/che-code: 3100
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-1: 13131
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-2: 13132
+-          che-code.eclipse.org/contribute-endpoint/code-redirect-3: 13133
+-          che-code.eclipse.org/contribute-memoryLimit: true
+-          che-code.eclipse.org/original-memoryLimit: 1Gi
+-          che-code.eclipse.org/contribute-memoryRequest: true
+-          che-code.eclipse.org/contribute-cpuLimit: true
+-          che-code.eclipse.org/contribute-cpuRequest: true
+-          che-code.eclipse.org/contributed-container: tools
+-      - name: che-code-php-hello-world
+-        plugin:
+-          kubernetes:
+-            name: che-code-php-hello-world
++          controller.devfile.io/merge-contribution: true
+     commands:
+       - id: run
+         exec:
+@@ -112,4 +101,8 @@
+     projects:
+       - name: php-hello-world
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/php-hello-world.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/php-hello-world.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-code-php-hello-world
+Only in /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world: devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -174,31 +174,8 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.5
+           memoryLimit: 1Gi
+-          env:
+-            - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+-              value: /remote-endpoint/plugin-remote-endpoint
+-            - name: THEIA_PLUGINS
+-              value: local-dir:///plugins/sidecars/tools
+-          volumeMounts:
+-            - path: /remote-endpoint
+-              name: remote-endpoint
+-            - path: /plugins
+-              name: plugins
+-          args:
+-            - sh
+-            - '-c'
+-            - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+         attributes:
+-          che-theia.eclipse.org/vscode-extensions:
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/vscode-intelephense-client-1.5.4.vsix
+-            - >-
+-              relative:extension/resources/github_com/redhat-developer/devspaces-vscode-extensions/releases/download/7_44-che-assets/php-debug-1.13.0.vsix
+-          app.kubernetes.io/name: tools
+-      - name: che-theia-php-hello-world
+-        plugin:
+-          kubernetes:
+-            name: che-theia-php-hello-world
++          controller.devfile.io/merge-contribution: true
+     commands:
+       - id: run
+         exec:
+@@ -211,4 +188,8 @@
+     projects:
+       - name: php-hello-world
+         zip:
+-          location: '{{INTERNAL_URL}}/resources/v2/php-hello-world.zip'
++          location: '{{ INTERNAL_URL }}/resources/v2/php-hello-world.zip'
++  contributions:
++    - name: editor
++      kubernetes:
++        name: che-theia-php-hello-world
+diff --suppress-common-lines -u -r /tmp/tmp.GyWnbR9uXt/devfiles/TP__php__php-hello-world/meta.yaml /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world/meta.yaml
+--- /tmp/tmp.GyWnbR9uXt/devfiles/TP__php__php-hello-world/meta.yaml	2023-01-02 10:17:25.000000000 +0000
++++ /tmp/tmp.Rpp4JLtoWi/devfiles/TP__php__php-hello-world/meta.yaml	2023-01-10 22:24:51.619434903 +0000
+@@ -9,4 +9,5 @@
+   v2: https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml
++    eclipse/che-idea/latest: /devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 20a5ba525a5d98d6fa978df050f9b2893f368bc63a18394341c9b764d7542b96
+Deleted: f4086f4e7badf9ffc4d70fafd40316fab2dc272562601bf301db7aca0d6a7f83
+Deleted: 175cb369bb7b1ede6fd8eb2f75a89b4c22b13b759c98567d05cecff7d6c84385
+Deleted: 98132bc0b2d8ac48f293473a57fd23320736ff1311c00a1687698adefc30343b
+Deleted: dea47ec3a1aa197b35ab375ca412113c87443eacfb5c369eb9493c1cdbe1a8a4
+Deleted: 977b96f60c68c51455c8905c1bb351345299003cadb879869172344b9d58097c
+Deleted: fcf7fdf666655238bfa348ed11d9b6d8c621010ccdeaf722bc5dcc655b57b843
+Deleted: 79fe67255f226d078c564bb67475644a87e642524e1302d30607a4f7c5a85788
+Deleted: e57ce93a98fa7417f7b4262de9a4301f27825a6ee093d9a7520dfcdb4bc61f44
+Deleted: b9d905dd627088d93d99162f817605a49a1ad283818957d38efc296be8ddb5a5
+Deleted: 749df905ea03ebe1773f3dcb8d8480a04937ecd58163c5431bd99634bc07f816
+Deleted: a4b6051f154458613255d282b7a4e9126f5d63c20beecbefb23e1cd6f6acb1c1
+Deleted: dd206c0f9796bd645dc6f3e8126658313216f210831cb5752bd18047893a6e6d
+Deleted: 47d0849c539e69534999e6cd3f21d5bd5b28c89ac2e0a05f0e658cd17f766707
+Deleted: ab95449a2882555834d2b3ee90236ee5c9c7c5f401af6b3d728f48ed76e846bf
+Deleted: 4a7009be35ec64e1880a19e527a82411e9d58bfbdc48a3c3517cd05e767a72c1
+Deleted: ad66e410955d658412b87fab08dd8eae71d16f6ecea281432f7e4aba95b3a65f
+Deleted: a2690efcc500e67fd2c41666b405f67ab8b43dbbd904cda950d01dc7e4a780f2
+Deleted: 69fe4ea23a27513029d22d182693783bf807572d8da5e6a9021fe05baecc87b1
+Deleted: 094ac916b68f1fc073504fd5224f58633f0e8ca275856b88772ff21cc0c1e7f3
+Deleted: 0b518282800f80286b3d0e26f0ce125d7d845b5f0a4c21e24397e6a9b0d8cfbf
+Deleted: 203fd03d176ffe10ed1228a5636634369e4a3b6bd29135ecd81e2115f844f96e
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
