@@ -1,3 +1,4 @@
 resources/
+node_modules/
 /root-local.tgz
-/resources.tgz
+package-lock.json
