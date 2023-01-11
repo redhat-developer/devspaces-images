@@ -13,13 +13,19 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import BannerAlertNotSupportedBrowser from '..';
-import { isSafari } from '../../../../services/helpers/detectBrowser';
+
+const mockIsSupportedBrowser = jest.fn();
+jest.mock('../isSupportedBrowser', () => ({
+  isSupportedBrowser: () => mockIsSupportedBrowser(),
+}));
 
 const unsupportedBrowserMessage = 'The browser you are using is not supported.';
 
 describe('BannerAlertNotSupportedBrowser component', () => {
   it('should not show error message', () => {
+    mockIsSupportedBrowser.mockReturnValue(true);
     render(<BannerAlertNotSupportedBrowser />);
+
     expect(
       screen.queryByText(unsupportedBrowserMessage, {
         exact: false,
@@ -27,9 +33,8 @@ describe('BannerAlertNotSupportedBrowser component', () => {
     ).toBeFalsy();
   });
 
-  it('should show error message when error found after mounting', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (isSafari as any) = true;
+  it('should show error message', () => {
+    mockIsSupportedBrowser.mockReturnValue(false);
     render(<BannerAlertNotSupportedBrowser />);
 
     expect(

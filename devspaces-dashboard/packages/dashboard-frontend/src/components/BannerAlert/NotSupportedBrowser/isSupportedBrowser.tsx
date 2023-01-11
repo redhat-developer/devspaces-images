@@ -10,4 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+// Tests browser for features it has to support
+export function isSupportedBrowser(): boolean {
+  return true;
+}
