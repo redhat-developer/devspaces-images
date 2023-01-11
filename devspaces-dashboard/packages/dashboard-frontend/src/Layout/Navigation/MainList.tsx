@@ -27,12 +27,7 @@ export class NavigationMainList extends React.PureComponent<Props> {
   private get items(): NavigationItemObject[] {
     const { allWorkspaces } = this.props;
 
-    const allWorkspacesNumber = allWorkspaces.filter(workspace => {
-      if (workspace.isDevWorkspace) {
-        return true;
-      }
-      return (workspace.ref as che.Workspace).attributes?.convertedId === undefined;
-    }).length;
+    const allWorkspacesNumber = allWorkspaces.length;
 
     return [
       { to: ROUTE.GET_STARTED, label: 'Create Workspace' },

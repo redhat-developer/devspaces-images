@@ -16,11 +16,9 @@ import renderer, { ReactTestRenderer } from 'react-test-renderer';
 import { Store } from 'redux';
 import WorkspaceLogs from '..';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import {
-  createFakeCheWorkspace,
-  createFakeWorkspaceLogs,
-} from '../../../store/__mocks__/workspace';
+import { createFakeWorkspaceLogs } from '../../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../../services/helpers/types';
+import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 
 jest.mock('../../../services/helpers/tools', () => {
   return {
@@ -33,16 +31,15 @@ describe('The LogsTab component', () => {
   const workspaceId = 'workspace-test-id';
   const workspaceName = 'workspace-test-name';
   const status = WorkspaceStatus.RUNNING;
-  const runtime: che.WorkspaceRuntime = {
-    machines: {},
-    status: WorkspaceStatus.RUNNING,
-    activeEnv: 'default',
-  };
 
   it('should render empty state widget correctly', () => {
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
+    const workspace = new DevWorkspaceBuilder()
+      .withUID(workspaceId)
+      .withName(workspaceName)
+      .withNamespace(namespace)
+      .build();
     const store = new FakeStoreBuilder()
-      .withCheWorkspaces({
+      .withDevWorkspaces({
         workspaces: [workspace],
       })
       .build();
@@ -53,16 +50,15 @@ describe('The LogsTab component', () => {
   });
 
   it('should render workspace-logs widget without logs correctly', () => {
-    const workspace = createFakeCheWorkspace(
-      workspaceId,
-      workspaceName,
-      namespace,
-      status,
-      runtime,
-    );
+    const workspace = new DevWorkspaceBuilder()
+      .withId(workspaceId)
+      .withName(workspaceName)
+      .withStatus({ phase: status })
+      .withNamespace(namespace)
+      .build();
 
     const store = new FakeStoreBuilder()
-      .withCheWorkspaces({
+      .withDevWorkspaces({
         workspaces: [workspace],
       })
       .build();
@@ -73,13 +69,12 @@ describe('The LogsTab component', () => {
   });
 
   it('should render workspace-logs widget with logs inside correctly', () => {
-    const workspace = createFakeCheWorkspace(
-      workspaceId,
-      workspaceName,
-      namespace,
-      status,
-      runtime,
-    );
+    const workspace = new DevWorkspaceBuilder()
+      .withId(workspaceId)
+      .withName(workspaceName)
+      .withStatus({ phase: status })
+      .withNamespace(namespace)
+      .build();
     const workspacesLogs = createFakeWorkspaceLogs(workspaceId, [
       'Pulling image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
       'Successfully pulled image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
@@ -87,7 +82,7 @@ describe('The LogsTab component', () => {
       'Started container remote-runtime-injectorvpj',
     ]);
     const store = new FakeStoreBuilder()
-      .withCheWorkspaces({
+      .withDevWorkspaces({
         workspaces: [workspace],
         workspacesLogs: workspacesLogs,
       })

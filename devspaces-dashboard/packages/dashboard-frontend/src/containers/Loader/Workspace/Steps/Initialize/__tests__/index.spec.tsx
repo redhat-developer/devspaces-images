@@ -19,8 +19,6 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { WorkspaceParams } from '../../../../../../Routes/routes';
 import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
 import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { CheWorkspaceBuilder } from '../../../../../../store/__mocks__/cheWorkspaceBuilder';
-import { WorkspaceAdapter } from '../../../../../../services/workspace-adapter';
 import { List, LoaderStep, LoadingStep } from '../../../../../../components/Loader/Step';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_STOP_SEC } from '../../../../const';
 import {
@@ -96,46 +94,6 @@ describe('Workspace Loader, step INITIALIZE', () => {
     const alertBody = screen.getByTestId('alert-body');
     expect(alertBody.textContent).toEqual(
       `Workspace "${namespace}/${wrongWorkspaceName}" not found.`,
-    );
-
-    expect(mockOnNextStep).not.toHaveBeenCalled();
-  });
-
-  test('deprecated workspace', async () => {
-    const deprecatedId = 'che-wksp-id';
-    WorkspaceAdapter.setDeprecatedUIDs([deprecatedId]);
-    const store = new FakeStoreBuilder()
-      .withCheWorkspaces({
-        workspaces: [
-          new CheWorkspaceBuilder()
-            .withId(deprecatedId)
-            .withName(workspaceName)
-            .withNamespace(namespace)
-            .build(),
-        ],
-      })
-      .withWorkspacesSettings({
-        'che.devworkspaces.enabled': 'true',
-      })
-      .build();
-
-    renderComponent(store, loaderSteps);
-
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
-
-    const currentStepId = screen.getByTestId('current-step-id');
-    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
-
-    const currentStep = screen.getByTestId(stepId);
-    const hasError = within(currentStep).getByTestId('hasError');
-    expect(hasError.textContent).toEqual('true');
-
-    const alertTitle = screen.getByTestId('alert-title');
-    expect(alertTitle.textContent).toEqual('Failed to open the workspace');
-
-    const alertBody = screen.getByTestId('alert-body');
-    expect(alertBody.textContent).toEqual(
-      'The workspace is deprecated. Convert the workspace and try again.',
     );
 
     expect(mockOnNextStep).not.toHaveBeenCalled();

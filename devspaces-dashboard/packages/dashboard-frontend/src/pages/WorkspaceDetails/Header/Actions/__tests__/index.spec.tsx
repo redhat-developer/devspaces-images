@@ -24,8 +24,9 @@ import { Workspace } from '../../../../../services/workspace-adapter';
 import { AppThunk } from '../../../../../store';
 import { ActionCreators, ResourceQueryParams } from '../../../../../store/Workspaces';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { CheWorkspaceBuilder } from '../../../../../store/__mocks__/cheWorkspaceBuilder';
+import { DevWorkspaceBuilder } from '../../../../../store/__mocks__/devWorkspaceBuilder';
 import { Store } from 'redux';
+import devfileApi from '../../../../../services/devfileApi';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 jest.mock('../../../../../store/Workspaces/index', () => {
@@ -50,23 +51,17 @@ const namespace = 'che';
 const workspaceName = 'test-workspace-name';
 const workspaceUID = 'test-workspace-id';
 
-let cheWorkspace: che.Workspace;
+let devWorkspace: devfileApi.DevWorkspace;
 let store: Store;
 
 describe('Workspace WorkspaceAction widget', () => {
+  global.open = jest.fn();
+
   beforeEach(() => {
-    cheWorkspace = new CheWorkspaceBuilder()
-      .withId(workspaceUID)
+    devWorkspace = new DevWorkspaceBuilder()
+      .withUID(workspaceUID)
       .withName(workspaceName)
       .withNamespace(namespace)
-      .withStatus(WorkspaceStatus.STOPPED)
-      .withDevfile({
-        apiVersion: 'v1',
-        components: [],
-        metadata: {
-          name: workspaceName,
-        },
-      })
       .build();
     store = new FakeStoreBuilder()
       .withWorkspaces({
@@ -74,8 +69,8 @@ describe('Workspace WorkspaceAction widget', () => {
         workspaceName,
       })
       .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-      .withCheWorkspaces({
-        workspaces: [cheWorkspace],
+      .withDevWorkspaces({
+        workspaces: [devWorkspace],
       })
       .build();
   });
@@ -103,19 +98,6 @@ describe('Workspace WorkspaceAction widget', () => {
     expect(actionButton).toBeTruthy();
   });
 
-  it('should not not show actions nor button', () => {
-    const history = createHashHistory();
-    const component = createComponent(history, 'Deprecated', false);
-
-    renderComponent(component);
-
-    const actionButton = screen.queryByRole('button', { name: /delete/i });
-    expect(actionButton).toBe(null);
-
-    const actionDropdown = screen.queryByTestId(`${workspaceUID}-action-dropdown`);
-    expect(actionDropdown).toBe(null);
-  });
-
   it('should call the callback with OPEN action', async () => {
     const action = WorkspaceAction.OPEN_IDE;
     const history = createHashHistory();
@@ -132,7 +114,7 @@ describe('Workspace WorkspaceAction widget', () => {
     targetAction.click();
 
     await waitFor(() =>
-      expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`),
+      expect(window.open).toBeCalledWith(`#/ide/${namespace}/test-workspace-name`, workspaceUID),
     );
   });
 
@@ -152,7 +134,7 @@ describe('Workspace WorkspaceAction widget', () => {
     targetAction.click();
 
     await waitFor(() =>
-      expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`),
+      expect(window.open).toBeCalledWith(`#/ide/${namespace}/test-workspace-name`, workspaceUID),
     );
   });
 
@@ -211,13 +193,11 @@ describe('Workspace WorkspaceAction widget', () => {
 function createComponent(
   history: History,
   status: WorkspaceStatus | DeprecatedWorkspaceStatus = WorkspaceStatus.STOPPED,
-  canDelete = true,
 ): React.ReactElement {
   return (
     <HeaderActionSelect
       workspaceUID={workspaceUID}
       workspaceName={workspaceName}
-      canDelete={canDelete}
       history={history}
       status={status}
     />

@@ -15,7 +15,6 @@ import { baseApiPath } from '../../constants/config';
 import { getSchema } from '../../services/helpers';
 import { devfileVersionSchema } from '../../constants/schemas';
 import { restParams } from '../../typings/models';
-import * as devfileSchemaV100 from '../../devfileSchemas/1.0.0/devfile.json';
 import * as devfileSchemaV200 from '../../devfileSchemas/2.0.0/devfile.json';
 import * as devfileSchemaV210 from '../../devfileSchemas/2.1.0/devfile.json';
 import * as devfileSchemaV220 from '../../devfileSchemas/2.2.0/devfile.json';
@@ -36,8 +35,6 @@ export function registerDevfileSchemaRoute(server: FastifyInstance) {
     ): Promise<JSONSchema7 | DevfileSchemaV100 | undefined> {
       const { version } = request.query as restParams.IDevfileVersionParams;
       switch (version) {
-        case '1.0.0':
-          return devfileSchemaV100;
         case '2.0.0':
           return devfileSchemaV200;
         case '2.1.0':

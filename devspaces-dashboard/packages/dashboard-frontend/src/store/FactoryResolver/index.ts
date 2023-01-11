@@ -19,7 +19,6 @@ import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
 import { selectDefaultComponents, selectPvcStrategy } from '../ServerConfig/selectors';
-import { Devfile } from '../../services/workspace-adapter';
 import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
 import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import normalizeDevfileV2 from './normalizeDevfileV2';
@@ -49,7 +48,7 @@ export interface ResolverState extends FactoryResolver {
 }
 
 export interface ConvertedState {
-  resolvedDevfile: Devfile;
+  resolvedDevfile: devfileApi.Devfile | che.WorkspaceDevfile;
   devfileV2: devfileApi.Devfile;
   isConverted: boolean;
 }

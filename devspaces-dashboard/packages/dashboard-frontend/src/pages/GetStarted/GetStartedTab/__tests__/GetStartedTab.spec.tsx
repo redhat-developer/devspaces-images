@@ -17,9 +17,9 @@ import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { SamplesListTab } from '..';
 import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
-import { Devfile } from '../../../../services/workspace-adapter';
 import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
 import { api as dashboardBackendApi } from '@eclipse-che/common';
+import devfileApi from '../../../../services/devfileApi';
 
 const onDevfileMock: (
   devfileContent: string,
@@ -30,9 +30,9 @@ const onDevfileMock: (
 const testStackName = 'http://test-location/';
 const testDevfileName = 'Custom Devfile';
 const testDevfile = {
-  apiVersion: '1.0.0',
+  schemaVersion: '2.2.0',
   metadata: { name: testDevfileName },
-} as Devfile;
+} as devfileApi.Devfile;
 
 jest.mock('../SamplesListGallery', () => {
   const FakeSamplesListGallery = (props: {
@@ -71,10 +71,7 @@ describe('Samples list tab', () => {
           pvcStrategy: preferredStorageType,
         },
       } as dashboardBackendApi.IServerConfig)
-      .withWorkspacesSettings({
-        'che.workspace.storage.preferred_type': preferredStorageType,
-      } as che.WorkspaceSettings)
-      .withCheWorkspaces({
+      .withDevWorkspaces({
         workspaces: [],
       })
       .withBranding(brandingData)
@@ -118,12 +115,7 @@ describe('Samples list tab', () => {
     sampleItem.click();
     expect(onDevfileMock).toBeCalledTimes(1);
     expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.not.stringContaining('persistVolumes:'),
-      testStackName,
-      undefined,
-    );
-    expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.not.stringContaining('asyncPersist:'),
+      expect.not.stringContaining('controller.devfile.io/storage-type:'),
       testStackName,
       undefined,
     );
@@ -142,12 +134,7 @@ describe('Samples list tab', () => {
 
     sampleItem.click();
     expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.not.stringContaining('persistVolumes:'),
-      testStackName,
-      undefined,
-    );
-    expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.not.stringContaining('asyncPersist:'),
+      expect.not.stringContaining('controller.devfile.io/storage-type:'),
       testStackName,
       undefined,
     );
@@ -168,7 +155,7 @@ describe('Samples list tab', () => {
 
     sampleItem.click();
     expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.stringContaining("persistVolumes: 'false'"),
+      expect.stringContaining('controller.devfile.io/storage-type: ephemeral'),
       testStackName,
       undefined,
     );
@@ -186,18 +173,13 @@ describe('Samples list tab', () => {
 
     sampleItem.click();
     expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.stringContaining("persistVolumes: 'false'"),
-      testStackName,
-      undefined,
-    );
-    expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.stringContaining("asyncPersist: 'true'"),
+      expect.stringContaining('controller.devfile.io/storage-type: async'),
       testStackName,
       undefined,
     );
   });
 
-  it('should correctly apply the storage type "async"', () => {
+  it('should correctly apply the storage type "ephemeral"', () => {
     const preferredStorageType = 'persistent';
     renderComponent(preferredStorageType);
 
@@ -212,7 +194,7 @@ describe('Samples list tab', () => {
 
     sampleItem.click();
     expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.stringContaining("persistVolumes: 'false'"),
+      expect.stringContaining('controller.devfile.io/storage-type: ephemeral'),
       testStackName,
       undefined,
     );
@@ -233,12 +215,7 @@ describe('Samples list tab', () => {
 
     sampleItem.click();
     expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.not.stringContaining('persistVolumes:'),
-      testStackName,
-      undefined,
-    );
-    expect(onDevfileMock).toHaveBeenCalledWith(
-      expect.not.stringContaining('asyncPersist:'),
+      expect.not.stringContaining('controller.devfile.io/storage-type:'),
       testStackName,
       undefined,
     );

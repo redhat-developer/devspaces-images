@@ -10,39 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { WorkspacesLogs, WorkspaceStatus } from '../../services/helpers/types';
-
-/**
- * @deprecated use CheWorkspaceBuilder instead
- */
-export const createFakeCheWorkspace = (
-  workspaceId: string,
-  workspaceName: string,
-  namespace = 'admin',
-  status = WorkspaceStatus.STOPPED,
-  runtime?: che.WorkspaceRuntime,
-): che.Workspace => {
-  if (runtime && status === WorkspaceStatus.STOPPED) {
-    throw new Error(
-      'Failed creating a stub workspace. Workspace runtime object is only combined with "RUNNING" status',
-    );
-  }
-  return {
-    id: workspaceId,
-    attributes: {
-      infrastructureNamespace: 'che',
-    },
-    status,
-    devfile: {
-      apiVersion: '1.0.0',
-      metadata: {
-        name: workspaceName,
-      },
-    },
-    namespace,
-    runtime: runtime,
-  } as che.Workspace;
-};
+import { WorkspacesLogs } from '../../services/helpers/types';
 
 export const createFakeWorkspaceLogs = (
   workspaceId: string,

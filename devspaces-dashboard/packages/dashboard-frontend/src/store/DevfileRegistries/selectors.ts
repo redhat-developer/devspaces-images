@@ -13,8 +13,6 @@
 import { createSelector } from 'reselect';
 import { AppState } from '..';
 import match from '../../services/helpers/filter';
-import { selectWorkspacesSettingsState } from '../Workspaces/Settings/selectors';
-import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import { load } from 'js-yaml';
 import devfileApi from '../../services/devfileApi';
 import { selectDefaultComponents } from '../ServerConfig/selectors';
@@ -23,23 +21,14 @@ export const EMPTY_WORKSPACE_TAG = 'Empty';
 
 const selectState = (state: AppState) => state.devfileRegistries;
 
-export const selectRegistriesMetadata = createSelector(
-  selectState,
-  selectWorkspacesSettingsState,
-  (devfileRegistriesState, workspacesSettingsState) => {
-    const registriesMetadata = Object.keys(devfileRegistriesState.registries).map(registry => {
-      const metadata = devfileRegistriesState.registries[registry].metadata || [];
-      return metadata.map(meta => Object.assign({ registry }, meta));
-    });
-    const metadata = mergeRegistriesMetadata(registriesMetadata);
-    const cheDevworkspaceEnabled = isDevworkspacesEnabled(workspacesSettingsState.settings);
-    if (cheDevworkspaceEnabled) {
-      return filterDevfileV2Metadata(metadata);
-    } else {
-      return metadata;
-    }
-  },
-);
+export const selectRegistriesMetadata = createSelector(selectState, devfileRegistriesState => {
+  const registriesMetadata = Object.keys(devfileRegistriesState.registries).map(registry => {
+    const metadata = devfileRegistriesState.registries[registry].metadata || [];
+    return metadata.map(meta => Object.assign({ registry }, meta));
+  });
+  const metadata = mergeRegistriesMetadata(registriesMetadata);
+  return filterDevfileV2Metadata(metadata);
+});
 
 export const selectRegistriesErrors = createSelector(selectState, state => {
   const errors: Array<{ url: string; errorMessage: string }> = [];

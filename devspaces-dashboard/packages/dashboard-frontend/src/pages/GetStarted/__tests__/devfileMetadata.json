@@ -1,237 +1,273 @@
 [
   {
-    "displayName": "NodeJS Angular Web Application",
-    "description": "Stack for developing NodeJS Angular Web Application",
-    "tags": ["NodeJS", "Angular", "Alpine"],
-    "icon": "/images/angular.svg",
-    "globalMemoryLimit": "2686Mi",
-    "links": {
-      "self": "/devfiles/angular/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Apache Camel K",
-    "description": "Stack with tooling ready to develop Integration projects with Apache Camel K",
-    "tags": ["Apache Camel K", "Red Hat Fuse", "Integration"],
-    "icon": "/images/camelk.svg",
-    "globalMemoryLimit": "2850Mi",
-    "links": {
-      "self": "/devfiles/apache-camel-k/devfile.yaml"
-    }
-  },
-  {
     "displayName": "Apache Camel based on Spring Boot",
     "description": "Stack with environment ready to develop Integration projects with Apache Camel based on Spring Boot.",
-    "tags": ["Java", "OpenJDK", "Maven", "Debian", "Apache Camel", "Red Hat Fuse", "Spring Boot"],
-    "icon": "/images/camelk.svg",
-    "globalMemoryLimit": "2930Mi",
-    "links": {
-      "self": "/devfiles/apache-camel-springboot/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Mainframe Basic Stack",
-    "description": "Che4z Mainframe Basic Stack is an all-in-one extension pack for developers working with z/OS applications, suitable for all levels of mainframe experience, even beginners.",
     "tags": [
-      "Che4z",
-      "Zowe",
-      "mainframe",
-      "Endevor",
-      "explorer",
-      "dataset",
-      "COBOL",
-      "JCL",
-      "zOS",
-      "USS",
-      "HLASM",
-      "InterTest",
-      "debug"
+      "Community",
+      "Java",
+      "OpenJDK",
+      "Maven",
+      "Debian",
+      "Apache Camel",
+      "Red Hat Fuse",
+      "Spring Boot"
     ],
-    "icon": "/images/che4z.svg",
-    "globalMemoryLimit": "3Gi",
+    "icon": "/images/camelk.svg",
     "links": {
-      "self": "/devfiles/che4z/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "C/C++",
-    "description": "Stack with C/C++ and Clang 8",
-    "tags": ["C/C++", "clang", "g++", "gdb"],
-    "icon": "/images/cpp.svg",
-    "globalMemoryLimit": "1686Mi",
-    "links": {
-      "self": "/devfiles/cpp/devfile.yaml"
-    }
-  },
-  {
-    "displayName": ".NET Core",
-    "description": "Stack with .Net 2.2",
-    "tags": ["Debian", "Dotnet", "C#"],
-    "icon": "/images/dotnetcore.svg",
-    "globalMemoryLimit": "2710Mi",
-    "links": {
-      "self": "/devfiles/dotnet/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "ASP.NET Core Web Application",
-    "description": "Stack for developing ASP.NET Core Web Application",
-    "tags": ["Debian", "Dotnet", "C#", "ASP.NET"],
-    "icon": "/images/dotnetcore.svg",
-    "globalMemoryLimit": "2710Mi",
-    "links": {
-      "self": "/devfiles/dotnet-asp.net/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Go",
-    "description": "Stack with Go 1.12.10",
-    "tags": ["Debian", "Go"],
-    "icon": "/images/go.svg",
-    "globalMemoryLimit": "1686Mi",
-    "links": {
-      "self": "/devfiles/go/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Java Gradle",
-    "description": "Java Stack with OpenJDK 11 and Gradle 6.2.1",
-    "tags": ["Java", "OpenJDK", "Gradle", "Ubuntu"],
-    "icon": "/images/java.svg",
-    "globalMemoryLimit": "2674Mi",
-    "links": {
-      "self": "/devfiles/java-gradle/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Java Maven",
-    "description": "Java Stack with OpenJDK 11 and Maven 3.6.0",
-    "tags": ["Java", "OpenJDK", "Maven", "Debian"],
-    "icon": "/images/java.svg",
-    "globalMemoryLimit": "2674Mi",
-    "links": {
-      "self": "/devfiles/java-maven/devfile.yaml"
+      "v2": "https://github.com/che-samples/fuse-rest-http-booster/tree/devfilev2"
     }
   },
   {
     "displayName": "Java with Spring Boot and MongoDB",
     "description": "Java stack with OpenJDK 8, MongoDB and Spring Boot Guestbook demo application",
-    "tags": ["Java", "OpenJDK", "Maven", "Spring Boot", "MongoDB"],
+    "tags": [
+      "Community",
+      "Java",
+      "OpenJDK",
+      "Maven",
+      "Spring Boot",
+      "MongoDB"
+    ],
     "icon": "/images/java.svg",
-    "globalMemoryLimit": "2884Mi",
     "links": {
-      "self": "/devfiles/java-mongo/devfile.yaml"
+      "v2": "https://github.com/che-samples/java-guestbook/tree/devfilev2"
     }
   },
   {
-    "displayName": "Java with Spring Boot and MySQL",
-    "description": "Java stack with OpenJDK 8, MySQL and Spring Boot Petclinic demo application",
-    "tags": ["Java", "OpenJDK", "Maven", "Spring Boot", "MySQL"],
-    "icon": "/images/springboot.svg",
-    "globalMemoryLimit": "3372Mi",
+    "displayName": "Java Lombok",
+    "description": "Java Stack with Lombok 1.18.18, OpenJDK 11 and Maven 3.6.0",
+    "tags": [
+      "Community",
+      "Java",
+      "OpenJDK",
+      "Maven",
+      "Debian",
+      "Lombok"
+    ],
+    "icon": "/images/lombok.svg",
     "links": {
-      "self": "/devfiles/java-mysql/devfile.yaml",
-      "v2": "http://my-fake-repository.com/"
+      "v2": "https://github.com/che-samples/lombok-project-sample/tree/devfilev2"
     }
   },
   {
-    "displayName": "Java Spring Boot",
-    "description": "Java stack with OpenJDK 8 and Spring Boot Petclinic demo application",
-    "tags": ["Java", "OpenJDK", "Maven", "Spring Boot"],
-    "icon": "/images/springboot.svg",
-    "globalMemoryLimit": "3072Mi",
+    "displayName": "Scala",
+    "description": "Scala Stack with OpenJDK 11 and sbt 1.x",
+    "tags": [
+      "Community",
+      "Scala",
+      "OpenJDK",
+      "sbt",
+      "Debian"
+    ],
+    "icon": "/images/scala.svg",
     "links": {
-      "self": "/devfiles/java-web-spring/devfile.yaml"
+      "v2": "https://github.com/che-samples/scala-sbt/tree/devfilev2"
     }
   },
   {
-    "displayName": "Java Vert.x",
-    "description": "Java stack with OpenJDK 8 and Vert.x demo application",
-    "tags": ["Java", "OpenJDK", "Maven", "Vertx"],
-    "icon": "/images/vertx.svg",
-    "globalMemoryLimit": "2674Mi",
+    "displayName": "ASP.NET Core Web Application",
+    "description": "Stack for developing ASP.NET Core Web Application",
+    "tags": [
+      "Community",
+      "Debian",
+      "Dotnet",
+      "C#",
+      "ASP.NET"
+    ],
+    "icon": "/images/dotnetcore.svg",
     "links": {
-      "self": "/devfiles/java-web-vertx/devfile.yaml"
+      "v2": "https://github.com/che-samples/aspnetcore-realworld-example-app/tree/devfilev2"
     }
   },
   {
-    "displayName": "NodeJS Express Web Application",
-    "description": "Stack with NodeJS 10",
-    "tags": ["NodeJS", "Express", "ubi8"],
+    "displayName": "Node.js React Web Application",
+    "description": "Stack for developing Node.js React Web Application",
+    "tags": [
+      "Community",
+      "Node.js",
+      "React",
+      "Redux",
+      "RealWorld"
+    ],
     "icon": "/images/nodejs.svg",
-    "globalMemoryLimit": "1686Mi",
     "links": {
-      "self": "/devfiles/nodejs/devfile.yaml"
+      "v2": "https://github.com/che-samples/nodejs-react-redux/tree/devfilev2"
     }
   },
   {
-    "displayName": "NodeJS MongoDB Web Application",
-    "description": "Stack with NodeJS 10 and MongoDB 3.4",
-    "tags": ["NodeJS", "Express", "MongoDB", "RealWorld", "ubi8", "Centos"],
-    "icon": "/images/nodejs.svg",
-    "globalMemoryLimit": "1686Mi",
+    "displayName": "Node.js Angular Web Application",
+    "description": "Stack for developing Node.js Angular Web Application",
+    "tags": [
+      "Community",
+      "Node.js",
+      "Angular",
+      "Alpine"
+    ],
+    "icon": "/images/angular.svg",
     "links": {
-      "self": "/devfiles/nodejs-mongo/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "NodeJS React Web Application",
-    "description": "Stack for developing NodeJS React Web Application",
-    "tags": ["NodeJS", "React", "Redux", "RealWorld"],
-    "icon": "/images/nodejs.svg",
-    "globalMemoryLimit": "1686Mi",
-    "links": {
-      "self": "/devfiles/nodejs-react/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "NodeJS Web Application based on Yarn",
-    "description": "Stack for developing NodeJS Web Application based on Yarn",
-    "tags": ["NodeJS", "Alpine", "Yarn", "React"],
-    "icon": "/images/nodejs.svg",
-    "globalMemoryLimit": "2198Mi",
-    "links": {
-      "self": "/devfiles/nodejs-yarn/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "PHP Laravel with MySQL",
-    "description": "PHP Stack with Laravel and MySQL real world application",
-    "tags": ["PHP", "Apache", "MySQL", "Centos", "Debian"],
-    "icon": "/images/php.svg",
-    "globalMemoryLimit": "2686Mi",
-    "links": {
-      "self": "/devfiles/php-laravel/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "PHP with MySQL",
-    "description": "PHP Stack with MySQL and simple database application",
-    "tags": ["PHP", "Apache", "MySQL", "Debian", "Centos"],
-    "icon": "/images/php.svg",
-    "globalMemoryLimit": "2686Mi",
-    "links": {
-      "self": "/devfiles/php-mysql/devfile.yaml"
+      "v2": "https://github.com/che-samples/nodejs-angular/tree/devfilev2"
     }
   },
   {
     "displayName": "PHP Symfony",
     "description": "PHP Stack with Symfony Demo Application https://symfony.com/",
-    "tags": ["PHP", "Apache", "MySQL", "Symfony", "Debian", "Centos"],
+    "tags": [
+      "Community",
+      "PHP",
+      "Apache",
+      "MySQL",
+      "Symfony",
+      "Debian",
+      "Centos"
+    ],
     "icon": "/images/php.svg",
-    "globalMemoryLimit": "2686Mi",
     "links": {
-      "self": "/devfiles/php-symfony/devfile.yaml"
+      "v2": "https://github.com/che-samples/php-symfony/tree/devfilev2"
     }
   },
   {
-    "displayName": "PHP Simple",
-    "description": "PHP Stack with PHP 7.1 and simple web application",
-    "tags": ["PHP", "Apache", "Debian"],
-    "icon": "/images/php.svg",
-    "globalMemoryLimit": "2430Mi",
+    "displayName": "Quarkus REST API",
+    "description": "Quarkus stack with a default REST endpoint application sample",
+    "tags": [
+      "Community",
+      "Java",
+      "Quarkus",
+      "OpenJDK",
+      "Maven",
+      "Debian"
+    ],
+    "icon": "/images/quarkus.svg",
     "links": {
-      "self": "/devfiles/php-web-simple/devfile.yaml"
+      "v2": "https://github.com/che-samples/quarkus-quickstarts/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Apache Camel K",
+    "description": "Stack with tooling ready to develop Integration projects with Apache Camel K",
+    "tags": [
+      "Community",
+      "Apache Camel K",
+      "Red Hat Fuse",
+      "Integration"
+    ],
+    "icon": "/images/camelk.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/apache-camel-k/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Node.js Express Web Application",
+    "description": "Stack with Node.js 10",
+    "tags": [
+      "Community",
+      "Node.js",
+      "Express",
+      "ubi8"
+    ],
+    "icon": "/images/nodejs.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/web-nodejs-sample/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Node.js Web Application based on Yarn",
+    "description": "Stack for developing Node.js Web Application based on Yarn",
+    "tags": [
+      "Community",
+      "Node.js",
+      "Alpine",
+      "Yarn",
+      "React"
+    ],
+    "icon": "/images/nodejs.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/react-web-app/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Bash",
+    "description": "Stack with environment ready to develop bash scripts.",
+    "tags": [
+      "Community",
+      "Bash",
+      "Shell"
+    ],
+    "icon": "/images/che.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/bash/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Python Django",
+    "description": "Python Stack with Python 3.8 and Django application",
+    "tags": [
+      "Community",
+      "Centos",
+      "Python",
+      "pip"
+    ],
+    "icon": "/images/python.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/django-realworld-example-app/tree/devfile2"
+    }
+  },
+  {
+    "displayName": "C/C++",
+    "description": "Stack with C/C++ and Clang 8",
+    "tags": [
+      "Community",
+      "C/C++",
+      "Clang",
+      "g++",
+      "GDB"
+    ],
+    "icon": "/images/cpp.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/cpp-hello-world/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Node.js MongoDB Web Application",
+    "description": "Stack with NodeJS 10 and MongoDB 3.4",
+    "tags": [
+      "Community",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "RealWorld",
+      "ubi8",
+      "Centos"
+    ],
+    "icon": "/images/nodejs.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/nodejs-mongodb-sample/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Rust",
+    "description": "Rust Stack with Rust 1.57",
+    "tags": [
+      "Community",
+      "Rust"
+    ],
+    "icon": "/images/rust.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/helloworld-rust/tree/devfilev2"
+    }
+  },
+  {
+    "displayName": "Java Spring Boot",
+    "description": "Java stack with OpenJDK 11 and Spring Boot Petclinic demo application",
+    "tags": [
+      "Community",
+      "Java",
+      "OpenJDK",
+      "Maven",
+      "Spring Boot"
+    ],
+    "icon": "/images/springboot.svg",
+    "links": {
+      "v2": "https://github.com/che-samples/java-spring-petclinic/tree/devfilev2"
     }
   },
   {
@@ -242,26 +278,6 @@
     "globalMemoryLimit": "1686Mi",
     "links": {
       "self": "/devfiles/python/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Python Django",
-    "description": "Python Stack with Python 3.7 and Django application",
-    "tags": ["Centos", "Python", "pip"],
-    "icon": "/images/python.svg",
-    "globalMemoryLimit": "1686Mi",
-    "links": {
-      "self": "/devfiles/python-django/devfile.yaml"
-    }
-  },
-  {
-    "displayName": "Quarkus Tools",
-    "description": "Quarkus Tools with OpenJDK 8 and Maven 3.6.3",
-    "tags": ["Java", "Quarkus", "OpenJDK", "Maven", "Debian"],
-    "icon": "/images/quarkus.svg",
-    "globalMemoryLimit": "2674Mi",
-    "links": {
-      "self": "/devfiles/quarkus/devfile.yaml"
     }
   },
   {

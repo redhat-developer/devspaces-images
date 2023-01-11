@@ -36,7 +36,7 @@ const MONACO_CONFIG: editor.IStandaloneEditorConstructionOptions = {
 };
 
 type Props = {
-  workspace: che.Workspace | devfileApi.DevWorkspace;
+  workspace: devfileApi.DevWorkspace;
   isActive: boolean;
 };
 
@@ -80,7 +80,7 @@ export class WorkspaceEditor extends React.PureComponent<Props> {
     }
   }
 
-  private updateContent(workspace: che.Workspace | devfileApi.DevWorkspace): void {
+  private updateContent(workspace: devfileApi.DevWorkspace): void {
     if (!this.editor) {
       return;
     }

@@ -47,7 +47,7 @@ import { lazyInject } from '../../inversify.config';
 import NoWorkspacesEmptyState from './EmptyState/NoWorkspaces';
 import NothingFoundEmptyState from './EmptyState/NothingFound';
 import { buildRows, RowData } from './Rows';
-import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
+import { Workspace } from '../../services/workspace-adapter';
 
 import styles from './index.module.css';
 
@@ -251,15 +251,11 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   private async handleBulkDelete(): Promise<void> {
     const { selected } = this.state;
     const { workspaces } = this.props;
-    let hasCheWorkspaces = false;
 
     // show confirmation window
     try {
       const wantDelete = selected.map(uid => {
         const workspace = workspaces.find(workspace => uid === workspace.uid);
-        if (!hasCheWorkspaces && workspace) {
-          hasCheWorkspaces = isCheWorkspace(workspace.ref);
-        }
         return workspace?.name || uid;
       });
       await this.props.showConfirmation(wantDelete);
@@ -273,10 +269,9 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
         return uid;
       } catch (e) {
         const workspace = this.props.workspaces.find(workspace => uid === workspace.uid);
-        const action = workspace && isCheWorkspace(workspace.ref) ? 'delete' : 'terminate';
         const workspaceName = workspace?.name ? `workspace "${workspace.name}"` : 'workspace';
         const message =
-          `Unable to ${action} ${workspaceName}. ` +
+          `Unable to terminate ${workspaceName}. ` +
           common.helpers.errors.getMessage(e).replace('Error: ', '');
         this.showAlert(message);
         console.warn(message);
@@ -308,10 +303,8 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       if (!rejected) {
         const message =
           promises.length === 1
-            ? `The workspace was ${hasCheWorkspaces ? 'deleted' : 'terminated'} successfully`
-            : `${promises.length} workspaces were ${
-                hasCheWorkspaces ? 'deleted' : 'terminated'
-              } successfully.`;
+            ? `The workspace was terminated successfully`
+            : `${promises.length} workspaces were terminated successfully.`;
         this.showAlert(message, AlertVariant.success);
       } else if (rejected === promises.length) {
         const message = 'No workspaces were deleted.';
@@ -319,12 +312,8 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       } else {
         const message =
           fulfilled === 1
-            ? `${fulfilled} of ${promises.length} workspaces was ${
-                hasCheWorkspaces ? 'deleted' : 'terminated'
-              }.`
-            : `${fulfilled} of ${promises.length} workspaces were ${
-                hasCheWorkspaces ? 'deleted' : 'terminated'
-              }. `;
+            ? `${fulfilled} of ${promises.length} workspaces was terminated.`
+            : `${fulfilled} of ${promises.length} workspaces were terminated.`;
         this.showAlert(message, AlertVariant.warning);
       }
     } catch (e) {

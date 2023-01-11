@@ -12,7 +12,7 @@
 
 import { AlertVariant } from '@patternfly/react-core';
 import * as React from 'react';
-import { Devfile } from '../workspace-adapter';
+import devfileApi from '../devfileApi';
 
 export type ActionCallback = {
   title: string;
@@ -32,7 +32,7 @@ export interface AlertItem {
 export interface FactoryResolver {
   v: string;
   source?: string;
-  devfile: Devfile;
+  devfile: devfileApi.Devfile | che.WorkspaceDevfile;
   location?: string;
   scm_info?: FactoryResolverScmInfo;
   links: api.che.core.rest.Link[];

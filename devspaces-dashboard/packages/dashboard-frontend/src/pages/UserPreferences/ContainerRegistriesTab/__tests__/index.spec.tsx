@@ -64,7 +64,7 @@ describe('ContainerRegistries', () => {
   it('should correctly render the component which contains two registries', () => {
     const component = getComponent(
       new FakeStoreBuilder()
-        .withCheDockerConfig([
+        .withDockerConfig([
           new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('qwerty').build(),
           new FakeRegistryBuilder().withUrl('https://tstreg.com').withPassword('123').build(),
         ])
@@ -111,7 +111,7 @@ describe('ContainerRegistries', () => {
   it('should delete a registry', () => {
     const component = getComponent(
       new FakeStoreBuilder()
-        .withCheDockerConfig([
+        .withDockerConfig([
           new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('qwerty').build(),
         ])
         .build(),

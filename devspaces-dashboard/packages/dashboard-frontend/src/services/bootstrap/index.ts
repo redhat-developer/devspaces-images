@@ -30,7 +30,6 @@ import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
 import { ResourceFetcherService } from '../resource-fetcher';
 import { IssuesReporterService, IssueType, WorkspaceData } from './issuesReporter';
-import { CheWorkspaceClient } from '../workspace-client/cheworkspace/cheWorkspaceClient';
 import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspaceClient';
 import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlugins/selectors';
 import devfileApi from '../devfileApi';
@@ -49,9 +48,6 @@ import { selectEmptyWorkspaceUrl } from '../../store/DevfileRegistries/selectors
 export default class Bootstrap {
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
-
-  @lazyInject(CheWorkspaceClient)
-  private readonly cheWorkspaceClient: CheWorkspaceClient;
 
   @lazyInject(DevWorkspaceClient)
   private readonly devWorkspaceClient: DevWorkspaceClient;

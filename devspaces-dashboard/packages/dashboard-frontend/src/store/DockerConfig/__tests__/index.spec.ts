@@ -10,54 +10,49 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import mockAxios from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
-import * as cheDockerConfigStore from '..';
-import { AppState } from '../../..';
+import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+import * as dwDockerConfigStore from '..';
+import { AppState } from '../..';
 import { AnyAction } from 'redux';
-import { AUTHORIZED } from '../../../sanityCheckMiddleware';
-
-jest.mock('../../../UserPreferences', () => {
-  return {
-    actionCreators: {
-      requestUserPreferences: () => (): Promise<void> => Promise.resolve(),
-      replaceUserPreferences: () => (): Promise<void> => Promise.resolve(),
-    },
-  };
-});
+import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 // mute the outputs
 console.error = jest.fn();
 
-describe('cheDockerConfig store', () => {
+describe('dwDockerConfig store', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('actions', () => {
-    it('should create REQUEST_CHEWORKSPACE_CREDENTIALS and SET_CHEWORKSPACE_CREDENTIALS when requestCredentials', async () => {
-      const store = new FakeStoreBuilder()
-        .withUserPreferences({
-          dockerCredentials:
-            'eyJkdW1teS5pbyI6eyJwYXNzd29yZCI6IlhYWFhYWFhYWFhYWFhYWCIsInVzZXJuYW1lIjoidGVzdG5hbWUifX0=',
-        })
-        .build() as MockStoreEnhanced<
+    it('should create REQUEST_DEVWORKSPACE_CREDENTIALS and SET_DEVWORKSPACE_CREDENTIALS when requestCredentials', async () => {
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: {
+          resourceVersion: '45654',
+          dockerconfig:
+            'eyJhdXRocyI6eyJkdW1teS5pbyI6eyJhdXRoIjoiZEdWemRHNWhiV1U2V0ZoWVdGaFlXRmhZV0ZoWVdGaFkifX19',
+        },
+      });
+
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
-        ThunkDispatch<AppState, undefined, cheDockerConfigStore.KnownAction>
+        ThunkDispatch<AppState, undefined, dwDockerConfigStore.KnownAction>
       >;
 
-      await store.dispatch(cheDockerConfigStore.actionCreators.requestCredentials());
+      await store.dispatch(dwDockerConfigStore.actionCreators.requestCredentials());
 
       const actions = store.getActions();
 
-      const expectedActions: cheDockerConfigStore.KnownAction[] = [
+      const expectedActions: dwDockerConfigStore.KnownAction[] = [
         {
-          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
           check: AUTHORIZED,
         },
         {
-          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+          type: 'SET_DEVWORKSPACE_CREDENTIALS',
           registries: [
             {
               password: 'XXXXXXXXXXXXXXX',
@@ -65,25 +60,27 @@ describe('cheDockerConfig store', () => {
               username: 'testname',
             },
           ],
+          resourceVersion: '45654',
         },
       ];
 
       expect(actions).toEqual(expectedActions);
     });
 
-    it('should create REQUEST_CHEWORKSPACE_CREDENTIALS and SET_CHEWORKSPACE_CREDENTIALS when updateCredentials', async () => {
-      const store = new FakeStoreBuilder()
-        .withUserPreferences({
-          dockerCredentials:
-            'eyJkdW1teS5pbyI6eyJwYXNzd29yZCI6IlhYWFhYWFhYWFhYWFhYWCIsInVzZXJuYW1lIjoidGVzdG5hbWUifX0=',
-        })
-        .build() as MockStoreEnhanced<
+    it('should create REQUEST_DEVWORKSPACE_CREDENTIALS and SET_DEVWORKSPACE_CREDENTIALS when updateCredentials', async () => {
+      (mockAxios.put as jest.Mock).mockResolvedValueOnce({
+        data: {
+          resourceVersion: '12345',
+        },
+      });
+
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
-        ThunkDispatch<AppState, undefined, cheDockerConfigStore.KnownAction>
+        ThunkDispatch<AppState, undefined, dwDockerConfigStore.KnownAction>
       >;
 
       await store.dispatch(
-        cheDockerConfigStore.actionCreators.updateCredentials([
+        dwDockerConfigStore.actionCreators.updateCredentials([
           {
             password: 'YYYYYYYYYYYY',
             url: 'dummy.io',
@@ -94,13 +91,13 @@ describe('cheDockerConfig store', () => {
 
       const actions = store.getActions();
 
-      const expectedActions: cheDockerConfigStore.KnownAction[] = [
+      const expectedActions: dwDockerConfigStore.KnownAction[] = [
         {
-          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
           check: AUTHORIZED,
         },
         {
-          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+          type: 'SET_DEVWORKSPACE_CREDENTIALS',
           registries: [
             {
               password: 'YYYYYYYYYYYY',
@@ -108,6 +105,7 @@ describe('cheDockerConfig store', () => {
               username: 'testname2',
             },
           ],
+          resourceVersion: '12345',
         },
       ];
 
@@ -116,15 +114,16 @@ describe('cheDockerConfig store', () => {
 
     describe('reducers', () => {
       it('should return initial state', () => {
-        const incomingAction: cheDockerConfigStore.RequestCredentialsAction = {
-          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+        const incomingAction: dwDockerConfigStore.RequestCredentialsAction = {
+          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
           check: AUTHORIZED,
         };
-        const initialState = cheDockerConfigStore.reducer(undefined, incomingAction);
+        const initialState = dwDockerConfigStore.reducer(undefined, incomingAction);
 
-        const expectedState: cheDockerConfigStore.State = {
+        const expectedState: dwDockerConfigStore.State = {
           isLoading: false,
           registries: [],
+          resourceVersion: undefined,
           error: undefined,
         };
 
@@ -132,7 +131,7 @@ describe('cheDockerConfig store', () => {
       });
 
       it('should return state if action type is not matched', () => {
-        const initialState: cheDockerConfigStore.State = {
+        const initialState: dwDockerConfigStore.State = {
           isLoading: false,
           registries: [
             {
@@ -141,16 +140,18 @@ describe('cheDockerConfig store', () => {
               username: 'testname3',
             },
           ],
+          resourceVersion: '123',
           error: undefined,
-        } as cheDockerConfigStore.State;
+        } as dwDockerConfigStore.State;
         const incomingAction = {
           type: 'OTHER_ACTION',
           isLoading: true,
           registries: [],
+          resourceVersion: undefined,
         } as AnyAction;
-        const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
+        const newState = dwDockerConfigStore.reducer(initialState, incomingAction);
 
-        const expectedState: cheDockerConfigStore.State = {
+        const expectedState: dwDockerConfigStore.State = {
           isLoading: false,
           registries: [
             {
@@ -159,13 +160,14 @@ describe('cheDockerConfig store', () => {
               username: 'testname3',
             },
           ],
+          resourceVersion: '123',
           error: undefined,
         };
         expect(newState).toEqual(expectedState);
       });
 
-      it('should handle REQUEST_CHEWORKSPACE_CREDENTIALS', () => {
-        const initialState: cheDockerConfigStore.State = {
+      it('should handle REQUEST_DEVWORKSPACE_CREDENTIALS', () => {
+        const initialState: dwDockerConfigStore.State = {
           isLoading: false,
           registries: [
             {
@@ -174,16 +176,17 @@ describe('cheDockerConfig store', () => {
               username: 'testname4',
             },
           ],
+          resourceVersion: '123',
           error: undefined,
         };
-        const incomingAction: cheDockerConfigStore.RequestCredentialsAction = {
-          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+        const incomingAction: dwDockerConfigStore.RequestCredentialsAction = {
+          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
           check: AUTHORIZED,
         };
 
-        const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
+        const newState = dwDockerConfigStore.reducer(initialState, incomingAction);
 
-        const expectedState: cheDockerConfigStore.State = {
+        const expectedState: dwDockerConfigStore.State = {
           isLoading: true,
           registries: [
             {
@@ -192,14 +195,15 @@ describe('cheDockerConfig store', () => {
               username: 'testname4',
             },
           ],
+          resourceVersion: '123',
           error: undefined,
         };
 
         expect(newState).toEqual(expectedState);
       });
 
-      it('should handle SET_CHEWORKSPACE_CREDENTIALS', () => {
-        const initialState: cheDockerConfigStore.State = {
+      it('should handle SET_DEVWORKSPACE_CREDENTIALS', () => {
+        const initialState: dwDockerConfigStore.State = {
           isLoading: true,
           registries: [
             {
@@ -208,39 +212,42 @@ describe('cheDockerConfig store', () => {
               username: 'testname4',
             },
           ],
+          resourceVersion: '123',
           error: undefined,
         };
-        const incomingAction: cheDockerConfigStore.SetCredentialsAction = {
-          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+        const incomingAction: dwDockerConfigStore.SetCredentialsAction = {
+          type: 'SET_DEVWORKSPACE_CREDENTIALS',
           registries: [],
+          resourceVersion: '345',
         };
 
-        const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
+        const newState = dwDockerConfigStore.reducer(initialState, incomingAction);
 
-        const expectedState: cheDockerConfigStore.State = {
+        const expectedState: dwDockerConfigStore.State = {
           isLoading: false,
           registries: [],
+          resourceVersion: '345',
           error: undefined,
         };
 
         expect(newState).toEqual(expectedState);
       });
 
-      it('should handle RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR', () => {
-        const initialState: cheDockerConfigStore.State = {
+      it('should handle RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR', () => {
+        const initialState: dwDockerConfigStore.State = {
           isLoading: true,
           registries: [],
           resourceVersion: undefined,
           error: undefined,
         };
-        const incomingAction: cheDockerConfigStore.ReceiveErrorAction = {
-          type: 'RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR',
+        const incomingAction: dwDockerConfigStore.ReceiveErrorAction = {
+          type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
           error: 'unexpected error',
         };
 
-        const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
+        const newState = dwDockerConfigStore.reducer(initialState, incomingAction);
 
-        const expectedState: cheDockerConfigStore.State = {
+        const expectedState: dwDockerConfigStore.State = {
           isLoading: false,
           registries: [],
           resourceVersion: undefined,

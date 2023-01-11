@@ -381,16 +381,15 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/workspace-client@0.0.1-1663851810":
-  version "0.0.1-1663851810"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1663851810.tgz#575c6e9c359a536ec3b1f359d7142bcd6b59d735"
-  integrity sha512-oV+zTmsrMcV+SvnZBuHWbrwYimqUqWil2BHGjQYpK1TroEMHiOgfs0Xjh7FxdrgcYUc05Rnb7yvwe4QSjw7iTQ==
+"@eclipse-che/workspace-client@0.0.1-1671793076":
+  version "0.0.1-1671793076"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1671793076.tgz#87bd373048762b12ce2353306cd1e4b357857d00"
+  integrity sha512-zmX5m0RcP15Z+kArofjAUKODbWWHK7M7CDMZ3Vadj2zD8P0K26doT3IJZRiJGsMxOB8Y6onGypnCGJrtJEiJTA==
   dependencies:
     "@eclipse-che/api" "^7.0.0-beta-4.0"
-    axios "^0.21.1"
+    axios "^0.21.4"
     qs "^6.9.4"
     tunnel "0.0.6"
-    websocket "1.0.23"
 
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
@@ -8854,11 +8853,6 @@ mute-stream@0.0.8, mute-stream@~0.0.4:
   resolved "https://registry.npmjs.org/mute-stream/-/mute-stream-0.0.8.tgz"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@^2.3.3:
-  version "2.15.0"
-  resolved "https://registry.npmjs.org/nan/-/nan-2.15.0.tgz"
-  integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
-
 nanoid@^3.3.4:
   version "3.3.4"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.3.4.tgz"
@@ -12138,7 +12132,7 @@ type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typedarray-to-buffer@^3.1.2, typedarray-to-buffer@^3.1.5:
+typedarray-to-buffer@^3.1.5:
   version "3.1.5"
   resolved "https://registry.npmjs.org/typedarray-to-buffer/-/typedarray-to-buffer-3.1.5.tgz"
   integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
@@ -12674,16 +12668,6 @@ websocket-extensions@>=0.1.1:
   resolved "https://registry.npmjs.org/websocket-extensions/-/websocket-extensions-0.1.4.tgz"
   integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
 
-websocket@1.0.23:
-  version "1.0.23"
-  resolved "https://registry.npmjs.org/websocket/-/websocket-1.0.23.tgz"
-  integrity sha1-IN6OxKcSawlGVXjNXbspqcKWqsY=
-  dependencies:
-    debug "^2.2.0"
-    nan "^2.3.3"
-    typedarray-to-buffer "^3.1.2"
-    yaeti "^0.0.4"
-
 whatwg-encoding@^1.0.5:
   version "1.0.5"
   resolved "https://registry.npmjs.org/whatwg-encoding/-/whatwg-encoding-1.0.5.tgz"
@@ -12899,11 +12883,6 @@ y18n@^5.0.5:
   version "5.0.8"
   resolved "https://registry.npmjs.org/y18n/-/y18n-5.0.8.tgz"
   integrity sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==
-
-yaeti@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.npmjs.org/yaeti/-/yaeti-0.0.4.tgz"
-  integrity sha1-if5znEWsRJECiXMZMmKoN2k6ZrY=
 
 yallist@^4.0.0:
   version "4.0.0"

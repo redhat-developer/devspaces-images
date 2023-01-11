@@ -16,7 +16,8 @@ import { Provider } from 'react-redux';
 import DevfileEditor from '..';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
+import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import { devWorkspaceToDevfile } from '../../../services/workspace-client/devworkspace/converters';
 
 jest.mock('monaco-editor-core', () => {
   return {
@@ -67,9 +68,9 @@ function renderComponent(
   decorationPattern: string,
   onChange: (newValue: string, isValid: boolean) => void,
 ): ReactTestRenderer {
-  const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
+  const workspace = new DevWorkspaceBuilder().withId(workspaceId).withName(workspaceName).build();
   const store = new FakeStoreBuilder()
-    .withCheWorkspaces({
+    .withDevWorkspaces({
       workspaces: [workspace],
     })
     .withBranding({
@@ -78,13 +79,11 @@ function renderComponent(
       },
     } as BrandingData)
     .build();
+  const devfile = devWorkspaceToDevfile(workspace);
+
   return renderer.create(
     <Provider store={store}>
-      <DevfileEditor
-        devfile={workspace.devfile as che.WorkspaceDevfile}
-        decorationPattern={decorationPattern}
-        onChange={onChange}
-      />
+      <DevfileEditor devfile={devfile} decorationPattern={decorationPattern} onChange={onChange} />
     </Provider>,
   );
 }

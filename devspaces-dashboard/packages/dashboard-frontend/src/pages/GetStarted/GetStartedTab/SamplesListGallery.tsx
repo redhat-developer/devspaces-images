@@ -37,7 +37,6 @@ import {
 } from '../../../store/DevfileRegistries/selectors';
 import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
-import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
 import { selectDefaultEditor } from '../../../store/Plugins/devWorkspacePlugins/selectors';
 import { selectEditors } from '../../../store/Plugins/chePlugins/selectors';
 
@@ -157,8 +156,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
     }
     this.isLoading = true;
     try {
-      const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
-      if (cheDevworkspaceEnabled && meta.links.v2) {
+      if (meta.links.v2) {
         const link = encodeURIComponent(meta.links.v2);
         let devWorkspace = '';
         if (!editor && this.props.defaultEditor) {
@@ -178,18 +176,17 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
         }
         // open a new page to handle that
         window.open(factoryUrl, '_blank');
-        this.isLoading = false;
-        return;
+      } else if (meta.links.self) {
+        const devfileContent = (await this.props.requestDevfile(meta.links.self)) as string;
+        this.props.onCardClick(devfileContent, meta.displayName);
       }
-      const devfileContent = (await this.props.requestDevfile(meta.links.self)) as string;
-      this.props.onCardClick(devfileContent, meta.displayName);
     } catch (e) {
       console.warn('Failed to load devfile.', e);
-
+      const key = meta.links.self ? meta.links.self : meta.links.v2 || meta.displayName;
       const alerts = [
         ...this.state.alerts,
         {
-          key: meta.links.self,
+          key,
           title: `Failed to load devfile "${meta.displayName}"`,
           variant: AlertVariant.warning,
         },
@@ -218,7 +215,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
       .sort(SamplesListGallery.sortByDisplayName)
       .sort(SamplesListGallery.sortByVisibleTag)
       .sort(SamplesListGallery.sortByEmptyWorkspaceTag)
-      .map(meta => (
+      .map((meta: che.DevfileMetaData) => (
         <SampleCard
           key={meta.links.self}
           metadata={meta}

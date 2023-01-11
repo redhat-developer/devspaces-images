@@ -14,14 +14,11 @@ import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { Nav } from '@patternfly/react-core';
-
 import NavigationMainList from '../MainList';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { Provider } from 'react-redux';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import { Store } from 'redux';
-import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
-import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 
 describe('Navigation Main List', () => {
   it('should have correct number of main navigation items', () => {
@@ -64,34 +61,6 @@ describe('Navigation Main List', () => {
     rerender(buildElement(store));
 
     expect(screen.queryByRole('link', { name: 'Workspaces (3)' })).toBeInTheDocument();
-  });
-
-  describe('with deprecated workspaces', () => {
-    it('should count all workspaces but converted', () => {
-      const devworkspaces = [0, 1].map(i =>
-        new DevWorkspaceBuilder()
-          .withId('devwksp-' + i)
-          .withName('wksp-' + i)
-          .build(),
-      );
-      const cheworkspaces = [
-        new CheWorkspaceBuilder().withId('wksp-1').withName('wksp-1').build(),
-        new CheWorkspaceBuilder()
-          .withId('wksp-2')
-          .withName('wksp-2')
-          .withAttributes({
-            convertedId: WorkspaceAdapter.getId(devworkspaces[0]),
-          } as che.WorkspaceAttributes)
-          .build(),
-      ];
-      const store = new FakeStoreBuilder()
-        .withCheWorkspaces({ workspaces: cheworkspaces })
-        .withDevWorkspaces({ workspaces: devworkspaces })
-        .build();
-      renderComponent(store);
-
-      expect(screen.queryByRole('link', { name: 'Workspaces (3)' })).toBeInTheDocument();
-    });
   });
 });
 

@@ -18,7 +18,7 @@ import { Button } from '@patternfly/react-core';
 import WorkspaceIndicator from '../../components/Workspace/Indicator';
 import { formatDate, formatRelativeDate } from '../../services/helpers/date';
 import { buildDetailsLocation, buildIdeLoaderLocation } from '../../services/helpers/location';
-import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
+import { Workspace } from '../../services/workspace-adapter';
 import devfileApi from '../../services/devfileApi';
 import { DevWorkspaceStatus, WorkspaceDetailsTab } from '../../services/helpers/types';
 
@@ -130,21 +130,14 @@ export function buildRow(
 
   /* projects list */
   const projects: string[] = [];
-  if (isCheWorkspace(workspace.ref)) {
-    const workspaceProjects = (workspace.devfile as che.WorkspaceDevfile).projects;
-    (workspaceProjects || [])
-      .map(project => project.name || project.source?.location)
-      .filter((projectName?: string) => projectName)
-      .forEach((projectName: string) => projects.push(projectName));
-  } else {
-    const workspaceProjects = (workspace.ref as devfileApi.DevWorkspace).spec.template.projects;
-    (workspaceProjects || [])
-      .map(project => project.name || project.git?.remotes?.origin)
-      .filter((projectName?: string): projectName is string => {
-        return typeof projectName === 'string' && projectName !== '';
-      })
-      .forEach((projectName: string) => projects.push(projectName));
-  }
+  const workspaceProjects = (workspace.ref as devfileApi.DevWorkspace).spec.template.projects;
+  (workspaceProjects || [])
+    .map(project => project.name || project.git?.remotes?.origin)
+    .filter((projectName?: string): projectName is string => {
+      return typeof projectName === 'string' && projectName !== '';
+    })
+    .forEach((projectName: string) => projects.push(projectName));
+
   const projectsList = projects.join(', \n') || '-';
 
   let action: React.ReactElement | string;

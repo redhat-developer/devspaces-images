@@ -27,14 +27,10 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
         <div data-testid="props-old-workspace-path">
           {this.props.oldWorkspaceLocation?.pathname}
         </div>
-        <div data-testid="props-show-convert-button">
-          {this.props.showConvertButton === true ? 'true' : 'false'}
-        </div>
         <div data-testid="props-workspace-id">{this.props.workspace.id}</div>
         <div data-testid="props-workspace-name">{this.props.workspace.name}</div>
         <div data-testid="props-workspaces-link">{this.props.workspacesLink}</div>
         <button onClick={() => this.props.onSave(workspace)}>Save</button>
-        <button onClick={() => this.props.onConvert(workspace)}>Convert</button>
       </div>
     );
   }

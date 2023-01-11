@@ -12,45 +12,23 @@
 
 import { createSelector } from 'reselect';
 import { AppState } from '..';
-import { constructWorkspace, Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
-import { selectCheWorkspacesError } from './cheWorkspaces/selectors';
-import { selectDevWorkspacesError, selectRunningDevWorkspaces } from './devWorkspaces/selectors';
+import { constructWorkspace, Workspace } from '../../services/workspace-adapter';
+import { selectRunningDevWorkspaces, selectDevWorkspacesError } from './devWorkspaces/selectors';
 
 const selectState = (state: AppState) => state.workspaces;
-const selectCheWorkspacesState = (state: AppState) => state.cheWorkspaces;
 const selectDevWorkspacesState = (state: AppState) => state.devWorkspaces;
 
 export const selectIsLoading = createSelector(selectDevWorkspacesState, devWorkspacesState => {
   return devWorkspacesState.isLoading;
 });
 
-export const selectLogs = createSelector(
-  selectCheWorkspacesState,
-  selectDevWorkspacesState,
-  (cheWorkspacesState, devWorkspacesState) => {
-    return new Map([...cheWorkspacesState.workspacesLogs, ...devWorkspacesState.workspacesLogs]);
-  },
-);
+export const selectLogs = createSelector(selectDevWorkspacesState, devWorkspacesState => {
+  return new Map([...devWorkspacesState.workspacesLogs]);
+});
 
-/**
- * Returns array of UIDs of deprecated workspaces
- */
-export const selectDeprecatedWorkspacesUIDs = createSelector(
-  selectCheWorkspacesState,
-  cheWorkspacesState => {
-    return cheWorkspacesState.workspaces.map(workspace => WorkspaceAdapter.getUID(workspace));
-  },
-);
-
-export const selectAllWorkspaces = createSelector(
-  selectCheWorkspacesState,
-  selectDevWorkspacesState,
-  (cheWorkspacesState, devWorkspacesState) => {
-    return [...cheWorkspacesState.workspaces, ...devWorkspacesState.workspaces].map(workspace =>
-      constructWorkspace(workspace),
-    );
-  },
-);
+export const selectAllWorkspaces = createSelector(selectDevWorkspacesState, devWorkspacesState => {
+  return devWorkspacesState.workspaces.map(workspace => constructWorkspace(workspace));
+});
 
 export const selectWorkspaceByQualifiedName = createSelector(
   selectState,
@@ -116,23 +94,12 @@ const selectRecentNumber = createSelector(selectState, state => state.recentNumb
 export const selectRecentWorkspaces = createSelector(
   selectRecentNumber,
   selectAllWorkspaces,
-  selectDeprecatedWorkspacesUIDs,
-  (recentNumber, allWorkspaces, deprecatedWorkspacesUIDs) =>
-    allWorkspaces
-      .filter(workspace => deprecatedWorkspacesUIDs.indexOf(workspace.uid) === -1)
-      .sort(sortByUpdatedTimeFn)
-      .slice(0, recentNumber),
+  (recentNumber, allWorkspaces) => allWorkspaces.sort(sortByUpdatedTimeFn).slice(0, recentNumber),
 );
 
 export const selectWorkspacesError = createSelector(
-  selectCheWorkspacesError,
   selectDevWorkspacesError,
-  (cheWorkspacesError, devWorkspacesError) => {
-    if (devWorkspacesError) {
-      return devWorkspacesError;
-    }
-    return cheWorkspacesError;
-  },
+  devWorkspacesError => devWorkspacesError,
 );
 
 export const selectRunningWorkspaces = createSelector(

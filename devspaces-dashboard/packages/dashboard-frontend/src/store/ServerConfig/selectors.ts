@@ -38,7 +38,7 @@ export const selectPvcStrategy = createSelector(
 
 export const selectStartTimeout = createSelector(
   selectState,
-  state => state.config.timeouts.startTimeout,
+  state => (state.config.timeouts as any)?.startTimeout,
 );
 
 export const selectServerConfigError = createSelector(selectState, state => state.error);

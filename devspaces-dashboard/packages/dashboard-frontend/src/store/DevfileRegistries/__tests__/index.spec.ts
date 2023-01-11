@@ -170,39 +170,6 @@ describe('Devfile registries', () => {
       expect(actions).toEqual(expectedActions);
     });
 
-    it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA when fetching the devfile v1 schema', async () => {
-      const schemaV1 = getSchemaV1();
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: schemaV1,
-      });
-
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({
-          'che.devworkspaces.enabled': 'false',
-        } as che.WorkspaceSettings)
-        .build() as MockStoreEnhanced<
-        AppState,
-        ThunkDispatch<AppState, undefined, devfileRegistriesStore.KnownAction>
-      >;
-
-      await store.dispatch(devfileRegistriesStore.actionCreators.requestJsonSchema());
-
-      const actions = store.getActions();
-
-      const expectedActions: devfileRegistriesStore.KnownAction[] = [
-        {
-          type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
-          check: AUTHORIZED,
-        },
-        {
-          type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
-          schema: schemaV1,
-        },
-      ];
-
-      expect(actions).toEqual(expectedActions);
-    });
-
     it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA when fetching all devfile schemas', async () => {
       const schemaV1 = getSchemaV1();
       const schemaV200 = getSchemaV200();
@@ -225,11 +192,7 @@ describe('Devfile registries', () => {
         data: schemav221alpha,
       });
 
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({
-          'che.devworkspaces.enabled': 'true',
-        } as che.WorkspaceSettings)
-        .build() as MockStoreEnhanced<
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, devfileRegistriesStore.KnownAction>
       >;
@@ -246,47 +209,8 @@ describe('Devfile registries', () => {
         {
           type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
           schema: {
-            oneOf: expect.arrayContaining([
-              schemaV1,
-              schemaV200,
-              schemaV210,
-              schemaV220,
-              schemav221alpha,
-            ]),
+            oneOf: expect.arrayContaining([schemaV200, schemaV210, schemaV220]),
           },
-        },
-      ];
-
-      expect(actions).toEqual(expectedActions);
-    });
-
-    it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA_ERROR when failed to fetch devfile schemas', async () => {
-      const errorMessage = 'error message';
-      (mockAxios.get as jest.Mock).mockRejectedValueOnce(errorMessage);
-
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({
-          'che.devworkspaces.enabled': 'false',
-        } as che.WorkspaceSettings)
-        .build() as MockStoreEnhanced<
-        AppState,
-        ThunkDispatch<AppState, undefined, devfileRegistriesStore.KnownAction>
-      >;
-
-      await expect(
-        store.dispatch(devfileRegistriesStore.actionCreators.requestJsonSchema()),
-      ).rejects.toMatch('Failed to request devfile JSON schema');
-
-      const actions = store.getActions();
-
-      const expectedActions: devfileRegistriesStore.KnownAction[] = [
-        {
-          type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
-          check: AUTHORIZED,
-        },
-        {
-          type: devfileRegistriesStore.Type.RECEIVE_SCHEMA_ERROR,
-          error: expect.stringContaining(errorMessage),
         },
       ];
 

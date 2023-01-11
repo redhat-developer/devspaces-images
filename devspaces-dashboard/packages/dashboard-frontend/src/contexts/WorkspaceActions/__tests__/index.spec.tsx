@@ -19,11 +19,11 @@ import WorkspaceActionsProvider from '../Provider';
 import { WorkspaceAction } from '../../../services/helpers/types';
 import { ActionContextType, WorkspaceActionsConsumer } from '..';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 import { ActionCreators } from '../../../store/Workspaces';
 import { AppThunk } from '../../../store';
 import { Workspace } from '../../../services/workspace-adapter';
 import { createHashHistory } from 'history';
+import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 
 jest.mock('../../../store/Workspaces/index', () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -277,10 +277,13 @@ describe('Workspace Actions', () => {
 
 function createFakeStore(): Store {
   const workspaces = [0, 1, 2, 3, 4].map(i =>
-    createFakeCheWorkspace('workspace-' + i, 'workspace-' + i),
+    new DevWorkspaceBuilder()
+      .withUID('workspace-' + i)
+      .withName('workspace-' + i)
+      .build(),
   );
   return new FakeStoreBuilder()
-    .withCheWorkspaces({
+    .withDevWorkspaces({
       workspaces,
     })
     .build();

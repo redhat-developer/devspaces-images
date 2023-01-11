@@ -34,7 +34,7 @@ import { AppState } from '../../store';
 import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 import * as WorkspacesStore from '../../store/Workspaces';
 import { WorkspaceActionsContext } from '.';
-import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
+import { Workspace } from '../../services/workspace-adapter';
 
 type Deferred = {
   resolve: () => void;
@@ -71,22 +71,14 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
    * open the action in a new tab for DevWorkspaces
    */
   private async handleLocation(location: Location, workspace: Workspace): Promise<Location | void> {
-    if (workspace.isDevWorkspace) {
-      const link = toHref(this.props.history, location);
-      window.open(link, workspace.uid);
-    } else {
-      return location;
-    }
+    const link = toHref(this.props.history, location);
+    window.open(link, workspace.uid);
   }
 
   private async deleteWorkspace(
     action: WorkspaceAction,
     workspace: Workspace,
   ): Promise<Location | void> {
-    if (isCheWorkspace(workspace.ref) && !(workspace.isStopped || workspace.hasError)) {
-      throw new Error('Only STOPPED workspaces can be deleted.');
-    }
-
     this.deleting.add(workspace.uid);
     this.setState({
       toDelete: Array.from(this.deleting),

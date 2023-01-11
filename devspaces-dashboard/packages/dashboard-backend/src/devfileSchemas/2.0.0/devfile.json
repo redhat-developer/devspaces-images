@@ -2,52 +2,36 @@
   "description": "Devfile describes the structure of a cloud-native workspace and development environment.",
   "type": "object",
   "title": "Devfile schema - Version 2.0.0",
-  "required": [
-    "schemaVersion"
-  ],
+  "required": ["schemaVersion"],
   "properties": {
     "commands": {
       "description": "Predefined, ready-to-use, workspace-related commands",
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "oneOf": [
           {
-            "required": [
-              "exec"
-            ]
+            "required": ["exec"]
           },
           {
-            "required": [
-              "apply"
-            ]
+            "required": ["apply"]
           },
           {
-            "required": [
-              "vscodeTask"
-            ]
+            "required": ["vscodeTask"]
           },
           {
-            "required": [
-              "vscodeLaunch"
-            ]
+            "required": ["vscodeLaunch"]
           },
           {
-            "required": [
-              "composite"
-            ]
+            "required": ["composite"]
           }
         ],
         "properties": {
           "apply": {
             "description": "Command that consists in applying a given component definition, typically bound to a workspace event.\n\nFor example, when an `apply` command is bound to a `preStart` event, and references a `container` component, it will start the container as a K8S initContainer in the workspace POD, unless the component has its `dedicatedPod` field set to `true`.\n\nWhen no `apply` command exist for a given component, it is assumed the component will be applied at workspace start by default.",
             "type": "object",
-            "required": [
-              "component"
-            ],
+            "required": ["component"],
             "properties": {
               "component": {
                 "description": "Describes component that will be applied",
@@ -56,9 +40,7 @@
               "group": {
                 "description": "Defines the group this command is part of",
                 "type": "object",
-                "required": [
-                  "kind"
-                ],
+                "required": ["kind"],
                 "properties": {
                   "isDefault": {
                     "description": "Identifies the default command for a given group kind",
@@ -67,12 +49,7 @@
                   "kind": {
                     "description": "Kind of group the command is part of",
                     "type": "string",
-                    "enum": [
-                      "build",
-                      "run",
-                      "test",
-                      "debug"
-                    ]
+                    "enum": ["build", "run", "test", "debug"]
                   }
                 },
                 "additionalProperties": false
@@ -103,9 +80,7 @@
               "group": {
                 "description": "Defines the group this command is part of",
                 "type": "object",
-                "required": [
-                  "kind"
-                ],
+                "required": ["kind"],
                 "properties": {
                   "isDefault": {
                     "description": "Identifies the default command for a given group kind",
@@ -114,12 +89,7 @@
                   "kind": {
                     "description": "Kind of group the command is part of",
                     "type": "string",
-                    "enum": [
-                      "build",
-                      "run",
-                      "test",
-                      "debug"
-                    ]
+                    "enum": ["build", "run", "test", "debug"]
                   }
                 },
                 "additionalProperties": false
@@ -138,10 +108,7 @@
           "exec": {
             "description": "CLI Command executed in an existing component container",
             "type": "object",
-            "required": [
-              "commandLine",
-              "component"
-            ],
+            "required": ["commandLine", "component"],
             "properties": {
               "commandLine": {
                 "description": "The actual command-line string\n\nSpecial variables that can be used:\n\n - `$PROJECTS_ROOT`: A path where projects sources are mounted as defined by container component's sourceMapping.\n\n - `$PROJECT_SOURCE`: A path to a project source ($PROJECTS_ROOT/\u003cproject-name\u003e). If there are multiple projects, this will point to the directory of the first one.",
@@ -156,10 +123,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name",
-                    "value"
-                  ],
+                  "required": ["name", "value"],
                   "properties": {
                     "name": {
                       "type": "string"
@@ -174,9 +138,7 @@
               "group": {
                 "description": "Defines the group this command is part of",
                 "type": "object",
-                "required": [
-                  "kind"
-                ],
+                "required": ["kind"],
                 "properties": {
                   "isDefault": {
                     "description": "Identifies the default command for a given group kind",
@@ -185,12 +147,7 @@
                   "kind": {
                     "description": "Kind of group the command is part of",
                     "type": "string",
-                    "enum": [
-                      "build",
-                      "run",
-                      "test",
-                      "debug"
-                    ]
+                    "enum": ["build", "run", "test", "debug"]
                   }
                 },
                 "additionalProperties": false
@@ -221,23 +178,17 @@
             "type": "object",
             "oneOf": [
               {
-                "required": [
-                  "uri"
-                ]
+                "required": ["uri"]
               },
               {
-                "required": [
-                  "inlined"
-                ]
+                "required": ["inlined"]
               }
             ],
             "properties": {
               "group": {
                 "description": "Defines the group this command is part of",
                 "type": "object",
-                "required": [
-                  "kind"
-                ],
+                "required": ["kind"],
                 "properties": {
                   "isDefault": {
                     "description": "Identifies the default command for a given group kind",
@@ -246,12 +197,7 @@
                   "kind": {
                     "description": "Kind of group the command is part of",
                     "type": "string",
-                    "enum": [
-                      "build",
-                      "run",
-                      "test",
-                      "debug"
-                    ]
+                    "enum": ["build", "run", "test", "debug"]
                   }
                 },
                 "additionalProperties": false
@@ -272,23 +218,17 @@
             "type": "object",
             "oneOf": [
               {
-                "required": [
-                  "uri"
-                ]
+                "required": ["uri"]
               },
               {
-                "required": [
-                  "inlined"
-                ]
+                "required": ["inlined"]
               }
             ],
             "properties": {
               "group": {
                 "description": "Defines the group this command is part of",
                 "type": "object",
-                "required": [
-                  "kind"
-                ],
+                "required": ["kind"],
                 "properties": {
                   "isDefault": {
                     "description": "Identifies the default command for a given group kind",
@@ -297,12 +237,7 @@
                   "kind": {
                     "description": "Kind of group the command is part of",
                     "type": "string",
-                    "enum": [
-                      "build",
-                      "run",
-                      "test",
-                      "debug"
-                    ]
+                    "enum": ["build", "run", "test", "debug"]
                   }
                 },
                 "additionalProperties": false
@@ -327,34 +262,22 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "oneOf": [
           {
-            "required": [
-              "container"
-            ]
+            "required": ["container"]
           },
           {
-            "required": [
-              "kubernetes"
-            ]
+            "required": ["kubernetes"]
           },
           {
-            "required": [
-              "openshift"
-            ]
+            "required": ["openshift"]
           },
           {
-            "required": [
-              "volume"
-            ]
+            "required": ["volume"]
           },
           {
-            "required": [
-              "plugin"
-            ]
+            "required": ["plugin"]
           }
         ],
         "properties": {
@@ -366,9 +289,7 @@
           "container": {
             "description": "Allows adding and configuring workspace-related containers",
             "type": "object",
-            "required": [
-              "image"
-            ],
+            "required": ["image"],
             "properties": {
               "args": {
                 "description": "The arguments to supply to the command running the dockerimage component. The arguments are supplied either to the default command provided in the image or to the overridden command.\n\nDefaults to an empty array, meaning use whatever is defined in the image.",
@@ -392,10 +313,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name",
-                    "targetPort"
-                  ],
+                  "required": ["name", "targetPort"],
                   "properties": {
                     "attributes": {
                       "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -406,11 +324,7 @@
                       "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                       "type": "string",
                       "default": "public",
-                      "enum": [
-                        "public",
-                        "internal",
-                        "none"
-                      ]
+                      "enum": ["public", "internal", "none"]
                     },
                     "name": {
                       "type": "string",
@@ -425,14 +339,7 @@
                       "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                       "type": "string",
                       "default": "http",
-                      "enum": [
-                        "http",
-                        "https",
-                        "ws",
-                        "wss",
-                        "tcp",
-                        "udp"
-                      ]
+                      "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                     },
                     "secure": {
                       "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -450,10 +357,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name",
-                    "value"
-                  ],
+                  "required": ["name", "value"],
                   "properties": {
                     "name": {
                       "type": "string"
@@ -486,9 +390,7 @@
                 "items": {
                   "description": "Volume that should be mounted to a component container",
                   "type": "object",
-                  "required": [
-                    "name"
-                  ],
+                  "required": ["name"],
                   "properties": {
                     "name": {
                       "description": "The volume mount name is the name of an existing `Volume` component. If several containers mount the same volume name then they will reuse the same volume and will be able to access to the same files.",
@@ -512,14 +414,10 @@
             "type": "object",
             "oneOf": [
               {
-                "required": [
-                  "uri"
-                ]
+                "required": ["uri"]
               },
               {
-                "required": [
-                  "inlined"
-                ]
+                "required": ["inlined"]
               }
             ],
             "properties": {
@@ -527,10 +425,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name",
-                    "targetPort"
-                  ],
+                  "required": ["name", "targetPort"],
                   "properties": {
                     "attributes": {
                       "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -541,11 +436,7 @@
                       "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                       "type": "string",
                       "default": "public",
-                      "enum": [
-                        "public",
-                        "internal",
-                        "none"
-                      ]
+                      "enum": ["public", "internal", "none"]
                     },
                     "name": {
                       "type": "string",
@@ -560,14 +451,7 @@
                       "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                       "type": "string",
                       "default": "http",
-                      "enum": [
-                        "http",
-                        "https",
-                        "ws",
-                        "wss",
-                        "tcp",
-                        "udp"
-                      ]
+                      "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                     },
                     "secure": {
                       "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -602,14 +486,10 @@
             "type": "object",
             "oneOf": [
               {
-                "required": [
-                  "uri"
-                ]
+                "required": ["uri"]
               },
               {
-                "required": [
-                  "inlined"
-                ]
+                "required": ["inlined"]
               }
             ],
             "properties": {
@@ -617,10 +497,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name",
-                    "targetPort"
-                  ],
+                  "required": ["name", "targetPort"],
                   "properties": {
                     "attributes": {
                       "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -631,11 +508,7 @@
                       "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                       "type": "string",
                       "default": "public",
-                      "enum": [
-                        "public",
-                        "internal",
-                        "none"
-                      ]
+                      "enum": ["public", "internal", "none"]
                     },
                     "name": {
                       "type": "string",
@@ -650,14 +523,7 @@
                       "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                       "type": "string",
                       "default": "http",
-                      "enum": [
-                        "http",
-                        "https",
-                        "ws",
-                        "wss",
-                        "tcp",
-                        "udp"
-                      ]
+                      "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                     },
                     "secure": {
                       "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -686,19 +552,13 @@
             "type": "object",
             "oneOf": [
               {
-                "required": [
-                  "uri"
-                ]
+                "required": ["uri"]
               },
               {
-                "required": [
-                  "id"
-                ]
+                "required": ["id"]
               },
               {
-                "required": [
-                  "kubernetes"
-                ]
+                "required": ["kubernetes"]
               }
             ],
             "properties": {
@@ -707,34 +567,22 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "id"
-                  ],
+                  "required": ["id"],
                   "oneOf": [
                     {
-                      "required": [
-                        "exec"
-                      ]
+                      "required": ["exec"]
                     },
                     {
-                      "required": [
-                        "apply"
-                      ]
+                      "required": ["apply"]
                     },
                     {
-                      "required": [
-                        "vscodeTask"
-                      ]
+                      "required": ["vscodeTask"]
                     },
                     {
-                      "required": [
-                        "vscodeLaunch"
-                      ]
+                      "required": ["vscodeLaunch"]
                     },
                     {
-                      "required": [
-                        "composite"
-                      ]
+                      "required": ["composite"]
                     }
                   ],
                   "properties": {
@@ -757,12 +605,7 @@
                             "kind": {
                               "description": "Kind of group the command is part of",
                               "type": "string",
-                              "enum": [
-                                "build",
-                                "run",
-                                "test",
-                                "debug"
-                              ]
+                              "enum": ["build", "run", "test", "debug"]
                             }
                           },
                           "additionalProperties": false
@@ -801,12 +644,7 @@
                             "kind": {
                               "description": "Kind of group the command is part of",
                               "type": "string",
-                              "enum": [
-                                "build",
-                                "run",
-                                "test",
-                                "debug"
-                              ]
+                              "enum": ["build", "run", "test", "debug"]
                             }
                           },
                           "additionalProperties": false
@@ -839,9 +677,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
-                            "required": [
-                              "name"
-                            ],
+                            "required": ["name"],
                             "properties": {
                               "name": {
                                 "type": "string"
@@ -864,12 +700,7 @@
                             "kind": {
                               "description": "Kind of group the command is part of",
                               "type": "string",
-                              "enum": [
-                                "build",
-                                "run",
-                                "test",
-                                "debug"
-                              ]
+                              "enum": ["build", "run", "test", "debug"]
                             }
                           },
                           "additionalProperties": false
@@ -900,14 +731,10 @@
                       "type": "object",
                       "oneOf": [
                         {
-                          "required": [
-                            "uri"
-                          ]
+                          "required": ["uri"]
                         },
                         {
-                          "required": [
-                            "inlined"
-                          ]
+                          "required": ["inlined"]
                         }
                       ],
                       "properties": {
@@ -922,12 +749,7 @@
                             "kind": {
                               "description": "Kind of group the command is part of",
                               "type": "string",
-                              "enum": [
-                                "build",
-                                "run",
-                                "test",
-                                "debug"
-                              ]
+                              "enum": ["build", "run", "test", "debug"]
                             }
                           },
                           "additionalProperties": false
@@ -948,14 +770,10 @@
                       "type": "object",
                       "oneOf": [
                         {
-                          "required": [
-                            "uri"
-                          ]
+                          "required": ["uri"]
                         },
                         {
-                          "required": [
-                            "inlined"
-                          ]
+                          "required": ["inlined"]
                         }
                       ],
                       "properties": {
@@ -970,12 +788,7 @@
                             "kind": {
                               "description": "Kind of group the command is part of",
                               "type": "string",
-                              "enum": [
-                                "build",
-                                "run",
-                                "test",
-                                "debug"
-                              ]
+                              "enum": ["build", "run", "test", "debug"]
                             }
                           },
                           "additionalProperties": false
@@ -1000,29 +813,19 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name"
-                  ],
+                  "required": ["name"],
                   "oneOf": [
                     {
-                      "required": [
-                        "container"
-                      ]
+                      "required": ["container"]
                     },
                     {
-                      "required": [
-                        "kubernetes"
-                      ]
+                      "required": ["kubernetes"]
                     },
                     {
-                      "required": [
-                        "openshift"
-                      ]
+                      "required": ["openshift"]
                     },
                     {
-                      "required": [
-                        "volume"
-                      ]
+                      "required": ["volume"]
                     }
                   ],
                   "properties": {
@@ -1057,9 +860,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
-                            "required": [
-                              "name"
-                            ],
+                            "required": ["name"],
                             "properties": {
                               "attributes": {
                                 "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -1069,11 +870,7 @@
                               "exposure": {
                                 "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                                 "type": "string",
-                                "enum": [
-                                  "public",
-                                  "internal",
-                                  "none"
-                                ]
+                                "enum": ["public", "internal", "none"]
                               },
                               "name": {
                                 "type": "string",
@@ -1087,14 +884,7 @@
                               "protocol": {
                                 "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                                 "type": "string",
-                                "enum": [
-                                  "http",
-                                  "https",
-                                  "ws",
-                                  "wss",
-                                  "tcp",
-                                  "udp"
-                                ]
+                                "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                               },
                               "secure": {
                                 "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -1112,9 +902,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
-                            "required": [
-                              "name"
-                            ],
+                            "required": ["name"],
                             "properties": {
                               "name": {
                                 "type": "string"
@@ -1146,9 +934,7 @@
                           "items": {
                             "description": "Volume that should be mounted to a component container",
                             "type": "object",
-                            "required": [
-                              "name"
-                            ],
+                            "required": ["name"],
                             "properties": {
                               "name": {
                                 "description": "The volume mount name is the name of an existing `Volume` component. If several containers mount the same volume name then they will reuse the same volume and will be able to access to the same files.",
@@ -1172,14 +958,10 @@
                       "type": "object",
                       "oneOf": [
                         {
-                          "required": [
-                            "uri"
-                          ]
+                          "required": ["uri"]
                         },
                         {
-                          "required": [
-                            "inlined"
-                          ]
+                          "required": ["inlined"]
                         }
                       ],
                       "properties": {
@@ -1187,9 +969,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
-                            "required": [
-                              "name"
-                            ],
+                            "required": ["name"],
                             "properties": {
                               "attributes": {
                                 "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -1199,11 +979,7 @@
                               "exposure": {
                                 "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                                 "type": "string",
-                                "enum": [
-                                  "public",
-                                  "internal",
-                                  "none"
-                                ]
+                                "enum": ["public", "internal", "none"]
                               },
                               "name": {
                                 "type": "string",
@@ -1217,14 +993,7 @@
                               "protocol": {
                                 "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                                 "type": "string",
-                                "enum": [
-                                  "http",
-                                  "https",
-                                  "ws",
-                                  "wss",
-                                  "tcp",
-                                  "udp"
-                                ]
+                                "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                               },
                               "secure": {
                                 "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -1259,14 +1028,10 @@
                       "type": "object",
                       "oneOf": [
                         {
-                          "required": [
-                            "uri"
-                          ]
+                          "required": ["uri"]
                         },
                         {
-                          "required": [
-                            "inlined"
-                          ]
+                          "required": ["inlined"]
                         }
                       ],
                       "properties": {
@@ -1274,9 +1039,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
-                            "required": [
-                              "name"
-                            ],
+                            "required": ["name"],
                             "properties": {
                               "attributes": {
                                 "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -1286,11 +1049,7 @@
                               "exposure": {
                                 "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                                 "type": "string",
-                                "enum": [
-                                  "public",
-                                  "internal",
-                                  "none"
-                                ]
+                                "enum": ["public", "internal", "none"]
                               },
                               "name": {
                                 "type": "string",
@@ -1304,14 +1063,7 @@
                               "protocol": {
                                 "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                                 "type": "string",
-                                "enum": [
-                                  "http",
-                                  "https",
-                                  "ws",
-                                  "wss",
-                                  "tcp",
-                                  "udp"
-                                ]
+                                "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                               },
                               "secure": {
                                 "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -1357,9 +1109,7 @@
               "kubernetes": {
                 "description": "Reference to a Kubernetes CRD of type DevWorkspaceTemplate",
                 "type": "object",
-                "required": [
-                  "name"
-                ],
+                "required": ["name"],
                 "properties": {
                   "name": {
                     "type": "string"
@@ -1479,19 +1229,13 @@
       "type": "object",
       "oneOf": [
         {
-          "required": [
-            "uri"
-          ]
+          "required": ["uri"]
         },
         {
-          "required": [
-            "id"
-          ]
+          "required": ["id"]
         },
         {
-          "required": [
-            "kubernetes"
-          ]
+          "required": ["kubernetes"]
         }
       ],
       "properties": {
@@ -1500,34 +1244,22 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "oneOf": [
               {
-                "required": [
-                  "exec"
-                ]
+                "required": ["exec"]
               },
               {
-                "required": [
-                  "apply"
-                ]
+                "required": ["apply"]
               },
               {
-                "required": [
-                  "vscodeTask"
-                ]
+                "required": ["vscodeTask"]
               },
               {
-                "required": [
-                  "vscodeLaunch"
-                ]
+                "required": ["vscodeLaunch"]
               },
               {
-                "required": [
-                  "composite"
-                ]
+                "required": ["composite"]
               }
             ],
             "properties": {
@@ -1550,12 +1282,7 @@
                       "kind": {
                         "description": "Kind of group the command is part of",
                         "type": "string",
-                        "enum": [
-                          "build",
-                          "run",
-                          "test",
-                          "debug"
-                        ]
+                        "enum": ["build", "run", "test", "debug"]
                       }
                     },
                     "additionalProperties": false
@@ -1594,12 +1321,7 @@
                       "kind": {
                         "description": "Kind of group the command is part of",
                         "type": "string",
-                        "enum": [
-                          "build",
-                          "run",
-                          "test",
-                          "debug"
-                        ]
+                        "enum": ["build", "run", "test", "debug"]
                       }
                     },
                     "additionalProperties": false
@@ -1632,9 +1354,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "properties": {
                         "name": {
                           "type": "string"
@@ -1657,12 +1377,7 @@
                       "kind": {
                         "description": "Kind of group the command is part of",
                         "type": "string",
-                        "enum": [
-                          "build",
-                          "run",
-                          "test",
-                          "debug"
-                        ]
+                        "enum": ["build", "run", "test", "debug"]
                       }
                     },
                     "additionalProperties": false
@@ -1693,14 +1408,10 @@
                 "type": "object",
                 "oneOf": [
                   {
-                    "required": [
-                      "uri"
-                    ]
+                    "required": ["uri"]
                   },
                   {
-                    "required": [
-                      "inlined"
-                    ]
+                    "required": ["inlined"]
                   }
                 ],
                 "properties": {
@@ -1715,12 +1426,7 @@
                       "kind": {
                         "description": "Kind of group the command is part of",
                         "type": "string",
-                        "enum": [
-                          "build",
-                          "run",
-                          "test",
-                          "debug"
-                        ]
+                        "enum": ["build", "run", "test", "debug"]
                       }
                     },
                     "additionalProperties": false
@@ -1741,14 +1447,10 @@
                 "type": "object",
                 "oneOf": [
                   {
-                    "required": [
-                      "uri"
-                    ]
+                    "required": ["uri"]
                   },
                   {
-                    "required": [
-                      "inlined"
-                    ]
+                    "required": ["inlined"]
                   }
                 ],
                 "properties": {
@@ -1763,12 +1465,7 @@
                       "kind": {
                         "description": "Kind of group the command is part of",
                         "type": "string",
-                        "enum": [
-                          "build",
-                          "run",
-                          "test",
-                          "debug"
-                        ]
+                        "enum": ["build", "run", "test", "debug"]
                       }
                     },
                     "additionalProperties": false
@@ -1793,34 +1490,22 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "oneOf": [
               {
-                "required": [
-                  "container"
-                ]
+                "required": ["container"]
               },
               {
-                "required": [
-                  "kubernetes"
-                ]
+                "required": ["kubernetes"]
               },
               {
-                "required": [
-                  "openshift"
-                ]
+                "required": ["openshift"]
               },
               {
-                "required": [
-                  "volume"
-                ]
+                "required": ["volume"]
               },
               {
-                "required": [
-                  "plugin"
-                ]
+                "required": ["plugin"]
               }
             ],
             "properties": {
@@ -1855,9 +1540,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "properties": {
                         "attributes": {
                           "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -1867,11 +1550,7 @@
                         "exposure": {
                           "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                           "type": "string",
-                          "enum": [
-                            "public",
-                            "internal",
-                            "none"
-                          ]
+                          "enum": ["public", "internal", "none"]
                         },
                         "name": {
                           "type": "string",
@@ -1885,14 +1564,7 @@
                         "protocol": {
                           "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                           "type": "string",
-                          "enum": [
-                            "http",
-                            "https",
-                            "ws",
-                            "wss",
-                            "tcp",
-                            "udp"
-                          ]
+                          "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                         },
                         "secure": {
                           "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -1910,9 +1582,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "properties": {
                         "name": {
                           "type": "string"
@@ -1944,9 +1614,7 @@
                     "items": {
                       "description": "Volume that should be mounted to a component container",
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "properties": {
                         "name": {
                           "description": "The volume mount name is the name of an existing `Volume` component. If several containers mount the same volume name then they will reuse the same volume and will be able to access to the same files.",
@@ -1970,14 +1638,10 @@
                 "type": "object",
                 "oneOf": [
                   {
-                    "required": [
-                      "uri"
-                    ]
+                    "required": ["uri"]
                   },
                   {
-                    "required": [
-                      "inlined"
-                    ]
+                    "required": ["inlined"]
                   }
                 ],
                 "properties": {
@@ -1985,9 +1649,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "properties": {
                         "attributes": {
                           "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -1997,11 +1659,7 @@
                         "exposure": {
                           "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                           "type": "string",
-                          "enum": [
-                            "public",
-                            "internal",
-                            "none"
-                          ]
+                          "enum": ["public", "internal", "none"]
                         },
                         "name": {
                           "type": "string",
@@ -2015,14 +1673,7 @@
                         "protocol": {
                           "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                           "type": "string",
-                          "enum": [
-                            "http",
-                            "https",
-                            "ws",
-                            "wss",
-                            "tcp",
-                            "udp"
-                          ]
+                          "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                         },
                         "secure": {
                           "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -2057,14 +1708,10 @@
                 "type": "object",
                 "oneOf": [
                   {
-                    "required": [
-                      "uri"
-                    ]
+                    "required": ["uri"]
                   },
                   {
-                    "required": [
-                      "inlined"
-                    ]
+                    "required": ["inlined"]
                   }
                 ],
                 "properties": {
@@ -2072,9 +1719,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "properties": {
                         "attributes": {
                           "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -2084,11 +1729,7 @@
                         "exposure": {
                           "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                           "type": "string",
-                          "enum": [
-                            "public",
-                            "internal",
-                            "none"
-                          ]
+                          "enum": ["public", "internal", "none"]
                         },
                         "name": {
                           "type": "string",
@@ -2102,14 +1743,7 @@
                         "protocol": {
                           "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                           "type": "string",
-                          "enum": [
-                            "http",
-                            "https",
-                            "ws",
-                            "wss",
-                            "tcp",
-                            "udp"
-                          ]
+                          "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                         },
                         "secure": {
                           "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -2138,19 +1772,13 @@
                 "type": "object",
                 "oneOf": [
                   {
-                    "required": [
-                      "uri"
-                    ]
+                    "required": ["uri"]
                   },
                   {
-                    "required": [
-                      "id"
-                    ]
+                    "required": ["id"]
                   },
                   {
-                    "required": [
-                      "kubernetes"
-                    ]
+                    "required": ["kubernetes"]
                   }
                 ],
                 "properties": {
@@ -2159,34 +1787,22 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "id"
-                      ],
+                      "required": ["id"],
                       "oneOf": [
                         {
-                          "required": [
-                            "exec"
-                          ]
+                          "required": ["exec"]
                         },
                         {
-                          "required": [
-                            "apply"
-                          ]
+                          "required": ["apply"]
                         },
                         {
-                          "required": [
-                            "vscodeTask"
-                          ]
+                          "required": ["vscodeTask"]
                         },
                         {
-                          "required": [
-                            "vscodeLaunch"
-                          ]
+                          "required": ["vscodeLaunch"]
                         },
                         {
-                          "required": [
-                            "composite"
-                          ]
+                          "required": ["composite"]
                         }
                       ],
                       "properties": {
@@ -2209,12 +1825,7 @@
                                 "kind": {
                                   "description": "Kind of group the command is part of",
                                   "type": "string",
-                                  "enum": [
-                                    "build",
-                                    "run",
-                                    "test",
-                                    "debug"
-                                  ]
+                                  "enum": ["build", "run", "test", "debug"]
                                 }
                               },
                               "additionalProperties": false
@@ -2253,12 +1864,7 @@
                                 "kind": {
                                   "description": "Kind of group the command is part of",
                                   "type": "string",
-                                  "enum": [
-                                    "build",
-                                    "run",
-                                    "test",
-                                    "debug"
-                                  ]
+                                  "enum": ["build", "run", "test", "debug"]
                                 }
                               },
                               "additionalProperties": false
@@ -2291,9 +1897,7 @@
                               "type": "array",
                               "items": {
                                 "type": "object",
-                                "required": [
-                                  "name"
-                                ],
+                                "required": ["name"],
                                 "properties": {
                                   "name": {
                                     "type": "string"
@@ -2316,12 +1920,7 @@
                                 "kind": {
                                   "description": "Kind of group the command is part of",
                                   "type": "string",
-                                  "enum": [
-                                    "build",
-                                    "run",
-                                    "test",
-                                    "debug"
-                                  ]
+                                  "enum": ["build", "run", "test", "debug"]
                                 }
                               },
                               "additionalProperties": false
@@ -2352,14 +1951,10 @@
                           "type": "object",
                           "oneOf": [
                             {
-                              "required": [
-                                "uri"
-                              ]
+                              "required": ["uri"]
                             },
                             {
-                              "required": [
-                                "inlined"
-                              ]
+                              "required": ["inlined"]
                             }
                           ],
                           "properties": {
@@ -2374,12 +1969,7 @@
                                 "kind": {
                                   "description": "Kind of group the command is part of",
                                   "type": "string",
-                                  "enum": [
-                                    "build",
-                                    "run",
-                                    "test",
-                                    "debug"
-                                  ]
+                                  "enum": ["build", "run", "test", "debug"]
                                 }
                               },
                               "additionalProperties": false
@@ -2400,14 +1990,10 @@
                           "type": "object",
                           "oneOf": [
                             {
-                              "required": [
-                                "uri"
-                              ]
+                              "required": ["uri"]
                             },
                             {
-                              "required": [
-                                "inlined"
-                              ]
+                              "required": ["inlined"]
                             }
                           ],
                           "properties": {
@@ -2422,12 +2008,7 @@
                                 "kind": {
                                   "description": "Kind of group the command is part of",
                                   "type": "string",
-                                  "enum": [
-                                    "build",
-                                    "run",
-                                    "test",
-                                    "debug"
-                                  ]
+                                  "enum": ["build", "run", "test", "debug"]
                                 }
                               },
                               "additionalProperties": false
@@ -2452,29 +2033,19 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "name"
-                      ],
+                      "required": ["name"],
                       "oneOf": [
                         {
-                          "required": [
-                            "container"
-                          ]
+                          "required": ["container"]
                         },
                         {
-                          "required": [
-                            "kubernetes"
-                          ]
+                          "required": ["kubernetes"]
                         },
                         {
-                          "required": [
-                            "openshift"
-                          ]
+                          "required": ["openshift"]
                         },
                         {
-                          "required": [
-                            "volume"
-                          ]
+                          "required": ["volume"]
                         }
                       ],
                       "properties": {
@@ -2509,9 +2080,7 @@
                               "type": "array",
                               "items": {
                                 "type": "object",
-                                "required": [
-                                  "name"
-                                ],
+                                "required": ["name"],
                                 "properties": {
                                   "attributes": {
                                     "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -2521,11 +2090,7 @@
                                   "exposure": {
                                     "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                                     "type": "string",
-                                    "enum": [
-                                      "public",
-                                      "internal",
-                                      "none"
-                                    ]
+                                    "enum": ["public", "internal", "none"]
                                   },
                                   "name": {
                                     "type": "string",
@@ -2539,14 +2104,7 @@
                                   "protocol": {
                                     "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                                     "type": "string",
-                                    "enum": [
-                                      "http",
-                                      "https",
-                                      "ws",
-                                      "wss",
-                                      "tcp",
-                                      "udp"
-                                    ]
+                                    "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                                   },
                                   "secure": {
                                     "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -2564,9 +2122,7 @@
                               "type": "array",
                               "items": {
                                 "type": "object",
-                                "required": [
-                                  "name"
-                                ],
+                                "required": ["name"],
                                 "properties": {
                                   "name": {
                                     "type": "string"
@@ -2598,9 +2154,7 @@
                               "items": {
                                 "description": "Volume that should be mounted to a component container",
                                 "type": "object",
-                                "required": [
-                                  "name"
-                                ],
+                                "required": ["name"],
                                 "properties": {
                                   "name": {
                                     "description": "The volume mount name is the name of an existing `Volume` component. If several containers mount the same volume name then they will reuse the same volume and will be able to access to the same files.",
@@ -2624,14 +2178,10 @@
                           "type": "object",
                           "oneOf": [
                             {
-                              "required": [
-                                "uri"
-                              ]
+                              "required": ["uri"]
                             },
                             {
-                              "required": [
-                                "inlined"
-                              ]
+                              "required": ["inlined"]
                             }
                           ],
                           "properties": {
@@ -2639,9 +2189,7 @@
                               "type": "array",
                               "items": {
                                 "type": "object",
-                                "required": [
-                                  "name"
-                                ],
+                                "required": ["name"],
                                 "properties": {
                                   "attributes": {
                                     "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -2651,11 +2199,7 @@
                                   "exposure": {
                                     "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                                     "type": "string",
-                                    "enum": [
-                                      "public",
-                                      "internal",
-                                      "none"
-                                    ]
+                                    "enum": ["public", "internal", "none"]
                                   },
                                   "name": {
                                     "type": "string",
@@ -2669,14 +2213,7 @@
                                   "protocol": {
                                     "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                                     "type": "string",
-                                    "enum": [
-                                      "http",
-                                      "https",
-                                      "ws",
-                                      "wss",
-                                      "tcp",
-                                      "udp"
-                                    ]
+                                    "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                                   },
                                   "secure": {
                                     "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -2711,14 +2248,10 @@
                           "type": "object",
                           "oneOf": [
                             {
-                              "required": [
-                                "uri"
-                              ]
+                              "required": ["uri"]
                             },
                             {
-                              "required": [
-                                "inlined"
-                              ]
+                              "required": ["inlined"]
                             }
                           ],
                           "properties": {
@@ -2726,9 +2259,7 @@
                               "type": "array",
                               "items": {
                                 "type": "object",
-                                "required": [
-                                  "name"
-                                ],
+                                "required": ["name"],
                                 "properties": {
                                   "attributes": {
                                     "description": "Map of implementation-dependant string-based free-form attributes.\n\nExamples of Che-specific attributes:\n- cookiesAuthEnabled: \"true\" / \"false\",\n- type: \"terminal\" / \"ide\" / \"ide-dev\",",
@@ -2738,11 +2269,7 @@
                                   "exposure": {
                                     "description": "Describes how the endpoint should be exposed on the network.\n- `public` means that the endpoint will be exposed on the public network, typically through a K8S ingress or an OpenShift route.\n- `internal` means that the endpoint will be exposed internally outside of the main workspace POD, typically by K8S services, to be consumed by other elements running on the same cloud internal network.\n- `none` means that the endpoint will not be exposed and will only be accessible inside the main workspace POD, on a local address.\n\nDefault value is `public`",
                                     "type": "string",
-                                    "enum": [
-                                      "public",
-                                      "internal",
-                                      "none"
-                                    ]
+                                    "enum": ["public", "internal", "none"]
                                   },
                                   "name": {
                                     "type": "string",
@@ -2756,14 +2283,7 @@
                                   "protocol": {
                                     "description": "Describes the application and transport protocols of the traffic that will go through this endpoint.\n- `http`: Endpoint will have `http` traffic, typically on a TCP connection. It will be automaticaly promoted to `https` when the `secure` field is set to `true`.\n- `https`: Endpoint will have `https` traffic, typically on a TCP connection.\n- `ws`: Endpoint will have `ws` traffic, typically on a TCP connection. It will be automaticaly promoted to `wss` when the `secure` field is set to `true`.\n- `wss`: Endpoint will have `wss` traffic, typically on a TCP connection.\n- `tcp`: Endpoint will have traffic on a TCP connection, without specifying an application protocol.\n- `udp`: Endpoint will have traffic on an UDP connection, without specifying an application protocol.\n\nDefault value is `http`",
                                     "type": "string",
-                                    "enum": [
-                                      "http",
-                                      "https",
-                                      "ws",
-                                      "wss",
-                                      "tcp",
-                                      "udp"
-                                    ]
+                                    "enum": ["http", "https", "ws", "wss", "tcp", "udp"]
                                   },
                                   "secure": {
                                     "description": "Describes whether the endpoint should be secured and protected by some authentication process. This requires a protocol of `https` or `wss`.",
@@ -2851,9 +2371,7 @@
         "kubernetes": {
           "description": "Reference to a Kubernetes CRD of type DevWorkspaceTemplate",
           "type": "object",
-          "required": [
-            "name"
-          ],
+          "required": ["name"],
           "properties": {
             "name": {
               "type": "string"
@@ -2869,24 +2387,16 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "oneOf": [
               {
-                "required": [
-                  "git"
-                ]
+                "required": ["git"]
               },
               {
-                "required": [
-                  "github"
-                ]
+                "required": ["github"]
               },
               {
-                "required": [
-                  "zip"
-                ]
+                "required": ["zip"]
               }
             ],
             "properties": {
@@ -2993,24 +2503,16 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "oneOf": [
               {
-                "required": [
-                  "git"
-                ]
+                "required": ["git"]
               },
               {
-                "required": [
-                  "github"
-                ]
+                "required": ["github"]
               },
               {
-                "required": [
-                  "zip"
-                ]
+                "required": ["zip"]
               }
             ],
             "properties": {
@@ -3118,24 +2620,16 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "oneOf": [
           {
-            "required": [
-              "git"
-            ]
+            "required": ["git"]
           },
           {
-            "required": [
-              "github"
-            ]
+            "required": ["github"]
           },
           {
-            "required": [
-              "zip"
-            ]
+            "required": ["zip"]
           }
         ],
         "properties": {
@@ -3151,9 +2645,7 @@
           "git": {
             "description": "Project's Git source",
             "type": "object",
-            "required": [
-              "remotes"
-            ],
+            "required": ["remotes"],
             "properties": {
               "checkoutFrom": {
                 "description": "Defines from what the project should be checked out. Required if there are more than one remote configured",
@@ -3183,9 +2675,7 @@
           "github": {
             "description": "Project's GitHub source",
             "type": "object",
-            "required": [
-              "remotes"
-            ],
+            "required": ["remotes"],
             "properties": {
               "checkoutFrom": {
                 "description": "Defines from what the project should be checked out. Required if there are more than one remote configured",
@@ -3250,24 +2740,16 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "oneOf": [
           {
-            "required": [
-              "git"
-            ]
+            "required": ["git"]
           },
           {
-            "required": [
-              "github"
-            ]
+            "required": ["github"]
           },
           {
-            "required": [
-              "zip"
-            ]
+            "required": ["zip"]
           }
         ],
         "properties": {
@@ -3283,9 +2765,7 @@
           "git": {
             "description": "Project's Git source",
             "type": "object",
-            "required": [
-              "remotes"
-            ],
+            "required": ["remotes"],
             "properties": {
               "checkoutFrom": {
                 "description": "Defines from what the project should be checked out. Required if there are more than one remote configured",
@@ -3315,9 +2795,7 @@
           "github": {
             "description": "Project's GitHub source",
             "type": "object",
-            "required": [
-              "remotes"
-            ],
+            "required": ["remotes"],
             "properties": {
               "checkoutFrom": {
                 "description": "Defines from what the project should be checked out. Required if there are more than one remote configured",

@@ -29,7 +29,7 @@ import { safeLoad } from 'js-yaml';
 import common from '@eclipse-che/common';
 import DevfileEditor, { DevfileEditor as Editor } from '../../../components/DevfileEditor';
 import EditorTools from '../../../components/EditorTools';
-import { constructWorkspace, isCheWorkspace, Workspace } from '../../../services/workspace-adapter';
+import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../../../services/devfileApi';
 import {
   DEVWORKSPACE_NEXT_START_ANNOTATION,
@@ -49,7 +49,7 @@ export type Props = {
 };
 
 export type State = {
-  devfile: che.WorkspaceDevfile | devfileApi.Devfile;
+  devfile: devfileApi.Devfile;
   hasChanges: boolean;
   hasRequestErrors: boolean;
   currentRequestError: string;
@@ -61,7 +61,7 @@ export type State = {
 };
 
 export class DevfileEditorTab extends React.PureComponent<Props, State> {
-  private originDevfile: che.WorkspaceDevfile | devfileApi.Devfile | undefined;
+  private originDevfile: devfileApi.Devfile | undefined;
   private readonly devfileEditorRef: React.RefObject<Editor>;
   private devworkspaceClient: DevWorkspaceClient;
 
@@ -71,7 +71,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
     super(props);
     this.devworkspaceClient = container.get(DevWorkspaceClient);
 
-    const devfile = Object.assign({}, this.props.workspace.devfile);
+    const devfile = this.props.workspace.devfile;
     const additionSchema = this.getAdditionSchema(devfile);
 
     this.state = {
@@ -93,9 +93,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
-  private getAdditionSchema(
-    devfile: che.WorkspaceDevfile | devfileApi.Devfile,
-  ): { [key: string]: any } | undefined {
+  private getAdditionSchema(devfile: devfileApi.Devfile): { [key: string]: any } | undefined {
     return isDevfileV2(devfile)
       ? {
           properties: {
@@ -297,14 +295,14 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
       this.setState({ hasChanges: false });
       return;
     }
-    let devfile: che.WorkspaceDevfile;
+    let devfile: devfileApi.Devfile;
     try {
-      devfile = safeLoad(newValue) as che.WorkspaceDevfile;
+      devfile = safeLoad(newValue) as devfileApi.Devfile;
     } catch (e) {
       console.error('Devfile parse error', e);
       return;
     }
-    if (this.areEqual(this.props.workspace.devfile as che.WorkspaceDevfile, devfile)) {
+    if (this.areEqual(this.props.workspace.devfile, devfile)) {
       this.setState({ hasChanges: false });
       return;
     }
@@ -316,7 +314,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
   }
 
   private async onSave(): Promise<void> {
-    if (!this.props.workspace.isRunning || isCheWorkspace(this.props.workspace.ref)) {
+    if (!this.props.workspace.isRunning) {
       await this.saveDevfile();
     } else {
       this.setState({
@@ -361,9 +359,6 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
     }
 
     const workspaceCopy = constructWorkspace(this.props.workspace.ref);
-    if (!devfile.metadata) {
-      devfile.metadata = {};
-    }
     if (!devfile.metadata.name) {
       devfile.metadata.name = workspaceCopy.name;
     }
@@ -397,25 +392,17 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
     });
   }
 
-  private sortKeysInObject(
-    obj: che.WorkspaceDevfile | devfileApi.Devfile,
-  ): che.WorkspaceDevfile | devfileApi.Devfile {
+  private sortKeysInObject(obj: devfileApi.Devfile): devfileApi.Devfile {
     return Object.keys(obj)
       .sort()
-      .reduce((result: che.WorkspaceDevfile | devfileApi.Devfile, key: string) => {
+      .reduce((result: devfileApi.Devfile, key: string) => {
         result[key] = obj[key];
         return result;
-      }, {} as che.WorkspaceDevfile | devfileApi.Devfile);
+      }, {} as devfileApi.Devfile);
   }
 
-  private areEqual(
-    a: che.WorkspaceDevfile | devfileApi.Devfile,
-    b: che.WorkspaceDevfile | devfileApi.Devfile,
-  ): boolean {
-    return (
-      JSON.stringify(this.sortKeysInObject(a)) ==
-      JSON.stringify(this.sortKeysInObject(b as che.WorkspaceDevfile))
-    );
+  private areEqual(a: devfileApi.Devfile, b: devfileApi.Devfile): boolean {
+    return JSON.stringify(this.sortKeysInObject(a)) == JSON.stringify(this.sortKeysInObject(b));
   }
 }
 

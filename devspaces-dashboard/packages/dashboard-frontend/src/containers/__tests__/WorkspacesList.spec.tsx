@@ -20,9 +20,8 @@ import { Action, Store } from 'redux';
 import { ActionCreators } from '../../store/Workspaces';
 import WorkspacesList from '../WorkspacesList';
 import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
-import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
 import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
-import { Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
+import { Workspace } from '../../services/workspace-adapter';
 
 jest.mock('../../store/Workspaces/index', () => {
   return {
@@ -84,91 +83,6 @@ describe('Workspaces List Container', () => {
       renderComponent(store);
 
       expect(screen.queryByText('Fallback Spinner')).toBeTruthy();
-    });
-  });
-
-  describe('workspaces filter', () => {
-    describe('in che-server mode', () => {
-      it('should pass all workspaces', () => {
-        const devWorkspaceId = 'dev-wksp-0';
-        const devWorkspaces = [
-          new DevWorkspaceBuilder()
-            .withId(devWorkspaceId)
-            .withName('dev-wksp-0')
-            .withNamespace('user-dev')
-            .build(),
-        ];
-        const cheWorkspaces = [
-          new CheWorkspaceBuilder()
-            .withId('che-wksp-0')
-            .withName('che-wksp-0')
-            .withAttributes({
-              created: new Date().toISOString(),
-              convertedId: devWorkspaceId,
-              infrastructureNamespace: 'user',
-            })
-            .build(),
-          new CheWorkspaceBuilder().withId('che-wksp-1').withName('che-wksp-1').build(),
-        ];
-        const store = new FakeStoreBuilder()
-          .withDevWorkspaces({ workspaces: devWorkspaces })
-          .withCheWorkspaces({ workspaces: cheWorkspaces })
-          .withWorkspaces({})
-          .withWorkspacesSettings({
-            'che.devworkspaces.enabled': 'false',
-          })
-          .build();
-        renderComponent(store);
-
-        const workspaces = screen.getAllByTestId('workspace');
-        expect(workspaces.length).toEqual(3);
-      });
-    });
-
-    describe('in devworkspace mode', () => {
-      it('should pass workspaces but not converted che-server based workspaces', () => {
-        const deprecated = ['che-wksp-0', 'che-wksp-1', 'che-wksp-2'];
-        WorkspaceAdapter.setDeprecatedUIDs(deprecated);
-        const devWorkspaces = [0, 1, 2, 4].map(i =>
-          new DevWorkspaceBuilder()
-            .withId('dev-wksp-' + i)
-            .withName('dev-wksp-' + i)
-            .build(),
-        );
-        const cheWorkspaces = [
-          new CheWorkspaceBuilder()
-            .withId(deprecated[0])
-            .withName(deprecated[0])
-            .withAttributes({
-              created: new Date().toISOString(),
-              convertedId: WorkspaceAdapter.getUID(devWorkspaces[0]),
-              infrastructureNamespace: 'user',
-            })
-            .build(),
-          new CheWorkspaceBuilder()
-            .withId(deprecated[0])
-            .withName(deprecated[0])
-            .withAttributes({
-              created: new Date().toISOString(),
-              convertedId: 'deleted-wksp-id',
-              infrastructureNamespace: 'user',
-            })
-            .build(),
-          new CheWorkspaceBuilder().withId(deprecated[2]).withName(deprecated[2]).build(),
-        ];
-        const store = new FakeStoreBuilder()
-          .withCheWorkspaces({ workspaces: cheWorkspaces })
-          .withDevWorkspaces({ workspaces: devWorkspaces })
-          .withWorkspaces({})
-          .withWorkspacesSettings({
-            'che.devworkspaces.enabled': 'true',
-          })
-          .build();
-        renderComponent(store);
-
-        const workspaces = screen.getAllByTestId('workspace');
-        expect(workspaces.length).toEqual(6);
-      });
     });
   });
 });

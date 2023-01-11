@@ -16,12 +16,12 @@ import { Nav } from '@patternfly/react-core';
 import { Provider } from 'react-redux';
 import { RenderResult, render, screen } from '@testing-library/react';
 import { Store } from 'redux';
-
+import devfileApi from '../../../services/devfileApi';
 import NavigationRecentList from '../RecentList';
 import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { createHashHistory } from 'history';
-import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
+import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
@@ -29,18 +29,18 @@ jest.mock('react-tooltip', () => {
   };
 });
 
-let cheWorkspaces: che.Workspace[];
+let devWorkspaces: devfileApi.DevWorkspace[];
 let workspaces: Workspace[];
 
 describe('Navigation Recent List', () => {
   beforeEach(() => {
-    cheWorkspaces = [1, 2, 3].map(i =>
-      new CheWorkspaceBuilder()
+    devWorkspaces = [1, 2, 3].map(i =>
+      new DevWorkspaceBuilder()
         .withId('wksp-' + i)
         .withName('wksp-' + i)
         .build(),
     );
-    workspaces = cheWorkspaces.map(workspace => constructWorkspace(workspace));
+    workspaces = devWorkspaces.map(workspace => constructWorkspace(workspace));
   });
 
   function renderComponent(store: Store, workspaces: Workspace[]): RenderResult {
@@ -101,5 +101,5 @@ describe('Navigation Recent List', () => {
 });
 
 function createFakeStore(): Store {
-  return new FakeStoreBuilder().withCheWorkspaces({ workspaces: cheWorkspaces }).build();
+  return new FakeStoreBuilder().withDevWorkspaces({ workspaces: devWorkspaces }).build();
 }

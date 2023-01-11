@@ -15,14 +15,11 @@ import common from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { fetchRegistryMetadata, fetchDevfile } from '../../services/registry/devfiles';
 import { createObject } from '../helpers';
-import { selectPlugins } from '../Plugins/chePlugins/selectors';
-import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
 import devfileApi from '../../services/devfileApi';
 import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
 import updateDevWorkspacePlugins from './updateDevWorkspacePlugins';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { getDevfileSchema } from '../../services/dashboard-backend-client/devWorkspaceApi';
 
 export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
 
@@ -267,71 +264,17 @@ export const actionCreators: ActionCreators = {
 
   requestJsonSchema:
     (): AppThunk<KnownAction, any> =>
-    async (dispatch, getState): Promise<any> => {
+    async (dispatch): Promise<any> => {
       await dispatch({ type: Type.REQUEST_SCHEMA, check: AUTHORIZED });
       try {
-        const state = getState();
-        const schemav1 = (await getDevfileSchema('1.0.0')) as {
-          [key: string]: any;
+        const schemav200 = await fetchAndUpdateDevfileSchema('2.0.0');
+        const schemav210 = await fetchAndUpdateDevfileSchema('2.1.0');
+        const schemav220 = await fetchAndUpdateDevfileSchema('2.2.0');
+        const schemav221alpha = await fetchAndUpdateDevfileSchema('2.2.1-alpha');
+
+        const schema = {
+          oneOf: [schemav200, schemav210, schemav220, schemav221alpha],
         };
-        const items = selectPlugins(state);
-        const components = schemav1?.properties?.components;
-        if (components) {
-          const mountSources = components.items.properties.mountSources;
-          // mount sources is specific only for some of component types but always appears
-          // patch schema and remove default value for boolean mount sources to avoid their appearing during the completion
-          if (mountSources && mountSources.default === 'false') {
-            delete mountSources.default;
-          }
-          schemav1.additionalProperties = true;
-          if (!components.defaultSnippets) {
-            components.defaultSnippets = [];
-          }
-          const pluginsId: string[] = [];
-          items.forEach((item: che.Plugin) => {
-            const id = `${item.publisher}/${item.name}/latest`;
-            if (pluginsId.indexOf(id) === -1 && item.type !== 'Che Editor') {
-              pluginsId.push(id);
-              components.defaultSnippets.push({
-                label: item.displayName,
-                description: item.description,
-                body: { id: id, type: 'chePlugin' },
-              });
-            } else {
-              pluginsId.push(item.id);
-            }
-          });
-          if (components.items && components.items.properties) {
-            if (!components.items.properties.id) {
-              components.items.properties.id = {
-                type: 'string',
-                description: 'Plugin/Editor id.',
-              };
-            }
-            components.items.properties.id.examples = pluginsId;
-          }
-        }
-
-        let schema = schemav1;
-
-        const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
-        if (cheDevworkspaceEnabled) {
-          // This makes $ref resolve against the first schema, otherwise the yaml language server will report errors
-          const patchedJSONString = JSON.stringify(schemav1).replace(
-            /#\/definitions/g,
-            '#/oneOf/0/definitions',
-          );
-          const parsedSchemaV1 = JSON.parse(patchedJSONString);
-
-          const schemav200 = await fetchAndUpdateDevfileSchema('2.0.0');
-          const schemav210 = await fetchAndUpdateDevfileSchema('2.1.0');
-          const schemav220 = await fetchAndUpdateDevfileSchema('2.2.0');
-          const schemav221alpha = await fetchAndUpdateDevfileSchema('2.2.1-alpha');
-
-          schema = {
-            oneOf: [parsedSchemaV1, schemav200, schemav210, schemav220, schemav221alpha],
-          };
-        }
 
         dispatch({
           type: Type.RECEIVE_SCHEMA,

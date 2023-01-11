@@ -18,12 +18,10 @@ import { Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { WorkspaceDetails, Props } from '..';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { constructWorkspace } from '../../../services/workspace-adapter';
 import devfileApi from '../../../services/devfileApi';
 
-const mockOnConvert = jest.fn();
 const mockOnSave = jest.fn();
 
 jest.mock('../DevfileEditorTab');
@@ -36,15 +34,11 @@ jest.mock('../DevworkspaceEditorTab', () => {
 let history: History;
 
 describe('Workspace Details page', () => {
-  let cheWorkspaceBuilder: CheWorkspaceBuilder;
   let devWorkspaceBuilder: DevWorkspaceBuilder;
   const workspaceName = 'wksp';
 
   beforeEach(() => {
     history = createHashHistory();
-    cheWorkspaceBuilder = new CheWorkspaceBuilder()
-      .withName(workspaceName)
-      .withNamespace('user-dev');
     devWorkspaceBuilder = new DevWorkspaceBuilder()
       .withName(workspaceName)
       .withNamespace('user-che');
@@ -124,93 +118,6 @@ describe('Workspace Details page', () => {
     });
   });
 
-  describe('Convert button', () => {
-    it('should NOT show the button', () => {
-      const workspace = constructWorkspace(cheWorkspaceBuilder.build());
-      renderComponent({
-        workspace,
-      });
-      expect(screen.queryByRole('button', { name: 'Convert' })).toBeFalsy();
-    });
-
-    it('should show the button', () => {
-      const workspace = constructWorkspace(cheWorkspaceBuilder.build());
-      renderComponent({
-        workspace,
-        showConvertButton: true,
-      });
-      expect(screen.queryByRole('button', { name: 'Convert' })).toBeTruthy();
-    });
-  });
-
-  describe('Conversion', () => {
-    it('should NOT show alert', async () => {
-      const workspace = constructWorkspace(cheWorkspaceBuilder.build());
-
-      renderComponent({
-        workspace,
-        showConvertButton: true,
-      });
-
-      const convertButton = screen.getByRole('button', { name: 'Convert' });
-      userEvent.click(convertButton);
-
-      await waitFor(() => expect(mockOnConvert).toHaveBeenCalled());
-
-      const closeButton = screen.queryByRole('button', { name: /workspace conversion failed/i });
-      expect(closeButton).toBeFalsy();
-
-      const alertHeading = screen.queryByRole('heading', { name: /workspace conversion failed/i });
-      expect(alertHeading).toBeFalsy();
-    });
-
-    it('should show alert', async () => {
-      const workspace = constructWorkspace(cheWorkspaceBuilder.build());
-
-      mockOnConvert.mockImplementationOnce(() => {
-        throw new Error('Failed.');
-      });
-      renderComponent({
-        workspace,
-        showConvertButton: true,
-      });
-
-      const convertButton = screen.getByRole('button', { name: 'Convert' });
-      userEvent.click(convertButton);
-
-      await waitFor(() => expect(mockOnConvert).toHaveBeenCalled());
-
-      const closeButton = screen.queryByRole('button', { name: /workspace conversion failed/i });
-      expect(closeButton).toBeTruthy();
-
-      const alertHeading = screen.queryByRole('heading', { name: /workspace conversion failed/i });
-      expect(alertHeading).toBeTruthy();
-    });
-
-    it('should close conversion alert', async () => {
-      const workspace = constructWorkspace(cheWorkspaceBuilder.build());
-
-      mockOnConvert.mockImplementationOnce(() => {
-        throw new Error('Failed.');
-      });
-      renderComponent({
-        workspace,
-        showConvertButton: true,
-      });
-
-      const convertButton = screen.getByRole('button', { name: 'Convert' });
-      userEvent.click(convertButton);
-
-      await waitFor(() => expect(mockOnConvert).toHaveBeenCalled());
-
-      const closeButton = screen.getByRole('button', { name: /workspace conversion failed/i });
-      userEvent.click(closeButton);
-
-      const alertHeading = screen.queryByRole('headiing', { name: /workspace conversion failed/i });
-      expect(alertHeading).toBeFalsy();
-    });
-  });
-
   describe('Saving changes', () => {
     test('successfully saved changes', async () => {
       const workspace = constructWorkspace(devWorkspaceBuilder.build());
@@ -272,10 +179,8 @@ function renderComponent(props?: Partial<Props>): void {
           history={history}
           isLoading={props?.isLoading || false}
           oldWorkspaceLocation={props?.oldWorkspaceLocation}
-          showConvertButton={props?.showConvertButton || false}
           workspace={props?.workspace}
           workspacesLink={props?.workspacesLink || '/workspaces'}
-          onConvert={mockOnConvert}
           onSave={mockOnSave}
         />
       </Provider>

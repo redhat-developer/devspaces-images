@@ -31,13 +31,12 @@ import * as WorkspaceStore from '../../store/Workspaces';
 import { AppState } from '../../store';
 import { AlertItem, CreateWorkspaceTab } from '../../services/helpers/types';
 import { ROUTE } from '../../Routes/routes';
-import { Workspace, Devfile, isCheDevfile } from '../../services/workspace-adapter';
-import { selectBranding } from '../../store/Branding/selectors';
+import { Workspace, isCheDevfile } from '../../services/workspace-adapter';
 import { selectRegistriesErrors } from '../../store/DevfileRegistries/selectors';
 import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
-import { selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
+import devfileApi from '../../services/devfileApi';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 
@@ -110,7 +109,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
   }
 
   private async createWorkspace(
-    devfile: Devfile,
+    devfile: devfileApi.Devfile,
     stackName: string | undefined,
     infrastructureNamespace: string | undefined,
     optionalFilesContent?: {
@@ -131,13 +130,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
       : this.props.defaultNamespace.name;
     let workspace: Workspace | undefined;
     try {
-      await this.props.createWorkspaceFromDevfile(
-        devfile,
-        undefined,
-        namespace,
-        attr,
-        optionalFilesContent,
-      );
+      await this.props.createWorkspaceFromDevfile(devfile, attr, optionalFilesContent);
       this.props.setWorkspaceQualifiedName(namespace, devfile.metadata.name as string);
       workspace = this.props.activeWorkspace;
     } catch (e) {
@@ -252,11 +245,9 @@ export class GetStarted extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  branding: selectBranding(state),
   registriesErrors: selectRegistriesErrors(state),
   activeWorkspace: selectWorkspaceByQualifiedName(state),
   defaultNamespace: selectDefaultNamespace(state),
-  workspacesSettings: selectWorkspacesSettings(state),
 });
 
 const connector = connect(mapStateToProps, WorkspaceStore.actionCreators);

@@ -19,6 +19,7 @@ import NavigationMainItem from '../MainItem';
 import { NavigationItemObject } from '..';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { Provider } from 'react-redux';
+import devfileApi from '../../../services/devfileApi';
 
 describe('Navigation Item', () => {
   let activeItem = '';
@@ -28,8 +29,8 @@ describe('Navigation Item', () => {
     to: '/home',
   };
 
-  function renderComponent(workspaces: che.Workspace[] = []): RenderResult {
-    const store = new FakeStoreBuilder().withCheWorkspaces({ workspaces }).build();
+  function renderComponent(workspaces: devfileApi.DevWorkspace[] = []): RenderResult {
+    const store = new FakeStoreBuilder().withDevWorkspaces({ workspaces }).build();
     return render(
       <Provider store={store}>
         <MemoryRouter>

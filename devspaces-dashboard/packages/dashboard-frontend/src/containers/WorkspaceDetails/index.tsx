@@ -27,8 +27,6 @@ import * as WorkspacesStore from '../../store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading } from '../../store/Workspaces/selectors';
 import { isDevWorkspace } from '../../services/devfileApi';
 import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../services/devfileApi/devWorkspace/metadata';
-import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
-import { DEVWORKSPACE_METADATA_ANNOTATION } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import { isEqual } from 'lodash';
 
@@ -102,19 +100,6 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     return buildDetailsLocation(che7Workspace, WorkspaceDetailsTab.DEVFILE);
   }
 
-  private getShowConvertButton(workspace?: Workspace): boolean {
-    if (!workspace || isDevWorkspace(workspace.ref)) {
-      return false;
-    }
-    const cheWorkspace = workspace.ref;
-    if (!cheWorkspace.attributes?.convertedId) {
-      return true;
-    } else {
-      const devWorkspaceUID = cheWorkspace.attributes.convertedId;
-      return this.props.allWorkspaces.every(workspace => workspace.uid !== devWorkspaceUID);
-    }
-  }
-
   public componentDidMount(): void {
     this.init();
   }
@@ -140,17 +125,14 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     const { workspace } = this.state;
 
     const oldWorkspaceLocation = this.getOldWorkspaceLocation(workspace);
-    const showConvertButton = this.getShowConvertButton(workspace);
 
     return (
       <WorkspaceDetails
         history={this.props.history}
         isLoading={this.props.isLoading}
         oldWorkspaceLocation={oldWorkspaceLocation}
-        showConvertButton={showConvertButton}
         workspace={workspace}
         workspacesLink={this.workspacesLink}
-        onConvert={async (workspace: Workspace) => await this.handleConversion(workspace)}
         onSave={async (workspace: Workspace) => await this.onSave(workspace)}
       />
     );
@@ -158,51 +140,6 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
 
   async onSave(changedWorkspace: Workspace): Promise<void> {
     await this.props.updateWorkspace(changedWorkspace);
-  }
-
-  private async handleConversion(oldWorkspace: Workspace): Promise<void> {
-    if (isDevWorkspace(oldWorkspace.ref)) {
-      throw new Error('This workspace cannot be converted to DevWorkspaces.');
-    }
-
-    const devfileV1 = oldWorkspace.devfile as che.WorkspaceDevfile;
-    const devfileV2 = await convertDevfileV1toDevfileV2(devfileV1);
-    if (devfileV2.metadata.attributes === undefined) {
-      devfileV2.metadata.attributes = {};
-    }
-    if (devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] === undefined) {
-      devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
-    }
-    devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][
-      DEVWORKSPACE_ID_OVERRIDE_ANNOTATION
-    ] = oldWorkspace.uid;
-    const defaultNamespace = this.props.defaultNamespace.name;
-    // create a new workspace
-    await this.props.createWorkspaceFromDevfile(devfileV2, undefined, defaultNamespace, {}, {});
-
-    const newWorkspace = this.props.allWorkspaces.find(workspace => {
-      if (isDevWorkspace(workspace.ref)) {
-        return (
-          workspace.ref.metadata.annotations?.[DEVWORKSPACE_ID_OVERRIDE_ANNOTATION] ===
-          oldWorkspace.uid
-        );
-      }
-      return false;
-    });
-
-    if (!newWorkspace) {
-      throw new Error('The new DevWorkspace has been created but cannot be obtained.');
-    }
-
-    // add 'converted' attribute to the old workspace
-    // to be able to hide it on the Workspaces page
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    oldWorkspace.ref.attributes!.convertedId = newWorkspace.uid;
-    await this.props.updateWorkspace(oldWorkspace);
-
-    // return the new workspace page location
-    const nextLocation = buildDetailsLocation(newWorkspace, WorkspaceDetailsTab.DEVFILE);
-    this.props.history.replace(nextLocation);
   }
 }
 

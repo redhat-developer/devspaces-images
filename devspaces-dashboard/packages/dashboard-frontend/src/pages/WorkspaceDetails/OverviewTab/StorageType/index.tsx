@@ -26,13 +26,13 @@ import {
 import { AppState } from '../../../../store';
 import { connect, ConnectedProps } from 'react-redux';
 import { OutlinedQuestionCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
-import { selectAvailableStorageTypes } from '../../../../store/Workspaces/Settings/selectors';
 import * as storageTypeService from '../../../../services/storageTypes';
 import { selectBranding } from '../../../../store/Branding/selectors';
 
 import overviewStyles from '../index.module.css';
 import styles from './index.module.css';
 import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
+import * as storageTypesService from '../../../../services/storageTypes';
 
 export type Props = MappedProps & {
   readonly: boolean;
@@ -58,7 +58,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
       isInfoOpen: false,
     };
 
-    const availableTypes = this.props.availableStorageTypes;
+    const availableTypes = storageTypesService.getAvailable();
 
     if (Array.isArray(availableTypes)) {
       this.storageTypes = availableTypes;
@@ -358,7 +358,6 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
-  availableStorageTypes: selectAvailableStorageTypes(state),
   preferredStorageType: selectPvcStrategy(state),
 });
 

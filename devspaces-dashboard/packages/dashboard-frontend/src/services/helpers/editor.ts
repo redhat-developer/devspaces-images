@@ -54,7 +54,7 @@ function sortKeys(key1: keyof che.WorkspaceDevfile, key2: keyof che.WorkspaceDev
  * Provides a devfile stringify function.
  */
 export default function stringify(
-  obj: che.WorkspaceDevfile | che.Workspace | devfileApi.Devfile | devfileApi.DevWorkspace,
+  obj: che.WorkspaceDevfile | devfileApi.Devfile | devfileApi.DevWorkspace,
 ): string {
   if (!obj) {
     return '';
