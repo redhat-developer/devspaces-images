@@ -12,12 +12,12 @@
 
 import { Banner } from '@patternfly/react-core';
 import React from 'react';
-import { isSafari } from '../../../services/helpers/detectBrowser';
+import { isSupportedBrowser } from './isSupportedBrowser';
 
 type Props = unknown;
 
 type State = {
-  isNotSupported: boolean;
+  isSupportedBrowser: boolean;
 };
 
 export default class BannerAlertNotSupportedBrowser extends React.PureComponent<Props, State> {
@@ -25,12 +25,12 @@ export default class BannerAlertNotSupportedBrowser extends React.PureComponent<
     super(props);
 
     this.state = {
-      isNotSupported: isSafari,
+      isSupportedBrowser: isSupportedBrowser(),
     };
   }
 
   render() {
-    if (this.state.isNotSupported === false) {
+    if (this.state.isSupportedBrowser === true) {
       return null;
     }
 
