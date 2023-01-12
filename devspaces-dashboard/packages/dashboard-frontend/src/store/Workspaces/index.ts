@@ -159,12 +159,6 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'REQUEST_WORKSPACES' });
       try {
         await OAuthService.refreshTokenIfNeeded(workspace);
-
-        const debugWorkspace = params && params['debug-workspace-start'];
-        await dispatch(
-          DevWorkspacesStore.actionCreators.startWorkspace(workspace.ref, debugWorkspace),
-        );
-        dispatch({ type: 'UPDATE_WORKSPACE' });
       } catch (e) {
         if (common.helpers.errors.includesAxiosResponse(e)) {
           const response = e.response;
@@ -185,9 +179,12 @@ export const actionCreators: ActionCreators = {
             return;
           }
         }
-        dispatch({ type: 'RECEIVE_ERROR' });
-        throw e;
       }
+      const debugWorkspace = params && params['debug-workspace-start'];
+      await dispatch(
+        DevWorkspacesStore.actionCreators.startWorkspace(workspace.ref, debugWorkspace),
+      );
+      dispatch({ type: 'UPDATE_WORKSPACE' });
     },
 
   restartWorkspace:
