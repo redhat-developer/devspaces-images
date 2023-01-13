@@ -40,5 +40,5 @@ export const selectRunningDevWorkspacesLimitExceeded = createSelector(
   selectRunningDevWorkspaces,
   selectRunningWorkspacesLimit,
   (runningDevWorkspaces, runningWorkspacesLimit) =>
-    runningDevWorkspaces.length >= runningWorkspacesLimit,
+    runningWorkspacesLimit !== -1 && runningDevWorkspaces.length >= runningWorkspacesLimit,
 );

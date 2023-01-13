@@ -122,6 +122,7 @@ export type CustomResourceDefinitionSpecDevEnvironments = {
   storage?: {
     pvcStrategy?: string;
   };
+  maxNumberOfRunningWorkspacesPerUser: number;
 };
 
 export type CustomResourceDefinitionSpecComponents = {
