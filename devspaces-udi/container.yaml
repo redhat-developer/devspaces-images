@@ -34,7 +34,7 @@ remote_sources:
 - name: python-deps
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: 19a9437804b5814f2ee536c23c5710cb40650596
+    ref: 96b82a83cde546b1772a2516283f9d41fc6801b5
     pkg_managers:
       - pip
     packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
@@ -45,7 +45,7 @@ remote_sources:
 - name: xdebug
   remote_source:
     repo: https://github.com/xdebug/xdebug
-    ref: 2fe95fed7ee9f1f679680db641f4f48c3f381057
+    ref: 78ef02f7374db83e152751b4567b5a1bc9d9e86a
     pkg_managers: []
 
 # CRW-3193 disable until we have a camel-k sample again
