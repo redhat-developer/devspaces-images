@@ -93,8 +93,6 @@ ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 COPY etc/docker.sh /usr/local/bin/docker
-# see fetch-artifacts-pnc.yaml
-COPY artifacts/lombok.jar /lombok.jar
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
