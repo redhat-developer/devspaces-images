@@ -21,14 +21,12 @@ import {
 } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
-import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import ProgressIndicator from '../../../components/Progress';
 import { lazyInject } from '../../../inversify.config';
 import { AppAlerts } from '../../../services/alerts/appAlerts';
 import { AlertItem } from '../../../services/helpers/types';
-import { ROUTE } from '../../../Routes/routes';
 import { AppState } from '../../../store';
 import * as DockerConfigStore from '../../../store/DockerConfig';
 import { RegistryEntry } from '../../../store/DockerConfig/types';
@@ -38,11 +36,7 @@ import DeleteRegistriesModal from './Modals/DeleteRegistriesModal';
 import EditRegistryModal from './Modals/EditRegistryModal';
 import { helpers } from '@eclipse-che/common';
 
-const CONTAINER_REGISTRIES_TAB_KEY = 'container-registries';
-
-type Props = {
-  history: History;
-} & MappedProps;
+type Props = MappedProps;
 
 type State = {
   selectedItems: string[];
@@ -51,7 +45,6 @@ type State = {
   currentRegistryIndex: number;
   isDeleteModalOpen: boolean;
   isEditModalOpen: boolean;
-  activeTabKey: string;
 };
 
 export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
@@ -67,7 +60,6 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
       registries,
       currentRegistry: { url: '', password: '', username: '' },
       selectedItems: [],
-      activeTabKey: CONTAINER_REGISTRIES_TAB_KEY,
       currentRegistryIndex: -1,
       isEditModalOpen: false,
       isDeleteModalOpen: false,
@@ -118,11 +110,6 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
 
   private showAlert(alert: AlertItem): void {
     this.appAlerts.showAlert(alert);
-  }
-
-  private handleTabClick(activeTabKey: string): void {
-    this.props.history.push(`${ROUTE.USER_PREFERENCES}?tab=${activeTabKey}`);
-    this.setState({ activeTabKey });
   }
 
   private buildRegistryRow(registry: RegistryEntry): React.ReactNode[] {

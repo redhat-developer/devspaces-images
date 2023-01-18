@@ -39,8 +39,8 @@ import { AlertItem } from '../../../../../../services/helpers/types';
 import { selectDefaultDevfile } from '../../../../../../store/DevfileRegistries/selectors';
 import ExpandableWarning from '../../../../../../components/ExpandableWarning';
 import { getProjectFromUrl } from './getProjectFromUrl';
-import { getGitRemotes } from './getGitRemotes';
-import { V220DevfileProjects } from '@devfile/api';
+import { getGitRemotes, GitRemote } from './getGitRemotes';
+import { V220DevfileProjects, V220DevfileProjectsItemsGit } from '@devfile/api';
 import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 
 export class CreateWorkspaceError extends Error {
@@ -314,40 +314,60 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     isDefaultDevfile: boolean,
   ) {
     const parsedRemotes = getGitRemotes(remotes);
-    const gitRemotes = parsedRemotes.reduce((map, remote) => {
-      map[remote.name] = remote.url;
-      return map;
-    }, {});
 
-    const projectName = getProjectName(parsedRemotes[0].url);
-
-    const gitProject = this.getGitProjectForRemotes(devfile.projects);
-    if (gitProject) {
-      // edit existing Git project remote
-      gitProject.remotes = gitRemotes;
-      gitProject.checkoutFrom = { remote: parsedRemotes[0].name };
-    } else {
-      devfile.projects = [
-        {
-          git: {
-            remotes: gitRemotes,
-            checkoutFrom: { remote: parsedRemotes[0].name },
-          },
-          name: projectName,
-        },
-      ];
+    // Determine the remote to set `checkoutFrom.remote` to
+    let checkoutRemote = parsedRemotes.find(remote => remote.name === 'origin');
+    if (!checkoutRemote) {
+      checkoutRemote = parsedRemotes[0];
     }
 
+    // Find the Git project in the devfile to configure remotes for
+    let gitProject = this.getGitProjectForConfiguringRemotes(devfile.projects);
+    if (!gitProject) {
+      if (!devfile.projects) {
+        devfile.projects = [];
+      }
+      devfile.projects[0] = getProjectFromUrl(checkoutRemote.url, checkoutRemote.name);
+      gitProject = devfile.projects[0].git;
+    } else if (Object.keys(gitProject.remotes).includes('origin')) {
+      checkoutRemote = { name: 'origin', url: gitProject.remotes.origin };
+    }
+
+    this.addRemotesToProject(gitProject!, checkoutRemote, parsedRemotes);
+
     if (isDefaultDevfile) {
+      const projectName = getProjectName(checkoutRemote.url);
       devfile.metadata.name = projectName;
       devfile.metadata.generateName = projectName;
     }
   }
 
   /**
+   * Add the remotes specified in `newRemotes` to the `gitProject`.
+   * @param gitProject The Git project to add the new remotes to
+   * @param checkoutRemote The Git remote to set checkoutFrom.remote to
+   * @param newRemotes The array of new Git remotes to add
+   */
+  private addRemotesToProject(
+    gitProject: V220DevfileProjectsItemsGit,
+    checkoutRemote: GitRemote,
+    newRemotes: GitRemote[],
+  ) {
+    const gitRemotes = newRemotes.reduce((map, remote) => {
+      map[remote.name] = remote.url;
+      return map;
+    }, {});
+
+    gitProject.remotes = Object.assign(gitProject.remotes, gitRemotes);
+    gitProject.checkoutFrom = Object.assign(gitProject.checkoutFrom || {}, {
+      remote: checkoutRemote.name,
+    });
+  }
+
+  /**
    * Returns the Git project to replace remotes for
    */
-  private getGitProjectForRemotes(projects: V220DevfileProjects[] | undefined) {
+  private getGitProjectForConfiguringRemotes(projects: V220DevfileProjects[] | undefined) {
     if (!projects) {
       return undefined;
     }

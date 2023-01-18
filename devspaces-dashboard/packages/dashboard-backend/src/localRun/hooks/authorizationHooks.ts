@@ -15,7 +15,7 @@ import { FastifyInstance } from 'fastify';
 export function addAuthorizationHooks(server: FastifyInstance) {
   server.addHook('onResponse', (request, reply, done) => {
     if (
-      (request.url.startsWith('/api/') || request.url.startsWith('/dashboard/api/')) &&
+      request.url.startsWith('/dashboard/api/') &&
       request.method === 'GET' &&
       reply.statusCode === 401
     ) {

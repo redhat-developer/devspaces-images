@@ -164,7 +164,7 @@ export default class EditRegistryModal extends React.PureComponent<Props, State>
         >
           {isEditMode ? 'Save' : 'Add'}
         </Button>
-        <Button variant={ButtonVariant.link} data-testid="cancel-button" onClick={onCancel}>
+        <Button variant={ButtonVariant.link} data-testid="cancel-button" onClick={() => onCancel()}>
           Cancel
         </Button>
       </React.Fragment>

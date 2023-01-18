@@ -1,0 +1,160 @@
+/*
+ * Copyright (c) 2018-2021 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+
+import { PageSection } from '@patternfly/react-core';
+import { Table, TableBody, TableHeader } from '@patternfly/react-table';
+import React from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+import ProgressIndicator from '../../../components/Progress';
+import { AppState } from '../../../store';
+import { selectIsLoading, selectGitOauth } from '../../../store/GitOauthConfig/selectors';
+import EmptyState from './EmptyState';
+import { api } from '@eclipse-che/common';
+import * as GitOauthConfig from '../../../store/GitOauthConfig';
+import GitServicesToolbar, { GitServicesToolbar as Toolbar } from './GitServicesToolbar';
+
+export const providersMap = {
+  github: 'GitHub',
+  gitlab: 'GitLab',
+  bitbucket: 'Bitbucket',
+};
+
+type Props = MappedProps;
+
+type State = {
+  selectedItems: api.GitOauthProvider[];
+};
+
+export class GitServicesTab extends React.PureComponent<Props, State> {
+  private readonly gitServicesToolbarRef: React.RefObject<Toolbar>;
+  private readonly callbacks: {
+    onChangeSelection?: (selectedItems: api.GitOauthProvider[]) => void;
+  };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.gitServicesToolbarRef = React.createRef<Toolbar>();
+
+    this.state = {
+      selectedItems: [],
+    };
+  }
+
+  private onChangeSelection(isSelected: boolean, rowIndex: number) {
+    const { gitOauth } = this.props;
+    if (rowIndex === -1) {
+      const selectedItems = isSelected && gitOauth.length > 0 ? gitOauth.map(val => val.name) : [];
+      this.setState({ selectedItems });
+    } else {
+      const selectedItem = gitOauth[rowIndex]?.name;
+      this.setState((prevState: State) => {
+        return {
+          selectedItems: isSelected
+            ? [...prevState.selectedItems, selectedItem]
+            : prevState.selectedItems.filter(item => item !== selectedItem),
+        };
+      });
+    }
+  }
+
+  public async componentDidMount(): Promise<void> {
+    const { isLoading, requestGitOauthConfig } = this.props;
+    if (!isLoading) {
+      requestGitOauthConfig();
+    }
+  }
+
+  private buildGitOauthRow(gitOauth: api.GitOauthProvider, server: string): React.ReactNode[] {
+    const oauthRow: React.ReactNode[] = [<span key={gitOauth}>{providersMap[gitOauth]}</span>];
+
+    if (/^http[s]?:\/\/.*/.test(server)) {
+      oauthRow.push(
+        <span key={server}>
+          <a href={server} target="_blank" rel="noreferrer">
+            {server}
+          </a>
+        </span>,
+      );
+    } else {
+      oauthRow.push(<span key={server}>{server}</span>);
+    }
+
+    return oauthRow;
+  }
+
+  private showOnRevokeGitOauthModal(rowIndex: number): void {
+    this.gitServicesToolbarRef.current?.showOnRevokeGitOauthModal(rowIndex);
+  }
+
+  render(): React.ReactNode {
+    const { isLoading, gitOauth } = this.props;
+    const { selectedItems } = this.state;
+    const columns = ['Name', 'Server'];
+    const actions = [
+      {
+        title: 'Revoke',
+        onClick: (event, rowIndex) => this.showOnRevokeGitOauthModal(rowIndex),
+      },
+    ];
+    const rows =
+      gitOauth.length > 0
+        ? gitOauth.map(provider => ({
+            cells: this.buildGitOauthRow(provider.name, provider.endpointUrl),
+            selected: selectedItems.includes(provider.name),
+          }))
+        : [];
+
+    return (
+      <React.Fragment>
+        <ProgressIndicator isLoading={isLoading} />
+        <PageSection>
+          {rows.length === 0 ? (
+            <EmptyState text="No Git Services" />
+          ) : (
+            <React.Fragment>
+              <GitServicesToolbar
+                ref={this.gitServicesToolbarRef}
+                callbacks={this.callbacks}
+                selectedItems={selectedItems}
+              />
+              <Table
+                cells={columns}
+                actions={actions}
+                rows={rows}
+                onSelect={(event, isSelected, rowIndex) => {
+                  this.onChangeSelection(isSelected, rowIndex);
+                }}
+                canSelectAll={true}
+                aria-label="Git services"
+                variant="compact"
+              >
+                <TableHeader />
+                <TableBody />
+              </Table>
+            </React.Fragment>
+          )}
+        </PageSection>
+      </React.Fragment>
+    );
+  }
+}
+
+const mapStateToProps = (state: AppState) => ({
+  gitOauth: selectGitOauth(state),
+  isLoading: selectIsLoading(state),
+});
+
+const connector = connect(mapStateToProps, GitOauthConfig.actionCreators);
+
+type MappedProps = ConnectedProps<typeof connector>;
+export default connector(GitServicesTab);

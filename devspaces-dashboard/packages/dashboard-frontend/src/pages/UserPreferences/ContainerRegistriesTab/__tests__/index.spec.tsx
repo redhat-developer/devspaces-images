@@ -11,7 +11,6 @@
  */
 
 import userEvent from '@testing-library/user-event';
-import { createHashHistory } from 'history';
 import { Provider } from 'react-redux';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
@@ -26,8 +25,6 @@ describe('ContainerRegistries', () => {
   const mockRequestCredentials = jest.fn();
   const mockUpdateCredentials = jest.fn();
 
-  const history = createHashHistory();
-
   const getComponent = (store: Store): React.ReactElement => {
     const state = store.getState();
     const registries = selectRegistries(state);
@@ -35,7 +32,6 @@ describe('ContainerRegistries', () => {
     return (
       <Provider store={store}>
         <ContainerRegistriesTab
-          history={history}
           registries={registries}
           isLoading={isLoading}
           requestCredentials={mockRequestCredentials}

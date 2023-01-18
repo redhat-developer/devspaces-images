@@ -156,12 +156,34 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
   });
 
   describe('configure remotes', () => {
+    let dashboardDevfile: devfileApi.Devfile;
+
+    beforeEach(() => {
+      dashboardDevfile = {
+        schemaVersion: '2.1.0',
+        metadata: {
+          name: devfileName,
+          namespace: 'user-che',
+        },
+        projects: [
+          {
+            name: 'dashboard',
+            git: {
+              remotes: {
+                origin: 'https://github.com/user/che-dashboard.git',
+              },
+            },
+          },
+        ],
+      };
+    });
+
     test('remotes configured with urls', async () => {
       const store = getStoreBuilder()
         .withFactoryResolver({
           resolver: {},
           converted: {
-            devfileV2: devfile,
+            devfileV2: dashboardDevfile,
           },
         })
         .build();
@@ -175,12 +197,12 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+        expect(prepareDevfile).toHaveBeenCalledWith(dashboardDevfile, factoryId, undefined, false),
       );
 
-      expect(devfile.projects).not.toBe(undefined);
-      expect(devfile.projects?.length).toBe(1);
-      expect(devfile.projects?.[0]).toMatchObject({
+      expect(dashboardDevfile.projects).not.toBe(undefined);
+      expect(dashboardDevfile.projects?.length).toBe(1);
+      expect(dashboardDevfile.projects?.[0]).toMatchObject({
         git: {
           checkoutFrom: {
             remote: 'origin',
@@ -199,7 +221,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
         .withFactoryResolver({
           resolver: {},
           converted: {
-            devfileV2: devfile,
+            devfileV2: dashboardDevfile,
           },
         })
         .build();
@@ -214,17 +236,18 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+        expect(prepareDevfile).toHaveBeenCalledWith(dashboardDevfile, factoryId, undefined, false),
       );
 
-      expect(devfile.projects).not.toBe(undefined);
-      expect(devfile.projects!.length).toBe(1);
-      expect(devfile.projects![0]).toMatchObject({
+      expect(dashboardDevfile.projects).not.toBe(undefined);
+      expect(dashboardDevfile.projects!.length).toBe(1);
+      expect(dashboardDevfile.projects![0]).toMatchObject({
         git: {
           checkoutFrom: {
-            remote: 'test1',
+            remote: 'origin',
           },
           remotes: {
+            origin: 'https://github.com/user/che-dashboard.git',
             test1: 'http://git-test-1.git',
             test2: 'http://git-test-2.git',
             test3: 'http://git-test-3.git',
@@ -233,18 +256,19 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       });
     });
 
-    test('checkoutFrom set to first remote', async () => {
+    test('keep origin remote if origin remote not provided as a parameter', async () => {
       const store = getStoreBuilder()
         .withFactoryResolver({
           resolver: {},
           converted: {
-            devfileV2: devfile,
+            devfileV2: dashboardDevfile,
           },
         })
         .build();
 
+      // origin remote not provided
       const remotesAttr =
-        '{{test2,http://git-test-2.git},{test1,http://git-test-1.git},{test3,http://git-test-3.git}}';
+        '{{upstream,https://github.com/eclipse-che/che-dashboard.git},{fork,https://github.com/fork/che-dashboard.git}}';
       searchParams.append(REMOTES_ATTR, remotesAttr);
 
       renderComponent(store, loaderSteps, searchParams);
@@ -253,20 +277,114 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+        expect(prepareDevfile).toHaveBeenCalledWith(dashboardDevfile, factoryId, undefined, false),
       );
 
-      expect(devfile.projects).not.toBe(undefined);
-      expect(devfile.projects!.length).toBe(1);
-      expect(devfile.projects![0]).toMatchObject({
+      expect(dashboardDevfile.projects).not.toBe(undefined);
+      expect(dashboardDevfile.projects!.length).toBe(1);
+      expect(dashboardDevfile.projects![0]).toMatchObject({
         git: {
           checkoutFrom: {
-            remote: 'test2',
+            remote: 'origin',
           },
           remotes: {
-            test1: 'http://git-test-1.git',
-            test2: 'http://git-test-2.git',
-            test3: 'http://git-test-3.git',
+            origin: 'https://github.com/user/che-dashboard.git',
+            upstream: 'https://github.com/eclipse-che/che-dashboard.git',
+            fork: 'https://github.com/fork/che-dashboard.git',
+          },
+        },
+      });
+    });
+
+    test('keep origin remote and branch if origin remote not provided as a parameter', async () => {
+      dashboardDevfile.projects = [
+        {
+          name: 'dashboard',
+          git: {
+            checkoutFrom: {
+              revision: 'branch',
+            },
+            remotes: {
+              origin: 'https://github.com/user/che-dashboard.git',
+            },
+          },
+        },
+      ];
+      const store = getStoreBuilder()
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: dashboardDevfile,
+          },
+        })
+        .build();
+
+      // origin remote not provided
+      const remotesAttr =
+        '{{upstream,https://github.com/eclipse-che/che-dashboard.git},{fork,https://github.com/fork/che-dashboard.git}}';
+      searchParams.append(REMOTES_ATTR, remotesAttr);
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(dashboardDevfile, factoryId, undefined, false),
+      );
+
+      expect(dashboardDevfile.projects).not.toBe(undefined);
+      expect(dashboardDevfile.projects!.length).toBe(1);
+      expect(dashboardDevfile.projects![0]).toMatchObject({
+        git: {
+          checkoutFrom: {
+            remote: 'origin',
+            revision: 'branch',
+          },
+          remotes: {
+            origin: 'https://github.com/user/che-dashboard.git',
+            upstream: 'https://github.com/eclipse-che/che-dashboard.git',
+            fork: 'https://github.com/fork/che-dashboard.git',
+          },
+        },
+      });
+    });
+
+    test('use new origin remote if provided as a parameter', async () => {
+      const store = getStoreBuilder()
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: dashboardDevfile,
+          },
+        })
+        .build();
+
+      // new origin branch provided
+      const remotesAttr =
+        '{{origin,https://github.com/other-user/che-dashboard.git},{upstream,https://github.com/eclipse-che/che-dashboard.git},{fork,https://github.com/fork/che-dashboard.git}}';
+      searchParams.append(REMOTES_ATTR, remotesAttr);
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      factoryId = `${REMOTES_ATTR}=${remotesAttr}&` + factoryId;
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(dashboardDevfile, factoryId, undefined, false),
+      );
+
+      expect(dashboardDevfile.projects).not.toBe(undefined);
+      expect(dashboardDevfile.projects!.length).toBe(1);
+      expect(dashboardDevfile.projects![0]).toMatchObject({
+        git: {
+          checkoutFrom: {
+            remote: 'origin',
+          },
+          remotes: {
+            origin: 'https://github.com/other-user/che-dashboard.git',
+            upstream: 'https://github.com/eclipse-che/che-dashboard.git',
+            fork: 'https://github.com/fork/che-dashboard.git',
           },
         },
       });

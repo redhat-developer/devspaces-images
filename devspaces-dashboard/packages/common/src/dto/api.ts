@@ -12,6 +12,8 @@
 
 import { V220DevfileComponents } from '@devfile/api';
 
+export type GitOauthProvider = 'github' | 'gitlab' | 'bitbucket';
+
 export interface IPatch {
   op: string;
   path: string;

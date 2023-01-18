@@ -15,7 +15,7 @@ import common, { ClusterConfig } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
 import * as BannerAlertStore from '../BannerAlert';
-import { fetchClusterConfig } from '../../services/dashboard-backend-client/clusterConfig';
+import { fetchClusterConfig } from '../../services/dashboard-backend-client/clusterConfigApi';
 import { AddBannerAction } from '../BannerAlert';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 

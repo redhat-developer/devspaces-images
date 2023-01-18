@@ -18,9 +18,11 @@ import Head from '../../components/Head';
 import { UserPreferencesTab } from '../../services/helpers/types';
 import { ROUTE } from '../../Routes/routes';
 import { AppState } from '../../store';
-import { selectIsLoading, selectRegistries } from '../../store/DockerConfig/selectors';
+import { selectIsLoading } from '../../store/GitOauthConfig/selectors';
+import { actionCreators } from '../../store/GitOauthConfig';
 
-const ContanerRegistryList = React.lazy(() => import('./ContainerRegistriesTab'));
+const ContainerRegistryList = React.lazy(() => import('./ContainerRegistriesTab'));
+const GitServicesTab = React.lazy(() => import('./GitServicesTab'));
 
 type Props = {
   history: History;
@@ -63,11 +65,16 @@ export class UserPreferences extends React.PureComponent<Props, State> {
     this.setState({
       activeTabKey: activeTabKey as UserPreferencesTab,
     });
+
+    if (activeTabKey === 'git-services') {
+      if (!this.props.isLoading) {
+        this.props.requestGitOauthConfig();
+      }
+    }
   }
 
   render(): React.ReactNode {
     const { activeTabKey } = this.state;
-    const containerRegistriesTab: UserPreferencesTab = 'container-registries';
 
     return (
       <React.Fragment>
@@ -83,10 +90,13 @@ export class UserPreferences extends React.PureComponent<Props, State> {
         >
           <Tab
             id="container-registries-tab"
-            eventKey={containerRegistriesTab}
+            eventKey="container-registries"
             title="Container Registries"
           >
-            <ContanerRegistryList history={this.props.history} />
+            <ContainerRegistryList />
+          </Tab>
+          <Tab id="git-services-tab" eventKey="git-services" title="Git Services">
+            <GitServicesTab />
           </Tab>
         </Tabs>
       </React.Fragment>
@@ -95,11 +105,10 @@ export class UserPreferences extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  registries: selectRegistries(state),
   isLoading: selectIsLoading(state),
 });
 
-const connector = connect(mapStateToProps);
+const connector = connect(mapStateToProps, actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(UserPreferences);

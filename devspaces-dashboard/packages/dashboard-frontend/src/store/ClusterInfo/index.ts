@@ -14,7 +14,7 @@ import { Action, Reducer } from 'redux';
 import common, { ClusterInfo } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
-import { fetchClusterInfo } from '../../services/dashboard-backend-client/clusterInfo';
+import { fetchClusterInfo } from '../../services/dashboard-backend-client/clusterInfoApi';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {

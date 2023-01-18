@@ -26,6 +26,7 @@ import { State as PluginsState } from '../Plugins/chePlugins';
 import { State as UserProfileState } from '../UserProfile';
 import { State as WorkspacesState } from '../Workspaces/index';
 import mockThunk from './thunk';
+import { IGitOauth } from '../GitOauthConfig/types';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -97,6 +98,11 @@ export class FakeStoreBuilder {
       isLoading: false,
       data: {},
     } as BrandingState,
+    gitOauthConfig: {
+      isLoading: false,
+      gitOauth: [],
+      error: undefined,
+    },
     devfileRegistries: {
       isLoading: false,
       devfiles: {},
@@ -136,6 +142,17 @@ export class FakeStoreBuilder {
 
   public withBannerAlert(messages: string[]): FakeStoreBuilder {
     this.state.bannerAlert.messages = [...messages];
+    return this;
+  }
+
+  public withGitOauthConfig(
+    gitOauth: IGitOauth[],
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
+    this.state.gitOauthConfig.gitOauth = gitOauth;
+    this.state.dockerConfig.isLoading = isLoading;
+    this.state.dockerConfig.error = error;
     return this;
   }
 

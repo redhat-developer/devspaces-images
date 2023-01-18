@@ -13,12 +13,12 @@
 import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 import { V220DevfileProjects } from '@devfile/api';
 
-export function getProjectFromUrl(url: string): V220DevfileProjects {
+export function getProjectFromUrl(url: string, remoteName = 'origin'): V220DevfileProjects {
   const sourceUrl = new URL(url);
   const name = getProjectName(url);
   if (sourceUrl.pathname.endsWith('.git')) {
     const origin = `${sourceUrl.origin}${sourceUrl.pathname}`;
-    return { git: { remotes: { origin } }, name };
+    return { git: { remotes: { [remoteName]: origin } }, name };
   } else {
     const sources = sourceUrl.pathname.split('/tree/');
     const origin = `${sourceUrl.origin}${sources[0]}.git`;
@@ -26,12 +26,12 @@ export function getProjectFromUrl(url: string): V220DevfileProjects {
 
     if (revision) {
       return {
-        git: { remotes: { origin }, checkoutFrom: { revision } },
+        git: { remotes: { [remoteName]: origin }, checkoutFrom: { revision } },
         name,
       };
     } else {
       return {
-        git: { remotes: { origin } },
+        git: { remotes: { [remoteName]: origin } },
         name,
       };
     }

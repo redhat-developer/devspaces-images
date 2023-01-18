@@ -20,14 +20,7 @@
   {
     "displayName": "Java with Spring Boot and MongoDB",
     "description": "Java stack with OpenJDK 8, MongoDB and Spring Boot Guestbook demo application",
-    "tags": [
-      "Community",
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Spring Boot",
-      "MongoDB"
-    ],
+    "tags": ["Community", "Java", "OpenJDK", "Maven", "Spring Boot", "MongoDB"],
     "icon": "/images/java.svg",
     "links": {
       "v2": "https://github.com/che-samples/java-guestbook/tree/devfilev2"
@@ -36,14 +29,7 @@
   {
     "displayName": "Java Lombok",
     "description": "Java Stack with Lombok 1.18.18, OpenJDK 11 and Maven 3.6.0",
-    "tags": [
-      "Community",
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Debian",
-      "Lombok"
-    ],
+    "tags": ["Community", "Java", "OpenJDK", "Maven", "Debian", "Lombok"],
     "icon": "/images/lombok.svg",
     "links": {
       "v2": "https://github.com/che-samples/lombok-project-sample/tree/devfilev2"
@@ -52,13 +38,7 @@
   {
     "displayName": "Scala",
     "description": "Scala Stack with OpenJDK 11 and sbt 1.x",
-    "tags": [
-      "Community",
-      "Scala",
-      "OpenJDK",
-      "sbt",
-      "Debian"
-    ],
+    "tags": ["Community", "Scala", "OpenJDK", "sbt", "Debian"],
     "icon": "/images/scala.svg",
     "links": {
       "v2": "https://github.com/che-samples/scala-sbt/tree/devfilev2"
@@ -67,13 +47,7 @@
   {
     "displayName": "ASP.NET Core Web Application",
     "description": "Stack for developing ASP.NET Core Web Application",
-    "tags": [
-      "Community",
-      "Debian",
-      "Dotnet",
-      "C#",
-      "ASP.NET"
-    ],
+    "tags": ["Community", "Debian", "Dotnet", "C#", "ASP.NET"],
     "icon": "/images/dotnetcore.svg",
     "links": {
       "v2": "https://github.com/che-samples/aspnetcore-realworld-example-app/tree/devfilev2"
@@ -82,13 +56,7 @@
   {
     "displayName": "Node.js React Web Application",
     "description": "Stack for developing Node.js React Web Application",
-    "tags": [
-      "Community",
-      "Node.js",
-      "React",
-      "Redux",
-      "RealWorld"
-    ],
+    "tags": ["Community", "Node.js", "React", "Redux", "RealWorld"],
     "icon": "/images/nodejs.svg",
     "links": {
       "v2": "https://github.com/che-samples/nodejs-react-redux/tree/devfilev2"
@@ -97,12 +65,7 @@
   {
     "displayName": "Node.js Angular Web Application",
     "description": "Stack for developing Node.js Angular Web Application",
-    "tags": [
-      "Community",
-      "Node.js",
-      "Angular",
-      "Alpine"
-    ],
+    "tags": ["Community", "Node.js", "Angular", "Alpine"],
     "icon": "/images/angular.svg",
     "links": {
       "v2": "https://github.com/che-samples/nodejs-angular/tree/devfilev2"
@@ -111,15 +74,7 @@
   {
     "displayName": "PHP Symfony",
     "description": "PHP Stack with Symfony Demo Application https://symfony.com/",
-    "tags": [
-      "Community",
-      "PHP",
-      "Apache",
-      "MySQL",
-      "Symfony",
-      "Debian",
-      "Centos"
-    ],
+    "tags": ["Community", "PHP", "Apache", "MySQL", "Symfony", "Debian", "Centos"],
     "icon": "/images/php.svg",
     "links": {
       "v2": "https://github.com/che-samples/php-symfony/tree/devfilev2"
@@ -128,14 +83,7 @@
   {
     "displayName": "Quarkus REST API",
     "description": "Quarkus stack with a default REST endpoint application sample",
-    "tags": [
-      "Community",
-      "Java",
-      "Quarkus",
-      "OpenJDK",
-      "Maven",
-      "Debian"
-    ],
+    "tags": ["Community", "Java", "Quarkus", "OpenJDK", "Maven", "Debian"],
     "icon": "/images/quarkus.svg",
     "links": {
       "v2": "https://github.com/che-samples/quarkus-quickstarts/tree/devfilev2"
@@ -144,12 +92,7 @@
   {
     "displayName": "Apache Camel K",
     "description": "Stack with tooling ready to develop Integration projects with Apache Camel K",
-    "tags": [
-      "Community",
-      "Apache Camel K",
-      "Red Hat Fuse",
-      "Integration"
-    ],
+    "tags": ["Community", "Apache Camel K", "Red Hat Fuse", "Integration"],
     "icon": "/images/camelk.svg",
     "links": {
       "v2": "https://github.com/che-samples/apache-camel-k/tree/devfilev2"
@@ -158,12 +101,7 @@
   {
     "displayName": "Node.js Express Web Application",
     "description": "Stack with Node.js 10",
-    "tags": [
-      "Community",
-      "Node.js",
-      "Express",
-      "ubi8"
-    ],
+    "tags": ["Community", "Node.js", "Express", "ubi8"],
     "icon": "/images/nodejs.svg",
     "links": {
       "v2": "https://github.com/che-samples/web-nodejs-sample/tree/devfilev2"
@@ -172,13 +110,7 @@
   {
     "displayName": "Node.js Web Application based on Yarn",
     "description": "Stack for developing Node.js Web Application based on Yarn",
-    "tags": [
-      "Community",
-      "Node.js",
-      "Alpine",
-      "Yarn",
-      "React"
-    ],
+    "tags": ["Community", "Node.js", "Alpine", "Yarn", "React"],
     "icon": "/images/nodejs.svg",
     "links": {
       "v2": "https://github.com/che-samples/react-web-app/tree/devfilev2"
@@ -187,11 +119,7 @@
   {
     "displayName": "Bash",
     "description": "Stack with environment ready to develop bash scripts.",
-    "tags": [
-      "Community",
-      "Bash",
-      "Shell"
-    ],
+    "tags": ["Community", "Bash", "Shell"],
     "icon": "/images/che.svg",
     "links": {
       "v2": "https://github.com/che-samples/bash/tree/devfilev2"
@@ -200,12 +128,7 @@
   {
     "displayName": "Python Django",
     "description": "Python Stack with Python 3.8 and Django application",
-    "tags": [
-      "Community",
-      "Centos",
-      "Python",
-      "pip"
-    ],
+    "tags": ["Community", "Centos", "Python", "pip"],
     "icon": "/images/python.svg",
     "links": {
       "v2": "https://github.com/che-samples/django-realworld-example-app/tree/devfile2"
@@ -214,13 +137,7 @@
   {
     "displayName": "C/C++",
     "description": "Stack with C/C++ and Clang 8",
-    "tags": [
-      "Community",
-      "C/C++",
-      "Clang",
-      "g++",
-      "GDB"
-    ],
+    "tags": ["Community", "C/C++", "Clang", "g++", "GDB"],
     "icon": "/images/cpp.svg",
     "links": {
       "v2": "https://github.com/che-samples/cpp-hello-world/tree/devfilev2"
@@ -229,15 +146,7 @@
   {
     "displayName": "Node.js MongoDB Web Application",
     "description": "Stack with NodeJS 10 and MongoDB 3.4",
-    "tags": [
-      "Community",
-      "Node.js",
-      "Express",
-      "MongoDB",
-      "RealWorld",
-      "ubi8",
-      "Centos"
-    ],
+    "tags": ["Community", "Node.js", "Express", "MongoDB", "RealWorld", "ubi8", "Centos"],
     "icon": "/images/nodejs.svg",
     "links": {
       "v2": "https://github.com/che-samples/nodejs-mongodb-sample/tree/devfilev2"
@@ -246,10 +155,7 @@
   {
     "displayName": "Rust",
     "description": "Rust Stack with Rust 1.57",
-    "tags": [
-      "Community",
-      "Rust"
-    ],
+    "tags": ["Community", "Rust"],
     "icon": "/images/rust.svg",
     "links": {
       "v2": "https://github.com/che-samples/helloworld-rust/tree/devfilev2"
@@ -258,13 +164,7 @@
   {
     "displayName": "Java Spring Boot",
     "description": "Java stack with OpenJDK 11 and Spring Boot Petclinic demo application",
-    "tags": [
-      "Community",
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Spring Boot"
-    ],
+    "tags": ["Community", "Java", "OpenJDK", "Maven", "Spring Boot"],
     "icon": "/images/springboot.svg",
     "links": {
       "v2": "https://github.com/che-samples/java-spring-petclinic/tree/devfilev2"

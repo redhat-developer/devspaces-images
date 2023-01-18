@@ -101,6 +101,6 @@ export enum WorkspaceAction {
   EDIT_WORKSPACE = 'Edit Workspace',
 }
 
-export type UserPreferencesTab = 'container-registries';
+export type UserPreferencesTab = 'container-registries' | 'git-services';
 
 export type WorkspacesLogs = Map<string, string[]>;

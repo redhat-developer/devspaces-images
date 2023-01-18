@@ -36,7 +36,7 @@
     "@eclipse-che/che-code-devworkspace-handler": "1.74.0-dev-e701cae",
     "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1667484092",
     "@eclipse-che/devfile-converter": "0.0.1-d624e3e",
-    "@eclipse-che/workspace-client": "0.0.1-1671793076",
+    "@eclipse-che/workspace-client": "0.0.1-1672830275",
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",
     "@patternfly/react-table": "^4.5.7",

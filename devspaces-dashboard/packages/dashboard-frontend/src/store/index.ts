@@ -28,6 +28,7 @@ import * as UserProfileStore from './UserProfile';
 import * as WorkspacesStore from './Workspaces';
 import * as DevWorkspacesStore from './Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from './Workspaces/Settings';
+import * as GitOauthConfigStore from './GitOauthConfig';
 
 // the top-level state object
 export interface AppState {
@@ -37,6 +38,7 @@ export interface AppState {
   clusterInfo: ClusterInfo.State;
   devWorkspaces: DevWorkspacesStore.State;
   devfileRegistries: DevfileRegistriesStore.State;
+  gitOauthConfig: GitOauthConfigStore.State;
   dockerConfig: DockerConfigStore.State;
   dwPlugins: DwPluginsStore.State;
   dwServerConfig: DwServerConfigStore.State;
@@ -56,6 +58,7 @@ export const reducers = {
   clusterInfo: ClusterInfo.reducer,
   devWorkspaces: DevWorkspacesStore.reducer,
   devfileRegistries: DevfileRegistriesStore.reducer,
+  gitOauthConfig: GitOauthConfigStore.reducer,
   dockerConfig: DockerConfigStore.reducer,
   dwPlugins: DwPluginsStore.reducer,
   dwServerConfig: DwServerConfigStore.reducer,

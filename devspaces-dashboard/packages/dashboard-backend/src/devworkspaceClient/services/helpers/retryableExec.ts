@@ -11,6 +11,7 @@
  */
 
 import { delay } from '../../../services/helpers';
+import { helpers } from '@eclipse-che/common';
 
 export async function retryableExec<T>(callback: () => Promise<T>, maxAttempt = 5): Promise<T> {
   let error: unknown;
@@ -19,6 +20,9 @@ export async function retryableExec<T>(callback: () => Promise<T>, maxAttempt = 
       return await callback();
     } catch (e) {
       error = e;
+      if (helpers.errors.isKubeClientError(error) && error.statusCode === 404) {
+        return Promise.reject(error);
+      }
       console.error(e);
     }
     await delay(1000);
