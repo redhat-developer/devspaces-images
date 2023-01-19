@@ -3,8 +3,10 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-// DRY_RUN
-// CLEAN_ON_FAILURE = "true"
+    // NUM_DAYS
+    // LMIIT
+    // DRY_RUN
+    // DEBUG
 
 def MIDSTM_BRANCH = 'devspaces-3-rhel-8'
 def errorOccurred = false
@@ -23,8 +25,14 @@ timeout(120) {
                         if (DRY_RUN.equals("true")) {
                             GHIRA_OPTIONS += " --dryrun"
                         }
-                        if (!NUM_WEEKS.equals("")) {
-                            GHIRA_OPTIONS += " --weeks " + NUM_WEEKS
+                        if (DEBUG.equals("true")) {
+                            GHIRA_OPTIONS += " --debug"
+                        }
+                        if (!NUM_DAYS.equals("")) {
+                            GHIRA_OPTIONS += " --days " + NUM_DAYS
+                        }
+                        if (!LIMIT.equals("")) {
+                            GHIRA_OPTIONS += " --limit " + LIMIT
                         }
                         print "Using GHIRA_OPTIONS = " + GHIRA_OPTIONS
                         sh '''#!/bin/bash -xe
@@ -43,7 +51,7 @@ python ghira ''' + "${GHIRA_OPTIONS}" + '''
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
                     cleanWhenNotBuilt: false,
-                    cleanWhenFailure: CLEAN_ON_FAILURE,
+                    cleanWhenFailure: true,
                     cleanWhenAborted: true,
                     deleteDirs: true,
                     disableDeferredWipeout: true,
