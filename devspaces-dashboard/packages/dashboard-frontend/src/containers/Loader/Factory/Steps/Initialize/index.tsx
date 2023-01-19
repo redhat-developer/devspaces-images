@@ -27,6 +27,8 @@ import { MIN_STEP_DURATION_MS } from '../../../const';
 import buildFactoryParams from '../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
 import { AlertItem } from '../../../../../services/helpers/types';
+import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
+import { selectAllWorkspacesLimit } from '../../../../../store/ClusterConfig/selectors';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -118,6 +120,8 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
       );
     }
 
+    this.checkAllWorkspacesLimitExceeded();
+
     return true;
   }
 
@@ -143,6 +147,18 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     };
   }
 
+  private checkAllWorkspacesLimitExceeded() {
+    if (
+      this.props.allWorkspacesLimit !== -1 &&
+      this.props.allWorkspaces.length >= this.props.allWorkspacesLimit
+    ) {
+      const message = `You can only keep ${this.props.allWorkspacesLimit} workspace${
+        this.props.allWorkspacesLimit > 1 ? 's' : ''
+      }.`;
+      throw new AllWorkspacesExceededError(message);
+    }
+  }
+
   render(): React.ReactElement {
     const { currentStepIndex, loaderSteps, tabParam } = this.props;
     const { lastError } = this.state;
@@ -163,8 +179,17 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
   }
 }
 
+export class AllWorkspacesExceededError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AllWorkspacesExceededError';
+  }
+}
+
 const mapStateToProps = (state: AppState) => ({
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
+  allWorkspaces: selectAllWorkspaces(state),
+  allWorkspacesLimit: selectAllWorkspacesLimit(state),
 });
 
 const connector = connect(mapStateToProps, {}, null, {

@@ -40,6 +40,7 @@ export const stubDefaultPlugins: api.IWorkspacesDefaultPlugins[] = [];
 export const stubOpenVSXURL = 'openvsx-url';
 export const stubPvcStrategy = '';
 export const stubRunningWorkspacesLimit = 2;
+export const stubAllWorkspacesLimit = 1;
 export const stubWorkspaceInactivityTimeout = 0;
 export const stubWorkspaceRunTimeout = 0;
 export const stubWorkspaceStartupTimeout = 0;
@@ -89,6 +90,7 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       getOpenVSXURL: _cheCustomResource => stubOpenVSXURL,
       getPvcStrategy: _cheCustomResource => stubPvcStrategy,
       getRunningWorkspacesLimit: _cheCustomResource => stubRunningWorkspacesLimit,
+      getAllWorkspacesLimit: _cheCustomResource => stubAllWorkspacesLimit,
       getWorkspaceInactivityTimeout: _cheCustomResource => stubWorkspaceInactivityTimeout,
       getWorkspaceRunTimeout: _cheCustomResource => stubWorkspaceRunTimeout,
       getWorkspaceStartTimeout: _cheCustomResource => stubWorkspaceStartupTimeout,

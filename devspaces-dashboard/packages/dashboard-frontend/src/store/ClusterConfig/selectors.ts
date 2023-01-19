@@ -25,4 +25,9 @@ export const selectRunningWorkspacesLimit = createSelector(
   state => state.clusterConfig.runningWorkspacesLimit,
 );
 
+export const selectAllWorkspacesLimit = createSelector(
+  selectState,
+  state => state.clusterConfig.allWorkspacesLimit,
+);
+
 export const selectClusterConfigError = createSelector(selectState, state => state.error);

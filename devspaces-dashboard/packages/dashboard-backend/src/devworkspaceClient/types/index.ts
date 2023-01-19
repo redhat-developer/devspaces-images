@@ -123,6 +123,7 @@ export type CustomResourceDefinitionSpecDevEnvironments = {
     pvcStrategy?: string;
   };
   maxNumberOfRunningWorkspacesPerUser: number;
+  maxNumberOfWorkspacesPerUser: number;
 };
 
 export type CustomResourceDefinitionSpecComponents = {
@@ -184,6 +185,11 @@ export interface IServerConfigApi {
    * Returns limit of running workspaces per user.
    */
   getRunningWorkspacesLimit(cheCustomResource: CustomResourceDefinition): number;
+
+  /**
+   * Returns the total number of workspaces, both stopped and running, that a user can keep.
+   */
+  getAllWorkspacesLimit(cheCustomResource: CustomResourceDefinition): number;
 
   /**
    * Returns the workspace inactivity timeout

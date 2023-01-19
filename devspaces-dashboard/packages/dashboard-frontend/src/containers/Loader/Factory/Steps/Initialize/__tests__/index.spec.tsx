@@ -243,6 +243,35 @@ describe('Factory Loader, step INITIALIZE', () => {
 
     expect(mockOnRestart).toHaveBeenCalled();
   });
+
+  test('all workspaces limit exceeded', async () => {
+    const store = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withClusterConfig({ allWorkspacesLimit: 0 })
+      .build();
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('true');
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toEqual('You can only keep 0 workspace.');
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
 });
 
 function getComponent(

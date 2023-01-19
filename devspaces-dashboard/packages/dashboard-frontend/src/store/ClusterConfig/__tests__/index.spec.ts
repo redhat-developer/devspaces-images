@@ -23,6 +23,7 @@ import { AUTHORIZED } from '../../sanityCheckMiddleware';
 describe('clusterConfig store', () => {
   const clusterConfig: ClusterConfig = {
     dashboardWarning: 'Maintenance warning info',
+    allWorkspacesLimit: -1,
     runningWorkspacesLimit: 1,
   };
 
@@ -110,7 +111,7 @@ describe('clusterConfig store', () => {
 
       const expectedState: testStore.State = {
         isLoading: false,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
       };
 
       expect(initialState).toEqual(expectedState);
@@ -119,7 +120,7 @@ describe('clusterConfig store', () => {
     it('should return state if action type is not matched', () => {
       const initialState: testStore.State = {
         isLoading: true,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
       };
       const incomingAction = {
         type: 'OTHER_ACTION',
@@ -128,7 +129,7 @@ describe('clusterConfig store', () => {
 
       const expectedState: testStore.State = {
         isLoading: true,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
       };
       expect(newState).toEqual(expectedState);
     });
@@ -136,7 +137,7 @@ describe('clusterConfig store', () => {
     it('should handle REQUEST_CLUSTER_CONFIG', () => {
       const initialState: testStore.State = {
         isLoading: false,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
         error: 'unexpected error',
       };
       const incomingAction: testStore.RequestClusterConfigAction = {
@@ -148,7 +149,7 @@ describe('clusterConfig store', () => {
 
       const expectedState: testStore.State = {
         isLoading: true,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
       };
 
       expect(newState).toEqual(expectedState);
@@ -157,7 +158,7 @@ describe('clusterConfig store', () => {
     it('should handle RECEIVE_CLUSTER_INFO', () => {
       const initialState: testStore.State = {
         isLoading: true,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
       };
       const incomingAction: testStore.ReceiveClusterConfigAction = {
         type: testStore.Type.RECEIVE_CLUSTER_CONFIG,
@@ -171,6 +172,7 @@ describe('clusterConfig store', () => {
         clusterConfig: {
           dashboardWarning: 'Maintenance warning info',
           runningWorkspacesLimit: 1,
+          allWorkspacesLimit: -1,
         },
       };
 
@@ -180,7 +182,7 @@ describe('clusterConfig store', () => {
     it('should handle RECEIVE_CLUSTER_CONFIG_ERROR', () => {
       const initialState: testStore.State = {
         isLoading: true,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
       };
       const incomingAction: testStore.ReceivedClusterConfigErrorAction = {
         type: testStore.Type.RECEIVE_CLUSTER_CONFIG_ERROR,
@@ -191,7 +193,7 @@ describe('clusterConfig store', () => {
 
       const expectedState: testStore.State = {
         isLoading: false,
-        clusterConfig: { runningWorkspacesLimit: 1 },
+        clusterConfig: { runningWorkspacesLimit: 1, allWorkspacesLimit: -1 },
         error: 'unexpected error',
       };
 

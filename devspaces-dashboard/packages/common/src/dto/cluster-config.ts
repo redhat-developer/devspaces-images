@@ -12,5 +12,6 @@
 
 export interface ClusterConfig {
   dashboardWarning?: string;
+  allWorkspacesLimit: number;
   runningWorkspacesLimit: number;
 }

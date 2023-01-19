@@ -14,6 +14,7 @@ import { FastifyInstance } from 'fastify';
 import { baseApiPath } from '../../../constants/config';
 import { setup, teardown } from '../../../helpers/tests/appBuilder';
 import {
+  stubAllWorkspacesLimit,
   stubDashboardWarning,
   stubRunningWorkspacesLimit,
 } from '../helpers/__mocks__/getDevWorkspaceClient';
@@ -40,6 +41,7 @@ describe('Cluster Config Route', () => {
     expect(res.json()).toEqual({
       dashboardWarning: stubDashboardWarning,
       runningWorkspacesLimit: stubRunningWorkspacesLimit,
+      allWorkspacesLimit: stubAllWorkspacesLimit,
     });
   });
 });

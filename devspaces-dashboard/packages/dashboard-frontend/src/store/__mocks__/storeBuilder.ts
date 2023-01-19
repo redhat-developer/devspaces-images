@@ -37,6 +37,7 @@ export class FakeStoreBuilder {
       isLoading: false,
       clusterConfig: {
         runningWorkspacesLimit: 1,
+        allWorkspacesLimit: -1,
       },
     },
     dwServerConfig: {

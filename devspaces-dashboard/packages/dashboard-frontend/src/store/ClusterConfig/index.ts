@@ -90,6 +90,7 @@ const unloadedState: State = {
   isLoading: false,
   clusterConfig: {
     runningWorkspacesLimit: 1,
+    allWorkspacesLimit: -1,
   },
 };
 
