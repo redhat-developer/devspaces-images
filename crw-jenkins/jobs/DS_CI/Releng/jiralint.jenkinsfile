@@ -1,0 +1,81 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+    // DRY_RUN
+    // DEBUG
+    // LMIIT
+    // TO_EMAIL
+
+def MIDSTM_BRANCH = 'devspaces-3-rhel-8'
+def errorOccurred = false
+def String nodeLabel = 'x86_64-rhel8'  // ppc64le-rhel8 disabled with cffi error; s390x-rhel8-perm disabled as rust compilation sometimes fails
+def JIRA_EMAIL = "jiralint-codeready@redhat.com"
+timeout(120) {
+    node(nodeLabel){
+        try {
+            stage ("Check for updated images") {
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
+                    cleanWs()
+                    withCredentials([string(credentialsId: 'jira-jiralint-token', variable: 'JIRA_TOKEN'), string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                        util.cloneRepo("https://github.com/redhat-developer/devspaces-jiralint.git", "jiralint", MIDSTM_BRANCH, false)
+                        JIRALINT_OPTIONS = ' --fromemail jiralint-codeready@redhat.com'
+                        if (DRY_RUN.equals("true")) {
+                            JIRALINT_OPTIONS += " --dryrun"
+                        }
+                        if (DEBUG.equals("true")) {
+                            JIRALINT_OPTIONS += " --debug"
+                        }
+                        if (!LIMIT.equals("")) {
+                            JIRALINT_OPTIONS += " --limit " + LIMIT
+                        }
+                        if (!TO_EMAIL.equals("")) {
+                            JIRALINT_OPTIONS += " --toemail " + TO_EMAIL + " --unassignedjiraemail " + TO_EMAIL
+                        } else {
+                            JIRALINT_OPTIONS += " --unassignedjiraemail " + JIRA_EMAIL
+                        }
+                        print "Using JIRALINT_OPTIONS = " + JIRALINT_OPTIONS
+                        sh '''#!/bin/bash -xe
+# python3 jiralint.py -u $JIRA_EMAIL -k $JIRA_TOKEN -r reports-daily.json 
+
+DOW=$(date +%w) # 0-6 for Sun - Sat
+if [[ $DOW -eq 0 ]]; then # Sun night weekly report, ready for Monday morning
+    report="reports-weekly.json"
+else
+    report="reports-daily.json"
+fi
+
+cd ${WORKSPACE}/jiralint
+pyenv virtualenv jiralint -f
+pyenv local jiralint
+pip install -r requirements.txt
+export JIRA_EMAIL="''' + "${JIRA_EMAIL}" + '''"
+export JIRA_TOKEN="''' + "${JIRA_TOKEN}" + '''"
+python3 jiralint.py --report ${report} --user ${JIRA_EMAIL} --token ${JIRA_TOKEN} --fromemail ${JIRA_EMAIL} --smtphost smtp.corp.redhat.com ''' + "${JIRALINT_OPTIONS}" + '''
+                        '''
+                    } // with tokens
+                } // wrap
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: true,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
+            } // stage
+        } catch (e) {
+            if (errorOccurred) {
+                util.notifyBuildFailed()
+                return
+            }
+            throw e
+        } // try-catch
+    } // node
+} // timeout
+
