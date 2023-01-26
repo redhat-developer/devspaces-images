@@ -2,8 +2,9 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-//   MIDSTM_BRANCH
-//   OCP_VERSIONS
+//  MIDSTM_BRANCH
+//  DS_VERSION
+//  OCP_VERSIONS
 
 def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
 def copyIIBsToQuayTimeout=120
@@ -18,10 +19,6 @@ node(nodeLabel){
         println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
       }
 
-      // DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-      // println "DS_VERSION = '" + DS_VERSION + "'"
-      // util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "sources", MIDSTM_BRANCH, false)
-
       // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
       // NOTE: similar code in send-email-qe-build-list*.jenkinsfile
       // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
@@ -29,7 +26,7 @@ node(nodeLabel){
       nodeLabelString = sh(script: '''
 curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/devspaces-operator-bundle/container.yaml | yq -r '.platforms.only[]' 
 ''', returnStdout: true).trim()
-      currentBuild.description="arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
+      currentBuild.description="<b>" + DS_VERSION + "</b><br/>" + "arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
 
       def List nodeLabels = nodeLabelString.tokenize("\n")
       def nodeLabelLoop = ""
