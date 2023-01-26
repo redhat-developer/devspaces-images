@@ -1268,7 +1268,7 @@ spec:
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
-  replaces: devspacesoperator.v3.3.0
+  replaces: devspacesoperator.v3.3.0-0.1673528130.p
   relatedImages:
   - name: devspaces-rhel8-operator-64e8ffa1b79951fc1b0a2cd27c686da8792da8227ccee3f4cbda588100a5e7c5-annotation
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:64e8ffa1b79951fc1b0a2cd27c686da8792da8227ccee3f4cbda588100a5e7c5
