@@ -11,7 +11,7 @@
 # this container build creates configbump binary
 
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.18.4-20 as builder
+FROM registry.access.redhat.com/ubi8/go-toolset:1.18.9-8 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=0 \
     GOOS=linux
