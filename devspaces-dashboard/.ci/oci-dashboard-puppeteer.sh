@@ -19,7 +19,7 @@ set -u
 # uncomment to print each command before executing it
 set -x
 
-export CI_CHE_DASHBOARD_IMAGE="quay.io/eclipse/che-dashboard:next"
+export CI_CHE_DASHBOARD_IMAGE=${CI_CHE_DASHBOARD_IMAGE:-quay.io/eclipse/che-dashboard:next}
 export CHE_REPO_BRANCH="main"
 export CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
 export DEVWORKSPACE_HAPPY_PATH="https://raw.githubusercontent.com/eclipse/che/${CHE_REPO_BRANCH}/tests/devworkspace-happy-path"
