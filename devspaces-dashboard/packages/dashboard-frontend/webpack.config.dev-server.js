@@ -25,7 +25,7 @@ module.exports = () => {
         logging: 'info',
       },
       devMiddleware: {
-        publicPath: '/',
+        publicPath: '/dashboard/',
         writeToDisk: false,
       },
       host: 'localhost',
@@ -47,7 +47,25 @@ module.exports = () => {
           changeOrigin: true,
           headers,
         },
+        '/dashboard/devfile-registry': {
+          target: headers.origin,
+          secure: false,
+          changeOrigin: true,
+          headers,
+        },
         '/dashboard/api': {
+          target: headers.origin,
+          secure: false,
+          changeOrigin: true,
+          headers,
+        },
+        '/auth': {
+          target: headers.origin,
+          secure: false,
+          changeOrigin: true,
+          headers,
+        },
+        '/oauth': {
           target: headers.origin,
           secure: false,
           changeOrigin: true,
