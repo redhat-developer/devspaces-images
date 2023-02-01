@@ -122,7 +122,7 @@ RUN \
         podman buildah skopeo fuse-overlayfs \
         e2fsprogs libatomic_ops git openssl-devel ca-certificates \
         bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree \
-        # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
+        # For OpenShift Client 4 (oc): rhocp-4.12-for-rhel-8-x86_64-rpms
         # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.11/os/Packages/o/odo-3.6.0-1.el8.x86_64.rpm
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.11/os/Packages/o/odo-3.6.0-1.el8.s390x.rpm
@@ -130,10 +130,10 @@ RUN \
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.11/os/Packages/h/helm-3.9.0-3.el8.x86_64.rpm
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.11/os/Packages/h/helm-3.9.0-3.el8.s390x.rpm
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.11/os/Packages/h/helm-3.9.0-3.el8.ppc64le.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.x86_64.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.s390x.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8.ppc64le.rpm
-        odo-3.6.0-1.el8 helm-3.9.0-3.el8 openshift-clients-4.11.0-202211232157.p0.g1928ac4.assembly.stream.el8 \
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202301042257.p0.g854f807.assembly.stream.el8.x86_64.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202301042257.p0.g854f807.assembly.stream.el8.s390x.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202301042257.p0.g854f807.assembly.stream.el8.ppc64le.rpm
+        odo-3.6.0-1.el8 helm-3.9.0-3.el8 openshift-clients-4.12.0-202301042257.p0.g854f807.assembly.stream.el8 \
     && \
     dnf -y -q reinstall shadow-utils && \
     # fetch CVE updates (can exclude rpms to prevent update, eg., --exclude=odo)
