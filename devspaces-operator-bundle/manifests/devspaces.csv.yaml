@@ -61,7 +61,7 @@ metadata:
               "dashboard": {
                 "headerMessage": {
                   "show": true,
-                  "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3663'>deprecated</a> and will be removed in a future release."
+                  "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3663'>deprecated</a> and will be removed in a future release."
                 }
               }
             },
@@ -75,8 +75,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.5
-    createdAt: "2023-01-30T22:13:27+00:00"
+    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.6
+    createdAt: "2023-02-01T21:49:08+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -89,8 +89,8 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/devspaces-images/
     support: Red Hat
-    skipRange: '>=3.0.0 <3.5.0'
-  name: devspacesoperator.v3.5.0
+    skipRange: '>=3.0.0 <3.6.0'
+  name: devspacesoperator.v3.6.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -918,7 +918,7 @@ spec:
                       - name: CHE_FLAVOR
                         value: devspaces
                       - name: CHE_VERSION
-                        value: 3.5.0
+                        value: 3.6.0
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: Red Hat OpenShift Dev Spaces
                       - name: CONSOLE_LINK_IMAGE
@@ -936,11 +936,11 @@ spec:
                           fieldRef:
                             fieldPath: metadata.name
                       - name: RELATED_IMAGE_che_server
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-server-rhel8:3.5
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-server-rhel8:3.6
                       - name: RELATED_IMAGE_dashboard
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.5
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.6
                       - name: RELATED_IMAGE_devfile_registry
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.5
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.6
                       - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDKCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.5
                       - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDKCQ_
@@ -972,7 +972,7 @@ spec:
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
                         value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.11
                       - name: RELATED_IMAGE_plugin_registry
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:3.5
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:3.6
                       - name: RELATED_IMAGE_postgres
                         value: registry.redhat.io/rhel8/postgresql-96:1
                       - name: RELATED_IMAGE_postgres_13_3
@@ -984,14 +984,14 @@ spec:
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                         value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                       - name: RELATED_IMAGE_single_host_gateway
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.5
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.6
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-configbump-rhel8:3.5
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-configbump-rhel8:3.6
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
-                    image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.5
+                    image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.6
                     imagePullPolicy: Always
                     livenessProbe:
                       failureThreshold: 10
@@ -1270,7 +1270,7 @@ spec:
   minKubeVersion: 1.19.0
   provider:
     name: Red Hat
-  version: 3.5.0
+  version: 3.6.0
   webhookdefinitions:
     - admissionReviewVersions:
         - v1
@@ -1326,4 +1326,4 @@ spec:
       targetPort: 9443
       type: ConversionWebhook
       webhookPath: /convert
-  replaces: devspacesoperator.v3.3.0
+  replaces: devspacesoperator.v3.5.0
