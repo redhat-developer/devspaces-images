@@ -252,7 +252,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__FETCH_DEVFILE', () =>
       const title = within(currentStep).getByTestId('title');
       await waitFor(() =>
         expect(title.textContent).toEqual(
-          `Devfile found in repo ${factoryUrl} as 'devfile.yaml'. Devfile version 1 found, converting it to devfile version 2.1.0.`,
+          `Devfile found in repo ${factoryUrl} as 'devfile.yaml'. Devfile version 1 found, converting it to devfile version 2.`,
         ),
       );
     });
