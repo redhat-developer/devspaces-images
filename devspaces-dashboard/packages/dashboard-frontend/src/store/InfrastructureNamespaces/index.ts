@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -51,8 +51,6 @@ export const actionCreators: ActionCreators = {
     (): AppThunk<KnownAction, Promise<Array<che.KubernetesNamespace>>> =>
     async (dispatch): Promise<Array<che.KubernetesNamespace>> => {
       await dispatch({ type: 'REQUEST_NAMESPACES', check: AUTHORIZED });
-
-      await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
 
       try {
         const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<

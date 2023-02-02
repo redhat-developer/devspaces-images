@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -65,9 +65,6 @@ jest.mock('../../../services/devfileApi/typeguards.ts', () => {
 console.error = jest.fn();
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
-jest
-  .spyOn(cheWorkspaceClient.restApiClient, 'provisionKubernetesNamespace')
-  .mockResolvedValue({} as KubernetesNamespace);
 
 const getFactoryResolverSpy = jest.spyOn(cheWorkspaceClient.restApiClient, 'getFactoryResolver');
 

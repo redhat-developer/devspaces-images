@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -25,7 +25,7 @@ module.exports = () => {
         logging: 'info',
       },
       devMiddleware: {
-        publicPath: '/dashboard/',
+        publicPath: '/',
         writeToDisk: false,
       },
       host: 'localhost',
@@ -47,25 +47,7 @@ module.exports = () => {
           changeOrigin: true,
           headers,
         },
-        '/dashboard/devfile-registry': {
-          target: headers.origin,
-          secure: false,
-          changeOrigin: true,
-          headers,
-        },
         '/dashboard/api': {
-          target: headers.origin,
-          secure: false,
-          changeOrigin: true,
-          headers,
-        },
-        '/auth': {
-          target: headers.origin,
-          secure: false,
-          changeOrigin: true,
-          headers,
-        },
-        '/oauth': {
           target: headers.origin,
           secure: false,
           changeOrigin: true,
