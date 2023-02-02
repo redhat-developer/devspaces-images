@@ -97,7 +97,10 @@ describe('About Menu', () => {
     const documentationItem = screen.getByRole('menuitem', { name: /Documentation/i });
     fireEvent.click(documentationItem);
 
-    expect(global.open).toHaveBeenCalledWith('https://www.eclipse.org/che/docs/che-7', '_blank');
+    expect(global.open).toHaveBeenCalledWith(
+      'https://www.eclipse.org/che/docs/stable/overview/introduction-to-eclipse-che/',
+      '_blank',
+    );
   });
 
   it('should open page with the community url', () => {

@@ -20,9 +20,6 @@ import { IssueComponent } from '../Issue';
 
 const brandingData = {
   name: 'Product Name',
-  docs: {
-    certificate: 'certificate/troubleshooting/location',
-  },
 } as BrandingData;
 const issue = {
   type: 'unknown',

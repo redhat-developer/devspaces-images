@@ -29,8 +29,6 @@ export class IssueComponent extends React.PureComponent<Props> {
     const { issue } = this.props;
 
     switch (issue.type) {
-      case 'cert':
-        return this.renderCertError();
       case 'sessionExpired':
         return this.renderSessionExpired(issue.error);
       case 'sso':
@@ -46,33 +44,6 @@ export class IssueComponent extends React.PureComponent<Props> {
       default:
         return this.renderUnknownError(issue.error);
     }
-  }
-
-  private renderCertError(): React.ReactNode {
-    const productName = this.props.branding.name;
-    const certDocumentation = this.props.branding.docs.certificate;
-    return (
-      <TextContent className={styles.messageContainer}>
-        <Text component={TextVariants.h1}>
-          <WarningTriangleIcon className={styles.warningIcon} />
-          Certificate Error
-        </Text>
-        <Text component={TextVariants.p}>
-          Your {productName} server may be using a self-signed certificate. To resolve this issue,
-          try to import the servers CA certificate into your browser, as described{' '}
-          <a href={certDocumentation} target="_blank" rel="noreferrer">
-            here
-          </a>
-          .
-        </Text>
-        <Text component={TextVariants.p}>
-          After importing the certificate, refresh your browser.
-        </Text>
-        <Text component={TextVariants.p}>
-          <a href="/">Refresh Now</a>
-        </Text>
-      </TextContent>
-    );
   }
 
   private renderSessionExpired(error: Error): React.ReactNode {

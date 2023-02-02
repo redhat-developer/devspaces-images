@@ -18,22 +18,9 @@ import { Issue } from '../../../../services/bootstrap/issuesReporter';
 
 const brandingData = {
   name: 'Product Name',
-  docs: {
-    certificate: 'certificate/troubleshooting/location',
-  },
 } as BrandingData;
 
 describe('Issue component', () => {
-  it('should render the certification error', () => {
-    const issue = {
-      type: 'cert',
-      error: new Error('Certificate Error Message'),
-    } as Issue;
-    const component = <IssueComponent branding={brandingData} issue={issue} />;
-
-    expect(renderer.create(component).toJSON()).toMatchSnapshot();
-  });
-
   it('should render the SSO error', () => {
     const issue = {
       type: 'sso',
