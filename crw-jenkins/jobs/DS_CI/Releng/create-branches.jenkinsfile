@@ -26,21 +26,24 @@ timeout(120) {
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/tagRelease.sh && chmod +x tagRelease.sh')
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh && chmod +x containerExtract.sh')
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                    currentBuild.description=""
                     for (int i=0; i < GH_REPOS.size(); i++) {
                         println "##  Clone github.com/redhat-developer/${GH_REPOS[i]}.git"
                         util.cloneRepo("https://github.com/redhat-developer/${GH_REPOS[i]}.git", "/tmp/tmp-checkouts/projects_${GH_REPOS[i]}", MIDSTM_BRANCH, false)
                     }
-                    currentBuild.description="Created/updated ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} for ${DS_VERSION} ..."
-                    // update the 3.yy branches
+                    // create/update the 3.yy branches
+                    currentBuild.description+="create/update ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} for ${DS_VERSION} ... "
                     sh ('''
                     ./tagRelease.sh --clean -t ''' + DS_VERSION + ''' --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
                     )
-                    currentBuild.description="Created/updated ${FUTURE_BRANCH} branches from ${MIDSTM_BRANCH} for ${DS_VERSION}"
-                    // now update the 3.x branches
+                    currentBuild.description+="done;<br/> "
+
+                    // now update the 3.x branches to the new 3.next version
+                    currentBuild.description+="create/update ${MIDSTM_BRANCH} branches to ${DS_VERSION_NEXT} ... "
                     sh ('''
                     ./tagRelease.sh --clean -t ''' + DS_VERSION_NEXT + ''' --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + MIDSTM_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
                     )
-                    currentBuild.description="Created/updated ${FUTURE_BRANCH} branches from ${MIDSTM_BRANCH} for ${DS_VERSION}"
+                    currentBuild.description+="done"
 
                 } //with
             } // wrap

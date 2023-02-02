@@ -1,0 +1,375 @@
+#!/usr/bin/env groovy
+
+import hudson.FilePath
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// mailSender
+// mailSubject
+// errataURL
+// epicURL
+// OCP_VERSIONS
+// additionalNotes
+// doSendEmail
+// RECIPIENTS
+// MIDSTM_BRANCH
+
+def sendMail(mailSubject,mailBody) {
+    emailext(
+        subject: mailSubject,
+        body: mailBody, 
+        from: mailSender,
+        to: RECIPIENTS,
+        recipientProviders: [requestor()]
+    )
+}
+
+def checkFailure(arrayLines,serverName,errorOccurred)
+{
+    arrayLines.each  { 
+        line -> if (line?.toString().indexOf("No tags matching")>-1 || line?.toString().indexOf("ERROR")>-1) { 
+            errorOccurred = errorOccurred + line + '\n'; 
+            currentBuild.result = 'FAILURE'
+        }
+    }
+    return errorOccurred
+}
+
+def errorOccurred = ""
+
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
+timeout(90) {
+    // trigger update_digests job if we have pushed new images that appear in the registry or metadata
+    node(nodeLabel) {
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+            def util = load "${WORKSPACE}/util2.groovy"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+            CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+            try { 
+                stage "Fetch latest image tags and send email"
+                cleanWs()
+                MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
+                if (mailSubject.contains("DS " + CSV_VERSION + ".tt-" + MMdd + " ready for QE") || mailSubject.equals("")) {
+                    doSendEmail="false"
+                    errorOccurred = errorOccurred + 'Error: need to set an actual email subject. Failure!\n'
+                    currentBuild.description="Invalid email subject!"
+                    currentBuild.result = 'FAILURE'
+                } else if (mailSender.trim().equals("@redhat.com") || mailSender.trim().equals("")) {
+                    doSendEmail="false"
+                    errorOccurred = errorOccurred + 'Error: need to set an actual email sender. Failure!\n'
+                    currentBuild.description="Invalid email sender!"
+                    currentBuild.result = 'FAILURE'
+                } else {
+                    currentBuild.description=mailSubject
+                    sh (
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
+                        returnStdout: true).trim().split( '\n' )
+                    sh (
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
+                        returnStdout: true).trim().split( '\n' )
+                    def NEW_QUAY = ""
+                    def NEW_NVR = ""
+                    if (doCollectImages.equals("true")) {
+                        parallel quay_check: {
+                            NEW_QUAY = sh (
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                                returnStdout: true).trim().split( '\n' )
+                                errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
+                        }, 
+                        nvr_check: {
+                            NEW_NVR = sh (
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                                returnStdout: true).trim().split( '\n' )
+                        }
+                    }
+                    // diff quay tag list vs. nvr tag list
+                    if (doCollectImages.equals("true")) {
+                        sh(script: '''#!/bin/bash -xe
+${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.quay) -s > ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly
+${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
+''', returnStdout: true)
+                    } else {
+                        sh(script: '''#!/bin/bash -xe
+touch ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
+''', returnStdout: true)
+                    }
+                    def DIFF_LATEST_IMAGES_QUAY_V_NVR = sh (
+                        script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,nvr}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
+                        returnStdout: true
+                    ).trim()
+
+                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("")) {
+                        // error! quay and nvr versions do not match
+                        errorOccurred = errorOccurred + 'Error: Quay & Brew image versions not aligned:\n' + 
+                        "=================== QUAY v NVR ===================\n" + 
+                        DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
+                        ' Failure!\n'
+                        currentBuild.description="Quay/Brew version mismatch!"
+                        currentBuild.result = 'FAILURE'
+
+                        // trigger a push of latest images in Brew to Quay
+                        build job: "push-latest-containers-to-quay_${MIDSTM_BRANCH}", 
+                            parameters: [[$class: 'StringParameterValue', name: 'MIDSTM_BRANCH', value: "${MIDSTM_BRANCH}"]],
+                            propagate: false,
+                            quietPeriod: 0,
+                            wait: true
+
+                        // trigger an update of metadata and registries
+                        build job: "update-digests_${MIDSTM_BRANCH}",
+                            parameters: [[$class: 'StringParameterValue', name: 'MIDSTM_BRANCH', value: "${MIDSTM_BRANCH}"]],
+                            propagate: false,
+                            quietPeriod: 0,
+                            wait: true
+                    }
+
+                    def NEW_QUAY_L=""; NEW_QUAY.each { line -> if (line?.trim()) { NEW_QUAY_L=NEW_QUAY_L+"- ${line}\n" } }
+                    def NEW_NVR_L="";  NEW_NVR.each  { line -> if (line?.trim()) { NEW_NVR_L=NEW_NVR_L + "  ${line}\n" } } 
+
+                    def mailBody = mailSubject
+                    def mailBodyQuayIIBs = ""
+
+                    if (!additionalNotes.equals("")) {
+                        mailBody = mailBody + '''
+---------------
+
+''' + additionalNotes + '''
+
+---------------
+'''
+                    }
+
+                    mailBody = mailBody + '''
+Latest dsc binaries:
+
+https://github.com/redhat-developer/devspaces-chectl/releases/tag/''' + CSV_VERSION + '''-CI-dsc-assets
+
+Quay Images:
+''' + NEW_QUAY_L
+
+                    mailBody = mailBody + '''
+Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
+''' + NEW_NVR_L
+                    whichBundle="operator-bundle"
+
+                    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+                    // NOTE: similar code in send-email-qe-build-list*.jenkinsfile and copyIIBsToQuay*.jenkinsfile
+                    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+                    println "####################################################################################################################"
+                    println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"
+                    println "####################################################################################################################"
+
+                    // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
+                    // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
+                    def latestBundleImage = sh(script: '''#!/bin/bash
+        curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
+        ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+        ''', returnStdout: true).trim()
+
+                    // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
+                    // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10) 
+                    def IIBs = sh(script: '''#!/bin/bash -xe
+        curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
+        for OCP_VER in ''' + OCP_VERSIONS + '''; do
+            ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + ''' | sed -r \
+                -e "s#''' + latestBundleImage + '''\\t+##" \
+                -e "s#(.+)\\t(.+)#\\1 (\\2)#"
+        done
+        ''', returnStdout: true)
+
+                    // if we got the right number of values (matching number of OCP versions)
+                    if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
+                        println "####################################################################################################################FOUND\n\
+##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}:\n\
+## " + IIBs.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################FOUND\n"
+                        currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIB(s) found: "
+                        currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+
+                        // // // // // // // // // // // // // // // // // // // // // 
+                        // CRW-3219 copy IIBs to Quay, including ER or RC tagged images  (4 tags per IIB per OCP version)
+                        // // // // // // // // // // // // // // // // // // // // // 
+                        // requires opm binary to filter & copy IIB images to quay, running on all arches
+
+                        nodeLabelString = sh( 
+                        script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/devspaces-''' + whichBundle + '''/container.yaml | yq -r '.platforms.only[]' 
+                        ''', returnStdout: true).trim()
+                        currentBuild.description+="<br/>arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
+
+                        def List nodeLabels = nodeLabelString.tokenize("\n")
+                        def nodeLabelLoop = ""
+                        def Map tasks = [failFast: false]
+                        for (int j=0; j < nodeLabels.size(); j++) {
+                            nodeLabelLoop=nodeLabels[j]+"-rhel8"
+                            print "[" + (j+1) + "/" + nodeLabels.size() + "] Create task to copy IIBs: " + whichBundle + " " + nodeLabel
+                            def String thisArch=nodeLabelLoop
+                            // copy & filter IIB for this arch
+                            tasks[whichBundle + " " + thisArch] = { ->
+                            timeout(60) {
+                                node(thisArch){
+                                    stage("Copy IIBs: " + whichBundle + " " + thisArch) {
+                                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                                        util = load "${WORKSPACE}/util2.groovy"
+                                        cleanWs()
+
+                                        println("Filtering and copying images to quay. This may take ~3 mins per OCP version per arch.")
+                                        def IIBsToQuay = sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
+./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''" --extra-tags "''' + mailSubject.split(" ")[1] + '''"
+''', returnStdout: true)
+
+                                        // in console, echo all errors and warnings
+                                        println "####################################################################################################################COPIED\n\
+##  IIB(s) copied:\n\
+## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################COPIED\n"
+
+                                        currentBuild.description+="<br/>+ ${thisArch} IIB(s) copied: "
+                                        // for build description, collect the lines that start with [IMG]; ignore all other output
+                                        def IIBsToQuay_matches = null
+                                        IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
+                                        (0..<IIBsToQuay_matches.count).each { 
+                                            currentBuild.description+="<br/>&nbsp;&nbsp; + " + IIBsToQuay_matches[it][1] 
+                                            mailBodyQuayIIBs+="\n+ " + IIBsToQuay_matches[it][1]
+                                        }
+                                        // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
+                                        // https://stackoverflow.com/questions/40454558/jenkins-pipeline-java-io-notserializableexception-java-util-regex-matcher-error
+                                        IIBsToQuay_matches = null
+                                        cleanWs(
+                                            cleanWhenSuccess: true,
+                                            cleanWhenUnstable: true,
+                                            cleanWhenNotBuilt: false,
+                                            cleanWhenFailure: true,
+                                            cleanWhenAborted: true,
+                                            deleteDirs: true,
+                                            disableDeferredWipeout: true,
+                                            notFailBuild: true
+                                        )
+                                    }//stage
+                                }//node
+                            }//timeout
+                            }// tasks
+                        }// for
+                        stage("Copy IIBs for each arch") {
+                            println "########################################################################################################"
+                            println "##  Copy IIBs for arches " + nodeLabelString
+                            println "########################################################################################################"
+                            parallel(tasks)
+                        }
+                    } else { // could not find the correct number of published IIBs in rh-osbs registry
+                        currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
+                        if (IIBs?.trim().split("\n").length > 0) { 
+                            currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
+                            currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                        }
+                        currentBuild.result = 'FAILURE'
+                    }
+
+                    mailBody = mailBody + '''
+OSBS Index Images (IIB) by OCP Version:
+* ''' + IIBs.trim().replaceAll("\n", "\n* ")
+
+                    if (mailBodyQuayIIBs?.trim()) { 
+                        mailBody = mailBody + '''
+
+Quay Index (IIB) Images: ''' + mailBodyQuayIIBs
+                    }
+                    mailBody = mailBody + '''
+
+(latest IIBs in OSBS can be queried with: 
+  $ ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+  ''' + latestBundleImage + '''
+
+  $ for OCP_VER in ''' + OCP_VERSIONS + '''; do \\
+      ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + '''; \\
+    done
+)
+
+(latest IIBs in Quay can be queried with:
+  $ for OCP_VER in ''' + OCP_VERSIONS + '''; do \\
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --quay -c devspaces/iib -o ${OCP_VER} --tag ''' + DS_VERSION + '''-${OCP_VER}; \\
+  done
+)
+'''
+
+                    mailBody = mailBody + '''
+Unresolved feature requests for ''' + DS_VERSION + ''':
+  https://issues.redhat.com/issues/?jql=fixversion%20%3D%20''' + DS_VERSION +
+'''.0.GA%20AND%20project%20%3D%20CRW%20and%20issuetype%20%3D%20%22Feature%20Request%22%20and%20resolution%20%3D%20null%20order%20by%20priority
+
+Unresolved blockers + criticals for ''' + DS_VERSION + ''':
+  https://issues.redhat.com/issues/?jql=fixversion%20%3D%20''' + DS_VERSION +
+'''.0.GA%20AND%20project%20%3D%20CRW%20AND%20priority%20%3E%20Major%20AND%20resolution%20is%20null%20order%20by%20priority
+'''
+
+                    mailBody = mailBody + '''
+---------------
+Generated by ''' + BUILD_URL + '''
+
+Sent by ''' + mailSender + '''
+'''
+
+                    echo "Subject: " + mailSubject + "\n\n" +
+    "Body: \n" +  
+    "============================================================\n" + 
+    mailBody + 
+    "\n============================================================\n"
+
+                    if (doSendEmail.equals("true") && errorOccurred.equals(""))
+                    {
+                        sendMail(mailSubject,mailBody)
+                    }
+
+                    // disable jobs
+                    if (doDisableJobs.equals("true") && errorOccurred.equals(""))
+                    {
+                        MIDSTM_REPO="redhat-developer/devspaces"
+                        util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "devspaces-next", "devspaces-3-rhel-8", false)
+                        sh '''#!/bin/bash
+# get versions
+DS_VERSION="''' + DS_VERSION + '''"
+DS_VERSION_NEXT="$(curl -sSLo- https://raw.githubusercontent.com/''' + MIDSTM_REPO + '''/devspaces-3-rhel-8/dependencies/VERSION)"
+
+# disable jobs
+cd ${WORKSPACE}/devspaces-next
+./product/updateVersionAndRegistryTags.sh -t ${DS_VERSION_NEXT} --disable-jobs ${DS_VERSION} --disable-management-jobs ${DS_VERSION}
+
+# wait 5 mins for the remote https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/job-config.json to be refreshed
+sleep 5m
+'''
+                        // trigger respin of job-configurator
+                        final jobResult = build(
+                            job: "/job-configurator",
+                            wait: true,
+                            propagate: true,
+                            quietPeriod: 0,
+                            parameters: [
+                                [
+                                    $class: 'StringParameterValue',
+                                    name: 'JOBDSL_INCLUDE',
+                                    value: ".*DS_CI.*"
+                                ],
+                                [
+                                    $class: 'BooleanParameterValue',
+                                    name: 'FAIL_ON_CASC_CHANGES',
+                                    value: false
+                                ]
+                            ]
+                        )
+                    }
+                }
+                if (!errorOccurred.equals("")) {
+                    echo errorOccurred
+                }
+            } catch (e) {
+                if (!errorOccurred.equals("")) {
+                    echo errorOccurred
+                    return
+                }
+                throw e
+            } // try-catch
+        } // withCreds
+    } // node
+} // timeout

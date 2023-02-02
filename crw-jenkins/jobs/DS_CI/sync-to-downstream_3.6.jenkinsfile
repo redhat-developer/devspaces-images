@@ -1,0 +1,624 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+import groovy.json.JsonSlurper
+
+// PARAMETERS for this pipeline:
+//   REPOS
+//   UPDATE_BASE_IMAGES_FLAGS
+//   MIDSTM_BRANCH
+//   FORCE_BUILD
+//   CLEAN_ON_FAILURE = "true"
+
+def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
+def String SOURCE_REPO = "redhat-developer/devspaces-images" // source repo from which to find commits
+
+def OLD_SHA=""
+def NEW_SHA=""
+def SOURCE_SHA=""
+
+// special case for UDI because it doesn't use template_3.x job
+def comments_url_UDI=""
+def commentedOnPullRequestBuildLinks="false"
+
+def debugDiskUsage = true
+
+// CRW-2656, CRW-3565 if a theia or code build, ONLY use dynamic PSI builders so there's maximum disk space available
+// CRW-2736 if an idea build, must run on x64 only (single arch for now; failed when tested on ppc64le - missing support for that arch)
+// NB 2022-01-14 remove s390x-rhel8-perm as it can be flaky with ssh connections (maybe because of CRW-3281 - crwjen-1.s390 has only 4GB RAM?)
+def String nodeLabelAnyArch = (REPOS.contains("theia")) ?
+  'x86_64-rhel8-dyn' :
+  ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
+    'x86_64-rhel8' : 
+    'x86_64-rhel8||ppc64le-rhel8'
+  )
+def String nodeLabelXArch = (REPOS.contains("theia")||REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
+
+currentBuild.description=""
+for (int i=0; i < SYNC_REPOS.size(); i++) {
+  SYNC_REPOi="${SYNC_REPOS[i]}"
+  def Map tasks = [failFast: true]
+  if (SYNC_REPOi?.trim()) { // filter out nullstring values
+    // CRW-3135 - remove configbump as there's no need to do the multi-arch delete+publish flow anymore
+    // CRW-2744 - include code build in the multiarch flow for now - TODO: move to cachito in future
+    // TODO CRW-3080 remove all prebuilt binaries and switch to cachito
+    if (SYNC_REPOi.contains("-code")) {
+      currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
+      def String nodeLabelString = ""
+      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+        node(nodeLabelAnyArch){
+          // prestage #0 - get arches on which to build
+          stage("Get arches + delete old assets"){
+            withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
+              cleanWs()
+              // might be already defined by the referring job
+              CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+              println("[INFO] Using CSV version = " + CSV_VERSION)
+              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+
+              // comment on the PR with links to this job
+              if (util.globalVar({comments_url})?.trim()) {
+                println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+              }
+              commentedOnPullRequestBuildLinks="true"
+
+              nodeLabelString = sh( 
+                script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
+                ''', returnStdout: true).trim()
+              currentBuild.description+="arches = " + nodeLabelString + "; "
+              // prestage #1 for building lang servers - delete previous GitHub release if present
+              sh('''#!/bin/bash -xe
+pushd sources/''' + SYNC_REPOi + '''
+if [[ -f get-sources.sh ]]; then 
+  ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
+
+  # in case API is running slow, sleep for a bit before trying to push files into the freshly created release
+  sleep 10s
+else 
+  echo "[ERROR] Could not run get-sources.sh --delete-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+fi
+popd
+              ''')
+              currentBuild.description+="deleted old " + SYNC_REPOi + " assets; "
+            } // with
+          } // stage
+        }//node
+      }//timeout
+      def List nodeLabels = nodeLabelString.tokenize("\n")
+      def String nodeLabel = nodeLabelXArch // by default assume we're on x64
+      for (int j=0; j < nodeLabels.size(); j++) {
+        switch(nodeLabels[j]) {
+          case "s390x":
+            // CRW-3281 - crwjen-1.s390 has only 4GB RAM; can't use it for code-rhel8 builds
+            nodeLabel = REPOS.contains("code") ? "s390x-rhel8&&!crwjen-1.s390" : "s390x-rhel8"
+            break
+          case "ppc64le":
+            nodeLabel = "ppc64le-rhel8"
+            break
+        }
+        print "[" + (i+1) + "/" + SYNC_REPOS.size() + "] [" + (j+1) + "/" + nodeLabels.size() + "] " + 
+          "Create task to build assets: " + SYNC_REPOi + " " + nodeLabel
+        def String thisArch=nodeLabel
+        // prestage #2 for building lang servers - create assets and publish to GH releases
+        tasks[SYNC_REPOi + " " + thisArch] = { ->
+          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+            node(thisArch){
+              stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  def util = load "${WORKSPACE}/util2.groovy"
+                  cleanWs()
+
+                  if (debugDiskUsage) {
+                    sh(script: '''#!/bin/bash
+echo "############### df -h before building #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h before building #################"
+''', returnStatus: true)
+                  }
+
+                  // might be already defined by the referring job
+                  CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+                  println("[INFO] Using CSV version = " + CSV_VERSION)
+
+
+// CRW-3493 hack no longer needed as jenkins builders ONLY have python 3.10 (3.11 doesn't work with node-gyp)
+// enable python 3.10 for theia builds, 3.11 for all others
+//                   def pyver = REPOS.contains("theia") ? "3.10.8" : "3.11.0"
+//                   sh(script: '''#!/bin/bash
+// pyver="'''+pyver+'''"
+// pyenv install ${pyver} -s
+// pyenv global ${pyver} || true
+// pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
+// $HOME/.pyenv/shims/python --version
+// export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
+// echo $PATH
+// python --version
+// ''', returnStdout: true)
+
+                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+                  sh('''#!/bin/bash -xe
+                    pushd sources/''' + SYNC_REPOi + '''
+                    if [[ -f get-sources.sh ]]; then
+                      ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
+                    else
+                      echo "[ERROR] Could not run get-sources.sh --publish-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+                    fi
+                    popd
+                  ''')
+                  currentBuild.description+="${thisArch} built; "
+                }//creds
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after building assets #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after building assets #################"
+''', returnStatus: true)
+                }
+
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after cleanWs() assets #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after cleanWs() assets #################"
+''', returnStatus: true)
+                }
+
+                // cleanup temp containers and gradle
+                sh(script: '''#!/bin/bash
+sudo rm -fr  /home/hudson/.local/share/containers /home/hudson/.gradle/
+''', returnStatus: true)
+
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after purging ~/.local/share/containers and ~/.gradle #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after purging ~/.local/share/containers and ~/.gradle #################"
+''', returnStatus: true)
+                }
+              }//stage
+            }//node
+          }//timeout
+        }// tasks
+      }// for
+
+      stage("Asset builds") {
+        println "########################################################################################################"
+        println "##  Build assets for " + SYNC_REPOi
+        println "########################################################################################################"
+        parallel(tasks)
+      }
+    }//if
+  }//if not null
+}//for
+
+// NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
+timeout(600) {
+  node(nodeLabelAnyArch) {
+    stage ("Sync repos on ${nodeLabelAnyArch}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        cleanWs()
+
+        if (debugDiskUsage) {
+          sh(script: '''#!/bin/bash
+echo "############### df -h start of sync repos #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h start of sync repos #################"
+''', returnStatus: true)
+        }
+
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+          println "########################################################################################################"
+          println "##  Clone and update github.com/${SOURCE_REPO}.git"
+          println "########################################################################################################"
+          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+          DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+          // don't comment again if we did so above
+          if (commentedOnPullRequestBuildLinks.equals("false")) {
+            // special case for UDI because it doesn't use template_3.x job
+            if (REPOS.contains("-udi")) {
+              comments_url_UDI=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA("${WORKSPACE}/sources",40))
+              println("Computed PR comment URL: " + comments_url_UDI)
+              comments_url_UDI=comments_url_UDI.replaceAll("#.+","")
+            } else {
+              // comment on the PR with links to this job
+              if (util.globalVar({comments_url})?.trim()) {
+                println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+              }
+            }
+            commentedOnPullRequestBuildLinks="true"
+          }
+
+          // ensure static Dockerfiles have the correct version encoded in them
+          util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, DS_VERSION)
+
+          // ensure static Dockerfiles have the latest oc and helm rpms installed
+          if (REPOS.contains("-udi")) { 
+            def OPENSHIFT_CONTENT_SET_VERSION = sh( 
+              script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
+''', returnStdout: true).trim()
+            def OCP_TOOLS_CONTENT_SET_VERSION = sh( 
+              script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OCP_TOOLS_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
+''', returnStdout: true).trim() // @since 3.2
+            if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null") && 
+                OCP_TOOLS_CONTENT_SET_VERSION?.trim() && !OCP_TOOLS_CONTENT_SET_VERSION.equals("null")) {
+              util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
+              util.updateOdoRpms(OCP_TOOLS_CONTENT_SET_VERSION); // @since 3.2
+              util.updateHelmRpms(OCP_TOOLS_CONTENT_SET_VERSION);
+            } else {
+              println("[WARN] Could not update oc, odo, or helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION and/or OCP_TOOLS_CONTENT_SET_VERSION not defined for DS_VERSION = " + DS_VERSION)
+            }
+          }
+
+          currentBuild.description=""
+          def QUAY_REPO_PATH=""
+          for (int i=0; i < SYNC_REPOS.size(); i++) {
+            if (SYNC_REPOS[i]?.trim()) {
+              if (currentBuild.description?.trim()) { currentBuild.description+="<br/>" }
+              currentBuild.description+="Build container: ${SYNC_REPOS[i]}"
+
+              // might be already defined by the referring job
+              CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+              println("[INFO] Using CSV version = " + CSV_VERSION)
+
+              // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
+              // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
+              util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+              // CRW-3292 get FULL LENGTH SHA for use in container.yaml
+              SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources",40)
+              println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
+
+              println "########################################################################################################"
+              println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
+              println "########################################################################################################"
+              util.cloneRepo("ssh://devspaces-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+
+              // Sync
+              // TODO CRW-3080 remove sources from the exclude list, so that we can delete it from downstream if it doesn't exist in midstream
+              sh('''
+SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"
+TARGETDIR="${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''"
+echo ".github/
+.git/
+.gitattributes
+sources
+" > /tmp/rsync-excludes
+echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rm -f /tmp/rsync-excludes
+''')
+
+              // CRW-3292 if container.yaml has a cachito reference to the devspaces-images repo, update it to latest SOURCE_SHA in the source repo
+              // sed replacement (match a line, move *N*ext line and *S*ubstitute it) will only work for this 2-line pattern:
+              //    repo: https://github.com/redhat-developer/devspaces-images.git
+              //    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
+              sh('''#!/bin/bash -x
+yaml=${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+
+if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
+  sed -i '/# must be full 40 char sha, matching regex/d' $yaml
+
+  repos=$(cat ${yaml} | yq -r '.remote_sources[].remote_source.repo')
+
+  for repo in $repos; do
+    if [[ $(echo $repo | grep 'devspaces-images') ]]; then
+      SHA=''' + SOURCE_SHA + '''
+    else
+      name=$(cat ${yaml} | yq ".remote_sources[]|select(.remote_source.repo==\\"$repo\\")" | yq ".name")
+      branchOrTag=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r ".Other[$name].\\"''' + JOB_BRANCH + '''\\"")
+      #Try branch first
+      SHA=$(git ls-remote $repo refs/heads/$branchOrTag | sed -r -e "s@(.+)\\t.+@\\1@g")
+
+      if [[ ! $SHA ]]; then
+        #Use tag
+        SHA=$(git ls-remote $repo refs/tags/$branchOrTag | sed -r -e "s@(.+)\\t.+@\\1@g")
+      fi
+    fi
+
+    sed -r -i -e "/.+repo: .+${repo##*/}.*/{n;s/ref: .*/ref: $SHA/}" $yaml
+  done
+fi
+
+# for builds (like udi.groovy) where the upstream repo is devspaces-images, must configure 
+# pipelineWebhookTrigger to prevent triggering on changes to container.yaml (avoid infinite builds)
+# update container.yaml in /sources/ so the same digests are in both mid and downstream
+cp ${yaml} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+''')
+
+              // NOTE: if container.yaml has cachito reference(s) to OTHER repo(s), 
+              // MUST handle that separately in another sync.sh or get-sources.sh script
+              // See https://issues.redhat.com/browse/CRW-2619
+              // eg., https://pkgs.devel.redhat.com/cgit/containers/devspaces-udi/tree/container.yaml?h=private-mkuznets-cachito-2619#n21 
+              //     repo: https://github.com/golang/tools
+              //     ref: fd02dfae644ce04dfd4bb3828cf576b9d8717f79
+
+              OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
+              println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
+
+              // push to dist-git
+              sh('''#!/bin/bash -xe
+cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+git add Dockerfile get-sources.sh container.yaml || true
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
+  export KRB5CCNAME=/var/tmp/devspaces-build_ccache
+  git add . -A -f
+  git commit -s -m "ci: [mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+fi
+''')
+
+              // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
+              sh('''#!/bin/bash -xe
+export KRB5CCNAME=/var/tmp/devspaces-build_ccache
+cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+if [[ -f get-sources.sh ]]; then
+  ./get-sources.sh --pull-assets --nobuild -v ''' + CSV_VERSION + ''' | tee get-sources.sh.log.txt
+else 
+  echo "[ERROR] Could not run get-sources.sh!"; exit 1
+fi
+COMMIT_SHA="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%H)"
+COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
+if [ ! -z "$COMMIT_SHA" ] ; then
+  for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
+    # check if the file/folder to copy has a valid parent
+    if [[ "${f}" != "${f%/*}" ]] && [[ -n "${f%/*}" ]]; then 
+      # create destination dir in midstream before copying files from downstream into there
+      mkdir -p ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/${f%/*}
+    fi
+    cp ${f} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/${f}
+  done
+  git pull origin ''' + MIDSTM_BRANCH + ''' || true
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+
+  # update source repo with updates from running get-sources
+  cd ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''
+  git add . -A -f
+  git commit -m "$COMMIT_MSG" || true
+  git pull origin ''' + MIDSTM_BRANCH + ''' || true
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+fi
+''')
+
+              NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
+              println "Got NEW_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + NEW_SHA
+
+              // check for errors in log to add to the build desc
+              def buildLogErrors = sh(script: '''#!/bin/bash
+cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+if [[ -f get-sources.sh.log.txt ]]; then 
+  grep -A1 -E "FAIL - not in allowed" get-sources.sh.log.txt
+  rm -f get-sources.sh.log.txt
+fi
+''', returnStdout: true)
+              if (buildLogErrors?.trim()) {
+                currentBuild.description+=" failed:<br/>" + buildLogErrors.trim().replaceAll("\n","<br/>")
+                currentBuild.result = "FAILURE"
+                util.notifyBuildFailed()
+              } else {
+                currentBuild.description+=" synced; "
+              }
+              if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
+                QUAY_REPO_PATH=util.getDSShortName("${SYNC_REPOS[i]}") + "-rhel8"
+                // special cases for operator and bundle
+                if ("${SYNC_REPOS[i]}".contains("-operator-bundle")) {
+                  // devspaces-operator-bundle
+                  QUAY_REPO_PATH="devspaces-" + util.getDSShortName("${SYNC_REPOS[i]}")
+                } else if ("${SYNC_REPOS[i]}".contains("-operator")) {
+                  // devspaces-rhel8-operator
+                  QUAY_REPO_PATH="devspaces-rhel8-" + util.getDSShortName("${SYNC_REPOS[i]}")
+                }
+                if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && !currentBuild.result.equals("UNSTABLE")) {
+                  println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
+                  // kick off get-sources-rhpkg-container-build_2.y job
+                  jobPath='/job/DS_CI/job/get-sources-rhpkg-container-build_' + JOB_BRANCH
+                  final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: true,
+                    propagate: true,
+                    quietPeriod: 0,
+                    parameters: [
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'comments_url',
+                        value: comments_url_UDI ? comments_url_UDI : util.globalVar({comments_url})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: QUAY_REPO_PATH + "+respin+by+${BUILD_TAG}"
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'UPDATE_BASE_IMAGES_FLAGS',
+                        value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'nodeVersion',
+                        value: util.globalVar({nodeVersion})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'yarnVersion',
+                        value: util.globalVar({yarnVersion})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'MIDSTM_BRANCH',
+                        value: MIDSTM_BRANCH
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'GIT_PATHs',
+                        value: "containers/${SYNC_REPOS[i]}"
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'QUAY_REPO_PATHs',
+                        value: QUAY_REPO_PATH
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'JOB_BRANCH',
+                        value: JOB_BRANCH
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'FORCE_BUILD',
+                        value: true
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'SCRATCH',
+                        value: false
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
+                      ]
+                    ]
+                  )
+                  jobLink=jobPath + "/" +  jobResult?.number?.toString()
+                  println("waiting for build(" + jobPath + ")")
+                  println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+                  currentBuild.description+=" <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered; " 
+                }
+              } else {
+                println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
+                currentBuild.description+=" no changes; "
+              }
+            } // if SYNC_REPOS[i] is non-null
+          } // for
+        } // withCredentials
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
+        if (debugDiskUsage) {
+          sh(script: '''#!/bin/bash
+echo "############### df -h end of sync repos #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h end of sync repos #################"
+''', returnStatus: true)
+        }
+
+      } // wrap
+    } // stage
+  } // node
+} // timeout
+
+// kick off dsc_3.y job if operator or metadata were synced above 
+node(nodeLabelAnyArch){ 
+  stage ("Build dsc on ${nodeLabelAnyArch}") {
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    def util = load "${WORKSPACE}/util2.groovy"
+    withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+      if (REPOS.contains("-operator-")) { 
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+        println "########################################################################################################"
+        println "##  Build dsc ${JOB_BRANCH}"
+        println "########################################################################################################"
+        echo "currentBuild.result = " + currentBuild.result
+        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+          if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
+            jobPath='/job/DS_CI/job/dsc_' + JOB_BRANCH
+            final jobResult = build(
+                  job: jobPath.replaceAll("/job/","/"),
+                  wait: false,
+                  propagate: false,
+                  quietPeriod: 0,
+                  parameters: [
+                    [
+                      $class: 'StringParameterValue',
+                      name: 'comments_url',
+                      value: util.globalVar({comments_url})
+                    ],
+                    [
+                      $class: 'StringParameterValue',
+                      name: 'token',
+                      value: "CI_BUILD"
+                    ],
+                    [
+                      $class: 'StringParameterValue',
+                      name: 'cause',
+                      value: (
+                          REPOS.contains("-operator-bundle") ? 
+                            "build+dsc+for+operator-bundle+sync+from+${BUILD_TAG}" : 
+                            "build+dsc+for+operator+sync+from+${BUILD_TAG}"
+                      )
+                    ],
+                    [
+                      $class: 'StringParameterValue',
+                      name: 'versionSuffix',
+                      value: "CI"
+                    ],
+                    [
+                      $class: 'BooleanParameterValue',
+                      name: 'CLEAN_ON_FAILURE',
+                      value: CLEAN_ON_FAILURE
+                    ]
+                  ]
+            )
+            println("triggered build(" + jobPath + ") [no wait]")
+            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+            currentBuild.description+=" <a href=${jobPath}/>" + jobPath + "</a> triggered; " 
+          } else {
+            println "No changes upstream, nothing to rebuild in dsc!"
+            currentBuild.description+=" no dsc build; "
+            currentBuild.result = 'UNSTABLE'
+          }
+        } else {
+          util.notifyBuildFailed()
+        } // if
+      } // if operator
+      if (comments_url_UDI?.trim()) {
+        // special case for UDI because it doesn't use template_3.x job
+        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
+      } else if (util.globalVar({comments_url})?.trim()) {
+        // comment on the PR with this job's build description
+        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+      }
+    } // with
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  } // stage
+} //node
