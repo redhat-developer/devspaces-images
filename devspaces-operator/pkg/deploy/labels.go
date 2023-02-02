@@ -49,7 +49,3 @@ func GetLegacyLabels(component string) map[string]string {
 		"component": component,
 	}
 }
-
-func IsPartOfEclipseCheResourceAndManagedByOperator(labels map[string]string) bool {
-	return labels[constants.KubernetesPartOfLabelKey] == constants.CheEclipseOrg && labels[constants.KubernetesManagedByLabelKey] == GetManagedByLabel()
-}
