@@ -65,9 +65,6 @@ jest.mock('../../../services/devfileApi/typeguards.ts', () => {
 console.error = jest.fn();
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
-jest
-  .spyOn(cheWorkspaceClient.restApiClient, 'provisionKubernetesNamespace')
-  .mockResolvedValue({} as KubernetesNamespace);
 
 const getFactoryResolverSpy = jest.spyOn(cheWorkspaceClient.restApiClient, 'getFactoryResolver');
 

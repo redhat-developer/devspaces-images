@@ -136,8 +136,6 @@ export const actionCreators: ActionCreators = {
       const optionalFilesContent = {};
 
       try {
-        await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
-
         let data: FactoryResolver;
 
         if (location.includes(DEFAULT_REGISTRY) && location.endsWith('.yaml')) {
