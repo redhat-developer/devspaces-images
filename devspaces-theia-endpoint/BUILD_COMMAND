@@ -1,1 +1,1 @@
-./build.sh --nv 14.20.0 --cv 3.5 --ctb main --tb master --tgr eclipse-theia/theia --no-cache --rm-cache --rmi:all --no-async-tests --ci --commit -d -t -e
+./build.sh --nv 14.20.0 --cv 3.6 --ctb main --tb master --tgr eclipse-theia/theia --no-cache --rm-cache --rmi:all --no-async-tests --ci --commit -d -t -e

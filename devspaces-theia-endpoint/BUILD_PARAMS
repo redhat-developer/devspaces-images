@@ -1,6 +1,6 @@
 nodeVersion=14.20.0
 yarnVersion=1.22.19
-DS_VERSION=3.5
+DS_VERSION=3.6
 SOURCE_BRANCH=main
 THEIA_BRANCH=master
 THEIA_GITHUB_REPO=eclipse-theia/theia
