@@ -75,7 +75,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:2b854134d5b182694cb02cf61e806e012afc24ec97b38d6abce19507c62b9b28
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c2301fa84b9c7008481e14f2f8ab7e1ca9fd3c958b9a3a0f0d13e38e4b5721d
     createdAt: "2023-02-03T00:56:20+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -898,9 +898,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDKCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:50443c78aabbc28fe58918d3c67e474b6f50518a68dd802ad900d24c633d774e
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:bfd473d19bfe6fb28bfb63d890e5fdb90453bbef843dcc88b77ac7af28394a62
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:408913049753139820b45e1c9bd73bb7b1bd90442fecf703ff7d3a6cf863ffa0
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:bfd473d19bfe6fb28bfb63d890e5fdb90453bbef843dcc88b77ac7af28394a62
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:408913049753139820b45e1c9bd73bb7b1bd90442fecf703ff7d3a6cf863ffa0
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDKCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:50443c78aabbc28fe58918d3c67e474b6f50518a68dd802ad900d24c633d774e
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDKCQ_
@@ -933,7 +933,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:2b854134d5b182694cb02cf61e806e012afc24ec97b38d6abce19507c62b9b28
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c2301fa84b9c7008481e14f2f8ab7e1ca9fd3c958b9a3a0f0d13e38e4b5721d
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1270,10 +1270,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.4.0
   relatedImages:
-  - name: devspaces-rhel8-operator-2b854134d5b182694cb02cf61e806e012afc24ec97b38d6abce19507c62b9b28-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:2b854134d5b182694cb02cf61e806e012afc24ec97b38d6abce19507c62b9b28
+  - name: devspaces-rhel8-operator-4c2301fa84b9c7008481e14f2f8ab7e1ca9fd3c958b9a3a0f0d13e38e4b5721d-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c2301fa84b9c7008481e14f2f8ab7e1ca9fd3c958b9a3a0f0d13e38e4b5721d
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:2b854134d5b182694cb02cf61e806e012afc24ec97b38d6abce19507c62b9b28
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c2301fa84b9c7008481e14f2f8ab7e1ca9fd3c958b9a3a0f0d13e38e4b5721d
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:42391d90a24c08a9bd034cac3ee5dca26a9638a3c35189c9087a55ef843123b7
   - name: dashboard
@@ -1295,9 +1295,9 @@ spec:
   - name: devspaces_theia_devfile_registry_image_gmxdkcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:50443c78aabbc28fe58918d3c67e474b6f50518a68dd802ad900d24c633d774e
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:bfd473d19bfe6fb28bfb63d890e5fdb90453bbef843dcc88b77ac7af28394a62
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:408913049753139820b45e1c9bd73bb7b1bd90442fecf703ff7d3a6cf863ffa0
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:bfd473d19bfe6fb28bfb63d890e5fdb90453bbef843dcc88b77ac7af28394a62
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:408913049753139820b45e1c9bd73bb7b1bd90442fecf703ff7d3a6cf863ffa0
   - name: devspaces_theia_plugin_registry_image_gmxdkcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:50443c78aabbc28fe58918d3c67e474b6f50518a68dd802ad900d24c633d774e
   - name: devspaces_udi_devfile_registry_image_gmxdkcq_
