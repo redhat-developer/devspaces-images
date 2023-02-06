@@ -82,10 +82,6 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
 rm -f /tmp/rsync-excludes
 
-# https://issues.redhat.com/browse/CRW-3826
-yq -r '.dependencies."follow-redirects" = "^1.15.2"' "${TARGETDIR}/webui/package.json" > "${TARGETDIR}/webui/package.json.tmp"
-mv "${TARGETDIR}/webui/package.json.tmp" "${TARGETDIR}/webui/package.json"
-
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
