@@ -19,7 +19,7 @@
     }
   ],
   "docs": {
-    "devfile" : "@@devspaces.docs.baseurl@@/html-single/user_guide#customizing-workspaces",
+    "devfile" : "@@devspaces.docs.baseurl@@/html-single/user_guide#customizing-workspace-components",
     "workspace" : "@@devspaces.docs.baseurl@@/html-single/user_guide#developer-workspaces",
     "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
     "general": "@@devspaces.docs.baseurl@@/",
