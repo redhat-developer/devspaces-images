@@ -311,17 +311,17 @@ export class UserDataSyncWorkbenchService extends Disposable implements IUserDat
 
 		const turnOnSyncCancellationToken = this.turnOnSyncCancellationToken = new CancellationTokenSource();
 		const disposable = isWeb ? Disposable.None : this.lifecycleService.onBeforeShutdown(e => e.veto((async () => {
-			const { confirmed } = await this.dialogService.confirm({
+			const result = await this.dialogService.confirm({
 				type: 'warning',
 				message: localize('sync in progress', "Settings Sync is being turned on. Would you like to cancel it?"),
 				title: localize('settings sync', "Settings Sync"),
 				primaryButton: localize({ key: 'yes', comment: ['&& denotes a mnemonic'] }, "&&Yes"),
-				cancelButton: localize('no', "No")
+				secondaryButton: localize({ key: 'no', comment: ['&& denotes a mnemonic'] }, "&&No"),
 			});
-			if (confirmed) {
+			if (result.confirmed) {
 				turnOnSyncCancellationToken.cancel();
 			}
-			return !confirmed;
+			return !result.confirmed;
 		})(), 'veto.settingsSync'));
 		try {
 			await this.doTurnOnSync(turnOnSyncCancellationToken.token);
@@ -399,41 +399,32 @@ export class UserDataSyncWorkbenchService extends Disposable implements IUserDat
 	}
 
 	private async handleConflictsWhileTurningOn(token: CancellationToken): Promise<void> {
-		await this.dialogService.prompt({
-			type: Severity.Warning,
-			message: localize('conflicts detected', "Conflicts Detected"),
-			detail: localize('resolve', "Please resolve conflicts to turn on..."),
-			buttons: [
-				{
-					label: localize({ key: 'show conflicts', comment: ['&& denotes a mnemonic'] }, "&&Show Conflicts"),
-					run: async () => {
-						const waitUntilConflictsAreResolvedPromise = raceCancellationError(Event.toPromise(Event.filter(this.userDataSyncService.onDidChangeConflicts, conficts => conficts.length === 0)), token);
-						await this.showConflicts(this.userDataSyncService.conflicts[0]?.conflicts[0]);
-						await waitUntilConflictsAreResolvedPromise;
-					}
-				},
-				{
-					label: localize({ key: 'replace local', comment: ['&& denotes a mnemonic'] }, "Replace &&Local"),
-					run: async () => this.replace(true)
-				},
-				{
-					label: localize({ key: 'replace remote', comment: ['&& denotes a mnemonic'] }, "Replace &&Remote"),
-					run: () => this.replace(false)
-				},
+		const result = await this.dialogService.show(
+			Severity.Warning,
+			localize('conflicts detected', "Conflicts Detected"),
+			[
+				localize('show conflicts', "Show Conflicts"),
+				localize('replace local', "Replace Local"),
+				localize('replace remote', "Replace Remote"),
+				localize('cancel', "Cancel"),
 			],
-			cancelButton: {
-				run: () => {
-					throw new CancellationError();
+			{
+				detail: localize('resolve', "Please resolve conflicts to turn on..."),
+				cancelId: 3
+			}
+		);
+		if (result.choice === 0) {
+			const waitUntilConflictsAreResolvedPromise = raceCancellationError(Event.toPromise(Event.filter(this.userDataSyncService.onDidChangeConflicts, conficts => conficts.length === 0)), token);
+			await this.showConflicts(this.userDataSyncService.conflicts[0]?.conflicts[0]);
+			await waitUntilConflictsAreResolvedPromise;
+		} else if (result.choice === 1 || result.choice === 2) {
+			for (const conflict of this.userDataSyncService.conflicts) {
+				for (const preview of conflict.conflicts) {
+					await this.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, result.choice === 1 ? preview.remoteResource : preview.localResource, undefined, { force: true });
 				}
 			}
-		});
-	}
-
-	private async replace(local: boolean): Promise<void> {
-		for (const conflict of this.userDataSyncService.conflicts) {
-			for (const preview of conflict.conflicts) {
-				await this.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, local ? preview.remoteResource : preview.localResource, undefined, { force: true });
-			}
+		} else {
+			throw new CancellationError();
 		}
 	}
 
@@ -453,13 +444,13 @@ export class UserDataSyncWorkbenchService extends Disposable implements IUserDat
 	}
 
 	async resetSyncedData(): Promise<void> {
-		const { confirmed } = await this.dialogService.confirm({
-			type: 'info',
+		const result = await this.dialogService.confirm({
 			message: localize('reset', "This will clear your data in the cloud and stop sync on all your devices."),
 			title: localize('reset title', "Clear"),
+			type: 'info',
 			primaryButton: localize({ key: 'resetButton', comment: ['&& denotes a mnemonic'] }, "&&Reset"),
 		});
-		if (confirmed) {
+		if (result.confirmed) {
 			await this.userDataSyncService.resetRemote();
 		}
 	}

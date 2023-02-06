@@ -121,8 +121,10 @@ class HelpTreeRenderer implements ITreeRenderer<HelpModel | IHelpItem, IHelpItem
 	renderTemplate(container: HTMLElement): IHelpItemTemplateData {
 		container.classList.add('remote-help-tree-node-item');
 		const icon = dom.append(container, dom.$('.remote-help-tree-node-item-icon'));
-		const parent = container;
-		return { parent, icon };
+		const data = <IHelpItemTemplateData>Object.create(null);
+		data.parent = container;
+		data.icon = icon;
+		return data;
 	}
 
 	renderElement(element: ITreeNode<IHelpItem, IHelpItem>, index: number, templateData: IHelpItemTemplateData, height: number | undefined): void {
@@ -989,12 +991,9 @@ export class RemoteAgentConnectionStatusListener extends Disposable implements I
 							console.log(`Error handled: Not showing a notification for the error.`);
 						} else if (!this._reloadWindowShown) {
 							this._reloadWindowShown = true;
-							dialogService.confirm({
-								type: Severity.Error,
-								message: nls.localize('reconnectionPermanentFailure', "Cannot reconnect. Please reload the window."),
-								primaryButton: nls.localize({ key: 'reloadWindow.dialog', comment: ['&& denotes a mnemonic'] }, "&&Reload Window")
-							}).then(result => {
-								if (result.confirmed) {
+							dialogService.show(Severity.Error, nls.localize('reconnectionPermanentFailure', "Cannot reconnect. Please reload the window."), [nls.localize('reloadWindow', "Reload Window"), nls.localize('cancel', "Cancel")], { cancelId: 1, custom: true }).then(result => {
+								// Reload the window
+								if (result.choice === 0) {
 									commandService.executeCommand(ReloadWindowAction.ID);
 								}
 							});

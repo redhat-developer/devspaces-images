@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as es from 'event-stream';
+import * as _ from 'underscore';
 import * as fancyLog from 'fancy-log';
 import * as ansiColors from 'ansi-colors';
 import * as fs from 'fs';
@@ -34,7 +35,7 @@ class ErrorLog {
 	}
 
 	log(): void {
-		const errors = this.allErrors.flat();
+		const errors = _.flatten(this.allErrors);
 		const seen = new Set<string>();
 
 		errors.map(err => {

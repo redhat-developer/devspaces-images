@@ -244,14 +244,7 @@ export const notebooksExtensionPoint = ExtensionsRegistry.registerExtensionPoint
 
 export const notebookRendererExtensionPoint = ExtensionsRegistry.registerExtensionPoint<INotebookRendererContribution[]>({
 	extensionPoint: 'notebookRenderer',
-	jsonSchema: notebookRendererContribution,
-	activationEventsGenerator: (contribs: INotebookRendererContribution[], result: { push(item: string): void }) => {
-		for (const contrib of contribs) {
-			if (contrib.id) {
-				result.push(`onRenderer:${contrib.id}`);
-			}
-		}
-	}
+	jsonSchema: notebookRendererContribution
 });
 
 export const notebookPreloadExtensionPoint = ExtensionsRegistry.registerExtensionPoint<INotebookPreloadContribution[]>({

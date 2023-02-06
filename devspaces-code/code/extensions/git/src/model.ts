@@ -18,6 +18,7 @@ import { IPushErrorHandlerRegistry } from './pushError';
 import { ApiRepository } from './api/api1';
 import { IRemoteSourcePublisherRegistry } from './remotePublisher';
 import { IPostCommitCommandsProviderRegistry } from './postCommitCommands';
+import { OperationKind } from './operation';
 
 class RepositoryPick implements QuickPickItem {
 	@memoize get label(): string {
@@ -587,13 +588,19 @@ export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommand
 		checkForSubmodules();
 
 		const updateOperationInProgressContext = () => {
+			let commitInProgress = false;
 			let operationInProgress = false;
 			for (const { repository } of this.openRepositories.values()) {
+				if (repository.operations.isRunning(OperationKind.Commit)) {
+					commitInProgress = true;
+				}
+
 				if (repository.operations.shouldDisableCommands()) {
 					operationInProgress = true;
 				}
 			}
 
+			commands.executeCommand('setContext', 'commitInProgress', commitInProgress);
 			commands.executeCommand('setContext', 'operationInProgress', operationInProgress);
 		};
 
@@ -794,23 +801,18 @@ export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommand
 
 		const result = await Promise.all(workspace.workspaceFolders.map(async folder => {
 			const workspaceFolderRealPath = await this.getWorkspaceFolderRealPath(folder);
-			return workspaceFolderRealPath ? pathEquals(workspaceFolderRealPath, repositoryPath) || isDescendant(workspaceFolderRealPath, repositoryPath) : undefined;
+			return pathEquals(workspaceFolderRealPath, repositoryPath) || isDescendant(workspaceFolderRealPath, repositoryPath);
 		}));
 
 		return !result.some(r => r);
 	}
 
-	private async getWorkspaceFolderRealPath(workspaceFolder: WorkspaceFolder): Promise<string | undefined> {
+	private async getWorkspaceFolderRealPath(workspaceFolder: WorkspaceFolder): Promise<string> {
 		let result = this._workspaceFolders.get(workspaceFolder.uri.fsPath);
 
 		if (!result) {
-			try {
-				result = await fs.promises.realpath(workspaceFolder.uri.fsPath, { encoding: 'utf8' });
-				this._workspaceFolders.set(workspaceFolder.uri.fsPath, result);
-			} catch (err) {
-				// noop - Workspace folder does not exist
-				this.logger.trace(`Failed to resolve workspace folder: "${workspaceFolder.uri.fsPath}". ${err}`);
-			}
+			result = await fs.promises.realpath(workspaceFolder.uri.fsPath, { encoding: 'utf8' });
+			this._workspaceFolders.set(workspaceFolder.uri.fsPath, result);
 		}
 
 		return result;

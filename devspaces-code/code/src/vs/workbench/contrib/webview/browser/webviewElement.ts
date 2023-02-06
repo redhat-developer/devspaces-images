@@ -594,7 +594,10 @@ export class WebviewElement extends Disposable implements IWebview, WebviewFindD
 	}
 
 	public setTitle(title: string) {
-		this._content = { ...this._content, title };
+		this.doUpdateContent({
+			...this._content,
+			title,
+		});
 		this._send('set-title', title);
 	}
 

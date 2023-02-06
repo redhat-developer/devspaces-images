@@ -5,6 +5,7 @@
 
 use std::io;
 
+use const_format::concatcp;
 use winapi::{
 	ctypes::c_void,
 	um::{
@@ -18,13 +19,15 @@ use winapi::{
 	},
 };
 
-use crate::constants::TUNNEL_ACTIVITY_NAME;
+use crate::constants::APPLICATION_NAME;
 
 struct Request(*mut c_void);
 
 impl Request {
 	pub fn new() -> io::Result<Self> {
-		let mut reason: Vec<u16> = TUNNEL_ACTIVITY_NAME.encode_utf16().collect();
+		let mut reason: Vec<u16> = concatcp!(APPLICATION_NAME, " running tunnel")
+			.encode_utf16()
+			.collect();
 		let mut context = REASON_CONTEXT {
 			Version: POWER_REQUEST_CONTEXT_VERSION,
 			Flags: POWER_REQUEST_CONTEXT_SIMPLE_STRING,

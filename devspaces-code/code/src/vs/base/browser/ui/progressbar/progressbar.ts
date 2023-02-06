@@ -18,13 +18,12 @@ const CSS_DISCRETE = 'discrete';
 export interface IProgressBarOptions extends IProgressBarStyles {
 }
 
+export type CSSValueString = string;
+
 export interface IProgressBarStyles {
-	progressBarBackground: string | undefined;
+	progressBarBackground?: CSSValueString;
 }
 
-export const unthemedProgressBarOptions: IProgressBarOptions = {
-	progressBarBackground: undefined
-};
 
 /**
  * A progress bar with support for infinite or discrete progress.

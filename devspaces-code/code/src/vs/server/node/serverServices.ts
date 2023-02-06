@@ -95,7 +95,7 @@ export async function setupServerServices(connectionToken: ServerConnectionToken
 
 	const loggerService = new LoggerService(getLogLevel(environmentService));
 	services.set(ILoggerService, loggerService);
-	socketServer.registerChannel('logger', new LoggerChannel(loggerService, (ctx: RemoteAgentConnectionContext) => getUriTransformer(ctx.remoteAuthority)));
+	socketServer.registerChannel('logger', new LoggerChannel(loggerService));
 
 	const logger = loggerService.createLogger(URI.file(path.join(environmentService.logsPath, `${RemoteExtensionLogFileName}.log`)), { id: 'remoteServerLog', name: localize('remoteExtensionLog', "Remote Server") });
 	const logService = new LogService(logger, [new ServerLogger(getLogLevel(environmentService))]);
@@ -222,8 +222,8 @@ export async function setupServerServices(connectionToken: ServerConnectionToken
 		const credentialsChannel = ProxyChannel.fromService<RemoteAgentConnectionContext>(accessor.get(ICredentialsMainService));
 		socketServer.registerChannel('credentials', credentialsChannel);
 
-		// clean up extensions folder
-		extensionManagementService.cleanUp();
+		// clean up deprecated extensions
+		extensionManagementService.removeUninstalledExtensions();
 
 		disposables.add(new ErrorTelemetry(accessor.get(ITelemetryService)));
 

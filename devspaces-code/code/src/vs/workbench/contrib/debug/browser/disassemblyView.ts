@@ -41,7 +41,6 @@ import { isAbsolute } from 'vs/base/common/path';
 import { Constants } from 'vs/base/common/uint';
 import { applyFontInfo } from 'vs/editor/browser/config/domFontInfo';
 import { binarySearch2 } from 'vs/base/common/arrays';
-import { ILogService } from 'vs/platform/log/common/log';
 
 interface IDisassembledInstructionEntry {
 	allowBreakpoint: boolean;
@@ -583,7 +582,6 @@ class InstructionRenderer extends Disposable implements ITableRenderer<IDisassem
 		@IEditorService private readonly editorService: IEditorService,
 		@ITextModelService private readonly textModelService: ITextModelService,
 		@IUriIdentityService private readonly uriService: IUriIdentityService,
-		@ILogService private readonly logService: ILogService,
 	) {
 		super();
 
@@ -743,7 +741,7 @@ class InstructionRenderer extends Disposable implements ITableRenderer<IDisassem
 			return this.uriService.asCanonicalUri(URI.file(path));
 		}
 
-		return getUriFromSource(instruction.location!, instruction.location!.path, this._disassemblyView.debugSession!.getId(), this.uriService, this.logService);
+		return getUriFromSource(instruction.location!, instruction.location!.path, this._disassemblyView.debugSession!.getId(), this.uriService);
 	}
 
 	private applyFontInfo(element: HTMLElement) {

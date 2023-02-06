@@ -152,12 +152,13 @@ class DefaultFormatter extends Disposable implements IWorkbenchContribution {
 		if (mode !== FormattingMode.Silent) {
 			// running from a user action -> show modal dialog so that users configure
 			// a default formatter
-			const { confirmed } = await this._dialogService.confirm({
+			const result = await this._dialogService.confirm({
 				message: nls.localize('miss.1', "Configure Default Formatter"),
 				detail: formatterOrMessage,
-				primaryButton: nls.localize({ key: 'do.config', comment: ['&& denotes a mnemonic'] }, "&&Configure...")
+				primaryButton: nls.localize('do.config', "Configure..."),
+				secondaryButton: nls.localize('cancel', "Cancel")
 			});
-			if (confirmed) {
+			if (result.confirmed) {
 				return this._pickAndPersistDefaultFormatter(formatter, document);
 			}
 		} else {
@@ -165,7 +166,7 @@ class DefaultFormatter extends Disposable implements IWorkbenchContribution {
 			this._notificationService.prompt(
 				Severity.Info,
 				formatterOrMessage,
-				[{ label: nls.localize('do.config.notification', "Configure..."), run: () => this._pickAndPersistDefaultFormatter(formatter, document) }],
+				[{ label: nls.localize('do.config', "Configure..."), run: () => this._pickAndPersistDefaultFormatter(formatter, document) }],
 				{ silent: true }
 			);
 		}
@@ -220,7 +221,7 @@ class DefaultFormatter extends Disposable implements IWorkbenchContribution {
 			if (typeof result !== 'string') {
 				return;
 			}
-			const command = { id: `formatter/configure/dfl/${generateUuid()}`, title: nls.localize('do.config.command', "Configure...") };
+			const command = { id: `formatter/configure/dfl/${generateUuid()}`, title: nls.localize('do.config', "Configure...") };
 			this._languageStatusStore.add(CommandsRegistry.registerCommand(command.id, () => this._pickAndPersistDefaultFormatter(formatter, document)));
 			this._languageStatusStore.add(this._languageStatusService.addStatus({
 				id: 'formatter.conflict',

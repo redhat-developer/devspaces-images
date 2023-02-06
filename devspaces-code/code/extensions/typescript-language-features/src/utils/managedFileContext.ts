@@ -6,7 +6,6 @@
 import * as vscode from 'vscode';
 import { ActiveJsTsEditorTracker } from './activeJsTsEditorTracker';
 import { Disposable } from './dispose';
-import { disabledSchemes } from './fileSchemes';
 import { isJsConfigOrTsConfigFileName } from './languageDescription';
 import { isSupportedLanguageMode } from './languageIds';
 
@@ -18,7 +17,10 @@ export default class ManagedFileContextManager extends Disposable {
 
 	private isInManagedFileContext: boolean = false;
 
-	public constructor(activeJsTsEditorTracker: ActiveJsTsEditorTracker) {
+	public constructor(
+		activeJsTsEditorTracker: ActiveJsTsEditorTracker,
+		private readonly normalizePath: (resource: vscode.Uri) => string | undefined,
+	) {
 		super();
 		activeJsTsEditorTracker.onDidChangeActiveJsTsEditor(this.onDidChangeActiveTextEditor, this, this._disposables);
 
@@ -47,7 +49,7 @@ export default class ManagedFileContextManager extends Disposable {
 	}
 
 	private isManagedScriptFile(editor: vscode.TextEditor): boolean {
-		return isSupportedLanguageMode(editor.document) && !disabledSchemes.has(editor.document.uri.scheme);
+		return isSupportedLanguageMode(editor.document) && this.normalizePath(editor.document.uri) !== null;
 	}
 
 	private isManagedConfigFile(editor: vscode.TextEditor): boolean {

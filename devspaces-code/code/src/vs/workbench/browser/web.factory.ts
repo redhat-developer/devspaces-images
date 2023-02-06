@@ -56,6 +56,8 @@ export function create(domElement: HTMLElement, options: IWorkbenchConstructionO
 		}
 	}
 
+	CommandsRegistry.registerCommand('_workbench.getTarballProxyEndpoints', () => (options._tarballProxyEndpoints ?? {}));
+
 	// Startup workbench and resolve waiters
 	let instantiatedWorkbench: IWorkbench | undefined = undefined;
 	new BrowserMain(domElement, options).open().then(workbench => {

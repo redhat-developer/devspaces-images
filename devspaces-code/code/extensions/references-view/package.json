@@ -27,7 +27,12 @@
   ],
   "activationEvents": [
     "onCommand:references-view.find",
-    "onCommand:editor.action.showReferences"
+    "onCommand:references-view.findReferences",
+    "onCommand:references-view.findImplementations",
+    "onCommand:references-view.showCallHierarchy",
+    "onCommand:references-view.showTypeHierarchy",
+    "onCommand:editor.action.showReferences",
+    "onView:references-view.tree"
   ],
   "main": "./out/extension",
   "browser": "./dist/extension.js",

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { IDragAndDropData } from 'vs/base/browser/dnd';
-import { asCssValueWithDefault, createStyleSheet, Dimension, EventHelper } from 'vs/base/browser/dom';
+import { createStyleSheet, Dimension, EventHelper } from 'vs/base/browser/dom';
 import { DomEmitter } from 'vs/base/browser/event';
 import { IKeyboardEvent, StandardKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import { Gesture } from 'vs/base/browser/touch';
@@ -820,6 +820,10 @@ export class DefaultStyleController implements IStyleController {
 			content.push(`.monaco-list${suffix}:focus .monaco-list-row.selected .codicon { color: ${styles.listActiveSelectionIconForeground}; }`);
 		}
 
+		if (styles.listFocusAndSelectionOutline) {
+			content.push(`.monaco-list${suffix}:focus .monaco-list-row.selected { outline-color: ${styles.listFocusAndSelectionOutline} !important; }`);
+		}
+
 		if (styles.listFocusAndSelectionBackground) {
 			content.push(`
 				.monaco-drag-image,
@@ -865,15 +869,11 @@ export class DefaultStyleController implements IStyleController {
 			content.push(`.monaco-list${suffix}:not(.drop-target):not(.dragging) .monaco-list-row:hover:not(.selected):not(.focused) { color:  ${styles.listHoverForeground}; }`);
 		}
 
-		/**
-		 * Outlines
-		 */
-		const focusAndSelectionOutline = asCssValueWithDefault(styles.listFocusAndSelectionOutline, asCssValueWithDefault(styles.listSelectionOutline, styles.listFocusOutline ?? ''));
-		if (focusAndSelectionOutline) { // default: listFocusOutline
-			content.push(`.monaco-list${suffix}:focus .monaco-list-row.focused.selected { outline: 1px solid ${focusAndSelectionOutline}; outline-offset: -1px;}`);
+		if (styles.listSelectionOutline) {
+			content.push(`.monaco-list${suffix} .monaco-list-row.selected { outline: 1px dotted ${styles.listSelectionOutline}; outline-offset: -1px; }`);
 		}
 
-		if (styles.listFocusOutline) { // default: set
+		if (styles.listFocusOutline) {
 			content.push(`
 				.monaco-drag-image,
 				.monaco-list${suffix}:focus .monaco-list-row.focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }
@@ -881,20 +881,11 @@ export class DefaultStyleController implements IStyleController {
 			`);
 		}
 
-		const inactiveFocusAndSelectionOutline = asCssValueWithDefault(styles.listSelectionOutline, styles.listInactiveFocusOutline ?? '');
-		if (inactiveFocusAndSelectionOutline) {
-			content.push(`.monaco-list${suffix} .monaco-list-row.focused.selected { outline: 1px dotted ${inactiveFocusAndSelectionOutline}; outline-offset: -1px; }`);
-		}
-
-		if (styles.listSelectionOutline) { // default: activeContrastBorder
-			content.push(`.monaco-list${suffix} .monaco-list-row.selected { outline: 1px dotted ${styles.listSelectionOutline}; outline-offset: -1px; }`);
-		}
-
-		if (styles.listInactiveFocusOutline) { // default: null
+		if (styles.listInactiveFocusOutline) {
 			content.push(`.monaco-list${suffix} .monaco-list-row.focused { outline: 1px dotted ${styles.listInactiveFocusOutline}; outline-offset: -1px; }`);
 		}
 
-		if (styles.listHoverOutline) {  // default: activeContrastBorder
+		if (styles.listHoverOutline) {
 			content.push(`.monaco-list${suffix} .monaco-list-row:hover { outline: 1px dashed ${styles.listHoverOutline}; outline-offset: -1px; }`);
 		}
 

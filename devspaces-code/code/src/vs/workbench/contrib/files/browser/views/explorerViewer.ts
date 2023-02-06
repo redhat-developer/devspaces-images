@@ -1192,7 +1192,7 @@ export class FileDragAndDrop implements ITreeDragAndDrop<ExplorerItem> {
 				await this.handleExplorerDrop(data as ElementsDragAndDropData<ExplorerItem, ExplorerItem[]>, resolvedTarget, originalEvent);
 			}
 		} catch (error) {
-			this.dialogService.error(toErrorMessage(error));
+			this.dialogService.show(Severity.Error, toErrorMessage(error));
 		}
 	}
 
@@ -1231,6 +1231,7 @@ export class FileDragAndDrop implements ITreeDragAndDrop<ExplorerItem> {
 				checkbox: {
 					label: localize('doNotAskAgain', "Do not ask me again")
 				},
+				type: 'question',
 				primaryButton: localize({ key: 'moveButtonLabel', comment: ['&& denotes a mnemonic'] }, "&&Move")
 			});
 

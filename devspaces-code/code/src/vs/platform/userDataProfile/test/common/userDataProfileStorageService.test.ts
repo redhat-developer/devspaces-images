@@ -31,16 +31,12 @@ export class TestUserDataProfileStorageService extends AbstractUserDataProfileSt
 	readonly onDidChange = Event.None;
 	private databases = new Map<string, InMemoryStorageDatabase>();
 
-	protected async createStorageDatabase(profile: IUserDataProfile): Promise<InMemoryStorageDatabase> {
+	async createStorageDatabase(profile: IUserDataProfile): Promise<InMemoryStorageDatabase> {
 		let database = this.databases.get(profile.id);
 		if (!database) {
 			this.databases.set(profile.id, database = new TestStorageDatabase());
 		}
 		return database;
-	}
-
-	setupStorageDatabase(profile: IUserDataProfile): Promise<InMemoryStorageDatabase> {
-		return this.createStorageDatabase(profile);
 	}
 
 	protected override async closeAndDispose(): Promise<void> { }
@@ -55,7 +51,7 @@ suite('ProfileStorageService', () => {
 
 	setup(async () => {
 		testObject = disposables.add(new TestUserDataProfileStorageService(new InMemoryStorageService()));
-		storage = new Storage(await testObject.setupStorageDatabase(profile));
+		storage = new Storage(await testObject.createStorageDatabase(profile));
 		await storage.init();
 	});
 

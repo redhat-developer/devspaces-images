@@ -145,7 +145,7 @@ export interface IExpressionTemplateData {
 	currentElement: IExpression | undefined;
 }
 
-export abstract class AbstractExpressionsRenderer<T = IExpression> implements ITreeRenderer<T, FuzzyScore, IExpressionTemplateData> {
+export abstract class AbstractExpressionsRenderer implements ITreeRenderer<IExpression, FuzzyScore, IExpressionTemplateData> {
 
 	constructor(
 		@IDebugService protected debugService: IDebugService,
@@ -185,11 +185,10 @@ export abstract class AbstractExpressionsRenderer<T = IExpression> implements IT
 		return template;
 	}
 
-	public abstract renderElement(node: ITreeNode<T, FuzzyScore>, index: number, data: IExpressionTemplateData): void;
-
-	protected renderExpressionElement(element: IExpression, node: ITreeNode<T, FuzzyScore>, data: IExpressionTemplateData): void {
+	renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateData): void {
+		const { element } = node;
 		data.currentElement = element;
-		this.renderExpression(node.element, data, createMatches(node.filterData));
+		this.renderExpression(element, data, createMatches(node.filterData));
 		if (data.actionBar) {
 			this.renderActionBar!(data.actionBar, element, data);
 		}
@@ -253,12 +252,12 @@ export abstract class AbstractExpressionsRenderer<T = IExpression> implements IT
 		});
 	}
 
-	protected abstract renderExpression(expression: T, data: IExpressionTemplateData, highlights: IHighlight[]): void;
+	protected abstract renderExpression(expression: IExpression, data: IExpressionTemplateData, highlights: IHighlight[]): void;
 	protected abstract getInputBoxOptions(expression: IExpression, settingValue: boolean): IInputBoxOptions | undefined;
 
 	protected renderActionBar?(actionBar: ActionBar, expression: IExpression, data: IExpressionTemplateData): void;
 
-	disposeElement(node: ITreeNode<T, FuzzyScore>, index: number, templateData: IExpressionTemplateData): void {
+	disposeElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, templateData: IExpressionTemplateData): void {
 		dispose(templateData.elementDisposable);
 		templateData.elementDisposable = [];
 	}

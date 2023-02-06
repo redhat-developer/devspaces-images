@@ -5,7 +5,7 @@
 
 import Severity from 'vs/base/common/severity';
 import { Disposable } from 'vs/base/common/lifecycle';
-import { IConfirmation, IConfirmationResult, IDialogService, IInput, IInputResult, IPrompt, IPromptResult, IPromptResultWithCancel, IPromptWithCustomCancel, IPromptWithDefaultCancel } from 'vs/platform/dialogs/common/dialogs';
+import { IConfirmation, IConfirmationResult, IDialogOptions, IDialogService, IInput, IInputResult, IShowResult } from 'vs/platform/dialogs/common/dialogs';
 import { DialogsModel } from 'vs/workbench/common/dialogs';
 import { InstantiationType, registerSingleton } from 'vs/platform/instantiation/common/extensions';
 import { IWorkbenchEnvironmentService } from 'vs/workbench/services/environment/common/environmentService';
@@ -48,39 +48,24 @@ export class DialogService extends Disposable implements IDialogService {
 		return await handle.result as IConfirmationResult;
 	}
 
-	prompt<T>(prompt: IPromptWithCustomCancel<T>): Promise<IPromptResultWithCancel<T>>;
-	prompt<T>(prompt: IPromptWithDefaultCancel<T>): Promise<IPromptResult<T>>;
-	prompt<T>(prompt: IPrompt<T>): Promise<IPromptResult<T>>;
-	async prompt<T>(prompt: IPrompt<T> | IPromptWithCustomCancel<T> | IPromptWithDefaultCancel<T>): Promise<IPromptResult<T> | IPromptResultWithCancel<T>> {
+	async show(severity: Severity, message: string, buttons?: string[], options?: IDialogOptions): Promise<IShowResult> {
 		if (this.skipDialogs()) {
 			throw new Error('DialogService: refused to show dialog in tests.');
 		}
 
-		const handle = this.model.show({ promptArgs: { prompt } });
+		const handle = this.model.show({ showArgs: { severity, message, buttons, options } });
 
-		return await handle.result as Promise<IPromptResult<T> | IPromptResultWithCancel<T>>;
+		return await handle.result as IShowResult;
 	}
 
-	async input(input: IInput): Promise<IInputResult> {
+	async input(severity: Severity, message: string, buttons: string[], inputs: IInput[], options?: IDialogOptions): Promise<IInputResult> {
 		if (this.skipDialogs()) {
 			throw new Error('DialogService: refused to show input dialog in tests.');
 		}
 
-		const handle = this.model.show({ inputArgs: { input } });
+		const handle = this.model.show({ inputArgs: { severity, message, buttons, inputs, options } });
 
 		return await handle.result as IInputResult;
-	}
-
-	async info(message: string, detail?: string): Promise<void> {
-		await this.prompt({ type: Severity.Info, message, detail });
-	}
-
-	async warn(message: string, detail?: string): Promise<void> {
-		await this.prompt({ type: Severity.Warning, message, detail });
-	}
-
-	async error(message: string, detail?: string): Promise<void> {
-		await this.prompt({ type: Severity.Error, message, detail });
 	}
 
 	async about(): Promise<void> {

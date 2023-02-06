@@ -11,8 +11,7 @@ import { INativeHostService } from 'vs/platform/native/electron-sandbox/native';
 import { Schemas } from 'vs/base/common/network';
 import { Action2 } from 'vs/platform/actions/common/actions';
 import { ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
-import { ExtensionsLocalizedLabel, IExtensionManagementService } from 'vs/platform/extensionManagement/common/extensionManagement';
-import { Categories } from 'vs/platform/action/common/actionCommonCategories';
+import { ExtensionsLocalizedLabel } from 'vs/platform/extensionManagement/common/extensionManagement';
 
 export class OpenExtensionsFolderAction extends Action2 {
 
@@ -43,23 +42,6 @@ export class OpenExtensionsFolderAction extends Action2 {
 		if (itemToShow.scheme === Schemas.file) {
 			return nativeHostService.showItemInFolder(itemToShow.fsPath);
 		}
-	}
-}
-
-export class CleanUpExtensionsFolderAction extends Action2 {
-
-	constructor() {
-		super({
-			id: '_workbench.extensions.action.cleanUpExtensionsFolder',
-			title: { value: localize('cleanUpExtensionsFolder', "Cleanup Extensions Folder"), original: 'Cleanup Extensions Folder' },
-			category: Categories.Developer,
-			f1: true
-		});
-	}
-
-	async run(accessor: ServicesAccessor): Promise<void> {
-		const extensionManagementService = accessor.get(IExtensionManagementService);
-		return extensionManagementService.cleanUp();
 	}
 }
 

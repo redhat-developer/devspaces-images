@@ -47,13 +47,12 @@ import { ITableRenderer, ITableVirtualDelegate } from 'vs/base/browser/ui/table/
 import { KeybindingsEditorInput } from 'vs/workbench/services/preferences/browser/keybindingsEditorInput';
 import { IEditorOptions } from 'vs/platform/editor/common/editor';
 import { ToolBar } from 'vs/base/browser/ui/toolbar/toolbar';
-import { defaultKeybindingLabelStyles, defaultToggleStyles, getInputBoxStyle } from 'vs/platform/theme/browser/defaultStyles';
+import { defaultInputBoxStyles, defaultKeybindingLabelStyles, defaultToggleStyles } from 'vs/platform/theme/browser/defaultStyles';
 import { IExtensionsWorkbenchService } from 'vs/workbench/contrib/extensions/common/extensions';
 import { StandardKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import { isString } from 'vs/base/common/types';
 import { SuggestEnabledInput } from 'vs/workbench/contrib/codeEditor/browser/suggestEnabledInput/suggestEnabledInput';
 import { CompletionItemKind } from 'vs/editor/common/languages';
-import { settingsTextInputBorder } from 'vs/workbench/contrib/preferences/common/settingsEditorColorRegistry';
 
 const $ = DOM.$;
 
@@ -333,9 +332,7 @@ export class KeybindingsEditor extends EditorPane implements IKeybindingsEditorP
 			recordEnter: true,
 			quoteRecordedKeys: true,
 			history: this.getMemento(StorageScope.PROFILE, StorageTarget.USER)['searchHistory'] || [],
-			inputBoxStyles: getInputBoxStyle({
-				inputBorder: settingsTextInputBorder
-			})
+			inputBoxStyles: defaultInputBoxStyles
 		}));
 		this._register(this.searchWidget.onDidChange(searchValue => {
 			clearInputAction.enabled = !!searchValue;
@@ -1064,9 +1061,7 @@ class WhenInputWidget extends Disposable {
 				}
 				return result;
 			},
-			triggerCharacters: ['!', ' '],
-			wordDefinition: /[a-zA-Z.]+/,
-			alwaysShowSuggestions: true,
+			triggerCharacters: ['!'],
 		}, '', `keyboardshortcutseditor#wheninput`, { focusContextKey, overflowWidgetsDomNode: keybindingsEditor.overflowWidgetsDomNode }));
 
 		this._register((DOM.addDisposableListener(this.input.element, DOM.EventType.DBLCLICK, e => DOM.EventHelper.stop(e))));

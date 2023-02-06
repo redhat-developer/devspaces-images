@@ -7,7 +7,7 @@ import { Emitter, Event } from 'vs/base/common/event';
 import { Disposable, IDisposable } from 'vs/base/common/lifecycle';
 import * as resources from 'vs/base/common/resources';
 import { URI } from 'vs/base/common/uri';
-import { FileChangeType, IFileDeleteOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileSystemProviderErrorCode, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions, createFileSystemProviderError } from 'vs/platform/files/common/files';
+import { FileChangeType, IFileDeleteOptions, IFileOverwriteOptions, FileSystemProviderCapabilities, FileSystemProviderError, FileSystemProviderErrorCode, FileType, IFileWriteOptions, IFileChange, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from 'vs/platform/files/common/files';
 
 class File implements IStat {
 
@@ -48,7 +48,7 @@ class Directory implements IStat {
 	}
 }
 
-type Entry = File | Directory;
+export type Entry = File | Directory;
 
 export class InMemoryFileSystemProvider extends Disposable implements IFileSystemProviderWithFileReadWriteCapability {
 
@@ -89,7 +89,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 		if (data) {
 			return data;
 		}
-		throw createFileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
+		throw new FileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
 	}
 
 	async writeFile(resource: URI, content: Uint8Array, opts: IFileWriteOptions): Promise<void> {
@@ -97,13 +97,13 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 		const parent = this._lookupParentDirectory(resource);
 		let entry = parent.entries.get(basename);
 		if (entry instanceof Directory) {
-			throw createFileSystemProviderError('file is directory', FileSystemProviderErrorCode.FileIsADirectory);
+			throw new FileSystemProviderError('file is directory', FileSystemProviderErrorCode.FileIsADirectory);
 		}
 		if (!entry && !opts.create) {
-			throw createFileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
+			throw new FileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
 		}
 		if (entry && opts.create && !opts.overwrite) {
-			throw createFileSystemProviderError('file exists already', FileSystemProviderErrorCode.FileExists);
+			throw new FileSystemProviderError('file exists already', FileSystemProviderErrorCode.FileExists);
 		}
 		if (!entry) {
 			entry = new File(basename);
@@ -121,7 +121,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 
 	async rename(from: URI, to: URI, opts: IFileOverwriteOptions): Promise<void> {
 		if (!opts.overwrite && this._lookup(to, true)) {
-			throw createFileSystemProviderError('file exists already', FileSystemProviderErrorCode.FileExists);
+			throw new FileSystemProviderError('file exists already', FileSystemProviderErrorCode.FileExists);
 		}
 
 		const entry = this._lookup(from, false);
@@ -154,7 +154,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 
 	async mkdir(resource: URI): Promise<void> {
 		if (this._lookup(resource, true)) {
-			throw createFileSystemProviderError('file exists already', FileSystemProviderErrorCode.FileExists);
+			throw new FileSystemProviderError('file exists already', FileSystemProviderErrorCode.FileExists);
 		}
 
 		const basename = resources.basename(resource);
@@ -185,7 +185,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 			}
 			if (!child) {
 				if (!silent) {
-					throw createFileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
+					throw new FileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
 				} else {
 					return undefined;
 				}
@@ -200,7 +200,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 		if (entry instanceof Directory) {
 			return entry;
 		}
-		throw createFileSystemProviderError('file not a directory', FileSystemProviderErrorCode.FileNotADirectory);
+		throw new FileSystemProviderError('file not a directory', FileSystemProviderErrorCode.FileNotADirectory);
 	}
 
 	private _lookupAsFile(uri: URI, silent: boolean): File {
@@ -208,7 +208,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 		if (entry instanceof File) {
 			return entry;
 		}
-		throw createFileSystemProviderError('file is a directory', FileSystemProviderErrorCode.FileIsADirectory);
+		throw new FileSystemProviderError('file is a directory', FileSystemProviderErrorCode.FileIsADirectory);
 	}
 
 	private _lookupParentDirectory(uri: URI): Directory {

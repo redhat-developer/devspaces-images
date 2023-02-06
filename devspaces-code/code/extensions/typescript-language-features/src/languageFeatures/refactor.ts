@@ -80,7 +80,7 @@ class SelectRefactorCommand implements Command {
 	) { }
 
 	public async execute(args: SelectRefactorCommand_Args): Promise<void> {
-		const file = this.client.toOpenTsFilePath(args.document);
+		const file = this.client.toOpenedFilePath(args.document);
 		if (!file) {
 			return;
 		}
@@ -192,7 +192,7 @@ class InlinedCodeAction extends vscode.CodeAction {
 	public renameLocation?: Proto.Location;
 
 	public async resolve(token: vscode.CancellationToken): Promise<undefined> {
-		const file = this.client.toOpenTsFilePath(this.document);
+		const file = this.client.toOpenedFilePath(this.document);
 		if (!file) {
 			return;
 		}
@@ -285,12 +285,12 @@ class TypeScriptRefactorProvider implements vscode.CodeActionProvider<TsCodeActi
 		if (!this.shouldTrigger(context, rangeOrSelection)) {
 			return undefined;
 		}
-		if (!this.client.toOpenTsFilePath(document)) {
+		if (!this.client.toOpenedFilePath(document)) {
 			return undefined;
 		}
 
 		const response = await this.client.interruptGetErr(() => {
-			const file = this.client.toOpenTsFilePath(document);
+			const file = this.client.toOpenedFilePath(document);
 			if (!file) {
 				return undefined;
 			}

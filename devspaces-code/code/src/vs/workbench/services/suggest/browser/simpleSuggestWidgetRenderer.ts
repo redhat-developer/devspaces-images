@@ -18,28 +18,28 @@ export function getAriaId(index: number): string {
 }
 
 export interface ISimpleSuggestionTemplateData {
-	readonly root: HTMLElement;
+	root: HTMLElement;
 
 	/**
 	 * Flexbox
 	 * < ------------- left ------------ >     < --- right -- >
 	 * <icon><label><signature><qualifier>     <type><readmore>
 	 */
-	readonly left: HTMLElement;
-	readonly right: HTMLElement;
+	left: HTMLElement;
+	right: HTMLElement;
 
-	readonly icon: HTMLElement;
-	readonly colorspan: HTMLElement;
-	readonly iconLabel: IconLabel;
-	readonly iconContainer: HTMLElement;
-	readonly parametersLabel: HTMLElement;
-	readonly qualifierLabel: HTMLElement;
+	icon: HTMLElement;
+	colorspan: HTMLElement;
+	iconLabel: IconLabel;
+	iconContainer: HTMLElement;
+	parametersLabel: HTMLElement;
+	qualifierLabel: HTMLElement;
 	/**
 	 * Showing either `CompletionItem#details` or `CompletionItemLabel#type`
 	 */
-	readonly detailsLabel: HTMLElement;
-	// readonly readMore: HTMLElement;
-	readonly disposables: DisposableStore;
+	detailsLabel: HTMLElement;
+	readMore: HTMLElement;
+	disposables: DisposableStore;
 }
 
 export class SimpleSuggestWidgetItemRenderer implements IListRenderer<SimpleCompletionItem, ISimpleSuggestionTemplateData> {
@@ -54,30 +54,31 @@ export class SimpleSuggestWidgetItemRenderer implements IListRenderer<SimpleComp
 	}
 
 	renderTemplate(container: HTMLElement): ISimpleSuggestionTemplateData {
-		const disposables = new DisposableStore();
+		const data = <ISimpleSuggestionTemplateData>Object.create(null);
+		data.disposables = new DisposableStore();
 
-		const root = container;
-		root.classList.add('show-file-icons');
+		data.root = container;
+		data.root.classList.add('show-file-icons');
 
-		const icon = append(container, $('.icon'));
-		const colorspan = append(icon, $('span.colorspan'));
+		data.icon = append(container, $('.icon'));
+		data.colorspan = append(data.icon, $('span.colorspan'));
 
 		const text = append(container, $('.contents'));
 		const main = append(text, $('.main'));
 
-		const iconContainer = append(main, $('.icon-label.codicon'));
-		const left = append(main, $('span.left'));
-		const right = append(main, $('span.right'));
+		data.iconContainer = append(main, $('.icon-label.codicon'));
+		data.left = append(main, $('span.left'));
+		data.right = append(main, $('span.right'));
 
-		const iconLabel = new IconLabel(left, { supportHighlights: true, supportIcons: true });
-		disposables.add(iconLabel);
+		data.iconLabel = new IconLabel(data.left, { supportHighlights: true, supportIcons: true });
+		data.disposables.add(data.iconLabel);
 
-		const parametersLabel = append(left, $('span.signature-label'));
-		const qualifierLabel = append(left, $('span.qualifier-label'));
-		const detailsLabel = append(right, $('span.details-label'));
+		data.parametersLabel = append(data.left, $('span.signature-label'));
+		data.qualifierLabel = append(data.left, $('span.qualifier-label'));
+		data.detailsLabel = append(data.right, $('span.details-label'));
 
-		// const readMore = append(right, $('span.readMore' + ThemeIcon.asCSSSelector(suggestMoreInfoIcon)));
-		// readMore.title = nls.localize('readMore', "Read More");
+		// data.readMore = append(data.right, $('span.readMore' + ThemeIcon.asCSSSelector(suggestMoreInfoIcon)));
+		// data.readMore.title = localize('readMore', "Read More");
 
 		const configureFont = () => {
 			// TODO: Implement
@@ -93,16 +94,16 @@ export class SimpleSuggestWidgetItemRenderer implements IListRenderer<SimpleComp
 			const lineHeightPx = `${lineHeight}px`;
 			const letterSpacingPx = `${letterSpacing}px`;
 
-			root.style.fontSize = fontSizePx;
-			root.style.fontWeight = fontWeight;
-			root.style.letterSpacing = letterSpacingPx;
+			data.root.style.fontSize = fontSizePx;
+			data.root.style.fontWeight = fontWeight;
+			data.root.style.letterSpacing = letterSpacingPx;
 			main.style.fontFamily = fontFamily;
 			main.style.fontFeatureSettings = fontFeatureSettings;
 			main.style.lineHeight = lineHeightPx;
-			icon.style.height = lineHeightPx;
-			icon.style.width = lineHeightPx;
-			// readMore.style.height = lineHeightPx;
-			// readMore.style.width = lineHeightPx;
+			data.icon.style.height = lineHeightPx;
+			data.icon.style.width = lineHeightPx;
+			// data.readMore.style.height = lineHeightPx;
+			// data.readMore.style.width = lineHeightPx;
 		};
 
 		configureFont();
@@ -113,7 +114,7 @@ export class SimpleSuggestWidgetItemRenderer implements IListRenderer<SimpleComp
 		// 	}
 		// }));
 
-		return { root, left, right, icon, colorspan, iconLabel, iconContainer, parametersLabel, qualifierLabel, detailsLabel, disposables };
+		return data;
 	}
 
 	renderElement(element: SimpleCompletionItem, index: number, data: ISimpleSuggestionTemplateData): void {

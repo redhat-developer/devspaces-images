@@ -428,35 +428,23 @@ export class AuthenticationService extends Disposable implements IAuthentication
 
 	async showGetSessionPrompt(providerId: string, accountName: string, extensionId: string, extensionName: string): Promise<boolean> {
 		const providerName = this.getLabel(providerId);
-		enum SessionPromptChoice {
-			Allow = 0,
-			Deny = 1,
-			Cancel = 2
-		}
-		const { result } = await this.dialogService.prompt<SessionPromptChoice>({
-			type: Severity.Info,
-			message: nls.localize('confirmAuthenticationAccess', "The extension '{0}' wants to access the {1} account '{2}'.", extensionName, providerName, accountName),
-			buttons: [
-				{
-					label: nls.localize({ key: 'allow', comment: ['&& denotes a mnemonic'] }, "&&Allow"),
-					run: () => SessionPromptChoice.Allow
-				},
-				{
-					label: nls.localize({ key: 'deny', comment: ['&& denotes a mnemonic'] }, "&&Deny"),
-					run: () => SessionPromptChoice.Deny
-				}
-			],
-			cancelButton: {
-				run: () => SessionPromptChoice.Cancel
+		const { choice } = await this.dialogService.show(
+			Severity.Info,
+			nls.localize('confirmAuthenticationAccess', "The extension '{0}' wants to access the {1} account '{2}'.", extensionName, providerName, accountName),
+			[nls.localize('allow', "Allow"), nls.localize('deny', "Deny"), nls.localize('cancel', "Cancel")],
+			{
+				cancelId: 2
 			}
-		});
+		);
 
-		if (result !== SessionPromptChoice.Cancel) {
-			this.updateAllowedExtension(providerId, accountName, extensionId, extensionName, result === SessionPromptChoice.Allow);
+		const cancelled = choice === 2;
+		const allowed = choice === 0;
+		if (!cancelled) {
+			this.updateAllowedExtension(providerId, accountName, extensionId, extensionName, allowed);
 			this.removeAccessRequest(providerId, extensionId);
 		}
 
-		return result === SessionPromptChoice.Allow;
+		return allowed;
 	}
 
 	async selectSession(providerId: string, extensionId: string, extensionName: string, scopes: string[], availableSessions: AuthenticationSession[]): Promise<AuthenticationSession> {

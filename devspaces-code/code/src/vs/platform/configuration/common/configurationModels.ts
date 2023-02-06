@@ -23,7 +23,7 @@ function freeze<T>(data: T): T {
 	return Object.isFrozen(data) ? data : objects.deepFreeze(data);
 }
 
-interface IInspectValue<V> {
+export interface IInspectValue<V> {
 	value?: V;
 	override?: V;
 	merged?: V;

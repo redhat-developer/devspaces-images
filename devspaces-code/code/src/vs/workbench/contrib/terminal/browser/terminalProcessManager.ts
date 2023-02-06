@@ -94,6 +94,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 
 	private _shellLaunchConfig?: IShellLaunchConfig;
 	private _dimensions: ITerminalDimensions = { cols: 0, rows: 0 };
+	private _isScreenReaderModeEnabled: boolean = false;
 
 	private readonly _onPtyDisconnect = this._register(new Emitter<void>());
 	readonly onPtyDisconnect = this._onPtyDisconnect.event;
@@ -219,11 +220,13 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 		shellLaunchConfig: IShellLaunchConfig,
 		cols: number,
 		rows: number,
+		isScreenReaderModeEnabled: boolean,
 		reset: boolean = true
 	): Promise<ITerminalLaunchError | undefined> {
 		this._shellLaunchConfig = shellLaunchConfig;
 		this._dimensions.cols = cols;
 		this._dimensions.rows = rows;
+		this._isScreenReaderModeEnabled = isScreenReaderModeEnabled;
 
 		let newProcess: ITerminalChildProcess | undefined;
 
@@ -280,7 +283,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 							enabled: this._configurationService.getValue(TerminalSettingId.ShellIntegrationEnabled),
 							suggestEnabled: this._configurationService.getValue(TerminalSettingId.ShellIntegrationSuggestEnabled),
 						},
-						windowsEnableConpty: this._configHelper.config.windowsEnableConpty,
+						windowsEnableConpty: this._configHelper.config.windowsEnableConpty && !isScreenReaderModeEnabled,
 						environmentVariableCollections: this._extEnvironmentVariableCollection?.collections ? serializeEnvironmentVariableCollections(this._extEnvironmentVariableCollection.collections) : undefined
 					};
 					try {
@@ -317,7 +320,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 					}
 				}
 				if (!newProcess) {
-					newProcess = await this._launchLocalProcess(backend, shellLaunchConfig, cols, rows, this.userHome, variableResolver);
+					newProcess = await this._launchLocalProcess(backend, shellLaunchConfig, cols, rows, this.userHome, isScreenReaderModeEnabled, variableResolver);
 				}
 				if (!this._isDisposed) {
 					this._setupPtyHostListeners(backend);
@@ -389,7 +392,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 		return undefined;
 	}
 
-	async relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, reset: boolean): Promise<ITerminalLaunchError | undefined> {
+	async relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, isScreenReaderModeEnabled: boolean, reset: boolean): Promise<ITerminalLaunchError | undefined> {
 		this.ptyProcessReady = this._createPtyProcessReadyPromise();
 		this._logService.trace(`Relaunching terminal instance ${this._instanceId}`);
 
@@ -403,7 +406,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 		// triggered
 		this._hasWrittenData = false;
 
-		return this.createProcess(shellLaunchConfig, cols, rows, reset);
+		return this.createProcess(shellLaunchConfig, cols, rows, isScreenReaderModeEnabled, reset);
 	}
 
 	// Fetch any extension environment additions and apply them
@@ -445,6 +448,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 		cols: number,
 		rows: number,
 		userHome: string | undefined,
+		isScreenReaderModeEnabled: boolean,
 		variableResolver: terminalEnvironment.VariableResolver | undefined
 	): Promise<ITerminalChildProcess> {
 		await this._terminalProfileResolverService.resolveShellLaunchConfig(shellLaunchConfig, {
@@ -469,7 +473,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 				enabled: this._configurationService.getValue(TerminalSettingId.ShellIntegrationEnabled),
 				suggestEnabled: this._configurationService.getValue(TerminalSettingId.ShellIntegrationSuggestEnabled),
 			},
-			windowsEnableConpty: this._configHelper.config.windowsEnableConpty,
+			windowsEnableConpty: this._configHelper.config.windowsEnableConpty && !isScreenReaderModeEnabled,
 			environmentVariableCollections: this._extEnvironmentVariableCollection ? serializeEnvironmentVariableCollections(this._extEnvironmentVariableCollection.collections) : undefined
 		};
 		const shouldPersist = ((this._configurationService.getValue(TaskSettingId.Reconnection) && shellLaunchConfig.reconnectionProperties) || !shellLaunchConfig.isFeatureTerminal) && this._configHelper.config.enablePersistentSessions && !shellLaunchConfig.isTransient;
@@ -517,7 +521,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 					// using the previous shellLaunchConfig
 					const message = localize('ptyHostRelaunch', "Restarting the terminal because the connection to the shell process was lost...");
 					this._onProcessData.fire({ data: formatMessageForTerminal(message, { loudFormatting: true }), trackCommit: false });
-					await this.relaunch(this._shellLaunchConfig, this._dimensions.cols, this._dimensions.rows, false);
+					await this.relaunch(this._shellLaunchConfig, this._dimensions.cols, this._dimensions.rows, this._isScreenReaderModeEnabled, false);
 				}
 			}
 		}));

@@ -11,7 +11,7 @@ import * as nls from 'vs/nls';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 import { KeybindingWeight } from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { ICommandService } from 'vs/platform/commands/common/commands';
-import { INotificationService } from 'vs/platform/notification/common/notification';
+import { INotificationService, Severity } from 'vs/platform/notification/common/notification';
 import { VIEWLET_ID, IExtensionsViewPaneContainer } from 'vs/workbench/contrib/extensions/common/extensions';
 import { IDialogService } from 'vs/platform/dialogs/common/dialogs';
 import { IPaneCompositePartService } from 'vs/workbench/services/panecomposite/browser/panecomposite';
@@ -65,11 +65,13 @@ registerEditorAction(class FormatDocumentMultipleAction extends EditorAction {
 		} else {
 			const langName = model.getLanguageId();
 			const message = nls.localize('no.provider', "There is no formatter for '{0}' files installed.", langName);
-			const { confirmed } = await dialogService.confirm({
+			const res = await dialogService.show(
+				Severity.Info,
 				message,
-				primaryButton: nls.localize({ key: 'install.formatter', comment: ['&& denotes a mnemonic'] }, "&&Install Formatter...")
-			});
-			if (confirmed) {
+				[nls.localize('install.formatter', "Install Formatter..."), nls.localize('cancel', "Cancel")],
+				{ cancelId: 1 }
+			);
+			if (res.choice !== 1) {
 				showExtensionQuery(paneCompositeService, `category:formatters ${langName}`);
 			}
 		}

@@ -40,11 +40,9 @@ export function create(
 	onError: (message: string) => void = _defaultOnError
 ): IncrementalCompiler {
 
-	function printDiagnostic(diag: ts.Diagnostic | Error): void {
+	function printDiagnostic(diag: ts.Diagnostic): void {
 
-		if (diag instanceof Error) {
-			onError(diag.message);
-		} else if (!diag.file || !diag.start) {
+		if (!diag.file || !diag.start) {
 			onError(ts.flattenDiagnosticMessageText(diag.messageText, '\n'));
 		} else {
 			const lineAndCh = diag.file.getLineAndCharacterOfPosition(diag.start);

@@ -232,7 +232,7 @@ export interface OpenDevToolsOptions {
 	activate?: boolean;
 }
 
-interface InputEvent {
+export interface InputEvent {
 
 	// Docs: https://electronjs.org/docs/api/structures/input-event
 

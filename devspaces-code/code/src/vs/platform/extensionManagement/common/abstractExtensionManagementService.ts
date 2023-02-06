@@ -661,7 +661,6 @@ export abstract class AbstractExtensionManagementService extends Disposable impl
 	abstract getInstalled(type?: ExtensionType, profileLocation?: URI): Promise<ILocalExtension[]>;
 	abstract download(extension: IGalleryExtension, operation: InstallOperation): Promise<URI>;
 	abstract reinstallFromGallery(extension: ILocalExtension): Promise<ILocalExtension>;
-	abstract cleanUp(): Promise<void>;
 
 	abstract onDidUpdateExtensionMetadata: Event<ILocalExtension>;
 	abstract getMetadata(extension: ILocalExtension, profileLocation?: URI): Promise<Metadata | undefined>;
@@ -691,7 +690,7 @@ function toExtensionManagementError(error: Error): ExtensionManagementError {
 	return e;
 }
 
-function reportTelemetry(telemetryService: ITelemetryService, eventName: string, { extensionData, verificationStatus, duration, error, durationSinceUpdate }: { extensionData: any; verificationStatus?: ExtensionVerificationStatus; duration?: number; durationSinceUpdate?: number; error?: Error }): void {
+export function reportTelemetry(telemetryService: ITelemetryService, eventName: string, { extensionData, verificationStatus, duration, error, durationSinceUpdate }: { extensionData: any; verificationStatus?: ExtensionVerificationStatus; duration?: number; durationSinceUpdate?: number; error?: Error }): void {
 	let errorcode: ExtensionManagementErrorCode | undefined;
 	let errorcodeDetail: string | undefined;
 

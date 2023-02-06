@@ -59,7 +59,7 @@ function convertToWorkspacePayload(folder: URI): ISingleFolderWorkspaceIdentifie
 	};
 }
 
-class ConfigurationCache implements IConfigurationCache {
+export class ConfigurationCache implements IConfigurationCache {
 	needsCaching(resource: URI): boolean { return false; }
 	async read(): Promise<string> { return ''; }
 	async write(): Promise<void> { }

@@ -142,18 +142,18 @@ export class SettingsChangeRelauncher extends Disposable implements IWorkbenchCo
 					localize('relaunchSettingDetail', "Press the restart button to restart {0} and enable the setting.", this.productService.nameLong) :
 					localize('relaunchSettingDetailWeb', "Press the reload button to reload {0} and enable the setting.", this.productService.nameLong),
 				isNative ?
-					localize({ key: 'restart', comment: ['&& denotes a mnemonic'] }, "&&Restart") :
-					localize({ key: 'restartWeb', comment: ['&& denotes a mnemonic'] }, "&&Reload"),
+					localize('restart', "&&Restart") :
+					localize('restartWeb', "&&Reload"),
 				() => this.hostService.restart()
 			);
 		}
 	}
 
-	private async doConfirm(message: string, detail: string, primaryButton: string, confirmedFn: () => void): Promise<void> {
+	private async doConfirm(message: string, detail: string, primaryButton: string, confirmed: () => void): Promise<void> {
 		if (this.hostService.hasFocus) {
-			const { confirmed } = await this.dialogService.confirm({ message, detail, primaryButton });
-			if (confirmed) {
-				confirmedFn();
+			const res = await this.dialogService.confirm({ type: 'info', message, detail, primaryButton });
+			if (res.confirmed) {
+				confirmed();
 			}
 		}
 	}

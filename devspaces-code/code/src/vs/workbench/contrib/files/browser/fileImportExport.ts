@@ -5,7 +5,7 @@
 
 import { localize } from 'vs/nls';
 import { CancellationToken, CancellationTokenSource } from 'vs/base/common/cancellation';
-import { getFileNamesMessage, IConfirmation, IDialogService, IFileDialogService, IPromptButton } from 'vs/platform/dialogs/common/dialogs';
+import { getFileNamesMessage, IConfirmation, IDialogService, IFileDialogService } from 'vs/platform/dialogs/common/dialogs';
 import { ByteSize, FileSystemProviderCapabilities, IFileService, IFileStatWithMetadata } from 'vs/platform/files/common/files';
 import { INotificationService, Severity } from 'vs/platform/notification/common/notification';
 import { IProgress, IProgressService, IProgressStep, ProgressLocation } from 'vs/platform/progress/common/progress';
@@ -444,18 +444,11 @@ export class ExternalFileImport {
 		// Handle folders by adding to workspace if we are in workspace context and if dropped on top
 		const folders = resolvedFiles.filter(resolvedFile => resolvedFile.success && resolvedFile.stat?.isDirectory).map(resolvedFile => ({ uri: resolvedFile.stat!.resource }));
 		if (folders.length > 0 && target.isRoot) {
-			enum ImportChoice {
-				Copy = 1,
-				Add = 2
-			}
-
-			const buttons: IPromptButton<ImportChoice | undefined>[] = [
-				{
-					label: folders.length > 1 ?
-						localize('copyFolders', "&&Copy Folders") :
-						localize('copyFolder', "&&Copy Folder"),
-					run: () => ImportChoice.Copy
-				}
+			const buttons = [
+				folders.length > 1 ?
+					localize('copyFolders', "&&Copy Folders") :
+					localize('copyFolder', "&&Copy Folder"),
+				localize('cancel', "Cancel")
 			];
 
 			let message: string;
@@ -463,12 +456,7 @@ export class ExternalFileImport {
 			// We only allow to add a folder to the workspace if there is already a workspace folder with that scheme
 			const workspaceFolderSchemas = this.contextService.getWorkspace().folders.map(folder => folder.uri.scheme);
 			if (folders.some(folder => workspaceFolderSchemas.indexOf(folder.uri.scheme) >= 0)) {
-				buttons.unshift({
-					label: folders.length > 1 ?
-						localize('addFolders', "&&Add Folders to Workspace") :
-						localize('addFolder', "&&Add Folder to Workspace"),
-					run: () => ImportChoice.Add
-				});
+				buttons.unshift(folders.length > 1 ? localize('addFolders', "&&Add Folders to Workspace") : localize('addFolder', "&&Add Folder to Workspace"));
 				message = folders.length > 1 ?
 					localize('dropFolders', "Do you want to copy the folders or add the folders to the workspace?") :
 					localize('dropFolder', "Do you want to copy '{0}' or add '{0}' as a folder to the workspace?", basename(folders[0].uri));
@@ -478,20 +466,15 @@ export class ExternalFileImport {
 					localize('copyfolder', "Are you sure to want to copy '{0}'?", basename(folders[0].uri));
 			}
 
-			const { result } = await this.dialogService.prompt({
-				type: Severity.Info,
-				message,
-				buttons,
-				cancelButton: true
-			});
+			const { choice } = await this.dialogService.show(Severity.Info, message, buttons, { cancelId: buttons.length - 1 });
 
 			// Add folders
-			if (result === ImportChoice.Add) {
+			if (choice === buttons.length - 3) {
 				return this.workspaceEditingService.addFolders(folders);
 			}
 
 			// Copy resources
-			if (result === ImportChoice.Copy) {
+			if (choice === buttons.length - 2) {
 				return this.importResources(target, files, token);
 			}
 		}

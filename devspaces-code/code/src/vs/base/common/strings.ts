@@ -727,12 +727,17 @@ export function lcut(text: string, n: number) {
 	return text.substring(i).replace(/^\s/, '');
 }
 
-// Escape codes, compiled from https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Functions-using-CSI-_-ordered-by-the-final-character_s_
-const CSI_SEQUENCE = /(:?\x1b\[|\x9B)[=?>!]?[\d;:]*["$#'* ]?[a-zA-Z@^`{}|~]/g;
+// Escape codes
+// http://en.wikipedia.org/wiki/ANSI_escape_code
+const EL = /\x1B\x5B[12]?K/g; // Erase in line
+const COLOR_START = /\x1b\[\d+m/g; // Color
+const COLOR_END = /\x1b\[0?m/g; // Color
 
 export function removeAnsiEscapeCodes(str: string): string {
 	if (str) {
-		str = str.replace(CSI_SEQUENCE, '');
+		str = str.replace(EL, '');
+		str = str.replace(COLOR_START, '');
+		str = str.replace(COLOR_END, '');
 	}
 
 	return str;

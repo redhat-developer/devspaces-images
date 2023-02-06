@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { escapeRegExpCharacters } from 'vs/base/common/strings';
 import { URI } from 'vs/base/common/uri';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { matchesScheme } from 'vs/platform/opener/common/opener';
@@ -34,7 +33,7 @@ export class TerminalWordLinkDetector implements ITerminalLinkDetector {
 	// quite small.
 	readonly maxLinkLength = 100;
 
-	private _separatorRegex!: RegExp;
+	private _separatorCodes!: Uint32Array;
 
 	constructor(
 		readonly xterm: Terminal,
@@ -109,21 +108,26 @@ export class TerminalWordLinkDetector implements ITerminalLinkDetector {
 
 	private _parseWords(text: string): Word[] {
 		const words: Word[] = [];
-		const splitWords = text.split(this._separatorRegex);
-		let runningIndex = 0;
-		for (let i = 0; i < splitWords.length; i++) {
-			words.push({
-				text: splitWords[i],
-				startIndex: runningIndex,
-				endIndex: runningIndex + splitWords[i].length
-			});
-			runningIndex += splitWords[i].length + 1;
+
+		let startIndex = 0;
+		for (let i = 0; i < text.length; i++) {
+			if (this._separatorCodes.includes(text.charCodeAt(i))) {
+				words.push({ startIndex, endIndex: i, text: text.substring(startIndex, i) });
+				startIndex = i + 1;
+			}
 		}
+		if (startIndex < text.length) {
+			words.push({ startIndex, endIndex: text.length, text: text.substring(startIndex) });
+		}
+
 		return words;
 	}
 
 	private _refreshSeparatorCodes(): void {
 		const separators = this._configurationService.getValue<ITerminalConfiguration>(TERMINAL_CONFIG_SECTION).wordSeparators;
-		this._separatorRegex = new RegExp(`[${escapeRegExpCharacters(separators)}]`, 'g');
+		this._separatorCodes = new Uint32Array(separators.length);
+		for (let i = 0; i < separators.length; i++) {
+			this._separatorCodes[i] = separators.charCodeAt(i);
+		}
 	}
 }

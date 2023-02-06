@@ -42,7 +42,7 @@ export class MainThreadAuthenticationProvider extends Disposable implements IAut
 		const allowedExtensions = readAllowedExtensions(this.storageService, this.id, accountName);
 
 		if (!allowedExtensions.length) {
-			this.dialogService.info(nls.localize('noTrustedExtensions', "This account has not been used by any extensions."));
+			this.dialogService.show(Severity.Info, nls.localize('noTrustedExtensions', "This account has not been used by any extensions."));
 			return;
 		}
 
@@ -99,15 +99,20 @@ export class MainThreadAuthenticationProvider extends Disposable implements IAut
 	async removeAccountSessions(accountName: string, sessions: AuthenticationSession[]): Promise<void> {
 		const accountUsages = readAccountUsages(this.storageService, this.id, accountName);
 
-		const { confirmed } = await this.dialogService.confirm({
-			type: Severity.Info,
-			message: accountUsages.length
+		const result = await this.dialogService.show(
+			Severity.Info,
+			accountUsages.length
 				? nls.localize('signOutMessage', "The account '{0}' has been used by: \n\n{1}\n\n Sign out from these extensions?", accountName, accountUsages.map(usage => usage.extensionName).join('\n'))
 				: nls.localize('signOutMessageSimple', "Sign out of '{0}'?", accountName),
-			primaryButton: nls.localize({ key: 'signOut', comment: ['&& denotes a mnemonic'] }, "&&Sign Out")
-		});
+			[
+				nls.localize('signOut', "Sign Out"),
+				nls.localize('cancel', "Cancel")
+			],
+			{
+				cancelId: 1
+			});
 
-		if (confirmed) {
+		if (result.choice === 0) {
 			const removeSessionPromises = sessions.map(session => this.removeSession(session.id));
 			await Promise.all(removeSessionPromises);
 			removeAccountUsage(this.storageService, this.id, accountName);
@@ -181,14 +186,17 @@ export class MainThreadAuthentication extends Disposable implements MainThreadAu
 		const message = recreatingSession
 			? nls.localize('confirmRelogin', "The extension '{0}' wants you to sign in again using {1}.", extensionName, providerName)
 			: nls.localize('confirmLogin', "The extension '{0}' wants to sign in using {1}.", extensionName, providerName);
-		const { confirmed } = await this.dialogService.confirm({
-			type: Severity.Info,
+		const { choice } = await this.dialogService.show(
+			Severity.Info,
 			message,
-			detail,
-			primaryButton: nls.localize({ key: 'allow', comment: ['&& denotes a mnemonic'] }, "&&Allow")
-		});
+			[nls.localize('allow', "Allow"), nls.localize('cancel', "Cancel")],
+			{
+				cancelId: 1,
+				detail
+			}
+		);
 
-		return confirmed;
+		return choice === 0;
 	}
 
 	private async doGetSession(providerId: string, scopes: string[], extensionId: string, extensionName: string, options: AuthenticationGetSessionOptions): Promise<AuthenticationSession | undefined> {

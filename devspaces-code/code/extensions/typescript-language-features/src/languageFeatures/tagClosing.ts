@@ -58,7 +58,7 @@ class TagClosing extends Disposable {
 			return;
 		}
 
-		const filepath = this.client.toOpenTsFilePath(document);
+		const filepath = this.client.toOpenedFilePath(document);
 		if (!filepath) {
 			return;
 		}

@@ -14,6 +14,7 @@ import { CancellationToken } from 'vs/base/common/cancellation';
 import { IRequestService, asText } from 'vs/platform/request/common/request';
 import { joinPath } from 'vs/base/common/resources';
 import { IDialogService } from 'vs/platform/dialogs/common/dialogs';
+import Severity from 'vs/base/common/severity';
 import { IOpenerService } from 'vs/platform/opener/common/opener';
 import { INativeHostService } from 'vs/platform/native/electron-sandbox/native';
 import { INativeWorkbenchEnvironmentService } from 'vs/workbench/services/environment/electron-sandbox/environmentService';
@@ -156,9 +157,11 @@ class ReportExtensionSlowAction extends Action {
 		const url = `${this.repoInfo.base}/${this.repoInfo.owner}/${this.repoInfo.repo}/issues/new/?body=${body}&title=${title}`;
 		this._openerService.open(URI.parse(url));
 
-		this._dialogService.info(
+		this._dialogService.show(
+			Severity.Info,
 			localize('attach.title', "Did you attach the CPU-Profile?"),
-			localize('attach.msg', "This is a reminder to make sure that you have not forgotten to attach '{0}' to the issue you have just created.", path.fsPath)
+			undefined,
+			{ detail: localize('attach.msg', "This is a reminder to make sure that you have not forgotten to attach '{0}' to the issue you have just created.", path.fsPath) }
 		);
 	}
 }
@@ -189,9 +192,11 @@ class ShowExtensionSlowAction extends Action {
 		const url = `${this.repoInfo.base}/${this.repoInfo.owner}/${this.repoInfo.repo}/issues?utf8=✓&q=is%3Aissue+state%3Aopen+%22Extension+causes+high+cpu+load%22`;
 		this._openerService.open(URI.parse(url));
 
-		this._dialogService.info(
+		this._dialogService.show(
+			Severity.Info,
 			localize('attach.title', "Did you attach the CPU-Profile?"),
-			localize('attach.msg2', "This is a reminder to make sure that you have not forgotten to attach '{0}' to an existing performance issue.", path.fsPath)
+			undefined,
+			{ detail: localize('attach.msg2', "This is a reminder to make sure that you have not forgotten to attach '{0}' to an existing performance issue.", path.fsPath) }
 		);
 	}
 }

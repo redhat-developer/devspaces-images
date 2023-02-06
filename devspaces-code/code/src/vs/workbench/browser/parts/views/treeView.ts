@@ -732,11 +732,7 @@ abstract class AbstractTreeView extends Disposable implements ITreeView {
 					args = [...args, e];
 				}
 
-				try {
-					await this.commandService.executeCommand(command.id, ...args);
-				} catch (err) {
-					this.notificationService.error(err);
-				}
+				this.commandService.executeCommand(command.id, ...args);
 			}
 		}));
 
@@ -902,10 +898,6 @@ abstract class AbstractTreeView extends Disposable implements ITreeView {
 			// The extension could have changed the tree during the reveal.
 			// Because of that, we ignore errors.
 		}
-	}
-
-	isCollapsed(item: ITreeItem): boolean {
-		return !!this.tree?.isCollapsed(item);
 	}
 
 	setSelection(items: ITreeItem[]): void {

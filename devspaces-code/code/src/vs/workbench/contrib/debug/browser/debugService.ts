@@ -181,8 +181,7 @@ export class DebugService implements IDebugService {
 				if (editorService.activeEditor === DisassemblyViewInput.instance) {
 					this.disassemblyViewFocus.set(true);
 				} else {
-					// This key can be initialized a tick after this event is fired
-					this.disassemblyViewFocus?.reset();
+					this.disassemblyViewFocus.reset();
 				}
 			});
 		}));
@@ -879,15 +878,10 @@ export class DebugService implements IDebugService {
 		const actions = errorActions.filter((action) => action.id.endsWith('.command')).length > 0 ?
 			errorActions :
 			[...errorActions, ...(promptLaunchJson ? [configureAction] : [])];
-		await this.dialogService.prompt({
-			type: severity.Error,
-			message,
-			buttons: actions.map(action => ({
-				label: action.label,
-				run: () => action.run()
-			})),
-			cancelButton: true
-		});
+		const { choice } = await this.dialogService.show(severity.Error, message, actions.map(a => a.label).concat(nls.localize('cancel', "Cancel")), { cancelId: actions.length - 1 });
+		if (choice < actions.length) {
+			await actions[choice].run();
+		}
 	}
 
 	//---- focus management
@@ -1173,59 +1167,40 @@ export class DebugService implements IDebugService {
 	}
 
 	async runTo(uri: uri, lineNumber: number, column?: number): Promise<void> {
+		const focusedSession = this.getViewModel().focusedSession;
+		if (this.state !== State.Stopped || !focusedSession) {
+			return;
+		}
+		const bpExists = !!(this.getModel().getBreakpoints({ column, lineNumber, uri }).length);
+
 		let breakpointToRemove: IBreakpoint | undefined;
 		let threadToContinue = this.getViewModel().focusedThread;
-		const addTempBreakPoint = async () => {
-			const bpExists = !!(this.getModel().getBreakpoints({ column, lineNumber, uri }).length);
-
-			if (!bpExists) {
-				const addResult = await this.addAndValidateBreakpoints(uri, lineNumber, column);
-				if (addResult.thread) {
-					threadToContinue = addResult.thread;
-				}
-
-				if (addResult.breakpoint) {
-					breakpointToRemove = addResult.breakpoint;
-				}
+		if (!bpExists) {
+			const addResult = await this.addAndValidateBreakpoints(uri, lineNumber, column);
+			if (addResult.thread) {
+				threadToContinue = addResult.thread;
 			}
-			return { threadToContinue, breakpointToRemove };
-		};
-		const removeTempBreakPoint = (state: State): boolean => {
+
+			if (addResult.breakpoint) {
+				breakpointToRemove = addResult.breakpoint;
+			}
+		}
+
+		if (!threadToContinue) {
+			return;
+		}
+
+		const oneTimeListener = threadToContinue.session.onDidChangeState(() => {
+			const state = focusedSession.state;
 			if (state === State.Stopped || state === State.Inactive) {
 				if (breakpointToRemove) {
 					this.removeBreakpoints(breakpointToRemove.getId());
 				}
-				return true;
+				oneTimeListener.dispose();
 			}
-			return false;
-		};
+		});
 
-		await addTempBreakPoint();
-		if (this.state === State.Inactive) {
-			// If no session exists start the debugger
-			const { launch, name, getConfig } = this.getConfigurationManager().selectedConfiguration;
-			const config = await getConfig();
-			const configOrName = config ? Object.assign(deepClone(config), {}) : name;
-			const listener = this.onDidChangeState(state => {
-				if (removeTempBreakPoint(state)) {
-					listener.dispose();
-				}
-			});
-			await this.startDebugging(launch, configOrName, undefined, true);
-		}
-		if (this.state === State.Stopped) {
-			const focusedSession = this.getViewModel().focusedSession;
-			if (!focusedSession || !threadToContinue) {
-				return;
-			}
-
-			const listener = threadToContinue.session.onDidChangeState(() => {
-				if (removeTempBreakPoint(focusedSession.state)) {
-					listener.dispose();
-				}
-			});
-			await threadToContinue.continue();
-		}
+		await threadToContinue.continue();
 	}
 
 	private async addAndValidateBreakpoints(uri: URI, lineNumber: number, column?: number) {

@@ -647,7 +647,8 @@ export class SearchView extends ViewPane {
 		const confirmation: IConfirmation = {
 			title: nls.localize('replaceAll.confirmation.title', "Replace All"),
 			message: this.buildReplaceAllConfirmationMessage(occurrences, fileCount, replaceValue),
-			primaryButton: nls.localize({ key: 'replaceAll.confirm.button', comment: ['&& denotes a mnemonic'] }, "&&Replace")
+			primaryButton: nls.localize('replaceAll.confirm.button', "&&Replace"),
+			type: 'question'
 		};
 
 		this.dialogService.confirm(confirmation).then(res => {

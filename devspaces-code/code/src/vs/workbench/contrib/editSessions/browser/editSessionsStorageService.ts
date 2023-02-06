@@ -502,8 +502,10 @@ export class EditSessionsWorkbenchService extends Disposable implements IEditSes
 
 			async run() {
 				const result = await that.dialogService.confirm({
+					type: 'info',
 					message: localize('sign out of cloud changes clear data prompt', 'Do you want to disable storing working changes in the cloud?'),
-					checkbox: { label: localize('delete all cloud changes', 'Delete all stored data from the cloud.') }
+					checkbox: { label: localize('delete all cloud changes', 'Delete all stored data from the cloud.') },
+					primaryButton: localize('clear data confirm', 'Yes'),
 				});
 				if (result.confirmed) {
 					if (result.checkboxChecked) {

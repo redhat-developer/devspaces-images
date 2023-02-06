@@ -46,7 +46,7 @@ import { IWorkbenchThemeService, IWorkbenchTheme, IWorkbenchColorTheme, IWorkben
 import { ILabelService } from 'vs/platform/label/common/label';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
 import { IProductService } from 'vs/platform/product/common/productService';
-import { IDialogService, IPromptButton } from 'vs/platform/dialogs/common/dialogs';
+import { IDialogService } from 'vs/platform/dialogs/common/dialogs';
 import { IProgressService, ProgressLocation } from 'vs/platform/progress/common/progress';
 import { IActionViewItemOptions, ActionViewItem } from 'vs/base/browser/ui/actionbar/actionViewItems';
 import { EXTENSIONS_CONFIG, IExtensionsConfigContent } from 'vs/workbench/services/extensionRecommendations/common/workspaceExtensionsConfig';
@@ -104,20 +104,15 @@ export class PromptExtensionInstallFailureAction extends Action {
 		if (this.error.name === ExtensionManagementErrorCode.Unsupported) {
 			const productName = isWeb ? localize('VS Code for Web', "{0} for the Web", this.productService.nameLong) : this.productService.nameLong;
 			const message = localize('cannot be installed', "The '{0}' extension is not available in {1}. Click 'More Information' to learn more.", this.extension.displayName || this.extension.identifier.id, productName);
-			const { confirmed } = await this.dialogService.confirm({
-				type: Severity.Info,
-				message,
-				primaryButton: localize({ key: 'more information', comment: ['&& denotes a mnemonic'] }, "&&More Information"),
-				cancelButton: localize('close', "Close")
-			});
-			if (confirmed) {
+			const result = await this.dialogService.show(Severity.Info, message, [localize('more information', "More Information"), localize('close', "Close")], { cancelId: 1 });
+			if (result.choice === 0) {
 				this.openerService.open(isWeb ? URI.parse('https://aka.ms/vscode-web-extensions-guide') : URI.parse('https://aka.ms/vscode-remote'));
 			}
 			return;
 		}
 
 		if ([ExtensionManagementErrorCode.Incompatible, ExtensionManagementErrorCode.IncompatibleTargetPlatform, ExtensionManagementErrorCode.Malicious, ExtensionManagementErrorCode.ReleaseVersionNotFound, ExtensionManagementErrorCode.Deprecated].includes(<ExtensionManagementErrorCode>this.error.name)) {
-			await this.dialogService.info(getErrorMessage(this.error));
+			await this.dialogService.show(Severity.Info, getErrorMessage(this.error));
 			return;
 		}
 
@@ -334,63 +329,45 @@ export abstract class AbstractInstallAction extends ExtensionAction {
 
 		if (this.extension.deprecationInfo) {
 			let detail: string | MarkdownString = localize('deprecated message', "This extension is deprecated as it is no longer being maintained.");
-			enum DeprecationChoice {
-				InstallAnyway = 0,
-				ShowAlternateExtension = 1,
-				ConfigureSettings = 2,
-				Cancel = 3
-			}
-			const buttons: IPromptButton<DeprecationChoice>[] = [
-				{
-					label: localize({ key: 'install anyway', comment: ['&& denotes a mnemonic'] }, "&&Install Anyway"),
-					run: () => DeprecationChoice.InstallAnyway
-				}
+			let action: () => Promise<any> = async () => undefined;
+			const buttons = [
+				localize('install anyway', "Install Anyway"),
+				localize('cancel', "Cancel"),
 			];
 
 			if (this.extension.deprecationInfo.extension) {
 				detail = localize('deprecated with alternate extension message', "This extension is deprecated. Use the {0} extension instead.", this.extension.deprecationInfo.extension.displayName);
-
+				buttons.splice(1, 0, localize('Show alternate extension', "Open {0}", this.extension.deprecationInfo.extension.displayName));
 				const alternateExtension = this.extension.deprecationInfo.extension;
-				buttons.push({
-					label: localize({ key: 'Show alternate extension', comment: ['&& denotes a mnemonic'] }, "&&Open {0}", this.extension.deprecationInfo.extension.displayName),
-					run: async () => {
-						const [extension] = await this.extensionsWorkbenchService.getExtensions([{ id: alternateExtension.id, preRelease: alternateExtension.preRelease }], CancellationToken.None);
-						await this.extensionsWorkbenchService.open(extension);
-
-						return DeprecationChoice.ShowAlternateExtension;
-					}
-				});
+				action = () => this.extensionsWorkbenchService.getExtensions([{ id: alternateExtension.id, preRelease: alternateExtension.preRelease }], CancellationToken.None)
+					.then(([extension]) => this.extensionsWorkbenchService.open(extension));
 			} else if (this.extension.deprecationInfo.settings) {
 				detail = localize('deprecated with alternate settings message', "This extension is deprecated as this functionality is now built-in to VS Code.");
-
+				buttons.splice(1, 0, localize('configure in settings', "Configure Settings"));
 				const settings = this.extension.deprecationInfo.settings;
-				buttons.push({
-					label: localize({ key: 'configure in settings', comment: ['&& denotes a mnemonic'] }, "&&Configure Settings"),
-					run: async () => {
-						await this.preferencesService.openSettings({ query: settings.map(setting => `@id:${setting}`).join(' ') });
-
-						return DeprecationChoice.ConfigureSettings;
-					}
-				});
+				action = () => this.preferencesService.openSettings({ query: settings.map(setting => `@id:${setting}`).join(' ') });
 			} else if (this.extension.deprecationInfo.additionalInfo) {
 				detail = new MarkdownString(`${detail} ${this.extension.deprecationInfo.additionalInfo}`);
 			}
 
-			const { result } = await this.dialogService.prompt({
-				type: Severity.Warning,
-				message: localize('install confirmation', "Are you sure you want to install '{0}'?", this.extension.displayName),
-				detail: isString(detail) ? detail : undefined,
-				custom: isString(detail) ? undefined : {
-					markdownDetails: [{
-						markdown: detail
-					}]
-				},
+			const result = await this.dialogService.show(
+				Severity.Warning,
+				localize('install confirmation', "Are you sure you want to install '{0}'?", this.extension.displayName),
 				buttons,
-				cancelButton: {
-					run: () => DeprecationChoice.Cancel
-				}
-			});
-			if (result !== DeprecationChoice.InstallAnyway) {
+				{
+					detail: isString(detail) ? detail : undefined,
+					cancelId: buttons.length - 1,
+					custom: isString(detail) ? undefined : {
+						markdownDetails: [{
+							markdown: detail
+						}]
+					}
+				},
+			);
+			if (result.choice === 1) {
+				return action();
+			}
+			if (result.choice === 2) {
 				return;
 			}
 		}
@@ -901,7 +878,7 @@ export class UpdateAction extends AbstractUpdateAction {
 
 	constructor(
 		private readonly verbose: boolean,
-		@IExtensionsWorkbenchService extensionsWorkbenchService: IExtensionsWorkbenchService,
+		@IExtensionsWorkbenchService override readonly extensionsWorkbenchService: IExtensionsWorkbenchService,
 		@IInstantiationService protected readonly instantiationService: IInstantiationService,
 	) {
 		super(`extensions.update`, localize('update', "Update"), extensionsWorkbenchService);
@@ -935,7 +912,7 @@ export class UpdateAction extends AbstractUpdateAction {
 export class SkipUpdateAction extends AbstractUpdateAction {
 
 	constructor(
-		@IExtensionsWorkbenchService extensionsWorkbenchService: IExtensionsWorkbenchService
+		@IExtensionsWorkbenchService override readonly extensionsWorkbenchService: IExtensionsWorkbenchService
 	) {
 		super(`extensions.ignoreUpdates`, localize('ignoreUpdates', "Ignore Updates"), extensionsWorkbenchService);
 	}
@@ -1023,7 +1000,7 @@ export class ExtensionActionWithDropdownActionViewItem extends ActionWithDropdow
 		this.updateClass();
 	}
 
-	protected override updateClass(): void {
+	override updateClass(): void {
 		super.updateClass();
 		if (this.element && this.dropdownMenuActionViewItem && this.dropdownMenuActionViewItem.element) {
 			this.element.classList.toggle('empty', (<ActionWithDropDownAction>this._action).menuActions.length === 0);
@@ -1360,7 +1337,7 @@ export class InstallAnotherVersionAction extends ExtensionAction {
 		const targetPlatform = await this.extension!.server!.extensionManagementService.getTargetPlatform();
 		const allVersions = await this.extensionGalleryService.getAllCompatibleVersions(this.extension!.gallery!, this.extension!.local!.preRelease, targetPlatform);
 		if (!allVersions.length) {
-			await this.dialogService.info(localize('no versions', "This extension has no other versions."));
+			await this.dialogService.show(Severity.Info, localize('no versions', "This extension has no other versions."));
 			return;
 		}
 

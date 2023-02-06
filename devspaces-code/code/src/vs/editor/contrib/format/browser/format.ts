@@ -32,7 +32,6 @@ import { IInstantiationService } from 'vs/platform/instantiation/common/instanti
 import { IProgress } from 'vs/platform/progress/common/progress';
 import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import { LanguageFeatureRegistry } from 'vs/editor/common/languageFeatureRegistry';
-import { ILogService } from 'vs/platform/log/common/log';
 
 export function alertFormattingEdits(edits: ISingleEditOperation[]): void {
 
@@ -156,7 +155,6 @@ export async function formatDocumentRangesWithProvider(
 	token: CancellationToken
 ): Promise<boolean> {
 	const workerService = accessor.get(IEditorWorkerService);
-	const logService = accessor.get(ILogService);
 
 	let model: ITextModel;
 	let cts: CancellationTokenSource;
@@ -180,18 +178,12 @@ export async function formatDocumentRangesWithProvider(
 	}
 
 	const computeEdits = async (range: Range) => {
-		logService.trace(`[format][provideDocumentRangeFormattingEdits] (request)`, provider.extensionId?.value, range);
-
-		const result = (await provider.provideDocumentRangeFormattingEdits(
+		return (await provider.provideDocumentRangeFormattingEdits(
 			model,
 			range,
 			model.getFormattingOptions(),
 			cts.token
 		)) || [];
-
-		logService.trace(`[format][provideDocumentRangeFormattingEdits] (response)`, provider.extensionId?.value, result);
-
-		return result;
 	};
 
 	const hasIntersectingEdit = (a: TextEdit[], b: TextEdit[]) => {

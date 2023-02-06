@@ -15,7 +15,7 @@ import { BrowserWorkbenchEnvironmentService } from 'vs/workbench/services/enviro
 import { TestEnvironmentService } from 'vs/workbench/test/browser/workbenchTestServices';
 import { TestProductService } from 'vs/workbench/test/common/workbenchTestServices';
 
-class ConfigurationCache implements IConfigurationCache {
+export class ConfigurationCache implements IConfigurationCache {
 	private readonly cache = new Map<string, string>();
 	needsCaching(resource: URI): boolean { return false; }
 	async read({ type, key }: ConfigurationKey): Promise<string> { return this.cache.get(`${type}:${key}`) || ''; }

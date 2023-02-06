@@ -3,15 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-.monaco-workbench .merge-editor .code-view > .header {
+.monaco-workbench .merge-editor .code-view>.title {
 	padding: 0 10px;
 	height: 30px;
 	display: flex;
 	align-content: center;
-	overflow: hidden;
 }
 
-.monaco-workbench .merge-editor .code-view > .header > span {
+.monaco-workbench .merge-editor .code-view>.title>SPAN {
 	align-self: center;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -19,54 +18,52 @@
 	white-space: nowrap;
 }
 
-.monaco-workbench .merge-editor .code-view > .header > span.title {
+.monaco-workbench .merge-editor .code-view>.title>SPAN.title {
 	flex-shrink: 0;
 }
 
-.monaco-workbench .merge-editor .code-view > .header > span.description {
-	flex-shrink: 0;
+.monaco-workbench .merge-editor .code-view>.title>SPAN.description {
 	display: flex;
 	font-size: 12px;
 	align-items: center;
 	color: var(--vscode-descriptionForeground);
 }
 
-.monaco-workbench .merge-editor .code-view > .header > span.description .codicon {
+.monaco-workbench .merge-editor .code-view>.title>SPAN.description .codicon {
 	font-size: 14px;
 	color: var(--vscode-descriptionForeground);
 }
 
-.monaco-workbench .merge-editor .code-view > .header > span.detail {
+.monaco-workbench .merge-editor .code-view>.title>SPAN.detail {
 	margin-left: auto;
+	flex-shrink: 0;
 	font-size: 12px;
 	color: var(--vscode-descriptionForeground);
 }
 
-.monaco-workbench .merge-editor .code-view > .header > span.detail .codicon {
-	font-size: 13px;
-}
-
 /* for input1|2 -> align details to the left  */
-.monaco-workbench .merge-editor .code-view.input > .header > span.detail::before {
+.monaco-workbench .merge-editor .code-view.input>.title>SPAN.detail::before {
 	content: '•';
 	opacity: .5;
 	padding-right: 3px;
 }
-.monaco-workbench .merge-editor .code-view.input > .header > span.detail {
+.monaco-workbench .merge-editor .code-view.input>.title>SPAN.detail {
 	margin-left: 0;
 }
-.monaco-workbench .merge-editor .code-view.input > .header > span.toolbar {
-	flex-shrink: 0;
+.monaco-workbench .merge-editor .code-view.input>.title>SPAN.toolbar {
 	margin-left: auto;
 }
 
+.monaco-workbench .merge-editor .code-view>.title>SPAN.detail .codicon {
+	font-size: 13px;
+}
 
-.monaco-workbench .merge-editor .code-view > .container {
+.monaco-workbench .merge-editor .code-view>.container {
 	display: flex;
 	flex-direction: row;
 }
 
-.monaco-workbench .merge-editor .code-view > .container > .gutter {
+.monaco-workbench .merge-editor .code-view>.container>.gutter {
 	width: 24px;
 	position: relative;
 	overflow: hidden;
@@ -74,55 +71,55 @@
 	flex-grow: 0;
 }
 
-.monaco-workbench .merge-editor .merge-editor-diff {
+.merge-editor-diff {
 	background-color: var(--vscode-mergeEditor-change-background);
 }
 
-.monaco-workbench .merge-editor .merge-editor-diff-word {
+.merge-editor-diff-word {
 	background-color: var(--vscode-mergeEditor-change-word-background);
 }
 
 /* BEGIN: .merge-editor-block */
 
-.monaco-workbench .merge-editor .merge-editor-block:not(.handled) {
+.merge-editor-block:not(.handled) {
 	background-color: var(--vscode-mergeEditor-conflict-unhandledUnfocused-background);
 }
 
-.monaco-workbench .merge-editor .merge-editor-block:not(.handled):not(.focused) {
+.merge-editor-block:not(.handled):not(.focused) {
 	border: 1px solid var(--vscode-mergeEditor-conflict-unhandledUnfocused-border);
 }
 
-.monaco-workbench .merge-editor .merge-editor-block:not(.handled).focused {
+.merge-editor-block:not(.handled).focused {
 	border: 2px solid var(--vscode-mergeEditor-conflict-unhandledFocused-border);
 }
 
-.monaco-workbench .merge-editor .merge-editor-block.handled:not(.focused) {
+.merge-editor-block.handled:not(.focused) {
 	border: 1px solid var(--vscode-mergeEditor-conflict-handledUnfocused-border);
 }
 
-.monaco-workbench .merge-editor .merge-editor-block.handled:not(.focused).conflicting {
+.merge-editor-block.handled:not(.focused).conflicting {
 	background-color: var(--vscode-mergeEditor-conflict-handledUnfocused-background);
 }
 
-.monaco-workbench .merge-editor .merge-editor-block.handled.focused {
+.merge-editor-block.handled.focused {
 	border: 1px solid var(--vscode-mergeEditor-conflict-handledFocused-border);
 }
 
-.monaco-workbench .merge-editor .merge-editor-block.handled.focused.conflicting {
+.merge-editor-block.handled.focused.conflicting {
 	background-color: var(--vscode-mergeEditor-conflict-handledFocused-background);
 }
 
-.monaco-workbench .merge-editor .merge-editor-simplified.input.i1, .merge-editor-block.use-simplified-decorations.input.i1 {
+.merge-editor-simplified.input.i1, .merge-editor-block.use-simplified-decorations.input.i1 {
 	background-color: var(--vscode-mergeEditor-conflict-input1-background);
 }
 
-.monaco-workbench .merge-editor .merge-editor-simplified.input.i2, .merge-editor-block.use-simplified-decorations.input.i2 {
+.merge-editor-simplified.input.i2, .merge-editor-block.use-simplified-decorations.input.i2 {
 	background-color: var(--vscode-mergeEditor-conflict-input2-background);
 }
 
 /* END: .merge-editor-block */
 
-.gutter.monaco-editor > div {
+.gutter.monaco-editor>div {
 	position: absolute;
 }
 
@@ -246,23 +243,23 @@
 	color: var(--vscode-editorCodeLens-foreground)
 }
 
-.merge-editor-conflict-actions > span,
-.merge-editor-conflict-actions > a {
+.merge-editor-conflict-actions>span,
+.merge-editor-conflict-actions>a {
 	user-select: none;
 	-webkit-user-select: none;
 	white-space: nowrap;
 }
 
-.merge-editor-conflict-actions > a {
+.merge-editor-conflict-actions>a {
 	text-decoration: none;
 }
 
-.merge-editor-conflict-actions > a:hover {
+.merge-editor-conflict-actions>a:hover {
 	cursor: pointer;
 	color: var(--vscode-editorLink-activeForeground) !important;
 }
 
-.merge-editor-conflict-actions > a:hover .codicon {
+.merge-editor-conflict-actions>a:hover .codicon {
 	color: var(--vscode-editorLink-activeForeground) !important;
 }
 
@@ -272,7 +269,7 @@
 	color: var(--vscode-editorCodeLens-foreground);
 }
 
-.merge-editor-conflict-actions > a:hover .codicon::before {
+.merge-editor-conflict-actions>a:hover .codicon::before {
 	cursor: pointer;
 }
 

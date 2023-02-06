@@ -15,10 +15,12 @@ import { URI } from 'vs/base/common/uri';
 import { Promises } from 'vs/base/node/pfs';
 import { localize } from 'vs/nls';
 import { IBackupMainService } from 'vs/platform/backup/electron-main/backup';
+import { massageMessageBoxOptions } from 'vs/platform/dialogs/common/dialogs';
 import { IDialogMainService } from 'vs/platform/dialogs/electron-main/dialogMainService';
 import { IEnvironmentMainService } from 'vs/platform/environment/electron-main/environmentMainService';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { ILogService } from 'vs/platform/log/common/log';
+import { IProductService } from 'vs/platform/product/common/productService';
 import { IUserDataProfilesMainService } from 'vs/platform/userDataProfile/electron-main/userDataProfile';
 import { ICodeWindow } from 'vs/platform/window/electron-main/window';
 import { findWindowOnWorkspaceOrFolder } from 'vs/platform/windows/electron-main/windowsFinder';
@@ -73,7 +75,8 @@ export class WorkspacesManagementMainService extends Disposable implements IWork
 		@ILogService private readonly logService: ILogService,
 		@IUserDataProfilesMainService private readonly userDataProfilesMainService: IUserDataProfilesMainService,
 		@IBackupMainService private readonly backupMainService: IBackupMainService,
-		@IDialogMainService private readonly dialogMainService: IDialogMainService
+		@IDialogMainService private readonly dialogMainService: IDialogMainService,
+		@IProductService private readonly productService: IProductService
 	) {
 		super();
 	}
@@ -276,12 +279,12 @@ export class WorkspacesManagementMainService extends Disposable implements IWork
 
 		// Prevent overwriting a workspace that is currently opened in another window
 		if (findWindowOnWorkspaceOrFolder(windows, workspacePath)) {
-			await this.dialogMainService.showMessageBox({
+			await this.dialogMainService.showMessageBox(massageMessageBoxOptions({
 				type: 'info',
 				buttons: [localize({ key: 'ok', comment: ['&& denotes a mnemonic'] }, "&&OK")],
 				message: localize('workspaceOpenedMessage', "Unable to save workspace '{0}'", basename(workspacePath)),
 				detail: localize('workspaceOpenedDetail', "The workspace is already opened in another window. Please close that window first and then try again.")
-			}, withNullAsUndefined(BrowserWindow.getFocusedWindow()));
+			}, this.productService).options, withNullAsUndefined(BrowserWindow.getFocusedWindow()));
 
 			return false;
 		}

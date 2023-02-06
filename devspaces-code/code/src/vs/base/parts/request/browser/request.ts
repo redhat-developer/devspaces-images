@@ -9,6 +9,10 @@ import { canceled } from 'vs/base/common/errors';
 import { IRequestContext, IRequestOptions, OfflineError } from 'vs/base/parts/request/common/request';
 
 export function request(options: IRequestOptions, token: CancellationToken): Promise<IRequestContext> {
+	if (!navigator.onLine) {
+		throw new OfflineError();
+	}
+
 	if (options.proxyAuthorization) {
 		options.headers = {
 			...(options.headers || {}),
@@ -23,9 +27,7 @@ export function request(options: IRequestOptions, token: CancellationToken): Pro
 		setRequestHeaders(xhr, options);
 
 		xhr.responseType = 'arraybuffer';
-		xhr.onerror = e => reject(
-			navigator.onLine ? new Error(xhr.statusText && ('XHR failed: ' + xhr.statusText) || 'XHR failed') : new OfflineError()
-		);
+		xhr.onerror = e => reject(new Error(xhr.statusText && ('XHR failed: ' + xhr.statusText) || 'XHR failed'));
 		xhr.onload = (e) => {
 			resolve({
 				res: {

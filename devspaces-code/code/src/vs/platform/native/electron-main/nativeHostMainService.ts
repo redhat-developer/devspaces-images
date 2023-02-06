@@ -22,7 +22,7 @@ import { findFreePort } from 'vs/base/node/ports';
 import { MouseInputEvent } from 'vs/base/parts/sandbox/common/electronTypes';
 import { localize } from 'vs/nls';
 import { ISerializableCommandAction } from 'vs/platform/action/common/action';
-import { INativeOpenDialogOptions } from 'vs/platform/dialogs/common/dialogs';
+import { INativeOpenDialogOptions, massageMessageBoxOptions } from 'vs/platform/dialogs/common/dialogs';
 import { IDialogMainService } from 'vs/platform/dialogs/electron-main/dialogMainService';
 import { IEnvironmentMainService } from 'vs/platform/environment/electron-main/environmentMainService';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
@@ -287,16 +287,17 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 				throw error;
 			}
 
-			const { response } = await this.showMessageBox(windowId, {
+			const { options, buttonIndeces } = massageMessageBoxOptions({
 				type: 'info',
 				message: localize('warnEscalation', "{0} will now prompt with 'osascript' for Administrator privileges to install the shell command.", this.productService.nameShort),
 				buttons: [
 					localize({ key: 'ok', comment: ['&& denotes a mnemonic'] }, "&&OK"),
-					localize('cancel', "Cancel")
+					localize({ key: 'cancel', comment: ['&& denotes a mnemonic'] }, "&&Cancel")
 				]
-			});
+			}, this.productService);
 
-			if (response === 0 /* OK */) {
+			const { response } = await this.showMessageBox(windowId, options);
+			if (buttonIndeces[response] === 0 /* OK */) {
 				try {
 					const command = `osascript -e "do shell script \\"mkdir -p /usr/local/bin && ln -sf \'${target}\' \'${source}\'\\" with administrator privileges"`;
 					await promisify(exec)(command);
@@ -315,16 +316,17 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 		} catch (error) {
 			switch (error.code) {
 				case 'EACCES': {
-					const { response } = await this.showMessageBox(windowId, {
+					const { options, buttonIndeces } = massageMessageBoxOptions({
 						type: 'info',
 						message: localize('warnEscalationUninstall', "{0} will now prompt with 'osascript' for Administrator privileges to uninstall the shell command.", this.productService.nameShort),
 						buttons: [
 							localize({ key: 'ok', comment: ['&& denotes a mnemonic'] }, "&&OK"),
-							localize('cancel', "Cancel")
+							localize({ key: 'cancel', comment: ['&& denotes a mnemonic'] }, "&&Cancel"),
 						]
-					});
+					}, this.productService);
 
-					if (response === 0 /* OK */) {
+					const { response } = await this.showMessageBox(windowId, options);
+					if (buttonIndeces[response] === 0 /* OK */) {
 						try {
 							const command = `osascript -e "do shell script \\"rm \'${source}\'\\" with administrator privileges"`;
 							await promisify(exec)(command);

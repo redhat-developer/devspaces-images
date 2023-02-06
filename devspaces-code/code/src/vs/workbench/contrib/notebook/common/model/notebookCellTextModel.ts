@@ -435,10 +435,7 @@ export class NotebookCellTextModel extends Disposable implements ICell {
 			return false;
 		}
 
-		// Once we attach the cell text buffer to an editor, the source of truth is the text buffer instead of the original source
-		if (this._textBuffer && this.getValue() !== b.source) {
-			return false;
-		} else if (this._source !== b.source) {
+		if (this._source !== b.source) {
 			return false;
 		}
 

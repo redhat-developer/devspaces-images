@@ -27,6 +27,9 @@ import { IWindowState } from 'vs/platform/window/electron-main/window';
 import { randomPath } from 'vs/base/common/extpath';
 import { withNullAsUndefined } from 'vs/base/common/types';
 import { IStateMainService } from 'vs/platform/state/electron-main/state';
+import { massageMessageBoxOptions } from 'vs/platform/dialogs/common/dialogs';
+
+
 
 export const IIssueMainService = createDecorator<IIssueMainService>('issueMainService');
 const processExplorerWindowState = 'issue.processExplorerWindowState';
@@ -110,16 +113,17 @@ export class IssueMainService implements IIssueMainService {
 
 		validatedIpcMain.on('vscode:issueReporterClipboard', async event => {
 			if (this.issueReporterWindow) {
-				const { response } = await this.dialogMainService.showMessageBox({
-					type: 'warning',
+				const { options, buttonIndeces } = massageMessageBoxOptions({
 					message: localize('issueReporterWriteToClipboard', "There is too much data to send to GitHub directly. The data will be copied to the clipboard, please paste it into the GitHub issue page that is opened."),
+					type: 'warning',
 					buttons: [
 						localize({ key: 'ok', comment: ['&& denotes a mnemonic'] }, "&&OK"),
-						localize('cancel', "Cancel")
+						localize({ key: 'cancel', comment: ['&& denotes a mnemonic'] }, "&&Cancel")
 					]
-				}, this.issueReporterWindow);
+				}, this.productService);
 
-				this.safeSend(event, 'vscode:issueReporterClipboardResponse', response === 0);
+				const result = await this.dialogMainService.showMessageBox(options, this.issueReporterWindow);
+				this.safeSend(event, 'vscode:issueReporterClipboardResponse', buttonIndeces[result.response] === 0);
 			}
 		});
 
@@ -130,16 +134,17 @@ export class IssueMainService implements IIssueMainService {
 
 		validatedIpcMain.on('vscode:issueReporterConfirmClose', async () => {
 			if (this.issueReporterWindow) {
-				const { response } = await this.dialogMainService.showMessageBox({
-					type: 'warning',
+				const { options, buttonIndeces } = massageMessageBoxOptions({
 					message: localize('confirmCloseIssueReporter', "Your input will not be saved. Are you sure you want to close this window?"),
+					type: 'warning',
 					buttons: [
 						localize({ key: 'yes', comment: ['&& denotes a mnemonic'] }, "&&Yes"),
-						localize('cancel', "Cancel")
+						localize({ key: 'cancel', comment: ['&& denotes a mnemonic'] }, "&&Cancel")
 					]
-				}, this.issueReporterWindow);
+				}, this.productService);
 
-				if (response === 0) {
+				const result = await this.dialogMainService.showMessageBox(options, this.issueReporterWindow);
+				if (buttonIndeces[result.response] === 0) {
 					if (this.issueReporterWindow) {
 						this.issueReporterWindow.destroy();
 						this.issueReporterWindow = null;
@@ -459,12 +464,14 @@ export class IssueMainService implements IIssueMainService {
 		const path = await contentTracing.stopRecording(`${randomPath(this.environmentMainService.userHome.fsPath, this.productService.applicationName)}.trace.txt`);
 
 		// Inform user to report an issue
-		await this.dialogMainService.showMessageBox({
+		const { options } = massageMessageBoxOptions({
 			type: 'info',
 			message: localize('trace.message', "Successfully created the trace file"),
 			detail: localize('trace.detail', "Please create an issue and manually attach the following file:\n{0}", path),
 			buttons: [localize({ key: 'trace.ok', comment: ['&& denotes a mnemonic'] }, "&&OK")],
-		}, withNullAsUndefined(BrowserWindow.getFocusedWindow()));
+		}, this.productService);
+
+		await this.dialogMainService.showMessageBox(options, withNullAsUndefined(BrowserWindow.getFocusedWindow()));
 
 		// Show item in explorer
 		this.nativeHostMainService.showItemInFolder(undefined, path);

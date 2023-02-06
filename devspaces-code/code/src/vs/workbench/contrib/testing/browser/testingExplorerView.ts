@@ -991,19 +991,14 @@ class TreeSorter implements ITreeSorter<TestExplorerTreeElement> {
 			return stateDelta;
 		}
 
-		let inSameLocation = false;
 		if (a instanceof TestItemTreeElement && b instanceof TestItemTreeElement && a.test.item.uri && b.test.item.uri && a.test.item.uri.toString() === b.test.item.uri.toString() && a.test.item.range && b.test.item.range) {
-			inSameLocation = true;
-
 			const delta = a.test.item.range.startLineNumber - b.test.item.range.startLineNumber;
 			if (delta !== 0) {
 				return delta;
 			}
 		}
 
-		// If tests are in the same location and there's no preferred sortText,
-		// keep the extension's insertion order (#163449).
-		return inSameLocation && !a.sortText && !b.sortText ? 0 : (a.sortText || a.label).localeCompare(b.sortText || b.label);
+		return (a.sortText || a.label).localeCompare(b.sortText || b.label);
 	}
 }
 
@@ -1253,11 +1248,7 @@ class TestItemRenderer extends ActionableItemTemplateData<TestItemTreeElement> {
 		}
 
 		data.label.title = getLabelForTestTreeElement(node.element);
-		if (node.element.label.trim()) {
-			dom.reset(data.label, ...renderLabelWithIcons(node.element.label));
-		} else {
-			data.label.textContent = String.fromCharCode(0xA0); // &nbsp;
-		}
+		dom.reset(data.label, ...renderLabelWithIcons(node.element.label));
 
 		let description = node.element.description;
 		if (node.element.duration !== undefined) {

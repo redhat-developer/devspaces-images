@@ -414,10 +414,6 @@ export class VariablesRenderer extends AbstractExpressionsRenderer {
 		renderVariable(expression as Variable, data, true, highlights, this.linkDetector);
 	}
 
-	public override renderElement(node: ITreeNode<IExpression, FuzzyScore>, index: number, data: IExpressionTemplateData): void {
-		super.renderExpressionElement(node.element, node, data);
-	}
-
 	protected getInputBoxOptions(expression: IExpression): IInputBoxOptions {
 		const variable = <Variable>expression;
 		return {

@@ -124,7 +124,7 @@ class NotebookEditorModelManager extends Disposable {
 				eol: cell.textBuffer.getEOL(),
 				language: cell.language,
 				cellKind: cell.cellKind,
-				outputs: cell.outputs.map(op => ({ outputId: op.outputId, outputs: op.outputs })),
+				outputs: cell.outputs,
 				metadata: cell.metadata,
 				internalMetadata: cell.internalMetadata,
 			};

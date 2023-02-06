@@ -130,7 +130,8 @@ export class NativeLocaleService implements ILocaleService {
 	}
 
 	private async showRestartDialog(languageName: string): Promise<boolean> {
-		const { confirmed } = await this.dialogService.confirm({
+		const restartDialog = await this.dialogService.confirm({
+			type: 'info',
 			message: localize('restartDisplayLanguageMessage1', "Restart {0} to switch to {1}?", this.productService.nameLong, languageName),
 			detail: localize(
 				'restartDisplayLanguageDetail1',
@@ -141,6 +142,6 @@ export class NativeLocaleService implements ILocaleService {
 			primaryButton: localize({ key: 'restart', comment: ['&& denotes a mnemonic character'] }, "&&Restart"),
 		});
 
-		return confirmed;
+		return restartDialog.confirmed;
 	}
 }

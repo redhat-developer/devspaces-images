@@ -6,7 +6,7 @@
 import * as assert from 'assert';
 import { URI } from 'vs/base/common/uri';
 import { mock } from 'vs/base/test/common/mock';
-import { IDialogService, IPrompt } from 'vs/platform/dialogs/common/dialogs';
+import { IDialogService } from 'vs/platform/dialogs/common/dialogs';
 import { TestDialogService } from 'vs/platform/dialogs/test/common/testDialogService';
 import { TestNotificationService } from 'vs/platform/notification/test/common/testNotificationService';
 import { IUndoRedoElement, UndoRedoElementType, UndoRedoGroup } from 'vs/platform/undoRedo/common/undoRedo';
@@ -136,14 +136,9 @@ suite('UndoRedoService', () => {
 		const resource1 = URI.file('test1.txt');
 		const resource2 = URI.file('test2.txt');
 		const service = createUndoRedoService(new class extends mock<IDialogService>() {
-			override async prompt<T = any>(prompt: IPrompt<any>) {
-				const result = prompt.buttons?.[0].run({ checkboxChecked: false });
-
-				return { result };
-			}
-			override async confirm() {
+			override async show() {
 				return {
-					confirmed: true // confirm!
+					choice: 0 // confirm!
 				};
 			}
 		});

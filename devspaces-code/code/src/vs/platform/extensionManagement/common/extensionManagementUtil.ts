@@ -168,7 +168,7 @@ export function getExtensionDependencies(installedExtensions: ReadonlyArray<IExt
 	return dependencies;
 }
 
-async function isAlpineLinux(fileService: IFileService, logService: ILogService): Promise<boolean> {
+export async function isAlpineLinux(fileService: IFileService, logService: ILogService): Promise<boolean> {
 	if (!isLinux) {
 		return false;
 	}

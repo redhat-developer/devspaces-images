@@ -11,7 +11,7 @@ import { getIdAndVersion } from 'vs/platform/extensionManagement/common/extensio
 import { DidAddProfileExtensionsEvent, DidRemoveProfileExtensionsEvent, IExtensionsProfileScannerService, ProfileExtensionsEvent } from 'vs/platform/extensionManagement/common/extensionsProfileScannerService';
 import { IExtensionsScannerService } from 'vs/platform/extensionManagement/common/extensionsScannerService';
 import { INativeServerExtensionManagementService } from 'vs/platform/extensionManagement/node/extensionManagementService';
-import { ExtensionIdentifier, IExtension, IExtensionIdentifier } from 'vs/platform/extensions/common/extensions';
+import { ExtensionIdentifier, IExtensionIdentifier } from 'vs/platform/extensions/common/extensions';
 import { FileChangesEvent, FileChangeType, IFileService } from 'vs/platform/files/common/files';
 import { ILogService } from 'vs/platform/log/common/log';
 import { IUriIdentityService } from 'vs/platform/uriIdentity/common/uriIdentity';
@@ -106,34 +106,18 @@ export class ExtensionsWatcher extends Disposable {
 	}
 
 	private async onDidRemoveExtensions(e: DidRemoveProfileExtensionsEvent): Promise<void> {
-		const extensionsToUninstall: IExtension[] = [];
-		const promises: Promise<void>[] = [];
+		let hasToUninstallExtensions = false;
 		for (const extension of e.extensions) {
 			const key = this.getKey(extension.identifier, extension.version);
 			if (e.error) {
 				this.addExtensionWithKey(key, e.profileLocation);
 			} else {
 				this.removeExtensionWithKey(key, e.profileLocation);
-				if (!this.allExtensions.has(key)) {
-					this.logService.debug('Extension is removed from all profiles', extension.identifier.id, extension.version);
-					promises.push(this.extensionManagementService.scanInstalledExtensionAtLocation(extension.location)
-						.then(result => {
-							if (result) {
-								extensionsToUninstall.push(result);
-							} else {
-								this.logService.info('Extension not found at the location', extension.location.toString());
-							}
-						}, error => this.logService.error(error)));
-				}
+				hasToUninstallExtensions = hasToUninstallExtensions || !this.allExtensions.has(key);
 			}
 		}
-		try {
-			await Promise.all(promises);
-			if (extensionsToUninstall.length) {
-				await this.uninstallExtensionsNotInProfiles(extensionsToUninstall);
-			}
-		} catch (error) {
-			this.logService.error(error);
+		if (hasToUninstallExtensions) {
+			await this.uninstallExtensionsNotInProfiles();
 		}
 	}
 
@@ -191,11 +175,9 @@ export class ExtensionsWatcher extends Disposable {
 		await this.uninstallExtensionsNotInProfiles();
 	}
 
-	private async uninstallExtensionsNotInProfiles(toUninstall?: IExtension[]): Promise<void> {
-		if (!toUninstall) {
-			const installed = await this.extensionManagementService.scanAllUserInstalledExtensions();
-			toUninstall = installed.filter(installedExtension => !this.allExtensions.has(this.getKey(installedExtension.identifier, installedExtension.manifest.version)));
-		}
+	private async uninstallExtensionsNotInProfiles(): Promise<void> {
+		const installed = await this.extensionManagementService.getAllUserInstalled();
+		const toUninstall = installed.filter(installedExtension => installedExtension.installedTimestamp /* Installed by VS Code */ && !this.allExtensions.has(this.getKey(installedExtension.identifier, installedExtension.manifest.version)));
 		if (toUninstall.length) {
 			await this.extensionManagementService.markAsUninstalled(...toUninstall);
 		}

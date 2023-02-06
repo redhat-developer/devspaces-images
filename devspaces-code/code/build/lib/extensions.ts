@@ -24,6 +24,7 @@ const buffer = require('gulp-buffer');
 import * as jsoncParser from 'jsonc-parser';
 import webpack = require('webpack');
 import { getProductionDependencies } from './dependencies';
+import _ = require('underscore');
 import { getExtensionStream } from './builtInExtensions';
 import { getVersion } from './getVersion';
 
@@ -372,7 +373,7 @@ export function packageLocalExtensionsStream(forWeb: boolean): Stream {
 	} else {
 		// also include shared production node modules
 		const productionDependencies = getProductionDependencies('extensions/');
-		const dependenciesSrc = productionDependencies.map(d => path.relative(root, d.path)).map(d => [`${d}/**`, `!${d}/**/{test,tests}/**`]).flat();
+		const dependenciesSrc = _.flatten(productionDependencies.map(d => path.relative(root, d.path)).map(d => [`${d}/**`, `!${d}/**/{test,tests}/**`]));
 
 		result = es.merge(
 			localExtensionsStream,

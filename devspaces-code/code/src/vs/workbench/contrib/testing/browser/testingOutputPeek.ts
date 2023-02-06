@@ -78,7 +78,6 @@ import { ITestService } from 'vs/workbench/contrib/testing/common/testService';
 import { IRichLocation, ITestErrorMessage, ITestItem, ITestMessage, ITestRunTask, ITestTaskState, TestMessageType, TestResultItem, TestResultState, TestRunProfileBitset } from 'vs/workbench/contrib/testing/common/testTypes';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 import 'vs/css!./testingOutputPeek';
-import { INotificationService } from 'vs/platform/notification/common/notification';
 
 class TestDto {
 	public readonly test: ITestItem;
@@ -434,7 +433,6 @@ export class TestingOutputPeekController extends Disposable implements IEditorCo
 		@IStorageService private readonly storageService: IStorageService,
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@ICommandService private readonly commandService: ICommandService,
-		@INotificationService private readonly notificationService: INotificationService,
 	) {
 		super();
 		this.visible = TestingContextKeys.isPeekVisible.bindTo(contextKeyService);
@@ -472,9 +470,7 @@ export class TestingOutputPeekController extends Disposable implements IEditorCo
 		} else if (typeof message.message === 'string') {
 			this.editorService.openEditor({ resource: current.messageUri, options });
 		} else {
-			this.commandService.executeCommand('markdown.showPreview', current.messageUri).catch(err => {
-				this.notificationService.error(localize('testing.markdownPeekError', 'Could not open markdown preview: {0}.\n\nPlease make sure the markdown extension is enabled.', err.message));
-			});
+			this.commandService.executeCommand('markdown.showPreview', current.messageUri);
 		}
 	}
 

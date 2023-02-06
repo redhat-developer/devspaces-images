@@ -28,27 +28,17 @@ export interface Matches {
 
 export interface KeybindingLabelOptions extends IKeybindingLabelStyles {
 	renderUnboundKeybindings?: boolean;
-	/**
-	 * Default false.
-	 */
-	disableTitle?: boolean;
 }
+
+export type CSSValueString = string;
 
 export interface IKeybindingLabelStyles {
-	keybindingLabelBackground: string | undefined;
-	keybindingLabelForeground: string | undefined;
-	keybindingLabelBorder: string | undefined;
-	keybindingLabelBottomBorder: string | undefined;
-	keybindingLabelShadow: string | undefined;
+	keybindingLabelBackground?: CSSValueString;
+	keybindingLabelForeground?: CSSValueString;
+	keybindingLabelBorder?: CSSValueString;
+	keybindingLabelBottomBorder?: CSSValueString;
+	keybindingLabelShadow?: CSSValueString;
 }
-
-export const unthemedKeybindingLabelOptions: KeybindingLabelOptions = {
-	keybindingLabelBackground: undefined,
-	keybindingLabelForeground: undefined,
-	keybindingLabelBorder: undefined,
-	keybindingLabelBottomBorder: undefined,
-	keybindingLabelShadow: undefined
-};
 
 export class KeybindingLabel {
 
@@ -61,8 +51,18 @@ export class KeybindingLabel {
 	private matches: Matches | undefined;
 	private didEverRender: boolean;
 
+	private labelBackground: CSSValueString | undefined;
+	private labelBorder: CSSValueString | undefined;
+	private labelBottomBorder: CSSValueString | undefined;
+	private labelShadow: CSSValueString | undefined;
+
 	constructor(container: HTMLElement, private os: OperatingSystem, options?: KeybindingLabelOptions) {
 		this.options = options || Object.create(null);
+
+		this.labelBackground = this.options.keybindingLabelBackground;
+		this.labelBorder = this.options.keybindingLabelBorder;
+		this.labelBottomBorder = this.options.keybindingLabelBottomBorder;
+		this.labelShadow = this.options.keybindingLabelShadow;
 
 		const labelForeground = this.options.keybindingLabelForeground;
 
@@ -101,12 +101,7 @@ export class KeybindingLabel {
 				dom.append(this.domNode, $('span.monaco-keybinding-key-chord-separator', undefined, ' '));
 				this.renderChord(this.domNode, secondChord, this.matches ? this.matches.chordPart : null);
 			}
-			const title = (this.options.disableTitle ?? false) ? undefined : this.keybinding.getAriaLabel() || undefined;
-			if (title !== undefined) {
-				this.domNode.title = title;
-			} else {
-				this.domNode.removeAttribute('title');
-			}
+			this.domNode.title = this.keybinding.getAriaLabel() || '';
 		} else if (this.options && this.options.renderUnboundKeybindings) {
 			this.renderUnbound(this.domNode);
 		}
@@ -154,17 +149,17 @@ export class KeybindingLabel {
 		const keyElement = $('span.monaco-keybinding-key' + extraClass, undefined, label);
 		this.keyElements.add(keyElement);
 
-		if (this.options.keybindingLabelBackground) {
-			keyElement.style.backgroundColor = this.options.keybindingLabelBackground;
+		if (this.labelBackground) {
+			keyElement.style.backgroundColor = this.labelBackground;
 		}
-		if (this.options.keybindingLabelForeground) {
-			keyElement.style.borderColor = this.options.keybindingLabelForeground;
+		if (this.labelBorder) {
+			keyElement.style.borderColor = this.labelBorder;
 		}
-		if (this.options.keybindingLabelBorder) {
-			keyElement.style.borderBottomColor = this.options.keybindingLabelBorder;
+		if (this.labelBottomBorder) {
+			keyElement.style.borderBottomColor = this.labelBottomBorder;
 		}
-		if (this.options.keybindingLabelShadow) {
-			keyElement.style.boxShadow = `inset 0 -1px 0 ${this.options.keybindingLabelShadow}`;
+		if (this.labelShadow) {
+			keyElement.style.boxShadow = `inset 0 -1px 0 ${this.labelShadow}`;
 		}
 
 		return keyElement;

@@ -32,10 +32,7 @@ export class ApiChange implements Change {
 export class ApiRepositoryState implements RepositoryState {
 
 	get HEAD(): Branch | undefined { return this._repository.HEAD; }
-	/**
-	 * @deprecated Use ApiRepository.getRefs() instead.
-	 */
-	get refs(): Ref[] { console.warn('Deprecated. Use ApiRepository.getRefs() instead.'); return []; }
+	get refs(): Ref[] { return [...this._repository.refs]; }
 	get remotes(): Remote[] { return [...this._repository.remotes]; }
 	get submodules(): Submodule[] { return [...this._repository.submodules]; }
 	get rebaseCommit(): Commit | undefined { return this._repository.rebaseCommit; }

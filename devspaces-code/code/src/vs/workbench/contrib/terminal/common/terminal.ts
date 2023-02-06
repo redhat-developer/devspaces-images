@@ -368,6 +368,14 @@ export interface ITerminalCommand {
 	getOutputMatch(outputMatcher: ITerminalOutputMatcher): ITerminalOutputMatch | undefined;
 }
 
+export interface INavigationMode {
+	exitNavigationMode(): void;
+	focusPreviousLine(): void;
+	focusNextLine(): void;
+	focusPreviousPage(): void;
+	focusNextPage(): void;
+}
+
 export interface IBeforeProcessDataEvent {
 	/**
 	 * The data of the event, this can be modified by the event listener to change what gets sent
@@ -410,8 +418,8 @@ export interface ITerminalProcessManager extends IDisposable {
 
 	dispose(immediate?: boolean): void;
 	detachFromProcess(forcePersist?: boolean): Promise<void>;
-	createProcess(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number): Promise<ITerminalLaunchError | undefined>;
-	relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, reset: boolean): Promise<ITerminalLaunchError | undefined>;
+	createProcess(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, isScreenReaderModeEnabled: boolean): Promise<ITerminalLaunchError | undefined>;
+	relaunch(shellLaunchConfig: IShellLaunchConfig, cols: number, rows: number, isScreenReaderModeEnabled: boolean, reset: boolean): Promise<ITerminalLaunchError | undefined>;
 	write(data: string): Promise<void>;
 	setDimensions(cols: number, rows: number): Promise<void>;
 	setDimensions(cols: number, rows: number, sync: false): Promise<void>;
@@ -571,6 +579,11 @@ export const enum TerminalCommandId {
 	ToggleFindRegex = 'workbench.action.terminal.toggleFindRegex',
 	ToggleFindWholeWord = 'workbench.action.terminal.toggleFindWholeWord',
 	ToggleFindCaseSensitive = 'workbench.action.terminal.toggleFindCaseSensitive',
+	NavigationModeExit = 'workbench.action.terminal.navigationModeExit',
+	NavigationModeFocusNext = 'workbench.action.terminal.navigationModeFocusNext',
+	NavigationModeFocusNextPage = 'workbench.action.terminal.navigationModeFocusNextPage',
+	NavigationModeFocusPrevious = 'workbench.action.terminal.navigationModeFocusPrevious',
+	NavigationModeFocusPreviousPage = 'workbench.action.terminal.navigationModeFocusPreviousPage',
 	ShowEnvironmentInformation = 'workbench.action.terminal.showEnvironmentInformation',
 	SearchWorkspace = 'workbench.action.terminal.searchWorkspace',
 	AttachToSession = 'workbench.action.terminal.attachToSession',
@@ -579,7 +592,7 @@ export const enum TerminalCommandId {
 	MoveToEditorInstance = 'workbench.action.terminal.moveToEditorInstance',
 	MoveToTerminalPanel = 'workbench.action.terminal.moveToTerminalPanel',
 	SetDimensions = 'workbench.action.terminal.setDimensions',
-	ClearPreviousSessionHistory = 'workbench.action.terminal.clearPreviousSessionHistory',
+	ClearCommandHistory = 'workbench.action.terminal.clearCommandHistory',
 	WriteDataToTerminal = 'workbench.action.terminal.writeDataToTerminal',
 	ShowTextureAtlas = 'workbench.action.terminal.showTextureAtlas',
 	ShowTerminalAccessibilityHelp = 'workbench.action.terminal.showAccessibilityHelp',
@@ -650,13 +663,15 @@ export const DEFAULT_COMMANDS_TO_SKIP_SHELL: string[] = [
 	TerminalCommandId.SplitInActiveWorkspace,
 	TerminalCommandId.Split,
 	TerminalCommandId.Toggle,
+	TerminalCommandId.NavigationModeExit,
+	TerminalCommandId.NavigationModeFocusNext,
+	TerminalCommandId.NavigationModeFocusPrevious,
 	TerminalCommandId.SelectPrevSuggestion,
 	TerminalCommandId.SelectPrevPageSuggestion,
 	TerminalCommandId.SelectNextSuggestion,
 	TerminalCommandId.SelectNextPageSuggestion,
 	TerminalCommandId.AcceptSelectedSuggestion,
 	TerminalCommandId.HideSuggestWidget,
-	TerminalCommandId.ShowTerminalAccessibilityHelp,
 	'editor.action.toggleTabFocusMode',
 	'notifications.hideList',
 	'notifications.hideToasts',
@@ -733,16 +748,6 @@ export const DEFAULT_COMMANDS_TO_SKIP_SHELL: string[] = [
 export const terminalContributionsDescriptor: IExtensionPointDescriptor<ITerminalContributions> = {
 	extensionPoint: 'terminal',
 	defaultExtensionKind: ['workspace'],
-	activationEventsGenerator: (contribs: ITerminalContributions[], result: { push(item: string): void }) => {
-		for (const contrib of contribs) {
-			for (const profileContrib of (contrib.profiles ?? [])) {
-				result.push(`onTerminalProfile:${profileContrib.id}`);
-			}
-			for (const quickFixContrib of (contrib.quickFixes ?? [])) {
-				result.push(`onTerminalQuickFixRequest:${quickFixContrib.id}`);
-			}
-		}
-	},
 	jsonSchema: {
 		description: nls.localize('vscode.extension.contributes.terminal', 'Contributes terminal functionality.'),
 		type: 'object',
@@ -764,20 +769,20 @@ export const terminalContributionsDescriptor: IExtensionPointDescriptor<ITermina
 					}],
 					properties: {
 						id: {
-							description: nls.localize('vscode.extension.contributes.terminal.quickFixes.id', "The ID of the quick fix provider"),
+							description: nls.localize('vscode.extension.contributes.terminal.quickFixes.id', "The ID of the quick fix provider."),
 							type: 'string',
 						},
 						commandLineMatcher: {
-							description: nls.localize('vscode.extension.contributes.terminal.quickFixes.commandLineMatcher', "A regular expression or string to test the command line against"),
+							description: nls.localize('vscode.extension.contributes.terminal.quickFixes.commandLineMatcher', "The regular expression to test the command line against."),
 							type: 'string',
 						},
 						outputMatcher: {
-							markdownDescription: nls.localize('vscode.extension.contributes.terminal.quickFixes.outputMatcher', "A regular expression or string to test the output against, which provides groups to be referenced in terminalCommand and uri.\n\nFor example:\n\n `lineMatcher: /git push --set-upstream origin (?<branchName>[^\s]+)/;`\n\n`terminalCommand: 'git push --set-upstream origin ${group:branchName}';`\n"),
+							markdownDescription: nls.localize('vscode.extension.contributes.terminal.quickFixes.outputMatcher', "The regular expression to test the output against, which provides groups to be referenced in terminalCommand and uri.\n\nFor example:\n\n `lineMatcher: /git push --set-upstream origin (?<branchName>[^\s]+)/;`\n\n`terminalCommand: 'git push --set-upstream origin ${group:branchName}';`\n"),
 							type: 'object',
 							required: ['lineMatcher', 'anchor', 'offset', 'length'],
 							properties: {
 								lineMatcher: {
-									description: 'A regular expression or string to test the command line against',
+									description: 'The command line to match',
 									type: 'string'
 								},
 								anchor: {

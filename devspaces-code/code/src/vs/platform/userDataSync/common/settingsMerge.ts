@@ -250,7 +250,7 @@ export function merge(originalLocalContent: string, originalRemoteContent: strin
 	return { localContent: hasLocalChanged ? localContent : null, remoteContent: hasRemoteChanged ? remoteContent : null, conflictsSettings: [...conflicts.values()], hasConflicts };
 }
 
-function areSame(localContent: string, remoteContent: string, ignoredSettings: string[]): boolean {
+export function areSame(localContent: string, remoteContent: string, ignoredSettings: string[]): boolean {
 	if (localContent === remoteContent) {
 		return true;
 	}

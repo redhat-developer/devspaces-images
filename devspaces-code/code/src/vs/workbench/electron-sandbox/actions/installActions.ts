@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { localize } from 'vs/nls';
+import Severity from 'vs/base/common/severity';
 import { Action2 } from 'vs/platform/actions/common/actions';
 import { ILocalizedString } from 'vs/platform/action/common/action';
 import product from 'vs/platform/product/common/product';
@@ -37,9 +38,9 @@ export class InstallShellScriptAction extends Action2 {
 		try {
 			await nativeHostService.installShellCommand();
 
-			dialogService.info(localize('successIn', "Shell command '{0}' successfully installed in PATH.", productService.applicationName));
+			dialogService.show(Severity.Info, localize('successIn', "Shell command '{0}' successfully installed in PATH.", productService.applicationName));
 		} catch (error) {
-			dialogService.error(toErrorMessage(error));
+			dialogService.show(Severity.Error, toErrorMessage(error));
 		}
 	}
 }
@@ -66,9 +67,9 @@ export class UninstallShellScriptAction extends Action2 {
 		try {
 			await nativeHostService.uninstallShellCommand();
 
-			dialogService.info(localize('successFrom', "Shell command '{0}' successfully uninstalled from PATH.", productService.applicationName));
+			dialogService.show(Severity.Info, localize('successFrom', "Shell command '{0}' successfully uninstalled from PATH.", productService.applicationName));
 		} catch (error) {
-			dialogService.error(toErrorMessage(error));
+			dialogService.show(Severity.Error, toErrorMessage(error));
 		}
 	}
 }
