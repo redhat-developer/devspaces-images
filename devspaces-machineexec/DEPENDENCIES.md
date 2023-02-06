@@ -24,7 +24,7 @@
 | [github.com/docopt/docopt-go@ee0de3bc6815ee19d4a46c7eb90f829db0e014b1](https://github.com/clearlydefined/curated-data/pull/11118.git) | MIT | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23292) |
 | [github.com/go-logr/logr@v0.4.0](https://github.com/go-logr/logr.git) | Apache-2.0 | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23305) |
 | [github.com/gin-contrib/sse@22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae](https://github.com/gin-contrib/sse.git) | MIT | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23306) |
-| [github.com/gin-gonic/gin@bd4f73af679e7d645f6d0277258fa360eda96f2d](https://github.com/gin-gonic/gin.git) | MIT | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=16574) |
+| [github.com/gin-gonic/gin@v1.8.2](https://github.com/gin-gonic/gin.git) | MIT | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=16574) |
 | [github.com/go-openapi/jsonreference@v0.19.3](https://github.com/go-openapi/jsonreference.git) | Apache-2.0 | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23303) |
 | [github.com/go-openapi/jsonpointer@v0.19.3](https://github.com/go-openapi/jsonpointer.git) | Apache-2.0 | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23304) |
 | [github.com/envoyproxy/protoc-gen-validate@v0.1.0](https://github.com/envoyproxy/protoc-gen-validate.git) | Apache-2.0 | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23307) |
@@ -110,7 +110,7 @@
 | [k8s.io/kube-openapi@591a79e4bda78206200568bf0e501b964f2f8908](https://github.com/kubernetes/kube-openapi.git) | Apache-2.0 | [CQ](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23346) |
 | [github.com/golang/groupcache@8c9f03a8e57eb486e42badaed3fb287da51807ba](https://github.com/golang/groupcache.git) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/git/github/golang/groupcache/8c9f03a8e57eb486e42badaed3fb287da51807ba) |
 | [github.com/golang/glog@23def4e6c14b4da8ac2ed8007337bc5eb5007998](https://github.com/golang/glog.git) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/git/github/golang/glog/23def4e6c14b4da8ac2ed8007337bc5eb5007998) |
-| [golang.org/x/crypto@5ea612d1eb830b38bc4e914e37f55311eb58adce](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
+| [golang.org/x/crypto@v0.0.0-20211215153901-e495a2d5b3d3](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
 | [golang.org/x/exp@956cc1757749645f24cefb2ef2a41b0ec4514cf8](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
 | [golang.org/x/image@dc590effac8bfed2854f43e68b2d60a159d58449](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
 | [golang.org/x/lint@910be7a94367618fd0fd25eaabbee4fdc0ac7092](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
@@ -125,3 +125,11 @@
 | [golang.org/x/sync@43a5402ce75a95522677f77c619865d66b8c57ab](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
 | [golang.org/x/sys@1e4c9ba3b0c4fcddbe90893331bdc829813066a1](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
 | [golang.org/x/text@v0.3.4](https://cs.opensource.google/go) | BSD-3-Clause | N/A |
+| [github.com/go-playground/assert/v2@v2.0.1](https://github.com/go-playground/assert) | MIT | N/A |
+| [github.com/pelletier/go-toml/v2@v2.0.6](https://github.com/pelletier/go-toml) | MIT | N/A |
+| [github.com/goccy/go-json@v0.10.0](https://github.com/goccy/go-json) | MIT | N/A |
+| [github.com/leodido/go-urn@v1.2.1](https://github.com/leodido/go-urn) | MIT | [clearlydefined](https://clearlydefined.io/definitions/git/github/leodido/go-urn/6c96508144d00b380edbc8bda077e27b832d0c7b) |
+| [github.com/go-playground/universal-translator@v0.18.0](https://github.com/go-playground/universal-translator) | MIT | [clearlydefined](https://clearlydefined.io/definitions/git/github/go-playground/universal-translator/04491fe06b0ce6efc083d9a94f982008753a4339) |
+| [github.com/go-playground/locales@v0.14.0](https://github.com/go-playground/locales) | MIT | [clearlydefined](https://clearlydefined.io/definitions/git/github/go-playground/locales/52f01e016def96714dc09cf5cdd58f5660eeca02] |
+| [github.com/go-playground/validator/v10@v10.11.1](https://github.com/go-playground/validator) | MIT | [clearlydefined](https://clearlydefined.io/definitions/git/github/go-playground/validator/c7e0172e0fd176bdc521afb5186818a7db6b77ac] |
+| [gopkg.in/yaml.v3@v3.0.0-20210107192922-496545a6307b](https://github.com/go-yaml/yaml.git) | Apache-2.0 AND MIT | [clearlydefined](https://clearlydefined.io/definitions/git/github/go-yaml/yaml/00bbc0947ae889b9e480044dbc3bc3e3216a6a89] |
