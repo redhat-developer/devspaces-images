@@ -63,6 +63,7 @@ if [[ -f /tmp/token ]]; then
         theia-akamai\
         theia-sources\
         traefik\
+        udi\
         dsc\
         get-sources-rhpkg-container-build\
         push-latest-container-to-quay\
