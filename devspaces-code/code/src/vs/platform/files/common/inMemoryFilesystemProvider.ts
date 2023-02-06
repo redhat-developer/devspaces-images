@@ -48,7 +48,7 @@ class Directory implements IStat {
 	}
 }
 
-type Entry = File | Directory;
+export type Entry = File | Directory;
 
 export class InMemoryFileSystemProvider extends Disposable implements IFileSystemProviderWithFileReadWriteCapability {
 

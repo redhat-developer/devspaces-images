@@ -69,7 +69,7 @@ export class UpdateChannelClient implements IUpdateService {
 		return this.channel.call('quitAndInstall');
 	}
 
-	isLatestVersion(): Promise<boolean | undefined> {
+	isLatestVersion(): Promise<boolean> {
 		return this.channel.call('isLatestVersion');
 	}
 

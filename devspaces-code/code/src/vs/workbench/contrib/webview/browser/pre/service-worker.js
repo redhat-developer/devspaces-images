@@ -24,18 +24,13 @@ const remoteAuthority = searchParams.get('remoteAuthority');
  */
 const resourceBaseAuthority = searchParams.get('vscode-resource-base-authority');
 
-const resolveTimeout = 30_000;
-
-/**
- * @template T
- * @typedef {{ status: 'ok'; value: T } | { status: 'timeout' }} RequestStoreResult
- */
+const resolveTimeout = 30000;
 
 /**
  * @template T
  * @typedef {{
- *     resolve: (x: RequestStoreResult<T>) => void,
- *     promise: Promise<RequestStoreResult<T>>
+ *     resolve: (x: T) => void,
+ *     promise: Promise<T>
  * }} RequestStoreEntry
  */
 
@@ -52,19 +47,19 @@ class RequestStore {
 	}
 
 	/**
-	 * @returns {{ requestId: number, promise: Promise<RequestStoreResult<T>> }}
+	 * @returns {{ requestId: number, promise: Promise<T> }}
 	 */
 	create() {
 		const requestId = ++this.requestPool;
 
-		/** @type {undefined | ((x: RequestStoreResult<T>) => void)} */
+		/** @type {undefined | ((x: T) => void)} */
 		let resolve;
 
-		/** @type {Promise<RequestStoreResult<T>>} */
+		/** @type {Promise<T>} */
 		const promise = new Promise(r => resolve = r);
 
 		/** @type {RequestStoreEntry<T>} */
-		const entry = { resolve: /** @type {(x: RequestStoreResult<T>) => void} */ (resolve), promise };
+		const entry = { resolve: /** @type {(x: T) => void} */ (resolve), promise };
 
 		this.map.set(requestId, entry);
 
@@ -72,9 +67,7 @@ class RequestStore {
 			clearTimeout(timeout);
 			const existingEntry = this.map.get(requestId);
 			if (existingEntry === entry) {
-				existingEntry.resolve({ status: 'timeout' });
-				this.map.delete(requestId);
-				return;
+				return this.map.delete(requestId);
 			}
 		};
 		const timeout = setTimeout(dispose, resolveTimeout);
@@ -91,7 +84,7 @@ class RequestStore {
 		if (!entry) {
 			return false;
 		}
-		entry.resolve({ status: 'ok', value: result });
+		entry.resolve(result);
 		this.map.delete(requestId);
 		return true;
 	}
@@ -126,9 +119,6 @@ const notFound = () =>
 
 const methodNotAllowed = () =>
 	new Response('Method Not Allowed', { status: 405, });
-
-const requestTimeout = () =>
-	new Response('Request Timeout', { status: 408, });
 
 sw.addEventListener('message', async (event) => {
 	switch (event.data.channel) {
@@ -248,15 +238,10 @@ async function processResourceRequest(event, requestUrlComponents) {
 	const shouldTryCaching = (event.request.method === 'GET');
 
 	/**
-	 * @param {RequestStoreResult<ResourceResponse>} result
+	 * @param {ResourceResponse} entry
 	 * @param {Response | undefined} cachedResponse
 	 */
-	const resolveResourceEntry = (result, cachedResponse) => {
-		if (result.status === 'timeout') {
-			return requestTimeout();
-		}
-
-		const entry = result.value;
+	const resolveResourceEntry = (entry, cachedResponse) => {
 		if (entry.status === 304) { // Not modified
 			if (cachedResponse) {
 				return cachedResponse.clone();
@@ -399,15 +384,13 @@ async function processLocalhostRequest(event, requestUrl) {
 	const origin = requestUrl.origin;
 
 	/**
-	 * @param {RequestStoreResult<string | undefined>} result
+	 * @param {string | undefined} redirectOrigin
 	 * @return {Promise<Response>}
 	 */
-	const resolveRedirect = async (result) => {
-		if (result.status !== 'ok' || !result.value) {
+	const resolveRedirect = async (redirectOrigin) => {
+		if (!redirectOrigin) {
 			return fetch(event.request);
 		}
-
-		const redirectOrigin = result.value;
 		const location = event.request.url.replace(new RegExp(`^${requestUrl.origin}(/|$)`), `${redirectOrigin}$1`);
 		return new Response(null, {
 			status: 302,

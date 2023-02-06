@@ -246,146 +246,90 @@ suite('observable integration', () => {
 		]);
 	});
 
-	suite('from event', () => {
+	test('from event', () => {
+		const log = new Log();
 
-		function init(): { log: Log; setValue: (value: number | undefined) => void; observable: IObservable<number | undefined> } {
-			const log = new Log();
+		let value = 0;
+		const eventEmitter = new Emitter<void>();
 
-			let value: number | undefined = 0;
-			const eventEmitter = new Emitter<void>();
+		let id = 0;
+		const observable = observableFromEvent(
+			(handler) => {
+				const curId = id++;
+				log.log(`subscribed handler ${curId}`);
+				const disposable = eventEmitter.event(handler);
 
-			let id = 0;
-			const observable = observableFromEvent(
-				(handler) => {
-					const curId = id++;
-					log.log(`subscribed handler ${curId}`);
-					const disposable = eventEmitter.event(handler);
+				return {
+					dispose: () => {
+						log.log(`unsubscribed handler ${curId}`);
+						disposable.dispose();
+					},
+				};
+			},
+			() => {
+				log.log(`compute value ${value}`);
+				return value;
+			}
+		);
+		assert.deepStrictEqual(log.getAndClearEntries(), []);
 
-					return {
-						dispose: () => {
-							log.log(`unsubscribed handler ${curId}`);
-							disposable.dispose();
-						},
-					};
-				},
-				() => {
-					log.log(`compute value ${value}`);
-					return value;
-				}
-			);
+		log.log(`get value: ${observable.get()}`);
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'compute value 0',
+			'get value: 0',
+		]);
 
-			return {
-				log,
-				setValue: (newValue) => {
-					value = newValue;
-					eventEmitter.fire();
-				},
-				observable,
-			};
-		}
+		log.log(`get value: ${observable.get()}`);
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'compute value 0',
+			'get value: 0',
+		]);
 
-		test('Handle undefined', () => {
-			const { log, setValue, observable } = init();
+		const shouldReadObservable = observableValue('shouldReadObservable', true);
 
-			setValue(undefined);
-
-			const autorunDisposable = autorun('MyAutorun', (reader) => {
+		const autorunDisposable = autorun('MyAutorun', (reader) => {
+			if (shouldReadObservable.read(reader)) {
 				observable.read(reader);
 				log.log(
-					`autorun, value: ${observable.read(reader)}`
+					`autorun, should read: true, value: ${observable.read(reader)}`
 				);
-			});
-
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				"subscribed handler 0",
-				"compute value undefined",
-				"autorun, value: undefined",
-			]);
-
-			setValue(1);
-
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				"compute value 1",
-				"autorun, value: 1"
-			]);
-
-			autorunDisposable.dispose();
-
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				"unsubscribed handler 0"
-			]);
+			} else {
+				log.log(`autorun, should read: false`);
+			}
 		});
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'subscribed handler 0',
+			'compute value 0',
+			'autorun, should read: true, value: 0',
+		]);
 
-		test('basic', () => {
-			const { log, setValue, observable } = init();
+		log.log(`get value: ${observable.get()}`);
+		assert.deepStrictEqual(log.getAndClearEntries(), ['get value: 0']);
 
-			const shouldReadObservable = observableValue('shouldReadObservable', true);
+		value = 1;
+		eventEmitter.fire();
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'compute value 1',
+			'autorun, should read: true, value: 1',
+		]);
 
-			const autorunDisposable = autorun('MyAutorun', (reader) => {
-				if (shouldReadObservable.read(reader)) {
-					observable.read(reader);
-					log.log(
-						`autorun, should read: true, value: ${observable.read(reader)}`
-					);
-				} else {
-					log.log(`autorun, should read: false`);
-				}
-			});
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'subscribed handler 0',
-				'compute value 0',
-				'autorun, should read: true, value: 0',
-			]);
+		shouldReadObservable.set(false, undefined);
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'autorun, should read: false',
+			'unsubscribed handler 0',
+		]);
 
-			// Cached get
-			log.log(`get value: ${observable.get()}`);
-			assert.deepStrictEqual(log.getAndClearEntries(), ['get value: 0']);
+		shouldReadObservable.set(true, undefined);
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'subscribed handler 1',
+			'compute value 1',
+			'autorun, should read: true, value: 1',
+		]);
 
-			setValue(1);
-			// Trigger autorun, no unsub/sub
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'compute value 1',
-				'autorun, should read: true, value: 1',
-			]);
-
-			// Unsubscribe when not read
-			shouldReadObservable.set(false, undefined);
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'autorun, should read: false',
-				'unsubscribed handler 0',
-			]);
-
-			shouldReadObservable.set(true, undefined);
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'subscribed handler 1',
-				'compute value 1',
-				'autorun, should read: true, value: 1',
-			]);
-
-			autorunDisposable.dispose();
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'unsubscribed handler 1',
-			]);
-		});
-
-		test('get without observers', () => {
-			const { log, observable } = init();
-			assert.deepStrictEqual(log.getAndClearEntries(), []);
-
-			log.log(`get value: ${observable.get()}`);
-			// Not cached or subscribed
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'compute value 0',
-				'get value: 0',
-			]);
-
-			log.log(`get value: ${observable.get()}`);
-			// Still not cached or subscribed
-			assert.deepStrictEqual(log.getAndClearEntries(), [
-				'compute value 0',
-				'get value: 0',
-			]);
-		});
+		autorunDisposable.dispose();
+		assert.deepStrictEqual(log.getAndClearEntries(), [
+			'unsubscribed handler 1',
+		]);
 	});
 
 	test('get without observers', () => {

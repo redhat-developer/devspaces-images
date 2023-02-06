@@ -37,7 +37,6 @@ import { IHistoryNavigationWidget } from 'vs/base/browser/history';
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
 import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import { IEditorConstructionOptions } from 'vs/editor/browser/config/editorConfiguration';
-import { ensureValidWordDefinition, getWordAtText } from 'vs/editor/common/core/wordHelper';
 
 export interface SuggestResultsProvider {
 	/**
@@ -54,20 +53,6 @@ export interface SuggestResultsProvider {
 	 * Defaults to the empty array.
 	 */
 	triggerCharacters?: string[];
-
-	/**
-	 * Optional regular expression that describes what a word is
-	 *
-	 * Defaults to space separated words.
-	 */
-	wordDefinition?: RegExp;
-
-	/**
-	 * Show suggestions even if the trigger character is not present.
-	 *
-	 * Defaults to false.
-	 */
-	alwaysShowSuggestions?: boolean;
 
 	/**
 	 * Defines the sorting function used when showing results.
@@ -214,9 +199,7 @@ export class SuggestEnabledInput extends Widget {
 		const validatedSuggestProvider = {
 			provideResults: suggestionProvider.provideResults,
 			sortKey: suggestionProvider.sortKey || (a => a),
-			triggerCharacters: suggestionProvider.triggerCharacters || [],
-			wordDefinition: suggestionProvider.wordDefinition ? ensureValidWordDefinition(suggestionProvider.wordDefinition) : undefined,
-			alwaysShowSuggestions: !!suggestionProvider.alwaysShowSuggestions,
+			triggerCharacters: suggestionProvider.triggerCharacters || []
 		};
 
 		this.setValue(options.value || '');
@@ -227,19 +210,12 @@ export class SuggestEnabledInput extends Widget {
 				const query = model.getValue();
 
 				const zeroIndexedColumn = position.column - 1;
-				let alreadyTypedCount = 0, zeroIndexedWordStart = 0;
 
-				if (validatedSuggestProvider.wordDefinition) {
-					const wordAtText = getWordAtText(position.column, validatedSuggestProvider.wordDefinition, query, 0);
-					alreadyTypedCount = wordAtText?.word.length ?? 0;
-					zeroIndexedWordStart = wordAtText ? wordAtText.startColumn - 1 : 0;
-				} else {
-					zeroIndexedWordStart = query.lastIndexOf(' ', zeroIndexedColumn - 1) + 1;
-					alreadyTypedCount = zeroIndexedColumn - zeroIndexedWordStart;
-				}
+				const zeroIndexedWordStart = query.lastIndexOf(' ', zeroIndexedColumn - 1) + 1;
+				const alreadyTypedCount = zeroIndexedColumn - zeroIndexedWordStart;
 
 				// dont show suggestions if the user has typed something, but hasn't used the trigger character
-				if (!validatedSuggestProvider.alwaysShowSuggestions && alreadyTypedCount > 0 && validatedSuggestProvider.triggerCharacters?.indexOf(query[zeroIndexedWordStart]) === -1) {
+				if (alreadyTypedCount > 0 && validatedSuggestProvider.triggerCharacters.indexOf(query[zeroIndexedWordStart]) === -1) {
 					return { suggestions: [] };
 				}
 

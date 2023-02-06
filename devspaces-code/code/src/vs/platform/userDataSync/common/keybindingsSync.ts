@@ -351,7 +351,7 @@ export class KeybindingsInitializer extends AbstractInitializer {
 		super(SyncResource.Keybindings, userDataProfilesService, environmentService, logService, fileService, storageService, uriIdentityService);
 	}
 
-	protected async doInitialize(remoteUserData: IRemoteUserData): Promise<void> {
+	async doInitialize(remoteUserData: IRemoteUserData): Promise<void> {
 		const keybindingsContent = remoteUserData.syncData ? this.getKeybindingsContentFromSyncContent(remoteUserData.syncData.content) : null;
 		if (!keybindingsContent) {
 			this.logService.info('Skipping initializing keybindings because remote keybindings does not exist.');

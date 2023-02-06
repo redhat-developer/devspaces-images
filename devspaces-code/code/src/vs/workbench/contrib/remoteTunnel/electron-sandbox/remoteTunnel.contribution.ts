@@ -37,7 +37,6 @@ import { URI } from 'vs/base/common/uri';
 import { joinPath } from 'vs/base/common/resources';
 import { join } from 'vs/base/common/path';
 import { ITunnelApplicationConfig } from 'vs/base/common/product';
-import { isNumber, isObject, isString } from 'vs/base/common/types';
 
 export const REMOTE_TUNNEL_CATEGORY: ILocalizedString = {
 	original: 'Remote Tunnels',
@@ -55,9 +54,6 @@ const SESSION_ID_STORAGE_KEY = 'remoteTunnelAccountPreference';
 const REMOTE_TUNNEL_USED_STORAGE_KEY = 'remoteTunnelServiceUsed';
 const REMOTE_TUNNEL_PROMPTED_PREVIEW_STORAGE_KEY = 'remoteTunnelServicePromptedPreview';
 const REMOTE_TUNNEL_EXTENSION_RECOMMENDED_KEY = 'remoteTunnelExtensionRecommended';
-const REMOTE_TUNNEL_EXTENSION_TIMEOUT = 4 * 60 * 1000; // show the recommendation that a machine started using tunnels if it joined less than 4 minutes ago
-
-interface UsedOnHostMessage { hostName: string; timeStamp: number }
 
 type ExistingSessionItem = { session: AuthenticationSession; providerId: string; label: string; description: string };
 type IAuthenticationProvider = { id: string; scopes: string[] };
@@ -181,23 +177,8 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 			if (await this.extensionService.getExtension(remoteExtension.extensionId)) {
 				return false;
 			}
-			const usedOnHostMessage = this.storageService.get(REMOTE_TUNNEL_USED_STORAGE_KEY, StorageScope.APPLICATION);
-			if (!usedOnHostMessage) {
-				return false;
-			}
-			let usedOnHost: string | undefined;
-			try {
-				const message = JSON.parse(usedOnHostMessage);
-				if (!isObject(message)) {
-					return false;
-				}
-				const { hostName, timeStamp } = message as UsedOnHostMessage;
-				if (!isString(hostName)! || !isNumber(timeStamp) || new Date().getTime() > timeStamp + REMOTE_TUNNEL_EXTENSION_TIMEOUT) {
-					return false;
-				}
-				usedOnHost = hostName;
-			} catch (_) {
-				// problems parsing the message, likly the old message format
+			const usedOnHost = this.storageService.get(REMOTE_TUNNEL_USED_STORAGE_KEY, StorageScope.APPLICATION);
+			if (!usedOnHost) {
 				return false;
 			}
 			const currentHostName = await this.remoteTunnelService.getHostName();
@@ -525,7 +506,6 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 				if (connectionInfo) {
 					const linkToOpen = that.getLinkToOpen(connectionInfo);
 					const remoteExtension = that.serverConfiguration.extension;
-					const linkToOpenForMarkdown = linkToOpen.toString().replace(/\)/g, '%29');
 					await notificationService.notify({
 						severity: Severity.Info,
 						message:
@@ -535,19 +515,18 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 									comment: ['{0} will be a host name, {1} will the link address to the web UI, {6} an extesnion name. [label](command:commandId) is a markdown link. Only translate the label, do not modify the format']
 								},
 								"Remote tunnel access is enabled for [{0}](command:{4}). To access from a different machine, open [{1}]({2}) or use the {6} extension. Use the Account menu to [configure](command:{3}) or [turn off](command:{5}).",
-								connectionInfo.hostName, connectionInfo.domain, linkToOpenForMarkdown, RemoteTunnelCommandIds.manage, RemoteTunnelCommandIds.configure, RemoteTunnelCommandIds.turnOff, remoteExtension.friendlyName
+								connectionInfo.hostName, connectionInfo.domain, linkToOpen, RemoteTunnelCommandIds.manage, RemoteTunnelCommandIds.configure, RemoteTunnelCommandIds.turnOff, remoteExtension.friendlyName
 							),
 						actions: {
 							primary: [
-								new Action('copyToClipboard', localize('action.copyToClipboard', "Copy Browser Link to Clipboard"), undefined, true, () => clipboardService.writeText(linkToOpen.toString())),
+								new Action('copyToClipboard', localize('action.copyToClipboard', "Copy Browser Link to Clipboard"), undefined, true, () => clipboardService.writeText(linkToOpen)),
 								new Action('showExtension', localize('action.showExtension', "Show Extension"), undefined, true, () => {
 									return commandService.executeCommand('workbench.extensions.action.showExtensionsWithIds', [remoteExtension.extensionId]);
 								})
 							]
 						}
 					});
-					const usedOnHostMessage: UsedOnHostMessage = { hostName: connectionInfo.hostName, timeStamp: new Date().getTime() };
-					storageService.store(REMOTE_TUNNEL_USED_STORAGE_KEY, JSON.stringify(usedOnHostMessage), StorageScope.APPLICATION, StorageTarget.USER);
+					storageService.store(REMOTE_TUNNEL_USED_STORAGE_KEY, connectionInfo.hostName, StorageScope.APPLICATION, StorageTarget.USER);
 				} else {
 					await notificationService.notify({
 						severity: Severity.Info,
@@ -682,7 +661,7 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 				const clipboardService = accessor.get(IClipboardService);
 				if (that.connectionInfo) {
 					const linkToOpen = that.getLinkToOpen(that.connectionInfo);
-					clipboardService.writeText(linkToOpen.toString());
+					clipboardService.writeText(linkToOpen);
 				}
 
 			}
@@ -705,7 +684,7 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 		}));
 	}
 
-	private getLinkToOpen(connectionInfo: ConnectionInfo): URI {
+	private getLinkToOpen(connectionInfo: ConnectionInfo): string {
 		const workspace = this.workspaceContextService.getWorkspace();
 		const folders = workspace.folders;
 		let resource;
@@ -716,9 +695,9 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 		}
 		const link = URI.parse(connectionInfo.link);
 		if (resource?.scheme === Schemas.file) {
-			return joinPath(link, resource.path);
+			return joinPath(link, resource.path).toString(true);
 		}
-		return joinPath(link, this.environmentService.userHome.path);
+		return joinPath(link, this.environmentService.userHome.path).toString(true);
 	}
 
 
@@ -773,7 +752,7 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 			description: localize('remoteTunnelAccess.machineName', "The name under which the remote tunnel access is registered. If not set, the host name is used."),
 			type: 'string',
 			scope: ConfigurationScope.MACHINE,
-			pattern: '^(\\w[\\w-]*)?$',
+			pattern: '^\\w[\\w-]*$',
 			patternErrorMessage: localize('remoteTunnelAccess.machineNameRegex', "The name must only consist of letters, numbers, underscore and dash. It must not start with a dash."),
 			maxLength: 20,
 			default: ''

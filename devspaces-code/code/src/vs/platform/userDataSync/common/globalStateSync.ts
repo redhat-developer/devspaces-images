@@ -41,7 +41,7 @@ interface IGlobalStateResourceMergeResult extends IAcceptResult {
 	readonly remote: { added: string[]; removed: string[]; updated: string[]; all: IStringDictionary<IStorageValue> | null };
 }
 
-interface IGlobalStateResourcePreview extends IResourcePreview {
+export interface IGlobalStateResourcePreview extends IResourcePreview {
 	readonly localUserData: IGlobalState;
 	readonly previewResult: IGlobalStateResourceMergeResult;
 	readonly storageKeys: StorageKeys;

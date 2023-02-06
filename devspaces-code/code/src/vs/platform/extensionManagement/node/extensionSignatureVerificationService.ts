@@ -34,7 +34,6 @@ declare module vsceSign {
  */
 export interface ExtensionSignatureVerificationError extends Error {
 	readonly code: string;
-	readonly didExecute: boolean;
 }
 
 export class ExtensionSignatureVerificationService implements IExtensionSignatureVerificationService {

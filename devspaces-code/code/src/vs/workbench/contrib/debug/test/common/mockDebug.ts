@@ -10,7 +10,6 @@ import Severity from 'vs/base/common/severity';
 import { URI as uri } from 'vs/base/common/uri';
 import { IPosition, Position } from 'vs/editor/common/core/position';
 import { ITextModel } from 'vs/editor/common/model';
-import { NullLogService } from 'vs/platform/log/common/log';
 import { IWorkspaceFolder } from 'vs/platform/workspace/common/workspace';
 import { AbstractDebugAdapter } from 'vs/workbench/contrib/debug/common/abstractDebugAdapter';
 import { AdapterEndEvent, IAdapterManager, IBreakpoint, IBreakpointData, IBreakpointUpdateData, IConfig, IConfigurationManager, IDataBreakpoint, IDebugger, IDebugModel, IDebugService, IDebugSession, IDebugSessionOptions, IEvaluate, IExceptionBreakpoint, IExceptionInfo, IExpression, IFunctionBreakpoint, IInstructionBreakpoint, ILaunch, IMemoryRegion, IRawModelUpdate, IRawStoppedDetails, IReplElement, IReplElementSource, IStackFrame, IThread, IViewModel, LoadedSourceEvent, State } from 'vs/workbench/contrib/debug/common/debug';
@@ -668,7 +667,7 @@ export class MockDebugAdapter extends AbstractDebugAdapter {
 export class MockDebugStorage extends DebugStorage {
 
 	constructor() {
-		super(undefined as any, undefined as any, undefined as any, new NullLogService());
+		super(undefined as any, undefined as any, undefined as any);
 	}
 
 	override loadBreakpoints(): Breakpoint[] {

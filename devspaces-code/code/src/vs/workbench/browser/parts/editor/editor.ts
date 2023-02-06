@@ -39,8 +39,7 @@ export const DEFAULT_EDITOR_PART_OPTIONS: IEditorPartOptions = {
 	closeEmptyGroups: true,
 	labelFormat: 'default',
 	splitSizing: 'distribute',
-	splitOnDragAndDrop: true,
-	centeredLayoutFixedWidth: false,
+	splitOnDragAndDrop: true
 };
 
 export function impactsEditorPartOptions(event: IConfigurationChangeEvent): boolean {

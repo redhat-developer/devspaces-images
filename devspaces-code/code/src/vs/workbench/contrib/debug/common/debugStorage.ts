@@ -9,7 +9,6 @@ import { ExceptionBreakpoint, Expression, Breakpoint, FunctionBreakpoint, DataBr
 import { IEvaluate, IExpression, IDebugModel } from 'vs/workbench/contrib/debug/common/debug';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
 import { IUriIdentityService } from 'vs/platform/uriIdentity/common/uriIdentity';
-import { ILogService } from 'vs/platform/log/common/log';
 
 const DEBUG_BREAKPOINTS_KEY = 'debug.breakpoint';
 const DEBUG_FUNCTION_BREAKPOINTS_KEY = 'debug.functionbreakpoint';
@@ -23,8 +22,7 @@ export class DebugStorage {
 	constructor(
 		@IStorageService private readonly storageService: IStorageService,
 		@ITextFileService private readonly textFileService: ITextFileService,
-		@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
-		@ILogService private readonly logService: ILogService
+		@IUriIdentityService private readonly uriIdentityService: IUriIdentityService
 	) { }
 
 	loadDebugUxState(): 'simple' | 'default' {
@@ -39,7 +37,7 @@ export class DebugStorage {
 		let result: Breakpoint[] | undefined;
 		try {
 			result = JSON.parse(this.storageService.get(DEBUG_BREAKPOINTS_KEY, StorageScope.WORKSPACE, '[]')).map((breakpoint: any) => {
-				return new Breakpoint(URI.parse(breakpoint.uri.external || breakpoint.source.uri.external), breakpoint.lineNumber, breakpoint.column, breakpoint.enabled, breakpoint.condition, breakpoint.hitCondition, breakpoint.logMessage, breakpoint.adapterData, this.textFileService, this.uriIdentityService, this.logService);
+				return new Breakpoint(URI.parse(breakpoint.uri.external || breakpoint.source.uri.external), breakpoint.lineNumber, breakpoint.column, breakpoint.enabled, breakpoint.condition, breakpoint.hitCondition, breakpoint.logMessage, breakpoint.adapterData, this.textFileService, this.uriIdentityService);
 			});
 		} catch (e) { }
 

@@ -41,7 +41,7 @@
 }
 
 .monaco-action-bar .action-item .action-label.extension-action.label {
-	color: var(--vscode-extensionButton-foreground) !important;
+	color: var(--vscode-extensionButton-foreground);
 }
 
 .monaco-action-bar .action-item .action-label.extension-action.label:hover {
@@ -58,7 +58,7 @@
 }
 
 .monaco-action-bar .action-item .action-label.extension-action.label.prominent {
-	color: var(--vscode-extensionButton-prominentForeground) !important;
+	color: var(--vscode-extensionButton-prominentForeground);
 }
 
 .monaco-action-bar .action-item .action-label.extension-action.label.prominent:hover {

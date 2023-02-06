@@ -13,16 +13,16 @@ import { createLazyClientHost, lazilyActivateClient } from './lazyClientHost';
 import RemoteRepositories from './remoteRepositories.browser';
 import { noopRequestCancellerFactory } from './tsServer/cancellation';
 import { noopLogDirectoryProvider } from './tsServer/logDirectoryProvider';
-import { WorkerServerProcessFactory } from './tsServer/serverProcess.browser';
+import { WorkerServerProcess } from './tsServer/serverProcess.browser';
 import { ITypeScriptVersionProvider, TypeScriptVersion, TypeScriptVersionSource } from './tsServer/versionProvider';
 import { ActiveJsTsEditorTracker } from './utils/activeJsTsEditorTracker';
 import API from './utils/api';
 import { TypeScriptServiceConfiguration } from './utils/configuration';
 import { BrowserServiceConfigurationProvider } from './utils/configuration.browser';
-import { Logger } from './utils/logger';
 import { getPackageInfo } from './utils/packageInfo';
-import { isWebAndHasSharedArrayBuffers } from './utils/platform';
 import { PluginManager } from './utils/plugins';
+import { Logger } from './utils/logger';
+import { isWebAndHasSharedArrayBuffers } from './utils/platform';
 
 class StaticVersionProvider implements ITypeScriptVersionProvider {
 
@@ -78,7 +78,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Api> {
 		logDirectoryProvider: noopLogDirectoryProvider,
 		cancellerFactory: noopRequestCancellerFactory,
 		versionProvider,
-		processFactory: new WorkerServerProcessFactory(context.extensionUri),
+		processFactory: WorkerServerProcess,
 		activeJsTsEditorTracker,
 		serviceConfigurationProvider: new BrowserServiceConfigurationProvider(),
 		experimentTelemetryReporter,

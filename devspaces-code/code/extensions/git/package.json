@@ -811,7 +811,7 @@
         },
         {
           "command": "git.stageSelectedRanges",
-          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && resourceScheme =~ /^git$|^file$/"
+          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0"
         },
         {
           "command": "git.stageChange",
@@ -819,7 +819,7 @@
         },
         {
           "command": "git.revertSelectedRanges",
-          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && resourceScheme =~ /^git$|^file$/"
+          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0"
         },
         {
           "command": "git.revertChange",
@@ -839,7 +839,7 @@
         },
         {
           "command": "git.unstageSelectedRanges",
-          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && isInDiffEditor && resourceScheme =~ /^git$|^file$/"
+          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0"
         },
         {
           "command": "git.clean",
@@ -1653,12 +1653,12 @@
         {
           "command": "git.commitMessageAccept",
           "group": "navigation",
-          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && editorLangId == git-commit"
+          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && editorLangId == git-commit && commitInProgress"
         },
         {
           "command": "git.commitMessageDiscard",
           "group": "navigation",
-          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && editorLangId == git-commit"
+          "when": "config.git.enabled && !git.missing && gitOpenRepositoryCount != 0 && editorLangId == git-commit && commitInProgress"
         },
         {
           "command": "git.stageSelectedRanges",
@@ -2699,6 +2699,25 @@
           "default": "prompt",
           "markdownDescription": "%config.openRepositoryInParentFolders%",
           "scope": "resource"
+        },
+        "git.publishBeforeContinueOn": {
+          "type": "string",
+          "enum": [
+            "prompt",
+            "always",
+            "never"
+          ],
+          "markdownEnumDescriptions": [
+            "%config.publishBeforeContinueOn.prompt%",
+            "%config.publishBeforeContinueOn.always%",
+            "%config.publishBeforeContinueOn.never%"
+          ],
+          "default": "prompt",
+          "markdownDescription": "%config.publishBeforeContinueOn%",
+          "scope": "resource",
+          "tags": [
+            "experimental"
+          ]
         }
       }
     },

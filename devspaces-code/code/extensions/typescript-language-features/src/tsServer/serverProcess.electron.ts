@@ -12,7 +12,7 @@ import type * as Proto from '../protocol';
 import API from '../utils/api';
 import { TypeScriptServiceConfiguration } from '../utils/configuration';
 import { Disposable } from '../utils/dispose';
-import { TsServerLog, TsServerProcess, TsServerProcessFactory, TsServerProcessKind } from './server';
+import { TsServerProcess, TsServerProcessFactory, TsServerProcessKind } from './server';
 import { TypeScriptVersionManager } from './versionManager';
 import { TypeScriptVersion } from './versionProvider';
 
@@ -253,7 +253,6 @@ export class ElectronServiceProcessFactory implements TsServerProcessFactory {
 		kind: TsServerProcessKind,
 		configuration: TypeScriptServiceConfiguration,
 		versionManager: TypeScriptVersionManager,
-		_tsserverLog: TsServerLog | undefined,
 	): TsServerProcess {
 		let tsServerPath = version.tsServerPath;
 

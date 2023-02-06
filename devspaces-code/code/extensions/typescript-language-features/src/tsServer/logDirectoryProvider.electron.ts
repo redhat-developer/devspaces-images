@@ -14,11 +14,11 @@ export class NodeLogDirectoryProvider implements ILogDirectoryProvider {
 		private readonly context: vscode.ExtensionContext
 	) { }
 
-	public getNewLogDirectory(): vscode.Uri | undefined {
+	public getNewLogDirectory(): string | undefined {
 		const root = this.logDirectory();
 		if (root) {
 			try {
-				return vscode.Uri.file(fs.mkdtempSync(path.join(root, `tsserver-log-`)));
+				return fs.mkdtempSync(path.join(root, `tsserver-log-`));
 			} catch (e) {
 				return undefined;
 			}

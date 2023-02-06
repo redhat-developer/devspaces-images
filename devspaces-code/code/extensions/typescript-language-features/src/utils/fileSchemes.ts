@@ -9,8 +9,6 @@ import * as vscode from 'vscode';
 export const file = 'file';
 export const untitled = 'untitled';
 export const git = 'git';
-export const github = 'github';
-
 /** Live share scheme */
 export const vsls = 'vsls';
 export const walkThroughSnippet = 'walkThroughSnippet';
@@ -32,6 +30,5 @@ export const semanticSupportedSchemes = isWeb() && vscode.workspace.workspaceFol
  */
 export const disabledSchemes = new Set([
 	git,
-	vsls,
-	github,
+	vsls
 ]);

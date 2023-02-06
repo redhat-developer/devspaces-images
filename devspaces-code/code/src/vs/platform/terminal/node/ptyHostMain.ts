@@ -5,7 +5,6 @@
 
 import { join } from 'vs/base/common/path';
 import { URI } from 'vs/base/common/uri';
-import { DefaultURITransformer } from 'vs/base/common/uriIpc';
 import { ProxyChannel } from 'vs/base/parts/ipc/common/ipc';
 import { Server } from 'vs/base/parts/ipc/node/ipc.cp';
 import { localize } from 'vs/nls';
@@ -31,7 +30,7 @@ const environmentService = new NativeEnvironmentService(parseArgs(process.argv, 
 
 // Logging
 const loggerService = new LoggerService(LogLevel.Info);
-server.registerChannel(TerminalIpcChannels.Logger, new LoggerChannel(loggerService, () => DefaultURITransformer));
+server.registerChannel(TerminalIpcChannels.Logger, new LoggerChannel(loggerService));
 const logger = loggerService.createLogger(URI.file(join(environmentService.logsPath, `${TerminalLogConstants.FileName}.log`)), { name: process.env.VSCODE_PTY_LOG_NAME ?? localize('ptyHost', "Pty Host") });
 delete process.env.VSCODE_PTY_LOG_NAME;
 const logService = new LogService(logger, [new ConsoleLogger()]);

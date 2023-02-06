@@ -15,7 +15,6 @@ import { isUri } from 'vs/workbench/contrib/debug/common/debugUtils';
 import { IEditorPane } from 'vs/workbench/common/editor';
 import { TextEditorSelectionRevealType } from 'vs/platform/editor/common/editor';
 import { IUriIdentityService } from 'vs/platform/uriIdentity/common/uriIdentity';
-import { ILogService } from 'vs/platform/log/common/log';
 
 export const UNKNOWN_SOURCE_LABEL = nls.localize('unknownSource', "Unknown Source");
 
@@ -38,7 +37,7 @@ export class Source {
 	available: boolean;
 	raw: DebugProtocol.Source;
 
-	constructor(raw_: DebugProtocol.Source | undefined, sessionId: string, uriIdentityService: IUriIdentityService, logService: ILogService) {
+	constructor(raw_: DebugProtocol.Source | undefined, sessionId: string, uriIdentityService: IUriIdentityService) {
 		let path: string;
 		if (raw_) {
 			this.raw = raw_;
@@ -50,7 +49,7 @@ export class Source {
 			path = `${DEBUG_SCHEME}:${UNKNOWN_SOURCE_LABEL}`;
 		}
 
-		this.uri = getUriFromSource(this.raw, path, sessionId, uriIdentityService, logService);
+		this.uri = getUriFromSource(this.raw, path, sessionId, uriIdentityService);
 	}
 
 	get name() {
@@ -129,37 +128,27 @@ export class Source {
 	}
 }
 
-export function getUriFromSource(raw: DebugProtocol.Source, path: string | undefined, sessionId: string, uriIdentityService: IUriIdentityService, logService: ILogService): URI {
-	const _getUriFromSource = (path: string | undefined) => {
-		if (typeof raw.sourceReference === 'number' && raw.sourceReference > 0) {
-			return URI.from({
-				scheme: DEBUG_SCHEME,
-				path,
-				query: `session=${sessionId}&ref=${raw.sourceReference}`
-			});
-		}
-
-		if (path && isUri(path)) {	// path looks like a uri
-			return uriIdentityService.asCanonicalUri(URI.parse(path));
-		}
-		// assume a filesystem path
-		if (path && isAbsolute(path)) {
-			return uriIdentityService.asCanonicalUri(URI.file(path));
-		}
-		// path is relative: since VS Code cannot deal with this by itself
-		// create a debug url that will result in a DAP 'source' request when the url is resolved.
-		return uriIdentityService.asCanonicalUri(URI.from({
+export function getUriFromSource(raw: DebugProtocol.Source, path: string | undefined, sessionId: string, uriIdentityService: IUriIdentityService): URI {
+	if (typeof raw.sourceReference === 'number' && raw.sourceReference > 0) {
+		return URI.from({
 			scheme: DEBUG_SCHEME,
 			path,
-			query: `session=${sessionId}`
-		}));
-	};
-
-
-	try {
-		return _getUriFromSource(path);
-	} catch (err) {
-		logService.error('Invalid path from debug adapter: ' + path);
-		return _getUriFromSource('/invalidDebugSource');
+			query: `session=${sessionId}&ref=${raw.sourceReference}`
+		});
 	}
+
+	if (path && isUri(path)) {	// path looks like a uri
+		return uriIdentityService.asCanonicalUri(URI.parse(path));
+	}
+	// assume a filesystem path
+	if (path && isAbsolute(path)) {
+		return uriIdentityService.asCanonicalUri(URI.file(path));
+	}
+	// path is relative: since VS Code cannot deal with this by itself
+	// create a debug url that will result in a DAP 'source' request when the url is resolved.
+	return uriIdentityService.asCanonicalUri(URI.from({
+		scheme: DEBUG_SCHEME,
+		path,
+		query: `session=${sessionId}`
+	}));
 }

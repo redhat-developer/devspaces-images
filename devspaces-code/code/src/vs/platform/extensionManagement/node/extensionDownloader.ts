@@ -22,6 +22,7 @@ import { ExtensionKey, groupByExtension } from 'vs/platform/extensionManagement/
 import { ExtensionSignatureVerificationError, IExtensionSignatureVerificationService } from 'vs/platform/extensionManagement/node/extensionSignatureVerificationService';
 import { IFileService, IFileStatWithMetadata } from 'vs/platform/files/common/files';
 import { ILogService } from 'vs/platform/log/common/log';
+import { IProductService } from 'vs/platform/product/common/productService';
 
 export class ExtensionsDownloader extends Disposable {
 
@@ -36,6 +37,7 @@ export class ExtensionsDownloader extends Disposable {
 		@IFileService private readonly fileService: IFileService,
 		@IExtensionGalleryService private readonly extensionGalleryService: IExtensionGalleryService,
 		@IConfigurationService private readonly configurationService: IConfigurationService,
+		@IProductService private readonly productService: IProductService,
 		@IExtensionSignatureVerificationService private readonly extensionSignatureVerificationService: IExtensionSignatureVerificationService,
 		@ILogService private readonly logService: ILogService,
 	) {
@@ -66,14 +68,11 @@ export class ExtensionsDownloader extends Disposable {
 				}
 				this.logService.info(`Extension signature verification: ${extension.identifier.id}. Verification status: ${verificationStatus}.`);
 			} catch (error) {
-				const sigError = error as ExtensionSignatureVerificationError;
-				const code: string = sigError.code;
+				const code: string = (error as ExtensionSignatureVerificationError).code;
 
 				if (code === 'UnknownError') {
 					verificationStatus = ExtensionVerificationStatus.UnknownError;
 					this.logService.warn(`Extension signature verification: ${extension.identifier.id}. Verification status: ${verificationStatus}.`);
-				} else if (!sigError.didExecute) {
-					this.logService.warn(`Extension signature verification: ${extension.identifier.id}. Verification status: ${verificationStatus} (${code})`);
 				} else {
 					await this.delete(signatureArchiveLocation);
 					await this.delete(location);
@@ -92,7 +91,10 @@ export class ExtensionsDownloader extends Disposable {
 		}
 
 		const value = this.configurationService.getValue('extensions.verifySignature');
-		return isBoolean(value) ? value : true;
+		if (isBoolean(value)) {
+			return value;
+		}
+		return this.productService.quality !== 'stable';
 	}
 
 	private async downloadSignatureArchive(extension: IGalleryExtension): Promise<URI> {

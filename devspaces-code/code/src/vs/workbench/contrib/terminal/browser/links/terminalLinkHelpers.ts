@@ -234,8 +234,6 @@ export function updateLinkWithRelativeCwd(capabilities: ITerminalCapabilityStore
 			result.push(osPath.resolve(cwd + sep + linkPath.slice(commonDirs).join(sep)));
 			if (cwdPath[i] === linkPath[i]) {
 				commonDirs++;
-			} else {
-				break;
 			}
 			i++;
 		}

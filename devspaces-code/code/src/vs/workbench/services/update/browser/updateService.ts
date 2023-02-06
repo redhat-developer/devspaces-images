@@ -47,11 +47,8 @@ export class BrowserUpdateService extends Disposable implements IUpdateService {
 		this.checkForUpdates(false);
 	}
 
-	async isLatestVersion(): Promise<boolean | undefined> {
+	async isLatestVersion(): Promise<boolean> {
 		const update = await this.doCheckForUpdates(false);
-		if (update === undefined) {
-			return undefined; // no update provider
-		}
 
 		return !!update;
 	}
@@ -60,7 +57,7 @@ export class BrowserUpdateService extends Disposable implements IUpdateService {
 		await this.doCheckForUpdates(explicit);
 	}
 
-	private async doCheckForUpdates(explicit: boolean): Promise<IUpdate | null /* no update available */ | undefined /* no update provider */> {
+	private async doCheckForUpdates(explicit: boolean): Promise<IUpdate | null> {
 		if (this.environmentService.options && this.environmentService.options.updateProvider) {
 			const updateProvider = this.environmentService.options.updateProvider;
 
@@ -79,7 +76,7 @@ export class BrowserUpdateService extends Disposable implements IUpdateService {
 			return update;
 		}
 
-		return undefined; // no update provider to ask
+		return null; // no update provider to ask
 	}
 
 	async downloadUpdate(): Promise<void> {

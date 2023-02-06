@@ -71,7 +71,7 @@ export class ExtensionEnablementService extends Disposable implements IWorkbench
 		this.extensionsManager = this._register(instantiationService.createInstance(ExtensionsManager));
 		this.extensionsManager.whenInitialized().then(() => {
 			if (!isDisposed) {
-				this._register(this.extensionsManager.onDidChangeExtensions(({ added, removed, isProfileSwitch }) => this._onDidChangeExtensions(added, removed, isProfileSwitch)));
+				this._register(this.extensionsManager.onDidChangeExtensions(({ added, removed }) => this._onDidChangeExtensions(added, removed)));
 				uninstallDisposable.dispose();
 			}
 		});
@@ -618,14 +618,12 @@ export class ExtensionEnablementService extends Disposable implements IWorkbench
 		}
 	}
 
-	private _onDidChangeExtensions(added: ReadonlyArray<IExtension>, removed: ReadonlyArray<IExtension>, isProfileSwitch: boolean): void {
+	private _onDidChangeExtensions(added: ReadonlyArray<IExtension>, removed: ReadonlyArray<IExtension>): void {
 		const disabledExtensions = added.filter(e => !this.isEnabledEnablementState(this.getEnablementState(e)));
 		if (disabledExtensions.length) {
 			this._onEnablementChanged.fire(disabledExtensions);
 		}
-		if (!isProfileSwitch) {
-			removed.forEach(({ identifier }) => this._reset(identifier));
-		}
+		removed.forEach(({ identifier }) => this._reset(identifier));
 	}
 
 	public async updateExtensionsEnablementsWhenWorkspaceTrustChanges(): Promise<void> {
@@ -662,7 +660,7 @@ class ExtensionsManager extends Disposable {
 	private _extensions: IExtension[] = [];
 	get extensions(): readonly IExtension[] { return this._extensions; }
 
-	private _onDidChangeExtensions = this._register(new Emitter<{ added: readonly IExtension[]; removed: readonly IExtension[]; readonly isProfileSwitch: boolean }>());
+	private _onDidChangeExtensions = this._register(new Emitter<{ added: readonly IExtension[]; removed: readonly IExtension[] }>());
 	readonly onDidChangeExtensions = this._onDidChangeExtensions.event;
 
 	private readonly initializePromise;
@@ -688,24 +686,23 @@ class ExtensionsManager extends Disposable {
 			if (this.disposed) {
 				return;
 			}
-			this._onDidChangeExtensions.fire({ added: this.extensions, removed: [], isProfileSwitch: false });
+			this._onDidChangeExtensions.fire({ added: this.extensions, removed: [] });
 		} catch (error) {
 			this.logService.error(error);
 		}
-		this._register(this.extensionManagementService.onDidInstallExtensions(e =>
-			this.updateExtensions(e.reduce<IExtension[]>((result, { local, operation }) => {
-				if (local && operation !== InstallOperation.Migrate) { result.push(local); } return result;
-			}, []), [], undefined, false)));
-		this._register(Event.filter(this.extensionManagementService.onDidUninstallExtension, (e => !e.error))(e => this.updateExtensions([], [e.identifier], e.server, false)));
-		this._register(this.extensionManagementService.onDidChangeProfile(({ added, removed, server }) => {
-			this.updateExtensions(added, removed.map(({ identifier }) => identifier), server, true);
-		}));
+		this._register(this.extensionManagementService.onDidInstallExtensions(e => this.onDidInstallExtensions(e.reduce<IExtension[]>((result, { local, operation }) => { if (local && operation !== InstallOperation.Migrate) { result.push(local); } return result; }, []))));
+		this._register(Event.filter(this.extensionManagementService.onDidUninstallExtension, (e => !e.error))(e => this.onDidUninstallExtensions([e.identifier], e.server)));
+		this._register(this.extensionManagementService.onDidChangeProfile(({ added, removed, server }) => { this.onDidInstallExtensions(added); this.onDidUninstallExtensions(removed.map(({ identifier }) => identifier), server); }));
 	}
 
-	private updateExtensions(added: IExtension[], identifiers: IExtensionIdentifier[], server: IExtensionManagementServer | undefined, isProfileSwitch: boolean): void {
-		if (added.length) {
-			this._extensions.push(...added);
+	private onDidInstallExtensions(extensions: IExtension[]): void {
+		if (extensions.length) {
+			this._extensions.push(...extensions);
+			this._onDidChangeExtensions.fire({ added: extensions, removed: [] });
 		}
+	}
+
+	private onDidUninstallExtensions(identifiers: IExtensionIdentifier[], server: IExtensionManagementServer): void {
 		const removed: IExtension[] = [];
 		for (const identifier of identifiers) {
 			const index = this._extensions.findIndex(e => areSameExtensions(e.identifier, identifier) && this.extensionManagementServerService.getExtensionManagementServer(e) === server);
@@ -713,8 +710,8 @@ class ExtensionsManager extends Disposable {
 				removed.push(...this._extensions.splice(index, 1));
 			}
 		}
-		if (added.length || removed.length) {
-			this._onDidChangeExtensions.fire({ added, removed, isProfileSwitch });
+		if (removed.length) {
+			this._onDidChangeExtensions.fire({ added: [], removed });
 		}
 	}
 }

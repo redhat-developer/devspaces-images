@@ -1061,9 +1061,7 @@ class WhenInputWidget extends Disposable {
 				}
 				return result;
 			},
-			triggerCharacters: ['!', ' '],
-			wordDefinition: /[a-zA-Z.]+/,
-			alwaysShowSuggestions: true,
+			triggerCharacters: ['!'],
 		}, '', `keyboardshortcutseditor#wheninput`, { focusContextKey, overflowWidgetsDomNode: keybindingsEditor.overflowWidgetsDomNode }));
 
 		this._register((DOM.addDisposableListener(this.input.element, DOM.EventType.DBLCLICK, e => DOM.EventHelper.stop(e))));

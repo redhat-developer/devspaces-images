@@ -207,7 +207,6 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		super();
 
 		//#region create browser window
-		let useSandbox = false;
 		{
 			// Load window state
 			const [state, hasMultipleDisplays] = this.restoreWindowState(config.state);
@@ -226,6 +225,7 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 
 			const windowSettings = this.configurationService.getValue<IWindowSettings | undefined>('window');
 
+			let useSandbox = false;
 			if (typeof windowSettings?.experimental?.useSandbox === 'boolean') {
 				useSandbox = windowSettings.experimental.useSandbox;
 			} else if (this.productService.quality === 'stable' && CodeWindow.sandboxState) {
@@ -442,7 +442,7 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		this.createTouchBar();
 
 		// Eventing
-		this.registerListeners(useSandbox);
+		this.registerListeners();
 	}
 
 	setRepresentedFilename(filename: string): void {
@@ -546,12 +546,12 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		});
 	}
 
-	private registerListeners(sandboxed: boolean): void {
+	private registerListeners(): void {
 
 		// Window error conditions to handle
-		this._win.on('unresponsive', () => this.onWindowError(WindowError.UNRESPONSIVE, { sandboxed }));
-		this._win.webContents.on('render-process-gone', (event, details) => this.onWindowError(WindowError.PROCESS_GONE, { ...details, sandboxed }));
-		this._win.webContents.on('did-fail-load', (event, exitCode, reason) => this.onWindowError(WindowError.LOAD, { reason, exitCode, sandboxed }));
+		this._win.on('unresponsive', () => this.onWindowError(WindowError.UNRESPONSIVE));
+		this._win.webContents.on('render-process-gone', (event, details) => this.onWindowError(WindowError.PROCESS_GONE, details));
+		this._win.webContents.on('did-fail-load', (event, exitCode, reason) => this.onWindowError(WindowError.LOAD, { reason, exitCode }));
 
 		// Prevent windows/iframes from blocking the unload
 		// through DOM events. We have our own logic for
@@ -648,10 +648,10 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		return this.marketplaceHeadersPromise;
 	}
 
-	private async onWindowError(error: WindowError.UNRESPONSIVE, details: { sandboxed: boolean }): Promise<void>;
-	private async onWindowError(error: WindowError.PROCESS_GONE, details: { reason: string; exitCode: number; sandboxed: boolean }): Promise<void>;
-	private async onWindowError(error: WindowError.LOAD, details: { reason: string; exitCode: number; sandboxed: boolean }): Promise<void>;
-	private async onWindowError(type: WindowError, details: { reason?: string; exitCode?: number; sandboxed: boolean }): Promise<void> {
+	private async onWindowError(error: WindowError.UNRESPONSIVE): Promise<void>;
+	private async onWindowError(error: WindowError.PROCESS_GONE, details: { reason: string; exitCode: number }): Promise<void>;
+	private async onWindowError(error: WindowError.LOAD, details: { reason: string; exitCode: number }): Promise<void>;
+	private async onWindowError(type: WindowError, details?: { reason: string; exitCode: number }): Promise<void> {
 
 		switch (type) {
 			case WindowError.PROCESS_GONE:
@@ -669,7 +669,6 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		type WindowErrorClassification = {
 			type: { classification: 'SystemMetaData'; purpose: 'PerformanceAndHealth'; isMeasurement: true; comment: 'The type of window error to understand the nature of the error better.' };
 			reason: { classification: 'SystemMetaData'; purpose: 'PerformanceAndHealth'; comment: 'The reason of the window error to understand the nature of the error better.' };
-			sandboxed: { classification: 'SystemMetaData'; purpose: 'PerformanceAndHealth'; comment: 'If the window was sandboxed or not.' };
 			code: { classification: 'SystemMetaData'; purpose: 'PerformanceAndHealth'; isMeasurement: true; comment: 'The exit code of the window process to understand the nature of the error better' };
 			owner: 'bpasero';
 			comment: 'Provides insight into reasons the vscode window had an error.';
@@ -678,14 +677,8 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 			type: WindowError;
 			reason: string | undefined;
 			code: number | undefined;
-			sandboxed: string;
 		};
-		this.telemetryService.publicLog2<WindowErrorEvent, WindowErrorClassification>('windowerror', {
-			type,
-			reason: details?.reason,
-			code: details?.exitCode,
-			sandboxed: details?.sandboxed ? '1' : '0'
-		});
+		this.telemetryService.publicLog2<WindowErrorEvent, WindowErrorClassification>('windowerror', { type, reason: details?.reason, code: details?.exitCode });
 
 		// Inform User if non-recoverable
 		switch (type) {
@@ -789,7 +782,7 @@ export class CodeWindow extends Disposable implements ICodeWindow {
 		}
 	}
 
-	private async handleWindowsAdminCrash(details: { reason?: string; exitCode?: number; sandboxed: boolean }) {
+	private async handleWindowsAdminCrash(details: { reason: string; exitCode: number }) {
 
 		// Prepare telemetry event (TODO@bpasero remove me eventually)
 		const appenders: ITelemetryAppender[] = [];

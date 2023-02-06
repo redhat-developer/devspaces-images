@@ -12,7 +12,7 @@ import { EventName } from './protocol.const';
 import BufferSyncSupport from './tsServer/bufferSyncSupport';
 import { OngoingRequestCancellerFactory } from './tsServer/cancellation';
 import { ILogDirectoryProvider } from './tsServer/logDirectoryProvider';
-import { ITypeScriptServer, TsServerLog, TsServerProcessFactory, TypeScriptServerExitEvent } from './tsServer/server';
+import { ITypeScriptServer, TsServerProcessFactory, TypeScriptServerExitEvent } from './tsServer/server';
 import { TypeScriptServerError } from './tsServer/serverError';
 import { TypeScriptServerSpawner } from './tsServer/spawner';
 import { TypeScriptVersionManager } from './tsServer/versionManager';
@@ -84,7 +84,7 @@ namespace ServerState {
 		readonly type = Type.Errored;
 		constructor(
 			public readonly error: Error,
-			public readonly tsServerLog: TsServerLog | undefined,
+			public readonly tsServerLogFile: string | undefined,
 		) { }
 	}
 
@@ -96,6 +96,8 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 	private readonly pathSeparator: string;
 	private readonly emptyAuthority = 'ts-nul-authority';
 	private readonly inMemoryResourcePrefix = '^';
+
+	private readonly workspaceState: vscode.Memento;
 
 	private readonly _onReady?: { promise: Promise<void>; resolve: () => void; reject: () => void };
 	private _configuration: TypeScriptServiceConfiguration;
@@ -144,6 +146,8 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 		this.logger = services.logger;
 		this.tracer = new Tracer(this.logger);
 
+		this.workspaceState = context.workspaceState;
+
 		this.pluginManager = services.pluginManager;
 		this.logDirectoryProvider = services.logDirectoryProvider;
 		this.cancellerFactory = services.cancellerFactory;
@@ -167,7 +171,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 		this.versionProvider.updateConfiguration(this._configuration);
 
 		this.pluginPathsProvider = new TypeScriptPluginPathsProvider(this._configuration);
-		this._versionManager = this._register(new TypeScriptVersionManager(this._configuration, this.versionProvider, context.workspaceState));
+		this._versionManager = this._register(new TypeScriptVersionManager(this._configuration, this.versionProvider, this.workspaceState));
 		this._register(this._versionManager.onDidPickNewVersion(() => {
 			this.restartTsServer();
 		}));
@@ -214,7 +218,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 			return this.apiVersion.fullVersionString;
 		});
 
-		this.typescriptServerSpawner = new TypeScriptServerSpawner(this.versionProvider, this._versionManager, this.logDirectoryProvider, this.pluginPathsProvider, this.logger, this.telemetryReporter, this.tracer, this.processFactory);
+		this.typescriptServerSpawner = new TypeScriptServerSpawner(this.versionProvider, this._versionManager, this.logDirectoryProvider, this.pluginPathsProvider, this.logger, this.telemetryReporter, this.tracer, this.processFactory, context.extensionUri);
 
 		this._register(this.pluginManager.onDidUpdateConfig(update => {
 			this.configurePlugin(update.pluginId, update.config);
@@ -422,10 +426,10 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 				vscode.window.showErrorMessage(vscode.l10n.t("TypeScript language server exited with error. Error message is: {0}", err.message || err.name));
 			}
 
-			this.serverState = new ServerState.Errored(err, handle.tsServerLog);
+			this.serverState = new ServerState.Errored(err, handle.tsServerLogFile);
 			this.error('TSServer errored with error.', err);
-			if (handle.tsServerLog) {
-				this.error(`TSServer log file: ${handle.tsServerLog}`);
+			if (handle.tsServerLogFile) {
+				this.error(`TSServer log file: ${handle.tsServerLogFile}`);
 			}
 
 			/* __GDPR__
@@ -464,8 +468,8 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 				return;
 			}
 
-			if (handle.tsServerLog) {
-				this.info(`TSServer log file: ${handle.tsServerLog}`);
+			if (handle.tsServerLogFile) {
+				this.info(`TSServer log file: ${handle.tsServerLogFile}`);
 			}
 			this.serviceExited(!this.isRestarting);
 			this.isRestarting = false;
@@ -507,33 +511,25 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 			return false;
 		}
 
-		if (this.serverState.type !== ServerState.Type.Running || !this.serverState.server.tsServerLog) {
+		if (this.serverState.type !== ServerState.Type.Running || !this.serverState.server.tsServerLogFile) {
 			vscode.window.showWarningMessage(vscode.l10n.t("TS Server has not started logging."));
 			return false;
 		}
 
-		switch (this.serverState.server.tsServerLog.type) {
-			case 'output': {
-				this.serverState.server.tsServerLog.output.show();
-				return true;
-			}
-			case 'file': {
-				try {
-					const doc = await vscode.workspace.openTextDocument(this.serverState.server.tsServerLog.uri);
-					await vscode.window.showTextDocument(doc);
-					return true;
-				} catch {
-					// noop
-				}
+		try {
+			const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(this.serverState.server.tsServerLogFile));
+			await vscode.window.showTextDocument(doc);
+			return true;
+		} catch {
+			// noop
+		}
 
-				try {
-					await vscode.commands.executeCommand('revealFileInOS', this.serverState.server.tsServerLog.uri);
-					return true;
-				} catch {
-					vscode.window.showWarningMessage(vscode.l10n.t("Could not open TS Server log file"));
-					return false;
-				}
-			}
+		try {
+			await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.serverState.server.tsServerLogFile));
+			return true;
+		} catch {
+			vscode.window.showWarningMessage(vscode.l10n.t("Could not open TS Server log file"));
+			return false;
 		}
 	}
 
@@ -665,7 +661,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 							});
 					} else {
 						const args = previousState.type === ServerState.Type.Errored && previousState.error instanceof TypeScriptServerError
-							? getReportIssueArgsForError(previousState.error, previousState.tsServerLog, this.pluginManager.plugins)
+							? getReportIssueArgsForError(previousState.error, previousState.tsServerLogFile, this.pluginManager.plugins)
 							: undefined;
 						vscode.commands.executeCommand('workbench.action.openIssueReporter', args);
 					}
@@ -886,7 +882,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 
 		if (this.serverState.type === ServerState.Type.Running) {
 			this.info('Killing TS Server');
-			const logfile = this.serverState.server.tsServerLog;
+			const logfile = this.serverState.server.tsServerLogFile;
 			this.serverState.server.kill();
 			if (error instanceof TypeScriptServerError) {
 				this.serverState = new ServerState.Errored(error, logfile);
@@ -1024,7 +1020,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 
 function getReportIssueArgsForError(
 	error: TypeScriptServerError,
-	tsServerLog: TsServerLog | undefined,
+	logPath: string | undefined,
 	globalPlugins: readonly TypeScriptServerPlugin[],
 ): { extensionId: string; issueTitle: string; issueBody: string } | undefined {
 	if (!error.serverStack || !error.serverMessage) {
@@ -1054,12 +1050,12 @@ function getReportIssueArgsForError(
 		);
 	}
 
-	if (tsServerLog?.type === 'file') {
+	if (logPath) {
 		sections.push(`**TS Server Log**
 
 ❗️ Please review and upload this log file to help us diagnose this crash:
 
-\`${tsServerLog.uri.fsPath}\`
+\`${logPath}\`
 
 The log file may contain personal data, including full paths and source code from your workspace. You can scrub the log file to remove paths or other personal information.
 `);

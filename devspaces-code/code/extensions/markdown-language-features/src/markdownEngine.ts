@@ -412,9 +412,6 @@ async function getMarkdownOptions(md: () => MarkdownIt): Promise<MarkdownIt.Opti
 
 function normalizeHighlightLang(lang: string | undefined) {
 	switch (lang && lang.toLowerCase()) {
-		case 'py3':
-			return 'python';
-
 		case 'tsx':
 		case 'typescriptreact':
 			// Workaround for highlight not supporting tsx: https://github.com/isagalaev/highlight.js/issues/1155

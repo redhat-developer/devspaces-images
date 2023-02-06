@@ -13,7 +13,8 @@
 		"diffContentOptions"
 	],
 	"activationEvents": [
-		"onNotebook:jupyter-notebook"
+		"onNotebook:jupyter-notebook",
+		"onCommand:ipynb.newUntitledIpynb"
 	],
 	"extensionKind": [
 		"workspace",
@@ -43,17 +44,17 @@
 		"commands": [
 			{
 				"command": "ipynb.newUntitledIpynb",
-				"title": "%newUntitledIpynb.title%",
-				"shortTitle": "%newUntitledIpynb.shortTitle%",
+				"title": "New Jupyter Notebook",
+				"shortTitle": "Jupyter Notebook",
 				"category": "Create"
 			},
 			{
 				"command": "ipynb.openIpynbInNotebookEditor",
-				"title": "%openIpynbInNotebookEditor.title%"
+				"title": "Open ipynb file in notebook editor"
 			},
 			{
 				"command": "ipynb.cleanInvalidImageAttachment",
-				"title": "%cleanInvalidImageAttachment.title%"
+				"title": "Clean invalid image attachment reference"
 			}
 		],
 		"notebooks": [
@@ -71,7 +72,7 @@
 		"notebookRenderer": [
 			{
 				"id": "vscode.markdown-it-cell-attachment-renderer",
-				"displayName": "%markdownAttachmentRenderer.displayName%",
+				"displayName": "Markdown it ipynb Cell Attachment renderer",
 				"entrypoint": {
 					"extends": "vscode.markdown-it-renderer",
 					"path": "./notebook-out/cellAttachmentRenderer.js"

@@ -4,12 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { NullLogService } from 'vs/platform/log/common/log';
 import { findExpressionInStackFrame } from 'vs/workbench/contrib/debug/browser/debugHover';
-import type { IExpression, IScope } from 'vs/workbench/contrib/debug/common/debug';
-import { Scope, StackFrame, Thread, Variable } from 'vs/workbench/contrib/debug/common/debugModel';
-import { Source } from 'vs/workbench/contrib/debug/common/debugSource';
 import { createTestSession } from 'vs/workbench/contrib/debug/test/browser/callStack.test';
+import { StackFrame, Thread, Scope, Variable } from 'vs/workbench/contrib/debug/common/debugModel';
+import { Source } from 'vs/workbench/contrib/debug/common/debugSource';
+import type { IScope, IExpression } from 'vs/workbench/contrib/debug/common/debug';
 import { createMockDebugModel, mockUriIdentityService } from 'vs/workbench/contrib/debug/test/browser/mockDebugModel';
 
 suite('Debug - Hover', () => {
@@ -27,7 +26,7 @@ suite('Debug - Hover', () => {
 			name: 'internalModule.js',
 			path: 'a/b/c/d/internalModule.js',
 			sourceReference: 10,
-		}, 'aDebugSessionId', mockUriIdentityService, new NullLogService());
+		}, 'aDebugSessionId', mockUriIdentityService);
 
 		const stackFrame = new class extends StackFrame {
 			override getScopes(): Promise<IScope[]> {

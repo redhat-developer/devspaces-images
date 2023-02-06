@@ -129,6 +129,7 @@ export const enum QueryType {
 
 /* __GDPR__FRAGMENT__
 	"IPatternInfo" : {
+		"pattern" : { "classification": "CustomerContent", "purpose": "FeatureInsight" },
 		"isRegExp": { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true },
 		"isWordMatch": { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true },
 		"wordSeparators": { "classification": "SystemMetaData", "purpose": "FeatureInsight" },

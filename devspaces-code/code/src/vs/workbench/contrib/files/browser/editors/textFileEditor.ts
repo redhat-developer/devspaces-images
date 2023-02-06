@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { localize } from 'vs/nls';
-import { mark } from 'vs/base/common/performance';
 import { assertIsDefined } from 'vs/base/common/types';
 import { IPathService } from 'vs/workbench/services/path/common/pathService';
 import { IAction, toAction } from 'vs/base/common/actions';
@@ -96,7 +95,6 @@ export class TextFileEditor extends AbstractTextCodeEditor<ICodeEditorViewState>
 	}
 
 	override async setInput(input: FileEditorInput, options: IFileEditorInputOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
-		mark(`code/willSetInputToTextFileEditor`);
 
 		// Set input and resolve
 		await super.setInput(input, options, context, token);
@@ -150,8 +148,6 @@ export class TextFileEditor extends AbstractTextCodeEditor<ICodeEditorViewState>
 		} catch (error) {
 			await this.handleSetInputError(error, input, options);
 		}
-
-		mark(`code/didSetInputToTextFileEditor`);
 	}
 
 	protected async handleSetInputError(error: Error, input: FileEditorInput, options: ITextEditorOptions | undefined): Promise<void> {
