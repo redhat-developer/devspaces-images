@@ -366,7 +366,7 @@
 | [`config-chain@1.1.13`](https://github.com/dominictarr/config-chain.git) | MIT | clearlydefined |
 | [`connect-history-api-fallback@1.6.0`](http://github.com/bripkens/connect-history-api-fallback.git) | MIT | clearlydefined |
 | [`console-control-strings@1.1.0`](https://github.com/iarna/console-control-strings) | ISC | clearlydefined |
-| [`content-type@1.0.4`](https://github.com/jshttp/content-type.git) | MIT | clearlydefined |
+| [`content-type@1.0.4`](https://github.com/jshttp/content-type.git) | MIT | #6950 |
 | [`conventional-changelog-angular@5.0.13`](https://github.com/conventional-changelog/conventional-changelog.git) | ISC | clearlydefined |
 | [`conventional-changelog-core@4.2.4`](https://github.com/conventional-changelog/conventional-changelog.git) | MIT | clearlydefined |
 | [`conventional-changelog-preset-loader@2.3.4`](https://github.com/conventional-changelog/conventional-changelog.git) | MIT | clearlydefined |
@@ -396,7 +396,7 @@
 | [`decamelize-keys@1.1.0`](https://github.com/dsblv/decamelize-keys.git) | MIT | #4601 |
 | [`decamelize@1.2.0`](https://github.com/sindresorhus/decamelize.git) | MIT | clearlydefined |
 | [`decimal.js@10.3.1`](https://github.com/MikeMcl/decimal.js.git) | MIT | clearlydefined |
-| [`decode-uri-component@0.2.0`](https://github.com/SamVerschueren/decode-uri-component.git) | MIT | #5322 |
+| [`decode-uri-component@0.2.2`](https://github.com/SamVerschueren/decode-uri-component.git) | MIT | #5322 |
 | [`dedent@0.7.0`](git://github.com/dmnd/dedent.git) | MIT | clearlydefined |
 | [`deep-is@0.1.4`](http://github.com/thlorenz/deep-is.git) | MIT | #2130 |
 | [`default-gateway@6.0.3`](https://github.com/silverwind/default-gateway.git) | BSD-2-Clause | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/default-gateway/6.0.3) |

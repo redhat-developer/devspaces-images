@@ -7,9 +7,9 @@
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-code-devworkspace-handler@1.74.0-dev-e701cae`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1667484092`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.60.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.60.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.60.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.61.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.61.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.61.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-d624e3e`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1672830275`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
@@ -20,7 +20,7 @@
 | [`@fastify/reply-from@7.0.1`](git+https://github.com/fastify/fastify-reply-from.git) | MIT | clearlydefined |
 | [`@fastify/static@5.0.2`](https://github.com/fastify/fastify-static.git) | MIT | clearlydefined |
 | [`@fastify/swagger@6.1.0`](git+https://github.com/fastify/fastify-swagger.git) | MIT | clearlydefined |
-| [`@fastify/websocket@5.0.0`](git+https://github.com/fastify/fastify-websocket.git) | MIT | clearlydefined |
+| [`@fastify/websocket@5.0.1`](git+https://github.com/fastify/fastify-websocket.git) | MIT | clearlydefined |
 | [`@hapi/address@2.1.4`](git://github.com/hapijs/address) | BSD-3-Clause | clearlydefined |
 | [`@hapi/boom@7.4.11`](git://github.com/hapijs/boom) | BSD-3-Clause | clearlydefined |
 | [`@hapi/bourne@1.3.2`](git://github.com/hapijs/bourne) | BSD-3-Clause | clearlydefined |
@@ -127,6 +127,7 @@
 | [`concat-map@0.0.1`](git://github.com/substack/node-concat-map.git) | MIT | clearlydefined |
 | [`connected-react-router@6.9.2`](https://github.com/supasate/connected-react-router.git) | MIT | clearlydefined |
 | [`content-disposition@0.5.4`](https://github.com/jshttp/content-disposition.git) | MIT | clearlydefined |
+| [`content-type@1.0.5`](https://github.com/jshttp/content-type.git) | MIT | #6950 |
 | [`convert-source-map@1.8.0`](git://github.com/thlorenz/convert-source-map.git) | MIT | clearlydefined |
 | [`cookie@0.5.0`](https://github.com/jshttp/cookie.git) | MIT | clearlydefined |
 | [`copy-to-clipboard@3.3.1`](git+https://github.com/sudodoki/copy-to-clipboard) | MIT | clearlydefined |
@@ -181,7 +182,7 @@
 | [`fast-redact@3.1.1`](git+https://github.com/davidmarkclements/fast-redact.git) | MIT | clearlydefined |
 | [`fast-safe-stringify@2.1.1`](git+https://github.com/davidmarkclements/fast-safe-stringify.git) | MIT | clearlydefined |
 | [`fastify-plugin@3.0.1`](git+https://github.com/fastify/fastify-plugin.git) | MIT | clearlydefined |
-| [`fastify@3.29.1`](git+https://github.com/fastify/fastify.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.29.1) |
+| [`fastify@3.29.4`](git+https://github.com/fastify/fastify.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.29.4) |
 | [`fastq@1.13.0`](git+https://github.com/mcollina/fastq.git) | ISC | clearlydefined |
 | [`file-selector@0.1.19`](https://github.com/react-dropzone/file-selector.git) | MIT | [CQ22350](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22350) |
 | [`find-my-way@4.5.1`](git+https://github.com/delvedor/find-my-way.git) | MIT | clearlydefined |
@@ -294,7 +295,7 @@
 | [`mri@1.1.4`](https://github.com/lukeed/mri.git) | MIT | clearlydefined |
 | [`ms@2.0.0`](https://github.com/zeit/ms.git) | MIT | clearlydefined |
 | [`nanoid@3.3.4`](https://github.com/ai/nanoid.git) | MIT | clearlydefined |
-| [`node-fetch@2.6.7`](https://github.com/bitinn/node-fetch.git) | MIT | clearlydefined |
+| [`node-fetch@2.6.7`](https://github.com/bitinn/node-fetch.git) | MIT | #6954 |
 | [`normalize-url@6.1.0`](https://github.com/sindresorhus/normalize-url.git) | MIT | clearlydefined |
 | [`npm-run-path@4.0.1`](https://github.com/sindresorhus/npm-run-path.git) | MIT | clearlydefined |
 | [`oauth-sign@0.9.0`](https://github.com/mikeal/oauth-sign) | Apache-2.0 | clearlydefined |
