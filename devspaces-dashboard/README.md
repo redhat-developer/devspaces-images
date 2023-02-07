@@ -226,6 +226,21 @@ kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
 
 **Note**: This way to configure dashboard is experimental and may be changed.
 
+## che-server API usage
+
+Currently, Dashboard uses the following che-server API:
+
+| Method | Path                                |
+|--------|-------------------------------------|
+| POST    | /kubernetes/namespace/provision    |
+| GET   | /kubernetes/namespace                |
+| POST   | /factory/resolver/                  |
+| POST   | /factory/token/refresh              |
+| GET    | /workspace/settings                 |
+| GET    | /oauth                              |
+| GET    | /oauth/token                        |
+| DELETE | /oauth/token                        |
+
 # Builds
 
 This repo contains several [actions](https://github.com/eclipse-che/che-dashboard/actions), including:
