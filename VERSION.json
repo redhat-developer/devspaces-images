@@ -1,4 +1,5 @@
 {
+    "NOTE": "This file is deprecated; see https://github.com/redhat-developer/devspaces/blob/devspaces-3.5-rhel-8/dependencies/job-config.json",
     "DS_VERSION": "3.5",
     "CSV_VERSION_BUNDLE": "3.5.0"
 }
