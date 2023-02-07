@@ -56,9 +56,10 @@ https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/ta
         }
 
         parameters{
-            stringParam("DS_VERSION",PREV_VERSION,"version to use in NEW_BRANCH; " + MIDSTM_BRANCH + " branch will also be updated to " + JOB_BRANCH)
-            stringParam("NEW_BRANCH",NEW_BRANCH,"branches to create")
-            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use as source of the new branches")
+            stringParam("DS_VERSION",PREV_VERSION,"version to use in new branch NEW_BRANCH = " + NEW_BRANCH)
+            stringParam("DS_VERSION_NEXT",JOB_BRANCH,"version to use in future branch MIDSTM_BRANCH = " + MIDSTM_BRANCH)
+            stringParam("NEW_BRANCH",NEW_BRANCH,"branch to create in repos")
+            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use as source of the new branch in repos")
             booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
         }
 

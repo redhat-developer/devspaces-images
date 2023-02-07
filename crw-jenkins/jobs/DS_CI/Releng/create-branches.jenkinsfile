@@ -21,7 +21,7 @@ timeout(120) {
                 def util = load "${WORKSPACE}/util2.groovy"
                 // if set as job param, use that; else compute from MIDSTM_BRANCH
                 DS_VERSION = util.globalVar({DS_VERSION})?.trim() ? util.globalVar({DS_VERSION}) : util.getDsVersion(MIDSTM_BRANCH)
-                DS_VERSION_NEXT = util.getDsVersion(MIDSTM_BRANCH)
+                DS_VERSION_NEXT = util.globalVar({DS_VERSION_NEXT})?.trim() ? util.globalVar({DS_VERSION_NEXT}) : util.getDsVersion(MIDSTM_BRANCH)
                 cleanWs()
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/tagRelease.sh && chmod +x tagRelease.sh')
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh && chmod +x containerExtract.sh')

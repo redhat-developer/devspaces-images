@@ -41,7 +41,8 @@ cd ${WORKSPACE}/devspaces/product/manifest/
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 
 # delete old releases before pushing latest one, to keep disk usage low
-ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/devspaces; OLD_VERS=\\$(ls -1 | grep -v "''' + CSV_VERSION +
+# DO NOT delete 'build-requirements' folder as we use that for storing binaries we can't yet build ourselves in OSBS
+ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/devspaces; OLD_VERS=\\$(ls -1 | grep -E -v "build-requirements|''' + CSV_VERSION +
   '''"); if [[ \\$OLD_VERS ]]; then echo 'Delete '\\$OLD_VERS; rm -fr \\$OLD_VERS; else echo 'Nothing to delete'; fi"
 '''
             for (int i = 1; i <= 10; i++) {
