@@ -131,6 +131,12 @@ class LoaderContainer extends React.Component<Props, State> {
     }
   }
 
+  private handleTabChange(tabName: string): void {
+    this.setState({
+      tabParam: tabName,
+    });
+  }
+
   render(): React.ReactElement {
     const { currentStepIndex, loaderSteps, tabParam, searchParams } = this.state;
     const { history } = this.props;
@@ -146,6 +152,7 @@ class LoaderContainer extends React.Component<Props, State> {
           tabParam={tabParam}
           onNextStep={() => this.handleNextStep()}
           onRestart={() => this.handleRestart()}
+          onTabChange={tabName => this.handleTabChange(tabName)}
         />
       );
     } else {
@@ -160,6 +167,7 @@ class LoaderContainer extends React.Component<Props, State> {
           tabParam={tabParam}
           onNextStep={() => this.handleNextStep()}
           onRestart={tabName => this.handleRestart(tabName)}
+          onTabChange={tabName => this.handleTabChange(tabName)}
         />
       );
     }

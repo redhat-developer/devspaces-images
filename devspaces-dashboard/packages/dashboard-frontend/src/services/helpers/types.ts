@@ -81,12 +81,14 @@ export type CreateWorkspaceTab = 'quick-add' | 'custom-workspace';
 export enum LoaderTab {
   Progress = 0,
   Logs = 1,
+  Events = 2,
 }
 
 export enum WorkspaceDetailsTab {
   OVERVIEW = 'Overview',
   DEVFILE = 'Devfile',
-  DEVWRKSPACE = 'DevWorkspace',
+  DEVWORKSPACE = 'DevWorkspace',
+  EVENTS = 'Events',
 }
 
 export enum WorkspaceAction {
@@ -102,5 +104,3 @@ export enum WorkspaceAction {
 }
 
 export type UserPreferencesTab = 'container-registries' | 'git-services';
-
-export type WorkspacesLogs = Map<string, string[]>;

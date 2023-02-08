@@ -37,6 +37,8 @@ jest.mock('../../../../components/Loader/Progress');
 jest.mock('../../../../components/WorkspaceLogs');
 jest.mock('../../Common');
 
+const onTabChangeMock = jest.fn();
+
 const { renderComponent } = getComponentRenderer(getComponent);
 
 const currentStepId = LoadingStep.INITIALIZE;
@@ -95,6 +97,7 @@ function getComponent(
         steps={props.steps}
         tabParam={'Progress'}
         workspace={props.workspace}
+        onTabChange={onTabChangeMock}
       />
     </Provider>
   );

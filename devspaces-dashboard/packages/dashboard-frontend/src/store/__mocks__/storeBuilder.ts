@@ -11,12 +11,13 @@
  */
 
 import { api, ClusterConfig, ClusterInfo } from '@eclipse-che/common';
-import { Store } from 'redux';
-import createMockStore from 'redux-mock-store';
+import { CoreV1Event, V1Pod } from '@kubernetes/client-node';
+import { AnyAction } from 'redux';
+import createMockStore, { MockStoreEnhanced } from 'redux-mock-store';
+import { ThunkDispatch } from 'redux-thunk';
 import { AppState } from '..';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
 import devfileApi from '../../services/devfileApi';
-import { WorkspacesLogs } from '../../services/helpers/types';
 import { State as BrandingState } from '../Branding';
 import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries/index';
 import { RegistryEntry } from '../DockerConfig/types';
@@ -39,6 +40,16 @@ export class FakeStoreBuilder {
         runningWorkspacesLimit: 1,
         allWorkspacesLimit: -1,
       },
+    },
+    events: {
+      isLoading: false,
+      events: [],
+      resourceVersion: '0',
+    },
+    pods: {
+      isLoading: false,
+      pods: [],
+      resourceVersion: '0',
     },
     dwServerConfig: {
       isLoading: false,
@@ -89,7 +100,8 @@ export class FakeStoreBuilder {
     devWorkspaces: {
       isLoading: false,
       workspaces: [],
-      workspacesLogs: new Map<string, string[]>(),
+      resourceVersion: '0',
+      startedWorkspaces: {},
     },
     workspacesSettings: {
       isLoading: false,
@@ -288,7 +300,7 @@ export class FakeStoreBuilder {
   public withDevWorkspaces(
     options: {
       workspaces?: devfileApi.DevWorkspace[];
-      workspacesLogs?: WorkspacesLogs;
+      startedWorkspaces?: { [uid: string]: string };
     },
     isLoading = false,
     error?: string,
@@ -296,8 +308,8 @@ export class FakeStoreBuilder {
     if (options.workspaces) {
       this.state.devWorkspaces.workspaces = Object.assign([], options.workspaces);
     }
-    if (options.workspacesLogs) {
-      this.state.devWorkspaces.workspacesLogs = new Map(options.workspacesLogs);
+    if (options.startedWorkspaces) {
+      this.state.devWorkspaces.startedWorkspaces = Object.assign({}, options.startedWorkspaces);
     }
     this.state.devWorkspaces.isLoading = isLoading;
     this.state.devWorkspaces.error = error;
@@ -347,9 +359,32 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public build(): Store {
+  public withEvents(
+    options: { events: CoreV1Event[]; error?: string; resourceVersion?: string },
+    isLoading = false,
+  ): FakeStoreBuilder {
+    this.state.events.events = Object.assign([], options.events);
+    this.state.events.error = options.error;
+    this.state.events.resourceVersion =
+      options.resourceVersion || this.state.events.resourceVersion;
+    this.state.events.isLoading = isLoading;
+    return this;
+  }
+
+  public withPods(
+    options: { pods: V1Pod[]; error?: string; resourceVersion?: string },
+    isLoading = false,
+  ): FakeStoreBuilder {
+    this.state.pods.pods = Object.assign([], options.pods);
+    this.state.pods.error = options.error;
+    this.state.pods.resourceVersion = options.resourceVersion || this.state.pods.resourceVersion;
+    this.state.pods.isLoading = isLoading;
+    return this;
+  }
+
+  public build(): MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>> {
     const middlewares = [mockThunk];
-    const mockStore = createMockStore(middlewares);
+    const mockStore = createMockStore<AppState>(middlewares);
     return mockStore(this.state);
   }
 

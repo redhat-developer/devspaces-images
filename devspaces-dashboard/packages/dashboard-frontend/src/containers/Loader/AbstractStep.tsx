@@ -23,6 +23,7 @@ export type LoaderStepProps = {
   tabParam: string | undefined;
   onNextStep: () => void;
   onRestart: (tabName?: string) => void;
+  onTabChange: (tab: string) => void;
 };
 export type LoaderStepState = {
   lastError?: unknown;
@@ -91,5 +92,9 @@ export abstract class AbstractLoaderStep<
         },
       });
     });
+  }
+
+  protected handleTabChange(tab: string): void {
+    this.props.onTabChange(tab);
   }
 }

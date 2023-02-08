@@ -35,6 +35,7 @@ import { History, UnregisterCallback, Location } from 'history';
 import { Workspace } from '../../services/workspace-adapter';
 import UnsavedChangesModal from '../../components/UnsavedChangesModal';
 import { buildDetailsLocation } from '../../services/helpers/location';
+import WorkspaceEvents from '../../components/WorkspaceEvents';
 
 import styles from './index.module.css';
 
@@ -140,8 +141,10 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
           return WorkspaceDetailsTab.OVERVIEW;
         case WorkspaceDetailsTab.DEVFILE:
           return WorkspaceDetailsTab.DEVFILE;
-        case WorkspaceDetailsTab.DEVWRKSPACE:
-          return WorkspaceDetailsTab.DEVWRKSPACE;
+        case WorkspaceDetailsTab.DEVWORKSPACE:
+          return WorkspaceDetailsTab.DEVWORKSPACE;
+        case WorkspaceDetailsTab.EVENTS:
+          return WorkspaceDetailsTab.EVENTS;
       }
     }
     return WorkspaceDetailsTab.OVERVIEW;
@@ -250,12 +253,18 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
                 onDevWorkspaceWarning={() => this.handleRestartWarning()}
               />
             </Tab>
-            <Tab eventKey={WorkspaceDetailsTab.DEVWRKSPACE} title={WorkspaceDetailsTab.DEVWRKSPACE}>
+            <Tab
+              eventKey={WorkspaceDetailsTab.DEVWORKSPACE}
+              title={WorkspaceDetailsTab.DEVWORKSPACE}
+            >
               <ProgressIndicator isLoading={this.props.isLoading} />
               <DevworkspaceEditorTab
                 workspace={workspace}
-                isActive={WorkspaceDetailsTab.DEVWRKSPACE === this.state.activeTabKey}
+                isActive={WorkspaceDetailsTab.DEVWORKSPACE === this.state.activeTabKey}
               />
+            </Tab>
+            <Tab eventKey={WorkspaceDetailsTab.EVENTS} title={WorkspaceDetailsTab.EVENTS}>
+              <WorkspaceEvents workspaceUID={workspace.uid} />
             </Tab>
           </Tabs>
           <UnsavedChangesModal

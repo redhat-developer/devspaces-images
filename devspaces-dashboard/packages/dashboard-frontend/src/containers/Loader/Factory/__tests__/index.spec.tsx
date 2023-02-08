@@ -36,6 +36,7 @@ const { renderComponent } = getComponentRenderer(getComponent);
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
+const mockOnTabChange = jest.fn();
 
 describe('Factory Loader container', () => {
   beforeEach(() => {
@@ -319,6 +320,7 @@ function getComponent(loaderSteps: List<LoaderStep>, currentStepIndex: number): 
       tabParam={undefined}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
+      onTabChange={mockOnTabChange}
     />
   );
 }

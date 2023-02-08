@@ -16,13 +16,12 @@ import { AlertVariant } from '@patternfly/react-core';
 import common from '@eclipse-che/common';
 import { isEqual } from 'lodash';
 import { AppState } from '../../../../../store';
-import { selectAllWorkspaces, selectLogs } from '../../../../../store/Workspaces/selectors';
+import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../../../store/Workspaces';
 import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../../services/helpers/types';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
-import { filterErrorLogs } from '../../../../../services/helpers/filterErrorLogs';
 import { MIN_STEP_DURATION_MS } from '../../../const';
 import findTargetWorkspace from '../../../findTargetWorkspace';
 import workspaceStatusIs from '../workspaceStatusIs';
@@ -133,7 +132,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
       (this.state.shouldStart === false &&
         workspaceStatusIs(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED))
     ) {
-      const errorLogs = filterErrorLogs(this.props.workspacesLogs, workspace).pop();
+      const errorLogs = workspace.errorLogs.join('');
       throw new Error(
         errorLogs || `The workspace status changed unexpectedly to "${workspace.status}".`,
       );
@@ -219,6 +218,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
         steps={steps}
         tabParam={tabParam}
         workspace={workspace}
+        onTabChange={tab => this.handleTabChange(tab)}
       />
     );
   }
@@ -226,7 +226,6 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
-  workspacesLogs: selectLogs(state),
   startTimeout: selectStartTimeout(state),
 });
 

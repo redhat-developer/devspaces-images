@@ -10,13 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common from '@eclipse-che/common';
-import { cloneDeep } from 'lodash';
+import common, { api } from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
-import { AppState, AppThunk } from '../..';
+import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import { WebsocketClient } from '../../../services/dashboard-backend-client/websocketClient';
 import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
 import {
@@ -26,14 +25,13 @@ import {
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { delay } from '../../../services/helpers/delay';
 import { DisposableCollection } from '../../../services/helpers/disposable';
-import { DevWorkspaceStatus, WorkspacesLogs } from '../../../services/helpers/types';
+import { getNewerResourceVersion } from '../../../services/helpers/resourceVersion';
+import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
-  IStatusUpdate,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
 import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
 import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
@@ -41,20 +39,19 @@ import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/se
 import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 import * as DwServerConfigStore from '../../ServerConfig';
 import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
-import { deleteLogs, mergeLogs } from '../logs';
-import { selectRunningDevWorkspacesLimitExceeded } from './selectors';
-
-const devWorkspaceClient = container.get(DevWorkspaceClient);
+import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
+import { selectDevWorkspacesResourceVersion } from './selectors';
 
 export const onStatusChangeCallbacks = new Map<string, (status: DevWorkspaceStatus) => void>();
 
 export interface State {
   isLoading: boolean;
   workspaces: devfileApi.DevWorkspace[];
-  resourceVersion?: string;
+  resourceVersion: string;
   error?: string;
-  // runtime logs
-  workspacesLogs: WorkspacesLogs;
+  startedWorkspaces: {
+    [workspaceUID: string]: string;
+  };
 }
 
 export class RunningWorkspacesExceededError extends Error {
@@ -64,62 +61,59 @@ export class RunningWorkspacesExceededError extends Error {
   }
 }
 
-interface RequestDevWorkspacesAction extends Action, SanityCheckAction {
-  type: 'REQUEST_DEVWORKSPACE';
+export enum Type {
+  REQUEST_DEVWORKSPACE = 'REQUEST_DEVWORKSPACE',
+  RECEIVE_DEVWORKSPACE_ERROR = 'RECEIVE_DEVWORKSPACE_ERROR',
+  RECEIVE_DEVWORKSPACE = 'RECEIVE_DEVWORKSPACE',
+  UPDATE_DEVWORKSPACE = 'UPDATE_DEVWORKSPACE',
+  DELETE_DEVWORKSPACE = 'DELETE_DEVWORKSPACE',
+  TERMINATE_DEVWORKSPACE = 'TERMINATE_DEVWORKSPACE',
+  ADD_DEVWORKSPACE = 'ADD_DEVWORKSPACE',
+  UPDATE_STARTED_WORKSPACES = 'UPDATE_STARTED_WORKSPACES',
 }
 
-interface ReceiveErrorAction extends Action {
-  type: 'RECEIVE_DEVWORKSPACE_ERROR';
+export interface RequestDevWorkspacesAction extends Action, SanityCheckAction {
+  type: Type.REQUEST_DEVWORKSPACE;
+}
+
+export interface ReceiveErrorAction extends Action {
+  type: Type.RECEIVE_DEVWORKSPACE_ERROR;
   error: string;
 }
 
-interface ReceiveWorkspacesAction extends Action {
-  type: 'RECEIVE_DEVWORKSPACE';
+export interface ReceiveWorkspacesAction extends Action {
+  type: Type.RECEIVE_DEVWORKSPACE;
   workspaces: devfileApi.DevWorkspace[];
   resourceVersion: string;
 }
 
-interface UpdateWorkspaceAction extends Action {
-  type: 'UPDATE_DEVWORKSPACE';
+export interface UpdateWorkspaceAction extends Action {
+  type: Type.UPDATE_DEVWORKSPACE;
   workspace: devfileApi.DevWorkspace;
 }
 
-interface UpdateWorkspaceStatusAction extends Action {
-  type: 'UPDATE_DEVWORKSPACE_STATUS';
-  workspaceUID: string;
-  status: string;
-  message: string;
-  mainUrl?: string;
-  started: boolean;
+export interface DeleteWorkspaceAction extends Action {
+  type: Type.DELETE_DEVWORKSPACE;
+  workspace: devfileApi.DevWorkspace;
 }
 
-interface UpdateWorkspacesLogsAction extends Action {
-  type: 'UPDATE_DEVWORKSPACE_LOGS';
-  workspacesLogs: WorkspacesLogs;
-}
-
-interface DeleteWorkspaceLogsAction extends Action {
-  type: 'DELETE_DEVWORKSPACE_LOGS';
-  workspaceUID: string;
-}
-
-interface DeleteWorkspaceAction extends Action {
-  type: 'DELETE_DEVWORKSPACE';
-  workspaceId: string;
-}
-
-interface TerminateWorkspaceAction extends Action {
-  type: 'TERMINATE_DEVWORKSPACE';
+export interface TerminateWorkspaceAction extends Action {
+  type: Type.TERMINATE_DEVWORKSPACE;
   workspaceUID: string;
   message: string;
 }
 
-interface AddWorkspaceAction extends Action {
-  type: 'ADD_DEVWORKSPACE';
+export interface AddWorkspaceAction extends Action {
+  type: Type.ADD_DEVWORKSPACE;
   workspace: devfileApi.DevWorkspace;
 }
 
-type KnownAction =
+export interface UpdateStartedWorkspaceAction extends Action {
+  type: Type.UPDATE_STARTED_WORKSPACES;
+  workspaces: devfileApi.DevWorkspace[];
+}
+
+export type KnownAction =
   | RequestDevWorkspacesAction
   | ReceiveErrorAction
   | ReceiveWorkspacesAction
@@ -127,18 +121,13 @@ type KnownAction =
   | DeleteWorkspaceAction
   | TerminateWorkspaceAction
   | AddWorkspaceAction
-  | UpdateWorkspaceStatusAction
-  | UpdateWorkspacesLogsAction
-  | DeleteWorkspaceLogsAction;
+  | UpdateStartedWorkspaceAction;
 
 export type ResourceQueryParams = {
   'debug-workspace-start': boolean;
   [propName: string]: string | boolean | undefined;
 };
 export type ActionCreators = {
-  updateAddedDevWorkspaces: (workspace: devfileApi.DevWorkspace[]) => AppThunk<KnownAction>;
-  updateDeletedDevWorkspaces: (deletedWorkspacesIds: string[]) => AppThunk<KnownAction>;
-  updateDevWorkspaceStatus: (message: IStatusUpdate) => AppThunk<KnownAction, Promise<void>>;
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
   requestWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   startWorkspace: (
@@ -167,71 +156,34 @@ export type ActionCreators = {
     editor?: string,
   ) => AppThunk<KnownAction, Promise<void>>;
 
-  deleteWorkspaceLogs: (workspaceUID: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
+  handleWebSocketMessage: (
+    message: api.webSocket.NotificationMessage,
+  ) => AppThunk<KnownAction, Promise<void>>;
 };
 export const actionCreators: ActionCreators = {
-  updateAddedDevWorkspaces:
-    (workspaces: devfileApi.DevWorkspace[]): AppThunk<KnownAction, void> =>
-    (dispatch): void => {
-      workspaces.forEach(workspace => {
-        dispatch({
-          type: 'ADD_DEVWORKSPACE',
-          workspace,
-        });
-      });
-    },
-
-  updateDeletedDevWorkspaces:
-    (deletedWorkspacesIds: string[]): AppThunk<KnownAction> =>
-    (dispatch): void => {
-      deletedWorkspacesIds.forEach(workspaceId => {
-        dispatch({
-          type: 'DELETE_DEVWORKSPACE',
-          workspaceId,
-        });
-      });
-    },
-
-  updateDevWorkspaceStatus:
-    (
-      message: IStatusUpdate & {
-        namespace?: string;
-        workspaceId?: string;
-      },
-    ): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch, getState): Promise<void> => {
-      if (!message.namespace || !message.workspaceId) {
-        const {
-          devWorkspaces: { workspaces },
-        } = getState();
-        const workspace = workspaces.find(w => w.metadata.uid === message.workspaceUID);
-        if (workspace) {
-          message.namespace = workspace?.metadata?.namespace;
-          message.workspaceId = workspace.status?.devworkspaceId;
-        }
-      }
-      await onStatusUpdateReceived(dispatch, message);
-    },
-
   requestWorkspaces:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
 
       try {
         const defaultKubernetesNamespace = selectDefaultNamespace(getState());
         const defaultNamespace = defaultKubernetesNamespace.name;
         const { workspaces, resourceVersion } = defaultNamespace
-          ? await devWorkspaceClient.getAllWorkspaces(defaultNamespace)
+          ? await getDevWorkspaceClient().getAllWorkspaces(defaultNamespace)
           : {
               workspaces: [],
               resourceVersion: '',
             };
 
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE',
+          type: Type.RECEIVE_DEVWORKSPACE,
           workspaces,
           resourceVersion,
+        });
+        dispatch({
+          type: Type.UPDATE_STARTED_WORKSPACES,
+          workspaces,
         });
 
         const promises = workspaces
@@ -242,14 +194,14 @@ export const actionCreators: ActionCreators = {
           )
           .map(async workspace => {
             // this will set updating timestamp to annotations and update the workspace
-            await actionCreators.updateWorkspace(workspace)(dispatch, getState, undefined);
+            await dispatch(actionCreators.updateWorkspace(workspace));
           });
         await Promise.allSettled(promises);
       } catch (e) {
         const errorMessage =
           'Failed to fetch available workspaces, reason: ' + common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -258,15 +210,15 @@ export const actionCreators: ActionCreators = {
 
   requestWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
+    async (dispatch): Promise<void> => {
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
 
       try {
         const namespace = workspace.metadata.namespace;
         const name = workspace.metadata.name;
-        const update = await devWorkspaceClient.getWorkspaceByName(namespace, name);
+        const update = await getDevWorkspaceClient().getWorkspaceByName(namespace, name);
         dispatch({
-          type: 'UPDATE_DEVWORKSPACE',
+          type: Type.UPDATE_DEVWORKSPACE,
           workspace: update,
         });
 
@@ -274,14 +226,14 @@ export const actionCreators: ActionCreators = {
           update.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] === undefined
         ) {
           // this will set updating timestamp to annotations and update the workspace
-          await actionCreators.updateWorkspace(update)(dispatch, getState, undefined);
+          await dispatch(actionCreators.updateWorkspace(update));
         }
       } catch (e) {
         const errorMessage =
           `Failed to fetch the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -305,7 +257,7 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
       try {
         checkRunningWorkspacesLimit(getState());
 
@@ -326,25 +278,19 @@ export const actionCreators: ActionCreators = {
           delete workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION];
           workspace.spec.template = storedDevWorkspace.spec.template;
           workspace.spec.started = false;
-          workspace = await devWorkspaceClient.update(workspace);
+          workspace = await getDevWorkspaceClient().update(workspace);
         }
 
         await dispatch(DwServerConfigStore.actionCreators.requestServerConfig());
         const config = getState().dwServerConfig.config;
-        workspace = await devWorkspaceClient.managePvcStrategy(workspace, config);
+        workspace = await getDevWorkspaceClient().managePvcStrategy(workspace, config);
 
         // inject or remove the container build attribute
-        workspace = await devWorkspaceClient.manageContainerBuildAttribute(workspace, config);
+        workspace = await getDevWorkspaceClient().manageContainerBuildAttribute(workspace, config);
 
-        workspace = await devWorkspaceClient.manageDebugMode(workspace, debugWorkspace);
+        workspace = await getDevWorkspaceClient().manageDebugMode(workspace, debugWorkspace);
 
-        const workspaceUID = workspace.metadata.uid;
-        dispatch({
-          type: 'DELETE_DEVWORKSPACE_LOGS',
-          workspaceUID,
-        });
-
-        const startingWorkspace = await devWorkspaceClient.changeWorkspaceStatus(
+        const startingWorkspace = await getDevWorkspaceClient().changeWorkspaceStatus(
           workspace,
           true,
           true,
@@ -353,9 +299,9 @@ export const actionCreators: ActionCreators = {
           ? startingWorkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
           : undefined;
         const defaultPlugins = getState().dwPlugins.defaultPlugins;
-        await devWorkspaceClient.onStart(startingWorkspace, defaultPlugins, editor);
+        await getDevWorkspaceClient().onStart(startingWorkspace, defaultPlugins, editor);
         dispatch({
-          type: 'UPDATE_DEVWORKSPACE',
+          type: Type.UPDATE_DEVWORKSPACE,
           workspace: startingWorkspace,
         });
 
@@ -368,6 +314,7 @@ export const actionCreators: ActionCreators = {
             defer.resolve();
           }
         };
+        const workspaceUID = workspace.metadata.uid;
         onStatusChangeCallbacks.set(workspaceUID, statusStartingHandler);
         toDispose.push({
           dispose: () => onStatusChangeCallbacks.delete(workspaceUID),
@@ -376,13 +323,13 @@ export const actionCreators: ActionCreators = {
         await Promise.race([defer.promise, delay(startingTimeout)]);
         toDispose.dispose();
 
-        devWorkspaceClient.checkForDevWorkspaceError(startingWorkspace);
+        getDevWorkspaceClient().checkForDevWorkspaceError(startingWorkspace);
       } catch (e) {
         const errorMessage =
           `Failed to start the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
 
@@ -440,17 +387,13 @@ export const actionCreators: ActionCreators = {
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       try {
-        await devWorkspaceClient.changeWorkspaceStatus(workspace, false);
-        dispatch({
-          type: 'DELETE_DEVWORKSPACE_LOGS',
-          workspaceUID: WorkspaceAdapter.getUID(workspace),
-        });
+        await getDevWorkspaceClient().changeWorkspaceStatus(workspace, false);
       } catch (e) {
         const errorMessage =
           `Failed to stop the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -463,20 +406,19 @@ export const actionCreators: ActionCreators = {
       try {
         const namespace = workspace.metadata.namespace;
         const name = workspace.metadata.name;
-        await devWorkspaceClient.delete(namespace, name);
+        await getDevWorkspaceClient().delete(namespace, name);
         const workspaceUID = WorkspaceAdapter.getUID(workspace);
         dispatch({
-          type: 'TERMINATE_DEVWORKSPACE',
+          type: Type.TERMINATE_DEVWORKSPACE,
           workspaceUID,
           message: workspace.status?.message || 'Cleaning up resources for deletion',
         });
-        dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceUID });
       } catch (e) {
         const resMessage =
           `Failed to delete the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: resMessage,
         });
 
@@ -487,12 +429,12 @@ export const actionCreators: ActionCreators = {
   updateWorkspaceAnnotation:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
 
       try {
-        const updated = await devWorkspaceClient.updateAnnotation(workspace);
+        const updated = await getDevWorkspaceClient().updateAnnotation(workspace);
         dispatch({
-          type: 'UPDATE_DEVWORKSPACE',
+          type: Type.UPDATE_DEVWORKSPACE,
           workspace: updated,
         });
       } catch (e) {
@@ -500,7 +442,7 @@ export const actionCreators: ActionCreators = {
           `Failed to update the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -510,12 +452,12 @@ export const actionCreators: ActionCreators = {
   updateWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
 
       try {
-        const updated = await devWorkspaceClient.update(workspace);
+        const updated = await getDevWorkspaceClient().update(workspace);
         dispatch({
-          type: 'UPDATE_DEVWORKSPACE',
+          type: Type.UPDATE_DEVWORKSPACE,
           workspace: updated,
         });
       } catch (e) {
@@ -523,7 +465,7 @@ export const actionCreators: ActionCreators = {
           `Failed to update the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -547,7 +489,7 @@ export const actionCreators: ActionCreators = {
           state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
         const pluginRegistryInternalUrl =
           state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
-        const workspace = await devWorkspaceClient.createFromResources(
+        const workspace = await getDevWorkspaceClient().createFromResources(
           defaultNamespace,
           devworkspace,
           devworkspaceTemplate,
@@ -562,17 +504,17 @@ export const actionCreators: ActionCreators = {
             ? workspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
             : undefined;
           const defaultPlugins = getState().dwPlugins.defaultPlugins;
-          await devWorkspaceClient.onStart(workspace, defaultPlugins, editor);
+          await getDevWorkspaceClient().onStart(workspace, defaultPlugins, editor);
         }
         dispatch({
-          type: 'ADD_DEVWORKSPACE',
+          type: Type.ADD_DEVWORKSPACE,
           workspace,
         });
       } catch (e) {
         const errorMessage =
           'Failed to create a new workspace, reason: ' + common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -619,14 +561,14 @@ export const actionCreators: ActionCreators = {
 
       // refresh state
       state = getState();
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
       try {
         // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
         const defaultNamespace = selectDefaultNamespace(state);
         const openVSXURL = selectOpenVSXUrl(state);
         const dwEditorsList = selectDwEditorsPluginsList(cheEditor)(state);
-        const workspace = await devWorkspaceClient.createFromDevfile(
+        const workspace = await getDevWorkspaceClient().createFromDevfile(
           devWorkspaceDevfile,
           defaultNamespace.name,
           dwEditorsList,
@@ -638,34 +580,130 @@ export const actionCreators: ActionCreators = {
         );
         if (workspace.spec.started) {
           const defaultPlugins = getState().dwPlugins.defaultPlugins;
-          await devWorkspaceClient.onStart(workspace, defaultPlugins, cheEditor as string);
+          await getDevWorkspaceClient().onStart(workspace, defaultPlugins, cheEditor as string);
         }
         dispatch({
-          type: 'ADD_DEVWORKSPACE',
+          type: Type.ADD_DEVWORKSPACE,
           workspace,
         });
       } catch (e) {
         const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
       }
     },
 
-  deleteWorkspaceLogs:
-    (workspaceUID: string): AppThunk<DeleteWorkspaceLogsAction, void> =>
-    (dispatch): void => {
-      dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceUID });
+  handleWebSocketMessage:
+    (message: api.webSocket.NotificationMessage): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      if (api.webSocket.isStatusMessage(message)) {
+        const { status } = message;
+
+        const errorMessage = `WebSocket(DEV_WORKSPACE): status code ${status.code}, reason: ${status.message}`;
+        console.warn(errorMessage);
+
+        if (status.code !== 200) {
+          /* in case of error status trying to fetch all devWorkspaces and re-subscribe to websocket channel */
+
+          const websocketClient = container.get(WebsocketClient);
+
+          websocketClient.unsubscribeFromChannel(api.webSocket.Channel.DEV_WORKSPACE);
+
+          await dispatch(actionCreators.requestWorkspaces());
+
+          const defaultKubernetesNamespace = selectDefaultNamespace(getState());
+          const namespace = defaultKubernetesNamespace.name;
+          const getResourceVersion = () => {
+            const state = getState();
+            return selectDevWorkspacesResourceVersion(state);
+          };
+          websocketClient.subscribeToChannel(
+            api.webSocket.Channel.DEV_WORKSPACE,
+            namespace,
+            getResourceVersion,
+          );
+        }
+        return;
+      }
+
+      if (api.webSocket.isDevWorkspaceMessage(message)) {
+        const { eventPhase, devWorkspace } = message;
+
+        if (isDevWorkspace(devWorkspace) === false) {
+          return;
+        }
+
+        const workspace = devWorkspace as devfileApi.DevWorkspace;
+
+        // previous state of the workspace is needed for notifying about workspace status changes.
+        const prevWorkspace = getState().devWorkspaces.workspaces.find(
+          w => WorkspaceAdapter.getId(w) === WorkspaceAdapter.getId(workspace),
+        );
+
+        // update the workspace in the store
+        switch (eventPhase) {
+          case api.webSocket.EventPhase.ADDED:
+            dispatch({
+              type: Type.ADD_DEVWORKSPACE,
+              workspace,
+            });
+            break;
+          case api.webSocket.EventPhase.MODIFIED:
+            dispatch({
+              type: Type.UPDATE_DEVWORKSPACE,
+              workspace,
+            });
+            break;
+          case api.webSocket.EventPhase.DELETED:
+            dispatch({
+              type: Type.DELETE_DEVWORKSPACE,
+              workspace,
+            });
+            break;
+          default:
+            console.warn(`Unknown event phase in message: `, message);
+        }
+        dispatch({
+          type: Type.UPDATE_STARTED_WORKSPACES,
+          workspaces: [workspace],
+        });
+
+        // notify about workspace status changes
+        const devworkspaceId = workspace.status?.devworkspaceId;
+        const phase = workspace.status?.phase;
+        const prevPhase = prevWorkspace?.status?.phase;
+        if (devworkspaceId !== undefined && phase !== undefined && prevPhase !== phase) {
+          const onStatusChangeListener = onStatusChangeCallbacks.get(devworkspaceId);
+
+          if (onStatusChangeListener) {
+            onStatusChangeListener(DevWorkspaceStatus[phase]);
+          }
+        }
+
+        // inject the kube config
+        if (
+          phase === DevWorkspaceStatus.RUNNING &&
+          phase !== prevPhase &&
+          devworkspaceId !== undefined
+        ) {
+          try {
+            await injectKubeConfig(workspace.metadata.namespace, devworkspaceId);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
     },
 };
 
 const unloadedState: State = {
   workspaces: [],
   isLoading: false,
-
-  workspacesLogs: new Map<string, string[]>(),
+  resourceVersion: '0',
+  startedWorkspaces: {},
 };
 
 export const reducer: Reducer<State> = (
@@ -678,23 +716,23 @@ export const reducer: Reducer<State> = (
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case 'REQUEST_DEVWORKSPACE':
+    case Type.REQUEST_DEVWORKSPACE:
       return createObject(state, {
         isLoading: true,
         error: undefined,
       });
-    case 'RECEIVE_DEVWORKSPACE':
+    case Type.RECEIVE_DEVWORKSPACE:
       return createObject(state, {
         isLoading: false,
         workspaces: action.workspaces,
-        resourceVersion: action.resourceVersion,
+        resourceVersion: getNewerResourceVersion(action.resourceVersion, state.resourceVersion),
       });
-    case 'RECEIVE_DEVWORKSPACE_ERROR':
+    case Type.RECEIVE_DEVWORKSPACE_ERROR:
       return createObject(state, {
         isLoading: false,
         error: action.error,
       });
-    case 'UPDATE_DEVWORKSPACE':
+    case Type.UPDATE_DEVWORKSPACE:
       return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace =>
@@ -702,25 +740,12 @@ export const reducer: Reducer<State> = (
             ? action.workspace
             : workspace,
         ),
+        resourceVersion: getNewerResourceVersion(
+          action.workspace.metadata.resourceVersion,
+          state.resourceVersion,
+        ),
       });
-    case 'UPDATE_DEVWORKSPACE_STATUS':
-      return createObject(state, {
-        workspaces: state.workspaces.map(workspace => {
-          if (WorkspaceAdapter.getUID(workspace) !== action.workspaceUID) {
-            return workspace;
-          }
-          const nextWorkspace = cloneDeep(workspace);
-          if (!nextWorkspace.status) {
-            nextWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
-          }
-          nextWorkspace.status.phase = action.status;
-          nextWorkspace.status.message = action.message;
-          nextWorkspace.status.mainUrl = action.mainUrl;
-          nextWorkspace.spec.started = action.started;
-          return nextWorkspace;
-        }),
-      });
-    case 'ADD_DEVWORKSPACE':
+    case Type.ADD_DEVWORKSPACE:
       return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces
@@ -729,8 +754,12 @@ export const reducer: Reducer<State> = (
               WorkspaceAdapter.getUID(workspace) !== WorkspaceAdapter.getUID(action.workspace),
           )
           .concat([action.workspace]),
+        resourceVersion: getNewerResourceVersion(
+          action.workspace.metadata.resourceVersion,
+          state.resourceVersion,
+        ),
       });
-    case 'TERMINATE_DEVWORKSPACE':
+    case Type.TERMINATE_DEVWORKSPACE:
       return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => {
@@ -746,83 +775,47 @@ export const reducer: Reducer<State> = (
           return workspace;
         }),
       });
-    case 'DELETE_DEVWORKSPACE':
+    case Type.DELETE_DEVWORKSPACE:
       return createObject(state, {
+        isLoading: false,
         workspaces: state.workspaces.filter(
-          workspace => WorkspaceAdapter.getId(workspace) !== action.workspaceId,
+          workspace =>
+            WorkspaceAdapter.getUID(workspace) !== WorkspaceAdapter.getUID(action.workspace),
+        ),
+        resourceVersion: getNewerResourceVersion(
+          action.workspace.metadata.resourceVersion,
+          state.resourceVersion,
         ),
       });
-    case 'UPDATE_DEVWORKSPACE_LOGS':
+    case Type.UPDATE_STARTED_WORKSPACES:
       return createObject(state, {
-        workspacesLogs: mergeLogs(state.workspacesLogs, action.workspacesLogs),
-      });
-    case 'DELETE_DEVWORKSPACE_LOGS':
-      return createObject(state, {
-        workspacesLogs: deleteLogs(state.workspacesLogs, action.workspaceUID),
+        startedWorkspaces: action.workspaces.reduce((acc, workspace) => {
+          if (workspace.spec.started === false) {
+            delete acc[WorkspaceAdapter.getUID(workspace)];
+            return acc;
+          }
+
+          // workspace.spec.started === true
+          if (acc[WorkspaceAdapter.getUID(workspace)] !== undefined) {
+            // do nothing
+            return acc;
+          }
+
+          if (workspace.metadata.resourceVersion === undefined) {
+            // do nothing
+            return acc;
+          }
+
+          acc[WorkspaceAdapter.getUID(workspace)] = workspace.metadata.resourceVersion;
+          return acc;
+        }, state.startedWorkspaces),
       });
     default:
       return state;
   }
 };
 
-export function checkRunningWorkspacesLimit(state: AppState) {
-  const runningLimitExceeded = selectRunningDevWorkspacesLimitExceeded(state);
-  if (runningLimitExceeded === false) {
-    return;
-  }
-
-  const runningLimit = selectRunningWorkspacesLimit(state);
-  throwRunningWorkspacesExceededError(runningLimit);
-}
-
-export function throwRunningWorkspacesExceededError(runningLimit: number): never {
-  const message = `You can only have ${runningLimit} running workspace${
-    runningLimit > 1 ? 's' : ''
-  } at a time.`;
-  throw new RunningWorkspacesExceededError(message);
-}
-
-async function onStatusUpdateReceived(
-  dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
-  statusUpdate: IStatusUpdate,
-) {
-  const { status, message, prevStatus, workspaceUID, namespace, workspaceId, mainUrl, started } =
-    statusUpdate;
-
-  if (status !== prevStatus) {
-    const type = 'UPDATE_DEVWORKSPACE_STATUS';
-    dispatch({ type, workspaceUID, message, status, mainUrl, started });
-
-    const onChangeCallback = onStatusChangeCallbacks.get(workspaceUID);
-    if (onChangeCallback) {
-      onChangeCallback(status);
-    }
-  }
-
-  if (message && status !== DevWorkspaceStatus.STOPPED) {
-    let log: string;
-    if (status === DevWorkspaceStatus.FAILED || status === DevWorkspaceStatus.FAILING) {
-      log = `1 error occurred: ${message}`;
-    } else {
-      log = message;
-    }
-
-    dispatch({
-      type: 'UPDATE_DEVWORKSPACE_LOGS',
-      workspacesLogs: new Map([[workspaceUID, [log]]]),
-    });
-  }
-
-  if (
-    status === DevWorkspaceStatus.RUNNING &&
-    status !== prevStatus &&
-    namespace !== undefined &&
-    workspaceId !== undefined
-  ) {
-    try {
-      await injectKubeConfig(namespace, workspaceId);
-    } catch (e) {
-      console.error(e);
-    }
-  }
+// This function was added to make it easier to mock the DevWorkspaceClient in tests
+export function getDevWorkspaceClient(): DevWorkspaceClient {
+  return container.get(DevWorkspaceClient);
 }

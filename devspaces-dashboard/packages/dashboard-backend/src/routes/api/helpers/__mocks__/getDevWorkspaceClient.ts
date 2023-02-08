@@ -21,7 +21,6 @@ import { api } from '@eclipse-che/common';
 import {
   DevWorkspaceClient,
   IDevWorkspaceApi,
-  IDevWorkspaceList,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IKubeConfigApi,
@@ -45,7 +44,7 @@ export const stubWorkspaceInactivityTimeout = 0;
 export const stubWorkspaceRunTimeout = 0;
 export const stubWorkspaceStartupTimeout = 0;
 
-export const stubDevWorkspacesList: IDevWorkspaceList = {
+export const stubDevWorkspacesList: api.IDevWorkspaceList = {
   apiVersion: 'workspace.devfile.io/v1alpha2',
   kind: 'DevWorkspaceList',
   metadata: {

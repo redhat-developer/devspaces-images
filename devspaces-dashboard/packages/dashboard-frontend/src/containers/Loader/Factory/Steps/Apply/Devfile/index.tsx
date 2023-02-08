@@ -332,8 +332,11 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     } else if (Object.keys(gitProject.remotes).includes('origin')) {
       checkoutRemote = { name: 'origin', url: gitProject.remotes.origin };
     }
-
-    this.addRemotesToProject(gitProject!, checkoutRemote, parsedRemotes);
+    if (gitProject) {
+      this.addRemotesToProject(gitProject, checkoutRemote, parsedRemotes);
+    } else {
+      console.warn('Failed to configure the project remotes.');
+    }
 
     if (isDefaultDevfile) {
       const projectName = getProjectName(checkoutRemote.url);
@@ -401,6 +404,7 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
         currentStepId={currentStepId}
         steps={steps}
         tabParam={tabParam}
+        onTabChange={tab => this.handleTabChange(tab)}
       />
     );
   }

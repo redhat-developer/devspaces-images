@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WorkspaceEventsItem component snapshot 1`] = `
+<div
+  className="pf-c-content"
+>
+  <article
+    className="pf-c-card pf-m-compact pf-m-flat"
+    data-ouia-component-id="OUIA-Generated-Card-1"
+    data-ouia-component-type="PF4/Card"
+    data-ouia-safe={true}
+    id=""
+  >
+    <div
+      className="pf-c-card__header header"
+    >
+      <div
+        className="pf-l-flex"
+      >
+        <div
+          className=""
+        >
+          <small
+            className=""
+            data-pf-content={true}
+          >
+            <span
+              data-testid="event-involved-object"
+            >
+              <span
+                className="icon"
+              >
+                P
+              </span>
+              pod-name
+            </span>
+            <div>
+              Generated from 
+              component on 0.0.0.0
+            </div>
+          </small>
+        </div>
+        <div
+          className="pf-m-align-right"
+        >
+          <small
+            className=""
+            data-pf-content={true}
+          >
+            <span
+              data-testid="event-time"
+            >
+              14:00:00
+            </span>
+          </small>
+        </div>
+      </div>
+    </div>
+    <div
+      className="pf-c-card__body"
+    >
+      <p
+        className=""
+        data-pf-content={true}
+      >
+        Event message
+      </p>
+    </div>
+  </article>
+</div>
+`;

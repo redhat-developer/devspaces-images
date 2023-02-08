@@ -10,18 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as k8s from '@kubernetes/client-node';
-import { IDevWorkspaceList, IDevWorkspaceApi, IDevWorkspaceCallbacks } from '../types';
 import {
   devworkspaceGroup,
   devworkspaceLatestVersion,
   devworkspacePlural,
   V1alpha2DevWorkspace,
 } from '@devfile/api';
-
 import { api } from '@eclipse-che/common';
+import * as k8s from '@kubernetes/client-node';
+import { V1Status } from '@kubernetes/client-node';
+import http from 'http';
+import { MessageListener } from '../../services/types/Observer';
+import { IDevWorkspaceApi } from '../types';
 import { createError } from './helpers/createError';
-import { isLocalRun } from '../../localRun';
 import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
 import { prepareCustomObjectWatch } from './helpers/prepareCustomObjectWatch';
 
@@ -30,13 +31,14 @@ const DEV_WORKSPACE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 export class DevWorkspaceApiService implements IDevWorkspaceApi {
   private readonly customObjectAPI: CustomObjectAPI;
   private readonly customObjectWatch: k8s.Watch;
+  private stopWatch?: () => void;
 
   constructor(kc: k8s.KubeConfig) {
     this.customObjectAPI = prepareCustomObjectAPI(kc);
     this.customObjectWatch = prepareCustomObjectWatch(kc);
   }
 
-  async listInNamespace(namespace: string): Promise<IDevWorkspaceList> {
+  async listInNamespace(namespace: string): Promise<api.IDevWorkspaceList> {
     try {
       const resp = await this.customObjectAPI.listNamespacedCustomObject(
         devworkspaceGroup,
@@ -44,7 +46,7 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
         namespace,
         devworkspacePlural,
       );
-      return resp.body as IDevWorkspaceList;
+      return resp.body as api.IDevWorkspaceList;
     } catch (e) {
       throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to list devworkspaces');
     }
@@ -184,50 +186,45 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
   async watchInNamespace(
     namespace: string,
     resourceVersion: string,
-    callbacks: IDevWorkspaceCallbacks,
-  ): Promise<{ abort: () => void }> {
+    listener: MessageListener,
+  ): Promise<void> {
     const path = `/apis/${devworkspaceGroup}/${devworkspaceLatestVersion}/watch/namespaces/${namespace}/${devworkspacePlural}`;
     const queryParams = { watch: true, resourceVersion };
 
-    return this.customObjectWatch.watch(
+    this.stopWatching();
+
+    const request: http.ServerResponse = await this.customObjectWatch.watch(
       path,
       queryParams,
-      (type: string, devworkspace: V1alpha2DevWorkspace) => {
-        if (type === 'ADDED') {
-          callbacks.onAdded(devworkspace);
-        } else if (type === 'MODIFIED') {
-          callbacks.onModified(devworkspace);
-        } else if (type === 'DELETED') {
-          const workspaceId = devworkspace?.status?.devworkspaceId;
-          if (workspaceId) {
-            callbacks.onDeleted(workspaceId);
-          } else {
-            // workspace does not have id yet, means it's not processed by DWO yet
+      (eventPhase: string, apiObj: V1alpha2DevWorkspace | V1Status) => {
+        switch (eventPhase) {
+          case api.webSocket.EventPhase.ADDED:
+          case api.webSocket.EventPhase.MODIFIED:
+          case api.webSocket.EventPhase.DELETED: {
+            const devWorkspace = apiObj as V1alpha2DevWorkspace;
+            listener({ eventPhase, devWorkspace });
+            break;
           }
-        } else if (type === 'ERROR') {
-          callbacks.onError('Error: Unknown error.');
-        } else {
-          callbacks.onError(`Error: Unknown type '${type}'.`);
+          case api.webSocket.EventPhase.ERROR: {
+            const status = apiObj as V1Status;
+            listener({ eventPhase, status });
+            break;
+          }
         }
       },
-      (error: any) => {
-        let message;
-        if (error && error.message) {
-          message = error.message;
-        } else {
-          if (isLocalRun()) {
-            // unexpected error format. Log it and expose to user what we can
-            console.log('Unexpected error', error);
-          }
-          if (error) {
-            message = error.toString();
-          }
-          if (!message) {
-            message = 'unknown. Contact admin to check server logs';
-          }
-        }
-        callbacks.onError(`Error: ${message}`);
+      (error: unknown) => {
+        console.error(`[ERROR] Stopped watching ${path}. Reason:`, error);
       },
     );
+
+    this.stopWatch = () => request.destroy();
+  }
+
+  /**
+   * Stop watching DevWorkspaces.
+   */
+  public stopWatching(): void {
+    this.stopWatch?.();
+    this.stopWatch = undefined;
   }
 }

@@ -10,15 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import renderer, { ReactTestRenderer } from 'react-test-renderer';
 import { Store } from 'redux';
 import WorkspaceLogs from '..';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { createFakeWorkspaceLogs } from '../../../store/__mocks__/workspace';
-import { WorkspaceStatus } from '../../../services/helpers/types';
+import { constructWorkspace } from '../../../services/workspace-adapter';
+import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('../../../services/helpers/tools', () => {
   return {
@@ -26,78 +26,149 @@ jest.mock('../../../services/helpers/tools', () => {
   };
 });
 
+const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
+
 describe('The LogsTab component', () => {
-  const namespace = 'admin';
   const workspaceId = 'workspace-test-id';
-  const workspaceName = 'workspace-test-name';
-  const status = WorkspaceStatus.RUNNING;
 
-  it('should render empty state widget correctly', () => {
-    const workspace = new DevWorkspaceBuilder()
-      .withUID(workspaceId)
-      .withName(workspaceName)
-      .withNamespace(namespace)
-      .build();
+  let devWorkspaceBuilder: DevWorkspaceBuilder;
+
+  beforeEach(() => {
+    devWorkspaceBuilder = new DevWorkspaceBuilder().withId(workspaceId);
+  });
+
+  test('snapshot - empty state', () => {
+    const devWorkspace = devWorkspaceBuilder.withStatus({ phase: 'STOPPED' }).build();
+    const workspace = constructWorkspace(devWorkspace);
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
-        workspaces: [workspace],
+        workspaces: [devWorkspace],
       })
       .build();
 
-    const component = renderComponent(store, workspaceId);
+    const component = createSnapshot(store, workspace.uid);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
 
-  it('should render workspace-logs widget without logs correctly', () => {
-    const workspace = new DevWorkspaceBuilder()
-      .withId(workspaceId)
-      .withName(workspaceName)
-      .withStatus({ phase: status })
-      .withNamespace(namespace)
-      .build();
+  test('snapshot - no logs', () => {
+    const devWorkspace = devWorkspaceBuilder.withStatus({ phase: 'STARTING' }).build();
+    const workspace = constructWorkspace(devWorkspace);
 
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
-        workspaces: [workspace],
+        workspaces: [devWorkspace],
       })
       .build();
 
-    const component = renderComponent(store, workspaceId);
+    const component = createSnapshot(store, workspace.uid);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
 
-  it('should render workspace-logs widget with logs inside correctly', () => {
-    const workspace = new DevWorkspaceBuilder()
+  test('snapshot - with logs', () => {
+    const devWorkspace = new DevWorkspaceBuilder()
       .withId(workspaceId)
-      .withName(workspaceName)
-      .withStatus({ phase: status })
-      .withNamespace(namespace)
+      .withStatus({
+        phase: 'STARTING',
+        conditions: [
+          {
+            status: 'True',
+            type: 'Ready',
+            message: 'Message line 1',
+          },
+          {
+            status: 'True',
+            type: 'Ready',
+            message: 'Message line 2',
+          },
+          {
+            status: 'True',
+            type: 'Ready',
+            message: '1 error occurred: Message line 3',
+          },
+        ],
+      })
       .build();
-    const workspacesLogs = createFakeWorkspaceLogs(workspaceId, [
-      'Pulling image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
-      'Successfully pulled image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
-      'Created container remote-runtime-injectorvpj',
-      'Started container remote-runtime-injectorvpj',
-    ]);
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
-        workspaces: [workspace],
-        workspacesLogs: workspacesLogs,
+        workspaces: [devWorkspace],
       })
       .build();
 
-    const component = renderComponent(store, workspaceId);
+    const component = createSnapshot(store, constructWorkspace(devWorkspace).uid);
 
     expect(component.toJSON()).toMatchSnapshot();
+  });
+
+  it('should show a correct number of lines', async () => {
+    const devWorkspace = new DevWorkspaceBuilder()
+      .withId(workspaceId)
+      .withStatus({
+        phase: 'STARTING',
+        conditions: [
+          {
+            status: 'True',
+            type: 'Ready',
+            message: 'Message line 1',
+          },
+          {
+            status: 'True',
+            type: 'Ready',
+            message: 'Message line 2',
+          },
+        ],
+      })
+      .build();
+    const store = new FakeStoreBuilder()
+      .withDevWorkspaces({
+        workspaces: [devWorkspace],
+      })
+      .build();
+
+    const { reRenderComponent } = renderComponent(store, constructWorkspace(devWorkspace).uid);
+
+    expect(screen.queryAllByTestId('workspace-logs-line').length).toBe(2);
+
+    const nextDevWorkspace = new DevWorkspaceBuilder()
+      .withId(workspaceId)
+      .withStatus({
+        phase: 'STARTING',
+        conditions: [
+          {
+            status: 'True',
+            type: 'Ready',
+            message: 'Message line 1',
+          },
+          {
+            status: 'True',
+            type: 'Ready',
+            message: 'Message line 2',
+          },
+          {
+            status: 'True',
+            type: 'Ready',
+            message: '1 error occurred: Message line 3',
+          },
+        ],
+      })
+      .build();
+    const nextStore = new FakeStoreBuilder()
+      .withDevWorkspaces({
+        workspaces: [nextDevWorkspace],
+      })
+      .build();
+
+    reRenderComponent(nextStore, constructWorkspace(nextDevWorkspace).uid);
+
+    expect(screen.queryAllByTestId('workspace-logs-line').length).toBe(3);
   });
 });
 
-function renderComponent(store: Store, workspaceId: string): ReactTestRenderer {
-  return renderer.create(
+function getComponent(store: Store, workspaceUID: string): React.ReactElement {
+  return (
     <Provider store={store}>
-      <WorkspaceLogs workspaceUID={workspaceId} isDevWorkspace />
-    </Provider>,
+      <WorkspaceLogs workspaceUID={workspaceUID} />
+    </Provider>
   );
 }

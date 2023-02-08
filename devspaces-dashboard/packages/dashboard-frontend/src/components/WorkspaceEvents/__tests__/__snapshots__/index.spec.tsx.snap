@@ -1,0 +1,243 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The WorkspaceEvents component snapshot - empty state 1`] = `
+<div
+  className="pf-c-empty-state"
+>
+  <div
+    className="pf-c-empty-state__content"
+  >
+    <svg
+      aria-hidden="true"
+      aria-labelledby={null}
+      className="pf-c-empty-state__icon"
+      fill="currentColor"
+      height="1em"
+      role="img"
+      style={
+        Object {
+          "verticalAlign": "-0.125em",
+        }
+      }
+      viewBox="0 0 384 512"
+      width="1em"
+    >
+      <path
+        d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z"
+      />
+    </svg>
+    <h4
+      className="pf-c-title pf-m-lg"
+    >
+      No events to show.
+    </h4>
+    <div
+      className="pf-c-empty-state__body"
+    >
+      Events will be streamed for a starting workspace.
+    </div>
+  </div>
+</div>
+`;
+
+exports[`The WorkspaceEvents component snapshot - no events 1`] = `
+<section
+  className="pf-c-page__main-section pf-m-light"
+>
+  <div
+    className="pf-l-stack pf-m-gutter"
+  >
+    <div
+      className="pf-l-stack__item"
+    >
+      <div
+        className="pf-l-flex"
+      >
+        <div
+          className=""
+        >
+          <div
+            className="pf-c-content"
+          >
+            <small
+              className=""
+              data-pf-content={true}
+            >
+              Streaming events...
+            </small>
+          </div>
+        </div>
+        <div
+          className="pf-m-align-right"
+        >
+          <div
+            className="pf-c-content"
+          >
+            <small
+              className=""
+              data-pf-content={true}
+            >
+              Showing 
+              <span
+                className={null}
+                style={Object {}}
+              >
+                0 events
+              </span>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      className="pf-l-stack__item"
+    >
+      <div
+        className="pf-c-content"
+      >
+        <small
+          className=""
+          data-pf-content={true}
+        >
+          Older events are not stored.
+        </small>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`The WorkspaceEvents component snapshot - with events 1`] = `
+<section
+  className="pf-c-page__main-section pf-m-light"
+>
+  <div
+    className="pf-l-stack pf-m-gutter"
+  >
+    <div
+      className="pf-l-stack__item"
+    >
+      <div
+        className="pf-l-flex"
+      >
+        <div
+          className=""
+        >
+          <div
+            className="pf-c-content"
+          >
+            <small
+              className=""
+              data-pf-content={true}
+            >
+              Streaming events...
+            </small>
+          </div>
+        </div>
+        <div
+          className="pf-m-align-right"
+        >
+          <div
+            className="pf-c-content"
+          >
+            <small
+              className=""
+              data-pf-content={true}
+            >
+              Showing 
+              <span
+                className={null}
+                style={Object {}}
+              >
+                2 events
+              </span>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      className="pf-l-stack__item"
+    >
+      <div
+        className="fadeIn"
+      >
+        <div
+          data-testid="event-item"
+        >
+          <span
+            data-testid="event-message"
+          >
+            message 2
+          </span>
+          <span
+            data-testid="event-time"
+          >
+            2021-03-31T14:01:00Z
+          </span>
+          <span
+            data-testid="event-source"
+          >
+             on 
+          </span>
+          <span
+            data-testid="event-involved-object"
+          >
+            Pod
+             
+            devWorkspace-pod
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      className="pf-l-stack__item"
+    >
+      <div
+        className="fadeIn"
+      >
+        <div
+          data-testid="event-item"
+        >
+          <span
+            data-testid="event-message"
+          >
+            message 1
+          </span>
+          <span
+            data-testid="event-time"
+          >
+            2021-03-31T14:00:00Z
+          </span>
+          <span
+            data-testid="event-source"
+          >
+             on 
+          </span>
+          <span
+            data-testid="event-involved-object"
+          >
+            Pod
+             
+            devWorkspace-pod
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      className="pf-l-stack__item"
+    >
+      <div
+        className="pf-c-content"
+      >
+        <small
+          className=""
+          data-pf-content={true}
+        >
+          Older events are not stored.
+        </small>
+      </div>
+    </div>
+  </div>
+</section>
+`;

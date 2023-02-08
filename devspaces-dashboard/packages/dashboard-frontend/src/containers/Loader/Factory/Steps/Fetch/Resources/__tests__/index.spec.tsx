@@ -58,6 +58,7 @@ const { renderComponent } = getComponentRenderer(getComponent);
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
+const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES.toString();
 const currentStepIndex = 2;
@@ -262,6 +263,7 @@ function getComponent(
       tabParam={undefined}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
+      onTabChange={mockOnTabChange}
     />
   );
   if (localState) {

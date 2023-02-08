@@ -18,10 +18,10 @@ import {
   devworkspacePlural,
   V1alpha2DevWorkspace,
 } from '@devfile/api';
+import { api } from '@eclipse-che/common';
 import { IPatch } from '@eclipse-che/common/src/dto/api';
 import * as mockClient from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
-import { IDevWorkspaceList } from '../../types';
 import { DevWorkspaceApiService } from '../devWorkspaceApi';
 
 const namespace = 'user-che';
@@ -192,7 +192,7 @@ describe('DevWorkspace API Service', () => {
   });
 });
 
-function buildListNamespacesCustomObject(): IDevWorkspaceList {
+function buildListNamespacesCustomObject(): api.IDevWorkspaceList {
   return {
     apiVersion: 'workspace.devfile.io/v1alpha2',
     items: buildDevWorkspacesList(),

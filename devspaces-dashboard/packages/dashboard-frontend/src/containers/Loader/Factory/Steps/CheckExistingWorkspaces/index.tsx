@@ -237,6 +237,7 @@ class StepCheckExistingWorkspaces extends AbstractLoaderStep<Props, State> {
         currentStepId={currentStepId}
         steps={steps}
         tabParam={tabParam}
+        onTabChange={tab => this.handleTabChange(tab)}
       />
     );
   }

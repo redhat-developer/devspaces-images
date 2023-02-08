@@ -10,80 +10,41 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import DevWorkspaceWatcher from './DevWorkspaceWatcher';
-import { IDevWorkspaceCallbacks } from '../devworkspaceClient';
+import { api } from '@eclipse-che/common';
 import WebSocket from 'ws';
-import { V1alpha2DevWorkspace } from '@devfile/api';
+import { NotificationMessage, Observer } from './types/Observer';
 
-export type Channel = string;
-export type Parameters = {
-  token: string;
-  namespace: string;
-  resourceVersion: string;
-};
+/**
+ * This class implements the Observer pattern. It reacts to the changes in the subject and sends messages to subscribers over WebSocket.
+ */
+export class SubscriptionManager implements Observer {
+  private readonly websocket: WebSocket;
+  private channels: api.webSocket.Channel[] = [];
 
-class SubscriptionManager {
-  private readonly subscriber: WebSocket;
-  private readonly channels: Channel[];
-  private readonly callbacks: IDevWorkspaceCallbacks;
-  private namespaceData: DevWorkspaceWatcher | undefined;
+  constructor(websocket: WebSocket) {
+    this.websocket = websocket;
+  }
 
-  constructor(subscriber: WebSocket) {
-    this.subscriber = subscriber;
+  update(channel: api.webSocket.Channel, message: NotificationMessage): void {
+    this.sendMessage({ channel, message });
+  }
+
+  sendMessage(dataMessage: api.webSocket.EventData): void {
+    if (this.channels.includes(dataMessage.channel)) {
+      this.websocket.send(JSON.stringify(dataMessage));
+    }
+  }
+
+  subscribe(channel: api.webSocket.Channel): void {
+    this.unsubscribe(channel);
+    this.channels.push(channel);
+  }
+
+  unsubscribe(channel: api.webSocket.Channel): void {
+    this.channels = this.channels.filter(item => item !== channel);
+  }
+
+  unsubscribeAll(): void {
     this.channels = [];
-    this.callbacks = {
-      onModified: (workspace: V1alpha2DevWorkspace) => {
-        this.publish('onModified', workspace);
-      },
-      onDeleted: (workspaceId: string) => {
-        this.publish('onDeleted', workspaceId);
-      },
-      onAdded: (workspace: V1alpha2DevWorkspace) => {
-        this.publish('onAdded', workspace);
-      },
-      onError: (error: string) => {
-        this.channels.length = 0;
-        this.namespaceData = undefined;
-        // code 1011: Internal Error
-        this.subscriber.close(1011, error);
-      },
-    };
-  }
-
-  unsubscribe(channel: Channel): void {
-    const index = this.channels.indexOf(channel);
-    if (index !== -1) {
-      this.channels.splice(index, 1);
-    }
-    if (this.channels.length === 0) {
-      this.namespaceData = undefined;
-    }
-  }
-
-  subscribe(channel: Channel, params: Parameters): void {
-    if (this.channels.indexOf(channel) === -1) {
-      this.channels.push(channel);
-    }
-    if (this.namespaceData) {
-      if (this.namespaceData.getNamespace() === params.namespace) {
-        this.namespaceData.setParams(params.token, params.resourceVersion);
-      }
-    } else {
-      this.namespaceData = new DevWorkspaceWatcher({
-        callbacks: this.callbacks,
-        token: params.token,
-        namespace: params.namespace,
-        resourceVersion: params.resourceVersion,
-      });
-      this.namespaceData.subscribe();
-    }
-  }
-
-  publish(channel: Channel, message: unknown): void {
-    if (this.channels.indexOf(channel) !== -1) {
-      this.subscriber.send(JSON.stringify({ message, channel }));
-    }
   }
 }
-
-export default SubscriptionManager;

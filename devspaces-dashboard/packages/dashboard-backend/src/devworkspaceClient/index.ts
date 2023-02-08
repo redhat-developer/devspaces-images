@@ -14,8 +14,10 @@ import * as k8s from '@kubernetes/client-node';
 import { DevWorkspaceApiService } from './services/devWorkspaceApi';
 import { DevWorkspaceTemplateApiService } from './services/devWorkspaceTemplateApi';
 import { DockerConfigApiService } from './services/dockerConfigApi';
+import { EventApiService } from './services/eventApi';
 import { KubeConfigApiService } from './services/kubeConfigApi';
 import { NamespaceApiService } from './services/namespaceApi';
+import { PodApiService } from './services/podAPI';
 import { ServerConfigApiService } from './services/serverConfigApi';
 import { UserProfileApiService } from './services/userProfileApi';
 import {
@@ -23,8 +25,10 @@ import {
   IDevWorkspaceClient,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
+  IEventApi,
   IKubeConfigApi,
   INamespaceApi,
+  IPodApi,
   IServerConfigApi,
   IUserProfileApi,
 } from './types';
@@ -36,6 +40,14 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   constructor(kc: k8s.KubeConfig) {
     this.kubeConfig = kc;
+  }
+
+  get eventApi(): IEventApi {
+    return new EventApiService(this.kubeConfig);
+  }
+
+  get podApi(): IPodApi {
+    return new PodApiService(this.kubeConfig);
   }
 
   get devWorkspaceTemplateApi(): IDevWorkspaceTemplateApi {

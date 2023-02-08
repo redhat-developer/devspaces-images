@@ -122,7 +122,6 @@ export type ActionCreators = {
   clearWorkspaceQualifiedName: () => AppThunk<ClearWorkspaceQualifiedName>;
   setWorkspaceUID: (workspaceUID: string) => AppThunk<SetWorkspaceUID>;
   clearWorkspaceUID: () => AppThunk<ClearWorkspaceUID>;
-  deleteWorkspaceLogs: (workspace: Workspace) => AppThunk<DeleteWorkspaceLogsAction>;
 };
 
 export const actionCreators: ActionCreators = {
@@ -295,12 +294,6 @@ export const actionCreators: ActionCreators = {
   clearWorkspaceUID: (): AppThunk<ClearWorkspaceUID> => dispatch => {
     dispatch({ type: 'CLEAR_WORKSPACE_UID' });
   },
-
-  deleteWorkspaceLogs:
-    (workspace: Workspace): AppThunk<KnownAction> =>
-    (dispatch): void => {
-      dispatch(DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid));
-    },
 };
 
 const unloadedState: State = {

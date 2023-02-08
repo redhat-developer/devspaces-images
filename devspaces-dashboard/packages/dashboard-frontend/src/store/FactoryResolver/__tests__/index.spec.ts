@@ -20,7 +20,6 @@ import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import * as factoryResolverStore from '..';
 import { AxiosError } from 'axios';
-import { KubernetesNamespace } from '@eclipse-che/workspace-client/dist/rest/resources';
 import normalizeDevfileV1 from '../normalizeDevfileV1';
 import normalizeDevfileV2 from '../normalizeDevfileV2';
 import {

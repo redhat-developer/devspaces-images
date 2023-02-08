@@ -17,6 +17,7 @@ import {
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
+import { MessageListener } from '../../services/types/Observer';
 
 /**
  * Holds the methods for working with dockerconfig for devworkspace
@@ -41,7 +42,7 @@ export interface INamespaceApi {
   getNamespaces(token: string): Promise<Array<string>>;
 }
 
-export interface IDevWorkspaceApi {
+export interface IDevWorkspaceApi extends IWatcherService {
   /**
    * Get the DevWorkspace with given namespace in the specified namespace
    */
@@ -50,19 +51,7 @@ export interface IDevWorkspaceApi {
   /**
    * Get list of devworkspaces in the given namespace
    */
-  listInNamespace(namespace: string): Promise<IDevWorkspaceList>;
-
-  /**
-   * Listen to all DevWorkspaces changes in the given namespace
-   * @param namespace namespace where to listen to DevWorkspaces changes
-   * @param resourceVersion special mark that all changes up to a given resourceVersion have already been sent
-   * @param callbacks callback will be invoked when change happens
-   */
-  watchInNamespace(
-    namespace: string,
-    resourceVersion: string,
-    callbacks: IDevWorkspaceCallbacks,
-  ): Promise<{ abort: () => void }>;
+  listInNamespace(namespace: string): Promise<api.IDevWorkspaceList>;
 
   /**
    * Create a devworkspace based on the specified configuration.
@@ -83,6 +72,20 @@ export interface IDevWorkspaceApi {
    * Patches the DevWorkspace with given name in the specified namespace
    */
   patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace>;
+}
+
+export interface IEventApi extends IWatcherService {
+  /**
+   * Get list of Events in the given namespace
+   */
+  listInNamespace(namespace: string): Promise<api.IEventList>;
+}
+
+export interface IPodApi extends IWatcherService {
+  /**
+   * Get list of Pods in the given namespace
+   */
+  listInNamespace(namespace: string): Promise<api.IPodList>;
 }
 
 export interface IDevWorkspaceTemplateApi {
@@ -221,14 +224,8 @@ export interface IUserProfileApi {
   getUserProfile(namespace: string): Promise<api.IUserProfile | undefined>;
 }
 
-export type IDevWorkspaceCallbacks = {
-  onModified: (workspace: V1alpha2DevWorkspace) => void;
-  onDeleted: (workspaceId: string) => void;
-  onAdded: (workspace: V1alpha2DevWorkspace) => void;
-  onError: (error: string) => void;
-};
-
 export interface IDevWorkspaceClient {
+  eventApi: IEventApi;
   devworkspaceApi: IDevWorkspaceApi;
   devWorkspaceTemplateApi: IDevWorkspaceTemplateApi;
   dockerConfigApi: IDockerConfigApi;
@@ -238,11 +235,21 @@ export interface IDevWorkspaceClient {
   userProfileApi: IUserProfileApi;
 }
 
-export interface IDevWorkspaceList {
-  apiVersion: string;
-  kind: string;
-  metadata: {
-    resourceVersion?: string;
-  };
-  items: V1alpha2DevWorkspace[];
+export interface IWatcherService {
+  /**
+   * Listen to objects changes in the given namespace
+   * @param namespace namespace where to listen to Events changes
+   * @param resourceVersion special mark that all changes up to a given resourceVersion have already been sent
+   * @param listener callback will be invoked when change happens
+   */
+  watchInNamespace(
+    namespace: string,
+    resourceVersion: string,
+    listener: MessageListener,
+  ): Promise<void>;
+
+  /**
+   * Stop watching objects changes in the given namespace
+   */
+  stopWatching(): void;
 }

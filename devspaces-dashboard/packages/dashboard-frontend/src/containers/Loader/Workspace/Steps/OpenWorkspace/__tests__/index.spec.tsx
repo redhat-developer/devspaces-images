@@ -34,6 +34,7 @@ const { renderComponent } = getComponentRenderer(getComponent);
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
+const mockOnTabChange = jest.fn();
 
 const mockLocationReplace = jest.fn();
 
@@ -297,6 +298,7 @@ function getComponent(
         tabParam={undefined}
         onNextStep={mockOnNextStep}
         onRestart={mockOnRestart}
+        onTabChange={mockOnTabChange}
       />
     </Provider>
   );

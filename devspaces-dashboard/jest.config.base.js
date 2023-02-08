@@ -22,6 +22,7 @@ module.exports = {
     'src/**/*.{ts,tsx}',
   ],
   testPathIgnorePatterns: ['/lib/', '/node_modules/'],
+  coverageProvider: 'v8',
   coverageReporters: [
     'html',
     'lcov',

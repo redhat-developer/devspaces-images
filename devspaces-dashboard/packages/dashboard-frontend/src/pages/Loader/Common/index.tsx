@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
+import React from 'react';
 import Head from '../../../components/Head';
 import Header from '../../../components/Header';
-import { LoaderStep } from '../../../components/Loader/Step';
-import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../services/helpers/types';
-import { LoaderProgress } from '../../../components/Loader/Progress';
 import { LoaderAlert } from '../../../components/Loader/Alert';
+import { LoaderProgress } from '../../../components/Loader/Progress';
+import { LoaderStep } from '../../../components/Loader/Step';
+import WorkspaceEvents from '../../../components/WorkspaceEvents';
 import WorkspaceLogs from '../../../components/WorkspaceLogs';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../services/helpers/types';
 import { Workspace } from '../../../services/workspace-adapter';
 
 import styles from './index.module.css';
@@ -77,10 +78,15 @@ export class CommonLoaderPage extends React.PureComponent<Props> {
               data-testid="loader-logs-tab"
               id="loader-logs-tab"
             >
-              <WorkspaceLogs
-                workspaceUID={workspace?.uid}
-                isDevWorkspace={workspace?.isDevWorkspace}
-              />
+              <WorkspaceLogs workspaceUID={workspace?.uid} />
+            </Tab>
+            <Tab
+              eventKey={LoaderTab.Events}
+              title={LoaderTab[LoaderTab.Events]}
+              data-testid="loader-events-tab"
+              id="loader-events-tab"
+            >
+              <WorkspaceEvents workspaceUID={workspace?.uid} />
             </Tab>
           </Tabs>
         </PageSection>

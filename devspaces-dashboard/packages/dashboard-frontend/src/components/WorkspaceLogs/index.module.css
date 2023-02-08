@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #fff;
+  background-color: var(--pf-global--BackgroundColor--100);
 }
 
 .tabExpanded div.consoleOutput {
@@ -16,7 +16,7 @@
   font-weight: 600;
   font-size: small;
   line-height: 30px;
-  background-color: #292e34;
+  background-color: var(--pf-global--BackgroundColor--dark-300);
 }
 
 .tabExpanded > div:first-child {
@@ -27,8 +27,8 @@
   width: calc(100% - 15px);
   height: calc(100vh - 300px);
   margin: 5px 17px;
-  color: #aeb0b2;
-  border: #3c3f42 solid 2px;
+  color: var(--pf-global--palette--black-400);
+  border: var(--pf-global--BackgroundColor--dark-200) solid 2px;
   border-radius: 2px;
 }
 
@@ -39,10 +39,10 @@
   font-size: small;
   line-height: 20px;
   white-space: normal;
-  background-color: #030303;
+  background-color: var(--pf-global--palette--black-1000);
   cursor: text;
 }
 
 .consoleOutput .errorColor {
-  color: #e22812;
+  color: var(--pf-global--danger-color--100);
 }

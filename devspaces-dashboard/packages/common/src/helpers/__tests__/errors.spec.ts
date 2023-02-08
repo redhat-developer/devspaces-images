@@ -257,6 +257,35 @@ describe('Errors helper', () => {
       expect(getMessage(error)).toEqual(expectedMessage);
     });
 
+    it('should return default error message if `response.body` is undefined', () => {
+      const error: HttpError = {
+        name: 'HttpError',
+        message: 'HttpError message',
+        response: {
+          url: '/location/',
+        } as any,
+        body: undefined,
+        statusCode: 409,
+      };
+      expect(getMessage(error)).toEqual('"409" returned by "/location/".');
+    });
+
+    it('should return default error message if `response.body.message` is undefined', () => {
+      const error: HttpError = {
+        name: 'HttpError',
+        message: 'HttpError message',
+        response: {
+          url: '/location/',
+          body: {
+            message: undefined,
+          },
+        } as any,
+        body: undefined,
+        statusCode: 409,
+      };
+      expect(getMessage(error)).toEqual('"409" returned by "/location/".');
+    });
+
     it('should return `error.body` as a message if it is a string', () => {
       const expectedMessage = 'Test message.';
       const error = {

@@ -29,6 +29,7 @@ export type Props = {
   tabParam: string | undefined;
   onNextStep: () => void;
   onRestart: () => void;
+  onTabChange: (tab: string) => void;
 };
 
 export default class FactoryLoader extends React.Component<Props> {

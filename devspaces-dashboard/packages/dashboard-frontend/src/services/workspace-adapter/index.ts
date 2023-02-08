@@ -13,6 +13,7 @@
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../devfileApi';
 import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../devfileApi/devWorkspace/metadata';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../devfileApi/devWorkspace/spec/template';
+import getWorkspaceLogs, { getWorkspaceErrors } from '../helpers/getWorkspaceLogs';
 import { DeprecatedWorkspaceStatus, DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
 import {
   devfileToDevWorkspace,
@@ -42,6 +43,8 @@ export interface Workspace {
   readonly hasError: boolean;
   readonly isDevWorkspace: boolean;
   readonly isDeprecated: boolean;
+  readonly logs: string[];
+  readonly errorLogs: string[];
 }
 
 export class WorkspaceAdapter<T extends devfileApi.DevWorkspace> implements Workspace {
@@ -244,6 +247,14 @@ export class WorkspaceAdapter<T extends devfileApi.DevWorkspace> implements Work
 
   get projects(): string[] {
     return (this.workspace.spec.template.projects || []).map(project => project.name);
+  }
+
+  get logs(): string[] {
+    return getWorkspaceLogs(this.workspace);
+  }
+
+  get errorLogs(): string[] {
+    return getWorkspaceErrors(this.workspace);
   }
 }
 

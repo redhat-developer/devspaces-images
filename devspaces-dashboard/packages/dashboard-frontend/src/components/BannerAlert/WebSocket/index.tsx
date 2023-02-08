@@ -16,7 +16,11 @@ import { connect, ConnectedProps } from 'react-redux';
 import { container } from '../../../inversify.config';
 import { AppState } from '../../../store';
 import { selectBranding } from '../../../store/Branding/selectors';
-import { DevWorkspaceClient } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
+import {
+  ConnectionEvent,
+  ConnectionListener,
+  WebsocketClient,
+} from '../../../services/dashboard-backend-client/websocketClient';
 
 type Props = MappedProps;
 
@@ -25,26 +29,46 @@ type State = {
 };
 
 class BannerAlertWebSocket extends React.PureComponent<Props, State> {
-  private readonly devWorkspaceClient: DevWorkspaceClient;
+  private readonly websocketClient: WebsocketClient;
+  private readonly onDidWebsocketFail: ConnectionListener;
+  private readonly onDidWebsocketOpen: ConnectionListener;
 
   constructor(props: Props) {
     super(props);
-    this.devWorkspaceClient = container.get(DevWorkspaceClient);
+    this.websocketClient = container.get(WebsocketClient);
     this.state = {
-      erroringWebSockets: [...this.devWorkspaceClient.failingWebSockets],
+      erroringWebSockets: [],
+    };
+    this.onDidWebsocketFail = () => {
+      this.setState({
+        erroringWebSockets: [this.websocketClient.websocketContext],
+      });
+    };
+    this.onDidWebsocketOpen = () => {
+      this.setState({
+        erroringWebSockets: [],
+      });
     };
   }
 
   public componentWillUnmount() {
-    this.devWorkspaceClient.removeWebSocketFailedListener();
+    this.websocketClient.removeConnectionEventListener(
+      ConnectionEvent.ERROR,
+      this.onDidWebsocketFail,
+    );
+    this.websocketClient.removeConnectionEventListener(
+      ConnectionEvent.OPEN,
+      this.onDidWebsocketOpen,
+    );
   }
 
   public componentDidMount() {
-    this.devWorkspaceClient.onWebSocketFailed(() => {
-      this.setState({
-        erroringWebSockets: this.devWorkspaceClient.failingWebSockets,
-      });
-    });
+    this.websocketClient.addConnectionEventListener(
+      ConnectionEvent.ERROR,
+      this.onDidWebsocketFail,
+      true,
+    );
+    this.websocketClient.addConnectionEventListener(ConnectionEvent.OPEN, this.onDidWebsocketOpen);
   }
 
   render() {

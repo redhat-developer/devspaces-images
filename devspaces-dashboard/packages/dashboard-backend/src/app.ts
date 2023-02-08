@@ -23,7 +23,7 @@ import { registerClusterConfigRoute } from './routes/api/clusterConfig';
 import { registerClusterInfoRoute } from './routes/api/clusterInfo';
 import { registerDevworkspacesRoutes } from './routes/api/devworkspaces';
 import { registerDevWorkspaceTemplates } from './routes/api/devworkspaceTemplates';
-import { registerDevworkspaceWebsocketWatcher } from './routes/api/devworkspaceWebsocketWatcher';
+import { registerWebsocket } from './routes/api/websocket';
 import { registerDockerConfigRoutes } from './routes/api/dockerConfig';
 import { registerKubeConfigRoute } from './routes/api/kubeConfig';
 import { registerNamespacesRoute } from './routes/api/namespaces';
@@ -33,6 +33,8 @@ import { registerYamlResolverRoute } from './routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from './routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from './routes/workspaceRedirect';
 import { registerDevfileSchemaRoute } from './routes/api/devfileSchema';
+import { registerEventsRoutes } from './routes/api/events';
+import { registerPodsRoutes } from './routes/api/pods';
 
 export default async function buildApp(server: FastifyInstance): Promise<void> {
   const cheHost = process.env.CHE_HOST as string;
@@ -72,7 +74,7 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
 
   registerWorkspaceRedirect(server);
 
-  registerDevworkspaceWebsocketWatcher(server);
+  registerWebsocket(server);
 
   // swagger and API
   registerSwagger(server);
@@ -90,6 +92,10 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerDevworkspacesRoutes(server);
 
   registerDockerConfigRoutes(server);
+
+  registerEventsRoutes(server);
+
+  registerPodsRoutes(server);
 
   registerKubeConfigRoute(server);
 

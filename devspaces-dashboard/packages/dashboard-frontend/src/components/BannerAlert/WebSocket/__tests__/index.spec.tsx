@@ -10,23 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { container } from '../../../../inversify.config';
-import BannerAlertWebSocket from '..';
-import { DevWorkspaceClient } from '../../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { Provider } from 'react-redux';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import { render, RenderResult } from '@testing-library/react';
+import React from 'react';
+import { Provider } from 'react-redux';
+import BannerAlertWebSocket from '..';
+import { container } from '../../../../inversify.config';
+import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+import {
+  ConnectionEvent,
+  WebsocketClient,
+} from '../../../../services/dashboard-backend-client/websocketClient';
+import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 
-const failingWebSocketName = 'Failing websocket';
 const failingMessage = 'WebSocket connections are failing';
-
-class mockDevWorkspaceClient extends DevWorkspaceClient {
-  get failingWebSockets() {
-    return [failingWebSocketName];
-  }
-}
 
 const store = new FakeStoreBuilder()
   .withBranding({
@@ -37,15 +33,30 @@ const store = new FakeStoreBuilder()
   .build();
 
 describe('BannerAlertWebSocket component', () => {
-  it('should show error message when error found before mounting', () => {
-    container.rebind(DevWorkspaceClient).to(mockDevWorkspaceClient).inSingletonScope();
+  beforeEach(() => {
+    container.snapshot();
+  });
+
+  afterEach(() => {
+    container.restore();
+  });
+
+  it('should show error message when error found before component mounted', () => {
+    // fire event before component mounted
+    const websocketClient = container.get(WebsocketClient);
+    (websocketClient as any).notifyConnectionEventListeners(
+      ConnectionEvent.ERROR,
+      'WebSocket connection error.',
+    );
+
+    // mount and render the component
     const component = renderComponent(<BannerAlertWebSocket />);
-    container.rebind(DevWorkspaceClient).to(DevWorkspaceClient).inSingletonScope();
+
     expect(
-      component.getAllByText(failingMessage, {
+      component.queryByText(failingMessage, {
         exact: false,
-      }).length,
-    ).toEqual(1);
+      }),
+    ).toBeTruthy();
   });
 
   it('should show error message when error found after mounting', () => {
@@ -56,13 +67,18 @@ describe('BannerAlertWebSocket component', () => {
     );
     const component = renderComponent(comp);
     expect(
-      component.queryAllByText(failingMessage, {
+      component.queryByText(failingMessage, {
         exact: false,
       }),
-    ).toEqual([]);
-    container.rebind(DevWorkspaceClient).to(mockDevWorkspaceClient).inSingletonScope();
+    ).toBeFalsy();
+
+    const websocketClient = container.get(WebsocketClient);
+    (websocketClient as any).notifyConnectionEventListeners(
+      ConnectionEvent.ERROR,
+      'WebSocket connection error.',
+    );
     component.rerender(comp);
-    container.rebind(DevWorkspaceClient).to(DevWorkspaceClient).inSingletonScope();
+
     expect(
       component.getAllByText(failingMessage, {
         exact: false,

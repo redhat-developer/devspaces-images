@@ -49,6 +49,7 @@ jest.mock('../../../../../../store/Workspaces/index', () => {
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
+const mockOnTabChange = jest.fn();
 
 const { renderComponent } = getComponentRenderer(getComponent);
 
@@ -778,6 +779,7 @@ function getComponent(
       tabParam={undefined}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
+      onTabChange={mockOnTabChange}
     />
   );
   if (localState) {

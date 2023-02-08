@@ -25,12 +25,14 @@ import { DevWorkspaceEditorProcessTheia } from './services/workspace-client/devw
 import { DevWorkspaceEditorProcessCode } from './services/workspace-client/devworkspace/DevWorkspaceEditorProcessCode';
 import { DevWorkspaceDefaultPluginsHandler } from './services/workspace-client/devworkspace/DevWorkspaceDefaultPluginsHandler';
 import { WorkspaceStoppedDetector } from './services/bootstrap/workspaceStoppedDetector';
+import { WebsocketClient } from './services/dashboard-backend-client/websocketClient';
 
 const container = new Container();
 const { lazyInject } = getDecorators(container);
 
 container.bind(IssuesReporterService).toSelf().inSingletonScope();
 container.bind(Debounce).toSelf();
+container.bind(WebsocketClient).toSelf().inSingletonScope();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();
 container.bind(DevWorkspaceClient).toSelf().inSingletonScope();
 container.bind(IDevWorkspaceEditorProcess).to(DevWorkspaceEditorProcessTheia).inSingletonScope();

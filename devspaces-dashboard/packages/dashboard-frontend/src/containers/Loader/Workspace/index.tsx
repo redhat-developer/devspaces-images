@@ -14,14 +14,13 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { History } from 'history';
 import { AppState } from '../../../store';
-import { selectAllWorkspaces, selectLogs } from '../../../store/Workspaces/selectors';
+import { selectAllWorkspaces } from '../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../store/Workspaces';
 import { List, LoaderStep, LoadingStep } from '../../../components/Loader/Step';
 import StepInitialize from './Steps/Initialize';
 import StepStartWorkspace from './Steps/StartWorkspace';
 import StepOpenWorkspace from './Steps/OpenWorkspace';
 import StepCheckRunningWorkspacesLimit from './Steps/CheckRunningWorkspacesLimit';
-import findTargetWorkspace from '../findTargetWorkspace';
 
 export type Props = MappedProps & {
   currentStepIndex: number; // not ID, but index
@@ -34,6 +33,7 @@ export type Props = MappedProps & {
   tabParam: string | undefined;
   onNextStep: () => void;
   onRestart: (tabName?: string) => void;
+  onTabChange: (tab: string) => void;
 };
 
 class WorkspaceLoader extends React.PureComponent<Props> {
@@ -42,12 +42,6 @@ class WorkspaceLoader extends React.PureComponent<Props> {
   }
 
   private handleWorkspaceRestart(tabName?: string): void {
-    const { allWorkspaces, matchParams } = this.props;
-    const workspace = findTargetWorkspace(allWorkspaces, matchParams);
-    if (workspace) {
-      this.props.deleteWorkspaceLogs(workspace);
-    }
-
     this.props.onRestart(tabName);
   }
 
@@ -89,7 +83,6 @@ class WorkspaceLoader extends React.PureComponent<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
-  workspacesLogs: selectLogs(state),
 });
 
 const connector = connect(mapStateToProps, WorkspaceStore.actionCreators);

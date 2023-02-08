@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
 import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
 import { DevWorkspaceStatus } from '../../services/helpers/types';
@@ -93,6 +94,7 @@ export class DevWorkspaceBuilder {
   }
 
   withStatus(status: {
+    conditions?: Array<V1alpha2DevWorkspaceStatusConditions>;
     phase?: keyof typeof DevWorkspaceStatus;
     devworkspaceId?: string;
     mainUrl?: string;
@@ -100,6 +102,9 @@ export class DevWorkspaceBuilder {
   }): DevWorkspaceBuilder {
     if (this.workspace.status === undefined) {
       this.workspace.status = this.buildStatus();
+    }
+    if (status.conditions) {
+      this.workspace.status.conditions = Object.assign([], status.conditions);
     }
     if (status.phase) {
       this.workspace.status.phase = DevWorkspaceStatus[status.phase];

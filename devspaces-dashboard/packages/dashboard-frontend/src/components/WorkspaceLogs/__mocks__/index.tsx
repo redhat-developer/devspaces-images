@@ -13,7 +13,7 @@
 import React from 'react';
 import { Props, State } from '..';
 
-export default class LogsTab extends React.PureComponent<Props, State> {
+export default class WorkspaceLogs extends React.PureComponent<Props, State> {
   render(): React.ReactNode {
     return <div>Dummy Logs</div>;
   }

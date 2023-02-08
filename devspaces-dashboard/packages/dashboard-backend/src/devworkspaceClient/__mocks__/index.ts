@@ -15,6 +15,7 @@ import {
   IDevWorkspaceApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
+  IEventApi,
   IKubeConfigApi,
   INamespaceApi,
   IServerConfigApi,
@@ -22,6 +23,9 @@ import {
 } from '../types';
 
 export class DevWorkspaceClient implements IDevWorkspaceClient {
+  get eventApi(): IEventApi {
+    throw new Error('Method not implemented.');
+  }
   get devworkspaceApi(): IDevWorkspaceApi {
     throw new Error('Method not implemented.');
   }

@@ -174,6 +174,7 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
         steps={steps}
         tabParam={tabParam}
         workspace={workspace}
+        onTabChange={tab => this.handleTabChange(tab)}
       />
     );
   }

@@ -22,10 +22,6 @@ export const selectIsLoading = createSelector(selectDevWorkspacesState, devWorks
   return devWorkspacesState.isLoading;
 });
 
-export const selectLogs = createSelector(selectDevWorkspacesState, devWorkspacesState => {
-  return new Map([...devWorkspacesState.workspacesLogs]);
-});
-
 export const selectAllWorkspaces = createSelector(selectDevWorkspacesState, devWorkspacesState => {
   return devWorkspacesState.workspaces.map(workspace => constructWorkspace(workspace));
 });

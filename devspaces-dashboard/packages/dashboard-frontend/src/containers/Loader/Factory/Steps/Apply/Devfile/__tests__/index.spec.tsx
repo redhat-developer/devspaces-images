@@ -64,6 +64,7 @@ let history: MemoryHistory;
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
+const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE.toString();
 const currentStepIndex = 4;
@@ -240,8 +241,8 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       );
 
       expect(dashboardDevfile.projects).not.toBe(undefined);
-      expect(dashboardDevfile.projects!.length).toBe(1);
-      expect(dashboardDevfile.projects![0]).toMatchObject({
+      expect(dashboardDevfile.projects?.length).toBe(1);
+      expect(dashboardDevfile.projects?.[0]).toMatchObject({
         git: {
           checkoutFrom: {
             remote: 'origin',
@@ -281,8 +282,8 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       );
 
       expect(dashboardDevfile.projects).not.toBe(undefined);
-      expect(dashboardDevfile.projects!.length).toBe(1);
-      expect(dashboardDevfile.projects![0]).toMatchObject({
+      expect(dashboardDevfile.projects?.length).toBe(1);
+      expect(dashboardDevfile.projects?.[0]).toMatchObject({
         git: {
           checkoutFrom: {
             remote: 'origin',
@@ -334,8 +335,8 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       );
 
       expect(dashboardDevfile.projects).not.toBe(undefined);
-      expect(dashboardDevfile.projects!.length).toBe(1);
-      expect(dashboardDevfile.projects![0]).toMatchObject({
+      expect(dashboardDevfile.projects?.length).toBe(1);
+      expect(dashboardDevfile.projects?.[0]).toMatchObject({
         git: {
           checkoutFrom: {
             remote: 'origin',
@@ -375,8 +376,8 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       );
 
       expect(dashboardDevfile.projects).not.toBe(undefined);
-      expect(dashboardDevfile.projects!.length).toBe(1);
-      expect(dashboardDevfile.projects![0]).toMatchObject({
+      expect(dashboardDevfile.projects?.length).toBe(1);
+      expect(dashboardDevfile.projects?.[0]).toMatchObject({
         git: {
           checkoutFrom: {
             remote: 'origin',
@@ -683,6 +684,7 @@ function getComponent(
       tabParam={undefined}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
+      onTabChange={mockOnTabChange}
     />
   );
   if (localStorage) {

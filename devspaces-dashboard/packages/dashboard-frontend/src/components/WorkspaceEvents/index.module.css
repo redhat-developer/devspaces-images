@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { WorkspacesLogs } from '../../services/helpers/types';
+.fadeIn {
+  animation: fade-in 0.25s linear 0s 1 normal none;
+}
 
-export const createFakeWorkspaceLogs = (
-  workspaceId: string,
-  logs: string[] = [],
-): WorkspacesLogs => {
-  const workspacesLogs = new Map<string, string[]>();
-  if (logs.length > 0) {
-    workspacesLogs.set(workspaceId, logs);
+@keyframes fade-in {
+  0% {
+    opacity: 0;
   }
-  return workspacesLogs;
-};
+
+  100% {
+    opacity: 1;
+  }
+}

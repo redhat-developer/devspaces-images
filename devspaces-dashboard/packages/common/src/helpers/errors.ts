@@ -27,19 +27,22 @@ export function getMessage(error: unknown): string {
     if (!statusCode || statusCode === -1) {
       return 'no response available due to network issue.';
     }
-    if (error.body?.message) {
-      // body is from K8s in JSON form with message present
-      return error.body.message;
-    } else {
-      // for unknown reason, the error message could be in response body
-      const message = (error.response as any)?.body?.message;
-      if (message) {
-        return message;
+    if (error.body) {
+      if (typeof error.body === 'string') {
+        // pure http response body without message available
+        return error.body;
+      }
+      if (error.body.message) {
+        // body is from K8s in JSON form with message present
+        return error.body.message;
       }
     }
-    if (error.body && typeof error.body === 'string') {
-      // pure http response body without message available
-      return error.body;
+    if ((error.response as any).body) {
+      // for some reason, the error message could be in response body
+      const body = (error.response as any).body;
+      if (body && body.message) {
+        return body.message;
+      }
     }
     return `"${statusCode}" returned by "${error.response.url}".`;
   }

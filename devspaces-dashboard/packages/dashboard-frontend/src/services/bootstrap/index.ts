@@ -11,7 +11,7 @@
  */
 
 import { Store } from 'redux';
-import common from '@eclipse-che/common';
+import common, { api } from '@eclipse-che/common';
 import { lazyInject } from '../../inversify.config';
 import { AppState } from '../../store';
 import * as BannerAlertStore from '../../store/BannerAlert';
@@ -26,6 +26,8 @@ import * as SanityCheckStore from '../../store/SanityCheck';
 import * as DwPluginsStore from '../../store/Plugins/devWorkspacePlugins';
 import * as UserProfileStore from '../../store/UserProfile';
 import * as WorkspacesStore from '../../store/Workspaces';
+import * as EventsStore from '../../store/Events';
+import * as PodsStore from '../../store/Pods';
 import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
 import { ResourceFetcherService } from '../resource-fetcher';
@@ -40,6 +42,10 @@ import { Workspace } from '../workspace-adapter';
 import { WorkspaceRunningError, WorkspaceStoppedDetector } from './workspaceStoppedDetector';
 import { selectOpenVSXUrl } from '../../store/ServerConfig/selectors';
 import { selectEmptyWorkspaceUrl } from '../../store/DevfileRegistries/selectors';
+import { WebsocketClient } from '../dashboard-backend-client/websocketClient';
+import { selectEventsResourceVersion } from '../../store/Events/selectors';
+import { selectPodsResourceVersion } from '../../store/Pods/selectors';
+import { ChannelListener } from '../dashboard-backend-client/websocketClient/messageHandler';
 
 /**
  * This class executes a few initial instructions
@@ -48,6 +54,9 @@ import { selectEmptyWorkspaceUrl } from '../../store/DevfileRegistries/selectors
 export default class Bootstrap {
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
+
+  @lazyInject(WebsocketClient)
+  private readonly websocketClient: WebsocketClient;
 
   @lazyInject(DevWorkspaceClient)
   private readonly devWorkspaceClient: DevWorkspaceClient;
@@ -85,7 +94,13 @@ export default class Bootstrap {
       this.updateDevWorkspaceTemplates(),
       this.fetchWorkspaces().then(() => {
         this.checkWorkspaceStopped();
-        return this.watchNamespaces();
+        return this.watchWebSocketDevWorkspaces();
+      }),
+      this.fetchEvents().then(() => {
+        this.watchWebSocketEvents();
+      }),
+      this.fetchPods().then(() => {
+        this.watchWebSocketPods();
       }),
       this.fetchClusterInfo(),
       this.fetchClusterConfig(),
@@ -149,31 +164,106 @@ export default class Bootstrap {
     }
   }
 
-  private async watchNamespaces(): Promise<void> {
+  private async watchWebSocketDevWorkspaces(): Promise<void> {
     const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
     const namespace = defaultKubernetesNamespace.name;
-    const { updateDevWorkspaceStatus, updateDeletedDevWorkspaces, updateAddedDevWorkspaces } =
-      DevWorkspacesStore.actionCreators;
-    const getResourceVersion = async () =>
-      selectDevWorkspacesResourceVersion(this.store.getState());
+    const { handleWebSocketMessage } = DevWorkspacesStore.actionCreators;
     const dispatch = this.store.dispatch;
     const getState = this.store.getState;
-    const callbacks = {
-      getResourceVersion,
-      updateDevWorkspaceStatus: statusUpdate =>
-        updateDevWorkspaceStatus(statusUpdate)(dispatch, getState, undefined),
-      updateDeletedDevWorkspaces: workspaceIds =>
-        updateDeletedDevWorkspaces(workspaceIds)(dispatch, getState, undefined),
-      updateAddedDevWorkspaces: workspaces =>
-        updateAddedDevWorkspaces(workspaces)(dispatch, getState, undefined),
+
+    await this.websocketClient.connect();
+
+    /* add listener and subscribe to devWorkspaces channel */
+
+    const listener: ChannelListener = message => {
+      handleWebSocketMessage(message)(dispatch, getState, undefined);
+    };
+    this.websocketClient.addChannelMessageListener(api.webSocket.Channel.DEV_WORKSPACE, listener);
+
+    // in case of reconnect we need to get the latest resource version
+    const getResourceVersion = () => {
+      const state = getState();
+      return selectDevWorkspacesResourceVersion(state);
     };
 
-    return await this.devWorkspaceClient.subscribeToNamespace({ namespace, callbacks });
+    this.websocketClient.subscribeToChannel(
+      api.webSocket.Channel.DEV_WORKSPACE,
+      namespace,
+      getResourceVersion,
+    );
+  }
+
+  private async watchWebSocketEvents(): Promise<void> {
+    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
+    const namespace = defaultKubernetesNamespace.name;
+    const { handleWebSocketMessage } = EventsStore.actionCreators;
+    const dispatch = this.store.dispatch;
+    const getState = this.store.getState;
+
+    await this.websocketClient.connect();
+
+    /* add listener and subscribe to events channel */
+
+    const listener: ChannelListener = message => {
+      handleWebSocketMessage(message)(dispatch, getState, undefined);
+    };
+    this.websocketClient.addChannelMessageListener(api.webSocket.Channel.EVENT, listener);
+
+    // in case of reconnect we need to get the latest resource version
+    const getResourceVersion = () => {
+      const state = getState();
+      return selectEventsResourceVersion(state);
+    };
+
+    this.websocketClient.subscribeToChannel(
+      api.webSocket.Channel.EVENT,
+      namespace,
+      getResourceVersion,
+    );
+  }
+
+  private async watchWebSocketPods(): Promise<void> {
+    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
+    const namespace = defaultKubernetesNamespace.name;
+    const { handleWebSocketMessage } = PodsStore.actionCreators;
+    const dispatch = this.store.dispatch;
+    const getState = this.store.getState;
+
+    await this.websocketClient.connect();
+
+    /* add listener and subscribe to pods channel */
+
+    const listener: ChannelListener = message => {
+      handleWebSocketMessage(message)(dispatch, getState, undefined);
+    };
+    this.websocketClient.addChannelMessageListener(api.webSocket.Channel.POD, listener);
+
+    // in case of reconnect we need to get the latest resource version
+    const getResourceVersion = () => {
+      const state = getState();
+      return selectPodsResourceVersion(state);
+    };
+
+    this.websocketClient.subscribeToChannel(
+      api.webSocket.Channel.POD,
+      namespace,
+      getResourceVersion,
+    );
   }
 
   private async fetchWorkspaces(): Promise<void> {
     const { requestWorkspaces } = WorkspacesStore.actionCreators;
     await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
+  }
+
+  private async fetchEvents(): Promise<void> {
+    const { requestEvents } = EventsStore.actionCreators;
+    await requestEvents()(this.store.dispatch, this.store.getState, undefined);
+  }
+
+  private async fetchPods(): Promise<void> {
+    const { requestPods } = PodsStore.actionCreators;
+    await requestPods()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchPlugins(): Promise<void> {

@@ -203,6 +203,21 @@ Array [
             Logs
           </button>
         </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-2-loader-events-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            data-testid="loader-events-tab"
+            id="pf-tab-2-loader-events-tab"
+            onClick={[Function]}
+          >
+            Events
+          </button>
+        </li>
       </ul>
       <button
         aria-hidden={false}
@@ -263,6 +278,20 @@ Array [
     >
       <div>
         Dummy Logs
+      </div>
+    </section>
+    <section
+      aria-labelledby="pf-tab-2-loader-events-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-2-loader-events-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <div>
+        Workspace Events
       </div>
     </section>
   </section>,
@@ -467,6 +496,21 @@ Array [
             Logs
           </button>
         </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-2-loader-events-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            data-testid="loader-events-tab"
+            id="pf-tab-2-loader-events-tab"
+            onClick={[Function]}
+          >
+            Events
+          </button>
+        </li>
       </ul>
       <button
         aria-hidden={false}
@@ -527,6 +571,20 @@ Array [
     >
       <div>
         Dummy Logs
+      </div>
+    </section>
+    <section
+      aria-labelledby="pf-tab-2-loader-events-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-2-loader-events-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <div>
+        Workspace Events
       </div>
     </section>
   </section>,

@@ -22,6 +22,7 @@ export type Props = {
   steps: LoaderStep[];
   tabParam: string | undefined;
   workspace: Workspace | undefined;
+  onTabChange: (tab: string) => void;
 };
 
 export type State = {
@@ -44,6 +45,8 @@ export default class WorkspaceLoaderPage extends React.PureComponent<Props, Stat
     this.setState({
       activeTabKey: tabKey,
     });
+    const tabName = LoaderTab[tabKey];
+    this.props.onTabChange(tabName);
   }
 
   render(): React.ReactNode {

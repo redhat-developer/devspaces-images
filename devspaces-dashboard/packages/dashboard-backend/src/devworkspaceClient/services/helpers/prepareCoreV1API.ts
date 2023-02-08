@@ -20,6 +20,7 @@ export type CoreV1API = Pick<
   | 'readNamespacedSecret'
   | 'replaceNamespacedSecret'
   | 'createNamespacedSecret'
+  | 'listNamespacedEvent'
 >;
 
 export function prepareCoreV1API(kc: k8s.KubeConfig): CoreV1API {
@@ -35,5 +36,7 @@ export function prepareCoreV1API(kc: k8s.KubeConfig): CoreV1API {
       retryableExec(() => coreV1API.replaceNamespacedSecret(...args)),
     createNamespacedSecret: (...args: Parameters<typeof coreV1API.createNamespacedSecret>) =>
       retryableExec(() => coreV1API.createNamespacedSecret(...args)),
+    listNamespacedEvent: (...args: Parameters<typeof coreV1API.listNamespacedEvent>) =>
+      retryableExec(() => coreV1API.listNamespacedEvent(...args)),
   };
 }

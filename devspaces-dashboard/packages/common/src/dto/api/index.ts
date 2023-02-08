@@ -10,7 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V220DevfileComponents } from '@devfile/api';
+import { V1alpha2DevWorkspace, V220DevfileComponents } from '@devfile/api';
+import { CoreV1EventList, V1PodList } from '@kubernetes/client-node';
+import * as webSocket from './webSocket';
+
+export { webSocket };
 
 export type GitOauthProvider = 'github' | 'gitlab' | 'bitbucket';
 
@@ -57,4 +61,16 @@ export interface IServerConfig {
 export interface IUserProfile {
   email: string;
   username: string;
+}
+
+export type IEventList = CoreV1EventList;
+export type IPodList = V1PodList;
+
+export interface IDevWorkspaceList {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: {
+    resourceVersion?: string;
+  };
+  items: V1alpha2DevWorkspace[];
 }

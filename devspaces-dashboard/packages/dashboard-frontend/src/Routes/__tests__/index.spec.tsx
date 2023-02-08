@@ -137,7 +137,7 @@ describe('Routes', () => {
     });
 
     it('should handle "/workspace/namespace/name?tab=Devworkspace"', async () => {
-      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVWRKSPACE);
+      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVWORKSPACE);
       render(getComponent(location));
 
       await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());

@@ -12,28 +12,20 @@
 
 import { injectable } from 'inversify';
 import { default as WorkspaceClientLib, IRemoteAPI } from '@eclipse-che/workspace-client';
-import { EventEmitter } from 'events';
 
 /**
  * This class manages the api connection.
  */
 @injectable()
 export class CheWorkspaceClient {
-  private originLocation: string;
   private baseUrl: string;
   private _restApiClient: IRemoteAPI;
-  private _failingWebSockets: string[];
-  private webSocketEventEmitter: EventEmitter;
 
   /**
    * Default constructor that is using resource.
    */
   constructor() {
     this.baseUrl = '/api';
-    this._failingWebSockets = [];
-    this.webSocketEventEmitter = new EventEmitter();
-
-    this.originLocation = new URL(window.location.href).origin;
   }
 
   get restApiClient(): IRemoteAPI {

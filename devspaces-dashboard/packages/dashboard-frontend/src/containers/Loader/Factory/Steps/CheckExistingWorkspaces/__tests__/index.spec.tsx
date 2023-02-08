@@ -44,6 +44,7 @@ let history: MemoryHistory;
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
+const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES.toString();
 const currentStepIndex = 3;
@@ -389,6 +390,7 @@ function getComponent(
       tabParam={undefined}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
+      onTabChange={mockOnTabChange}
     />
   );
   if (localState) {
