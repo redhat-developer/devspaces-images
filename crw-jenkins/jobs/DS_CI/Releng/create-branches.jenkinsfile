@@ -1,9 +1,11 @@
 #!/usr/bin/env groovy
 
 // PARAMETERS for this pipeline:
-// def MIDSTM_BRANCH = "devspaces-3-rhel-8" // redhat-developer/devspaces branch to use as source of the new branches
-// def FUTURE_BRANCH = "devspaces-3.y-rhel-8" // branch to create
-// CLEAN_ON_FAILURE = "true"
+//  DS_VERSION = 3.5
+//  DS_VERSION_NEXT = 3.6
+//  NEW_BRANCH = "devspaces-3.y-rhel-8" // branch to create
+//  MIDSTM_BRANCH = "devspaces-3-rhel-8" // redhat-developer/devspaces branch to use as source of the new branches
+//  CLEAN_ON_FAILURE = "true"
 
 def List GH_REPOS = [
     'devspaces',
@@ -32,9 +34,9 @@ timeout(120) {
                         util.cloneRepo("https://github.com/redhat-developer/${GH_REPOS[i]}.git", "/tmp/tmp-checkouts/projects_${GH_REPOS[i]}", MIDSTM_BRANCH, false)
                     }
                     // create/update the 3.yy branches
-                    currentBuild.description+="create/update ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} for ${DS_VERSION} ... "
+                    currentBuild.description+="create/update ${NEW_BRANCH} branch from ${MIDSTM_BRANCH} for ${DS_VERSION} ... "
                     sh ('''
-                    ./tagRelease.sh --clean -t ''' + DS_VERSION + ''' --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
+                    ./tagRelease.sh --clean -t ''' + DS_VERSION + ''' --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + NEW_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
                     )
                     currentBuild.description+="done;<br/> "
 
