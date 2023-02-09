@@ -1,7 +1,7 @@
 {
   "title": "Red Hat OpenShift Dev Spaces ",
   "name": "Red Hat OpenShift Dev Spaces",
-  "productVersion": "3.5 @ 2a8cb1 #2 :: Eclipse Che Dashboard 7.60.1 @ e6e9",
+  "productVersion": "3.5 @ 26858 #3 :: Eclipse Che Dashboard 7.60.1 @ e6e9",
   "logoFile": "che-logo.svg",
   "logoTextFile": "che-logo-text.svg",
   "links": [
@@ -19,7 +19,7 @@
     }
   ],
   "docs": {
-    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide#customizing-workspaces",
+    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide#customizing-workspace-components",
     "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide#developer-workspaces",
     "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
     "general": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/",
