@@ -4,5 +4,5 @@
 	"openDocumentationCommand": "Dev Spaces: Open Documentation",
 	"openDashboardCommand": "Dev Spaces: Open Dashboard",
 	"stopWorkspaceCommand": "Dev Spaces: Stop Workspace",
-	"restartWorkspaceCommand": "Eclipse Che: Restart Workspace"
+	"restartWorkspaceCommand": "Dev Spaces: Restart Workspace"
 }
