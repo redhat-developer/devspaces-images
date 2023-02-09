@@ -75,8 +75,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:77419b879f9d98b79d574d0d7b6704eb77f2efa85c0bd4ce3bc9c2678cc9ef9d
-    createdAt: "2023-02-07T22:51:15+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:320a9f838d48ac2510ef6f30097705e90e18f58d2e5532bb35c6a1f308528c23
+    createdAt: "2023-02-09T11:09:16+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -149,9 +149,8 @@ spec:
       - description: Enables users to work with repositories hosted on Bitbucket (bitbucket.org or self-hosted).
         displayName: Bitbucket
         path: gitServices.bitbucket
-      - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket OAuth 1.0 or OAuth 2.0 data. For OAuth 1.0: private key, Bitbucket Application link consumer key and Bitbucket Application
-          link shared secret must be stored in `private.key`, `consumer.key` and `shared_secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/.
-          For OAuth 2.0: Bitbucket OAuth consumer key and Bitbucket OAuth consumer secret must be stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
+      - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket OAuth 1.0 or OAuth 2.0 data. See the following pages for details: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/
+          and https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
         displayName: Secret Name
         path: gitServices.bitbucket[0].secretName
         x-descriptors:
@@ -159,7 +158,7 @@ spec:
       - description: Enables users to work with repositories hosted on GitHub (github.com or GitHub Enterprise).
         displayName: GitHub
         path: gitServices.github
-      - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth Client id and GitHub OAuth Client secret, that stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth Client id and GitHub OAuth Client secret. See the following page for details: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
         displayName: Secret Name
         path: gitServices.github[0].secretName
         x-descriptors:
@@ -167,8 +166,7 @@ spec:
       - description: Enables users to work with repositories hosted on GitLab (gitlab.com or self-hosted).
         displayName: GitLab
         path: gitServices.gitlab
-      - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application id and GitLab Application Client secret, that stored in `id` and `secret` keys respectively. See the following page:
-          https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application id and GitLab Application Client secret. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
         displayName: Secret Name
         path: gitServices.gitlab[0].secretName
         x-descriptors:
@@ -291,9 +289,8 @@ spec:
       - description: Enables users to work with repositories hosted on Bitbucket (bitbucket.org or self-hosted).
         displayName: Bitbucket
         path: gitServices.bitbucket
-      - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket OAuth 1.0 or OAuth 2.0 data. For OAuth 1.0: private key, Bitbucket Application link consumer key and Bitbucket Application
-          link shared secret must be stored in `private.key`, `consumer.key` and `shared_secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/.
-          For OAuth 2.0: Bitbucket OAuth consumer key and Bitbucket OAuth consumer secret must be stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
+      - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket OAuth 1.0 or OAuth 2.0 data. See the following pages for details: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/
+          and https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
         displayName: Secret Name
         path: gitServices.bitbucket[0].secretName
         x-descriptors:
@@ -301,7 +298,7 @@ spec:
       - description: Enables users to work with repositories hosted on GitHub (github.com or GitHub Enterprise).
         displayName: GitHub
         path: gitServices.github
-      - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth Client id and GitHub OAuth Client secret, that stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth Client id and GitHub OAuth Client secret. See the following page for details: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
         displayName: Secret Name
         path: gitServices.github[0].secretName
         x-descriptors:
@@ -309,8 +306,7 @@ spec:
       - description: Enables users to work with repositories hosted on GitLab (gitlab.com or self-hosted).
         displayName: GitLab
         path: gitServices.gitlab
-      - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application id and GitLab Application Client secret, that stored in `id` and `secret` keys respectively. See the following page:
-          https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application id and GitLab Application Client secret. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
         displayName: Secret Name
         path: gitServices.gitlab[0].secretName
         x-descriptors:
@@ -883,56 +879,32 @@ spec:
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:c132a36a7be3dd747f78a620845ce69d54e56566ee62794ac3f2fd480acff3e6
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:d7cc8c213387d3789771133cfc76fa89b2e3427b8c3e9a7f4e388254abc987cb
-                - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:4225f7ec77c2e9af82de2b1d391747f05ec6970bbca655d70c504810c7244047
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:5786e83be895c28b23c3f1c002e1a4175b9c4ba07d15086f72de74ce17b3be16
-                - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:4225f7ec77c2e9af82de2b1d391747f05ec6970bbca655d70c504810c7244047
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:5786e83be895c28b23c3f1c002e1a4175b9c4ba07d15086f72de74ce17b3be16
-                - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:fb7f4fbcaa7119fde9caa6873e65f8bbbc84dfba9a77e1729301b91efa8f9c1b
-                - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:fb7f4fbcaa7119fde9caa6873e65f8bbbc84dfba9a77e1729301b91efa8f9c1b
-                - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:300e3b1aa0bbfd7d523534574033bbe5352b2657fbbdbda460c4a466cf6a5229
                 - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:8345886c556cd0364bc0e875fb011c4af8ac276f6a12350321b2321914cfba16
-                - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:300e3b1aa0bbfd7d523534574033bbe5352b2657fbbdbda460c4a466cf6a5229
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:8345886c556cd0364bc0e875fb011c4af8ac276f6a12350321b2321914cfba16
-                - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:0d73ec3c6eb0a0fcfb05a047d9d44e349dab306beca5ae917a647171cc7e7474
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:9f0d4e0ed6a86dcf70e8172965230dbbcb2086eeee125ca9daf9e7e4f88d620a
-                - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:3d872b1022a65c3c950d5571e09522a29e8a141fa9e92bfdf5e3147a0ba831e3
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:6d2c60ff24e98870be3c012ec461e4af8a8b8db3f035e58efe59f0c718362644
-                - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:3d872b1022a65c3c950d5571e09522a29e8a141fa9e92bfdf5e3147a0ba831e3
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:6d2c60ff24e98870be3c012ec461e4af8a8b8db3f035e58efe59f0c718362644
-                - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:0d73ec3c6eb0a0fcfb05a047d9d44e349dab306beca5ae917a647171cc7e7474
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:9f0d4e0ed6a86dcf70e8172965230dbbcb2086eeee125ca9daf9e7e4f88d620a
-                - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:80011458c043921f154049c037d8285ef4143672c8f5e9c8e68b2ef2ddfb47f2
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:8b1988da38ef890c883195714d40c7e8abdd637c4ba9e0b5f04b460af4817bd3
-                - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:80011458c043921f154049c037d8285ef4143672c8f5e9c8e68b2ef2ddfb47f2
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:8b1988da38ef890c883195714d40c7e8abdd637c4ba9e0b5f04b460af4817bd3
                 - name: RELATED_IMAGE_devworkspace_controller
-                  value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ed2872e3a8b00394438518e2379bcf973bd0f6c439c65b1a8bc58bdf71befbf8
+                  value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:53f32455a7988466d4aa445d8a54f5310d801d2c0a3b49a82a339dd7c0f39515
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
                   value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:05fc3673940741296000a04257849e793ccd15ef921480b86a89649f3ba1f50d
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
@@ -957,7 +929,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:77419b879f9d98b79d574d0d7b6704eb77f2efa85c0bd4ce3bc9c2678cc9ef9d
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:320a9f838d48ac2510ef6f30097705e90e18f58d2e5532bb35c6a1f308528c23
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1294,66 +1266,42 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.4.0
   relatedImages:
-  - name: devspaces-rhel8-operator-77419b879f9d98b79d574d0d7b6704eb77f2efa85c0bd4ce3bc9c2678cc9ef9d-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:77419b879f9d98b79d574d0d7b6704eb77f2efa85c0bd4ce3bc9c2678cc9ef9d
+  - name: devspaces-rhel8-operator-320a9f838d48ac2510ef6f30097705e90e18f58d2e5532bb35c6a1f308528c23-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:320a9f838d48ac2510ef6f30097705e90e18f58d2e5532bb35c6a1f308528c23
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:77419b879f9d98b79d574d0d7b6704eb77f2efa85c0bd4ce3bc9c2678cc9ef9d
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:320a9f838d48ac2510ef6f30097705e90e18f58d2e5532bb35c6a1f308528c23
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:ba77fae39839825e5b4220640886bbb3664adb21e3b4206783f848edab805e2c
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:c132a36a7be3dd747f78a620845ce69d54e56566ee62794ac3f2fd480acff3e6
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:d7cc8c213387d3789771133cfc76fa89b2e3427b8c3e9a7f4e388254abc987cb
-  - name: devspaces_code_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:4225f7ec77c2e9af82de2b1d391747f05ec6970bbca655d70c504810c7244047
   - name: devspaces_code_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:5786e83be895c28b23c3f1c002e1a4175b9c4ba07d15086f72de74ce17b3be16
-  - name: devspaces_code_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:4225f7ec77c2e9af82de2b1d391747f05ec6970bbca655d70c504810c7244047
   - name: devspaces_code_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:5786e83be895c28b23c3f1c002e1a4175b9c4ba07d15086f72de74ce17b3be16
-  - name: devspaces_idea_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
   - name: devspaces_idea_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:fb7f4fbcaa7119fde9caa6873e65f8bbbc84dfba9a77e1729301b91efa8f9c1b
-  - name: devspaces_idea_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
   - name: devspaces_idea_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:fb7f4fbcaa7119fde9caa6873e65f8bbbc84dfba9a77e1729301b91efa8f9c1b
-  - name: devspaces_machineexec_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:300e3b1aa0bbfd7d523534574033bbe5352b2657fbbdbda460c4a466cf6a5229
   - name: devspaces_machineexec_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:8345886c556cd0364bc0e875fb011c4af8ac276f6a12350321b2321914cfba16
-  - name: devspaces_machineexec_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:300e3b1aa0bbfd7d523534574033bbe5352b2657fbbdbda460c4a466cf6a5229
   - name: devspaces_machineexec_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:8345886c556cd0364bc0e875fb011c4af8ac276f6a12350321b2321914cfba16
-  - name: devspaces_theia_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:0d73ec3c6eb0a0fcfb05a047d9d44e349dab306beca5ae917a647171cc7e7474
   - name: devspaces_theia_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:9f0d4e0ed6a86dcf70e8172965230dbbcb2086eeee125ca9daf9e7e4f88d620a
-  - name: devspaces_theia_endpoint_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:3d872b1022a65c3c950d5571e09522a29e8a141fa9e92bfdf5e3147a0ba831e3
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:6d2c60ff24e98870be3c012ec461e4af8a8b8db3f035e58efe59f0c718362644
-  - name: devspaces_theia_endpoint_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:3d872b1022a65c3c950d5571e09522a29e8a141fa9e92bfdf5e3147a0ba831e3
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:6d2c60ff24e98870be3c012ec461e4af8a8b8db3f035e58efe59f0c718362644
-  - name: devspaces_theia_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:0d73ec3c6eb0a0fcfb05a047d9d44e349dab306beca5ae917a647171cc7e7474
   - name: devspaces_theia_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:9f0d4e0ed6a86dcf70e8172965230dbbcb2086eeee125ca9daf9e7e4f88d620a
-  - name: devspaces_udi_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:80011458c043921f154049c037d8285ef4143672c8f5e9c8e68b2ef2ddfb47f2
   - name: devspaces_udi_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:8b1988da38ef890c883195714d40c7e8abdd637c4ba9e0b5f04b460af4817bd3
-  - name: devspaces_udi_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:80011458c043921f154049c037d8285ef4143672c8f5e9c8e68b2ef2ddfb47f2
   - name: devspaces_udi_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:8b1988da38ef890c883195714d40c7e8abdd637c4ba9e0b5f04b460af4817bd3
   - name: devworkspace_controller
-    image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ed2872e3a8b00394438518e2379bcf973bd0f6c439c65b1a8bc58bdf71befbf8
+    image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:53f32455a7988466d4aa445d8a54f5310d801d2c0a3b49a82a339dd7c0f39515
   - name: gateway_authentication_sidecar
     image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:05fc3673940741296000a04257849e793ccd15ef921480b86a89649f3ba1f50d
   - name: gateway_authorization_sidecar
