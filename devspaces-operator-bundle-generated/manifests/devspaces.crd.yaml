@@ -2281,7 +2281,7 @@ spec:
                     workspaceDefaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:b4ad238a004ff6cedca4d1d7b99acf4d5c0fde47a0686f9c6fce3d1dbe9a8c73
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:bffb77311445a729cf4802508cff324df88dedd0645949a244cbb85c719931e8
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile does
@@ -3784,7 +3784,7 @@ spec:
                         type: object
                       type: array
                     workspaceDefaultEditor:
-                      default: che-incubator/che-code/insiders
+                      default: che-incubator/che-code/latest
                       description: The default editor to workspace create with. It
                         could be a plugin ID or a URI. The plugin ID must have `publisher/plugin/version`.
                         The URI must start from `http`.
@@ -5401,9 +5401,9 @@ spec:
                   default:
                     defaultComponents:
                       - container:
-                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:b4ad238a004ff6cedca4d1d7b99acf4d5c0fde47a0686f9c6fce3d1dbe9a8c73
+                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:bffb77311445a729cf4802508cff324df88dedd0645949a244cbb85c719931e8
                         name: universal-developer-image
-                    defaultEditor: che-incubator/che-code/insiders
+                    defaultEditor: che-incubator/che-code/latest
                     defaultNamespace:
                       autoProvision: true
                       template: <username>-devspaces
@@ -5428,7 +5428,7 @@ spec:
                     defaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:b4ad238a004ff6cedca4d1d7b99acf4d5c0fde47a0686f9c6fce3d1dbe9a8c73
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:bffb77311445a729cf4802508cff324df88dedd0645949a244cbb85c719931e8
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile, that
@@ -6931,7 +6931,7 @@ spec:
                         type: object
                       type: array
                     defaultEditor:
-                      default: che-incubator/che-code/insiders
+                      default: che-incubator/che-code/latest
                       description: The default editor to workspace create with. It
                         could be a plugin ID or a URI. The plugin ID must have `publisher/plugin/version`
                         format. The URI must start from `http://` or `https://`.
