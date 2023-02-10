@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.7-1049.1675784874
 USER root
 ENV CHE_HOME=/home/user/devspaces
