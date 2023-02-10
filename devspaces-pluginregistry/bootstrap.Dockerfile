@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -10,8 +10,9 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-107 as builder
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-117.1675807501 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
 USER 0
 
 # Keep old BOOTSTRAP variable as the rhel.install script still checks them
