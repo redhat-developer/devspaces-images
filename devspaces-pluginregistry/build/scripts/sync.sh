@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021-22 Red Hat, Inc.
+# Copyright (c) 2021-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -137,33 +137,6 @@ LABEL summary="\$SUMMARY" \\
 EOT
 echo "Converted Dockerfile"
 
-# header to reattach to yaml files after yq transform removes it
-COPYRIGHT="#
-#  Copyright (c) 2021 Red Hat, Inc.
-#    This program and the accompanying materials are made
-#    available under the terms of the Eclipse Public License 2.0
-#    which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-#  SPDX-License-Identifier: EPL-2.0
-#
-#  Contributors:
-#    Red Hat, Inc. - initial API and implementation
-"
-
-replaceField()
-{
-  theFile="$1"
-  updateName="$2"
-  updateVal="$3"
-  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
-  # shellcheck disable=SC2016 disable=SC2086
-  changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
-  echo "${COPYRIGHT}${changed}" > "${theFile}"
-}
-
 pushd "${TARGETDIR}" >/dev/null || exit 1
-
-# TODO transform che-theia references to DS theia references, including:
-# description, icon, attributes.version, attributes.title, attributes.repository
 
 popd >/dev/null || exit
