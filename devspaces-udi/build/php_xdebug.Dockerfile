@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Red Hat, Inc.
+# Copyright (c) 2022-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,7 +11,8 @@
 # this dockerfile is not part of the UDI image build, but can be used to build only the php+xdebug part of the UDI image locally, 
 # to facilitate testing before using Cachito sources in OSBS
 
-FROM ubi8-minimal:latest
+# https://registry.access.redhat.com/ubi8-minimal 
+FROM ubi8-minimal:8.7-1049.1675784874
 
 USER root
 ENV \
