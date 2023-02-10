@@ -9,8 +9,8 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://docs.engineering.redhat.com/display/CFC/Migration
 # metadata images built in brew must be from scratch
+# https://docs.engineering.redhat.com/display/CFC/Migration
 FROM scratch
 
 COPY manifests /manifests/
