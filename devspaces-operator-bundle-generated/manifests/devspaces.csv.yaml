@@ -888,9 +888,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDKCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:4225f7ec77c2e9af82de2b1d391747f05ec6970bbca655d70c504810c7244047
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:7f819e79f3b3264d6b8682c8f558c7be7ba76d0c1cc108ef450768d9b11d93b2
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDKCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:7f819e79f3b3264d6b8682c8f558c7be7ba76d0c1cc108ef450768d9b11d93b2
                 - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDKCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:6d2ef8fd44829f32f13e4926d68b1e48c29807572b0f568c4c57cc2cff2590f1
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDKCQ_
@@ -1285,9 +1285,9 @@ spec:
   - name: devspaces_code_plugin_registry_image_gmxdkcq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:4225f7ec77c2e9af82de2b1d391747f05ec6970bbca655d70c504810c7244047
   - name: devspaces_idea_devfile_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:7f819e79f3b3264d6b8682c8f558c7be7ba76d0c1cc108ef450768d9b11d93b2
   - name: devspaces_idea_plugin_registry_image_gmxdkcq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:ce92dac392612c42c4bef1eed0347113213c1a90c2bab55c2f31b26bbf485bf6
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:7f819e79f3b3264d6b8682c8f558c7be7ba76d0c1cc108ef450768d9b11d93b2
   - name: devspaces_machineexec_devfile_registry_image_gmxdkcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:6d2ef8fd44829f32f13e4926d68b1e48c29807572b0f568c4c57cc2cff2590f1
   - name: devspaces_machineexec_plugin_registry_image_gmxdkcq_
