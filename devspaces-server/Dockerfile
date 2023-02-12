@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://registry.access.redhat.com/ubi8-minimal
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.7-1049.1675784874
 USER root
 ENV CHE_HOME=/home/user/devspaces
@@ -50,8 +50,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
       version="3.6" \
-      pnc_artifact_id="9771533" \
-      pnc_build_id="AW3DXFJGLAQAA" \
+      pnc_artifact_id="9780056" \
+      pnc_build_id="AW4ZSR5LLAQAA" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
