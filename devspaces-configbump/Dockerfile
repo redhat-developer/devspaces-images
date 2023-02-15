@@ -8,20 +8,19 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# This container build creates configbump binary in a container, using Brew/OSBS and Cachito 
-# for a local build, see rhel.Dockerfile
+# This container build creates configbump binary in a container
+# see also brew.Dockerfile
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.7-1049.1675784874
+FROM registry.access.redhat.com/ubi8-minimal:8.7-1049.1675784874
 
-# cachito
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-configbump/cachito.env
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-configbump/app/devspaces-configbump
+WORKDIR /app
+COPY . ./
 
 RUN microdnf -y install shadow-utils golang && \
     adduser appuser && \
     export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
+    go mod download && go mod verify && \
     go test -v  ./... && \
     CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go && \
     cp configbump /usr/local/bin/configbump && \
@@ -34,22 +33,3 @@ RUN microdnf -y install shadow-utils golang && \
 USER appuser
 
 ENTRYPOINT ["/usr/local/bin/configbump"]
-
-# append Brew metadata here
-
-ENV SUMMARY="Red Hat OpenShift Dev Spaces configbump container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces configbump container" \
-    PRODNAME="devspaces" \
-    COMPNAME="configbump-rhel8"
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="3.6" \
-      license="EPLv2" \
-      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""
