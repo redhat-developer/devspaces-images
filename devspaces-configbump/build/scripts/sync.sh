@@ -71,12 +71,11 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed -r \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  "${SOURCEDIR}"/build/dockerfiles/brew.Dockerfile > "${TARGETDIR}"/Dockerfile
+# copy local build rhel.Dockerfile into root folder (no changes needed)
+cp "${SOURCEDIR}"/build/dockerfiles/rhel.Dockerfile "${TARGETDIR}"/Dockerfile
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+# add brew metadata to downstream build/dockerfiles/brew.Dockerfile
+cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
@@ -91,8 +90,8 @@ LABEL summary="\$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${DS_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
+      maintainer="Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Converted Dockerfiles"
