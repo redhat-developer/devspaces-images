@@ -878,7 +878,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:bd6e19dee0065b3b103b57cb006e9f7c3b7dc51eacdb3724aa8162dd290cc590
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:fde514c26b3528297bf3a88a24f8930af0774fd71ca3cb44bade7e6a940bae5f
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:ec30bbc2ded56aac853dba61a9e4f16b04f6465535739fc2a9deaf072f1c5140
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:33dc18a99dc46c136aa227594dde9a4c0bf8f3e3a2d1a6fb2694b31c9fb14c9a
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDMCQ_
@@ -914,7 +914,7 @@ spec:
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
-                  value: registry.redhat.io/rhel8/postgresql-13@sha256:0db9de7372d5cef03ec3cb25ec76f9a958a3cd63c507e59fff7df458d766c30a
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:8847c513e699f7a71296913e6a488cc87753e84986211fe11c8bfa327af24c0e
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:33931dce809712888d1a8061bfa676963f517daca993984afed3251bc1fb5987
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -924,7 +924,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:f4baa7a89472b5b2cb4ff50cb9f638e76b7637c627f390ce0fe7d77814c490d4
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:7b7617213135ccd186ea24bacbe8b865436bc175220d69928d96c83cc597d63b
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:8699f9cf9315433732965380bf115a83138d8b2c8d213e1c2d66904935d84301
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1275,7 +1275,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:bd6e19dee0065b3b103b57cb006e9f7c3b7dc51eacdb3724aa8162dd290cc590
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:fde514c26b3528297bf3a88a24f8930af0774fd71ca3cb44bade7e6a940bae5f
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:ec30bbc2ded56aac853dba61a9e4f16b04f6465535739fc2a9deaf072f1c5140
   - name: devspaces_code_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:33dc18a99dc46c136aa227594dde9a4c0bf8f3e3a2d1a6fb2694b31c9fb14c9a
   - name: devspaces_code_plugin_registry_image_gmxdmcq_
@@ -1311,7 +1311,7 @@ spec:
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
-    image: registry.redhat.io/rhel8/postgresql-13@sha256:0db9de7372d5cef03ec3cb25ec76f9a958a3cd63c507e59fff7df458d766c30a
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:8847c513e699f7a71296913e6a488cc87753e84986211fe11c8bfa327af24c0e
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:33931dce809712888d1a8061bfa676963f517daca993984afed3251bc1fb5987
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
@@ -1321,4 +1321,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:f4baa7a89472b5b2cb4ff50cb9f638e76b7637c627f390ce0fe7d77814c490d4
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:7b7617213135ccd186ea24bacbe8b865436bc175220d69928d96c83cc597d63b
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:8699f9cf9315433732965380bf115a83138d8b2c8d213e1c2d66904935d84301
