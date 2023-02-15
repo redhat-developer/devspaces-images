@@ -71,12 +71,11 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-# copy local build rhel.Dockerfile and brew.Dockerfile into root folder (no changes needed)
+# copy local build rhel.Dockerfile into root folder (no changes needed)
 cp "${SOURCEDIR}"/build/dockerfiles/rhel.Dockerfile "${TARGETDIR}"/Dockerfile
-cp "${SOURCEDIR}"/build/dockerfiles/brew.Dockerfile "${TARGETDIR}"/brew.Dockerfile
 
-# add brew metadata
-cat << EOT >> "${TARGETDIR}"/brew.Dockerfile
+# add brew metadata to downstream build/dockerfiles/brew.Dockerfile
+cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
@@ -91,7 +90,7 @@ LABEL summary="\$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${DS_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
+      maintainer="Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
