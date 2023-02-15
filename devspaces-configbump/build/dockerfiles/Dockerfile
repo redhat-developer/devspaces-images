@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2022 Red Hat, Inc.
+# Copyright (c) 2012-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -48,7 +48,7 @@ COPY . ./
 ARG VERSION=dev
 RUN env $(cat /tmp/.env | xargs) go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.12
+FROM --platform=${TARGETPLATFORM:-linux/amd64} docker.io/alpine:3.12
 
 ARG BUILD_DATE
 ARG VCS_REF
