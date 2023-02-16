@@ -303,6 +303,11 @@ sources
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+
+# CRW-4043 if there's a midstream build/dockerfiles/brew.Dockerfile, copy it as downstream root Dockerfile
+if [[ -f ${SOURCEDIR}/build/dockerfiles/brew.Dockerfile ]]; then
+  cp -f ${SOURCEDIR}/build/dockerfiles/brew.Dockerfile ${TARGETDIR}/Dockerfile
+fi
 rm -f /tmp/rsync-excludes
 ''')
 
