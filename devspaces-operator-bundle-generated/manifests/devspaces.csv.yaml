@@ -878,7 +878,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:87bcb550ff2a692587cc6e74e1d47f66f7e02a8304da9cbb7c3c3b9e3f67fd82
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:c418b3f9495068fadce629954ada9311e2f433c14de264c6e5f08dd0eae94094
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:a76a3f7e0b12f3a05c0516df2610f1979f33b02239f5a9a420baf0c46e0a8737
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:33dc18a99dc46c136aa227594dde9a4c0bf8f3e3a2d1a6fb2694b31c9fb14c9a
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDMCQ_
@@ -914,7 +914,7 @@ spec:
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
-                  value: registry.redhat.io/rhel8/postgresql-13@sha256:0db9de7372d5cef03ec3cb25ec76f9a958a3cd63c507e59fff7df458d766c30a
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:8847c513e699f7a71296913e6a488cc87753e84986211fe11c8bfa327af24c0e
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:33931dce809712888d1a8061bfa676963f517daca993984afed3251bc1fb5987
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1275,7 +1275,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:87bcb550ff2a692587cc6e74e1d47f66f7e02a8304da9cbb7c3c3b9e3f67fd82
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:c418b3f9495068fadce629954ada9311e2f433c14de264c6e5f08dd0eae94094
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:a76a3f7e0b12f3a05c0516df2610f1979f33b02239f5a9a420baf0c46e0a8737
   - name: devspaces_code_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:33dc18a99dc46c136aa227594dde9a4c0bf8f3e3a2d1a6fb2694b31c9fb14c9a
   - name: devspaces_code_plugin_registry_image_gmxdmcq_
@@ -1311,7 +1311,7 @@ spec:
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
-    image: registry.redhat.io/rhel8/postgresql-13@sha256:0db9de7372d5cef03ec3cb25ec76f9a958a3cd63c507e59fff7df458d766c30a
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:8847c513e699f7a71296913e6a488cc87753e84986211fe11c8bfa327af24c0e
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:33931dce809712888d1a8061bfa676963f517daca993984afed3251bc1fb5987
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
