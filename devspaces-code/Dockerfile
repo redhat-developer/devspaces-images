@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Red Hat, Inc.
+# Copyright (c) 2022-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,7 +8,10 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
+# This dockerfile is for us in Brew only, as it requires asset-*.tar.gz files
+# TODO CRW-3160 replace this with something cachito-compliant 
+
+# https://registry.access.redhat.com/ubi8
 FROM ubi8:8.7-1054.1675788412 as ubi-builder
 
 RUN mkdir -p /mnt/rootfs/projects /mnt/rootfs/home/che
@@ -33,7 +36,7 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" 
 
 RUN rm /mnt/rootfs/etc/hosts
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.7-1049.1675784874
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che

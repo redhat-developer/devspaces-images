@@ -71,6 +71,6 @@ RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
 RUN chmod a+x /checode/out/server-main.js \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/ubi8-minimal
 FROM registry.access.redhat.com/ubi8-minimal:8.7-1049.1675784874
 COPY --from=builder --chown=0:0 /checode /checode-linux-libc
