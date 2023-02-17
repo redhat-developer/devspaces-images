@@ -1,8 +1,0 @@
-# to use this file, `pip install pip-tools` first, then 
-# pip-compile --allow-unsafe --output-file=requirements-build.txt requirements-build.in
-
-# for yq
-yq==3.1.0
-
-pip==23.0.1
-setuptools==65.6.3
