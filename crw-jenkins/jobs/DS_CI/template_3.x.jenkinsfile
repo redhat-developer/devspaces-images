@@ -102,9 +102,17 @@ git add ''' + util.getDSLongName(SYNC_REPO) + '''
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
-  git add Dockerfile . -A -f
+  
+  # check for various dockerfile options
+  dfiles=""
+  for d in Dockerfile build/dockerfiles/Dockerfile build/dockerfiles/rhel.Dockerfile build/dockerfiles/brew.Dockerfile; do
+    if [[ -f $d ]]; then 
+      dfiles="${dfiles} $d"
+      git add $d . -A -f
+    fi
+  done
   # note this might fail if we're syncing from a tag vs. a branch
-  git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''" Dockerfile . || true
+  git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''" $dfiles . || true
   git pull origin ''' + MIDSTM_BRANCH + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''"
