@@ -6,8 +6,12 @@
 #
 argcomplete==2.0.0
     # via yq
+flit-core==3.8.0
+    # via -r requirements-build.in
 packaging==23.0
-    # via setuptools-scm
+    # via
+    #   -r requirements-build.in
+    #   setuptools-scm
 pyyaml==6.0
     # via yq
 setuptools-scm==7.1.0
