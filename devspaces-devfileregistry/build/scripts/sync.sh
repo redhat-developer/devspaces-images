@@ -73,6 +73,7 @@ echo ".github/
 .git/
 .gitattributes
 /build/scripts/sync.sh
+/build/python/
 /bootstrap.Dockerfile
 /cvp.yml
 /container.yaml
