@@ -71,17 +71,7 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-# transform Dockerfile
-sed -r "${SOURCEDIR}/docker/Dockerfile" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  `# Replace go-toolset ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
-  -e 's|^# *(COPY resources.tgz .+)|\1|' \
-  > "${TARGETDIR}/Dockerfile"
-
-cat << EOT >> "${TARGETDIR}/Dockerfile"
+cat << EOT >> "${TARGETDIR}/build/dockerfiles/brew.Dockerfile"
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
@@ -100,4 +90,4 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Converted Dockerfiles"
