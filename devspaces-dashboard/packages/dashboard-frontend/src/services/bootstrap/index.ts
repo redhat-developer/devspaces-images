@@ -415,9 +415,8 @@ export default class Bootstrap {
       this.issuesReporterService.registerIssue(type, error, workspaceData);
     } catch (e) {
       if (e instanceof WorkspaceRunningError) {
-        // workspace is running, redirect to workspace url
-        if (stoppedWorkspace?.ideUrl) {
-          window.location.href = stoppedWorkspace.ideUrl;
+        if (e.workspace.ideUrl) {
+          window.location.href = e.workspace.ideUrl;
           return;
         }
       } else {

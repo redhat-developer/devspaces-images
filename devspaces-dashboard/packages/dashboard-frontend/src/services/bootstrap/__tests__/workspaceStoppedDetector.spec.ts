@@ -92,10 +92,8 @@ describe('WorkspaceStoppedDetector', () => {
       const mainUrlPath = '/workspaced5858247cc74458d/';
       SessionStorageService.update(SessionStorageKey.ORIGINAL_LOCATION_PATH, mainUrlPath);
 
-      const devWorkspaceId = 'dev-wksp-0';
-
       const devWorkspace = new DevWorkspaceBuilder()
-        .withId(devWorkspaceId)
+        .withId('dev-wksp-0')
         .withName('dev-wksp-0')
         .withNamespace('user-dev')
         .withStatus({ mainUrl: mainUrlPath, phase: 'RUNNING' })
@@ -111,6 +109,26 @@ describe('WorkspaceStoppedDetector', () => {
 
       expect(checkWorkspaceStopped).toThrow(WorkspaceRunningError);
     });
+  });
+
+  it('should throw error if matching workspace exists, but it is starting', () => {
+    const mainUrlPath = '/workspaced5858247cc74458d/universal-developer-image/3100/';
+    SessionStorageService.update(SessionStorageKey.ORIGINAL_LOCATION_PATH, mainUrlPath);
+
+    const devWorkspace = new DevWorkspaceBuilder()
+      .withId('workspaced5858247cc74458d')
+      .withName('dev-wksp-0')
+      .withNamespace('user-dev')
+      .withStatus({ mainUrl: mainUrlPath, phase: 'RUNNING' })
+      .build();
+    devWorkspace.spec.started = true;
+
+    const store = new FakeStoreBuilder().withDevWorkspaces({ workspaces: [devWorkspace] }).build();
+    const checkWorkspaceStopped = () => {
+      new WorkspaceStoppedDetector().checkWorkspaceStopped(store.getState());
+    };
+
+    expect(checkWorkspaceStopped).toThrow(WorkspaceRunningError);
   });
 
   describe('getWorkspaceStoppedError()', () => {

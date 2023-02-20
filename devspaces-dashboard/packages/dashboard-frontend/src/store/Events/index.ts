@@ -13,7 +13,6 @@
 import { api, helpers } from '@eclipse-che/common';
 import { CoreV1Event } from '@kubernetes/client-node';
 import { Action, Reducer } from 'redux';
-import { cli } from 'webpack';
 import { AppThunk } from '..';
 import { container } from '../../inversify.config';
 import { fetchEvents } from '../../services/dashboard-backend-client/eventsApi';
