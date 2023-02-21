@@ -12,7 +12,7 @@
 # TODO CRW-3160 replace this with something cachito-compliant 
 
 # https://registry.access.redhat.com/ubi8
-FROM ubi8:8.7-1054.1675788412 as ubi-builder
+FROM ubi8:8.7-1090 as ubi-builder
 
 RUN mkdir -p /mnt/rootfs/projects /mnt/rootfs/home/che
 RUN yum install --installroot /mnt/rootfs tar gzip brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
@@ -37,7 +37,7 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" 
 RUN rm /mnt/rootfs/etc/hosts
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.7-1049.1675784874
+FROM ubi8-minimal:8.7-1085
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che
 USER 1001
