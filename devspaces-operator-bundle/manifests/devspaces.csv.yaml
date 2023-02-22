@@ -76,7 +76,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.6
-    createdAt: "2023-02-21T18:01:48+00:00"
+    createdAt: "2023-02-22T01:43:53+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1314,4 +1314,4 @@ spec:
       targetPort: 9443
       type: ConversionWebhook
       webhookPath: /convert
-  replaces: devspacesoperator.v3.5.0
+  replaces: devspacesoperator.v3.4.0
