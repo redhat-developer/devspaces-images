@@ -69,13 +69,13 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
-	git add sources Dockerfile .gitignore || true
+	git add sources ./build/dockerfiles/brew.Dockerfile .gitignore || true
 	log "[INFO] Upload new sources: ${outputFiles}"
 	# shellcheck disable=SC2086
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
 	COMMIT_MSG="ci: ${outputFiles}"
-	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
+	if [[ $(git commit -s -m "${COMMIT_MSG}" sources ./build/dockerfiles/brew.Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
