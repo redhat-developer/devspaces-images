@@ -89,7 +89,7 @@ sed_in_place -r \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
   `# Remove unused Python packages (support for PyCharm not included in CRW)` \
   -e "/python2 python39 \\\\/d" \
-  "${TARGETDIR}"/Dockerfile
+  "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
 sed_in_place -r \
   `# Update machine-exec image version` \
@@ -119,7 +119,7 @@ cat << EOT > "${TARGETDIR}"/compatible-ide.json
 ]
 EOT
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \\
@@ -139,4 +139,4 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Converted brew.Dockerfile"

@@ -92,20 +92,4 @@ USER 1001
 EXPOSE 8887
 ENTRYPOINT $PROJECTOR_ASSEMBLY_DIR/entrypoint.sh
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \
-    PRODNAME="devspaces" \
-    COMPNAME="idea-rhel8"
-
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="3.6" \
-      license="EPLv2" \
-      maintainer="Vladyslav Zhukovskyi <vzhukovs@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""
+# append Brew metadata here
