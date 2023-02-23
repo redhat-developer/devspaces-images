@@ -14,3 +14,13 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-code
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: 3b5342eafd9aa8c55c0d69287fa7ed86b2c583b7
+    pkg_managers: [yarn]
+    packages: 
+      yarn: 
+        - path: devspaces-code
