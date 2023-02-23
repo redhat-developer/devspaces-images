@@ -16,6 +16,7 @@ import { CompressIcon, DownloadIcon, ExpandIcon } from '@patternfly/react-icons'
 import { getBlobUrl } from '../../../services/helpers/tools';
 
 import styles from './index.module.css';
+import { ToggleBarsContext } from '../../../contexts/ToggleBars';
 
 type Props = {
   logs: string[] | undefined;
@@ -28,6 +29,9 @@ type State = {
 };
 
 class WorkspaceLogsTools extends React.PureComponent<Props, State> {
+  static contextType = ToggleBarsContext;
+  readonly context: React.ContextType<typeof ToggleBarsContext>;
+
   private readonly handleExpand: () => void;
 
   constructor(props: Props) {
@@ -39,16 +43,12 @@ class WorkspaceLogsTools extends React.PureComponent<Props, State> {
 
     this.handleExpand = () => {
       if (this.state.isExpanded) {
-        if (this.props.shouldToggleNavbar === true) {
-          window.postMessage('show-navbar', '*');
-        }
+        this.context.showAll();
         const isExpanded = false;
         this.setState({ isExpanded });
         this.props.handleExpand(isExpanded);
       } else {
-        if (this.props.shouldToggleNavbar === true) {
-          window.postMessage('hide-navbar', '*');
-        }
+        this.context.hideAll();
         const isExpanded = true;
         this.setState({ isExpanded });
         this.props.handleExpand(isExpanded);

@@ -15,7 +15,6 @@ import { connect, ConnectedProps } from 'react-redux';
 import { Page } from '@patternfly/react-core';
 import { History } from 'history';
 import { matchPath } from 'react-router';
-
 import Header from './Header';
 import Sidebar from './Sidebar';
 import StoreErrorsAlert from './StoreErrorsAlert';
@@ -27,7 +26,6 @@ import { ErrorReporter } from './ErrorReporter';
 import { IssueComponent } from './ErrorReporter/Issue';
 import { BannerAlert } from '../components/BannerAlert';
 import { ErrorBoundary } from './ErrorBoundary';
-import { DisposableCollection } from '../services/helpers/disposable';
 import { ROUTE } from '../Routes/routes';
 import { selectBranding } from '../store/Branding/selectors';
 import { ToggleBarsContext } from '../contexts/ToggleBars';
@@ -50,8 +48,6 @@ export class Layout extends React.PureComponent<Props, State> {
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
 
-  private readonly toDispose = new DisposableCollection();
-
   constructor(props: Props) {
     super(props);
 
@@ -69,25 +65,11 @@ export class Layout extends React.PureComponent<Props, State> {
     this.setState({
       isSidebarVisible: !this.state.isSidebarVisible,
     });
-    window.postMessage('toggle-navbar', '*');
   }
 
   private changeTheme(theme: ThemeVariant): void {
     this.setState({ theme });
     window.sessionStorage.setItem(THEME_KEY, theme);
-  }
-
-  /**
-   * Returns `true` if current location matches the IDE page path.
-   */
-  private testIdePath(): boolean {
-    const currentPath = this.props.history.location.pathname;
-    const match = matchPath(currentPath, {
-      path: ROUTE.IDE_LOADER,
-      exact: true,
-      strict: false,
-    });
-    return match !== null;
   }
 
   private hideAllBars(): void {
@@ -114,45 +96,6 @@ export class Layout extends React.PureComponent<Props, State> {
     if (matchFactoryLoaderPath !== null || matchIdeLoaderPath !== null) {
       this.hideAllBars();
     }
-
-    this.listenToIframeMessages();
-  }
-
-  public componentWillUnmount(): void {
-    this.toDispose.dispose();
-  }
-
-  private listenToIframeMessages() {
-    const handleMessage = (event: MessageEvent): void => {
-      if (typeof event.data !== 'string') {
-        return;
-      }
-
-      if (event.data === 'show-navbar') {
-        this.setState({
-          isSidebarVisible: true,
-          isHeaderVisible: true,
-        });
-      } else if (event.data === 'hide-navbar') {
-        const isHeaderVisible =
-          !this.testIdePath() || document.getElementById('ide-iframe') === null;
-        this.setState({
-          isSidebarVisible: false,
-          isHeaderVisible,
-        });
-      } else if (event.data === 'hide-allbar') {
-        this.setState({
-          isSidebarVisible: false,
-          isHeaderVisible: false,
-        });
-      }
-    };
-    window.addEventListener('message', handleMessage, false);
-    this.toDispose.push({
-      dispose: () => {
-        window.removeEventListener('message', handleMessage);
-      },
-    });
   }
 
   public render(): React.ReactElement {

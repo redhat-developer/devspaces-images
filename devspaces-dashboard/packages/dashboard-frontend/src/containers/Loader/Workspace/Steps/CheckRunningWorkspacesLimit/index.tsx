@@ -38,6 +38,7 @@ import {
 import { selectRunningDevWorkspacesLimitExceeded } from '../../../../../store/Workspaces/devWorkspaces/selectors';
 import findTargetWorkspace from '../../../findTargetWorkspace';
 import { selectRunningWorkspacesLimit } from '../../../../../store/ClusterConfig/selectors';
+import { ToggleBarsContext } from '../../../../../contexts/ToggleBars';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -53,6 +54,9 @@ export type State = LoaderStepState & {
 };
 
 class StepCheckRunningWorkspacesLimit extends AbstractLoaderStep<Props, State> {
+  static contextType = ToggleBarsContext;
+  readonly context: React.ContextType<typeof ToggleBarsContext>;
+
   protected readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
@@ -228,6 +232,8 @@ class StepCheckRunningWorkspacesLimit extends AbstractLoaderStep<Props, State> {
   }
 
   private handleOpenDashboard(): void {
+    this.context.showAll();
+
     const homeLocation = buildHomeLocation();
     this.props.history.push(homeLocation);
   }
