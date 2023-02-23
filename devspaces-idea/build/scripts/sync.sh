@@ -83,15 +83,6 @@ sed_in_place() {
 }
 
 sed_in_place -r \
-  `# Update ubi8 image name` \
-  -e "s#ubi8/ubi:#ubi8:#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  `# Remove unused Python packages (support for PyCharm not included in CRW)` \
-  -e "/python2 python39 \\\\/d" \
-  "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
-
-sed_in_place -r \
   `# Update machine-exec image version` \
   -e "s#:next#:${DS_VERSION}#g" \
   "${TARGETDIR}"/build/dockerfiles/machine-exec-provider.Dockerfile
