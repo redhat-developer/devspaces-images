@@ -71,9 +71,6 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-# copy local build rhel.Dockerfile into root folder (no changes needed)
-cp "${SOURCEDIR}"/build/dockerfiles/rhel.Dockerfile "${TARGETDIR}"/Dockerfile
-
 # add brew metadata to downstream build/dockerfiles/brew.Dockerfile
 cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
