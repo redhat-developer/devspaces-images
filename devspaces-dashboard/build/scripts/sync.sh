@@ -91,40 +91,7 @@ if [[ $GET_YARN -eq 1 ]]; then
   chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
 fi
 
-# transform rhel.Dockerfile -> Dockerfile
-sed -r \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
-    `# CRW-2012 don't install unbound-libs` \
-    -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
-    `# replace COPY into /dashboard/` \
-    -e '/COPY . \/dashboard\//c \
-# cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir\
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR\
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-dashboard/cachito.env' \
-    -e '/from=builder/!s|/dashboard/|$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/|g' \
-    -e '/RUN npm i -g yarn; yarn install/c \
-\
-# cachito:yarn step 2: workaround for yarn not being installed in an executable path\
-COPY .yarn/releases $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/\
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn\
-\
-# cachito:yarn step 3: configure yarn & install deps\
-# see https://source.redhat.com/groups/public/container-build-system/container_build_system_wiki/containers_from_source_multistage_builds_in_osbs#jive_content_id_Cachito_Integration_for_yarn\
-RUN yarn config set nodedir /usr; yarn config set unsafe-perm true && yarn install\
-\
-# cachito:yarn step 4: lerna installed to $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/node_modules/.bin/lerna - add to path\
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/node_modules/.bin/lerna /usr/local/bin/lerna\
-\
-# cachito:yarn step 5: the actual build!' \
-  -e '/RUN yarn build/a \
-\
-# cachito:yarn step 6: cleanup (required only if not using a builder stage)\
-# RUN rm -rf $REMOTE_SOURCES_DIR' \
-${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
-
-cat << EOT >> ${TARGETDIR}/Dockerfile
+cat << EOT >> ${TARGETDIR}/build/dockerfiles/brew.Dockerfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \\
     PRODNAME="devspaces" \\
@@ -142,7 +109,7 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Converted brew.Dockerfile"
 
 # apply DS branding styles
 cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-devspaces,}.css
