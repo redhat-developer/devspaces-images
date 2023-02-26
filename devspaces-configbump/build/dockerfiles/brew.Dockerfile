@@ -12,7 +12,7 @@
 # for a local build, see rhel.Dockerfile
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.7-1049.1675784874
+FROM ubi8-minimal:8.7-1085
 
 # cachito
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
