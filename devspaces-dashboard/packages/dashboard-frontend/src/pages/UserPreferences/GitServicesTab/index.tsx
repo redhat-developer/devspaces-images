@@ -26,6 +26,7 @@ export const providersMap = {
   github: 'GitHub',
   gitlab: 'GitLab',
   bitbucket: 'Bitbucket',
+  'azure-devops': 'Microsoft Azure DevOps',
 };
 
 type Props = MappedProps;

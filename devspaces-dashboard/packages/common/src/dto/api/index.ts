@@ -16,7 +16,11 @@ import * as webSocket from './webSocket';
 
 export { webSocket };
 
-export type GitOauthProvider = 'github' | 'gitlab' | 'bitbucket';
+export type GitOauthProvider =
+  | 'github'
+  | 'gitlab'
+  | 'bitbucket'
+  | 'azure-devops';
 
 export interface IPatch {
   op: string;
