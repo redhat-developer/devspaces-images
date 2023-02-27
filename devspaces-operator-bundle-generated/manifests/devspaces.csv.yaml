@@ -75,8 +75,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6e5f1634882f93e8bc86717a52029480fddb04fb82cf80ef742399f41a1020fa
-    createdAt: "2023-02-22T01:43:53+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b6a6c8a61ff26ab9c53303f0469b718eddffbc5d0e9a612b3d7cb9bcb867e347
+    createdAt: "2023-02-27T16:35:03+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -146,6 +146,14 @@ spec:
       - description: Configuration of an alternative registry that stores Che images.
         displayName: Container registry
         path: containerRegistry
+      - description: Enables users to work with repositories hosted on Azure DevOps Service (dev.azure.com).
+        displayName: Azure
+        path: gitServices.azure
+      - description: 'Kubernetes secret, that contains Base64-encoded Azure DevOps Service Application ID and Client Secret. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-microsoft-azure-devops-services'
+        displayName: Secret Name
+        path: gitServices.azure[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
       - description: Enables users to work with repositories hosted on Bitbucket (bitbucket.org or self-hosted).
         displayName: Bitbucket
         path: gitServices.bitbucket
@@ -929,7 +937,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6e5f1634882f93e8bc86717a52029480fddb04fb82cf80ef742399f41a1020fa
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b6a6c8a61ff26ab9c53303f0469b718eddffbc5d0e9a612b3d7cb9bcb867e347
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1266,10 +1274,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.4.0
   relatedImages:
-  - name: devspaces-rhel8-operator-6e5f1634882f93e8bc86717a52029480fddb04fb82cf80ef742399f41a1020fa-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6e5f1634882f93e8bc86717a52029480fddb04fb82cf80ef742399f41a1020fa
+  - name: devspaces-rhel8-operator-b6a6c8a61ff26ab9c53303f0469b718eddffbc5d0e9a612b3d7cb9bcb867e347-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b6a6c8a61ff26ab9c53303f0469b718eddffbc5d0e9a612b3d7cb9bcb867e347
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6e5f1634882f93e8bc86717a52029480fddb04fb82cf80ef742399f41a1020fa
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b6a6c8a61ff26ab9c53303f0469b718eddffbc5d0e9a612b3d7cb9bcb867e347
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:3c5f8b53d93c5209262d431642dce922581d8adf8a21eed939c410bd62a356ed
   - name: dashboard
