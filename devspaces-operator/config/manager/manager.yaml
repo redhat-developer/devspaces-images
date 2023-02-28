@@ -47,8 +47,6 @@ spec:
             - containerPort: 60000
               name: metrics
           env:
-            - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
-              value: "false"
             - name: CHE_FLAVOR
               value: devspaces
             - name: CHE_VERSION
