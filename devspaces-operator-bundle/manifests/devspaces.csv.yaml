@@ -76,7 +76,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.6
-    createdAt: "2023-02-27T16:35:03+00:00"
+    createdAt: "2023-02-28T14:32:54+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -154,6 +154,13 @@ spec:
               images.
             displayName: Container registry
             path: containerRegistry
+          - description: Configuration settings related to the database used by the
+              Che installation. Database component is Deprecated. All properties will
+              be ignored.
+            displayName: Database
+            path: components.database
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:hidden
           - description: Enables users to work with repositories hosted on Azure DevOps
               Service (dev.azure.com).
             displayName: Azure
@@ -238,6 +245,7 @@ spec:
             path: postgresVersion
             x-descriptors:
               - urn:alm:descriptor:text
+              - urn:alm:descriptor:com.tectonic.ui:hidden
           - description: A brief CamelCase message indicating details about why the
               Che deployment is in the current phase.
             displayName: Reason
@@ -911,8 +919,6 @@ spec:
                     command:
                       - /manager
                     env:
-                      - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
-                        value: "false"
                       - name: CHE_FLAVOR
                         value: devspaces
                       - name: CHE_VERSION
