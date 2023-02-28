@@ -23,6 +23,8 @@ export async function fetchUserProfile(namespace: string): Promise<api.IUserProf
     const response = await axios.get<api.IUserProfile>(url);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch the user profile data. ${common.helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to fetch the user profile data. ${common.helpers.errors.getMessage(e)}`,
+    );
   }
 }

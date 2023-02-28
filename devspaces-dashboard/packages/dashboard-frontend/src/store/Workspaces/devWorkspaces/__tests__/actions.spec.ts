@@ -30,16 +30,29 @@ import { DevWorkspaceBuilder } from '../../../__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import { checkRunningWorkspacesLimit } from '../checkRunningWorkspacesLimit';
 
-jest.mock('../../../../services/dashboard-backend-client/serverConfigApi.ts');
+jest.mock('../../../../services/dashboard-backend-client/serverConfigApi');
 jest.mock('../../../../services/helpers/delay', () => ({
   delay: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('../checkRunningWorkspacesLimit.ts');
 
+jest.mock('../../../../services/dashboard-backend-client/devworkspaceResourcesApi', () => ({
+  fetchResources: () => `
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspaceTemplate
+metadata:
+  name: che-code
+---
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: che
+`,
+}));
+
 // DevWorkspaceClient mocks
 const mockChangeWorkspaceStatus = jest.fn();
 const mockCheckForDevWorkspaceError = jest.fn();
-const mockCreateFromDevfile = jest.fn();
 const mockCreateFromResources = jest.fn();
 const mockDelete = jest.fn();
 const mockGetAllWorkspaces = jest.fn();
@@ -61,7 +74,6 @@ describe('DevWorkspace store, actions', () => {
     container.snapshot();
     devWorkspaceClient.changeWorkspaceStatus = mockChangeWorkspaceStatus;
     devWorkspaceClient.checkForDevWorkspaceError = mockCheckForDevWorkspaceError;
-    devWorkspaceClient.createFromDevfile = mockCreateFromDevfile;
     devWorkspaceClient.createFromResources = mockCreateFromResources;
     devWorkspaceClient.delete = mockDelete;
     devWorkspaceClient.getAllWorkspaces = mockGetAllWorkspaces;
@@ -587,8 +599,7 @@ describe('DevWorkspace store, actions', () => {
         },
       };
 
-      mockCreateFromDevfile.mockResolvedValueOnce(devWorkspace);
-      mockOnStart.mockResolvedValueOnce(undefined);
+      mockCreateFromResources.mockResolvedValueOnce(devWorkspace);
 
       await store.dispatch(
         testStore.actionCreators.createWorkspaceFromDevfile(devfile, {}, undefined, undefined, {}),
@@ -620,8 +631,7 @@ describe('DevWorkspace store, actions', () => {
         },
       };
 
-      mockCreateFromDevfile.mockRejectedValueOnce(new Error('Something unexpected happened.'));
-      // mockOnStart.mockResolvedValueOnce(undefined);
+      mockCreateFromResources.mockRejectedValueOnce(new Error('Something unexpected happened.'));
 
       try {
         await store.dispatch(
@@ -645,7 +655,7 @@ describe('DevWorkspace store, actions', () => {
           check: AUTHORIZED,
         },
         {
-          error: `Something unexpected happened.`,
+          error: 'Something unexpected happened.',
           type: testStore.Type.RECEIVE_DEVWORKSPACE_ERROR,
         },
       ];

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { safeDump } from 'js-yaml';
+import { dump } from 'js-yaml';
 import { cloneDeep } from 'lodash';
 import { DevWorkspaceTemplate } from '../../../../../../services/devfileApi/devfileApi';
 import { DevWorkspace } from '../../../../../../services/devfileApi/devWorkspace';
@@ -33,7 +33,7 @@ export default function prepareResources(
   if (!metadata.annotations) {
     metadata.annotations = {};
   }
-  metadata.annotations[DEVWORKSPACE_DEVFILE_SOURCE] = safeDump({
+  metadata.annotations[DEVWORKSPACE_DEVFILE_SOURCE] = dump({
     factory: { params: factoryId },
   });
 

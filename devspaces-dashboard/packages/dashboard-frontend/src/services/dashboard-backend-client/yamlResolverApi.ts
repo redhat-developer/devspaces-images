@@ -34,6 +34,6 @@ export async function getYamlResolver(
       links: [],
     };
   } catch (e) {
-    throw `Failed to fetch yaml resolver'. ${helpers.errors.getMessage(e)}`;
+    throw new Error(`Failed to fetch yaml resolver'. ${helpers.errors.getMessage(e)}`);
   }
 }

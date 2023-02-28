@@ -10,17 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
-import common, { ClusterConfig } from '@eclipse-che/common';
 import { prefix } from './const';
 
-export async function fetchClusterConfig(): Promise<ClusterConfig> {
+export async function fetchResources(params: api.IDevworkspaceResources): Promise<string> {
   try {
-    const response = await axios.get(`${prefix}/cluster-config`);
+    const response = await axios.post(`${prefix}/devworkspace-resources`, params);
     return response.data;
   } catch (e) {
-    throw new Error(
-      `Failed to fetch cluster configuration. ${common.helpers.errors.getMessage(e)}`,
-    );
+    const errorMessage = helpers.errors.getMessage(e);
+    throw new Error(`Failed to fetch resources. ${errorMessage}`);
   }
 }

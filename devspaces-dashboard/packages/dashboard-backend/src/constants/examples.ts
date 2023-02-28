@@ -10,6 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { dump } from 'js-yaml';
+
 export const dockerConfigExample = {
   get dockerconfig() {
     const registry = 'https://index.docker.io/v1/';
@@ -28,4 +30,28 @@ export const dockerConfigExample = {
       }),
     ).toString('base64');
   },
+};
+
+export const devWorkspaceResourcesExample = {
+  get devfileContent() {
+    const devfile = {
+      schemaVersion: '2.1.0',
+      metadata: {
+        name: 'wksp-test',
+      },
+      components: [
+        {
+          container: {
+            image: 'quay.io/devfile/universal-developer-image:latest',
+            sourceMapping: '/projects',
+          },
+          name: 'universal-developer-image',
+        },
+      ],
+    };
+
+    return dump(devfile, { indent: 2 });
+  },
+  editorEntry: 'che-incubator/che-code/insiders',
+  projects: [],
 };

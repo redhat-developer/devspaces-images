@@ -17,10 +17,9 @@ import {
   V220DevfileComponentsItemsContainer,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
-import { AxiosInstance } from 'axios';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
-import { inject, injectable, multiInject } from 'inversify';
-import { safeLoad } from 'js-yaml';
+import { inject, injectable } from 'inversify';
+import { load } from 'js-yaml';
 import { cloneDeep, isEqual } from 'lodash';
 import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
 import * as DwtApi from '../../dashboard-backend-client/devWorkspaceTemplateApi';
@@ -41,7 +40,6 @@ import { fetchData } from '../../registry/fetchData';
 import { WorkspaceAdapter } from '../../workspace-adapter';
 import { WorkspaceClient } from '../index';
 import {
-  devfileToDevWorkspace,
   devWorkspaceApiGroup,
   devWorkspaceSingularSubresource,
   devWorkspaceVersion,
@@ -50,43 +48,6 @@ import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsH
 
 const COMPONENT_UPDATE_POLICY = 'che.eclipse.org/components-update-policy';
 const REGISTRY_URL = 'che.eclipse.org/plugin-registry-url';
-
-/**
- * Context provided to all editors when they need to process devfile
- */
-export interface IDevWorkspaceEditorProcessingContext {
-  devfile: devfileApi.Devfile;
-
-  devWorkspace: devfileApi.DevWorkspace;
-
-  workspaceId: string;
-
-  devWorkspaceTemplates: devfileApi.DevWorkspaceTemplateLike[];
-
-  editorsDevfile: devfileApi.Devfile[];
-
-  pluginRegistryUrl?: string;
-
-  axios: AxiosInstance;
-
-  optionalFilesContent: { [fileName: string]: string };
-}
-
-/**
- * Editors need to implement this interface in dashboard to apply their stuff on top of devfiles
- */
-export const IDevWorkspaceEditorProcess = Symbol.for('IDevWorkspaceEditorProcess');
-export interface IDevWorkspaceEditorProcess {
-  /**
-   * Returns true if the implementation is supporting the given devfile
-   */
-  match(context: IDevWorkspaceEditorProcessingContext): boolean;
-
-  /**
-   * Apply specific stuff of the editor
-   */
-  apply(context: IDevWorkspaceEditorProcessingContext): Promise<void>;
-}
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
@@ -124,7 +85,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
   constructor(
     @inject(DevWorkspaceDefaultPluginsHandler)
     defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler,
-    @multiInject(IDevWorkspaceEditorProcess) private editorProcesses: IDevWorkspaceEditorProcess[],
   ) {
     super();
     this.maxStatusAttempts = 10;
@@ -245,212 +205,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     await delay();
   }
 
-  async createFromDevfile(
-    devfile: devfileApi.Devfile,
-    defaultNamespace: string,
-    dwEditorsPlugins: { devfile: devfileApi.Devfile; url: string }[],
-    pluginRegistryUrl: string | undefined,
-    pluginRegistryInternalUrl: string | undefined,
-    openVSXUrl: string | undefined,
-    editorId: string | undefined,
-    optionalFilesContent: { [fileName: string]: string },
-  ): Promise<devfileApi.DevWorkspace> {
-    if (!devfile.components) {
-      devfile.components = [];
-    }
-    if (!devfile.metadata.namespace) {
-      devfile.metadata.namespace = defaultNamespace;
-    }
-
-    const routingClass = 'che';
-    const devworkspace = devfileToDevWorkspace(devfile, routingClass, false);
-
-    if (devworkspace.metadata.annotations === undefined) {
-      devworkspace.metadata.annotations = {};
-    }
-    devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
-      new Date().toISOString();
-
-    if (editorId) {
-      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
-    }
-    devworkspace.spec.started = false;
-
-    const createdWorkspace = await DwApi.createWorkspace(devworkspace);
-    const namespace = createdWorkspace.metadata.namespace;
-    const name = createdWorkspace.metadata.name;
-    const workspaceId = WorkspaceAdapter.getId(createdWorkspace);
-
-    // do we have inline editor as part of the devfile ?
-    const inlineEditorYaml = devfile?.attributes?.['che-editor.yaml']
-      ? (safeLoad(devfile.attributes['che-editor.yaml']) as devfileApi.Devfile)
-      : undefined;
-    const devfileGroupVersion = `${devWorkspaceApiGroup}/${devWorkspaceVersion}`;
-    const devWorkspaceTemplates: devfileApi.DevWorkspaceTemplateLike[] = [];
-    // do we have a custom editor specified in the repository ?
-    const cheEditorYaml = optionalFilesContent['.che/che-editor.yaml']
-      ? (safeLoad(optionalFilesContent['.che/che-editor.yaml']) as ICheEditorYaml)
-      : undefined;
-    const editorsDevfile: devfileApi.Devfile[] = [];
-    // handle inlined editor in the devfile
-    if (inlineEditorYaml) {
-      console.debug('Using inline editor specified in the devfile', inlineEditorYaml);
-      editorsDevfile.push(inlineEditorYaml);
-    } else if (cheEditorYaml) {
-      // check the content of cheEditor file
-      console.debug('Using the repository .che/che-editor.yaml file', cheEditorYaml);
-
-      let repositoryEditorYaml;
-      let repositoryEditorYamlUrl;
-      // it's an inlined editor, use the inline content
-      if (cheEditorYaml.inline) {
-        console.debug('Using the inline content of the repository editor');
-        repositoryEditorYaml = cheEditorYaml.inline;
-      } else if (cheEditorYaml.id) {
-        // load the content of this editor
-        console.debug(`Loading editor from its id ${cheEditorYaml.id}`);
-
-        // registryUrl ?
-        if (cheEditorYaml.registryUrl) {
-          repositoryEditorYamlUrl = `${cheEditorYaml.registryUrl}/plugins/${cheEditorYaml.id}/devfile.yaml`;
-        } else {
-          repositoryEditorYamlUrl = `${pluginRegistryUrl}/plugins/${cheEditorYaml.id}/devfile.yaml`;
-        }
-      } else if (cheEditorYaml.reference) {
-        // load the content of this editor
-        console.debug(`Loading editor from reference ${cheEditorYaml.reference}`);
-        repositoryEditorYamlUrl = cheEditorYaml.reference;
-      }
-      if (repositoryEditorYamlUrl) {
-        const response = await this.axios.get<string>(repositoryEditorYamlUrl, {
-          responseType: 'text',
-        });
-        if (response.data) {
-          repositoryEditorYaml = safeLoad(response.data);
-        }
-      }
-
-      // if there are some overrides, apply them
-      if (cheEditorYaml.override) {
-        console.debug(`Applying overrides ${JSON.stringify(cheEditorYaml.override)}...`);
-        cheEditorYaml.override.containers?.forEach(container => {
-          // search matching component
-          const matchingComponent = repositoryEditorYaml.components?.find(
-            component => component.name === container.name,
-          );
-          if (matchingComponent) {
-            // apply overrides except the name
-            Object.keys(container).forEach(property => {
-              if (property !== 'name') {
-                console.debug(
-                  `Updating property from ${matchingComponent.container[property]} to ${container[property]}`,
-                );
-                matchingComponent.container[property] = container[property];
-              }
-            });
-          }
-        });
-      }
-
-      if (!repositoryEditorYaml) {
-        throw new Error(
-          'Failed to analyze the editor devfile inside the repository, reason: Missing id, reference or inline content.',
-        );
-      }
-      // Use the repository defined editor
-      editorsDevfile.push(repositoryEditorYaml);
-    } else {
-      editorsDevfile.push(...dwEditorsPlugins.map(entry => entry.devfile));
-    }
-    for (const pluginDevfile of editorsDevfile) {
-      if (!pluginDevfile || !pluginDevfile.metadata || !pluginDevfile.metadata.name) {
-        throw new Error(
-          'Failed to analyze the editor devfile, reason: Missing metadata.name attribute in the editor yaml file.',
-        );
-      }
-      const pluginName = this.normalizePluginName(pluginDevfile.metadata.name, workspaceId);
-      const editorDWT: devfileApi.DevWorkspaceTemplateLike = {
-        kind: 'DevWorkspaceTemplate',
-        apiVersion: devfileGroupVersion,
-        metadata: {
-          name: pluginName,
-          namespace,
-        },
-        spec: pluginDevfile,
-      };
-
-      const unmanagedEditors = ['che-code', 'idea', 'pycharm'];
-      dwEditorsPlugins.forEach(plugin => {
-        if (plugin.devfile === pluginDevfile && editorDWT.metadata) {
-          const isUnmanaged = unmanagedEditors.some(e =>
-            editorDWT.metadata?.name?.toLowerCase().includes(e),
-          );
-
-          editorDWT.metadata.annotations = {
-            [COMPONENT_UPDATE_POLICY]: isUnmanaged ? 'unmanaged' : 'managed',
-            [REGISTRY_URL]: plugin.url,
-          };
-        }
-      });
-      devWorkspaceTemplates.push(editorDWT);
-    }
-    const editorProcessContext: IDevWorkspaceEditorProcessingContext = {
-      devfile,
-      devWorkspace: createdWorkspace,
-      workspaceId,
-      devWorkspaceTemplates,
-      editorsDevfile,
-      pluginRegistryUrl,
-      axios: this.axios,
-      optionalFilesContent,
-    };
-    // if editors have some specific enhancements
-    await this.applySpecificEditors(editorProcessContext);
-    await Promise.all(
-      devWorkspaceTemplates.map(async template => {
-        if (!template.metadata) {
-          template.metadata = {};
-        }
-        // Update the namespace
-        template.metadata.namespace = namespace;
-        // Update owner reference (to allow automatic cleanup)
-        template.metadata.ownerReferences = [
-          {
-            apiVersion: devfileGroupVersion,
-            kind: devWorkspaceSingularSubresource,
-            name: createdWorkspace.metadata.name,
-            uid: createdWorkspace.metadata.uid,
-          },
-        ];
-        this.addEnvVarsToContainers(
-          template.spec?.components,
-          pluginRegistryUrl,
-          pluginRegistryInternalUrl,
-          openVSXUrl,
-        );
-
-        const pluginDWT = await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>template);
-        this.addPlugin(createdWorkspace, pluginDWT.metadata.name, pluginDWT.metadata.namespace);
-      }),
-    );
-
-    this.addEnvVarsToContainers(
-      createdWorkspace.spec.template.components,
-      pluginRegistryUrl,
-      pluginRegistryInternalUrl,
-      openVSXUrl,
-    );
-    createdWorkspace.spec.started = false;
-    const patch = [
-      {
-        op: 'replace',
-        path: '/spec',
-        value: createdWorkspace.spec,
-      },
-    ];
-    return DwApi.patchWorkspace(namespace, name, patch);
-  }
-
   /**
    * propagate the plugin registry, plugin internal registry,
    * and dashboard URLs into the components containers
@@ -505,30 +259,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
         });
       }
       container.env = envs;
-    }
-  }
-
-  // Stuff to do for some editors
-  protected async applySpecificEditors(
-    context: IDevWorkspaceEditorProcessingContext,
-  ): Promise<void> {
-    const matchingProcessors = this.editorProcesses.filter(editorProcessor =>
-      editorProcessor.match(context),
-    );
-    const start = performance.now();
-    // apply processors
-    await Promise.all(matchingProcessors.map(processor => processor.apply(context)));
-    const end = performance.now();
-
-    // notify if we processed stuff
-    if (matchingProcessors.length > 0) {
-      console.debug(
-        `Took ${end - start}ms to apply editor specific changes`,
-        'Devfile updated to',
-        context.devfile,
-        ' and templates updated to',
-        context.devWorkspaceTemplates,
-      );
     }
   }
 
@@ -916,7 +646,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         plugin = pluginsByUrl[url];
       } else {
         const pluginContent = await fetchData<string>(url);
-        plugin = safeLoad(pluginContent) as devfileApi.Devfile;
+        plugin = load(pluginContent) as devfileApi.Devfile;
         pluginsByUrl[url] = plugin;
       }
 

@@ -3,10 +3,9 @@
 | Packages | License | Resolved CQs |
 | --- | --- | --- |
 | [`@babel/runtime@7.17.7`](https://github.com/babel/babel.git) | MIT | #1946 |
-| [`@devfile/api@2.2.0-alpha-1646855991`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
+| [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | N/A |
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
-| [`@eclipse-che/che-code-devworkspace-handler@1.74.0-dev-e701cae`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1667484092`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/che-devworkspace-generator@0.0.1-96cdbb4`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/common@7.61.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-backend@7.61.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-frontend@7.61.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
@@ -170,7 +169,7 @@
 | [`focus-trap@6.2.2`](git+https://github.com/focus-trap/focus-trap.git) | MIT | clearlydefined |
 | [`follow-redirects@1.14.9`](git@github.com:follow-redirects/follow-redirects.git) | MIT | clearlydefined |
 | [`forever-agent@0.6.1`](https://github.com/mikeal/forever-agent) | Apache-2.0 | clearlydefined |
-| [`form-data@2.5.1`](git://github.com/form-data/form-data.git) | MIT | clearlydefined |
+| [`form-data@2.3.3`](git://github.com/form-data/form-data.git) | MIT | clearlydefined |
 | [`forwarded@0.2.0`](https://github.com/jshttp/forwarded.git) | MIT | clearlydefined |
 | [`fresh@0.5.2`](https://github.com/jshttp/fresh.git) | MIT | clearlydefined |
 | [`fs-extra@9.1.0`](https://github.com/jprichardson/node-fs-extra) | MIT | clearlydefined |
@@ -202,6 +201,7 @@
 | [`http-proxy-agent@2.1.0`](git://github.com/TooTallNate/node-http-proxy-agent.git) | MIT | clearlydefined |
 | [`http-signature@1.2.0`](git://github.com/joyent/node-http-signature.git) | MIT | #2732 |
 | [`https-proxy-agent@2.2.4`](git://github.com/TooTallNate/node-https-proxy-agent.git) | MIT | clearlydefined |
+| `https@1.0.0` | ISC | clearlydefined |
 | [`human-signals@2.1.0`](https://github.com/ehmicky/human-signals.git) | Apache-2.0 | clearlydefined |
 | [`ieee754@1.2.1`](git://github.com/feross/ieee754.git) | BSD-3-Clause | clearlydefined |
 | [`immutable@4.0.0`](git://github.com/immutable-js/immutable-js.git) | MIT | clearlydefined |
@@ -231,7 +231,7 @@
 | [`json-schema-traverse@0.4.1`](git+https://github.com/epoberezkin/json-schema-traverse.git) | MIT | clearlydefined |
 | [`json-schema@0.4.0`](http://github.com/kriszyp/json-schema) | (AFL-2.1 OR BSD-3-Clause) | #2410 |
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
-| [`json5@0.5.1`](https://github.com/aseemk/json5.git) | MIT | #1040 |
+| [`json5@1.0.1`](git+https://github.com/json5/json5.git) | MIT | [CQ22351](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22351) |
 | [`jsonc-parser@3.0.0`](https://github.com/microsoft/node-jsonc-parser) | MIT | clearlydefined |
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
 | [`jsonpath-plus@0.19.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |

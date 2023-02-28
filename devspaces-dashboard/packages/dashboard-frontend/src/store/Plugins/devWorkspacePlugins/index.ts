@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { safeLoad } from 'js-yaml';
+import { load } from 'js-yaml';
 import { Action, Reducer } from 'redux';
 import common from '@eclipse-che/common';
 import devfileApi from '../../../services/devfileApi';
@@ -138,7 +138,7 @@ export const actionCreators: ActionCreators = {
 
       try {
         const pluginContent = await fetchDevfile(url);
-        const plugin = safeLoad(pluginContent) as devfileApi.Devfile;
+        const plugin = load(pluginContent) as devfileApi.Devfile;
         dispatch({
           type: 'RECEIVE_DW_PLUGIN',
           url,
@@ -187,7 +187,7 @@ export const actionCreators: ActionCreators = {
           editorName,
         });
         const pluginContent = await fetchData<string>(editorUrl);
-        const plugin = safeLoad(pluginContent) as devfileApi.Devfile;
+        const plugin = load(pluginContent) as devfileApi.Devfile;
         dispatch({
           type: 'RECEIVE_DW_EDITOR',
           editorName,

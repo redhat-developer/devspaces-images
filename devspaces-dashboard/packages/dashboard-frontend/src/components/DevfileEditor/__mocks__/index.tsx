@@ -11,7 +11,7 @@
  */
 
 import React, { ChangeEvent, ClipboardEvent } from 'react';
-import { safeDump } from 'js-yaml';
+import { dump } from 'js-yaml';
 import devfileApi from '../../../services/devfileApi';
 import stringify from '../../../services/helpers/editor';
 
@@ -46,7 +46,7 @@ export default class DevfileEditor extends React.PureComponent<Props, State> {
   public componentDidMount(): void {
     const element = document.querySelector('#devfile-editor');
     if (element) {
-      const value = safeDump(this.props.devfile);
+      const value = dump(this.props.devfile);
       this.editor = element as HTMLTextAreaElement;
       this.editor.value = value;
     }

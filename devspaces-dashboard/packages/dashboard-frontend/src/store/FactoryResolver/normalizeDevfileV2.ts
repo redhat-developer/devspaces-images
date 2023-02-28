@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { safeDump } from 'js-yaml';
+import { dump } from 'js-yaml';
 import { cloneDeep } from 'lodash';
 import { V220DevfileComponents } from '@devfile/api';
 import { FactoryResolver, DevfileV2ProjectSource } from '../../services/helpers/types';
@@ -83,7 +83,7 @@ export default function normalizeDevfileV2(
   let devfileSource = '';
   if (data.source && scmInfo) {
     if (scmInfo.branch) {
-      devfileSource = safeDump({
+      devfileSource = dump({
         scm: {
           repo: scmInfo['clone_url'],
           revision: scmInfo.branch,
@@ -91,7 +91,7 @@ export default function normalizeDevfileV2(
         },
       });
     } else {
-      devfileSource = safeDump({
+      devfileSource = dump({
         scm: {
           repo: scmInfo['clone_url'],
           fileName: data.source,
@@ -99,7 +99,7 @@ export default function normalizeDevfileV2(
       });
     }
   } else if (location) {
-    devfileSource = safeDump({ url: { location } });
+    devfileSource = dump({ url: { location } });
   }
   if (!devfile.metadata.attributes) {
     devfile.metadata.attributes = {};

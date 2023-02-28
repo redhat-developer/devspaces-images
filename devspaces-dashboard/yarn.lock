@@ -333,6 +333,17 @@
     request "^2.81.0"
     rewire "^3.0.2"
 
+"@devfile/api@^2.2.1-alpha-1667236163":
+  version "2.2.1-alpha-1667236163"
+  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.1-alpha-1667236163.tgz#33cf448dae960c071037b32c6c68f96ba26f1990"
+  integrity sha512-tspoTrbyMbPIVwTD2qr6ljvQAJLE1lCN6uBFIGcYXKw89JGt0s0+WLQ/qIh2+RP5pDpDWbDp/yNFKCmzaOLupg==
+  dependencies:
+    "@types/bluebird" "3.5.21"
+    "@types/request" "*"
+    bluebird "^3.5.0"
+    request "^2.81.0"
+    rewire "^3.0.2"
+
 "@discoveryjs/json-ext@^0.5.0":
   version "0.5.7"
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
@@ -343,27 +354,14 @@
   resolved "https://registry.npmjs.org/@eclipse-che/api/-/api-7.44.0.tgz"
   integrity sha512-X2vawP2Pm+WD8HswYhXU9lC1WqsRe0g0mibPSN3hYzbmKMSKuPaJG/hBtGDtdp0NI35iIoinoAfFaAtdWBko3Q==
 
-"@eclipse-che/che-code-devworkspace-handler@1.74.0-dev-e701cae":
-  version "1.74.0-dev-e701cae"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.74.0-dev-e701cae.tgz#965f2962fa27a87142180e62e8c776299a49ac16"
-  integrity sha512-qj8GvTPKh7n6JQB0gR9bcvGnEjsSqx2jFEZszynf7uY46MnzAsufYZZIK3MbYTV9wtY/MOhaHQVnb65TBQV6mw==
+"@eclipse-che/che-devworkspace-generator@0.0.1-96cdbb4":
+  version "0.0.1-96cdbb4"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-0.0.1-96cdbb4.tgz#d45bec844630cd62a5028a4a94a3ee9d07c3988c"
+  integrity sha512-eGl0xRoQQ4wI9cqbiXzTzfF7YrtgXzqTSsLDy82shMi0O4H9jmPJWe2ZVUxhW3DyKDWUO7/1mceQx5knbgciUw==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
     fs-extra "^10.0.0"
-    inversify "^5.0.1"
-    js-yaml "^4.0.0"
-    jsonc-parser "^3.0.0"
-    reflect-metadata "^0.1.13"
-
-"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1667484092":
-  version "0.0.1-1667484092"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1667484092.tgz#6bb21998a4e27090a26b17db9d97395f78887071"
-  integrity sha512-kIkG/boT3XpgFyD9ck1liQdNli5sMDARqlxiP5hxzAtZ3l90PxZ8LNEGtd7sO3XMvpL+Zz4f+zfBLOVDBwiCWw==
-  dependencies:
-    "@devfile/api" latest
-    axios "0.21.2"
-    fs-extra "^9.1.0"
     inversify "^5.0.1"
     js-yaml "^4.0.0"
     jsonc-parser "^3.0.0"
@@ -6641,6 +6639,11 @@ https-proxy-agent@^5.0.0:
   dependencies:
     agent-base "6"
     debug "4"
+
+https@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/https/-/https-1.0.0.tgz#3c37c7ae1a8eeb966904a2ad1e975a194b7ed3a4"
+  integrity sha512-4EC57ddXrkaF0x83Oj8sM6SLQHAWXw90Skqu2M4AEWENZ3F02dFJE/GARA8igO79tcgYqGrD7ae4f5L3um2lgg==
 
 human-signals@^1.1.1:
   version "1.1.1"

@@ -10,7 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isForbidden, isInternalServerError, isUnauthorized } from '../helpers';
+import { getCustomEditor, isForbidden, isInternalServerError, isUnauthorized } from '../helpers';
+import { CHE_EDITOR_YAML_PATH } from '../';
+import { dump } from 'js-yaml';
+import common from '@eclipse-che/common';
+import devfileApi from '../../devfileApi';
+import mockAxios from 'axios';
 
 describe('Workspace-client helpers', () => {
   describe('checks for HTTP 401 Unauthorized response status code', () => {
@@ -163,4 +168,255 @@ describe('Workspace-client helpers', () => {
       ).toBeTruthy();
     });
   });
+
+  describe('Look for the custom editor', () => {
+    const pluginRegistryUrl = 'https://dummy-plugin-registry';
+    let optionalFilesContent: { [fileName: string]: string };
+    let editor: devfileApi.Devfile;
+
+    beforeEach(() => {
+      optionalFilesContent = {};
+      editor = buildEditor();
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return undefined without optionalFilesContent', async () => {
+      const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+      expect(customEditor).toBeUndefined();
+    });
+
+    describe('inlined editor', () => {
+      it('should return inlined editor without changes', async () => {
+        optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({ inline: editor });
+
+        const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+        expect(customEditor).toEqual(dump(editor));
+      });
+
+      it('should return an overridden devfile', async () => {
+        optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+          inline: editor,
+          override: {
+            containers: [
+              {
+                name: 'eclipse-ide',
+                memoryLimit: '1234Mi',
+              },
+            ],
+          },
+        });
+
+        const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+        expect(customEditor).toEqual(expect.stringContaining('memoryLimit: 1234Mi'));
+      });
+
+      it('should throw the "missing metadata.name" error message', async () => {
+        // set an empty value as a name
+        editor.metadata.name = '';
+        optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({ inline: editor });
+
+        let errorText: string | undefined = undefined;
+
+        try {
+          await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+        } catch (e) {
+          errorText = common.helpers.errors.getMessage(e);
+        }
+
+        expect(errorText).toEqual(
+          'Failed to analyze the editor devfile, reason: Missing metadata.name attribute in the editor yaml file.',
+        );
+      });
+    });
+
+    describe('get editor by id ', () => {
+      describe('from the default registry', () => {
+        it('should return an editor without changes', async () => {
+          optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+            id: 'che-incubator/che-idea/next',
+          });
+          const mockFetch = mockAxios.get as jest.Mock;
+          mockFetch.mockResolvedValueOnce({
+            data: dump(editor),
+          });
+
+          const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+          expect(mockFetch.mock.calls).toEqual([
+            [
+              'https://dummy-plugin-registry/plugins/che-incubator/che-idea/next/devfile.yaml',
+              { responseType: 'text' },
+            ],
+          ]);
+          expect(customEditor).toEqual(dump(editor));
+        });
+
+        it('should return an overridden devfile', async () => {
+          optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+            id: 'che-incubator/che-idea/next',
+            override: {
+              containers: [
+                {
+                  name: 'eclipse-ide',
+                  memoryLimit: '1234Mi',
+                },
+              ],
+            },
+          });
+          const mockFetch = mockAxios.get as jest.Mock;
+          mockFetch.mockResolvedValueOnce({
+            data: dump(editor),
+          });
+
+          const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+          expect(mockFetch.mock.calls).toEqual([
+            [
+              'https://dummy-plugin-registry/plugins/che-incubator/che-idea/next/devfile.yaml',
+              { responseType: 'text' },
+            ],
+          ]);
+          expect(customEditor).toEqual(expect.stringContaining('memoryLimit: 1234Mi'));
+        });
+
+        it('should throw the "missing metadata.name" error message', async () => {
+          // set an empty value as a name
+          editor.metadata.name = '';
+          optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+            id: 'che-incubator/che-idea/next',
+          });
+          const mockFetch = mockAxios.get as jest.Mock;
+          mockFetch.mockResolvedValueOnce({
+            data: dump(editor),
+          });
+
+          let errorText: string | undefined = undefined;
+          try {
+            await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+          } catch (e) {
+            errorText = common.helpers.errors.getMessage(e);
+          }
+
+          expect(mockFetch.mock.calls).toEqual([
+            [
+              'https://dummy-plugin-registry/plugins/che-incubator/che-idea/next/devfile.yaml',
+              { responseType: 'text' },
+            ],
+          ]);
+          expect(errorText).toEqual(
+            'Failed to analyze the editor devfile, reason: Missing metadata.name attribute in the editor yaml file.',
+          );
+        });
+      });
+      describe('from the custom registry', () => {
+        it('should return an editor without changes', async () => {
+          optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+            id: 'che-incubator/che-idea/next',
+            registryUrl: 'https://eclipse-che.github.io/che-plugin-registry/main/v3',
+          });
+
+          const mockFetch = mockAxios.get as jest.Mock;
+
+          mockFetch.mockResolvedValueOnce({
+            data: dump(editor),
+          });
+
+          const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+          expect(mockFetch.mock.calls).toEqual([
+            [
+              'https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+              { responseType: 'text' },
+            ],
+          ]);
+          expect(customEditor).toEqual(dump(editor));
+        });
+
+        it('should return an overridden devfile', async () => {
+          optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+            id: 'che-incubator/che-idea/next',
+            registryUrl: 'https://eclipse-che.github.io/che-plugin-registry/main/v3',
+            override: {
+              containers: [
+                {
+                  name: 'eclipse-ide',
+                  memoryLimit: '1234Mi',
+                },
+              ],
+            },
+          });
+          const mockFetch = mockAxios.get as jest.Mock;
+          mockFetch.mockResolvedValueOnce({
+            data: dump(editor),
+          });
+
+          const customEditor = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+
+          expect(mockFetch.mock.calls).toEqual([
+            [
+              'https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+              { responseType: 'text' },
+            ],
+          ]);
+          expect(customEditor).toEqual(expect.stringContaining('memoryLimit: 1234Mi'));
+        });
+
+        it('should throw the "missing metadata.name" error message', async () => {
+          // set an empty value as a name
+          editor.metadata.name = '';
+          optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
+            id: 'che-incubator/che-idea/next',
+            registryUrl: 'https://eclipse-che.github.io/che-plugin-registry/main/v3',
+          });
+          const mockFetch = mockAxios.get as jest.Mock;
+          mockFetch.mockResolvedValueOnce({
+            data: dump(editor),
+          });
+
+          let errorText: string | undefined = undefined;
+          try {
+            await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+          } catch (e) {
+            errorText = common.helpers.errors.getMessage(e);
+          }
+
+          expect(mockFetch.mock.calls).toEqual([
+            [
+              'https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+              { responseType: 'text' },
+            ],
+          ]);
+          expect(errorText).toEqual(
+            'Failed to analyze the editor devfile, reason: Missing metadata.name attribute in the editor yaml file.',
+          );
+        });
+      });
+    });
+  });
 });
+
+function buildEditor(): devfileApi.Devfile {
+  return {
+    schemaVersion: '2.1.0',
+    metadata: {
+      name: 'ws-skeleton/eclipseide/4.9.0',
+      namespace: 'che',
+    },
+    components: [
+      {
+        name: 'eclipse-ide',
+        container: {
+          image: 'docker.io/wsskeleton/eclipse-broadway',
+          mountSources: true,
+          memoryLimit: '2048M',
+        },
+      },
+    ],
+  };
+}

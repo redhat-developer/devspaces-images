@@ -78,3 +78,11 @@ export interface IDevWorkspaceList {
   };
   items: V1alpha2DevWorkspace[];
 }
+
+export interface IDevworkspaceResources {
+  devfileContent: string | undefined;
+  editorPath: string | undefined;
+  pluginRegistryUrl: string | undefined;
+  editorEntry: string | undefined;
+  editorContent: string | undefined;
+}

@@ -15,7 +15,7 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
-  V220DevfileComponents,
+  V221DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import {
@@ -33,7 +33,7 @@ export const stubContainerBuild = {
   disableContainerBuildCapabilities: true,
 };
 export const stubDashboardWarning = 'Dashboard warning';
-export const stubDefaultComponents: V220DevfileComponents[] = [];
+export const stubDefaultComponents: V221DevfileComponents[] = [];
 export const stubDefaultEditor = undefined;
 export const stubDefaultPlugins: api.IWorkspacesDefaultPlugins[] = [];
 export const stubOpenVSXURL = 'openvsx-url';

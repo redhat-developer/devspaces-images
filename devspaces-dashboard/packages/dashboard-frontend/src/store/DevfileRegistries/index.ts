@@ -18,7 +18,6 @@ import { createObject } from '../helpers';
 import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
 import devfileApi from '../../services/devfileApi';
 import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
-import updateDevWorkspacePlugins from './updateDevWorkspacePlugins';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
@@ -234,14 +233,14 @@ export const actionCreators: ActionCreators = {
           resource => resource.kind === 'DevWorkspace',
         ) as devfileApi.DevWorkspace;
         if (!devWorkspace) {
-          throw new Error('Failed to find a devworkspace in prebuilt resources.');
+          throw new Error('Failed to find a DevWorkspace in the fetched resources.');
         }
-        updateDevWorkspacePlugins(devWorkspace);
+
         const devWorkspaceTemplate = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
         ) as devfileApi.DevWorkspaceTemplate;
         if (!devWorkspaceTemplate) {
-          throw new Error('Failed to find a devworkspaceTemplate in prebuilt resources.');
+          throw new Error('Failed to find a DevWorkspaceTemplate in the fetched resources.');
         }
 
         dispatch({

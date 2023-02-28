@@ -23,7 +23,9 @@ export async function createTemplate(
     const response = await axios.post(url, { template });
     return response.data;
   } catch (e) {
-    throw `Failed to create a new devWorkspaceTemplate. ${common.helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to create a new devWorkspaceTemplate. ${common.helpers.errors.getMessage(e)}`,
+    );
   }
 }
 
@@ -33,7 +35,9 @@ export async function getTemplates(namespace: string): Promise<devfileApi.DevWor
     const response = await axios.get(url);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch devWorkspaceTemplates. ${common.helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to fetch devWorkspaceTemplates. ${common.helpers.errors.getMessage(e)}`,
+    );
   }
 }
 
@@ -47,8 +51,10 @@ export async function patchTemplate(
     const response = await axios.patch(url, patch);
     return response.data;
   } catch (e) {
-    throw `Failed to update devWorkspaceTemplate '${templateName}'. ${common.helpers.errors.getMessage(
-      e,
-    )}`;
+    throw new Error(
+      `Failed to update devWorkspaceTemplate '${templateName}'. ${common.helpers.errors.getMessage(
+        e,
+      )}`,
+    );
   }
 }

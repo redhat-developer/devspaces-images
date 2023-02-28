@@ -25,7 +25,7 @@ import {
   TextContent,
 } from '@patternfly/react-core';
 import * as lodash from 'lodash';
-import { safeLoad } from 'js-yaml';
+import { load } from 'js-yaml';
 import common from '@eclipse-che/common';
 import DevfileEditor, { DevfileEditor as Editor } from '../../../components/DevfileEditor';
 import EditorTools from '../../../components/EditorTools';
@@ -297,7 +297,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
     }
     let devfile: devfileApi.Devfile;
     try {
-      devfile = safeLoad(newValue) as devfileApi.Devfile;
+      devfile = load(newValue) as devfileApi.Devfile;
     } catch (e) {
       console.error('Devfile parse error', e);
       return;

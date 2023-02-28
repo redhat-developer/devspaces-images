@@ -35,6 +35,7 @@ import { registerWorkspaceRedirect } from './routes/workspaceRedirect';
 import { registerDevfileSchemaRoute } from './routes/api/devfileSchema';
 import { registerEventsRoutes } from './routes/api/events';
 import { registerPodsRoutes } from './routes/api/pods';
+import { registerDevworkspaceResourcesRoute } from './routes/api/devworkspaceResources';
 
 export default async function buildApp(server: FastifyInstance): Promise<void> {
   const cheHost = process.env.CHE_HOST as string;
@@ -106,4 +107,6 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerYamlResolverRoute(server);
 
   registerDevfileSchemaRoute(server);
+
+  registerDevworkspaceResourcesRoute(server);
 }

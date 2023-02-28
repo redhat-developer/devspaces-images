@@ -28,9 +28,9 @@ export async function createWorkspace(
   } catch (e) {
     const errorMessage = helpers.errors.getMessage(e);
     if (errorMessage.startsWith('Unable to create devworkspace')) {
-      throw errorMessage;
+      throw new Error(errorMessage);
     }
-    throw `Failed to create a new workspace. ${errorMessage}`;
+    throw new Error(`Failed to create a new workspace. ${errorMessage}`);
   }
 }
 
@@ -41,7 +41,7 @@ export async function listWorkspacesInNamespace(
     const response = await axios.get(`${prefix}/namespace/${defaultNamespace}/devworkspaces`);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch the list of devWorkspaces. ${helpers.errors.getMessage(e)}`;
+    throw new Error(`Failed to fetch the list of devWorkspaces. ${helpers.errors.getMessage(e)}`);
   }
 }
 
@@ -55,7 +55,9 @@ export async function getWorkspaceByName(
     );
     return response.data;
   } catch (e) {
-    throw `Failed to fetch workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to fetch workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`,
+    );
   }
 }
 
@@ -71,7 +73,9 @@ export async function patchWorkspace(
     );
     return response.data;
   } catch (e) {
-    throw `Failed to update workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to update workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`,
+    );
   }
 }
 
@@ -79,7 +83,9 @@ export async function deleteWorkspace(namespace: string, workspaceName: string):
   try {
     await axios.delete(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`);
   } catch (e) {
-    throw `Failed to delete workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to delete workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`,
+    );
   }
 }
 
@@ -88,7 +94,7 @@ export async function getDockerConfig(namespace: string): Promise<api.IDockerCon
     const response = await axios.get(`${prefix}/namespace/${namespace}/dockerconfig`);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch dockerconfig. ${helpers.errors.getMessage(e)}`;
+    throw new Error(`Failed to fetch dockerconfig. ${helpers.errors.getMessage(e)}`);
   }
 }
 
@@ -100,7 +106,7 @@ export async function putDockerConfig(
     const response = await axios.put(`${prefix}/namespace/${namespace}/dockerconfig`, dockerconfig);
     return response.data;
   } catch (e) {
-    throw `Failed to put dockerconfig. ${helpers.errors.getMessage(e)}`;
+    throw new Error(`Failed to put dockerconfig. ${helpers.errors.getMessage(e)}`);
   }
 }
 
@@ -110,7 +116,7 @@ export async function injectKubeConfig(namespace: string, devworkspaceId: string
       `${prefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`,
     );
   } catch (e) {
-    throw `Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`;
+    throw new Error(`Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`);
   }
 }
 
@@ -121,6 +127,8 @@ export async function getDevfileSchema(
     const response = await axios.get(`${prefix}/devfile?version=${schemaVersion}`);
     return response.data;
   } catch (e) {
-    throw `Failed to get devfile schema '${schemaVersion}'. ${helpers.errors.getMessage(e)}`;
+    throw new Error(
+      `Failed to get devfile schema '${schemaVersion}'. ${helpers.errors.getMessage(e)}`,
+    );
   }
 }

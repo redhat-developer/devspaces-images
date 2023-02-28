@@ -13,7 +13,7 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
-  V220DevfileComponents,
+  V221DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
@@ -115,7 +115,7 @@ export type CustomResourceDefinitionSpecDevEnvironments = {
   containerBuildConfiguration?: {
     openShiftSecurityContextConstraint?: string;
   };
-  defaultComponents?: V220DevfileComponents[];
+  defaultComponents?: V221DevfileComponents[];
   defaultEditor?: string;
   defaultPlugins?: api.IWorkspacesDefaultPlugins[];
   disableContainerBuildCapabilities?: boolean;
@@ -170,7 +170,7 @@ export interface IServerConfigApi {
    * Returns the default components applied to DevWorkspaces.
    * These default components are meant to be used when a Devfile does not contain any components.
    */
-  getDefaultComponents(cheCustomResource: CustomResourceDefinition): V220DevfileComponents[];
+  getDefaultComponents(cheCustomResource: CustomResourceDefinition): V221DevfileComponents[];
   /**
    * Returns the openVSX URL.
    */

@@ -11,7 +11,7 @@
  */
 
 import common from '@eclipse-che/common';
-import { safeLoadAll } from 'js-yaml';
+import { loadAll } from 'js-yaml';
 import devfileApi from '../devfileApi';
 import { fetchData } from './fetchData';
 
@@ -31,14 +31,12 @@ export async function fetchResources(url: string): Promise<string> {
 
 export function loadResourcesContent(data: string): PreBuiltResources {
   if (!data) {
-    throw new Error('Pre-built resources content is empty.');
+    throw new Error('Resources content is empty.');
   }
 
   try {
-    return safeLoadAll(data) as PreBuiltResources;
+    return loadAll(data) as PreBuiltResources;
   } catch (e) {
-    throw new Error(
-      `Failed to parse pre-built resources content. ${common.helpers.errors.getMessage(e)}`,
-    );
+    throw new Error(`Failed to parse resources content. ${common.helpers.errors.getMessage(e)}`);
   }
 }

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V220DevfileComponents } from '@devfile/api';
+import { V221DevfileComponents } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import {
@@ -92,7 +92,7 @@ export class ServerConfigApiService implements IServerConfigApi {
     return cheCustomResource.spec.devEnvironments?.defaultEditor;
   }
 
-  getDefaultComponents(cheCustomResource: CustomResourceDefinition): V220DevfileComponents[] {
+  getDefaultComponents(cheCustomResource: CustomResourceDefinition): V221DevfileComponents[] {
     return cheCustomResource.spec.devEnvironments?.defaultComponents || [];
   }
 

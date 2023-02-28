@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { dockerConfigExample } from './examples';
+import { dockerConfigExample, devWorkspaceResourcesExample } from './examples';
 import { JSONSchema7 } from 'json-schema';
 
 export const authenticationHeaderSchema: JSONSchema7 = {
@@ -147,6 +147,39 @@ export const yamlResolverSchema: JSONSchema7 = {
     },
   },
   required: ['url'],
+};
+
+export const devWorkspaceResourcesSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    devfileContent: {
+      type: 'string',
+    },
+    editorPath: {
+      type: 'string',
+    },
+    pluginRegistryUrl: {
+      type: 'string',
+    },
+    editorEntry: {
+      type: 'string',
+    },
+    projects: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+          location: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  },
+  examples: [devWorkspaceResourcesExample],
 };
 
 export const devworkspaceSchema: JSONSchema7 = {

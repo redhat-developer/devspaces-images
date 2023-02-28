@@ -26,7 +26,6 @@ describe('testing sample conversions', () => {
       expect(devfileToDevWorkspace(input, 'che', true)).toStrictEqual(output);
     });
   });
-
   describe('devworkspace to devfile', () => {
     test('the sample-devworkspace fixture should convert into sample-devfile fixture', () => {
       const input: any = yaml.load(

@@ -35,11 +35,15 @@ Then you can proceed to the following steps:
 ```sh
 # 1. Install all dependencies:
 yarn
-# 2. Patch cluster to enable local development flow:
+# 2. (Optional) Patch minikube cluster to enable local development flow:
 yarn start:prepare
-# 3. Run server locally:
+# 3. Export Che certificate
+chectl cacert:export --destination=$TMPDIR
+# 4. Set CHE_SELF_SIGNED_MOUNT_PATH
+export CHE_SELF_SIGNED_MOUNT_PATH=$TMPDIR
+# 5. Run server locally:
 yarn start
-# 4. (optional) Patch cluster to revert it to initial state:
+# 6. (optional) Patch cluster to revert it to initial state:
 yarn start:cleanup
 # If you want to make sure the latest bits are used, add flag to recompile
 # yarn start --force-build

@@ -13,6 +13,7 @@
 import { api } from '@eclipse-che/common';
 import WS from 'jest-websocket-mock';
 import { ConnectionEvent, WebsocketClient } from '..';
+import { delay } from '../../../helpers/delay';
 
 describe('websocketClient', () => {
   beforeEach(() => {
@@ -74,7 +75,7 @@ describe('websocketClient', () => {
         const handleConnectionError = jest.fn();
         websocketClient.addConnectionEventListener(ConnectionEvent.ERROR, handleConnectionError);
 
-        websocketClient.connect();
+        await websocketClient.connect();
         const ws = await serverMock.connected;
 
         expect(ws).toBeDefined();
@@ -87,6 +88,7 @@ describe('websocketClient', () => {
 
         const serverMockNext = new WS('ws://localhost/dashboard/api/websocket');
         const wsNext = await serverMockNext.connected;
+        await delay();
 
         expect(wsNext).toBeDefined();
         expect(handleConnectionOpen).toBeCalledTimes(2);

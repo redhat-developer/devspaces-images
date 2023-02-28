@@ -19,6 +19,6 @@ export async function fetchClusterInfo(): Promise<ClusterInfo> {
     const response = await axios.get(`${prefix}/cluster-info`);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch cluster information. ${common.helpers.errors.getMessage(e)}`;
+    throw new Error(`Failed to fetch cluster information. ${common.helpers.errors.getMessage(e)}`);
   }
 }

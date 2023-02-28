@@ -28,6 +28,7 @@ import { getYamlResolver } from '../../services/dashboard-backend-client/yamlRes
 import { DEFAULT_REGISTRY } from '../DevfileRegistries';
 import { isOAuthResponse } from '../../services/oauth';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
+import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -137,7 +138,6 @@ export const actionCreators: ActionCreators = {
 
       try {
         let data: FactoryResolver;
-
         if (location.includes(DEFAULT_REGISTRY) && location.endsWith('.yaml')) {
           data = await getYamlResolver(namespace, location);
         } else {
@@ -145,18 +145,9 @@ export const actionCreators: ActionCreators = {
             location,
             overrideParams,
           );
-          // now, grab content of optional files if they're there
-          const vscodeExtensionsJson = await grabLink(data.links, '.vscode/extensions.json');
-          if (vscodeExtensionsJson) {
-            optionalFilesContent['.vscode/extensions.json'] = vscodeExtensionsJson;
-          }
-          const cheTheiaPlugins = await grabLink(data.links, '.che/che-theia-plugins.yaml');
-          if (cheTheiaPlugins) {
-            optionalFilesContent['.che/che-theia-plugins.yaml'] = cheTheiaPlugins;
-          }
-          const cheEditor = await grabLink(data.links, '.che/che-editor.yaml');
+          const cheEditor = await grabLink(data.links, CHE_EDITOR_YAML_PATH);
           if (cheEditor) {
-            optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
+            optionalFilesContent[CHE_EDITOR_YAML_PATH] = cheEditor;
           }
         }
         if (!data.devfile) {

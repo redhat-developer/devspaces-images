@@ -40,6 +40,7 @@
 | [`@bcoe/v8-coverage@0.2.3`](git://github.com/demurgos/v8-coverage.git) | MIT | clearlydefined |
 | [`@cnakazawa/watch@1.0.4`](git://github.com/mikeal/watch.git) | Apache-2.0 | clearlydefined |
 | [`@csstools/selector-specificity@2.0.2`](https://github.com/csstools/postcss-plugins.git) | CC0-1.0 | clearlydefined |
+| [`@devfile/api@2.2.0-alpha-1646855991`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | [`@discoveryjs/json-ext@0.5.7`](https://github.com/discoveryjs/json-ext.git) | MIT | clearlydefined |
 | [`@eslint/eslintrc@0.4.3`](https://github.com/eslint/eslintrc.git) | MIT | clearlydefined |
 | [`@gar/promisify@1.1.3`](https://github.com/wraithgar/gar-promisify.git) | MIT | clearlydefined |
@@ -284,7 +285,6 @@
 | [`anymatch@3.1.2`](https://github.com/micromatch/anymatch) | ISC | #5050 |
 | [`aproba@2.0.0`](https://github.com/iarna/aproba) | ISC | clearlydefined |
 | [`are-we-there-yet@3.0.0`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
-| [`argparse@1.0.10`](https://github.com/nodeca/argparse.git) | MIT | #2174 |
 | [`aria-query@4.2.2`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
 | [`arr-diff@4.0.0`](https://github.com/jonschlinkert/arr-diff.git) | MIT | clearlydefined |
 | [`arr-flatten@1.1.0`](https://github.com/jonschlinkert/arr-flatten.git) | MIT | clearlydefined |
@@ -559,7 +559,7 @@
 | [`ini@1.3.8`](git://github.com/isaacs/ini.git) | ISC | [CQ23023](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23023) |
 | [`init-package-json@2.0.5`](https://github.com/npm/init-package-json.git) | ISC | clearlydefined |
 | [`inquirer@7.3.3`](https://github.com/SBoudrias/Inquirer.js.git) | MIT | clearlydefined |
-| [`internal-slot@1.0.3`](git+https://github.com/ljharb/internal-slot.git) | MIT | clearlydefined |
+| [`internal-slot@1.0.3`](git+https://github.com/ljharb/internal-slot.git) | MIT | #7118 |
 | [`interpret@2.2.0`](https://github.com/gulpjs/interpret.git) | MIT | clearlydefined |
 | [`ip@1.1.5`](http://github.com/indutny/node-ip.git) | MIT | #126 |
 | [`ipaddr.js@2.0.1`](git://github.com/whitequark/ipaddr.js) | MIT | clearlydefined |
@@ -633,7 +633,6 @@
 | [`jest-websocket-mock@2.4.0`](git+https://github.com/romgain/jest-websocket-mock.git) | MIT | clearlydefined |
 | [`jest-worker@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`jest@26.6.3`](https://github.com/facebook/jest) | MIT | clearlydefined |
-| [`js-yaml@3.14.1`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsdom@16.7.0`](https://github.com/jsdom/jsdom.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsdom/16.7.0) |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
 | [`json-parse-even-better-errors@2.3.1`](https://github.com/npm/json-parse-even-better-errors) | MIT | clearlydefined |
@@ -737,7 +736,7 @@
 | [`obuf@1.1.2`](git@github.com:indutny/offset-buffer) | MIT | clearlydefined |
 | [`on-finished@2.4.1`](https://github.com/jshttp/on-finished.git) | MIT | clearlydefined |
 | [`on-headers@1.0.2`](https://github.com/jshttp/on-headers.git) | MIT | clearlydefined |
-| [`open@8.4.0`](https://github.com/sindresorhus/open.git) | MIT | clearlydefined |
+| [`open@8.4.0`](https://github.com/sindresorhus/open.git) | MIT | #7102 |
 | [`optionator@0.9.1`](git://github.com/gkz/optionator.git) | MIT | clearlydefined |
 | [`p-each-series@2.2.0`](https://github.com/sindresorhus/p-each-series.git) | MIT | clearlydefined |
 | [`p-finally@1.0.0`](https://github.com/sindresorhus/p-finally.git) | MIT | clearlydefined |

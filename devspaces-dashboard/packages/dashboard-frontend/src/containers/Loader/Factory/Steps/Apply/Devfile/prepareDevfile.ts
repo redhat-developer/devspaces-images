@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { safeDump, safeLoad } from 'js-yaml';
+import { dump, load } from 'js-yaml';
 import { cloneDeep } from 'lodash';
 import devfileApi from '../../../../../../services/devfileApi';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../../services/devfileApi/devWorkspace/spec/template';
@@ -43,13 +43,13 @@ export function prepareDevfile(
   }
   const dwMetadataAnnotations = devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION];
   const devfileSourceYaml = dwMetadataAnnotations[DEVWORKSPACE_DEVFILE_SOURCE];
-  let devfileSource = devfileSourceYaml ? safeLoad(devfileSourceYaml) : {};
+  let devfileSource = devfileSourceYaml ? load(devfileSourceYaml) : {};
   if (typeof devfileSource !== 'object') {
     devfileSource = {};
   }
   (devfileSource as FactorySource).factory = { params: factoryId };
   devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
-    safeDump(devfileSource);
+    dump(devfileSource);
 
   // update `metadata.name` in accordance to the policy
   if (devfile.metadata.generateName) {
