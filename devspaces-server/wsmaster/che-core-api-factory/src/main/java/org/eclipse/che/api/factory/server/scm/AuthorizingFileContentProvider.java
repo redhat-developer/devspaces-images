@@ -11,10 +11,14 @@
  */
 package org.eclipse.che.api.factory.server.scm;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.che.api.factory.server.scm.PersonalAccessTokenFetcher.OAUTH_2_PREFIX;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Base64;
 import javax.net.ssl.SSLException;
 import org.eclipse.che.api.factory.server.scm.exception.ScmCommunicationException;
 import org.eclipse.che.api.factory.server.scm.exception.ScmConfigurationPersistenceException;
@@ -25,6 +29,7 @@ import org.eclipse.che.api.factory.server.urlfactory.RemoteFactoryUrl;
 import org.eclipse.che.api.workspace.server.devfile.FileContentProvider;
 import org.eclipse.che.api.workspace.server.devfile.URLFetcher;
 import org.eclipse.che.api.workspace.server.devfile.exception.DevfileException;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Common implementation of file content provider which is able to access content of private
@@ -48,16 +53,23 @@ public class AuthorizingFileContentProvider<T extends RemoteFactoryUrl>
 
   @Override
   public String fetchContent(String fileURL) throws IOException, DevfileException {
-    return fetchContent(fileURL, false);
+    return fetchContent(fileURL, false, null);
+  }
+
+  @Override
+  public String fetchContent(String fileURL, String credentials)
+      throws IOException, DevfileException {
+    return fetchContent(fileURL, false, credentials);
   }
 
   @Override
   public String fetchContentWithoutAuthentication(String fileURL)
       throws IOException, DevfileException {
-    return fetchContent(fileURL, true);
+    return fetchContent(fileURL, true, null);
   }
 
-  protected String fetchContent(String fileURL, boolean skipAuthentication)
+  private String fetchContent(
+      String fileURL, boolean skipAuthentication, @Nullable String credentials)
       throws IOException, DevfileException {
     final String requestURL = formatUrl(fileURL);
     try {
@@ -65,9 +77,19 @@ public class AuthorizingFileContentProvider<T extends RemoteFactoryUrl>
         return urlFetcher.fetch(requestURL);
       } else {
         // try to authenticate for the given URL
-        PersonalAccessToken token =
-            personalAccessTokenManager.getAndStore(remoteFactoryUrl.getHostName());
-        return urlFetcher.fetch(requestURL, formatAuthorization(token.getToken()));
+        String authorization;
+        if (isNullOrEmpty(credentials)) {
+          PersonalAccessToken token =
+              personalAccessTokenManager.getAndStore(remoteFactoryUrl.getHostName());
+          authorization =
+              formatAuthorization(
+                  token.getToken(),
+                  token.getScmTokenName() == null
+                      || !token.getScmTokenName().startsWith(OAUTH_2_PREFIX));
+        } else {
+          authorization = getCredentialsAuthorization(credentials);
+        }
+        return urlFetcher.fetch(requestURL, authorization);
       }
     } catch (UnknownScmProviderException e) {
       return fetchContentWithoutToken(requestURL, e);
@@ -140,7 +162,18 @@ public class AuthorizingFileContentProvider<T extends RemoteFactoryUrl>
     return requestURL;
   }
 
-  protected String formatAuthorization(String token) {
+  /**
+   * Formats authorization header value.
+   *
+   * @param token personal access token
+   * @param isPAT true if token is personal access token, false if it is OAuth token
+   * @return formatted authorization header value
+   */
+  protected String formatAuthorization(String token, boolean isPAT) {
     return "Bearer " + token;
+  }
+
+  private String getCredentialsAuthorization(String credentials) {
+    return "Basic " + new String(Base64.getEncoder().encode(credentials.getBytes()));
   }
 }

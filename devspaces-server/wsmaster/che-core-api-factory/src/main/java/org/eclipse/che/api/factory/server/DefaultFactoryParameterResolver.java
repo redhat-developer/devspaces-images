@@ -59,6 +59,13 @@ public class DefaultFactoryParameterResolver implements FactoryParametersResolve
     this.urlFetcher = urlFetcher;
   }
 
+  /**
+   * Check if this resolver can be used with the given parameters.
+   *
+   * @param factoryParameters map of parameters dedicated to factories
+   * @return true if it will be accepted by the resolver implementation or false if it is not
+   *     accepted
+   */
   @Override
   public boolean accept(Map<String, String> factoryParameters) {
     String url = factoryParameters.get(URL_PARAMETER_NAME);
@@ -88,7 +95,9 @@ public class DefaultFactoryParameterResolver implements FactoryParametersResolve
     }
     return urlFactoryBuilder
         .createFactoryFromDevfile(
-            new DefaultFactoryUrl().withDevfileFileLocation(devfileLocation),
+            new DefaultFactoryUrl()
+                .withDevfileFileLocation(devfileLocation)
+                .withUrl(devfileLocation),
             new URLFileContentProvider(devfileURI, urlFetcher),
             extractOverrideParams(factoryParameters),
             false)
