@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://registry.access.redhat.com/ubi8/python-38
-FROM registry.access.redhat.com/ubi8/python-38:1-117.1675807501 as builder
+FROM registry.access.redhat.com/ubi8/python-38:1-121 as builder
 #FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
 USER 0
 
