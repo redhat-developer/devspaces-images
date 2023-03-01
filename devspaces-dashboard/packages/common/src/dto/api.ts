@@ -12,7 +12,11 @@
 
 import { V220DevfileComponents } from '@devfile/api';
 
-export type GitOauthProvider = 'github' | 'gitlab' | 'bitbucket';
+export type GitOauthProvider =
+  | 'github'
+  | 'gitlab'
+  | 'bitbucket'
+  | 'azure-devops';
 
 export interface IPatch {
   op: string;

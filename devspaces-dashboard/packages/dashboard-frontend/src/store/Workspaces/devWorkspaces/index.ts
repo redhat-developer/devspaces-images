@@ -31,13 +31,17 @@ import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
+  EditorDefinition,
   IStatusUpdate,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
 import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
-import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
-import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
+import * as PluginsStore from '../../Plugins/devWorkspacePlugins';
+import {
+  selectDefaultEditor,
+  selectDwEditorsPluginsList,
+} from '../../Plugins/devWorkspacePlugins/selectors';
 import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 import * as DwServerConfigStore from '../../ServerConfig';
 import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
@@ -119,7 +123,7 @@ interface AddWorkspaceAction extends Action {
   workspace: devfileApi.DevWorkspace;
 }
 
-type KnownAction =
+export type KnownAction =
   | RequestDevWorkspacesAction
   | ReceiveErrorAction
   | ReceiveWorkspacesAction
@@ -590,56 +594,49 @@ export const actionCreators: ActionCreators = {
       attributes: { [key: string]: string },
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      let state = getState();
+      let editor: EditorDefinition | undefined;
 
-      // do we have an optional editor parameter ?
-      let cheEditor: string | undefined = attributes?.['che-editor'];
-      if (cheEditor) {
-        // if the editor is different than the current default one, need to load a specific one
-        if (cheEditor !== state.dwPlugins.defaultEditorName) {
-          console.log(
-            `User specified a different editor than the current default. Loading ${cheEditor} definition instead of ${state.dwPlugins.defaultEditorName}.`,
-          );
+      const urlEditorId = attributes?.['che-editor'];
+      const defaultEditorId = selectDefaultEditor(getState());
+      if (urlEditorId !== undefined) {
+        // fetch editor if needed
+        if (urlEditorId !== defaultEditorId) {
           await dispatch(
-            DwPluginsStore.actionCreators.requestDwEditor(
-              state.workspacesSettings.settings,
-              cheEditor,
+            PluginsStore.actionCreators.requestDwEditor(
+              getState().workspacesSettings.settings,
+              urlEditorId,
             ),
           );
         }
-      } else {
-        // take the default editor name
-        console.log(`Using default editor ${state.dwPlugins.defaultEditorName}`);
-        cheEditor = state.dwPlugins.defaultEditorName;
+
+        editor = {
+          default: false,
+          id: urlEditorId,
+          plugins: selectDwEditorsPluginsList(urlEditorId)(getState()),
+        };
+      } else if (defaultEditorId !== undefined) {
+        editor = {
+          default: true,
+          id: defaultEditorId,
+          plugins: selectDwEditorsPluginsList(defaultEditorId)(getState()),
+        };
       }
 
-      if (state.dwPlugins.defaultEditorError) {
-        throw `Required sources failed when trying to create the workspace: ${state.dwPlugins.defaultEditorError}`;
-      }
-
-      // refresh state
-      state = getState();
       await dispatch({ type: 'REQUEST_DEVWORKSPACE', check: AUTHORIZED });
       try {
         // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
-        const defaultNamespace = selectDefaultNamespace(state);
-        const openVSXURL = selectOpenVSXUrl(state);
-        const dwEditorsList = selectDwEditorsPluginsList(cheEditor)(state);
+        const defaultNamespace = selectDefaultNamespace(getState());
+        const openVSXURL = selectOpenVSXUrl(getState());
         const workspace = await devWorkspaceClient.createFromDevfile(
           devWorkspaceDevfile,
           defaultNamespace.name,
-          dwEditorsList,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
           openVSXURL,
-          cheEditor,
           optionalFilesContent,
+          editor,
         );
-        if (workspace.spec.started) {
-          const defaultPlugins = getState().dwPlugins.defaultPlugins;
-          await devWorkspaceClient.onStart(workspace, defaultPlugins, cheEditor as string);
-        }
         dispatch({
           type: 'ADD_DEVWORKSPACE',
           workspace,

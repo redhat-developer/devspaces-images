@@ -52,6 +52,12 @@ import {
 } from './converters';
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 
+export type EditorDefinition = {
+  default: boolean;
+  id: string;
+  plugins: Array<{ devfile: devfileApi.Devfile; url?: string }>;
+};
+
 export interface IStatusUpdate {
   status: DevWorkspaceStatus;
   message: string;
@@ -331,12 +337,11 @@ export class DevWorkspaceClient extends WorkspaceClient {
   async createFromDevfile(
     devfile: devfileApi.Devfile,
     defaultNamespace: string,
-    dwEditorsPlugins: { devfile: devfileApi.Devfile; url: string }[],
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     openVSXUrl: string | undefined,
-    editorId: string | undefined,
     optionalFilesContent: { [fileName: string]: string },
+    editor: EditorDefinition | undefined,
   ): Promise<devfileApi.DevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
@@ -354,9 +359,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
       new Date().toISOString();
 
-    if (editorId) {
-      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
-    }
     devworkspace.spec.started = false;
 
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
@@ -370,13 +372,20 @@ export class DevWorkspaceClient extends WorkspaceClient {
       : undefined;
     const devfileGroupVersion = `${devWorkspaceApiGroup}/${devWorkspaceVersion}`;
     const devWorkspaceTemplates: devfileApi.DevWorkspaceTemplateLike[] = [];
+
     // do we have a custom editor specified in the repository ?
     const cheEditorYaml = optionalFilesContent['.che/che-editor.yaml']
       ? (safeLoad(optionalFilesContent['.che/che-editor.yaml']) as ICheEditorYaml)
       : undefined;
     const editorsDevfile: devfileApi.Devfile[] = [];
-    // handle inlined editor in the devfile
-    if (inlineEditorYaml) {
+
+    // handle editor in the URL
+    if (editor && editor.default === false) {
+      console.debug('Using editor from the URL', editor.id);
+      editorsDevfile.push(...editor.plugins.map(plugin => plugin.devfile));
+      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editor.id;
+    } else if (inlineEditorYaml) {
+      // handle inlined editor in the devfile
       console.debug('Using inline editor specified in the devfile', inlineEditorYaml);
       editorsDevfile.push(inlineEditorYaml);
     } else if (cheEditorYaml) {
@@ -442,9 +451,13 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
       // Use the repository defined editor
       editorsDevfile.push(repositoryEditorYaml);
-    } else {
-      editorsDevfile.push(...dwEditorsPlugins.map(entry => entry.devfile));
+    } else if (editor) {
+      // handle the default editor
+      console.debug('Using the default editor', editor.id);
+      editorsDevfile.push(...(editor.plugins.map(plugin => plugin.devfile) || []));
+      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editor.id;
     }
+
     for (const pluginDevfile of editorsDevfile) {
       if (!pluginDevfile || !pluginDevfile.metadata || !pluginDevfile.metadata.name) {
         throw new Error(
@@ -463,8 +476,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
       };
 
       const unmanagedEditors = ['che-code', 'idea', 'pycharm'];
-      dwEditorsPlugins.forEach(plugin => {
-        if (plugin.devfile === pluginDevfile && editorDWT.metadata) {
+      editor?.plugins.forEach(plugin => {
+        if (plugin.devfile === pluginDevfile && plugin.url && editorDWT.metadata) {
           const isUnmanaged = unmanagedEditors.some(e =>
             editorDWT.metadata?.name?.toLowerCase().includes(e),
           );

@@ -75,12 +75,11 @@ describe('DevWorkspace client, create', () => {
       await client.createFromDevfile(
         testDevfile,
         namespace,
-        [],
-        undefined,
         undefined,
         undefined,
         undefined,
         {},
+        undefined,
       );
 
       expect(spyCreateWorkspace).toBeCalledWith(
@@ -98,12 +97,15 @@ describe('DevWorkspace client, create', () => {
       await client.createFromDevfile(
         testDevfile,
         namespace,
-        [],
         undefined,
         undefined,
         undefined,
-        'eclipse/theia/next',
         {},
+        {
+          id: 'eclipse/theia/next',
+          default: false,
+          plugins: [],
+        },
       );
 
       expect(spyCreateWorkspace).toBeCalledWith(

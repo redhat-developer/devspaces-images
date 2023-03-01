@@ -330,18 +330,22 @@ export class FakeStoreBuilder {
   }
 
   public withDwPlugins(
-    plugins: {
-      [location: string]: {
-        plugin?: devfileApi.Devfile;
-        url: string;
-        error?: string;
+    options: {
+      plugins?: {
+        [location: string]: {
+          plugin?: devfileApi.Devfile;
+          url: string;
+          error?: string;
+        };
       };
+      defaultEditorName?: string;
+      defaultEditorError?: string;
     },
     isLoading = false,
-    defaultEditorError?: string,
   ) {
-    this.state.dwPlugins.defaultEditorError = defaultEditorError;
-    this.state.dwPlugins.plugins = Object.assign({}, plugins);
+    this.state.dwPlugins.defaultEditorError = options?.defaultEditorError;
+    this.state.dwPlugins.plugins = Object.assign({}, options?.plugins);
+    this.state.dwPlugins.defaultEditorName = options?.defaultEditorName;
     this.state.dwPlugins.isLoading = isLoading;
 
     return this;
