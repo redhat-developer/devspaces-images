@@ -107,7 +107,7 @@ popd
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                   def util = load "${WORKSPACE}/util2.groovy"
                   cleanWs()
 
@@ -538,27 +538,18 @@ echo "<<<############### df -h end of sync repos #################"
 ''', returnStatus: true)
         }
 
-      } // wrap
-    } // stage
-  } // node
-} // timeout
-
-// kick off dsc_3.y job if operator or metadata were synced above 
-node(nodeLabelAnyArch){ 
-  stage ("Build dsc on ${nodeLabelAnyArch}") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-    def util = load "${WORKSPACE}/util2.groovy"
-    withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
-      if (REPOS.contains("-operator-")) { 
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-        println "########################################################################################################"
-        println "##  Build dsc ${JOB_BRANCH}"
-        println "########################################################################################################"
-        echo "currentBuild.result = " + currentBuild.result
-        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-          if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
-            jobPath='/job/DS_CI/job/dsc_' + JOB_BRANCH
-            final jobResult = build(
+        // kick off dsc_3.y job if operator or metadata were synced above 
+        if (REPOS.contains("-operator-")) { 
+          withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            println "########################################################################################################"
+            println "##  Build dsc ${JOB_BRANCH}"
+            println "########################################################################################################"
+            echo "currentBuild.result = " + currentBuild.result
+            if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+              if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
+                jobPath='/job/DS_CI/job/dsc_' + JOB_BRANCH
+                final jobResult = build(
                   job: jobPath.replaceAll("/job/","/"),
                   wait: false,
                   propagate: false,
@@ -594,36 +585,38 @@ node(nodeLabelAnyArch){
                       value: CLEAN_ON_FAILURE
                     ]
                   ]
-            )
-            println("triggered build(" + jobPath + ") [no wait]")
-            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-            currentBuild.description+=" <a href=${jobPath}/>" + jobPath + "</a> triggered; " 
-          } else {
-            println "No changes upstream, nothing to rebuild in dsc!"
-            currentBuild.description+=" no dsc build; "
-            currentBuild.result = 'UNSTABLE'
-          }
-        } else {
-          util.notifyBuildFailed()
-        } // if
-      } // if operator
-      if (comments_url_UDI?.trim()) {
-        // special case for UDI because it doesn't use template_3.x job
-        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
-      } else if (util.globalVar({comments_url})?.trim()) {
-        // comment on the PR with this job's build description
-        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-      }
-    } // with
-    cleanWs(
-        cleanWhenSuccess: true,
-        cleanWhenUnstable: true,
-        cleanWhenNotBuilt: false,
-        cleanWhenFailure: CLEAN_ON_FAILURE,
-        cleanWhenAborted: true,
-        deleteDirs: true,
-        disableDeferredWipeout: true,
-        notFailBuild: true
-    )
-  } // stage
-} //node
+                )
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+=" <a href=${jobPath}/>" + jobPath + "</a> triggered; " 
+              } else {
+                println "No changes upstream, nothing to rebuild in dsc!"
+                currentBuild.description+=" no dsc build; "
+                currentBuild.result = 'UNSTABLE'
+              } // if trigger
+            } else {
+              util.notifyBuildFailed()
+            } // if
+            if (comments_url_UDI?.trim()) {
+              // special case for UDI because it doesn't use template_3.x job
+              println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
+            } else if (util.globalVar({comments_url})?.trim()) {
+              // comment on the PR with this job's build description
+              println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+            }
+          } // with 
+        } // if operator or bundle
+      } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } // stage
+  } // node
+} // timeout
