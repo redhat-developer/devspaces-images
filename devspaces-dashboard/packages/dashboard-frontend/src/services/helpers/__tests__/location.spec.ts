@@ -26,7 +26,7 @@ describe('location/sanitizeLocation', () => {
 
   it('should return sanitized value of location.search', () => {
     const search =
-      '?url=https%3A%2F%2Fgithub.com%2Ftest-samples&state=9284564475&session_state=45645654567&code=9844646765&storageType=persistent';
+      '?url=https%3A%2F%2Fgithub.com%2Ftest-samples&state=9284564475&session=98765&session_state=45645654567&code=9844646765&storageType=persistent';
     const pathname = '/f';
 
     const newLocation = sanitizeLocation({ search, pathname } as Location);

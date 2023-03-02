@@ -12,6 +12,7 @@
 
 import { PROPAGATE_FACTORY_ATTRS, REMOTES_ATTR } from '../containers/Loader/const';
 import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
+import { sanitizeLocation } from '../services/helpers/location';
 
 (function acceptNewFactoryLink(): void {
   if (window.location.pathname.startsWith('/dashboard/')) {
@@ -47,7 +48,7 @@ export function storePathIfNeeded(path: string) {
 }
 
 export function buildFactoryLoaderPath(url: string, appendUrl = true): string {
-  const fullUrl = new window.URL(url);
+  const fullUrl = sanitizeLocation<URL>(new window.URL(url));
 
   const initParams = PROPAGATE_FACTORY_ATTRS.map(paramName => {
     const paramValue = extractUrlParam(fullUrl, paramName);

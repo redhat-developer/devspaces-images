@@ -18,6 +18,7 @@ import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
 import * as FactoryResolverStore from '../../../../store/FactoryResolver';
 import { GitRepoLocationInput } from './GitRepoLocationInput';
 import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
+import { sanitizeLocation } from '../../../../services/helpers/location';
 
 type Props = MappedProps & {
   onDevfileResolve: (resolverState: FactoryResolverStore.ResolverState, location: string) => void;
@@ -44,9 +45,9 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
   }
 
   private async handleLocationChange(location: string): Promise<void> {
-    const factoryUrl = `${window.location.origin}/#${location}`;
+    const factoryUrl = sanitizeLocation<URL>(new window.URL(location));
     // open a new page to handle that
-    window.open(factoryUrl, '_blank');
+    window.open(`${window.location.origin}/#${factoryUrl.toString()}`, '_blank');
   }
 
   public render(): React.ReactNode {

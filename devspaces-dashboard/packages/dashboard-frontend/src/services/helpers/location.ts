@@ -98,11 +98,14 @@ export function toHref(history: History, location: Location): string {
   return history.createHref(location);
 }
 
-const oauthParams = ['state', 'session_state', 'code'];
+const oauthParams = ['state', 'session', 'session_state', 'code'];
 /**
  * Removes oauth params.
  */
-export function sanitizeLocation(location: Location, removeParams: string[] = []): Location {
+export function sanitizeLocation<T extends { search: string; pathname: string } = Location>(
+  location: T,
+  removeParams: string[] = [],
+): T {
   const toRemove = [...oauthParams, ...removeParams];
   // clear search params
   if (location.search) {
