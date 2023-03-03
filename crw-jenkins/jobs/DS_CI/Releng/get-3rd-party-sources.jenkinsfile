@@ -5,6 +5,7 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH
 // CSV_VERSION
+// PUBLISH = true
 
 def buildNode = "x86_64-rhel8-dyn"
 timeout(240) {
@@ -22,15 +23,18 @@ timeout(240) {
 
           currentBuild.description="Collecting sources for " + CSV_VERSION + " ..."
           util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "devspaces", MIDSTM_BRANCH, false)
-
-          sh '''#!/bin/bash -xe
+          sh('''#!/bin/bash -e
 # TODO CRW-1919 remove this when we no longer need it 
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 
-# generate source files and --publish
-cd ${WORKSPACE}/devspaces/product/manifest/ && ./get-3rd-party-sources.sh --clean -b ''' + MIDSTM_BRANCH + ''' -v ''' + CSV_VERSION + ''' ''' + PUBLISH_ARTIFACTS + '''
-'''
-          currentBuild.description="Sources collected for " + CSV_VERSION + (PUBLISH_ARTIFACTS.equals("--publish") ? "; pushed to spmm-util" : "")
+cd ${WORKSPACE}/devspaces/product/manifest/
+
+set -x
+# generate sources and publish
+./get-3rd-party-sources.sh --clean -b ''' + MIDSTM_BRANCH + ''' -v ''' + CSV_VERSION + 
+  (PUBLISH ? " --publish --desthost "+util.getStagingHost() : "") + '''
+''')
+          currentBuild.description="Sources collected for " + CSV_VERSION + (PUBLISH ? "; pushed to spmm-util" : "")
         } // with
       } // wrap
     } // stage

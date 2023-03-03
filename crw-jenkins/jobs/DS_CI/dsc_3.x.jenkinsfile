@@ -41,14 +41,6 @@ timeout(90) {
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
           DSC_VERSION = util.globalVar({DSC_VERSION})?.trim() ? util.globalVar({DSC_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
 
-          // for push to rcm-guest, set DESTHOST
-          DESTHOST=""
-          if (versionSuffix.equals("GA")) {
-            currentBuild.description+=" ssh mount Rcm Guest ..."
-            // ssh mount the rcm-guest drive
-            DESTHOST=util.sshMountRcmGuest()
-          }
-
           currentBuild.description="Building with Node " + nodeVersion + "..."
           sh('''#!/bin/bash -e
 # default node version
@@ -61,11 +53,16 @@ echo "Yarn: $(yarn --version) ( $(which yarn) )"
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
 cd ${WORKSPACE}/devspaces-chectl
+
+# TODO CRW-1919 remove this when we no longer need it
+export KRB5CCNAME=/var/tmp/devspaces-build_ccache
+
 set -x
-./build/scripts/build.sh --gh -v ''' + DSC_VERSION + ''' --crw-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
+# generate binaries and sources and publish
+./build/scripts/build.sh --gh -v ''' + DSC_VERSION + ''' --ds-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/devspaces-images ''' +
-  (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") +
-  (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
+  (versionSuffix.equals("GA") ? " --publish --desthost " + util.getStagingHost() : "") +
+  (versionSuffix.equals("") ? "" : " --suffix "+versionSuffix)
           )
 
           if (versionSuffix.equals("GA")){
@@ -79,7 +76,7 @@ set -x
               "assets>" + DSC_VERSION + " CI</a>"
           }
           if (versionSuffix.equals("GA")) {
-            currentBuild.description += "; published to RCM"
+            currentBuild.description += "; published to spmm-util"
           }
         } catch (e) {
           // If there was an exception thrown, the build failed

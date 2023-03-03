@@ -66,9 +66,8 @@ Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/r
     If the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
     <p><pre>
         kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
-        ssh devspaces-build@rcm-guest.hosts.prod.psi.bos.redhat.com
-
-        [devspaces-build@rcm-guest ~]$ /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release devspaces-3.yy.z
+        REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z"
         Staged devspaces-3.yy.z in 0:04:30.158899
     </pre></p>
 </blockquote></p>
@@ -112,7 +111,7 @@ if unset, version is DS_VERSION-YYYYmmdd-commitSHA<br/>
 :: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a<br/>
 <br/>
 * push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
-* for GA suffix, push to RCM automatically (and copy to Github)
+* for GA suffix, push to spmm-util automatically (and copy to Github)
 ''')
                 stringParam("nodeVersion", config."Management-Jobs".dsc[JB].node_version, "Node version required to build dsc")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")

@@ -53,7 +53,7 @@ Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they ca
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
             stringParam("CSV_VERSION", config.CSVs."operator-bundle"[JOB_BRANCH].CSV_VERSION)
-            stringParam("PUBLISH_ARTIFACTS", "--publish", "by default, rsync source tarballs to spmm-util and trigger staging; remove flag to only generate sources but not publish them")
+            booleanParam("PUBLISH", true, "if true, rsync source tarballs to spmm-util and trigger staging")
         }
 
         definition {
