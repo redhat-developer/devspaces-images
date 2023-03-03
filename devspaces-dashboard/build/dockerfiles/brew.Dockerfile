@@ -56,6 +56,7 @@ COPY build/dockerfiles/rhel.entrypoint.sh /usr/local/bin
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 
 ## Append Brew metadata
+
 ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \
     PRODNAME="devspaces" \
