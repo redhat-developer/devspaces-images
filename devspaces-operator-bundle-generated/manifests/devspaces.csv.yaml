@@ -888,9 +888,9 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:25d041c2463a00fb9926b980cbd3ee1782ba677216554ea2ac9c09ea2c12f101
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:36b1c8979f37aedcadd368cc33c449b549d07f4a500aaaaa8c575212f996b85b
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:11bce84e033cf69487529a4ca6260549d682dae18a2fe3b37141988088493cb0
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:9db880865cb63faaeb1d026ec2989dce3ab3305aa62b5f648ba4c2e5ab184e4c
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:b8842a9c6496ce18a995ac27a19dbf2855a5c1a652fbb4d0cda6e2282789cffe
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:1ccc079b5a1e6c35cd4a19a89b2be762df7ab8343b86b04b184ff206668ed0fd
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDMCQ_
@@ -1285,9 +1285,9 @@ spec:
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:25d041c2463a00fb9926b980cbd3ee1782ba677216554ea2ac9c09ea2c12f101
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:36b1c8979f37aedcadd368cc33c449b549d07f4a500aaaaa8c575212f996b85b
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:11bce84e033cf69487529a4ca6260549d682dae18a2fe3b37141988088493cb0
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:9db880865cb63faaeb1d026ec2989dce3ab3305aa62b5f648ba4c2e5ab184e4c
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:b8842a9c6496ce18a995ac27a19dbf2855a5c1a652fbb4d0cda6e2282789cffe
   - name: devspaces_code_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:1ccc079b5a1e6c35cd4a19a89b2be762df7ab8343b86b04b184ff206668ed0fd
   - name: devspaces_code_plugin_registry_image_gmxdmcq_
