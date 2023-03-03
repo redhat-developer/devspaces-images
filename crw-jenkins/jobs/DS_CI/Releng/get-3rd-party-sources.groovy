@@ -25,14 +25,13 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
         description('''
-Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can be published as part of a GA release. 
+Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they can be published as part of a GA release. 
 <p><blockquote>
-    If the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
+    If the <b>stage-mw-release</b> command fails or was omitted, you can re-run it locally without having to re-run this whole job:
     <p><pre>
         kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
-        ssh devspaces-build@rcm-guest.hosts.prod.psi.bos.redhat.com
-
-        [devspaces-build@rcm-guest ~]$ /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release devspaces-3.yy.z
+        REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z"
         Staged devspaces-3.yy.z in 0:04:30.158899
     </pre></p>
 </blockquote></p>
@@ -53,7 +52,8 @@ Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can
 
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
-            booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")
+            stringParam("CSV_VERSION", config.CSVs."operator-bundle"[JOB_BRANCH].CSV_VERSION)
+            stringParam("PUBLISH_ARTIFACTS", "--publish", "by default, rsync source tarballs to spmm-util and trigger staging; remove flag to only generate sources but not publish them")
         }
 
         definition {
