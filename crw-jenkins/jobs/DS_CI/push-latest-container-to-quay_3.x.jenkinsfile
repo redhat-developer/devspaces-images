@@ -300,58 +300,58 @@ chmod +x updateGeneratedOperatorMetadata.sh
     -s ${WORKSPACE}/sources -d devspaces-operator-bundle-generated -c quay.io/devspaces/devspaces-operator-bundle
 ''')
                 currentBuild.description+="; bundle-generated updated"
-            }
-            def OCP_VERSIONS = sh(script: '''
+                def OCP_VERSIONS = sh(script: '''
 curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
     | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "
 ''', returnStdout: true).trim()
-            println "####################################################################################################################"
-            println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
-            println "####################################################################################################################"
-            jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
-            // trigger copyIIBsToQuay job
-            final jobResult = build(
-                job: jobPath.replaceAll("/job/","/"),
-                wait: false,
-                propagate: false,
-                quietPeriod: 0,
-                parameters: [
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'comments_url',
-                        value: util.globalVar({comments_url})
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'token',
-                        value: "CI_BUILD"
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'cause',
-                        value: "filter+and+copy+IIBs+to+quay"
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'MIDSTM_BRANCH',
-                        value: MIDSTM_BRANCH
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'DS_VERSION',
-                        value: DS_VERSION
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'OCP_VERSIONS',
-                        value: OCP_VERSIONS
+                println "####################################################################################################################"
+                println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
+                println "####################################################################################################################"
+                jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
+                // trigger copyIIBsToQuay job
+                final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: false,
+                    propagate: false,
+                    quietPeriod: 0,
+                    parameters: [
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'comments_url',
+                            value: util.globalVar({comments_url})
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'token',
+                            value: "CI_BUILD"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'cause',
+                            value: "filter+and+copy+IIBs+to+quay"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'MIDSTM_BRANCH',
+                            value: MIDSTM_BRANCH
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'DS_VERSION',
+                            value: DS_VERSION
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'OCP_VERSIONS',
+                            value: OCP_VERSIONS
 
+                        ]
                     ]
-                ]
-            )            
-            println("triggered build(" + jobPath + ") [no wait]")
-            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-            currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
+                )            
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
+            }
         } // if 
 
         // TODO when theia is dead, enable util.commentOnPullRequestBuildDescription block here
