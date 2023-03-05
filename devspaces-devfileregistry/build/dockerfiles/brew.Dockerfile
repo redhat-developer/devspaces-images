@@ -140,19 +140,3 @@ CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 # COPY --from=offline-builder /build/resources /var/www/html/resources
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat OpenShift Dev Spaces devfileregistry container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces devfileregistry container" \
-    PRODNAME="devspaces" \
-    COMPNAME="devfileregistry-rhel8"
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="3.6" \
-      license="EPLv2" \
-      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""

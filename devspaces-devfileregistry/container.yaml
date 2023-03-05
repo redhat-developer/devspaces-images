@@ -1,9 +1,8 @@
 ---
 platforms:
   # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
-
   only:
-  - x86_64   # can be a list (as here) or a string (as below)
+  - x86_64
   - s390x
   - ppc64le
 
@@ -14,3 +13,72 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+remote_sources:
+
+# include pip requirements (yq) so they can be resolved by Cachito and installed via Dockerfile
+- name: python-deps
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: 1034d1d5c1cee536528926dbcb99d24025bed02a
+    pkg_managers:
+      - pip
+    packages: {"pip": [{"path": "devspaces-devfileregistry/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
+
+# build https://www.npmjs.com/package/@eclipse-che/plugin-registry-generator from source
+# TODO make sure we get the latest ref for the correct branch 
+- name: plugin-registry-generator
+  remote_source:
+    repo: https://github.com/eclipse-che/che-plugin-registry.git
+    ref: 10beff025b30da1d97663d0aae155d31ce5902ef
+    pkg_managers:
+      - yarn
+    packages:
+      yarn:
+        - path: tools/build
+
+# append devspaces-sample project sources here
+- name: lombok-project-sample
+  remote_source:
+    repo: https://github.com/devspaces-samples/lombok-project-sample.git
+    ref: aeefc0f08394d65d9c2029b82385d8df3fab0a26
+
+- name: quarkus-quickstarts
+  remote_source:
+    repo: https://github.com/devspaces-samples/quarkus-quickstarts.git
+    ref: fd0b7dec303f4d44206669a334e1e696d6c8e553
+
+- name: nodejs-mongodb-sample
+  remote_source:
+    repo: https://github.com/devspaces-samples/nodejs-mongodb-sample.git
+    ref: 6ac26f24a20892b7923c12f150751df7281ed0ab
+
+- name: web-nodejs-sample
+  remote_source:
+    repo: https://github.com/devspaces-samples/web-nodejs-sample.git
+    ref: 9af9228bdab7354a73673d43fbe4e4cf8822e785
+
+- name: python-hello-world
+  remote_source:
+    repo: https://github.com/devspaces-samples/python-hello-world.git
+    ref: 98ca3f8d9c44c666b915d008a2b87c285d14c4c7
+
+- name: c-plus-plus
+  remote_source:
+    repo: https://github.com/devspaces-samples/c-plus-plus.git
+    ref: b514440e60045e347671f35e672f1ec97b1afe69
+
+- name: dotnet-web-simple
+  remote_source:
+    repo: https://github.com/devspaces-samples/dotnet-web-simple.git
+    ref: 57104e5757a5301cd552e74058d858c7aeef8dcc
+
+- name: golang-health-check
+  remote_source:
+    repo: https://github.com/devspaces-samples/golang-health-check.git
+    ref: 52d9ae37fd7ca34caf7cf626ef126d66d9cef407
+
+- name: php-hello-world
+  remote_source:
+    repo: https://github.com/devspaces-samples/php-hello-world.git
+    ref: dcad8d690cd86fb7ae057de7b492a75a1131cbb7
+

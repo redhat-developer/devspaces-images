@@ -70,34 +70,11 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	echo "<======= END BOOTSTRAP BUILD ======="
 	rm VERSION
 	# update tarballs - step 2 - check old sources' tarballs
-	TARGZs="root-local.tgz resources.tgz"
+	TARGZs="resources.tgz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 	rhpkg sources || true
 
 	# update tarballs - step 3 - create new tarballs
-	# NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
-	tmpDir="$(mktemp -d)"
-	${BUILDER} run --rm -v \
-		${tmpDir}/:/tmp/root-local/ ${tmpContainer} /bin/bash \
-		-c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
-	MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
-	# check diff
-	if [[ -f root-local.tgz ]]; then 
-		BEFORE_DIR="$(mktemp -d)"
-		tar xzf root-local.tgz -C ${BEFORE_DIR}
-		TAR_DIFF=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "*.pyc" -x "installed-files.txt") || true
-		sudo rm -fr ${BEFORE_DIR}
-	else
-		TAR_DIFF="No such file root-local.tgz -- could not fetch from 'rhpkg sources'"
-	fi
-	if [[ ${TAR_DIFF} ]]; then
-		echo "DIFF START *****"
-		echo "${TAR_DIFF}"
-		echo "***** END DIFF"
-		pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz .
-	fi
-	sudo rm -fr ${tmpDir}
-
 	# check if existing resources.tgz is different 
 	tmpDir=$(mktemp -d)
 	${BUILDER} run --rm -v ${tmpDir}/:/tmp/resources/ --entrypoint /bin/bash ${tmpContainer} -c \

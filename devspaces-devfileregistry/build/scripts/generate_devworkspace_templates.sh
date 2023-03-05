@@ -14,18 +14,17 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # shellcheck disable=SC1091
 source "${script_dir}/clone_and_zip.sh"
-if [[ -f VERSION ]]; then 
-  VERSION=$(cat VERSION)
-elif [[ -f ../VERSION ]]; then 
-  VERSION=$(cat ../VERSION)
-elif [[ -f ../../VERSION ]]; then 
-  VERSION=$(cat ../../VERSION)
+jobconfigjson=$(find . -name "job-config.json")
+if [[ -f ${jobconfigjson} ]]; then 
+  VERSION=$(yq -r '.Version' "$jobconfigjson")
 else
   VERSION="$1"
 fi
 if [[ -z $VERSION ]]; then 
-  echo "Error: could not find VERSION, ../VERSION, or ../../VERSION file; set version on commandline, eg., $0 3.y"
+  echo "Error: could not find job-config.json, ../job-config.json, or ../../job-config.json file; set version on commandline, eg., $0 3.y"
   exit 1
+else
+  echo "Generating devworkspace templates for DS $VERSION ... "
 fi
 
 arch="$(uname -m)"
@@ -70,6 +69,11 @@ do
     --output-file:"${dir}"/devworkspace-che-idea-latest.yaml \
     --project."${project}"
 
-    clone_and_zip "${devfile_repo}" "${devfile_url##*/}" "$(pwd)/resources/v2/$name.zip"
+    echo "[generate_devworkspace-templates.sh] Checking $REMOTE_SOURCES_DIR/$name/app ... "
+    if [[ -d "$REMOTE_SOURCES_DIR/$name/app/" ]]; then # reuse cachito sources 
+      clone_and_zip "${devfile_repo}" "${devfile_url##*/}" "$(pwd)/resources/v2/$name.zip" "" "$REMOTE_SOURCES_DIR/$name/app/"
+    else
+      clone_and_zip "${devfile_repo}" "${devfile_url##*/}" "$(pwd)/resources/v2/$name.zip" ""
+    fi
   fi
 done
