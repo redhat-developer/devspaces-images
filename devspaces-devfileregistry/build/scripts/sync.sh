@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021-22 Red Hat, Inc.
+# Copyright (c) 2021-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -46,6 +46,35 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift 1
 done
+
+# to support cachito for sample project sources, generate updates to container.yaml
+updateContainerYaml() {
+# 1. trim everything after the insertion point
+sed -i '/append devspaces-sample project sources here/q' "${TARGETDIR}"/container.yaml 
+
+# 2. insert a remote_source for each devspaces-samples github project 
+REPOS=$(cat "${TARGETDIR}"/devfiles/*/meta.yaml | yq -r '.links.v2')
+for repo_and_branch in $REPOS; do
+  # get repo URL
+  repo=${repo_and_branch%%/tree/*}
+  # get repo name
+  repo_name=${repo##*/}
+  # get branch; convert branch into SHA
+  branch=${repo_and_branch##*/tree/}
+  tmp_clone_dir="REMOTE_SOURCES_DIR/$repo_name/app/"; mkdir -p "$tmp_clone_dir"
+  git clone -q --depth 1 -b "$branch" "$repo" "$tmp_clone_dir"
+  pushd "$tmp_clone_dir" >/dev/null
+    ref=$(git rev-parse "origin/$branch")
+  popd >/dev/null
+  # rm -fr "$tmp_clone_dir"
+  echo " remote_source: $repo_name: $repo @ $branch ($ref)"
+  echo "- name: $repo_name
+  remote_source:
+    repo: ${repo}.git
+    ref: $ref
+" >> "${TARGETDIR}"/container.yaml
+done
+}
 
 if [ "${CSV_VERSION}" == "3.y.0" ]; then usage; fi
 
@@ -110,8 +139,6 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
-    `# Enable offline build - copy in built binaries` \
-    -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
     -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
     `# Comment out PATCHED_* args from build and disable update_devfile_patched_image_tags.sh` \
@@ -148,33 +175,8 @@ LABEL summary="\$SUMMARY" \\
 EOT
 echo "Converted Dockerfile"
 
-# header to reattach to yaml files after yq transform removes it
-COPYRIGHT="#
-#  Copyright (c) 2021 Red Hat, Inc.
-#    This program and the accompanying materials are made
-#    available under the terms of the Eclipse Public License 2.0
-#    which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-#  SPDX-License-Identifier: EPL-2.0
-#
-#  Contributors:
-#    Red Hat, Inc. - initial API and implementation
-"
-
-replaceField()
-{
-  theFile="$1"
-  updateName="$2"
-  updateVal="$3"
-  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
-  # shellcheck disable=SC2016 disable=SC2086
-  changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
-  echo "${COPYRIGHT}${changed}" > "${theFile}"
-}
+# add sample projects into container.yaml
+updateContainerYaml
 
 pushd "${TARGETDIR}" >/dev/null || exit 1
-
-# TODO transform che-theia references to DS theia references, including:
-# description, icon, attributes.version, attributes.title, attributes.repository
-
 popd >/dev/null || exit

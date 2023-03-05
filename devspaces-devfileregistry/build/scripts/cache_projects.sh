@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -10,10 +10,11 @@
 # Arguments
 #    $1 - devfiles directory
 #    $2 - resources directory, where project zips will be stored.
+#    $3 - optional cachito cache folder where projects are already cloned
 #
 # Only supports downloading projecst from GitHub.
 
-set -e
+set -ex
 
 # shellcheck disable=SC1091
 source ./clone_and_zip.sh
@@ -106,9 +107,14 @@ for devfile in "${devfiles[@]}"; do
     destination="${RESOURCES_DIR}/${devfile_name}-${project_name}-${branch}.zip"
     absolute_destination=$(realpath "$destination")
     # echo "    Caching project to $absolute_destination"
-    echo "    Caching project from $location/blob/${branch} to $destination"
-    clone_and_zip "$location" "$branch" "$absolute_destination" "$sparse_checkout_dir"
-
+    echo "[cache_projects.sh] Checking $REMOTE_SOURCES_DIR/$project_name/app ... "
+    if [[ -d "REMOTE_SOURCES_DIR/$project_name/app/" ]]; then
+      echo "    Caching project from REMOTE_SOURCES_DIR/$sparse_checkout_dir $location/blob/${branch} to $destination"
+      clone_and_zip "$location" "$branch" "$absolute_destination" "$sparse_checkout_dir" "REMOTE_SOURCES_DIR/$project_name/app/"
+    else
+      echo "    Caching project from $location/blob/${branch} to $destination"
+      clone_and_zip "$location" "$branch" "$absolute_destination" "$sparse_checkout_dir"
+    fi
     echo "    Updating devfile $devfile to point at cached project zip $destination"
     update_devfile "$devfile" "$project_name" "$destination"
   done
