@@ -1,0 +1,1184 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-121 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-121 AS builder
+STEP 2/23: USER 0
+--> 6208fab5788
+STEP 3/23: ARG BOOTSTRAP=true
+--> 4d6131207c3
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 1786e129ab4
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> ebf931d3922
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 3d3a2850c59
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 171eeb4f6d2
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 7744a92c8f8
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 286698b79db
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 399d25db419
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-46.module+el8.7.0+17824+66a0202b.x86_64                 
+  criu-3.15-3.module+el8.7.0+17824+66a0202b.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.9-1.module+el8.7.0+17824+66a0202b.x86_64                     
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-23.el8_7.1.x86_64                                         
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-3.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-41.0-1.el8.x86_64                                                  
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.7.0+17824+66a0202b.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.7.0+17824+66a0202b.x86_64                           
+  skopeo-2:1.9.4-0.1.module+el8.7.0+17824+66a0202b.x86_64                       
+  slirp4netns-1.2.0-2.module+el8.7.0+17824+66a0202b.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/aa/09/31d9eb047a46cf5680c4970f42bee931bd78aab4e3ded448406de4730f96/yq-3.1.1-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/2d/a6/0113a99d12fbf27aab5602b9a1b2783bc3a50a501ad13e9ec2b4d992f8c0/argcomplete-2.0.5-py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Installing collected packages: xmltodict, PyYAML, argcomplete, toml, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.5 toml-0.10.2 xmltodict-0.13.0 yq-3.1.1
+python: Python 3.8.13
+yq: yq 3.1.1
+jq: jq-1.6
+--> 4812b462f64
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> d58569c0045
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 81f884c3d93
+STEP 14/23: COPY ./VERSION /
+--> bb9bca5bf74
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 6359b589940
+STEP 16/23: WORKDIR /build/
+--> 6fd97419b75
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-c8bd5c0
+added 119 packages from 183 contributors and audited 119 packages in 11.838s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 1 high severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-theia-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-theia-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-theia-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-theia-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-theia-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-theia-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-theia-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-theia-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-theia-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 97c27df649d
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 26aa7618204
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.6 PASS - 3.6 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> abdb9fbfc5e
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 2fd38c5d10c
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 6c4f2bacd1e
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> b92d44b8602
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 21afd6fc6bd
+Successfully tagged localhost/devfileregistry:tmp
+21afd6fc6bd377f9ab674c9c07a29631ad243b1008dde4d38fabd18a9e626a60
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/bin/activate-global-python-argcomplete /tmp/tmp.83vjBwZIdy/bin/activate-global-python-argcomplete
+--- /tmp/tmp.KzYAO7E7dR/bin/activate-global-python-argcomplete	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/bin/activate-global-python-argcomplete	2023-03-05 04:45:13.426900645 -0500
+@@ -4,22 +4,36 @@
+ # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
+ # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+ 
+-'''
++"""
+ Activate the generic bash-completion script for the argcomplete module.
+-'''
++"""
+ 
+-import os, sys, argparse, argcomplete, shutil, fileinput
+-
+-parser = argparse.ArgumentParser(description=__doc__,
+-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+-
+-dest_opt = parser.add_argument("--dest", default="/etc/bash_completion.d",
+-                               help="Specify the bash completion modules directory to install into")
+-parser.add_argument("--user", help="Install into user directory (~/.bash_completion.d/)", action='store_true')
+-parser.add_argument("--no-defaults", dest="use_defaults", action="store_false", default=True,
+-                    help="When no matches are generated, do not fallback to readline\'s default completion")
+-parser.add_argument("--complete-arguments", nargs=argparse.REMAINDER,
+-                    help="arguments to call complete with; use of this option discards default options")
++import argparse
++import fileinput
++import os
++import shutil
++import sys
++
++import argcomplete
++
++parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++
++dest_opt = parser.add_argument(
++    "--dest", default="/etc/bash_completion.d", help="Specify the bash completion modules directory to install into"
++)
++parser.add_argument("--user", help="Install into user directory (~/.bash_completion.d/)", action="store_true")
++parser.add_argument(
++    "--no-defaults",
++    dest="use_defaults",
++    action="store_false",
++    default=True,
++    help="When no matches are generated, do not fallback to readline's default completion",
++)
++parser.add_argument(
++    "--complete-arguments",
++    nargs=argparse.REMAINDER,
++    help="arguments to call complete with; use of this option discards default options",
++)
+ argcomplete.autocomplete(parser)
+ args = parser.parse_args()
+ 
+@@ -30,27 +44,29 @@
+             os.mkdir(args.dest)
+         except Exception as e:
+             parser.error("Path {d} does not exist and could not be created: {e}".format(d=args.dest, e=e))
+-elif not os.path.exists(args.dest) and args.dest != '-':
+-    if sys.platform == 'darwin' and args.dest == dest_opt.default and os.path.exists("/usr/local" + dest_opt.default):
++elif not os.path.exists(args.dest) and args.dest != "-":
++    if sys.platform == "darwin" and args.dest == dest_opt.default and os.path.exists("/usr/local" + dest_opt.default):
+         args.dest = "/usr/local" + dest_opt.default
+     else:
+         parser.error("Path {d} does not exist".format(d=args.dest))
+ 
+-activator = os.path.join(os.path.dirname(argcomplete.__file__), 'bash_completion.d', 'python-argcomplete')
++activator = os.path.join(os.path.dirname(argcomplete.__file__), "bash_completion.d", "python-argcomplete")
+ 
+ if args.complete_arguments is None:
+-    complete_options = '-o default -o bashdefault' if args.use_defaults else '-o bashdefault'
++    complete_options = "-o default -o bashdefault" if args.use_defaults else "-o bashdefault"
+ else:
+     complete_options = " ".join(args.complete_arguments)
+ complete_call = "complete{} -D -F _python_argcomplete_global".format(" " + complete_options if complete_options else "")
++
++
+ def replaceCompleteCall(line):
+     if line.startswith("complete") and "_python_argcomplete_global" in line:
+-        return complete_call + ('\n' if line.endswith('\n') else '')
++        return complete_call + ("\n" if line.endswith("\n") else "")
+     else:
+         return line
+ 
+ 
+-if args.dest == '-':
++if args.dest == "-":
+     for line in open(activator):
+         sys.stdout.write(replaceCompleteCall(line))
+ else:
+@@ -72,6 +88,8 @@
+     except Exception as e:
+         err = str(e)
+         if args.dest == dest_opt.default:
+-            err += ("\nPlease try --user to install into a user directory, "
+-                    "or --dest to specify the bash completion modules directory")
++            err += (
++                "\nPlease try --user to install into a user directory, "
++                "or --dest to specify the bash completion modules directory"
++            )
+         parser.error(err)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/bin/python-argcomplete-check-easy-install-script /tmp/tmp.83vjBwZIdy/bin/python-argcomplete-check-easy-install-script
+--- /tmp/tmp.KzYAO7E7dR/bin/python-argcomplete-check-easy-install-script	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/bin/python-argcomplete-check-easy-install-script	2023-03-05 04:45:13.427900645 -0500
+@@ -3,7 +3,7 @@
+ # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
+ # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+ 
+-'''
++"""
+ This script is part of the Python argcomplete package (https://github.com/kislyuk/argcomplete).
+ It is used to check if an EASY-INSTALL-SCRIPT wrapper redirects to a script that contains the string
+ "PYTHON_ARGCOMPLETE_OK". If you have enabled global completion in argcomplete, the completion hook will run it every
+@@ -11,7 +11,7 @@
+ 
+ Usage:
+     python-argcomplete-check-easy-install-script <input executable file>
+-'''
++"""
+ 
+ import sys
+ 
+@@ -22,32 +22,40 @@
+ 
+ with open(sys.argv[1]) as fh:
+     line1, head = fh.read(1024).split("\n", 1)[:2]
+-    if line1.startswith('#') and ('py' in line1 or 'Py' in line1):
++    if line1.startswith("#") and ("py" in line1 or "Py" in line1):
+         import re
++
+         lines = head.split("\n", 12)
+         for line in lines:
+             if line.startswith("# EASY-INSTALL-SCRIPT"):
+                 import pkg_resources
++
+                 dist, script = re.match("# EASY-INSTALL-SCRIPT: '(.+)','(.+)'", line).groups()
+-                if "PYTHON_ARGCOMPLETE_OK" in pkg_resources.get_distribution(dist).get_metadata('scripts/' + script):
++                if "PYTHON_ARGCOMPLETE_OK" in pkg_resources.get_distribution(dist).get_metadata("scripts/" + script):
+                     exit(0)
+             elif line.startswith("# EASY-INSTALL-ENTRY-SCRIPT"):
+                 dist, group, name = re.match("# EASY-INSTALL-ENTRY-SCRIPT: '(.+)','(.+)','(.+)'", line).groups()
+-                import pkg_resources, pkgutil
++                import pkgutil
++
++                import pkg_resources
++
+                 module_name = pkg_resources.get_distribution(dist).get_entry_info(group, name).module_name
+                 with open(pkgutil.get_loader(module_name).get_filename()) as mod_fh:
+                     if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
+                         exit(0)
+             elif line.startswith("# EASY-INSTALL-DEV-SCRIPT"):
+                 for line2 in lines:
+-                    if line2.startswith('__file__'):
++                    if line2.startswith("__file__"):
+                         filename = re.match("__file__ = '(.+)'", line2).group(1)
+                         with open(filename) as mod_fh:
+                             if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
+                                 exit(0)
+             elif line.startswith("# PBR Generated"):
+                 module = re.search("from (.*) import", head).groups()[0]
+-                import pkg_resources, pkgutil
++                import pkgutil
++
++                import pkg_resources
++
+                 with open(pkgutil.get_loader(module).get_filename()) as mod_fh:
+                     if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
+                         exit(0)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/bin/register-python-argcomplete /tmp/tmp.83vjBwZIdy/bin/register-python-argcomplete
+--- /tmp/tmp.KzYAO7E7dR/bin/register-python-argcomplete	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/bin/register-python-argcomplete	2023-03-05 04:45:13.427900645 -0500
+@@ -4,7 +4,7 @@
+ # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
+ # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+ 
+-'''
++"""
+ Register a Python executable for use with the argcomplete module.
+ 
+ To perform the registration, source the output of this script in your bash shell
+@@ -21,36 +21,35 @@
+ For Fish
+ 
+     $ register-python-argcomplete --shell fish my-favourite-script.py > ~/.config/fish/my-favourite-script.py.fish
+-'''
++"""
+ 
+-import sys
+ import argparse
+-import argcomplete
++import sys
+ 
++import argcomplete
+ 
+-parser = argparse.ArgumentParser(
+-    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+ 
+ parser.add_argument(
+-    '--no-defaults',
+-    dest='use_defaults', action='store_false', default=True,
+-    help='When no matches are generated, do not fallback to readline\'s default completion')
++    "--no-defaults",
++    dest="use_defaults",
++    action="store_false",
++    default=True,
++    help="When no matches are generated, do not fallback to readline's default completion",
++)
+ parser.add_argument(
+-    '--complete-arguments',
++    "--complete-arguments",
+     nargs=argparse.REMAINDER,
+-    help='arguments to call complete with; use of this option discards default options')
++    help="arguments to call complete with; use of this option discards default options",
++)
+ parser.add_argument(
+-    '-s', '--shell',
+-    choices=('bash', 'tcsh', 'fish'), default='bash',
+-    help='output code for the specified shell')
++    "-s", "--shell", choices=("bash", "tcsh", "fish"), default="bash", help="output code for the specified shell"
++)
+ parser.add_argument(
+-    '-e', '--external-argcomplete-script',
+-    help='external argcomplete script for auto completion of the executable')
++    "-e", "--external-argcomplete-script", help="external argcomplete script for auto completion of the executable"
++)
+ 
+-parser.add_argument(
+-    'executable',
+-    nargs='+',
+-    help='executable to completed (when invoked by exactly this name)')
++parser.add_argument("executable", nargs="+", help="executable to completed (when invoked by exactly this name)")
+ 
+ argcomplete.autocomplete(parser)
+ 
+@@ -61,5 +60,8 @@
+ args = parser.parse_args()
+ 
+ 
+-sys.stdout.write(argcomplete.shellcode(
+-    args.executable, args.use_defaults, args.shell, args.complete_arguments, args.external_argcomplete_script))
++sys.stdout.write(
++    argcomplete.shellcode(
++        args.executable, args.use_defaults, args.shell, args.complete_arguments, args.external_argcomplete_script
++    )
++)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/_check_console_script.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/_check_console_script.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/_check_console_script.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/_check_console_script.py	2023-03-05 04:45:13.437900645 -0500
+@@ -17,7 +17,7 @@
+ try:
+     from importlib.metadata import entry_points as importlib_entry_points
+ except ImportError:
+-    from importlib_metadata import entry_points as importlib_entry_points
++    from importlib_metadata import entry_points as importlib_entry_points  # type:ignore
+ 
+ from ._check_module import ArgcompleteMarkerNotFound, find
+ 
+@@ -31,27 +31,27 @@
+     name = os.path.basename(script_path)
+     entry_points = [ep for ep in importlib_entry_points()["console_scripts"] if ep.name == name]
+     if not entry_points:
+-        raise ArgcompleteMarkerNotFound('no entry point found matching script')
++        raise ArgcompleteMarkerNotFound("no entry point found matching script")
+     entry_point = entry_points[0]
+     module_name, function_name = entry_point.value.split(":", 1)
+ 
+     # Check this looks like the script we really expected.
+     with open(script_path) as f:
+         script = f.read()
+-    if 'from {} import {}'.format(module_name, function_name) not in script:
+-        raise ArgcompleteMarkerNotFound('does not appear to be a console script')
+-    if 'sys.exit({}())'.format(function_name) not in script:
+-        raise ArgcompleteMarkerNotFound('does not appear to be a console script')
++    if "from {} import {}".format(module_name, function_name) not in script:
++        raise ArgcompleteMarkerNotFound("does not appear to be a console script")
++    if "sys.exit({}())".format(function_name) not in script:
++        raise ArgcompleteMarkerNotFound("does not appear to be a console script")
+ 
+     # Look for the argcomplete marker in the script it imports.
+     with open(find(module_name, return_package=True)) as f:
+         head = f.read(1024)
+-    if 'PYTHON_ARGCOMPLETE_OK' not in head:
+-        raise ArgcompleteMarkerNotFound('marker not found')
++    if "PYTHON_ARGCOMPLETE_OK" not in head:
++        raise ArgcompleteMarkerNotFound("marker not found")
+ 
+ 
+-if __name__ == '__main__':
++if __name__ == "__main__":
+     try:
+         main()
+     except ArgcompleteMarkerNotFound as e:
+-        sys.exit(e)
++        sys.exit(str(e))
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/_check_module.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/_check_module.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/_check_module.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/_check_module.py	2023-03-05 04:45:13.438900645 -0500
+@@ -11,15 +11,18 @@
+ import tokenize
+ 
+ try:
+-    from importlib.util import find_spec
++    from importlib.util import find_spec  # type:ignore
+ except ImportError:
++    import typing as t
+     from collections import namedtuple
+     from imp import find_module
+ 
+-    ModuleSpec = namedtuple(
+-        'ModuleSpec', ['origin', 'has_location', 'submodule_search_locations'])
++    ModuleSpec = namedtuple("ModuleSpec", ["origin", "has_location", "submodule_search_locations"])
+ 
+-    def find_spec(name):
++    def find_spec(  # type:ignore
++        name: str,
++        package: t.Optional[str] = None,
++    ) -> t.Optional[ModuleSpec]:
+         """Minimal implementation as required by `find`."""
+         try:
+             f, path, _ = find_module(name)
+@@ -37,38 +40,36 @@
+ 
+ 
+ def find(name, return_package=False):
+-    names = name.split('.')
++    names = name.split(".")
+     spec = find_spec(names[0])
+     if spec is None:
+-        raise ArgcompleteMarkerNotFound(
+-            'no module named "{}"'.format(names[0]))
++        raise ArgcompleteMarkerNotFound('no module named "{}"'.format(names[0]))
+     if not spec.has_location:
+-        raise ArgcompleteMarkerNotFound('cannot locate file')
++        raise ArgcompleteMarkerNotFound("cannot locate file")
+     if spec.submodule_search_locations is None:
+         if len(names) != 1:
+-            raise ArgcompleteMarkerNotFound(
+-                '{} is not a package'.format(names[0]))
++            raise ArgcompleteMarkerNotFound("{} is not a package".format(names[0]))
+         return spec.origin
+     if len(spec.submodule_search_locations) != 1:
+-        raise ArgcompleteMarkerNotFound('expecting one search location')
++        raise ArgcompleteMarkerNotFound("expecting one search location")
+     path = os.path.join(spec.submodule_search_locations[0], *names[1:])
+     if os.path.isdir(path):
+-        filename = '__main__.py'
++        filename = "__main__.py"
+         if return_package:
+-            filename = '__init__.py'
++            filename = "__init__.py"
+         return os.path.join(path, filename)
+     else:
+-        return path + '.py'
++        return path + ".py"
+ 
+ 
+ def main():
+     try:
+         name = sys.argv[1]
+     except IndexError:
+-        raise ArgcompleteMarkerNotFound('missing argument on the command line')
++        raise ArgcompleteMarkerNotFound("missing argument on the command line")
+ 
+     filename = find(name)
+-    if hasattr(tokenize, 'open'):
++    if hasattr(tokenize, "open"):
+         open_func = tokenize.open
+     else:
+         open_func = open
+@@ -76,17 +77,17 @@
+     try:
+         fp = open_func(filename)
+     except OSError:
+-        raise ArgcompleteMarkerNotFound('cannot open file')
++        raise ArgcompleteMarkerNotFound("cannot open file")
+ 
+     with fp:
+         head = fp.read(1024)
+ 
+-    if 'PYTHON_ARGCOMPLETE_OK' not in head:
+-        raise ArgcompleteMarkerNotFound('marker not found')
++    if "PYTHON_ARGCOMPLETE_OK" not in head:
++        raise ArgcompleteMarkerNotFound("marker not found")
+ 
+ 
+-if __name__ == '__main__':
++if __name__ == "__main__":
+     try:
+         main()
+     except ArgcompleteMarkerNotFound as e:
+-        sys.exit(e)
++        sys.exit(str(e))
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/completers.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/completers.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/completers.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/completers.py	2023-03-05 04:45:13.438900645 -0500
+@@ -4,6 +4,7 @@
+ import os
+ import subprocess
+ 
++
+ def _call(*args, **kwargs):
+     # TODO: replace "universal_newlines" with "text" once 3.6 support is dropped
+     kwargs["universal_newlines"] = True
+@@ -12,6 +13,7 @@
+     except subprocess.CalledProcessError:
+         return []
+ 
++
+ class ChoicesCompleter(object):
+     def __init__(self, choices):
+         self.choices = choices
+@@ -27,6 +29,7 @@
+ 
+ EnvironCompleter = ChoicesCompleter(os.environ)
+ 
++
+ class FilesCompleter(object):
+     """
+     File completer class, optionally takes a list of allowed extensions
+@@ -57,6 +60,7 @@
+                 completion += [f + "/" for f in anticomp]
+         return completion
+ 
++
+ class _FilteredFilesCompleter(object):
+     def __init__(self, predicate):
+         """
+@@ -87,10 +91,12 @@
+                 continue
+             yield candidate + "/" if os.path.isdir(candidate) else candidate
+ 
++
+ class DirectoriesCompleter(_FilteredFilesCompleter):
+     def __init__(self):
+         _FilteredFilesCompleter.__init__(self, predicate=os.path.isdir)
+ 
++
+ class SuppressCompleter(object):
+     """
+     A completer used to suppress the completion of specific arguments
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/__init__.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/__init__.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-05 04:45:13.437900645 -0500
+@@ -1,16 +1,22 @@
+ # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
+ # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+ 
+-import os, sys, argparse, contextlib
+-from . import completers, my_shlex as shlex
++import argparse
++import contextlib
++import os
++import sys
++
++from . import completers
++from . import my_shlex as shlex
+ from .completers import FilesCompleter, SuppressCompleter
+-from .my_argparse import IntrospectiveArgumentParser, action_is_satisfied, action_is_open, action_is_greedy
++from .my_argparse import IntrospectiveArgumentParser, action_is_greedy, action_is_open, action_is_satisfied
+ from .shell_integration import shellcode  # noqa
+ 
+ _DEBUG = "_ARC_DEBUG" in os.environ
+ 
+ debug_stream = sys.stderr
+ 
++
+ def debug(*args):
+     if _DEBUG:
+         print(file=debug_stream, *args)
+@@ -19,13 +25,16 @@
+ BASH_FILE_COMPLETION_FALLBACK = 79
+ BASH_DIR_COMPLETION_FALLBACK = 80
+ 
+-safe_actions = (argparse._StoreAction,
+-                argparse._StoreConstAction,
+-                argparse._StoreTrueAction,
+-                argparse._StoreFalseAction,
+-                argparse._AppendAction,
+-                argparse._AppendConstAction,
+-                argparse._CountAction)
++safe_actions = (
++    argparse._StoreAction,
++    argparse._StoreConstAction,
++    argparse._StoreTrueAction,
++    argparse._StoreFalseAction,
++    argparse._AppendAction,
++    argparse._AppendConstAction,
++    argparse._CountAction,
++)
++
+ 
+ @contextlib.contextmanager
+ def mute_stdout():
+@@ -36,6 +45,7 @@
+     finally:
+         sys.stdout = stdout
+ 
++
+ @contextlib.contextmanager
+ def mute_stderr():
+     stderr = sys.stderr
+@@ -46,9 +56,11 @@
+         sys.stderr.close()
+         sys.stderr = stderr
+ 
++
+ class ArgcompleteException(Exception):
+     pass
+ 
++
+ def split_line(line, point=None):
+     if point is None:
+         point = len(line)
+@@ -94,21 +106,34 @@
+             if lexer.instream.tell() >= point:
+                 return split_word(lexer.token)
+             else:
+-                msg = ("Unexpected internal state. "
+-                       "Please report this bug at https://github.com/kislyuk/argcomplete/issues.")
++                msg = (
++                    "Unexpected internal state. "
++                    "Please report this bug at https://github.com/kislyuk/argcomplete/issues."
++                )
+                 raise ArgcompleteException(msg)
+ 
++
+ def default_validator(completion, prefix):
+     return completion.startswith(prefix)
+ 
++
+ class CompletionFinder(object):
+     """
+     Inherit from this class if you wish to override any of the stages below. Otherwise, use
+     ``argcomplete.autocomplete()`` directly (it's a convenience instance of this class). It has the same signature as
+     :meth:`CompletionFinder.__call__()`.
+     """
+-    def __init__(self, argument_parser=None, always_complete_options=True, exclude=None, validator=None,
+-                 print_suppressed=False, default_completer=FilesCompleter(), append_space=None):
++
++    def __init__(
++        self,
++        argument_parser=None,
++        always_complete_options=True,
++        exclude=None,
++        validator=None,
++        print_suppressed=False,
++        default_completer=FilesCompleter(),
++        append_space=None,
++    ):
+         self._parser = argument_parser
+         self.always_complete_options = always_complete_options
+         self.exclude = exclude
+@@ -123,9 +148,18 @@
+             append_space = os.environ.get("_ARGCOMPLETE_SUPPRESS_SPACE") != "1"
+         self.append_space = append_space
+ 
+-    def __call__(self, argument_parser, always_complete_options=True, exit_method=os._exit, output_stream=None,
+-                 exclude=None, validator=None, print_suppressed=False, append_space=None,
+-                 default_completer=FilesCompleter()):
++    def __call__(
++        self,
++        argument_parser,
++        always_complete_options=True,
++        exit_method=os._exit,
++        output_stream=None,
++        exclude=None,
++        validator=None,
++        print_suppressed=False,
++        append_space=None,
++        default_completer=FilesCompleter(),
++    ):
+         """
+         :param argument_parser: The argument parser to autocomplete on
+         :type argument_parser: :class:`argparse.ArgumentParser`
+@@ -163,9 +197,15 @@
+         added to argcomplete.safe_actions, if their values are wanted in the ``parsed_args`` completer argument, or
+         their execution is otherwise desirable.
+         """
+-        self.__init__(argument_parser, always_complete_options=always_complete_options, exclude=exclude,
+-                      validator=validator, print_suppressed=print_suppressed, append_space=append_space,
+-                      default_completer=default_completer)
++        self.__init__(
++            argument_parser,
++            always_complete_options=always_complete_options,
++            exclude=exclude,
++            validator=validator,
++            print_suppressed=print_suppressed,
++            append_space=append_space,
++            default_completer=default_completer,
++        )
+ 
+         if "_ARGCOMPLETE" not in os.environ:
+             # not an argument completion invocation
+@@ -222,19 +262,24 @@
+             # Special case for when the current word is "--optional=PARTIAL_VALUE". Give the optional to the parser.
+             comp_words.append(cword_prefix.split("=", 1)[0])
+ 
+-        debug("\nLINE: {!r}".format(comp_line),
+-              "\nPOINT: {!r}".format(comp_point),
+-              "\nPREQUOTE: {!r}".format(cword_prequote),
+-              "\nPREFIX: {!r}".format(cword_prefix),
+-              "\nSUFFIX: {!r}".format(cword_suffix),
+-              "\nWORDS:", comp_words)
++        debug(
++            "\nLINE: {!r}".format(comp_line),
++            "\nPOINT: {!r}".format(comp_point),
++            "\nPREQUOTE: {!r}".format(cword_prequote),
++            "\nPREFIX: {!r}".format(cword_prefix),
++            "\nSUFFIX: {!r}".format(cword_suffix),
++            "\nWORDS:",
++            comp_words,
++        )
+ 
+         completions = self._get_completions(comp_words, cword_prefix, cword_prequote, last_wordbreak_pos)
+ 
+         if dfs:
+-            display_completions = {key_part: value.replace(ifs, " ") if value else ""
+-                                   for key, value in self._display_completions.items()
+-                                   for key_part in key}
++            display_completions = {
++                key_part: value.replace(ifs, " ") if value else ""
++                for key, value in self._display_completions.items()
++                for key_part in key
++            }
+             completions = [dfs.join((key, display_completions.get(key) or "")) for key in completions]
+ 
+         debug("\nReturning completions:", completions)
+@@ -356,10 +401,12 @@
+ 
+     def _get_option_completions(self, parser, cword_prefix):
+         self._display_completions.update(
+-            [[tuple(x for x in action.option_strings
+-             if x.startswith(cword_prefix)), action.help]
+-             for action in parser._actions
+-             if action.option_strings])
++            [
++                [tuple(x for x in action.option_strings if x.startswith(cword_prefix)), action.help]
++                for action in parser._actions
++                if action.option_strings
++            ]
++        )
+ 
+         option_completions = []
+         for action in parser._actions:
+@@ -438,18 +485,22 @@
+                     continue
+ 
+                 if callable(completer):
+-                    completions_from_callable = [c for c in completer(
+-                        prefix=cword_prefix, action=active_action, parser=parser, parsed_args=parsed_args)
+-                        if self.validator(c, cword_prefix)]
++                    completions_from_callable = [
++                        c
++                        for c in completer(
++                            prefix=cword_prefix, action=active_action, parser=parser, parsed_args=parsed_args
++                        )
++                        if self.validator(c, cword_prefix)
++                    ]
+ 
+                     if completions_from_callable:
+                         completions += completions_from_callable
+                         if isinstance(completer, completers.ChoicesCompleter):
+                             self._display_completions.update(
+-                                [[(x,), active_action.help] for x in completions_from_callable])
++                                [[(x,), active_action.help] for x in completions_from_callable]
++                            )
+                         else:
+-                            self._display_completions.update(
+-                                [[(x,), ""] for x in completions_from_callable])
++                            self._display_completions.update([[(x,), ""] for x in completions_from_callable])
+                 else:
+                     debug("Completer is not callable, trying the readline completer protocol instead")
+                     for i in range(9999):
+@@ -486,8 +537,9 @@
+         if isinstance(next_positional, argparse._SubParsersAction):
+             completions += self._get_subparser_completions(next_positional, cword_prefix)
+ 
+-        completions = self._complete_active_option(active_parser, next_positional, cword_prefix, parsed_args,
+-                                                   completions)
++        completions = self._complete_active_option(
++            active_parser, next_positional, cword_prefix, parsed_args, completions
++        )
+         debug("active options:", completions)
+         debug("display completions:", self._display_completions)
+ 
+@@ -550,7 +602,7 @@
+             # This workaround has the same effect as __ltrim_colon_completions in bash_completion
+             # (extended to characters other than the colon).
+             if last_wordbreak_pos:
+-                completions = [c[last_wordbreak_pos + 1:] for c in completions]
++                completions = [c[last_wordbreak_pos + 1 :] for c in completions]
+             special_chars += "();<>|&!`$* \t\n\"'"
+         elif cword_prequote == '"':
+             special_chars += '"`$!'
+@@ -599,7 +651,7 @@
+             cword_prequote, cword_prefix, cword_suffix, comp_words, first_colon_pos = split_line(text)
+             comp_words.insert(0, sys.argv[0])
+             matches = self._get_completions(comp_words, cword_prefix, cword_prequote, first_colon_pos)
+-            self._rl_matches = [text + match[len(cword_prefix):] for match in matches]
++            self._rl_matches = [text + match[len(cword_prefix) :] for match in matches]
+ 
+         if state < len(self._rl_matches):
+             return self._rl_matches[state]
+@@ -639,6 +691,7 @@
+         """
+         return {" ".join(k): v for k, v in self._display_completions.items()}
+ 
++
+ class ExclusiveCompletionFinder(CompletionFinder):
+     @staticmethod
+     def _action_allowed(action, parser):
+@@ -658,6 +711,7 @@
+ autocomplete = CompletionFinder()
+ autocomplete.__doc__ = """ Use this to access argcomplete. See :meth:`argcomplete.CompletionFinder.__call__()`. """
+ 
++
+ def warn(*args):
+     """
+     Prints **args** to standard error when running completions. This will interrupt the user's command line interaction;
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/my_argparse.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/my_argparse.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/my_argparse.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/my_argparse.py	2023-03-05 04:45:13.438900645 -0500
+@@ -1,11 +1,22 @@
+ # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
+ # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+ 
+-from argparse import ArgumentParser, ArgumentError, SUPPRESS, _SubParsersAction
+-from argparse import OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE, REMAINDER, PARSER
+-from argparse import _get_action_name, _
++import typing as t
++from argparse import _  # type:ignore
++from argparse import (
++    ONE_OR_MORE,
++    OPTIONAL,
++    PARSER,
++    REMAINDER,
++    SUPPRESS,
++    ZERO_OR_MORE,
++    ArgumentError,
++    ArgumentParser,
++    _get_action_name,
++    _SubParsersAction,
++)
+ 
+-_num_consumed_args = {}
++_num_consumed_args: t.Dict[str, int] = {}
+ 
+ 
+ def action_is_satisfied(action):
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/my_shlex.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/my_shlex.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/my_shlex.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/my_shlex.py	2023-03-05 04:45:13.438900645 -0500
+@@ -19,13 +19,13 @@
+ # Modified by argcomplete: 2/3 compatibility
+ # Note: cStringIO is not compatible with Unicode
+ try:
+-    from StringIO import StringIO
++    from StringIO import StringIO  # type:ignore
+ except ImportError:
+     from io import StringIO
+ 
+ # Modified by argcomplete: 2/3 compatibility
+ try:
+-    basestring
++    basestring  # type:ignore
+ except NameError:
+     basestring = str
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/shell_integration.py /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/shell_integration.py
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-05 04:45:13.438900645 -0500
+@@ -5,7 +5,7 @@
+ except ImportError:
+     from pipes import quote
+ 
+-bashcode = r'''
++bashcode = r"""
+ # Run something, muting output or redirecting it to the debug stream
+ # depending on the value of _ARC_DEBUG.
+ # If ARGCOMPLETE_USE_TEMPFILES is set, use tempfiles for IPC.
+@@ -51,13 +51,13 @@
+     fi
+ }
+ complete %(complete_opts)s -F _python_argcomplete%(function_suffix)s %(executables)s
+-'''
++"""
+ 
+-tcshcode = '''\
++tcshcode = """\
+ complete "%(executable)s" 'p@*@`python-argcomplete-tcsh "%(argcomplete_script)s"`@' ;
+-'''
++"""
+ 
+-fishcode = r'''
++fishcode = r"""
+ function __fish_%(function_name)s_complete
+     set -x _ARGCOMPLETE 1
+     set -x _ARGCOMPLETE_DFS \t
+@@ -74,13 +74,13 @@
+     end
+ end
+ complete %(completion_arg)s %(executable)s -f -a '(__fish_%(function_name)s_complete)'
+-'''
++"""
+ 
+-shell_codes = {'bash': bashcode, 'tcsh': tcshcode, 'fish': fishcode}
++shell_codes = {"bash": bashcode, "tcsh": tcshcode, "fish": fishcode}
+ 
+ 
+-def shellcode(executables, use_defaults=True, shell='bash', complete_arguments=None, argcomplete_script=None):
+-    '''
++def shellcode(executables, use_defaults=True, shell="bash", complete_arguments=None, argcomplete_script=None):
++    """
+     Provide the shell code required to register a python executable for use with the argcomplete module.
+ 
+     :param list(str) executables: Executables to be completed (when invoked exactly with this name)
+@@ -91,33 +91,41 @@
+     :param argcomplete_script: Script to call complete with, if not the executable to complete.
+         If supplied, will be used to complete *all* passed executables.
+     :type argcomplete_script: str or None
+-    '''
++    """
+ 
+     if complete_arguments is None:
+-        complete_options = '-o nospace -o default -o bashdefault' if use_defaults else '-o nospace -o bashdefault'
++        complete_options = "-o nospace -o default -o bashdefault" if use_defaults else "-o nospace -o bashdefault"
+     else:
+         complete_options = " ".join(complete_arguments)
+ 
+-    if shell == 'bash':
++    if shell == "bash":
+         quoted_executables = [quote(i) for i in executables]
+         executables_list = " ".join(quoted_executables)
+         script = argcomplete_script
+         if script:
+-            function_suffix = '_' + script
++            function_suffix = "_" + script
+         else:
+-            script = '$1'
+-            function_suffix = ''
+-        code = bashcode % dict(complete_opts=complete_options, executables=executables_list,
+-                               argcomplete_script=script, function_suffix=function_suffix)
+-    elif shell == 'fish':
++            script = "$1"
++            function_suffix = ""
++        code = bashcode % dict(
++            complete_opts=complete_options,
++            executables=executables_list,
++            argcomplete_script=script,
++            function_suffix=function_suffix,
++        )
++    elif shell == "fish":
+         code = ""
+         for executable in executables:
+             script = argcomplete_script or executable
+-            completion_arg = '--path' if '/' in executable else '--command'  # use path for absolute paths
++            completion_arg = "--path" if "/" in executable else "--command"  # use path for absolute paths
+             function_name = executable.replace("/", "_")  # / not allowed in function name
+ 
+-            code += fishcode % dict(executable=executable, argcomplete_script=script,
+-                                    completion_arg=completion_arg, function_name=function_name)
++            code += fishcode % dict(
++                executable=executable,
++                argcomplete_script=script,
++                completion_arg=completion_arg,
++                function_name=function_name,
++            )
+     else:
+         code = ""
+         for executable in executables:
+@@ -125,6 +133,6 @@
+             # If no script was specified, default to the executable being completed.
+             if not script:
+                 script = executable
+-            code += shell_codes.get(shell, '') % dict(executable=executable, argcomplete_script=script)
++            code += shell_codes.get(shell, "") % dict(executable=executable, argcomplete_script=script)
+ 
+     return code
+Only in /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages: argcomplete-2.0.0.dist-info
+Only in /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages: argcomplete-2.0.5.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2023-03-05 04:45:13.430900645 -0500
+@@ -3,10 +3,10 @@
+ Version: 6.0
+ Summary: YAML parser and emitter for Python
+ Home-page: https://pyyaml.org/
+-Download-URL: https://pypi.org/project/PyYAML/
+ Author: Kirill Simonov
+ Author-email: xi@resolvent.net
+ License: MIT
++Download-URL: https://pypi.org/project/PyYAML/
+ Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
+ Project-URL: CI, https://github.com/yaml/pyyaml/actions
+ Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
+@@ -43,3 +43,4 @@
+ 
+ PyYAML is applicable for a broad range of tasks from complex
+ configuration files to object serialization and persistence.
++
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2023-03-05 04:45:13.430900645 -0500
+@@ -1,8 +1,8 @@
+ PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+-PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
++PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
+ PyYAML-6.0.dist-info/RECORD,,
+-PyYAML-6.0.dist-info/WHEEL,sha256=f8vErwyDyFouYea3KNqXIy0we1lRdJObBl1MFdhTmU0,104
++PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
+ PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-38.pyc,,
+@@ -24,6 +24,7 @@
+ yaml/__pycache__/scanner.cpython-38.pyc,,
+ yaml/__pycache__/serializer.cpython-38.pyc,,
+ yaml/__pycache__/tokens.cpython-38.pyc,,
++yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
+--- /tmp/tmp.KzYAO7E7dR/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2023-03-01 17:24:29.000000000 -0500
++++ /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2023-03-05 04:45:13.430900645 -0500
+@@ -1,5 +1,8 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.38.4)
++Generator: bdist_wheel (0.37.0)
+ Root-Is-Purelib: false
+-Tag: cp38-cp38-linux_ppc64le
++Tag: cp38-cp38-manylinux_2_5_x86_64
++Tag: cp38-cp38-manylinux1_x86_64
++Tag: cp38-cp38-manylinux_2_12_x86_64
++Tag: cp38-cp38-manylinux2010_x86_64
+ 
+Only in /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages: test
+Only in /tmp/tmp.83vjBwZIdy/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 21afd6fc6bd377f9ab674c9c07a29631ad243b1008dde4d38fabd18a9e626a60
+Deleted: b92d44b8602342bcfaf4989565033cf88752371e27409a4f0430366cbe362a7e
+Deleted: 6c4f2bacd1ee9bacef98a03b257e1012425ee2bae73904e2ac11d0e5dd472981
+Deleted: 2fd38c5d10c03ff0d0fab9d1f530970d7d038dc8d9c5c24c0ee4b061f62f116d
+Deleted: abdb9fbfc5ed47f1c1d8cac52318a3cf0e95e26d56c7378bf8ac0865c81145d1
+Deleted: 26aa76182045d34c1421a607fa607f1065ada15863d5d11c36930881c1f2903b
+Deleted: 97c27df649dc758407d7214b41d546d6edda5a9d50c090840f5a5f9e5a76fdaa
+Deleted: 6fd97419b7578b2c6a589d99e674d7b31262146a46b862d4b316a2df45088078
+Deleted: 6359b589940342f89a40f4a162a466674d3c1b982759890ae92fdeca7d71d25f
+Deleted: bb9bca5bf74c885990b57ffcec4514aca65c0b3de3f730bb3e1aa49f395b1840
+Deleted: 81f884c3d933373d2ca82535c8084a9d616db62e8f5321be8b58d74777dc7b3f
+Deleted: d58569c004568e328d923897abfa4eba6ba683bf3e21302f38c62f6d7c3a7f38
+Deleted: 4812b462f64e4a5ca1fc89b7deff0f9666a632af5d00fff471b601c1b55c1ede
+Deleted: 399d25db419cfa9596c9ae842bd616148b3e711e7a93193a47a61a3f40398e1b
+Deleted: 286698b79db014023300f88e0ba6b4dc6a0bfaab13842e59a0798415be438847
+Deleted: 7744a92c8f8f9f94b14038d0755bcb94a668ea9ca414389acb2befdcc054e00f
+Deleted: 171eeb4f6d279f6ffd2d192e73cb2e77539d7625a618b41ea8a50effa31106a7
+Deleted: 3d3a2850c59bdc3da6ba15a52e955c02c479d450916eff75a50e7ea62ea8b5a5
+Deleted: ebf931d39224c3032586d3d79b93c5164736f629c6029db26253db7a8ad376fb
+Deleted: 1786e129ab44cf2dd6e64ccd150a11ba04bb5a81d419522839d216115c2a06eb
+Deleted: 4d6131207c31c440e47a52221cd70859ac8b6314e2ed409239d64dde3b3f61c3
+Deleted: 6208fab57886bf85acadd19b71cc82780aae776beb54e30f8e3785eb93862040
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
