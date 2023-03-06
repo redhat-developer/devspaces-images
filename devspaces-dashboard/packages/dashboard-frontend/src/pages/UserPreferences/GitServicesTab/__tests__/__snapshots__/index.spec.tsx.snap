@@ -77,24 +77,15 @@ Array [
           data-ouia-safe={true}
           hidden={false}
         >
-          <td
-            className="pf-c-table__check"
+          <th
+            className=""
             data-key={0}
             data-label=""
             onMouseEnter={[Function]}
             scope={null}
           >
-            <label>
-              <input
-                aria-label="Select all rows"
-                checked={false}
-                name="check-all"
-                onChange={[Function]}
-                type="checkbox"
-              />
-            </label>
             
-          </td>
+          </th>
           <th
             className=""
             data-key={1}
@@ -244,6 +235,7 @@ Array [
               <input
                 aria-label="Select row 1"
                 checked={false}
+                disabled={true}
                 name="checkrow1"
                 onChange={[Function]}
                 type="checkbox"
@@ -294,7 +286,7 @@ Array [
                 aria-haspopup={true}
                 aria-label="Actions"
                 className="pf-c-dropdown__toggle pf-m-plain"
-                disabled={false}
+                disabled={true}
                 id="pf-dropdown-toggle-id-3"
                 onClick={[Function]}
                 onKeyDown={[Function]}

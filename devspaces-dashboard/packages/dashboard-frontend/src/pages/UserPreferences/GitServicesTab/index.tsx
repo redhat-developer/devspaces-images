@@ -22,6 +22,8 @@ import { api } from '@eclipse-che/common';
 import * as GitOauthConfig from '../../../store/GitOauthConfig';
 import GitServicesToolbar, { GitServicesToolbar as Toolbar } from './GitServicesToolbar';
 
+export const enabledProviders: api.GitOauthProvider[] = ['github'];
+
 export const providersMap = {
   github: 'GitHub',
   gitlab: 'GitLab',
@@ -97,6 +99,10 @@ export class GitServicesTab extends React.PureComponent<Props, State> {
     this.gitServicesToolbarRef.current?.showOnRevokeGitOauthModal(rowIndex);
   }
 
+  private isDisabled(providerName: api.GitOauthProvider): boolean {
+    return !enabledProviders.includes(providerName);
+  }
+
   render(): React.ReactNode {
     const { isLoading, gitOauth } = this.props;
     const { selectedItems } = this.state;
@@ -112,6 +118,8 @@ export class GitServicesTab extends React.PureComponent<Props, State> {
         ? gitOauth.map(provider => ({
             cells: this.buildGitOauthRow(provider.name, provider.endpointUrl),
             selected: selectedItems.includes(provider.name),
+            disableSelection: this.isDisabled(provider.name),
+            disableActions: this.isDisabled(provider.name),
           }))
         : [];
 
@@ -131,11 +139,12 @@ export class GitServicesTab extends React.PureComponent<Props, State> {
               <Table
                 cells={columns}
                 actions={actions}
+                areActionsDisabled={rowData => !!rowData.disableActions}
                 rows={rows}
                 onSelect={(event, isSelected, rowIndex) => {
                   this.onChangeSelection(isSelected, rowIndex);
                 }}
-                canSelectAll={true}
+                canSelectAll={false}
                 aria-label="Git services"
                 variant="compact"
               >
