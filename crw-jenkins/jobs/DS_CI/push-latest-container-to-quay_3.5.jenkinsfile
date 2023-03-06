@@ -175,22 +175,22 @@ Brew NVRs:
     } // node
 } // timeout
 
+if (CONTAINERS.trim().contains("pluginregistry")) {
+    node(nodeLabel){ 
+        stage ("Update plugin registry GH page + rebuild devfile registry") {
+            // echo "currentBuild.result = " + currentBuild.result
+            if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
 
-node(nodeLabel){ 
-  stage ("Update plugin registry GH page + rebuild devfile registry") {
-    // echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && CONTAINERS.trim().contains("pluginregistry")) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-        def util = load "${WORKSPACE}/util2.groovy"
+                DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                println "DS_VERSION = '" + DS_VERSION + "'"
+                JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
-        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-        println "DS_VERSION = '" + DS_VERSION + "'"
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-
-        // trigger GH action plugin-registry-build-publish-content-gh-pages.yaml, which will 
-        // publish new plugin registry GH page content and rebuild the devfile registry
-        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-            sh('''#!/bin/bash -e
+                // trigger GH action plugin-registry-build-publish-content-gh-pages.yaml, which will 
+                // publish new plugin registry GH page content and rebuild the devfile registry
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                    sh('''#!/bin/bash -e
 this_repo="redhat-developer/devspaces"
 this_action_name="Plugin Registry - GH Pages - Publish Registry Content"
 workflow_id="18838921" # see https://github.com/eclipse-che/che-release/blob/main/utils/util.sh#L9-L17
@@ -209,19 +209,20 @@ curl -sSL "https://api.github.com/repos/${this_repo}/actions/workflows/${workflo
     -d "{\\"ref\\":\\"${workflow_ref}\\",\\"inputs\\": ${inputsJson} }" || \
     die_with "[ERROR] Problem invoking $actionURL with branch=$workflow_ref and $inputsJson"
 ''')
+                }
+            } // if
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
         }
-    } // if
-    cleanWs(
-        cleanWhenSuccess: true,
-        cleanWhenUnstable: true,
-        cleanWhenNotBuilt: false,
-        cleanWhenFailure: CLEAN_ON_FAILURE,
-        cleanWhenAborted: true,
-        deleteDirs: true,
-        disableDeferredWipeout: true,
-        notFailBuild: true
-    )
-  }
+    }
 }
 
 node(nodeLabel){ 
@@ -282,7 +283,7 @@ node(nodeLabel){
             }
 
             // CRW-2095 publish operator-bundle-generated too
-            if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*")) {
+            if (CONTAINERS.trim().contains("operator-bundle")) {
                 // https://issues.redhat.com/browse/CRW-1564 if an update to operator-bundle, push new csv content into devspaces-images repo, 
                 // in devspaces-operator-bundle-generated folder (outside where we sync from up->mid->down, as this should NOT
                 // be synced to downstream or overwritten by upstream)
@@ -299,58 +300,58 @@ chmod +x updateGeneratedOperatorMetadata.sh
     -s ${WORKSPACE}/sources -d devspaces-operator-bundle-generated -c quay.io/devspaces/devspaces-operator-bundle
 ''')
                 currentBuild.description+="; bundle-generated updated"
-            }
-            def OCP_VERSIONS = sh(script: '''
+                def OCP_VERSIONS = sh(script: '''
 curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
     | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "
 ''', returnStdout: true).trim()
-            println "####################################################################################################################"
-            println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
-            println "####################################################################################################################"
-            jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
-            // trigger copyIIBsToQuay job
-            final jobResult = build(
-                job: jobPath.replaceAll("/job/","/"),
-                wait: false,
-                propagate: false,
-                quietPeriod: 0,
-                parameters: [
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'comments_url',
-                        value: util.globalVar({comments_url})
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'token',
-                        value: "CI_BUILD"
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'cause',
-                        value: "filter+and+copy+IIBs+to+quay"
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'MIDSTM_BRANCH',
-                        value: MIDSTM_BRANCH
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'DS_VERSION',
-                        value: DS_VERSION
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'OCP_VERSIONS',
-                        value: OCP_VERSIONS
+                println "####################################################################################################################"
+                println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
+                println "####################################################################################################################"
+                jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
+                // trigger copyIIBsToQuay job
+                final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: false,
+                    propagate: false,
+                    quietPeriod: 0,
+                    parameters: [
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'comments_url',
+                            value: util.globalVar({comments_url})
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'token',
+                            value: "CI_BUILD"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'cause',
+                            value: "filter+and+copy+IIBs+to+quay"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'MIDSTM_BRANCH',
+                            value: MIDSTM_BRANCH
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'DS_VERSION',
+                            value: DS_VERSION
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'OCP_VERSIONS',
+                            value: OCP_VERSIONS
 
+                        ]
                     ]
-                ]
-            )            
-            println("triggered build(" + jobPath + ") [no wait]")
-            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-            currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
+                )            
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
+            }
         } // if 
 
         // TODO when theia is dead, enable util.commentOnPullRequestBuildDescription block here
@@ -374,69 +375,69 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
 } //node
 
 // https://issues.redhat.com/browse/CRW-1011 trigger theia-akamai job 
-node(nodeLabel){ 
-  stage ("Enable Akamai CDN support for DS Theia image") {
-    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-        def util = load "${WORKSPACE}/util2.groovy"
-        echo "currentBuild.result = " + currentBuild.result
-        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-            // if CONTAINERS contains theia-endpoint
-            // println "Containers: " + CONTAINERS.trim()
-            if (CONTAINERS.trim().matches(".*theia-endpoint.*")) {
-                DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-                println "DS_VERSION = '" + DS_VERSION + "'"
-                println "Scheduling theia-akamai"
-                JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                jobPath='/job/DS_CI/job/theia-akamai_' + JOB_BRANCH
-                final jobResult = build(
-                    job: jobPath.replaceAll("/job/","/"),
-                    wait: false,
-                    propagate: false,
-                    quietPeriod: 0,
-                    parameters: [
-                        [
-                            $class: 'StringParameterValue',
-                            name: 'comments_url',
-                            value: util.globalVar({comments_url})
-                        ],
-                        [
-                            $class: 'StringParameterValue',
-                            name: 'token',
-                            value: "CI_BUILD"
-                        ],
-                        [
-                            $class: 'StringParameterValue',
-                            name: 'cause',
-                            value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
-                        ],
-                        [
-                            $class: 'BooleanParameterValue',
-                            name: 'CLEAN_ON_FAILURE',
-                            value: CLEAN_ON_FAILURE
+if (CONTAINERS.trim().contains("theia-endpoint")) {
+    node(nodeLabel){ 
+        stage ("Enable Akamai CDN support for DS Theia image") {
+            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
+                echo "currentBuild.result = " + currentBuild.result
+                if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+                    // if CONTAINERS contains theia-endpoint
+                    // println "Containers: " + CONTAINERS.trim()
+                    DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                    println "DS_VERSION = '" + DS_VERSION + "'"
+                    println "Scheduling theia-akamai"
+                    JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+                    jobPath='/job/DS_CI/job/theia-akamai_' + JOB_BRANCH
+                    final jobResult = build(
+                        job: jobPath.replaceAll("/job/","/"),
+                        wait: false,
+                        propagate: false,
+                        quietPeriod: 0,
+                        parameters: [
+                            [
+                                $class: 'StringParameterValue',
+                                name: 'comments_url',
+                                value: util.globalVar({comments_url})
+                            ],
+                            [
+                                $class: 'StringParameterValue',
+                                name: 'token',
+                                value: "CI_BUILD"
+                            ],
+                            [
+                                $class: 'StringParameterValue',
+                                name: 'cause',
+                                value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                            ],
+                            [
+                                $class: 'BooleanParameterValue',
+                                name: 'CLEAN_ON_FAILURE',
+                                value: CLEAN_ON_FAILURE
+                            ]
                         ]
-                    ]
-                )
-                println("triggered build(" + jobPath + ") [no wait]")
-                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-                currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
-            } // if 2
-        } // if
+                    )
+                    println("triggered build(" + jobPath + ") [no wait]")
+                    println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                    currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+                } // if
 
-        // comment on the PR with this job's build description
-        if (util.globalVar({comments_url})?.trim()) {
-            println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-        }
-    }
-    cleanWs(
-        cleanWhenSuccess: true,
-        cleanWhenUnstable: true,
-        cleanWhenNotBuilt: false,
-        cleanWhenFailure: CLEAN_ON_FAILURE,
-        cleanWhenAborted: true,
-        deleteDirs: true,
-        disableDeferredWipeout: true,
-        notFailBuild: true
-    )
-  } // stage
-} //node
+                // comment on the PR with this job's build description
+                if (util.globalVar({comments_url})?.trim()) {
+                    println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+                }
+            }
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+        } // stage
+    } //node
+}
