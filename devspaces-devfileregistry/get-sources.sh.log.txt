@@ -1,0 +1,620 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-121 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-121 AS builder
+STEP 2/23: USER 0
+--> 804b14cc5b8
+STEP 3/23: ARG BOOTSTRAP=true
+--> 1a96e63a9bd
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 0bcca236dde
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 6c5a5af0c81
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 5707a9b3338
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 76b407c4f13
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 7872c28302e
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> d6cbed03aa1
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 4acaa346bd7
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-46.module+el8.7.0+17824+66a0202b.x86_64                 
+  criu-3.15-3.module+el8.7.0+17824+66a0202b.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.9-1.module+el8.7.0+17824+66a0202b.x86_64                     
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-23.el8_7.1.x86_64                                         
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-3.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-41.0-1.el8.x86_64                                                  
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.7.0+17824+66a0202b.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.7.0+17824+66a0202b.x86_64                           
+  skopeo-2:1.9.4-0.1.module+el8.7.0+17824+66a0202b.x86_64                       
+  slirp4netns-1.2.0-2.module+el8.7.0+17824+66a0202b.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/aa/09/31d9eb047a46cf5680c4970f42bee931bd78aab4e3ded448406de4730f96/yq-3.1.1-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/f0/ab/aaf32fd58b3aee615abee7f809998dc03ab7be788af4de63bb7f5bc0510b/argcomplete-2.0.6-py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Installing collected packages: PyYAML, toml, argcomplete, xmltodict, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.6 toml-0.10.2 xmltodict-0.13.0 yq-3.1.1
+python: Python 3.8.13
+yq: yq 3.1.1
+jq: jq-1.6
+--> f7291f98d10
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> a073a2578ac
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 1b1bbf8ca81
+STEP 14/23: COPY ./VERSION /
+--> 70048144248
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> f3e8dbfdffd
+STEP 16/23: WORKDIR /build/
+--> 7c2636d1be9
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-c8bd5c0
+added 119 packages from 183 contributors and audited 119 packages in 9.208s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 1 high severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-theia-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-theia-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-theia-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-theia-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-theia-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-theia-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-theia-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-theia-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-theia-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 922b28a8cbf
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 7f5d82acea4
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.6 PASS - 3.6 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.6 PASS - 3.6 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 9d77b27f054
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 2b49694ec59
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> ff80ef3ce43
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 8db4779c515
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> a1a3fee0c29
+Successfully tagged localhost/devfileregistry:tmp
+a1a3fee0c29e1761da577bf9a33a7caf75a1c31f65676020aa479c1d5c9b0f13
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ewDRG6u4bu/bin/register-python-argcomplete /tmp/tmp.AnffN56Tu4/bin/register-python-argcomplete
+--- /tmp/tmp.ewDRG6u4bu/bin/register-python-argcomplete	2023-03-06 10:29:24.000000000 -0500
++++ /tmp/tmp.AnffN56Tu4/bin/register-python-argcomplete	2023-03-06 11:58:54.983172747 -0500
+@@ -43,7 +43,8 @@
+     help="arguments to call complete with; use of this option discards default options",
+ )
+ parser.add_argument(
+-    "-s", "--shell", choices=("bash", "tcsh", "fish"), default="bash", help="output code for the specified shell"
++    "-s", "--shell", choices=("bash", "tcsh", "fish", "powershell"), default="bash",
++    help="output code for the specified shell"
+ )
+ parser.add_argument(
+     "-e", "--external-argcomplete-script", help="external argcomplete script for auto completion of the executable"
+Only in /tmp/tmp.AnffN56Tu4/bin: register-python-argcomplete.cmd
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/argcomplete/__init__.py /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/argcomplete/__init__.py
+--- /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-06 10:29:24.000000000 -0500
++++ /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-06 11:58:54.984172747 -0500
+@@ -336,7 +336,6 @@
+             parser.__class__ = type(classname, (IntrospectiveArgumentParser, parser.__class__), {})
+ 
+             for action in parser._actions:
+-
+                 if hasattr(action, "_orig_class"):
+                     continue
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/argcomplete/shell_integration.py /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/argcomplete/shell_integration.py
+--- /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-06 10:29:24.000000000 -0500
++++ /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-06 11:58:54.984172747 -0500
+@@ -76,7 +76,28 @@
+ complete %(completion_arg)s %(executable)s -f -a '(__fish_%(function_name)s_complete)'
+ """
+ 
+-shell_codes = {"bash": bashcode, "tcsh": tcshcode, "fish": fishcode}
++powershell_code = r"""
++Register-ArgumentCompleter -Native -CommandName %(executable)s -ScriptBlock {
++    param($commandName, $wordToComplete, $cursorPosition)
++    $completion_file = New-TemporaryFile
++    $env:ARGCOMPLETE_USE_TEMPFILES = 1
++    $env:_ARGCOMPLETE_STDOUT_FILENAME = $completion_file
++    $env:COMP_LINE = $wordToComplete
++    $env:COMP_POINT = $cursorPosition
++    $env:_ARGCOMPLETE = 1
++    $env:_ARGCOMPLETE_SUPPRESS_SPACE = 0
++    $env:_ARGCOMPLETE_IFS = "`n"
++    %(argcomplete_script)s 2>&1 | Out-Null
++
++    Get-Content $completion_file | ForEach-Object {
++        [System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)
++    }
++    rm $completion_file
++    Remove-Item Env:\_ARGCOMPLETE_STDOUT_FILENAME, Env:\ARGCOMPLETE_USE_TEMPFILES, Env:\COMP_LINE, Env:\COMP_POINT, Env:\_ARGCOMPLETE, Env:\_ARGCOMPLETE_SUPPRESS_SPACE, Env:\_ARGCOMPLETE_IFS
++}
++"""  # noqa: E501
++
++shell_codes = {"bash": bashcode, "tcsh": tcshcode, "fish": fishcode, "powershell": powershell_code}
+ 
+ 
+ def shellcode(executables, use_defaults=True, shell="bash", complete_arguments=None, argcomplete_script=None):
+@@ -126,6 +147,12 @@
+                 completion_arg=completion_arg,
+                 function_name=function_name,
+             )
++    elif shell == "powershell":
++        code = ""
++        for executable in executables:
++            script = argcomplete_script or executable
++            code += powershell_code % dict(executable=executable, argcomplete_script=script)
++
+     else:
+         code = ""
+         for executable in executables:
+Only in /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages: argcomplete-2.0.5.dist-info
+Only in /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages: argcomplete-2.0.6.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
+--- /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2023-03-06 10:29:24.000000000 -0500
++++ /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2023-03-06 11:58:54.983172747 -0500
+@@ -3,10 +3,10 @@
+ Version: 6.0
+ Summary: YAML parser and emitter for Python
+ Home-page: https://pyyaml.org/
+-Download-URL: https://pypi.org/project/PyYAML/
+ Author: Kirill Simonov
+ Author-email: xi@resolvent.net
+ License: MIT
++Download-URL: https://pypi.org/project/PyYAML/
+ Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
+ Project-URL: CI, https://github.com/yaml/pyyaml/actions
+ Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
+@@ -43,3 +43,4 @@
+ 
+ PyYAML is applicable for a broad range of tasks from complex
+ configuration files to object serialization and persistence.
++
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
+--- /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2023-03-06 10:29:24.000000000 -0500
++++ /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2023-03-06 11:58:54.983172747 -0500
+@@ -1,8 +1,8 @@
+ PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+-PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
++PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
+ PyYAML-6.0.dist-info/RECORD,,
+-PyYAML-6.0.dist-info/WHEEL,sha256=f8vErwyDyFouYea3KNqXIy0we1lRdJObBl1MFdhTmU0,104
++PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
+ PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-38.pyc,,
+@@ -24,6 +24,7 @@
+ yaml/__pycache__/scanner.cpython-38.pyc,,
+ yaml/__pycache__/serializer.cpython-38.pyc,,
+ yaml/__pycache__/tokens.cpython-38.pyc,,
++yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
+--- /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2023-03-06 10:29:24.000000000 -0500
++++ /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2023-03-06 11:58:54.983172747 -0500
+@@ -1,5 +1,8 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.38.4)
++Generator: bdist_wheel (0.37.0)
+ Root-Is-Purelib: false
+-Tag: cp38-cp38-linux_ppc64le
++Tag: cp38-cp38-manylinux_2_5_x86_64
++Tag: cp38-cp38-manylinux1_x86_64
++Tag: cp38-cp38-manylinux_2_12_x86_64
++Tag: cp38-cp38-manylinux2010_x86_64
+ 
+Only in /tmp/tmp.ewDRG6u4bu/lib/python3.8/site-packages: test
+Only in /tmp/tmp.AnffN56Tu4/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/external_images_by_devfile.txt /tmp/tmp.TAhk1EEK4e/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.OP0KX6TES6/devfiles/external_images_by_devfile.txt	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/external_images_by_devfile.txt	2023-03-06 11:58:55.821172747 -0500
+@@ -1,11 +1,20 @@
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+@@ -43,33 +52,43 @@
+ registry.redhat.io/devspaces/theia-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/theia-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/theia-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.6	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/index.json /tmp/tmp.TAhk1EEK4e/devfiles/index.json
+--- /tmp/tmp.OP0KX6TES6/devfiles/index.json	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/index.json	2023-03-06 11:58:55.821172747 -0500
+@@ -15,6 +15,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -35,6 +36,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -55,6 +57,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -74,6 +77,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -92,6 +96,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -116,6 +121,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -139,6 +145,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -158,6 +165,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml"
+       }
+     }
+@@ -176,6 +184,7 @@
+       "devWorkspaces": {
+         "eclipse/che-theia/latest": "/devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml",
+         "eclipse/che-idea/latest": "/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml",
+         "che-incubator/che-code/latest": "/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml"
+       }
+     }
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/java11-maven-lombok__lombok-project-sample: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml	2023-03-06 11:58:55.822172747 -0500
+@@ -12,4 +12,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/java11-maven-quarkus__quarkus-quickstarts: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml	2023-03-06 11:58:55.822172747 -0500
+@@ -12,4 +12,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/nodejs__nodejs-mongodb-sample: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml	2023-03-06 11:58:55.823172747 -0500
+@@ -12,4 +12,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/nodejs__web-nodejs-sample: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/nodejs__web-nodejs-sample/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/nodejs__web-nodejs-sample/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/nodejs__web-nodejs-sample/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/nodejs__web-nodejs-sample/meta.yaml	2023-03-06 11:58:55.823172747 -0500
+@@ -11,4 +11,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/python__python-hello-world: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/python__python-hello-world/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/python__python-hello-world/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/python__python-hello-world/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/python__python-hello-world/meta.yaml	2023-03-06 11:58:55.823172747 -0500
+@@ -10,4 +10,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/python__python-hello-world/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/TP__cpp__c-plus-plus: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/TP__cpp__c-plus-plus/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/TP__cpp__c-plus-plus/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/TP__cpp__c-plus-plus/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/TP__cpp__c-plus-plus/meta.yaml	2023-03-06 11:58:55.821172747 -0500
+@@ -16,4 +16,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/TP__dotnet__dotnet-web-simple: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml	2023-03-06 11:58:55.822172747 -0500
+@@ -15,4 +15,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/TP__go__golang-health-check: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/TP__go__golang-health-check/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/TP__go__golang-health-check/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/TP__go__golang-health-check/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/TP__go__golang-health-check/meta.yaml	2023-03-06 11:58:55.822172747 -0500
+@@ -11,4 +11,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__go__golang-health-check/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml
+Only in /tmp/tmp.TAhk1EEK4e/devfiles/TP__php__php-hello-world: devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.OP0KX6TES6/devfiles/TP__php__php-hello-world/meta.yaml /tmp/tmp.TAhk1EEK4e/devfiles/TP__php__php-hello-world/meta.yaml
+--- /tmp/tmp.OP0KX6TES6/devfiles/TP__php__php-hello-world/meta.yaml	2023-03-06 10:49:02.000000000 -0500
++++ /tmp/tmp.TAhk1EEK4e/devfiles/TP__php__php-hello-world/meta.yaml	2023-03-06 11:58:55.822172747 -0500
+@@ -10,4 +10,5 @@
+   devWorkspaces:
+     eclipse/che-theia/latest: /devfiles/TP__php__php-hello-world/devworkspace-che-theia-latest.yaml
+     eclipse/che-idea/latest: /devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml
++    che-incubator/che-code/insiders: /devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+     che-incubator/che-code/latest: /devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: a1a3fee0c29e1761da577bf9a33a7caf75a1c31f65676020aa479c1d5c9b0f13
+Deleted: 8db4779c515053fdaac4d503166e0c13982a50ca7cf232bcae8fa55c57015c56
+Deleted: ff80ef3ce43bdba3aa960a914ab98d00ba757a21a1546a750138233218ea7812
+Deleted: 2b49694ec5970935babb036c876d1da10e452cd1f2fd98a0719d450b39eeedf6
+Deleted: 9d77b27f05419822b830c13d960e21b9f63f8259352688ddc71e61568ce58010
+Deleted: 7f5d82acea40197169de02feac4be4f4225dd5b97e3bbfad1ae69cbb66812579
+Deleted: 922b28a8cbfdc8b0f3377969f6efdd0ad49df52ddccddb95fff350901829ccc1
+Deleted: 7c2636d1be9298ba1d31e1ce7a2028a298fb03a9f798cb84f7c7388db157fc78
+Deleted: f3e8dbfdffdedd256fb52c432025c6bfd360bc0a02bf6ff3899f65250bb5cb92
+Deleted: 70048144248136321df95ed53f5be3753c8c53e70c7dffae977dd93063401e52
+Deleted: 1b1bbf8ca81f72def07e05b74b3c6739eea75ae146cf9fe529ed632a82e39d13
+Deleted: a073a2578acd18513f21cfabbab294d0cfe6de2eb680cc54dc0265c7ffef2a68
+Deleted: f7291f98d1057a73a807bccbd036c82b898df1aa4cc172ea1b04543c76e61ebc
+Deleted: 4acaa346bd78ce598a9764b2b7d46d3070312091db83da4831c8a5a521e76c09
+Deleted: d6cbed03aa1e927da1e83743e1c324607246cc68b32be2ea645cf1a2ca8e1a69
+Deleted: 7872c28302e7dee573338f959e66ea35966b2754b00b1bfd76b41d25ef207785
+Deleted: 76b407c4f13adc2dc1a871f33b1a0e9f4684f5eb7bf4f793eedc4b17cfcdcd62
+Deleted: 5707a9b333819185f5387f33503d3a033f5388153aa10265ed7a5500725139ea
+Deleted: 6c5a5af0c81d79f317e709f99903809833cf7150b8de4da242d54fbbfccce254
+Deleted: 0bcca236ddeaa7fa4ae6c12f74addbe7e55cd85f450eb171a5ff15f26207de87
+Deleted: 1a96e63a9bd5d3a446aa67bdb47c56c0de780a5942cbb8324d0b0c82b544dfa3
+Deleted: 804b14cc5b89a610e5a32607b2635f0d58cedd2f73eb69b7338ebc17a1e10c99
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
