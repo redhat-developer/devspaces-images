@@ -10,38 +10,37 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V220DevfileProjects, V220DevfileProjectsItemsGit } from '@devfile/api';
+import common, { helpers } from '@eclipse-che/common';
+import { AlertVariant } from '@patternfly/react-core';
+import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { isEqual } from 'lodash';
-import { AlertVariant } from '@patternfly/react-core';
-import common, { helpers } from '@eclipse-che/common';
-import { AppState } from '../../../../../../store';
-import * as WorkspacesStore from '../../../../../../store/Workspaces';
-import { DisposableCollection } from '../../../../../../services/helpers/disposable';
-import { selectAllWorkspaces } from '../../../../../../store/Workspaces/selectors';
-import { delay } from '../../../../../../services/helpers/delay';
+import ExpandableWarning from '../../../../../../components/ExpandableWarning';
+import { LoaderPage } from '../../../../../../pages/Loader';
 import devfileApi from '../../../../../../services/devfileApi';
-import { FactoryLoaderPage } from '../../../../../../pages/Loader/Factory';
-import { selectDefaultNamespace } from '../../../../../../store/InfrastructureNamespaces/selectors';
+import { delay } from '../../../../../../services/helpers/delay';
+import { DisposableCollection } from '../../../../../../services/helpers/disposable';
+import { getProjectName } from '../../../../../../services/helpers/getProjectName';
+import { buildIdeLoaderLocation } from '../../../../../../services/helpers/location';
+import { AlertItem } from '../../../../../../services/helpers/types';
+import { Workspace } from '../../../../../../services/workspace-adapter';
+import { AppState } from '../../../../../../store';
+import { selectDefaultDevfile } from '../../../../../../store/DevfileRegistries/selectors';
 import {
   selectFactoryResolver,
   selectFactoryResolverConverted,
 } from '../../../../../../store/FactoryResolver/selectors';
-import { prepareDevfile } from './prepareDevfile';
-import findTargetWorkspace from '../../../../findTargetWorkspace';
-import { buildIdeLoaderLocation } from '../../../../../../services/helpers/location';
-import { Workspace } from '../../../../../../services/workspace-adapter';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '../../../../const';
-import { FactoryParams } from '../../../types';
-import buildFactoryParams from '../../../buildFactoryParams';
+import { selectDefaultNamespace } from '../../../../../../store/InfrastructureNamespaces/selectors';
+import * as WorkspacesStore from '../../../../../../store/Workspaces';
+import { selectAllWorkspaces } from '../../../../../../store/Workspaces/selectors';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../../AbstractStep';
-import { AlertItem } from '../../../../../../services/helpers/types';
-import { selectDefaultDevfile } from '../../../../../../store/DevfileRegistries/selectors';
-import ExpandableWarning from '../../../../../../components/ExpandableWarning';
-import { getProjectFromUrl } from './getProjectFromUrl';
+import { buildFactoryParams, FactoryParams } from '../../../../buildFactoryParams';
+import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '../../../../const';
+import findTargetWorkspace from '../../../../findTargetWorkspace';
 import { getGitRemotes, GitRemote } from './getGitRemotes';
-import { V220DevfileProjects, V220DevfileProjectsItemsGit } from '@devfile/api';
-import { getProjectName } from '../../../../../../services/helpers/getProjectName';
+import { getProjectFromUrl } from './getProjectFromUrl';
+import { prepareDevfile } from './prepareDevfile';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {
@@ -399,11 +398,12 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     const alertItem = this.getAlertItem(lastError);
 
     return (
-      <FactoryLoaderPage
+      <LoaderPage
         alertItem={alertItem}
         currentStepId={currentStepId}
         steps={steps}
         tabParam={tabParam}
+        workspace={undefined}
         onTabChange={tab => this.handleTabChange(tab)}
       />
     );

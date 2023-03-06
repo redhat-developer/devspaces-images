@@ -10,31 +10,29 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
+import { AlertVariant } from '@patternfly/react-core';
+import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { AlertVariant } from '@patternfly/react-core';
-import common from '@eclipse-che/common';
-import { isEqual } from 'lodash';
-import { AppState } from '../../../../../store';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
-import * as WorkspaceStore from '../../../../../store/Workspaces';
-import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
-import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../../services/helpers/types';
-import { DisposableCollection } from '../../../../../services/helpers/disposable';
+import { LoaderPage } from '../../../../../pages/Loader';
+import { WorkspaceParams } from '../../../../../Routes/routes';
 import { delay } from '../../../../../services/helpers/delay';
+import { DisposableCollection } from '../../../../../services/helpers/disposable';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../../services/helpers/types';
+import { Workspace } from '../../../../../services/workspace-adapter';
+import { AppState } from '../../../../../store';
+import { selectStartTimeout } from '../../../../../store/ServerConfig/selectors';
+import * as WorkspaceStore from '../../../../../store/Workspaces';
+import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
+import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
 import { MIN_STEP_DURATION_MS } from '../../../const';
 import findTargetWorkspace from '../../../findTargetWorkspace';
-import workspaceStatusIs from '../workspaceStatusIs';
-import { Workspace } from '../../../../../services/workspace-adapter';
-import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
-import { selectStartTimeout } from '../../../../../store/ServerConfig/selectors';
+import workspaceStatusIs from '../../../workspaceStatusIs';
 
 export type Props = MappedProps &
   LoaderStepProps & {
-    matchParams: {
-      namespace: string;
-      workspaceName: string;
-    };
+    matchParams: WorkspaceParams;
   };
 export type State = LoaderStepState & {
   shouldStart: boolean; // should the loader start a workspace?
@@ -212,7 +210,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
     const alertItem = this.getAlertItem(lastError);
 
     return (
-      <WorkspaceLoaderPage
+      <LoaderPage
         alertItem={alertItem}
         currentStepId={currentStepId}
         steps={steps}

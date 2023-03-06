@@ -10,26 +10,24 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { History } from 'history';
-import { AppState } from '../../../store';
-import { selectAllWorkspaces } from '../../../store/Workspaces/selectors';
-import * as WorkspaceStore from '../../../store/Workspaces';
 import { List, LoaderStep, LoadingStep } from '../../../components/Loader/Step';
+import { WorkspaceParams } from '../../../Routes/routes';
+import { AppState } from '../../../store';
+import * as WorkspaceStore from '../../../store/Workspaces';
+import { selectAllWorkspaces } from '../../../store/Workspaces/selectors';
+import StepCheckRunningWorkspacesLimit from '../CommonSteps/CheckRunningWorkspacesLimit';
 import StepInitialize from './Steps/Initialize';
-import StepStartWorkspace from './Steps/StartWorkspace';
 import StepOpenWorkspace from './Steps/OpenWorkspace';
-import StepCheckRunningWorkspacesLimit from './Steps/CheckRunningWorkspacesLimit';
+import StepStartWorkspace from './Steps/StartWorkspace';
 
 export type Props = MappedProps & {
   currentStepIndex: number; // not ID, but index
   history: History;
   loaderSteps: Readonly<List<LoaderStep>>;
-  matchParams: {
-    namespace: string;
-    workspaceName: string;
-  };
+  matchParams: WorkspaceParams;
   tabParam: string | undefined;
   onNextStep: () => void;
   onRestart: (tabName?: string) => void;
@@ -37,10 +35,6 @@ export type Props = MappedProps & {
 };
 
 class WorkspaceLoader extends React.PureComponent<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   private handleWorkspaceRestart(tabName?: string): void {
     this.props.onRestart(tabName);
   }

@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 import { V220DevfileProjects } from '@devfile/api';
+import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 
 export function getProjectFromUrl(url: string, remoteName = 'origin'): V220DevfileProjects {
   const sourceUrl = new URL(url);

@@ -10,27 +10,28 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { StateMock } from '@react-mock/state';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { StateMock } from '@react-mock/state';
-import { createMemoryHistory, MemoryHistory } from 'history';
-import { FakeStoreBuilder } from '../../../../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { ActionCreators } from '../../../../../../../store/Workspaces/devWorkspaces';
-import { AppThunk } from '../../../../../../../store';
+import StepApplyResources, { State } from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../../../../components/Loader/Step/buildSteps';
+import { ROUTE } from '../../../../../../../Routes/routes';
 import devfileApi from '../../../../../../../services/devfileApi';
-import prepareResources from '../prepareResources';
-import { DevWorkspaceResources } from '../../../../../../../store/DevfileRegistries';
-import StepApplyResources, { State } from '..';
 import getComponentRenderer from '../../../../../../../services/__mocks__/getComponentRenderer';
+import { AppThunk } from '../../../../../../../store';
+import { DevWorkspaceResources } from '../../../../../../../store/DevfileRegistries';
+import { ActionCreators } from '../../../../../../../store/Workspaces/devWorkspaces';
+import { DevWorkspaceBuilder } from '../../../../../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../../../../../store/__mocks__/storeBuilder';
+import { buildFactoryParams } from '../../../../../buildFactoryParams';
 import {
   DEV_WORKSPACE_ATTR,
   FACTORY_URL_ATTR,
@@ -38,11 +39,10 @@ import {
   POLICIES_CREATE_ATTR,
   TIMEOUT_TO_CREATE_SEC,
 } from '../../../../../const';
-import buildFactoryParams from '../../../../buildFactoryParams';
-import { ROUTE } from '../../../../../../../Routes/routes';
+import prepareResources from '../prepareResources';
 
 jest.mock('../prepareResources.ts');
-jest.mock('../../../../../../../pages/Loader/Factory');
+jest.mock('../../../../../../../pages/Loader');
 
 const mockCreateWorkspaceFromResources = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../../../../../../store/Workspaces/devWorkspaces', () => {
@@ -66,7 +66,7 @@ const mockOnRestart = jest.fn();
 const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES.toString();
-const currentStepIndex = 4;
+const currentStepIndex = 5;
 const loadingSteps = getFactoryLoadingSteps('devworkspace');
 
 const resourcesUrl = 'https://resources-url';

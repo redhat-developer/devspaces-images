@@ -13,7 +13,6 @@
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { matchPath, RouteComponentProps } from 'react-router-dom';
-import { ROUTE, WorkspaceParams } from '../../Routes/routes';
 import { List, LoaderStep, LoadingStep } from '../../components/Loader/Step';
 import {
   buildLoaderSteps,
@@ -21,18 +20,21 @@ import {
   getFactoryLoadingSteps,
   getWorkspaceLoadingSteps,
 } from '../../components/Loader/Step/buildSteps';
-import FactoryLoader from './Factory';
-import buildFactoryParams from './Factory/buildFactoryParams';
-import WorkspaceLoader from './Workspace';
-import { LoaderTab } from '../../services/helpers/types';
+import { ROUTE, WorkspaceParams } from '../../Routes/routes';
 import { sanitizeLocation } from '../../services/helpers/location';
+import { LoaderTab } from '../../services/helpers/types';
+import { buildFactoryParams } from './buildFactoryParams';
+import FactoryLoader from './Factory';
+import WorkspaceLoader from './Workspace';
 
-type LoaderMode = 'factory' | 'workspace';
+type LoaderMode =
+  | { mode: 'factory'; ideLoaderParams?: undefined }
+  | { mode: 'workspace'; workspaceParams: WorkspaceParams };
 
 export type Props = MappedProps & RouteComponentProps;
 export type State = {
   currentStepIndex: number;
-  initialMode: LoaderMode;
+  initialMode: LoaderMode['mode'];
   searchParams: URLSearchParams;
   tabParam: string | undefined;
   loaderSteps: Readonly<List<LoaderStep>>;
@@ -78,16 +80,13 @@ class LoaderContainer extends React.Component<Props, State> {
     };
   }
 
-  private getMode(props: Props): {
-    mode: LoaderMode;
-    ideLoaderParams?: WorkspaceParams;
-  } {
-    const matchIdeLoaderPath = matchPath<WorkspaceParams>(props.history.location.pathname, {
+  private getMode(props: Props): LoaderMode {
+    const workspaceLoaderPath = matchPath<WorkspaceParams>(props.history.location.pathname, {
       path: ROUTE.IDE_LOADER,
       exact: true,
     });
-    if (matchIdeLoaderPath) {
-      return { mode: 'workspace', ideLoaderParams: matchIdeLoaderPath.params };
+    if (workspaceLoaderPath) {
+      return { mode: 'workspace', workspaceParams: workspaceLoaderPath.params };
     } else {
       return { mode: 'factory' };
     }
@@ -122,7 +121,7 @@ class LoaderContainer extends React.Component<Props, State> {
 
       // START_WORKSPACE step is always present in the array
       const startWorkspaceIndex = this.steps.findIndex(
-        step => step === LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT,
+        step => step === LoadingStep.START_WORKSPACE,
       );
       this.setState({
         currentStepIndex: startWorkspaceIndex,
@@ -141,14 +140,15 @@ class LoaderContainer extends React.Component<Props, State> {
     const { currentStepIndex, loaderSteps, tabParam, searchParams } = this.state;
     const { history } = this.props;
 
-    const { mode, ideLoaderParams } = this.getMode(this.props);
-    if (mode === 'factory') {
+    const loaderMode = this.getMode(this.props);
+    if (loaderMode.mode === 'factory') {
       return (
         <FactoryLoader
           currentStepIndex={currentStepIndex}
           history={history}
           loaderSteps={loaderSteps}
           searchParams={searchParams}
+          matchParams={loaderMode.ideLoaderParams}
           tabParam={tabParam}
           onNextStep={() => this.handleNextStep()}
           onRestart={() => this.handleRestart()}
@@ -156,14 +156,12 @@ class LoaderContainer extends React.Component<Props, State> {
         />
       );
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const matchParams = ideLoaderParams!;
       return (
         <WorkspaceLoader
           currentStepIndex={currentStepIndex}
           history={history}
           loaderSteps={loaderSteps}
-          matchParams={matchParams}
+          matchParams={loaderMode.workspaceParams}
           tabParam={tabParam}
           onNextStep={() => this.handleNextStep()}
           onRestart={tabName => this.handleRestart(tabName)}

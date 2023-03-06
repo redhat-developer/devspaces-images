@@ -12,10 +12,11 @@
 
 import React from 'react';
 import { Props } from '..';
+import { LoaderTab } from '../../../services/helpers/types';
 
-export default class WorkspaceLoaderPage extends React.PureComponent<Props> {
+export class LoaderPage extends React.PureComponent<Props> {
   render(): React.ReactNode {
-    const { alertItem, currentStepId, steps } = this.props;
+    const { alertItem, currentStepId, steps, tabParam, onTabChange } = this.props;
     const wizardSteps = steps.map(step => (
       <div key={step.id} data-testid={step.id}>
         <div data-testid="hasError">{step.hasError ? 'true' : 'false'}</div>
@@ -23,20 +24,30 @@ export default class WorkspaceLoaderPage extends React.PureComponent<Props> {
         <div data-testid="title">{step.title}</div>
       </div>
     ));
-    const alertActionLinks = alertItem?.actionCallbacks?.map(action => (
-      <button onClick={() => action.callback()} key={action.title}>
-        {action.title}
-      </button>
+    const actions = alertItem?.actionCallbacks?.map(actionCallback => (
+      <div key={actionCallback.title} data-testid="action-callback">
+        <button onClick={() => actionCallback.callback()}>{actionCallback.title}</button>
+      </div>
     ));
     return (
-      <div data-testid="ide-loader-page">
+      <div data-testid="common-loader-page">
+        <button
+          data-testid="tab-progress"
+          onClick={() => onTabChange(LoaderTab[LoaderTab.Progress])}
+        >
+          Progress
+        </button>
+        <button data-testid="tab-logs" onClick={() => onTabChange(LoaderTab[LoaderTab.Logs])}>
+          Logs
+        </button>
+        <div data-testid="active-tab-key">{tabParam}</div>
         <div data-testid="current-step-id">{currentStepId}</div>
         <div data-testid="alert">
           <span data-testid="alert-title">{alertItem?.title}</span>
           <span data-testid="alert-body">{alertItem?.children}</span>
-          <div>{alertActionLinks}</div>
         </div>
-        <div>{wizardSteps}</div>
+        <div data-testid="action-links">{actions}</div>
+        <div data-testid="wizard-steps">{wizardSteps}</div>
       </div>
     );
   }

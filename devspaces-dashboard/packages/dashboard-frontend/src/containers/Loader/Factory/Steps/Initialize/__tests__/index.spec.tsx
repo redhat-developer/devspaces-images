@@ -10,20 +10,22 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { StateMock } from '@react-mock/state';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
-import { screen, waitFor, within } from '@testing-library/react';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import StepInitialize, { State } from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../../../components/Loader/Step/buildSteps';
-import StepInitialize, { State } from '..';
 import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
+import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import { buildFactoryParams } from '../../../../buildFactoryParams';
 import {
   DEV_WORKSPACE_ATTR,
   ERROR_CODE_ATTR,
@@ -31,10 +33,8 @@ import {
   MIN_STEP_DURATION_MS,
   POLICIES_CREATE_ATTR,
 } from '../../../../const';
-import { StateMock } from '@react-mock/state';
-import buildFactoryParams from '../../../buildFactoryParams';
 
-jest.mock('../../../../../../pages/Loader/Factory');
+jest.mock('../../../../../../pages/Loader');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 

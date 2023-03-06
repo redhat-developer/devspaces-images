@@ -18,12 +18,28 @@ import {
   FACTORY_URL_ATTR,
   OVERRIDE_ATTR_PREFIX,
   POLICIES_CREATE_ATTR,
-  STORAGE_TYPE_ATTR,
   REMOTES_ATTR,
-} from '../const';
-import { ErrorCode, FactoryParams, PoliciesCreate } from './types';
+  STORAGE_TYPE_ATTR,
+} from './const';
 
-export default function (searchParams: URLSearchParams): FactoryParams {
+export type FactoryParams = {
+  factoryId: string;
+  factoryUrl: string;
+  policiesCreate: PoliciesCreate;
+  sourceUrl: string;
+  useDevworkspaceResources: boolean;
+  overrides: Record<string, string> | undefined;
+  errorCode: ErrorCode | undefined;
+  storageType: che.WorkspaceStorageType | undefined;
+  cheEditor: string | undefined;
+  remotes: string | undefined;
+};
+
+export type PoliciesCreate = 'perclick' | 'peruser';
+
+export type ErrorCode = 'invalid_request' | 'access_denied';
+
+export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams {
   return {
     cheEditor: getEditorId(searchParams),
     errorCode: getErrorCode(searchParams),

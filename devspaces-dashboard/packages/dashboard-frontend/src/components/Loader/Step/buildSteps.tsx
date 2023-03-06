@@ -25,9 +25,9 @@ export type FactorySource = 'devworkspace' | 'devfile';
 export function getFactoryLoadingSteps(source: FactorySource): LoadingStep[] {
   return [
     LoadingStep.INITIALIZE,
+    LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT,
     LoadingStep.CREATE_WORKSPACE,
     ...getResourcesFetchingSteps(source),
-    LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT,
     LoadingStep.START_WORKSPACE,
     LoadingStep.OPEN_WORKSPACE,
   ];
@@ -52,14 +52,21 @@ export function getResourcesFetchingSteps(source: FactorySource): LoadingStep[] 
 export function buildLoaderSteps(loadingSteps: LoadingStep[]): List<LoaderStep> {
   const stepsList = new List<LoaderStep>();
   loadingSteps.forEach(step => {
-    const parentStep =
-      step === LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE ||
-      step === LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES ||
-      step === LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE ||
-      step === LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES ||
-      step === LoadingStep.CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES
-        ? LoadingStep.CREATE_WORKSPACE
-        : undefined;
+    let parentStep: LoadingStep | undefined;
+    switch (step) {
+      case LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE:
+      case LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES:
+      case LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE:
+      case LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES:
+      case LoadingStep.CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES:
+        parentStep = LoadingStep.CREATE_WORKSPACE;
+        break;
+      case LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT:
+        parentStep = LoadingStep.INITIALIZE;
+        break;
+      default:
+        parentStep = undefined;
+    }
     stepsList.add(new LoaderStep(step, parentStep));
   });
   return stepsList;

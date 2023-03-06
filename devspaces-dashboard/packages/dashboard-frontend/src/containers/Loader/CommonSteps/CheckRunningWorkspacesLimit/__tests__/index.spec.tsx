@@ -10,34 +10,34 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Action, Store } from 'redux';
-import { Provider } from 'react-redux';
 import { StateMock } from '@react-mock/state';
-import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
 import { screen, waitFor, within } from '@testing-library/react';
-import { WorkspaceParams } from '../../../../../../Routes/routes';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { ActionCreators } from '../../../../../../store/Workspaces';
-import { List, LoaderStep, LoadingStep } from '../../../../../../components/Loader/Step';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Action, Store } from 'redux';
+import StepCheckRunningWorkspacesLimit, { State } from '..';
+import { List, LoaderStep, LoadingStep } from '../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getWorkspaceLoadingSteps,
-} from '../../../../../../components/Loader/Step/buildSteps';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_STOP_SEC } from '../../../../const';
-import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
-import StepCheckRunningWorkspacesLimit, { State } from '..';
-import { AppThunk } from '../../../../../../store';
-import devfileApi from '../../../../../../services/devfileApi';
-import { constructWorkspace } from '../../../../../../services/workspace-adapter';
+} from '../../../../../components/Loader/Step/buildSteps';
+import { WorkspaceParams } from '../../../../../Routes/routes';
+import devfileApi from '../../../../../services/devfileApi';
+import { constructWorkspace } from '../../../../../services/workspace-adapter';
+import getComponentRenderer from '../../../../../services/__mocks__/getComponentRenderer';
+import { AppThunk } from '../../../../../store';
+import { ActionCreators } from '../../../../../store/Workspaces';
+import { DevWorkspaceBuilder } from '../../../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
+import { MIN_STEP_DURATION_MS, TIMEOUT_TO_STOP_SEC } from '../../../const';
 
-jest.mock('../../../../../../pages/Loader/Workspace');
+jest.mock('../../../../../pages/Loader');
 
 const mockStartWorkspace = jest.fn();
 const mockStopWorkspace = jest.fn();
-jest.mock('../../../../../../store/Workspaces/index', () => {
+jest.mock('../../../../../store/Workspaces/index', () => {
   return {
     actionCreators: {
       startWorkspace:
@@ -202,20 +202,15 @@ describe('Workspace Loader, step CHECK_RUNNING_WORKSPACES_LIMIT', () => {
       const hasError = within(currentStep).getByTestId('hasError');
       await waitFor(() => expect(hasError.textContent).toEqual('true'));
 
-      const actionLinks = screen.getAllByRole('button');
-
-      // two action links
-      expect(actionLinks.length).toEqual(2);
-
-      const closeRunningLink = actionLinks[0];
-      expect(closeRunningLink).toHaveTextContent(
+      const closeRunningWorkspaceButton = screen.queryByText(
         `Close running workspace (${runningDevworkspace.metadata.name}) and restart ${targetDevworkspace.metadata.name}`,
       );
+      expect(closeRunningWorkspaceButton).not.toBeNull();
 
-      const switchToRunningWorkspaceLink = actionLinks[1];
-      expect(switchToRunningWorkspaceLink).toHaveTextContent(
+      const switchToRunningWorkspaceLink = screen.queryByText(
         `Switch to running workspace (${runningDevworkspace.metadata.name}) to save any changes`,
       );
+      expect(switchToRunningWorkspaceLink).not.toBeNull();
 
       jest.runOnlyPendingTimers();
     });
@@ -439,13 +434,8 @@ describe('Workspace Loader, step CHECK_RUNNING_WORKSPACES_LIMIT', () => {
       const hasError = within(currentStep).getByTestId('hasError');
       await waitFor(() => expect(hasError.textContent).toEqual('true'));
 
-      const actionLinks = screen.getAllByRole('button');
-
-      // one action link
-      expect(actionLinks.length).toEqual(1);
-
-      const openDashboardLink = actionLinks[0];
-      expect(openDashboardLink).toHaveTextContent('Return to dashboard');
+      const openDashboardLink = screen.queryByText('Return to dashboard');
+      expect(openDashboardLink).not.toBeNull();
     });
 
     it('should return to dashboard', async () => {

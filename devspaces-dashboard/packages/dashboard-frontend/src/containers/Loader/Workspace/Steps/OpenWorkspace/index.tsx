@@ -10,29 +10,27 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
+import { AlertVariant } from '@patternfly/react-core';
+import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { isEqual } from 'lodash';
-import { AlertVariant } from '@patternfly/react-core';
-import common from '@eclipse-che/common';
-import { AppState } from '../../../../../store';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
-import * as WorkspaceStore from '../../../../../store/Workspaces';
-import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
-import { DisposableCollection } from '../../../../../services/helpers/disposable';
+import { LoaderPage } from '../../../../../pages/Loader';
+import { WorkspaceParams } from '../../../../../Routes/routes';
 import { delay } from '../../../../../services/helpers/delay';
+import { DisposableCollection } from '../../../../../services/helpers/disposable';
+import { AlertItem, LoaderTab } from '../../../../../services/helpers/types';
+import { Workspace } from '../../../../../services/workspace-adapter';
+import { AppState } from '../../../../../store';
+import * as WorkspaceStore from '../../../../../store/Workspaces';
+import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
+import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../const';
 import findTargetWorkspace from '../../../findTargetWorkspace';
-import { Workspace } from '../../../../../services/workspace-adapter';
-import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
-import { AlertItem, LoaderTab } from '../../../../../services/helpers/types';
 
 export type Props = MappedProps &
   LoaderStepProps & {
-    matchParams: {
-      namespace: string;
-      workspaceName: string;
-    };
+    matchParams: WorkspaceParams;
   };
 export type State = LoaderStepState;
 
@@ -168,7 +166,7 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
     const alertItem = this.getAlertItem(lastError);
 
     return (
-      <WorkspaceLoaderPage
+      <LoaderPage
         alertItem={alertItem}
         currentStepId={currentStepId}
         steps={steps}

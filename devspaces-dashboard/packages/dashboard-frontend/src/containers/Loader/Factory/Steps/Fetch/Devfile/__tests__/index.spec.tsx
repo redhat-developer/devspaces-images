@@ -10,34 +10,34 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Action, Store } from 'redux';
-import { Provider } from 'react-redux';
-import { createMemoryHistory } from 'history';
+import { StateMock } from '@react-mock/state';
+import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { screen, waitFor, within, cleanup } from '@testing-library/react';
-import { FakeStoreBuilder } from '../../../../../../../store/__mocks__/storeBuilder';
-import { ActionCreators, OAuthResponse } from '../../../../../../../store/FactoryResolver';
-import { AppThunk } from '../../../../../../../store';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Action, Store } from 'redux';
+import StepFetchDevfile, { State } from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../../../../components/Loader/Step/buildSteps';
 import devfileApi from '../../../../../../../services/devfileApi';
-import StepFetchDevfile, { State } from '..';
 import getComponentRenderer from '../../../../../../../services/__mocks__/getComponentRenderer';
+import { AppThunk } from '../../../../../../../store';
+import { ActionCreators, OAuthResponse } from '../../../../../../../store/FactoryResolver';
+import { FakeStoreBuilder } from '../../../../../../../store/__mocks__/storeBuilder';
+import { buildFactoryParams } from '../../../../../buildFactoryParams';
 import {
   FACTORY_URL_ATTR,
   MIN_STEP_DURATION_MS,
   OVERRIDE_ATTR_PREFIX,
-  TIMEOUT_TO_RESOLVE_SEC,
   REMOTES_ATTR,
+  TIMEOUT_TO_RESOLVE_SEC,
 } from '../../../../../const';
-import { StateMock } from '@react-mock/state';
-import buildFactoryParams from '../../../../buildFactoryParams';
 
-jest.mock('../../../../../../../pages/Loader/Factory');
+jest.mock('../../../../../../../pages/Loader');
 
 const mockRequestFactoryResolver = jest.fn();
 const mockIsOAuthResponse = jest.fn();
@@ -62,7 +62,7 @@ const mockOnRestart = jest.fn();
 const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE.toString();
-const currentStepIndex = 2;
+const currentStepIndex = 3;
 const loadingSteps = getFactoryLoadingSteps('devfile');
 
 const factoryUrl = 'https://factory-url';

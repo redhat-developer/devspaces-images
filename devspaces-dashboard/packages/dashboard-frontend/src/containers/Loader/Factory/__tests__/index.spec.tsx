@@ -10,17 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { createMemoryHistory } from 'history';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import FactoryLoader from '..';
+import { List, LoaderStep } from '../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../components/Loader/Step/buildSteps';
 import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
-import FactoryLoader from '..';
-import { List, LoaderStep } from '../../../../components/Loader/Step';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
@@ -31,6 +31,7 @@ jest.mock('../Steps/Fetch/Resources');
 jest.mock('../Steps/CheckExistingWorkspaces');
 jest.mock('../Steps/Apply/Devfile');
 jest.mock('../Steps/Apply/Resources');
+jest.mock('../../CommonSteps/CheckRunningWorkspacesLimit');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 
@@ -85,9 +86,46 @@ describe('Factory Loader container', () => {
     });
   });
 
-  describe('Step CREATE_WORKSPACE', () => {
+  describe('Step CHECK_RUNNING_WORKSPACES_LIMIT', () => {
     const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devworkspace'));
     const currentStepIndex = 1;
+
+    test('render step', async () => {
+      renderComponent(loaderSteps, currentStepIndex);
+
+      expect(screen.queryByText('Step check running workspaces limit')).not.toBeNull();
+    });
+
+    test('restart the flow', () => {
+      renderComponent(loaderSteps, currentStepIndex);
+
+      const restartButton = screen.queryByRole('button', {
+        name: 'Restart',
+      });
+      expect(restartButton).not.toBeNull();
+
+      userEvent.click(restartButton!);
+
+      expect(mockOnRestart).toHaveBeenCalled();
+    });
+
+    test('next step switch', () => {
+      renderComponent(loaderSteps, currentStepIndex);
+
+      const nextStepButton = screen.queryByRole('button', {
+        name: 'Next step',
+      });
+      expect(nextStepButton).not.toBeNull();
+
+      userEvent.click(nextStepButton!);
+
+      expect(mockOnNextStep).toHaveBeenCalled();
+    });
+  });
+
+  describe('Step CREATE_WORKSPACE', () => {
+    const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devworkspace'));
+    const currentStepIndex = 2;
 
     test('render step', async () => {
       renderComponent(loaderSteps, currentStepIndex);
@@ -124,7 +162,7 @@ describe('Factory Loader container', () => {
 
   describe('Step CREATE_WORKSPACE__FETCH_RESOURCES', () => {
     const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devworkspace'));
-    const currentStepIndex = 2;
+    const currentStepIndex = 3;
 
     test('render step', async () => {
       renderComponent(loaderSteps, currentStepIndex);
@@ -161,7 +199,7 @@ describe('Factory Loader container', () => {
 
   describe('Step CREATE_WORKSPACE__FETCH_DEVFILE', () => {
     const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devfile'));
-    const currentStepIndex = 2;
+    const currentStepIndex = 3;
 
     test('render step', async () => {
       renderComponent(loaderSteps, currentStepIndex);
@@ -198,7 +236,7 @@ describe('Factory Loader container', () => {
 
   describe('Step CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES', () => {
     const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devfile'));
-    const currentStepIndex = 3;
+    const currentStepIndex = 4;
 
     test('render step', async () => {
       renderComponent(loaderSteps, currentStepIndex);
@@ -235,7 +273,7 @@ describe('Factory Loader container', () => {
 
   describe('Step CREATE_WORKSPACE__APPLY_RESOURCES', () => {
     const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devworkspace'));
-    const currentStepIndex = 4;
+    const currentStepIndex = 5;
 
     test('render step', async () => {
       renderComponent(loaderSteps, currentStepIndex);
@@ -272,7 +310,7 @@ describe('Factory Loader container', () => {
 
   describe('Step CREATE_WORKSPACE__APPLY_DEVFILE', () => {
     const loaderSteps = buildLoaderSteps(getFactoryLoadingSteps('devfile'));
-    const currentStepIndex = 4;
+    const currentStepIndex = 5;
 
     test('render step', async () => {
       renderComponent(loaderSteps, currentStepIndex);
@@ -317,6 +355,7 @@ function getComponent(loaderSteps: List<LoaderStep>, currentStepIndex: number): 
       history={history}
       loaderSteps={loaderSteps}
       searchParams={searchParams}
+      matchParams={undefined}
       tabParam={undefined}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}

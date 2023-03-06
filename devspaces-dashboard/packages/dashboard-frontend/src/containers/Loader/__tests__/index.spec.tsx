@@ -10,24 +10,24 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { StateMock } from '@react-mock/state';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Store } from 'redux';
-import { screen, waitFor } from '@testing-library/react';
-import { StateMock } from '@react-mock/state';
-import { ROUTE } from '../../../Routes/routes';
-import { getMockRouterProps } from '../../../services/__mocks__/router';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { LoadingStep } from '../../../components/Loader/Step';
-import userEvent from '@testing-library/user-event';
 import { RouteComponentProps } from 'react-router';
+import { Store } from 'redux';
 import LoaderContainer, { State } from '..';
-import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
+import { LoadingStep } from '../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
   getWorkspaceLoadingSteps,
 } from '../../../components/Loader/Step/buildSteps';
+import { ROUTE } from '../../../Routes/routes';
+import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
+import { getMockRouterProps } from '../../../services/__mocks__/router';
+import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('../Factory');
 jest.mock('../Workspace');
@@ -107,7 +107,7 @@ describe('Loader container', () => {
 
     it('should handle onRestart in Workspace mode', async () => {
       const localState = {
-        currentStepIndex: 6,
+        currentStepIndex: 7,
         initialMode: 'factory',
         loaderSteps: buildLoaderSteps(getFactoryLoadingSteps('devfile')),
       } as Partial<State>;
@@ -119,13 +119,13 @@ describe('Loader container', () => {
       reRenderComponent(workspaceModeProps, store, localState);
 
       const currentStepIndex = screen.getByTestId('current-step-index');
-      await waitFor(() => expect(currentStepIndex.textContent).toEqual('6'));
+      await waitFor(() => expect(currentStepIndex.textContent).toEqual('7'));
 
       const restartButton = screen.getByTestId('on-restart');
 
       userEvent.click(restartButton);
 
-      await waitFor(() => expect(currentStepIndex.textContent).toEqual('5'));
+      await waitFor(() => expect(currentStepIndex.textContent).toEqual('6'));
     });
 
     describe('when starting the workspace', () => {

@@ -10,40 +10,40 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Action, Store } from 'redux';
-import { Provider } from 'react-redux';
+import { api } from '@eclipse-che/common';
+import { StateMock } from '@react-mock/state';
 import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createMemoryHistory, MemoryHistory } from 'history';
-import { ROUTE } from '../../../../../../../Routes/routes';
-import { FakeStoreBuilder } from '../../../../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { ActionCreators } from '../../../../../../../store/Workspaces';
-import { AppThunk } from '../../../../../../../store';
+import { dump } from 'js-yaml';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Action, Store } from 'redux';
+import StepApplyDevfile, { State } from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../../../../components/Loader/Step/buildSteps';
+import { ROUTE } from '../../../../../../../Routes/routes';
 import devfileApi from '../../../../../../../services/devfileApi';
 import getComponentRenderer from '../../../../../../../services/__mocks__/getComponentRenderer';
-import StepApplyDevfile, { State } from '..';
+import { AppThunk } from '../../../../../../../store';
+import { ActionCreators } from '../../../../../../../store/Workspaces';
+import { DevWorkspaceBuilder } from '../../../../../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../../../../../store/__mocks__/storeBuilder';
+import { buildFactoryParams } from '../../../../../buildFactoryParams';
 import {
   FACTORY_URL_ATTR,
   MIN_STEP_DURATION_MS,
   POLICIES_CREATE_ATTR,
-  TIMEOUT_TO_CREATE_SEC,
   REMOTES_ATTR,
+  TIMEOUT_TO_CREATE_SEC,
 } from '../../../../../const';
-import userEvent from '@testing-library/user-event';
-import { StateMock } from '@react-mock/state';
-import buildFactoryParams from '../../../../buildFactoryParams';
 import { prepareDevfile } from '../prepareDevfile';
-import { dump } from 'js-yaml';
-import { api } from '@eclipse-che/common';
 
 jest.mock('../prepareDevfile.ts');
-jest.mock('../../../../../../../pages/Loader/Factory');
+jest.mock('../../../../../../../pages/Loader');
 
 const mockCreateWorkspaceFromDevfile = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../../../../../../store/Workspaces/index', () => {
@@ -67,7 +67,7 @@ const mockOnRestart = jest.fn();
 const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE.toString();
-const currentStepIndex = 4;
+const currentStepIndex = 5;
 const loadingSteps = getFactoryLoadingSteps('devfile');
 
 const factoryUrl = 'https://factory-url';

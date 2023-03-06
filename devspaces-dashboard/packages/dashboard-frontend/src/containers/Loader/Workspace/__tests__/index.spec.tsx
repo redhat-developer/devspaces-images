@@ -10,27 +10,27 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Store } from 'redux';
-import { Provider } from 'react-redux';
-import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+import WorkspaceLoader from '..';
 import {
   buildLoaderSteps,
   getWorkspaceLoadingSteps,
 } from '../../../../components/Loader/Step/buildSteps';
-import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
-import WorkspaceLoader from '..';
 import { Workspace } from '../../../../services/workspace-adapter';
+import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
+import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 jest.mock('../Steps/Initialize');
 jest.mock('../Steps/OpenWorkspace');
 jest.mock('../Steps/StartWorkspace');
-jest.mock('../Steps/CheckRunningWorkspacesLimit');
+jest.mock('../../CommonSteps/CheckRunningWorkspacesLimit');
 jest.mock('../../findTargetWorkspace.ts', () => {
   return {
     __esModule: true,

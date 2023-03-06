@@ -10,25 +10,25 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Store } from 'redux';
-import { Provider } from 'react-redux';
-import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
 import { screen, waitFor, within } from '@testing-library/react';
-import { WorkspaceParams } from '../../../../../../Routes/routes';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../../const';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+import StepOpenWorkspace from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getWorkspaceLoadingSteps,
 } from '../../../../../../components/Loader/Step/buildSteps';
+import { WorkspaceParams } from '../../../../../../Routes/routes';
 import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
-import StepOpenWorkspace from '..';
+import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../../const';
 
-jest.mock('../../../../../../pages/Loader/Workspace');
+jest.mock('../../../../../../pages/Loader');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 

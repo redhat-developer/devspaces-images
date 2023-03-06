@@ -19,19 +19,15 @@ import styles from './index.module.css';
 
 export enum LoadingStep {
   INITIALIZE = 1,
+  CHECK_RUNNING_WORKSPACES_LIMIT,
   CREATE_WORKSPACE,
   CREATE_WORKSPACE__FETCH_DEVFILE,
   CREATE_WORKSPACE__FETCH_RESOURCES,
   CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES,
   CREATE_WORKSPACE__APPLY_DEVFILE,
   CREATE_WORKSPACE__APPLY_RESOURCES,
-  CHECK_RUNNING_WORKSPACES_LIMIT,
   START_WORKSPACE,
   OPEN_WORKSPACE,
-}
-
-export function isIdeStep(loadingStep: LoadingStep): boolean {
-  return loadingStep === LoadingStep.START_WORKSPACE || loadingStep === LoadingStep.OPEN_WORKSPACE;
 }
 
 function getStepTitle(id: LoadingStep): string {

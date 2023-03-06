@@ -16,33 +16,33 @@ import { Store } from 'redux';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AlertVariant } from '@patternfly/react-core';
-import { CommonLoaderPage } from '..';
-import { LoadingStep, List, LoaderStep } from '../../../../components/Loader/Step';
+import { LoaderPage } from '..';
+import { LoadingStep, List, LoaderStep } from '../../../components/Loader/Step';
 import {
   getWorkspaceLoadingSteps,
   buildLoaderSteps,
-} from '../../../../components/Loader/Step/buildSteps';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
+} from '../../../components/Loader/Step/buildSteps';
+import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import {
   AlertItem,
   LoaderTab,
   DevWorkspaceStatus,
   ActionCallback,
-} from '../../../../services/helpers/types';
-import devfileApi from '../../../../services/devfileApi';
-import { constructWorkspace, Workspace } from '../../../../services/workspace-adapter';
-import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
+} from '../../../services/helpers/types';
+import devfileApi from '../../../services/devfileApi';
+import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
+import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
     return <div>Dummy Tooltip</div>;
   };
 });
-jest.mock('../../../../components/Loader/Alert');
-jest.mock('../../../../components/Loader/Progress');
-jest.mock('../../../../components/WorkspaceLogs');
-jest.mock('../../../../components/WorkspaceEvents');
+jest.mock('../../../components/Loader/Alert');
+jest.mock('../../../components/Loader/Progress');
+jest.mock('../../../components/WorkspaceLogs');
+jest.mock('../../../components/WorkspaceEvents');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
@@ -59,7 +59,7 @@ const namespace = 'user-che';
 const workspaceName = 'wksp-test';
 const currentStepId = LoadingStep.INITIALIZE;
 const status: keyof typeof DevWorkspaceStatus = 'STARTING';
-const activeTab = LoaderTab.Progress;
+const tabParam = LoaderTab[LoaderTab.Progress];
 
 describe('Loader page', () => {
   let devWorkspace: devfileApi.DevWorkspace;
@@ -90,7 +90,7 @@ describe('Loader page', () => {
   test('component snapshot: creating a workspace', () => {
     const emptyStore = new FakeStoreBuilder().build();
     const snapshot = createSnapshot(emptyStore, {
-      activeTab,
+      tabParam,
       steps: steps.values,
       workspace: undefined,
     });
@@ -99,7 +99,7 @@ describe('Loader page', () => {
 
   test('component snapshot: starting a workspace', () => {
     const snapshot = createSnapshot(store, {
-      activeTab,
+      tabParam,
       steps: steps.values,
       workspace,
     });
@@ -108,7 +108,7 @@ describe('Loader page', () => {
 
   it('should handle tab click', () => {
     renderComponent(store, {
-      activeTab,
+      tabParam,
       steps: steps.values,
       workspace,
     });
@@ -116,7 +116,7 @@ describe('Loader page', () => {
     const tabButtonLogs = screen.getByRole('button', { name: 'Logs' });
     userEvent.click(tabButtonLogs);
 
-    expect(mockOnTabChange).toHaveBeenCalledWith(LoaderTab.Logs);
+    expect(mockOnTabChange).toHaveBeenCalledWith(LoaderTab[LoaderTab.Logs]);
   });
 
   it('should handle reload', () => {
@@ -127,7 +127,7 @@ describe('Loader page', () => {
       actionCallbacks,
     };
     renderComponent(store, {
-      activeTab,
+      tabParam,
       steps: steps.values,
       alertItem,
       workspace,
@@ -141,7 +141,7 @@ describe('Loader page', () => {
 
   it('should render Progress tab active by default', () => {
     renderComponent(store, {
-      activeTab,
+      tabParam,
       steps: steps.values,
       workspace,
     });
@@ -157,7 +157,7 @@ describe('Loader page', () => {
 
   it('should render Logs tab active', () => {
     renderComponent(store, {
-      activeTab: LoaderTab.Logs,
+      tabParam: LoaderTab[LoaderTab.Logs],
       steps: steps.values,
       workspace,
     });
@@ -176,16 +176,16 @@ function getComponent(
   store: Store,
   props: {
     steps: LoaderStep[];
-    activeTab: LoaderTab;
+    tabParam: string;
     alertItem?: AlertItem;
     workspace?: Workspace;
   },
 ): React.ReactElement {
   return (
     <Provider store={store}>
-      <CommonLoaderPage
+      <LoaderPage
         alertItem={props.alertItem}
-        activeTabKey={props.activeTab}
+        tabParam={props.tabParam}
         currentStepId={currentStepId}
         steps={props.steps}
         workspace={props.workspace}

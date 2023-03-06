@@ -53,6 +53,36 @@ exports[`Loader Progress Step INITIALIZATION snapshot 1`] = `
         >
           Initializing
         </span>
+        <svg
+          aria-hidden="true"
+          aria-labelledby={null}
+          className="pf-c-wizard__toggle-separator"
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </li>
+      <li
+        className="pf-c-wizard__toggle-list-item"
+      >
+        
+        <span
+          className=""
+          data-testid="step-title"
+        >
+          Checking for the limit of running workspaces
+        </span>
       </li>
     </ol>
     <span
@@ -96,10 +126,10 @@ exports[`Loader Progress Step INITIALIZATION snapshot 1`] = `
             className="pf-c-wizard__nav-item"
           >
             <button
-              aria-current="page"
-              aria-disabled={null}
-              className="pf-c-wizard__nav-link pf-m-current"
-              disabled={false}
+              aria-current={false}
+              aria-disabled={true}
+              className="pf-c-wizard__nav-link pf-m-current pf-m-disabled"
+              disabled={true}
               onClick={[Function]}
             >
               <svg
@@ -129,25 +159,29 @@ exports[`Loader Progress Step INITIALIZATION snapshot 1`] = `
                 Initializing
               </span>
             </button>
-          </li>
-          <li
-            className="pf-c-wizard__nav-item"
-          >
-            <button
-              aria-current={false}
-              aria-disabled={true}
-              className="pf-c-wizard__nav-link pf-m-disabled"
-              disabled={true}
-              onClick={[Function]}
+            <ol
+              className="pf-c-wizard__nav-list"
             >
-              
-              <span
-                className=""
-                data-testid="step-title"
+              <li
+                className="pf-c-wizard__nav-item"
               >
-                Checking for the limit of running workspaces
-              </span>
-            </button>
+                <button
+                  aria-current="page"
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-current pf-m-disabled"
+                  disabled={true}
+                  onClick={[Function]}
+                >
+                  
+                  <span
+                    className=""
+                    data-testid="step-title"
+                  >
+                    Checking for the limit of running workspaces
+                  </span>
+                </button>
+              </li>
+            </ol>
           </li>
           <li
             className="pf-c-wizard__nav-item"

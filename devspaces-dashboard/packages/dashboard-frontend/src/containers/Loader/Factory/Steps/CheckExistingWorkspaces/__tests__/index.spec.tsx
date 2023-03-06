@@ -10,34 +10,34 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { StateMock } from '@react-mock/state';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { StateMock } from '@react-mock/state';
-import { createMemoryHistory, MemoryHistory } from 'history';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
+import StepCheckExistingWorkspaces, { State } from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../../../components/Loader/Step/buildSteps';
+import { ROUTE } from '../../../../../../Routes/routes';
 import devfileApi from '../../../../../../services/devfileApi';
-import { DevWorkspaceResources } from '../../../../../../store/DevfileRegistries';
-import StepCheckExistingWorkspaces, { State } from '..';
 import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
+import { DevWorkspaceResources } from '../../../../../../store/DevfileRegistries';
+import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import { buildFactoryParams } from '../../../../buildFactoryParams';
 import {
   DEV_WORKSPACE_ATTR,
   FACTORY_URL_ATTR,
   MIN_STEP_DURATION_MS,
   POLICIES_CREATE_ATTR,
 } from '../../../../const';
-import buildFactoryParams from '../../../buildFactoryParams';
-import { ROUTE } from '../../../../../../Routes/routes';
 
-jest.mock('../../../../../../pages/Loader/Factory');
+jest.mock('../../../../../../pages/Loader');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 let history: MemoryHistory;
@@ -47,7 +47,7 @@ const mockOnRestart = jest.fn();
 const mockOnTabChange = jest.fn();
 
 const stepId = LoadingStep.CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES.toString();
-const currentStepIndex = 3;
+const currentStepIndex = 4;
 
 const resourcesUrl = 'https://resources-url';
 const factoryUrl = 'https://factory-url';

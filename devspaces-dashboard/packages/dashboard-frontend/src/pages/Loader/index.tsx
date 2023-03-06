@@ -12,34 +12,56 @@
 
 import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
 import React from 'react';
-import Head from '../../../components/Head';
-import Header from '../../../components/Header';
-import { LoaderAlert } from '../../../components/Loader/Alert';
-import { LoaderProgress } from '../../../components/Loader/Progress';
-import { LoaderStep } from '../../../components/Loader/Step';
-import WorkspaceEvents from '../../../components/WorkspaceEvents';
-import WorkspaceLogs from '../../../components/WorkspaceLogs';
-import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../services/helpers/types';
-import { Workspace } from '../../../services/workspace-adapter';
+import Head from '../../components/Head';
+import Header from '../../components/Header';
+import { LoaderAlert } from '../../components/Loader/Alert';
+import { LoaderProgress } from '../../components/Loader/Progress';
+import { LoaderStep } from '../../components/Loader/Step';
+import WorkspaceEvents from '../../components/WorkspaceEvents';
+import WorkspaceLogs from '../../components/WorkspaceLogs';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../services/helpers/types';
+import { Workspace } from '../../services/workspace-adapter';
 
 import styles from './index.module.css';
 
 export type Props = {
-  activeTabKey: LoaderTab;
   alertItem: AlertItem | undefined;
   currentStepId: number;
   steps: LoaderStep[];
+  tabParam: string | undefined;
   workspace: Workspace | undefined;
-  onTabChange: (tab: LoaderTab) => void;
+  onTabChange: (tabName: string) => void;
 };
 
-export class CommonLoaderPage extends React.PureComponent<Props> {
+export type State = {
+  activeTabKey: LoaderTab;
+};
+
+export class LoaderPage extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    const { tabParam } = this.props;
+    const activeTabKey = tabParam && LoaderTab[tabParam] ? LoaderTab[tabParam] : LoaderTab.Progress;
+
+    this.state = {
+      activeTabKey,
+    };
+  }
+
   private handleTabClick(tabIndex: React.ReactText): void {
-    this.props.onTabChange(tabIndex as LoaderTab);
+    const tabKey = tabIndex as LoaderTab;
+
+    this.setState({
+      activeTabKey: tabKey,
+    });
+    const tabName = LoaderTab[tabKey];
+    this.props.onTabChange(tabName);
   }
 
   render(): React.ReactNode {
-    const { activeTabKey, alertItem, currentStepId, steps, workspace } = this.props;
+    const { alertItem, currentStepId, steps, workspace } = this.props;
+    const { activeTabKey } = this.state;
 
     const pageTitle = workspace ? `Starting workspace ${workspace.name}` : 'Creating a workspace';
     const workspaceStatus = workspace?.status || DevWorkspaceStatus.STOPPED;

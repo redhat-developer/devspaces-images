@@ -10,25 +10,24 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { helpers } from '@eclipse-che/common';
+import { AlertVariant } from '@patternfly/react-core';
+import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { generatePath } from 'react-router-dom';
-import { isEqual } from 'lodash';
-import { AlertVariant } from '@patternfly/react-core';
-import { helpers } from '@eclipse-che/common';
-import { AppState } from '../../../../../store';
-import { selectInfrastructureNamespaces } from '../../../../../store/InfrastructureNamespaces/selectors';
-import { DisposableCollection } from '../../../../../services/helpers/disposable';
-import { delay } from '../../../../../services/helpers/delay';
+import { LoaderPage } from '../../../../../pages/Loader';
 import { ROUTE } from '../../../../../Routes/routes';
-import { FactoryLoaderPage } from '../../../../../pages/Loader/Factory';
-import { FactoryParams, PoliciesCreate } from '../../types';
-import { MIN_STEP_DURATION_MS } from '../../../const';
-import buildFactoryParams from '../../buildFactoryParams';
-import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { delay } from '../../../../../services/helpers/delay';
+import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { AlertItem } from '../../../../../services/helpers/types';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
+import { AppState } from '../../../../../store';
 import { selectAllWorkspacesLimit } from '../../../../../store/ClusterConfig/selectors';
+import { selectInfrastructureNamespaces } from '../../../../../store/InfrastructureNamespaces/selectors';
+import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
+import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { buildFactoryParams, FactoryParams, PoliciesCreate } from '../../../buildFactoryParams';
+import { MIN_STEP_DURATION_MS } from '../../../const';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -169,11 +168,12 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     const alertItem = this.getAlertItem(lastError);
 
     return (
-      <FactoryLoaderPage
+      <LoaderPage
         alertItem={alertItem}
         currentStepId={currentStepId}
         steps={steps}
         tabParam={tabParam}
+        workspace={undefined}
         onTabChange={tab => this.handleTabChange(tab)}
       />
     );

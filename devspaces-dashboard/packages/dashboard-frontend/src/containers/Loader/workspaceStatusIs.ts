@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DevWorkspaceStatus } from '../../../../services/helpers/types';
-import { Workspace } from '../../../../services/workspace-adapter';
+import { DevWorkspaceStatus } from '../../services/helpers/types';
+import { Workspace } from '../../services/workspace-adapter';
 
 export default function (workspace: Workspace, ...statuses: DevWorkspaceStatus[]): boolean {
   return statuses.some(status => status === workspace.status);

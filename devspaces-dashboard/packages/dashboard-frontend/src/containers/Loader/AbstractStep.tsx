@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { History } from 'history';
+import React from 'react';
 import { Cancellation, pseudoCancellable } from 'real-cancellable-promise';
 import { List, LoaderStep } from '../../components/Loader/Step';
 import { DisposableCollection } from '../../services/helpers/disposable';
