@@ -1,9 +1,0 @@
-builds:
-  # https://orch.psi.redhat.com/pnc-web/#/projects/1076/build-configs/6637/builds/AODBO5YQY3AAA/dependencies
-  # build id must be string
-  - build_id: 'AODBO5YQY3AAA' 
-    artifacts:
-      # https://orch.psi.redhat.com/pnc-web/#/artifacts/6984449
-      # artifact id must be string; rename it by setting a different target path/file
-      - id: '6984449'
-        target: lombok.jar
