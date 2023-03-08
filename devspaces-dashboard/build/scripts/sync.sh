@@ -148,7 +148,7 @@ while IFS= read -r -d '' d; do
   fi
 done <   <(find ${TARGETDIR}/ -name "*.json" -type f -print0)
 
-# TODO https://issues.redhat.com/browse/CRW-3489 - disable che-theia from DS 3.4 or 3.5 when it's deprecated / removed.
+# https://issues.redhat.com/browse/CRW-3489 - remove che-theia from DS 3.6+
 # https://issues.redhat.com/browse/CRW-3485 - disable che-idea from DS 3.3+ as we don't want to show tech preview editors in the dashboard
 while IFS= read -r -d '' d; do
   # see che-plugin-registry/che-editors.yaml, then for metadata.name=che-incubator/che-idea/next; exclude 'che-idea'
