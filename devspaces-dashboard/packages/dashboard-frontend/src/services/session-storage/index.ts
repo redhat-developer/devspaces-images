@@ -13,7 +13,6 @@
 export enum SessionStorageKey {
   PRIVATE_FACTORY_RELOADS = 'private-factory-reloads-number',
   ORIGINAL_LOCATION_PATH = 'original-location-path',
-  AUTHENTICATION_STATUS = 'authentication-status',
 }
 
 export default class SessionStorageService {

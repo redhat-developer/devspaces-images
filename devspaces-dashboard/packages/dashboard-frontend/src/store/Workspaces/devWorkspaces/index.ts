@@ -43,6 +43,7 @@ import { dump } from 'js-yaml';
 import { loadResourcesContent } from '../../../services/registry/resources';
 import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
 import { selectDevWorkspacesResourceVersion } from './selectors';
+import OAuthService from '../../../services/oauth';
 import { EDITOR_ATTR } from '../../../containers/Loader/const';
 
 const devWorkspaceClient = container.get(DevWorkspaceClient);
@@ -262,6 +263,7 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
+      await OAuthService.refreshTokenIfNeeded(workspace);
       await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
       try {
         checkRunningWorkspacesLimit(getState());

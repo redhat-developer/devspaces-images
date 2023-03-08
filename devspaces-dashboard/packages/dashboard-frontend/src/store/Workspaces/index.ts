@@ -16,8 +16,6 @@ import { createObject } from '../helpers';
 import devfileApi from '../../services/devfileApi';
 import { Workspace } from '../../services/workspace-adapter';
 import * as DevWorkspacesStore from './devWorkspaces';
-import common from '@eclipse-che/common';
-import OAuthService, { isOAuthResponse } from '../../services/oauth';
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
@@ -156,29 +154,6 @@ export const actionCreators: ActionCreators = {
     (workspace: Workspace, params?: ResourceQueryParams): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       dispatch({ type: 'REQUEST_WORKSPACES' });
-      try {
-        await OAuthService.refreshTokenIfNeeded(workspace);
-      } catch (e) {
-        if (common.helpers.errors.includesAxiosResponse(e)) {
-          const response = e.response;
-          if (response.status === 401 && isOAuthResponse(response.data)) {
-            // build redirect URL
-            const redirectUrl = new URL(
-              'dashboard/w',
-              window.location.protocol + '//' + window.location.host,
-            );
-            redirectUrl.searchParams.set(
-              'params',
-              `{"namespace":"${workspace.namespace}","workspace":"${workspace.name}"}`,
-            );
-            OAuthService.openOAuthPage(
-              response.data.attributes.oauth_authentication_url,
-              redirectUrl.toString(),
-            );
-            return;
-          }
-        }
-      }
       const debugWorkspace = params && params['debug-workspace-start'];
       await dispatch(
         DevWorkspacesStore.actionCreators.startWorkspace(workspace.ref, debugWorkspace),
