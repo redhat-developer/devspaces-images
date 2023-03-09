@@ -57,7 +57,6 @@ build/scripts/sync.sh
 get-source*.sh
 tests/basic-test.yaml
 sources
-/Dockerfile
 RELEASE.md
 make-release.sh
 .dockerignore
@@ -69,14 +68,7 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile -r \
-  `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-> ${TARGETDIR}/Dockerfile
-
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
