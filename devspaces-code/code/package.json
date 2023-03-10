@@ -78,7 +78,7 @@
     "keytar": "7.9.0",
     "minimist": "^1.2.6",
     "native-is-elevated": "0.4.3",
-    "native-watchdog": "1.4.1",
+    "native-watchdog": "^1.4.1",
     "node-pty": "0.11.0-beta29",
     "spdlog": "^0.13.0",
     "tas-client-umd": "0.1.6",
