@@ -60,7 +60,7 @@ echo ".github/
 .dockerignore
 .ci/
 .vscode/
-build/
+build/scripts
 devfiles.yaml
 /container.yaml
 /content_sets.*
@@ -74,7 +74,6 @@ get-source*.sh
 tests/basic-test.yaml
 sources
 make-release.sh
-build/scripts/insert-related-images-to-csv.sh
 helmcharts/
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
@@ -84,14 +83,7 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-  `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  > "${TARGETDIR}/Dockerfile"
-
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     PRODNAME="devspaces" \\
@@ -110,6 +102,6 @@ LABEL com.redhat.delivery.appregistry="false" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Converted brew.Dockerfile"
 
 "${TARGETDIR}"/build/scripts/sync-che-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
