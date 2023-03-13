@@ -24,7 +24,7 @@
     "start": "${PWD}/run/local-run.sh $@",
     "start:prepare": "${PWD}/run/prepare-local-run.sh",
     "start:cleanup": "${PWD}/run/revert-local-run.sh",
-    "license:check": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses@sha256:5019c836f76e9bead88f5161eb32e98dafb52696fdb813f93e608454fed66275 --check",
+    "license:check": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses@sha256:72290f67f297a31b7b9b343d19f42cc0ecc90e1d36cc9f18473c586a70e4b7eb --check",
     "license:generate": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next",
     "test": "lerna run test --stream -- --no-cache $@",
     "pretest": "yarn run prebuild",
