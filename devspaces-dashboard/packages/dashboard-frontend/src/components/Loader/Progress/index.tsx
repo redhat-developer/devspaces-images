@@ -30,14 +30,6 @@ export class LoaderProgress extends React.PureComponent<Props> {
     this.wizardRef = React.createRef();
   }
 
-  public componentDidUpdate(): void {
-    const { currentStepId } = this.props;
-    const wizardCurrent = this.wizardRef.current;
-    if (wizardCurrent?.state?.currentStep !== currentStepId) {
-      wizardCurrent.state.currentStep = currentStepId;
-    }
-  }
-
   render(): React.ReactNode {
     const { currentStepId, steps } = this.props;
 

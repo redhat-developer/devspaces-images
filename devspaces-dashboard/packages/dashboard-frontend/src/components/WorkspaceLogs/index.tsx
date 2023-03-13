@@ -28,6 +28,7 @@ import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 import WorkspaceLogsTools from './Tools';
 
 import styles from './index.module.css';
+import { DevWorkspaceStatus } from '../../services/helpers/types';
 
 const MAX_LOG_LENGTH = 500;
 const LOGS_CONTAINER_ID = 'output-logs';
@@ -40,6 +41,7 @@ export type Props = {
 export type State = {
   isExpanded: boolean;
   isStarting: boolean;
+  isFailed: boolean;
   logs: string[];
 };
 
@@ -50,6 +52,7 @@ export class WorkspaceLogs extends React.PureComponent<Props, State> {
     this.state = {
       isExpanded: false,
       isStarting: false,
+      isFailed: false,
       logs: [],
     };
   }
@@ -103,6 +106,11 @@ export class WorkspaceLogs extends React.PureComponent<Props, State> {
         logs,
       });
     }
+
+    const isFailed = workspace.status === DevWorkspaceStatus.FAILED;
+    this.setState({
+      isFailed,
+    });
   }
 
   private getLines(): JSX.Element[] {
@@ -143,10 +151,10 @@ export class WorkspaceLogs extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { isExpanded, isStarting, logs } = this.state;
+    const { isExpanded, isStarting, isFailed, logs } = this.state;
     const shouldToggleNavbar = true;
 
-    if (isStarting === false) {
+    if (isStarting === false && isFailed == false) {
       return (
         <EmptyState>
           <EmptyStateIcon icon={FileIcon} />

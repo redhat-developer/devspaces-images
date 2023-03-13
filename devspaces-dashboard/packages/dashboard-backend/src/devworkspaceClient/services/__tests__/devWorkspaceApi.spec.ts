@@ -22,6 +22,7 @@ import { api } from '@eclipse-che/common';
 import { IPatch } from '@eclipse-che/common/src/dto/api';
 import * as mockClient from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
+import { IncomingMessage } from 'http';
 import { DevWorkspaceApiService } from '../devWorkspaceApi';
 
 const namespace = 'user-che';
@@ -32,7 +33,10 @@ describe('DevWorkspace API Service', () => {
 
   const stubCustomObjectsApi = {
     createNamespacedCustomObject: () => {
-      return Promise.resolve({ body: getDevWorkspace() });
+      return Promise.resolve({
+        body: getDevWorkspace(),
+        response: { headers: {} } as IncomingMessage,
+      });
     },
     deleteNamespacedCustomObject: () => {
       return Promise.resolve({ body: {} });
@@ -44,7 +48,10 @@ describe('DevWorkspace API Service', () => {
       return Promise.resolve({ body: buildListNamespacesCustomObject() });
     },
     patchNamespacedCustomObject: () => {
-      return Promise.resolve({ body: getDevWorkspace() });
+      return Promise.resolve({
+        body: getDevWorkspace(),
+        response: { headers: {} } as IncomingMessage,
+      });
     },
     replaceNamespacedCustomObject: () => {
       return Promise.resolve({ body: getDevWorkspace() });
@@ -70,10 +77,6 @@ describe('DevWorkspace API Service', () => {
   const spyPatchNamespacedCustomObject = jest.spyOn(
     stubCustomObjectsApi,
     'patchNamespacedCustomObject',
-  );
-  const spyReplaceNamespacedCustomObject = jest.spyOn(
-    stubCustomObjectsApi,
-    'replaceNamespacedCustomObject',
   );
 
   beforeEach(() => {
@@ -123,7 +126,8 @@ describe('DevWorkspace API Service', () => {
     } as V1alpha2DevWorkspace;
 
     const res = await devWorkspaceService.create(devWorkspace, namespace);
-    expect(res).toEqual(getDevWorkspace());
+    expect(res.devWorkspace).toStrictEqual(getDevWorkspace());
+    expect(res.headers).toStrictEqual({});
     expect(spyCreateNamespacedCustomObject).toHaveBeenCalledWith(
       devworkspaceGroup,
       devworkspaceLatestVersion,
@@ -143,7 +147,8 @@ describe('DevWorkspace API Service', () => {
     ];
 
     const res = await devWorkspaceService.patch(namespace, name, patches);
-    expect(res).toEqual(getDevWorkspace());
+    expect(res.devWorkspace).toStrictEqual(getDevWorkspace());
+    expect(res.headers).toStrictEqual({});
     expect(spyPatchNamespacedCustomObject).toHaveBeenCalledWith(
       devworkspaceGroup,
       devworkspaceLatestVersion,
@@ -155,28 +160,6 @@ describe('DevWorkspace API Service', () => {
       undefined,
       undefined,
       expect.anything(),
-    );
-  });
-
-  test('updating', async () => {
-    const devWorkspace = {
-      apiVersion: 'workspace.devfile.io/v1alpha2',
-      kind: 'DevWorkspace',
-      metadata: {
-        name: 'wksp-name',
-        namespace,
-      },
-    } as V1alpha2DevWorkspace;
-
-    const res = await devWorkspaceService.update(devWorkspace);
-    expect(res).toEqual(getDevWorkspace());
-    expect(spyReplaceNamespacedCustomObject).toHaveBeenCalledWith(
-      devworkspaceGroup,
-      devworkspaceLatestVersion,
-      namespace,
-      devworkspacePlural,
-      devWorkspace.metadata?.name,
-      devWorkspace,
     );
   });
 

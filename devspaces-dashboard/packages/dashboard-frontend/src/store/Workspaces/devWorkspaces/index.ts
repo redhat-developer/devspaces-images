@@ -46,8 +46,6 @@ import { selectDevWorkspacesResourceVersion } from './selectors';
 import OAuthService from '../../../services/oauth';
 import { EDITOR_ATTR } from '../../../containers/Loader/const';
 
-const devWorkspaceClient = container.get(DevWorkspaceClient);
-
 export const onStatusChangeCallbacks = new Map<string, (status: DevWorkspaceStatus) => void>();
 
 export interface State {
@@ -56,6 +54,9 @@ export interface State {
   resourceVersion: string;
   error?: string;
   startedWorkspaces: {
+    [workspaceUID: string]: string;
+  };
+  warnings: {
     [workspaceUID: string]: string;
   };
 }
@@ -76,6 +77,7 @@ export enum Type {
   TERMINATE_DEVWORKSPACE = 'TERMINATE_DEVWORKSPACE',
   ADD_DEVWORKSPACE = 'ADD_DEVWORKSPACE',
   UPDATE_STARTED_WORKSPACES = 'UPDATE_STARTED_WORKSPACES',
+  UPDATE_WARNING = 'UPDATE_WARNING',
 }
 
 export interface RequestDevWorkspacesAction extends Action, SanityCheckAction {
@@ -119,6 +121,12 @@ export interface UpdateStartedWorkspaceAction extends Action {
   workspaces: devfileApi.DevWorkspace[];
 }
 
+export interface UpdateWarningAction extends Action {
+  type: Type.UPDATE_WARNING;
+  workspace: devfileApi.DevWorkspace;
+  warning: string;
+}
+
 export type KnownAction =
   | RequestDevWorkspacesAction
   | ReceiveErrorAction
@@ -127,7 +135,8 @@ export type KnownAction =
   | DeleteWorkspaceAction
   | TerminateWorkspaceAction
   | AddWorkspaceAction
-  | UpdateStartedWorkspaceAction;
+  | UpdateStartedWorkspaceAction
+  | UpdateWarningAction;
 
 export type ResourceQueryParams = {
   'debug-workspace-start': boolean;
@@ -149,16 +158,14 @@ export type ActionCreators = {
   updateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
     devfile: devfileApi.Devfile,
+    attributes: { [key: string]: string },
     optionalFilesContent: {
       [fileName: string]: string;
     },
-    pluginRegistryUrl: string | undefined,
-    pluginRegistryInternalUrl: string | undefined,
-    attributes: { [key: string]: string },
   ) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromResources: (
-    devworkspace: devfileApi.DevWorkspace,
-    devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+    devWorkspace: devfileApi.DevWorkspace,
+    devWorkspaceTemplate: devfileApi.DevWorkspaceTemplate,
     editor?: string,
   ) => AppThunk<KnownAction, Promise<void>>;
 
@@ -481,12 +488,15 @@ export const actionCreators: ActionCreators = {
 
   createWorkspaceFromResources:
     (
-      devworkspace: devfileApi.DevWorkspace,
-      devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+      devWorkspaceResource: devfileApi.DevWorkspace,
+      devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate,
       editorId?: string,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
+
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+
       const defaultKubernetesNamespace = selectDefaultNamespace(state);
       const openVSXUrl = selectOpenVSXUrl(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
@@ -496,26 +506,57 @@ export const actionCreators: ActionCreators = {
           state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
         const pluginRegistryInternalUrl =
           state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
-        const workspace = await getDevWorkspaceClient().createFromResources(
+
+        /* create a new DevWorkspace (without components) */
+
+        const createResp = await getDevWorkspaceClient().createDevWorkspace(
           defaultNamespace,
-          devworkspace,
-          devworkspaceTemplate,
+          devWorkspaceResource,
           cheEditor,
+        );
+
+        if (createResp.headers.warning) {
+          // get rid of the status code
+          const warning = createResp.headers.warning.replace(/^\d+\s*?-\s*?/g, '');
+
+          dispatch({
+            type: Type.UPDATE_WARNING,
+            workspace: createResp.devWorkspace,
+            warning,
+          });
+        }
+
+        /* create a new DevWorkspaceTemplate */
+
+        await getDevWorkspaceClient().createDevWorkspaceTemplate(
+          defaultNamespace,
+          createResp.devWorkspace,
+          devWorkspaceTemplateResource,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
           openVSXUrl,
         );
 
-        if (workspace.spec.started) {
-          const editor = workspace.metadata.annotations
-            ? workspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
-            : undefined;
-          const defaultPlugins = getState().dwPlugins.defaultPlugins;
-          await getDevWorkspaceClient().onStart(workspace, defaultPlugins, editor);
+        /* update the DevWorkspace with components */
+
+        const updateResp = await getDevWorkspaceClient().updateDevWorkspace(
+          createResp.devWorkspace,
+          pluginRegistryUrl,
+          pluginRegistryInternalUrl,
+          openVSXUrl,
+        );
+
+        if (updateResp.headers.warning) {
+          dispatch({
+            type: Type.UPDATE_WARNING,
+            workspace: updateResp.devWorkspace,
+            warning: updateResp.headers.warning,
+          });
         }
+
         dispatch({
           type: Type.ADD_DEVWORKSPACE,
-          workspace,
+          workspace: updateResp.devWorkspace,
         });
       } catch (e) {
         const errorMessage =
@@ -531,76 +572,65 @@ export const actionCreators: ActionCreators = {
   createWorkspaceFromDevfile:
     (
       devfile: devfileApi.Devfile,
+      attributes: { [key: string]: string },
       optionalFilesContent: {
         [fileName: string]: string;
       },
-      pluginRegistryUrl: string | undefined,
-      pluginRegistryInternalUrl: string | undefined,
-      attributes: { [key: string]: string },
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
-      const defaultEditorEntry = state.dwServerConfig.config.defaults.editor;
-
-      let editorEntry: string | undefined;
-      let editorContent: string | undefined;
-      // do we have an optional editor parameter ?
-      if (attributes[EDITOR_ATTR]) {
-        editorEntry = attributes[EDITOR_ATTR];
-        editorContent = undefined;
-        if (editorEntry !== defaultEditorEntry) {
-          console.log(
-            `User specified a different editor than the current default. Loading ${editorEntry} definition instead of ${defaultEditorEntry}.`,
-          );
-        }
-      } else {
-        // do we have the custom editor in `.che/che-editor.yaml` ?
-        editorContent = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
-        if (!editorContent) {
-          editorEntry = defaultEditorEntry;
-          console.debug(`Using default editor ${defaultEditorEntry}`);
-        }
-      }
 
       await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+
+      let editorId: string | undefined;
+      let devWorkspaceResource: devfileApi.DevWorkspace;
+      let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
+
       try {
-        const defaultNamespace = selectDefaultNamespace(state);
+        const defaultEditorId = state.dwServerConfig.config.defaults.editor;
+        const pluginRegistryUrl =
+          state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
+
+        let editorContent: string | undefined;
+        // do we have an optional editor parameter ?
+        if (attributes[EDITOR_ATTR]) {
+          editorId = attributes[EDITOR_ATTR];
+          editorContent = undefined;
+          if (editorId !== defaultEditorId) {
+            console.log(
+              `User specified a different editor than the current default. Loading ${editorId} definition instead of ${defaultEditorId}.`,
+            );
+          }
+        } else {
+          // do we have the custom editor in `.che/che-editor.yaml` ?
+          editorContent = await getCustomEditor(pluginRegistryUrl, optionalFilesContent);
+          if (!editorContent) {
+            editorId = defaultEditorId;
+            console.debug(`Using default editor ${defaultEditorId}`);
+          }
+        }
+
         const resourcesContent = await fetchResources({
           devfileContent: dump(devfile),
           editorPath: undefined,
           pluginRegistryUrl,
-          editorEntry,
+          editorId,
           editorContent,
         });
         const resources = loadResourcesContent(resourcesContent);
-        const devWorkspace = resources.find(
+        devWorkspaceResource = resources.find(
           resource => resource.kind === 'DevWorkspace',
         ) as devfileApi.DevWorkspace;
-        if (!devWorkspace) {
+        if (devWorkspaceResource === undefined) {
           throw new Error('Failed to find a DevWorkspace in the fetched resources.');
         }
 
-        const devWorkspaceTemplate = resources.find(
+        devWorkspaceTemplateResource = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
         ) as devfileApi.DevWorkspaceTemplate;
-        if (!devWorkspaceTemplate) {
+        if (devWorkspaceTemplateResource === undefined) {
           throw new Error('Failed to find a DevWorkspaceTemplate in the fetched resources.');
         }
-
-        const openVSXUrl = selectOpenVSXUrl(state);
-        const workspace = await devWorkspaceClient.createFromResources(
-          defaultNamespace.name,
-          devWorkspace,
-          devWorkspaceTemplate,
-          editorEntry,
-          pluginRegistryUrl,
-          pluginRegistryInternalUrl,
-          openVSXUrl,
-        );
-        dispatch({
-          type: Type.ADD_DEVWORKSPACE,
-          workspace,
-        });
       } catch (e) {
         const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
@@ -609,6 +639,14 @@ export const actionCreators: ActionCreators = {
         });
         throw errorMessage;
       }
+
+      await dispatch(
+        actionCreators.createWorkspaceFromResources(
+          devWorkspaceResource,
+          devWorkspaceTemplateResource,
+          editorId,
+        ),
+      );
     },
 
   handleWebSocketMessage:
@@ -719,6 +757,7 @@ const unloadedState: State = {
   isLoading: false,
   resourceVersion: '0',
   startedWorkspaces: {},
+  warnings: {},
 };
 
 export const reducer: Reducer<State> = (
@@ -824,6 +863,12 @@ export const reducer: Reducer<State> = (
           acc[WorkspaceAdapter.getUID(workspace)] = workspace.metadata.resourceVersion;
           return acc;
         }, state.startedWorkspaces),
+      });
+    case Type.UPDATE_WARNING:
+      return createObject(state, {
+        warnings: {
+          [WorkspaceAdapter.getUID(action.workspace)]: action.warning,
+        },
       });
     default:
       return state;

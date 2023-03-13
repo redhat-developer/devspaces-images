@@ -18,6 +18,7 @@ import {
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { MessageListener } from '../../services/types/Observer';
+import { IncomingHttpHeaders } from 'http';
 
 /**
  * Holds the methods for working with dockerconfig for devworkspace
@@ -49,19 +50,17 @@ export interface IDevWorkspaceApi extends IWatcherService {
   getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspace>;
 
   /**
-   * Get list of devworkspaces in the given namespace
+   * Get list of DevWorkspaces in the given namespace
    */
   listInNamespace(namespace: string): Promise<api.IDevWorkspaceList>;
 
   /**
-   * Create a devworkspace based on the specified configuration.
+   * Create a DevWorkspace based on the specified configuration.
    */
-  create(devworkspace: V1alpha2DevWorkspace, namespace: string): Promise<V1alpha2DevWorkspace>;
-
-  /**
-   * Updates the DevWorkspace with the given configuration
-   */
-  update(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace>;
+  create(
+    devWorkspace: V1alpha2DevWorkspace,
+    namespace: string,
+  ): Promise<{ devWorkspace: V1alpha2DevWorkspace; headers: Partial<IncomingHttpHeaders> }>;
 
   /**
    * Delete the DevWorkspace with given name in the specified namespace
@@ -71,7 +70,11 @@ export interface IDevWorkspaceApi extends IWatcherService {
   /**
    * Patches the DevWorkspace with given name in the specified namespace
    */
-  patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace>;
+  patch(
+    namespace: string,
+    name: string,
+    patches: api.IPatch[],
+  ): Promise<{ devWorkspace: V1alpha2DevWorkspace; headers: Partial<IncomingHttpHeaders> }>;
 }
 
 export interface IEventApi extends IWatcherService {

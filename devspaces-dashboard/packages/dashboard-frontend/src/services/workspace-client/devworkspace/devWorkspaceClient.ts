@@ -135,74 +135,88 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return workspace;
   }
 
-  async createFromResources(
+  async createDevWorkspace(
     defaultNamespace: string,
-    devworkspace: devfileApi.DevWorkspace,
-    devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+    devWorkspaceResource: devfileApi.DevWorkspace,
     editorId: string | undefined,
+  ): Promise<{ headers: DwApi.Headers; devWorkspace: devfileApi.DevWorkspace }> {
+    devWorkspaceResource.spec.routingClass = 'che';
+    devWorkspaceResource.spec.started = false;
+    devWorkspaceResource.metadata.namespace = defaultNamespace;
+
+    if (!devWorkspaceResource.metadata.annotations) {
+      devWorkspaceResource.metadata.annotations = {};
+    }
+
+    devWorkspaceResource.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
+      new Date().toISOString();
+
+    if (editorId) {
+      devWorkspaceResource.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
+    }
+
+    // temporarily remove components as they are not created yet
+    const components = devWorkspaceResource.spec.template.components;
+    devWorkspaceResource.spec.template.components = [];
+
+    const { headers, devWorkspace } = await DwApi.createWorkspace(devWorkspaceResource);
+
+    // restore components
+    devWorkspace.spec.template.components = components;
+
+    return { headers, devWorkspace };
+  }
+
+  async createDevWorkspaceTemplate(
+    defaultNamespace: string,
+    devWorkspace: devfileApi.DevWorkspace,
+    devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate,
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     openVSXUrl: string | undefined,
-  ): Promise<any> {
-    // create DW
-    devworkspace.spec.routingClass = 'che';
-    devworkspace.metadata.namespace = defaultNamespace;
-    if (!devworkspace.metadata.annotations) {
-      devworkspace.metadata.annotations = {};
-    }
-    devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
-      new Date().toISOString();
-    // remove components which is not created yet
-    const components = devworkspace.spec.template.components;
-    devworkspace.spec.template.components = [];
+  ): Promise<devfileApi.DevWorkspaceTemplate> {
+    devWorkspaceTemplateResource.metadata.namespace = defaultNamespace;
 
-    if (editorId) {
-      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
-    }
-
-    devworkspace.spec.started = false;
-    const createdWorkspace = await DwApi.createWorkspace(devworkspace);
-
-    this.addEnvVarsToContainers(
-      components,
-      pluginRegistryUrl,
-      pluginRegistryInternalUrl,
-      openVSXUrl,
-    );
-
-    // create DWT
-    devworkspaceTemplate.metadata.namespace = defaultNamespace;
     // add owner reference (to allow automatic cleanup)
-    devworkspaceTemplate.metadata.ownerReferences = [
+    devWorkspaceTemplateResource.metadata.ownerReferences = [
       {
         apiVersion: `${devWorkspaceApiGroup}/${devWorkspaceVersion}`,
         kind: devWorkspaceSingularSubresource,
-        name: createdWorkspace.metadata.name,
-        uid: createdWorkspace.metadata.uid,
+        name: devWorkspace.metadata.name,
+        uid: devWorkspace.metadata.uid,
       },
     ];
+
     this.addEnvVarsToContainers(
-      devworkspaceTemplate.spec?.components,
+      devWorkspaceTemplateResource.spec?.components,
       pluginRegistryUrl,
       pluginRegistryInternalUrl,
       openVSXUrl,
     );
 
-    await DwtApi.createTemplate(devworkspaceTemplate);
+    return DwtApi.createTemplate(devWorkspaceTemplateResource);
+  }
 
-    // update DW
-    return DwApi.patchWorkspace(
-      createdWorkspace.metadata.namespace,
-      createdWorkspace.metadata.name,
-      [
-        {
-          op: 'replace',
-          path: '/spec/template/components',
-          value: components,
-        },
-      ],
+  async updateDevWorkspace(
+    devWorkspace: devfileApi.DevWorkspace,
+    pluginRegistryUrl: string | undefined,
+    pluginRegistryInternalUrl: string | undefined,
+    openVSXUrl: string | undefined,
+  ): Promise<{ headers: DwApi.Headers; devWorkspace: devfileApi.DevWorkspace }> {
+    this.addEnvVarsToContainers(
+      devWorkspace.spec.template.components,
+      pluginRegistryUrl,
+      pluginRegistryInternalUrl,
+      openVSXUrl,
     );
-    await delay();
+
+    return await DwApi.patchWorkspace(devWorkspace.metadata.namespace, devWorkspace.metadata.name, [
+      {
+        op: 'replace',
+        path: '/spec/template/components',
+        value: devWorkspace.spec.template.components,
+      },
+    ]);
   }
 
   /**
@@ -362,7 +376,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
     }
 
-    return DwApi.patchWorkspace(namespace, name, patch);
+    const { devWorkspace } = await DwApi.patchWorkspace(namespace, name, patch);
+    return devWorkspace;
   }
 
   async updateAnnotation(workspace: devfileApi.DevWorkspace): Promise<devfileApi.DevWorkspace> {
@@ -371,7 +386,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
       path: '/metadata/annotations',
       value: workspace.metadata.annotations || {},
     };
-    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, [patch]);
+    const { devWorkspace } = await DwApi.patchWorkspace(
+      workspace.metadata.namespace,
+      workspace.metadata.name,
+      [patch],
+    );
+    return devWorkspace;
   }
 
   private escape(key: string): string {
@@ -468,7 +488,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (patch.length === 0) {
       return workspace;
     }
-    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+    const { devWorkspace } = await DwApi.patchWorkspace(
+      workspace.metadata.namespace,
+      workspace.metadata.name,
+      patch,
+    );
+    return devWorkspace;
   }
 
   async manageDebugMode(
@@ -493,7 +518,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (patch.length === 0) {
       return workspace;
     }
-    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+    const { devWorkspace } = await DwApi.patchWorkspace(
+      workspace.metadata.namespace,
+      workspace.metadata.name,
+      patch,
+    );
+    return devWorkspace;
   }
 
   /**
@@ -536,7 +566,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (patch.length === 0) {
       return workspace;
     }
-    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+    const { devWorkspace } = await DwApi.patchWorkspace(
+      workspace.metadata.namespace,
+      workspace.metadata.name,
+      patch,
+    );
+    return devWorkspace;
   }
 
   async changeWorkspaceStatus(
@@ -572,7 +607,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
     }
 
-    const changedWorkspace = await DwApi.patchWorkspace(
+    const { devWorkspace: changedWorkspace } = await DwApi.patchWorkspace(
       workspace.metadata.namespace,
       workspace.metadata.name,
       patch,

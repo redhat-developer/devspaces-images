@@ -5,9 +5,9 @@ Array [
   <svg
     aria-hidden={true}
     aria-labelledby={null}
-    className="stepIcon"
+    className="errorIcon stepIcon"
     data-testid="step-failed-icon"
-    fill="red"
+    fill="currentColor"
     height="1em"
     role="img"
     style={
@@ -36,9 +36,9 @@ Array [
   <svg
     aria-hidden={true}
     aria-labelledby={null}
-    className="rotate stepIcon"
+    className="inProgressIcon rotate stepIcon"
     data-testid="step-in-progress-icon"
-    fill="#0e6fe0"
+    fill="currentColor"
     height="1em"
     role="img"
     style={
@@ -79,9 +79,9 @@ Array [
   <svg
     aria-hidden={true}
     aria-labelledby={null}
-    className="stepIcon"
+    className="successIcon stepIcon"
     data-testid="step-done-icon"
-    fill="green"
+    fill="currentColor"
     height="1em"
     role="img"
     style={

@@ -19,7 +19,7 @@ import {
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { V1Status } from '@kubernetes/client-node';
-import http from 'http';
+import http, { IncomingHttpHeaders } from 'http';
 import { MessageListener } from '../../services/types/Observer';
 import { IDevWorkspaceApi } from '../types';
 import { createError } from './helpers/createError';
@@ -71,10 +71,21 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
     }
   }
 
+  private propagateHeaders(resp: { response: http.IncomingMessage; body: unknown }) {
+    const propagateHeaders = ['warning'];
+    const headers = Object.entries(resp.response.headers).reduce((acc, [key, value]) => {
+      if (propagateHeaders.includes(key)) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Partial<IncomingHttpHeaders>);
+    return headers;
+  }
+
   async create(
     devworkspace: V1alpha2DevWorkspace,
     namespace: string,
-  ): Promise<V1alpha2DevWorkspace> {
+  ): Promise<{ devWorkspace: V1alpha2DevWorkspace; headers: Partial<IncomingHttpHeaders> }> {
     try {
       if (!devworkspace.metadata?.name && !devworkspace.metadata?.generateName) {
         throw new Error(
@@ -89,43 +100,11 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
         devworkspacePlural,
         devworkspace,
       );
-      return resp.body as V1alpha2DevWorkspace;
+      const devWorkspace = resp.body as V1alpha2DevWorkspace;
+      const headers = this.propagateHeaders(resp);
+      return { devWorkspace, headers };
     } catch (e) {
       throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to create devworkspace');
-    }
-  }
-
-  async update(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace> {
-    try {
-      if (!devworkspace.metadata?.name || !devworkspace.metadata?.namespace) {
-        throw new Error('DevWorkspace.metadata with name and namespace are required');
-      }
-
-      // you have to delete some elements from the devworkspace in order to update
-      if (devworkspace.metadata?.uid) {
-        devworkspace.metadata.uid = undefined;
-      }
-      if (devworkspace.metadata?.creationTimestamp) {
-        delete devworkspace.metadata.creationTimestamp;
-      }
-      if (devworkspace.metadata?.deletionTimestamp) {
-        delete devworkspace.metadata.deletionTimestamp;
-      }
-
-      const name = devworkspace.metadata.name;
-      const namespace = devworkspace.metadata.namespace;
-
-      const resp = await this.customObjectAPI.replaceNamespacedCustomObject(
-        devworkspaceGroup,
-        devworkspaceLatestVersion,
-        namespace,
-        devworkspacePlural,
-        name,
-        devworkspace,
-      );
-      return resp.body as V1alpha2DevWorkspace;
-    } catch (e) {
-      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to update devworkspace');
     }
   }
 
@@ -154,11 +133,7 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
     namespace: string,
     name: string,
     patches: api.IPatch[],
-  ): Promise<V1alpha2DevWorkspace> {
-    return this.createPatch(namespace, name, patches);
-  }
-
-  private async createPatch(namespace: string, name: string, patches: api.IPatch[]) {
+  ): Promise<{ devWorkspace: V1alpha2DevWorkspace; headers: Partial<IncomingHttpHeaders> }> {
     try {
       const options = {
         headers: {
@@ -177,7 +152,9 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
         undefined,
         options,
       );
-      return resp.body as V1alpha2DevWorkspace;
+      const devWorkspace = resp.body as V1alpha2DevWorkspace;
+      const headers = this.propagateHeaders(resp);
+      return { devWorkspace, headers };
     } catch (e) {
       throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to patch devworkspace');
     }

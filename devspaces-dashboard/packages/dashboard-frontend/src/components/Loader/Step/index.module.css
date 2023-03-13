@@ -31,3 +31,19 @@
   top: 3px;
   left: -56px;
 }
+
+.errorIcon {
+  fill: var(--pf-global--danger-color--100);
+}
+
+.warningIcon {
+  fill: var(--pf-global--warning-color--100);
+}
+
+.inProgressIcon {
+  fill: #0e6fe0;
+}
+
+.successIcon {
+  fill: var(--pf-global--success-color--100);
+}
