@@ -17,7 +17,7 @@ import { Disposable, DisposableStore, IDisposable } from 'vs/base/common/lifecyc
 import { ThemeIcon } from 'vs/base/common/themables';
 import { EditorExtensionsRegistry } from 'vs/editor/browser/editorExtensions';
 import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
-import { EDITOR_FONT_DEFAULTS } from 'vs/editor/common/config/editorOptions';
+import { EDITOR_FONT_DEFAULTS, IEditorOptions } from 'vs/editor/common/config/editorOptions';
 import { Range } from 'vs/editor/common/core/range';
 import { ILanguageService } from 'vs/editor/common/languages/language';
 import { ITextModel } from 'vs/editor/common/model';
@@ -45,13 +45,13 @@ import { IInteractiveSessionCodeBlockActionContext } from 'vs/workbench/contrib/
 import { InteractiveSessionFollowups } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionFollowups';
 import { InteractiveSessionEditorOptions } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionOptions';
 import { interactiveSessionResponseHasProviderId } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
-import { IInteractiveSlashCommand } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
-import { IInteractiveRequestViewModel, IInteractiveResponseViewModel, isRequestVM, isResponseVM } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionViewModel';
+import { IInteractiveSessionReplyFollowup, IInteractiveSlashCommand } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
+import { IInteractiveRequestViewModel, IInteractiveResponseViewModel, IInteractiveWelcomeMessageViewModel, isRequestVM, isResponseVM, isWelcomeVM } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionViewModel';
 import { getNWords } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionWordCounter';
 
 const $ = dom.$;
 
-export type InteractiveTreeItem = IInteractiveRequestViewModel | IInteractiveResponseViewModel;
+export type InteractiveTreeItem = IInteractiveRequestViewModel | IInteractiveResponseViewModel | IInteractiveWelcomeMessageViewModel;
 
 interface IInteractiveListItemTemplate {
 	rowContainer: HTMLElement;
@@ -81,6 +81,9 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 	static readonly ID = 'item';
 
 	private readonly renderer: MarkdownRenderer;
+
+	protected readonly _onDidClickFollowup = this._register(new Emitter<IInteractiveSessionReplyFollowup>());
+	readonly onDidClickFollowup: Event<IInteractiveSessionReplyFollowup> = this._onDidClickFollowup.event;
 
 	protected readonly _onDidChangeItemHeight = this._register(new Emitter<IItemHeightChangeParams>());
 	readonly onDidChangeItemHeight: Event<IItemHeightChangeParams> = this._onDidChangeItemHeight.event;
@@ -126,7 +129,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		}
 
 		if (element.isComplete) {
-			return 40;
+			return 60;
 		}
 
 		if (element.contentUpdateTimings && element.contentUpdateTimings.impliedWordLoadRate) {
@@ -141,9 +144,9 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 	}
 
 	layout(width: number): void {
-		this._currentLayoutWidth = width;
+		this._currentLayoutWidth = width - 40; // TODO Padding
 		this._editorPool.inUse.forEach(editor => {
-			editor.layout(width);
+			editor.layout(this._currentLayoutWidth);
 		});
 	}
 
@@ -172,7 +175,9 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 
 	renderElement(node: ITreeNode<InteractiveTreeItem, FuzzyScore>, index: number, templateData: IInteractiveListItemTemplate): void {
 		const { element } = node;
-		const kind = isRequestVM(element) ? 'request' : 'response';
+		const kind = isRequestVM(element) ? 'request' :
+			isResponseVM(element) ? 'response' :
+				'welcome';
 		this.traceLayout('renderElement', `${kind}, index=${index}`);
 
 		interactiveSessionResponseHasProviderId.bindTo(templateData.contextKeyService).set(isResponseVM(element) && !!element.providerResponseId && !element.isPlaceholder);
@@ -181,6 +186,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 
 		templateData.rowContainer.classList.toggle('interactive-request', isRequestVM(element));
 		templateData.rowContainer.classList.toggle('interactive-response', isResponseVM(element));
+		templateData.rowContainer.classList.toggle('interactive-welcome', isWelcomeVM(element));
 		templateData.username.textContent = element.username;
 
 		if (element.avatarIconUri) {
@@ -211,8 +217,10 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 			timer.cancelAndSet(runProgressiveRender, 50);
 		} else if (isResponseVM(element)) {
 			this.basicRenderElement(element.response.value, element, index, templateData);
-		} else {
+		} else if (isRequestVM(element)) {
 			this.basicRenderElement(element.message, element, index, templateData);
+		} else {
+			this.renderWelcomeMessage(element, templateData);
 		}
 	}
 
@@ -234,6 +242,30 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 				element.commandFollowups,
 				defaultButtonStyles,
 				followup => this.commandService.executeCommand(followup.commandId, ...(followup.args ?? []))));
+		}
+	}
+
+	private renderWelcomeMessage(element: IInteractiveWelcomeMessageViewModel, templateData: IInteractiveListItemTemplate) {
+		dom.clearNode(templateData.value);
+		const slashCommands = this.delegate.getSlashCommands();
+
+		for (const item of element.content) {
+			if (Array.isArray(item)) {
+				templateData.elementDisposables.add(new InteractiveSessionFollowups(
+					templateData.value,
+					item,
+					undefined,
+					followup => this._onDidClickFollowup.fire(followup)));
+			} else {
+				const result = this.renderMarkdown(item as IMarkdownString, element, templateData.elementDisposables, templateData);
+				for (const codeElement of result.element.querySelectorAll('code')) {
+					if (codeElement.textContent && slashCommands.find(command => codeElement.textContent === `/${command.command}`)) {
+						codeElement.classList.add('interactive-slash-command');
+					}
+				}
+				templateData.value.appendChild(result.element);
+				templateData.elementDisposables.add(result);
+			}
 		}
 	}
 
@@ -289,6 +321,14 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 			fillInIncompleteTokens,
 			codeBlockRendererSync: (languageId, text) => {
 				const ref = this.renderCodeBlock({ languageId, text, index: codeBlockIndex++, element, parentContextKeyService: templateData.contextKeyService }, disposables);
+
+				// Attach this after updating text/layout of the editor, so it should only be fired when the size updates later (horizontal scrollbar, wrapping)
+				// not during a renderElement OR a progressive render (when we will be firing this event anyway at the end of the render)
+				disposables.add(ref.object.onDidChangeContentHeight(() => {
+					ref.object.layout(this._currentLayoutWidth);
+					this._onDidChangeItemHeight.fire({ element, height: templateData.rowContainer.offsetHeight });
+				}));
+
 				disposablesList.push(ref);
 				return ref.object.element;
 			}
@@ -310,17 +350,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 	private renderCodeBlock(data: IInteractiveResultCodeBlockData, disposables: DisposableStore): IDisposableReference<IInteractiveResultCodeBlockPart> {
 		const ref = this._editorPool.get();
 		const editorInfo = ref.object;
-		editorInfo.render(data);
-
-		const layoutEditor = (context: string) => {
-			editorInfo.layout(this._currentLayoutWidth);
-		};
-
-		layoutEditor('init');
-
-		disposables.add(editorInfo.textModel.onDidChangeContent(() => {
-			layoutEditor('textmodel');
-		}));
+		editorInfo.render(data, this._currentLayoutWidth);
 
 		return ref;
 	}
@@ -373,7 +403,7 @@ export class InteractiveSessionListDelegate implements IListVirtualDelegate<Inte
 
 	getHeight(element: InteractiveTreeItem): number {
 		const kind = isRequestVM(element) ? 'request' : 'response';
-		const height = element.currentRenderedHeight ?? 40;
+		const height = ('currentRenderedHeight' in element ? element.currentRenderedHeight : undefined) ?? 40;
 		this._traceLayout('getHeight', `${kind}, height=${height}`);
 		return height;
 	}
@@ -415,14 +445,18 @@ interface IInteractiveResultCodeBlockData {
 }
 
 interface IInteractiveResultCodeBlockPart {
+	readonly onDidChangeContentHeight: Event<number>;
 	readonly element: HTMLElement;
 	readonly textModel: ITextModel;
 	layout(width: number): void;
-	render(data: IInteractiveResultCodeBlockData): void;
+	render(data: IInteractiveResultCodeBlockData, width: number): void;
 	dispose(): void;
 }
 
 class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPart {
+	private readonly _onDidChangeContentHeight = this._register(new Emitter<number>());
+	public readonly onDidChangeContentHeight = this._onDidChangeContentHeight.event;
+
 	private readonly editor: CodeEditorWidget;
 	private readonly toolbar: MenuWorkbenchToolBar;
 	private readonly contextKeyService: IContextKeyService;
@@ -452,22 +486,17 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 		this.editor = this._register(scopedInstantiationService.createInstance(CodeEditorWidget, editorElement, {
 			...getSimpleEditorOptions(),
 			readOnly: true,
-			wordWrap: 'off',
 			lineNumbers: 'off',
 			selectOnLineNumbers: true,
 			scrollBeyondLastLine: false,
 			lineDecorationsWidth: 8,
 			dragAndDrop: false,
-			bracketPairColorization: this.options.configuration.resultEditor.bracketPairColorization,
 			padding: { top: 2, bottom: 2 },
-			fontFamily: this.options.configuration.resultEditor.fontFamily === 'default' ? EDITOR_FONT_DEFAULTS.fontFamily : this.options.configuration.resultEditor.fontFamily,
-			fontSize: this.options.configuration.resultEditor.fontSize,
-			fontWeight: this.options.configuration.resultEditor.fontWeight,
-			lineHeight: this.options.configuration.resultEditor.lineHeight,
 			mouseWheelZoom: false,
 			scrollbar: {
 				alwaysConsumeMouseWheel: false
-			}
+			},
+			...this.getEditorOptionsFromConfig()
 		}, {
 			isSimpleWidget: true,
 			contributions: EditorExtensionsRegistry.getSomeEditorContributions([
@@ -482,6 +511,16 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 			])
 		}));
 
+
+		this._register(this.options.onDidChange(() => {
+			this.editor.updateOptions(this.getEditorOptionsFromConfig());
+		}));
+
+		this._register(this.editor.onDidContentSizeChange(e => {
+			if (e.contentHeightChanged) {
+				this._onDidChangeContentHeight.fire(e.contentHeight);
+			}
+		}));
 		this._register(this.editor.onDidBlurEditorWidget(() => {
 			WordHighlighterContribution.get(this.editor)?.stopHighlighting();
 		}));
@@ -494,15 +533,38 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 		this.editor.setModel(this.textModel);
 	}
 
+	private getEditorOptionsFromConfig(): IEditorOptions {
+		return {
+			wordWrap: this.options.configuration.resultEditor.wordWrap,
+			bracketPairColorization: this.options.configuration.resultEditor.bracketPairColorization,
+			fontFamily: this.options.configuration.resultEditor.fontFamily === 'default' ?
+				EDITOR_FONT_DEFAULTS.fontFamily :
+				this.options.configuration.resultEditor.fontFamily,
+			fontSize: this.options.configuration.resultEditor.fontSize,
+			fontWeight: this.options.configuration.resultEditor.fontWeight,
+			lineHeight: this.options.configuration.resultEditor.lineHeight,
+		};
+	}
+
 	layout(width: number): void {
 		const realContentHeight = this.editor.getContentHeight();
 		this.editor.layout({ width, height: realContentHeight });
 	}
 
-	render(data: IInteractiveResultCodeBlockData): void {
+	render(data: IInteractiveResultCodeBlockData, width: number): void {
 		this.contextKeyService.updateParent(data.parentContextKeyService);
+
+		if (this.options.configuration.resultEditor.wordWrap === 'on') {
+			// Intialize the editor with the new proper width so that getContentHeight
+			// will be computed correctly in the next call to layout()
+			this.layout(width);
+		}
+
 		this.setText(data.text);
 		this.setLanguage(data.languageId);
+
+		this.layout(width);
+
 		this.toolbar.context = <IInteractiveSessionCodeBlockActionContext>{
 			code: data.text,
 			codeBlockIndex: data.index,
