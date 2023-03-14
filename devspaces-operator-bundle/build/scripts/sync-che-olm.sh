@@ -285,13 +285,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_gateway_authorization_sidecar_k8s"]="DELETEME"
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
-
-		# CRW-3489 remove theia from downstream (needs to also be removed from che-plugin-registry and che-operator, but this should do the job downstream only)
-		# TODO remove this when theia fully removed from both plugin registries and che-operator clusterserviceversion files (as no longer needed)
-		["RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDMCQ_"]="DELETEME"
-		["RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDMCQ_"]="DELETEME"
-		["RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDMCQ_"]="DELETEME"
-		["RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDMCQ_"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
 		updateVal="${operator_replacements[$updateName]}"
@@ -331,6 +324,20 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 			yq --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env? | .[] | select(.name == $updateName) | .value' "${CSVFILE}" 2>/dev/null
 		done
 	fi
+
+	declare -A operator_replacements_theia_removals=(
+		# CRW-3489 remove theia from downstream (needs to also be removed from che-plugin-registry and che-operator, but this should do the job downstream only)
+		# TODO remove this when theia fully removed from both plugin registries and che-operator clusterserviceversion files (as no longer needed)
+		["RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDMCQ_"]="DELETEME"
+	)
+	for updateName in "${!operator_replacements_theia_removals[@]}"; do
+		updateVal="${operator_replacements_theia_removals[$updateName]}"
+		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
+	done
+	echo "Converted (yq #3 - theia removals) ${CSVFILE}"
 
 	# CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
 		# TODO also remove theia from factory support 
