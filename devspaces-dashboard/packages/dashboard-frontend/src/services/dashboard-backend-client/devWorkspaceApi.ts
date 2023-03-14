@@ -16,15 +16,17 @@ import devfileApi, { IDevWorkspacesList } from '../devfileApi';
 import { prefix } from './const';
 import { JSONSchema7 } from 'json-schema';
 
+export type Headers = { [key: string]: string };
+
 export async function createWorkspace(
   devworkspace: devfileApi.DevWorkspace,
-): Promise<devfileApi.DevWorkspace> {
+): Promise<{ devWorkspace: devfileApi.DevWorkspace; headers: Headers }> {
   try {
     const response = await axios.post(
       `${prefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
       { devworkspace },
     );
-    return response.data;
+    return { devWorkspace: response.data, headers: response.headers };
   } catch (e) {
     const errorMessage = helpers.errors.getMessage(e);
     if (errorMessage.startsWith('Unable to create devworkspace')) {
@@ -65,13 +67,13 @@ export async function patchWorkspace(
   namespace: string,
   workspaceName: string,
   patch: api.IPatch[],
-): Promise<devfileApi.DevWorkspace> {
+): Promise<{ devWorkspace: devfileApi.DevWorkspace; headers: Headers }> {
   try {
     const response = await axios.patch(
       `${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
       patch,
     );
-    return response.data;
+    return { devWorkspace: response.data, headers: response.headers };
   } catch (e) {
     throw new Error(
       `Failed to update workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`,

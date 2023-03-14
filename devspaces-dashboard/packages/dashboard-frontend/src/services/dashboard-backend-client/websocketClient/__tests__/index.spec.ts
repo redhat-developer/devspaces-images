@@ -15,6 +15,10 @@ import WS from 'jest-websocket-mock';
 import { ConnectionEvent, WebsocketClient } from '..';
 import { delay } from '../../../helpers/delay';
 
+// mute console logs
+console.log = jest.fn();
+console.warn = jest.fn();
+
 describe('websocketClient', () => {
   beforeEach(() => {
     // do not use fake timers, because it causes issues with jest-websocket-mock

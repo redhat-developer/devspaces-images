@@ -25,7 +25,7 @@ for (JB in JOB_BRANCHES) {
             disabled(config."Jobs"."build-all-images"[JB].disabled) 
 
             description('''
-<p>Since this build depends on multiple upstream repos (eclipse theia, che-theia), this build is configured 
+<p>Since this build depends on multiple upstream repos, this build is configured 
 to trigger weekly on ''' + (JOB_BRANCH.equals("3.x") ? "Sundays" : "Saturdays") + '''.
 <p>
 This job is meant to be used to orchestrate rebuilding everything in DS after a major branch update (7.yy.x -> 7.yy+1.x) or 
@@ -62,10 +62,11 @@ for global CVE updates.
 
             parameters{
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
-                stringParam("PHASES", "1 2 3 4", '''
+                stringParam("PHASES", "2 3 4", '''
 Phases:
 <ol>
-    <li> build theia images sequentially (3 images)</li>
+    <!-- TODO remove theia after 3.6 is live -->
+    <li> build theia images sequentially (3 images) (@removed 3.6)</li>
     <li> build internals in parallel (10 images): 
         <ul>
             <li> configbump, operator, dashboard, devfileregistry, imagepuller, </li>

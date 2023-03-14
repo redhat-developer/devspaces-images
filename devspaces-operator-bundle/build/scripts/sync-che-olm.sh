@@ -271,6 +271,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
+
+		# TODO https://issues.redhat.com/browse/CRW-4105 remove these once fully removed upstream 
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
 		["RELATED_IMAGE_postgres_13_3"]="${POSTGRES13_IMAGE}" # CRW-2180 - new @since 2.13
 	
@@ -323,12 +325,24 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		done
 	fi
 
-	# TODO CRW-3662 (3.5 issue), CRW-3663 (3.5 RN) change to Theia removal warning in dashboard
-	# TODO CRW-3489 also remove theia editor option from dashboard
+	declare -A operator_replacements_theia_removals=(
+		# CRW-3489 remove theia from downstream (needs to also be removed from che-plugin-registry and che-operator, but this should do the job downstream only)
+		# TODO remove this when theia fully removed from both plugin registries and che-operator clusterserviceversion files (as no longer needed)
+		["RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDMCQ_"]="DELETEME"
+	)
+	for updateName in "${!operator_replacements_theia_removals[@]}"; do
+		updateVal="${operator_replacements_theia_removals[$updateName]}"
+		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
+	done
+	echo "Converted (yq #3 - theia removals) ${CSVFILE}"
+
+	# CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
 		# TODO also remove theia from factory support 
 		# TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
-	# CRW-3488 (3.4 issue), CRW-3405 (3.4 RN) add Theia deprecation warning to dashboard
-	headerMessage="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3663'>deprecated</a> and will be removed in a future release."
+	headerMessage="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#removed-functionalities'>no longer supported</a>."
 	# get existing alm-example json
 	almExampleJSON=$(yq -r '.metadata.annotations."alm-examples"' ${CSVFILE})
 	# transform json to insert these:

@@ -40,17 +40,20 @@ RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ && cp ./resour
 ======= START BOOTSTRAP BUILD =======>
 STEP 1/13: FROM registry.access.redhat.com/ubi8/python-38:1-121 AS builder
 STEP 2/13: USER 0
---> 96dc5a6cfe5
+--> 96fe858d19a
 STEP 3/13: ARG BOOTSTRAP=true
---> f43c9e8425b
+--> a8b79c6690b
 STEP 4/13: ENV BOOTSTRAP=${BOOTSTRAP}
---> 7abe3a05923
+--> bf32c5e81a3
 STEP 5/13: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
---> e35b1d6edb3
+--> 97c64c91e79
 STEP 6/13: COPY ./build/dockerfiles/rhel.install.sh /tmp
---> b4a51a5414d
+--> cddeae83f7e
 STEP 7/13: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
+Upgraded:
+  curl-7.61.1-25.el8_7.3.x86_64             libcurl-7.61.1-25.el8_7.3.x86_64   
+  libcurl-devel-7.61.1-25.el8_7.3.x86_64   
 Installed:
   abattis-cantarell-fonts-0.0.25-6.el8.noarch                                   
   adwaita-cursor-theme-3.28.0-3.el8.noarch                                      
@@ -210,7 +213,7 @@ crypto-policies-20211116-1.gitae470d6.el8.noarch
 crypto-policies-scripts-20211116-1.gitae470d6.el8.noarch
 cryptsetup-libs-2.3.7-2.el8.x86_64
 cups-libs-2.2.6-50.el8.x86_64
-curl-7.61.1-25.el8_7.2.x86_64
+curl-7.61.1-25.el8_7.3.x86_64
 cyrus-sasl-2.1.27-6.el8_5.x86_64
 cyrus-sasl-devel-2.1.27-6.el8_5.x86_64
 cyrus-sasl-lib-2.1.27-6.el8_5.x86_64
@@ -371,8 +374,8 @@ libcomps-0.1.18-1.el8.x86_64
 libcom_err-1.45.6-5.el8.x86_64
 libcom_err-devel-1.45.6-5.el8.x86_64
 libcroco-0.6.12-4.el8_2.1.x86_64
-libcurl-7.61.1-25.el8_7.2.x86_64
-libcurl-devel-7.61.1-25.el8_7.2.x86_64
+libcurl-7.61.1-25.el8_7.3.x86_64
+libcurl-devel-7.61.1-25.el8_7.3.x86_64
 libdatrie-0.2.9-7.el8.x86_64
 libdb-5.3.28-42.el8_4.x86_64
 libdb-devel-5.3.28-42.el8_4.x86_64
@@ -684,31 +687,31 @@ End Of Installed Packages
 Collecting yq
   Downloading https://files.pythonhosted.org/packages/aa/09/31d9eb047a46cf5680c4970f42bee931bd78aab4e3ded448406de4730f96/yq-3.1.1-py3-none-any.whl
 Collecting argcomplete
-  Downloading https://files.pythonhosted.org/packages/2d/a6/0113a99d12fbf27aab5602b9a1b2783bc3a50a501ad13e9ec2b4d992f8c0/argcomplete-2.0.5-py3-none-any.whl
+  Downloading https://files.pythonhosted.org/packages/d9/40/13aea82bbe95c0f9f3c4ba21bdaf3ff12f405353b640d347cda55a23778a/argcomplete-2.1.1-py3-none-any.whl
 Collecting toml>=0.10.0
   Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
 Collecting PyYAML>=5.3.1
   Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
 Collecting xmltodict>=0.11.0
   Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
-Installing collected packages: toml, PyYAML, xmltodict, argcomplete, yq
-Successfully installed PyYAML-6.0 argcomplete-2.0.5 toml-0.10.2 xmltodict-0.13.0 yq-3.1.1
+Installing collected packages: toml, PyYAML, argcomplete, xmltodict, yq
+Successfully installed PyYAML-6.0 argcomplete-2.1.1 toml-0.10.2 xmltodict-0.13.0 yq-3.1.1
 python: Python 3.8.13
 yq: yq 3.1.1
 jq: jq-1.6
---> 82929fc936b
+--> 683164da14f
 STEP 8/13: RUN npm install --location=global yarn
 
-added 1 package, and audited 2 packages in 525ms
+added 1 package, and audited 2 packages in 619ms
 
 found 0 vulnerabilities
---> 31e94c058ea
+--> bfecd5735e1
 STEP 9/13: COPY ./build.sh ./*.yml ./*.yaml ./*.js ./*.json /build/
---> ae8b024075d
+--> e6d25f3f6ae
 STEP 10/13: COPY ./build /build/build/
---> c6ee4ae27b7
+--> e90195d6469
 STEP 11/13: WORKDIR /build/
---> aa77dab62bf
+--> 32cbfa3b758
 STEP 12/13: RUN SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --offline --skip-oci-image
 Load /build/job-config.json [1]
 Generate artifacts
@@ -745,47 +748,47 @@ Test entrypoint.sh
 --- Running tests for entrypoint.sh: /build/build/dockerfiles/test_entrypoint.sh[0m
 [1m
 - Should update image registry URL. Simple quote.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image registry to https://fakeregistry.io:5000
 [32m[PASS][0m Test passed!
 [1m
 - Should update image registry URL with CHE_SIDECAR_CONTAINERS_REGISTRY_URL. Double quote.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image registry to https://fakeregistry.io:5000
 [32m[PASS][0m Test passed!
 [1m
 - Should update image registry URL with CHE_SIDECAR_CONTAINERS_REGISTRY_URL. Multiline.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image registry to https://fakeregistry.io:5000
 [32m[PASS][0m Test passed!
 [1m
 - Should update image registry URL with CHE_SIDECAR_CONTAINERS_REGISTRY_URL. Multiple occurences.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image registry to https://fakeregistry.io:5000
 [32m[PASS][0m Test passed!
 [1m
 - Should update image organization with CHE_SIDECAR_CONTAINERS_REGISTRY_ORGANIZATION.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image organization to fakeorg
 [32m[PASS][0m Test passed!
 [1m
 - Should update image organization with CHE_SIDECAR_CONTAINERS_REGISTRY_ORGANIZATION. Multiline.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image organization to fakeorg
 [32m[PASS][0m Test passed!
 [1m
 - Should update image tag with CHE_SIDECAR_CONTAINERS_REGISTRY_TAG.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image tag to faketag
 [32m[PASS][0m Test passed!
 [1m
 - Should update image tag with CHE_SIDECAR_CONTAINERS_REGISTRY_TAG. Multiline.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image tag to faketag
 [32m[PASS][0m Test passed!
 [1m
 - Should do nothing.[0m
-Checking meta /tmp/tmp.1FeDmSR4P8/meta.yaml
+Checking meta /tmp/tmp.lpUByXXWOv/meta.yaml
     Updating image registry to https://fakeregistry.io:5000
 [32m[PASS][0m Test passed!
 [1m
@@ -821,7 +824,7 @@ Key: registry.redhat.io/devspaces/udi-rhel8:2.16 Value: @sha256:becfa80ae0e0e86f
 - Should replace relative:extension with internal URL in che-theia-plugin.yaml [0m
 Updating relative:extension in files to http://che-plugin-registry/v3
 [32m[PASS][0m Test passed!
---> 1d1b459bc9f
+--> 5984cc6ab54
 STEP 13/13: RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ && cp ./resources.tgz /tmp/resources/
 ./output/v3/
 ./output/v3/che-theia/
@@ -1126,913 +1129,105 @@ STEP 13/13: RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ &&
 ./output/v3/resources/open-vsx_org/api/vscjava/vscode-java-test/0_28_1/file/
 ./output/v3/resources/open-vsx_org/api/vscjava/vscode-java-test/0_28_1/file/vscjava.vscode-java-test-0.28.1.vsix
 COMMIT pluginregistry:tmp
---> 81f8f692e28
+--> 0ca0dbc11bc
 Successfully tagged localhost/pluginregistry:tmp
-81f8f692e28602ba6869c9a14f3279e765c65679403d98f8e3346a708c96be89
+0ca0dbc11bc1a3b28307ead47643fb779515e0ca68dcfa892734dff9088192a3
 <======= END BOOTSTRAP BUILD =======
 Downloading root-local.tgz
 Downloading resources.tgz
 Downloading openvsx-server.tar.gz
 Downloading ovsx.tar.gz
 DIFF START *****
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/bin/activate-global-python-argcomplete /tmp/tmp.bl6fSdjXPP/bin/activate-global-python-argcomplete
---- /tmp/tmp.Htc19EflVU/bin/activate-global-python-argcomplete	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/bin/activate-global-python-argcomplete	2023-03-05 04:46:54.943787573 -0500
-@@ -4,22 +4,36 @@
- # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
- # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+Only in /tmp/tmp.bylc6Rwhnb/bin: python-argcomplete-tcsh
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.bylc6Rwhnb/bin/register-python-argcomplete /tmp/tmp.SY2RC2DUs1/bin/register-python-argcomplete
+--- /tmp/tmp.bylc6Rwhnb/bin/register-python-argcomplete	2023-03-05 04:46:54.000000000 -0500
++++ /tmp/tmp.SY2RC2DUs1/bin/register-python-argcomplete	2023-03-12 04:57:48.863941939 -0400
+@@ -43,7 +43,8 @@
+     help="arguments to call complete with; use of this option discards default options",
+ )
+ parser.add_argument(
+-    "-s", "--shell", choices=("bash", "tcsh", "fish"), default="bash", help="output code for the specified shell"
++    "-s", "--shell", choices=("bash", "tcsh", "fish", "powershell"), default="bash",
++    help="output code for the specified shell"
+ )
+ parser.add_argument(
+     "-e", "--external-argcomplete-script", help="external argcomplete script for auto completion of the executable"
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.bylc6Rwhnb/lib/python3.8/site-packages/argcomplete/__init__.py /tmp/tmp.SY2RC2DUs1/lib/python3.8/site-packages/argcomplete/__init__.py
+--- /tmp/tmp.bylc6Rwhnb/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-05 04:46:54.000000000 -0500
++++ /tmp/tmp.SY2RC2DUs1/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-12 04:57:48.863941939 -0400
+@@ -336,7 +336,6 @@
+             parser.__class__ = type(classname, (IntrospectiveArgumentParser, parser.__class__), {})
  
--'''
-+"""
- Activate the generic bash-completion script for the argcomplete module.
--'''
-+"""
- 
--import os, sys, argparse, argcomplete, shutil, fileinput
+             for action in parser._actions:
 -
--parser = argparse.ArgumentParser(description=__doc__,
--                                 formatter_class=argparse.RawDescriptionHelpFormatter)
--
--dest_opt = parser.add_argument("--dest", default="/etc/bash_completion.d",
--                               help="Specify the bash completion modules directory to install into")
--parser.add_argument("--user", help="Install into user directory (~/.bash_completion.d/)", action='store_true')
--parser.add_argument("--no-defaults", dest="use_defaults", action="store_false", default=True,
--                    help="When no matches are generated, do not fallback to readline\'s default completion")
--parser.add_argument("--complete-arguments", nargs=argparse.REMAINDER,
--                    help="arguments to call complete with; use of this option discards default options")
-+import argparse
-+import fileinput
-+import os
-+import shutil
-+import sys
-+
-+import argcomplete
-+
-+parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-+
-+dest_opt = parser.add_argument(
-+    "--dest", default="/etc/bash_completion.d", help="Specify the bash completion modules directory to install into"
-+)
-+parser.add_argument("--user", help="Install into user directory (~/.bash_completion.d/)", action="store_true")
-+parser.add_argument(
-+    "--no-defaults",
-+    dest="use_defaults",
-+    action="store_false",
-+    default=True,
-+    help="When no matches are generated, do not fallback to readline's default completion",
-+)
-+parser.add_argument(
-+    "--complete-arguments",
-+    nargs=argparse.REMAINDER,
-+    help="arguments to call complete with; use of this option discards default options",
-+)
- argcomplete.autocomplete(parser)
- args = parser.parse_args()
- 
-@@ -30,27 +44,29 @@
-             os.mkdir(args.dest)
-         except Exception as e:
-             parser.error("Path {d} does not exist and could not be created: {e}".format(d=args.dest, e=e))
--elif not os.path.exists(args.dest) and args.dest != '-':
--    if sys.platform == 'darwin' and args.dest == dest_opt.default and os.path.exists("/usr/local" + dest_opt.default):
-+elif not os.path.exists(args.dest) and args.dest != "-":
-+    if sys.platform == "darwin" and args.dest == dest_opt.default and os.path.exists("/usr/local" + dest_opt.default):
-         args.dest = "/usr/local" + dest_opt.default
-     else:
-         parser.error("Path {d} does not exist".format(d=args.dest))
- 
--activator = os.path.join(os.path.dirname(argcomplete.__file__), 'bash_completion.d', 'python-argcomplete')
-+activator = os.path.join(os.path.dirname(argcomplete.__file__), "bash_completion.d", "python-argcomplete")
- 
- if args.complete_arguments is None:
--    complete_options = '-o default -o bashdefault' if args.use_defaults else '-o bashdefault'
-+    complete_options = "-o default -o bashdefault" if args.use_defaults else "-o bashdefault"
- else:
-     complete_options = " ".join(args.complete_arguments)
- complete_call = "complete{} -D -F _python_argcomplete_global".format(" " + complete_options if complete_options else "")
-+
-+
- def replaceCompleteCall(line):
-     if line.startswith("complete") and "_python_argcomplete_global" in line:
--        return complete_call + ('\n' if line.endswith('\n') else '')
-+        return complete_call + ("\n" if line.endswith("\n") else "")
-     else:
-         return line
- 
- 
--if args.dest == '-':
-+if args.dest == "-":
-     for line in open(activator):
-         sys.stdout.write(replaceCompleteCall(line))
- else:
-@@ -72,6 +88,8 @@
-     except Exception as e:
-         err = str(e)
-         if args.dest == dest_opt.default:
--            err += ("\nPlease try --user to install into a user directory, "
--                    "or --dest to specify the bash completion modules directory")
-+            err += (
-+                "\nPlease try --user to install into a user directory, "
-+                "or --dest to specify the bash completion modules directory"
-+            )
-         parser.error(err)
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/bin/python-argcomplete-check-easy-install-script /tmp/tmp.bl6fSdjXPP/bin/python-argcomplete-check-easy-install-script
---- /tmp/tmp.Htc19EflVU/bin/python-argcomplete-check-easy-install-script	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/bin/python-argcomplete-check-easy-install-script	2023-03-05 04:46:54.943787573 -0500
-@@ -3,7 +3,7 @@
- # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
- # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
- 
--'''
-+"""
- This script is part of the Python argcomplete package (https://github.com/kislyuk/argcomplete).
- It is used to check if an EASY-INSTALL-SCRIPT wrapper redirects to a script that contains the string
- "PYTHON_ARGCOMPLETE_OK". If you have enabled global completion in argcomplete, the completion hook will run it every
-@@ -11,7 +11,7 @@
- 
- Usage:
-     python-argcomplete-check-easy-install-script <input executable file>
--'''
-+"""
- 
- import sys
- 
-@@ -22,32 +22,40 @@
- 
- with open(sys.argv[1]) as fh:
-     line1, head = fh.read(1024).split("\n", 1)[:2]
--    if line1.startswith('#') and ('py' in line1 or 'Py' in line1):
-+    if line1.startswith("#") and ("py" in line1 or "Py" in line1):
-         import re
-+
-         lines = head.split("\n", 12)
-         for line in lines:
-             if line.startswith("# EASY-INSTALL-SCRIPT"):
-                 import pkg_resources
-+
-                 dist, script = re.match("# EASY-INSTALL-SCRIPT: '(.+)','(.+)'", line).groups()
--                if "PYTHON_ARGCOMPLETE_OK" in pkg_resources.get_distribution(dist).get_metadata('scripts/' + script):
-+                if "PYTHON_ARGCOMPLETE_OK" in pkg_resources.get_distribution(dist).get_metadata("scripts/" + script):
-                     exit(0)
-             elif line.startswith("# EASY-INSTALL-ENTRY-SCRIPT"):
-                 dist, group, name = re.match("# EASY-INSTALL-ENTRY-SCRIPT: '(.+)','(.+)','(.+)'", line).groups()
--                import pkg_resources, pkgutil
-+                import pkgutil
-+
-+                import pkg_resources
-+
-                 module_name = pkg_resources.get_distribution(dist).get_entry_info(group, name).module_name
-                 with open(pkgutil.get_loader(module_name).get_filename()) as mod_fh:
-                     if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
-                         exit(0)
-             elif line.startswith("# EASY-INSTALL-DEV-SCRIPT"):
-                 for line2 in lines:
--                    if line2.startswith('__file__'):
-+                    if line2.startswith("__file__"):
-                         filename = re.match("__file__ = '(.+)'", line2).group(1)
-                         with open(filename) as mod_fh:
-                             if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
-                                 exit(0)
-             elif line.startswith("# PBR Generated"):
-                 module = re.search("from (.*) import", head).groups()[0]
--                import pkg_resources, pkgutil
-+                import pkgutil
-+
-+                import pkg_resources
-+
-                 with open(pkgutil.get_loader(module).get_filename()) as mod_fh:
-                     if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
-                         exit(0)
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/bin/register-python-argcomplete /tmp/tmp.bl6fSdjXPP/bin/register-python-argcomplete
---- /tmp/tmp.Htc19EflVU/bin/register-python-argcomplete	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/bin/register-python-argcomplete	2023-03-05 04:46:54.944787573 -0500
-@@ -4,7 +4,7 @@
- # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
- # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
- 
--'''
-+"""
- Register a Python executable for use with the argcomplete module.
- 
- To perform the registration, source the output of this script in your bash shell
-@@ -21,36 +21,35 @@
- For Fish
- 
-     $ register-python-argcomplete --shell fish my-favourite-script.py > ~/.config/fish/my-favourite-script.py.fish
--'''
-+"""
- 
--import sys
- import argparse
--import argcomplete
-+import sys
- 
-+import argcomplete
- 
--parser = argparse.ArgumentParser(
--    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-+parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
- 
- parser.add_argument(
--    '--no-defaults',
--    dest='use_defaults', action='store_false', default=True,
--    help='When no matches are generated, do not fallback to readline\'s default completion')
-+    "--no-defaults",
-+    dest="use_defaults",
-+    action="store_false",
-+    default=True,
-+    help="When no matches are generated, do not fallback to readline's default completion",
-+)
- parser.add_argument(
--    '--complete-arguments',
-+    "--complete-arguments",
-     nargs=argparse.REMAINDER,
--    help='arguments to call complete with; use of this option discards default options')
-+    help="arguments to call complete with; use of this option discards default options",
-+)
- parser.add_argument(
--    '-s', '--shell',
--    choices=('bash', 'tcsh', 'fish'), default='bash',
--    help='output code for the specified shell')
-+    "-s", "--shell", choices=("bash", "tcsh", "fish"), default="bash", help="output code for the specified shell"
-+)
- parser.add_argument(
--    '-e', '--external-argcomplete-script',
--    help='external argcomplete script for auto completion of the executable')
-+    "-e", "--external-argcomplete-script", help="external argcomplete script for auto completion of the executable"
-+)
- 
--parser.add_argument(
--    'executable',
--    nargs='+',
--    help='executable to completed (when invoked by exactly this name)')
-+parser.add_argument("executable", nargs="+", help="executable to completed (when invoked by exactly this name)")
- 
- argcomplete.autocomplete(parser)
- 
-@@ -61,5 +60,8 @@
- args = parser.parse_args()
- 
- 
--sys.stdout.write(argcomplete.shellcode(
--    args.executable, args.use_defaults, args.shell, args.complete_arguments, args.external_argcomplete_script))
-+sys.stdout.write(
-+    argcomplete.shellcode(
-+        args.executable, args.use_defaults, args.shell, args.complete_arguments, args.external_argcomplete_script
-+    )
-+)
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/_check_console_script.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/_check_console_script.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/_check_console_script.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/_check_console_script.py	2023-03-05 04:46:54.952787573 -0500
-@@ -17,7 +17,7 @@
- try:
-     from importlib.metadata import entry_points as importlib_entry_points
- except ImportError:
--    from importlib_metadata import entry_points as importlib_entry_points
-+    from importlib_metadata import entry_points as importlib_entry_points  # type:ignore
- 
- from ._check_module import ArgcompleteMarkerNotFound, find
- 
-@@ -31,27 +31,27 @@
-     name = os.path.basename(script_path)
-     entry_points = [ep for ep in importlib_entry_points()["console_scripts"] if ep.name == name]
-     if not entry_points:
--        raise ArgcompleteMarkerNotFound('no entry point found matching script')
-+        raise ArgcompleteMarkerNotFound("no entry point found matching script")
-     entry_point = entry_points[0]
-     module_name, function_name = entry_point.value.split(":", 1)
- 
-     # Check this looks like the script we really expected.
-     with open(script_path) as f:
-         script = f.read()
--    if 'from {} import {}'.format(module_name, function_name) not in script:
--        raise ArgcompleteMarkerNotFound('does not appear to be a console script')
--    if 'sys.exit({}())'.format(function_name) not in script:
--        raise ArgcompleteMarkerNotFound('does not appear to be a console script')
-+    if "from {} import {}".format(module_name, function_name) not in script:
-+        raise ArgcompleteMarkerNotFound("does not appear to be a console script")
-+    if "sys.exit({}())".format(function_name) not in script:
-+        raise ArgcompleteMarkerNotFound("does not appear to be a console script")
- 
-     # Look for the argcomplete marker in the script it imports.
-     with open(find(module_name, return_package=True)) as f:
-         head = f.read(1024)
--    if 'PYTHON_ARGCOMPLETE_OK' not in head:
--        raise ArgcompleteMarkerNotFound('marker not found')
-+    if "PYTHON_ARGCOMPLETE_OK" not in head:
-+        raise ArgcompleteMarkerNotFound("marker not found")
- 
- 
--if __name__ == '__main__':
-+if __name__ == "__main__":
-     try:
-         main()
-     except ArgcompleteMarkerNotFound as e:
--        sys.exit(e)
-+        sys.exit(str(e))
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/_check_module.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/_check_module.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/_check_module.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/_check_module.py	2023-03-05 04:46:54.952787573 -0500
-@@ -11,15 +11,18 @@
- import tokenize
- 
- try:
--    from importlib.util import find_spec
-+    from importlib.util import find_spec  # type:ignore
- except ImportError:
-+    import typing as t
-     from collections import namedtuple
-     from imp import find_module
- 
--    ModuleSpec = namedtuple(
--        'ModuleSpec', ['origin', 'has_location', 'submodule_search_locations'])
-+    ModuleSpec = namedtuple("ModuleSpec", ["origin", "has_location", "submodule_search_locations"])
- 
--    def find_spec(name):
-+    def find_spec(  # type:ignore
-+        name: str,
-+        package: t.Optional[str] = None,
-+    ) -> t.Optional[ModuleSpec]:
-         """Minimal implementation as required by `find`."""
-         try:
-             f, path, _ = find_module(name)
-@@ -37,38 +40,36 @@
- 
- 
- def find(name, return_package=False):
--    names = name.split('.')
-+    names = name.split(".")
-     spec = find_spec(names[0])
-     if spec is None:
--        raise ArgcompleteMarkerNotFound(
--            'no module named "{}"'.format(names[0]))
-+        raise ArgcompleteMarkerNotFound('no module named "{}"'.format(names[0]))
-     if not spec.has_location:
--        raise ArgcompleteMarkerNotFound('cannot locate file')
-+        raise ArgcompleteMarkerNotFound("cannot locate file")
-     if spec.submodule_search_locations is None:
-         if len(names) != 1:
--            raise ArgcompleteMarkerNotFound(
--                '{} is not a package'.format(names[0]))
-+            raise ArgcompleteMarkerNotFound("{} is not a package".format(names[0]))
-         return spec.origin
-     if len(spec.submodule_search_locations) != 1:
--        raise ArgcompleteMarkerNotFound('expecting one search location')
-+        raise ArgcompleteMarkerNotFound("expecting one search location")
-     path = os.path.join(spec.submodule_search_locations[0], *names[1:])
-     if os.path.isdir(path):
--        filename = '__main__.py'
-+        filename = "__main__.py"
-         if return_package:
--            filename = '__init__.py'
-+            filename = "__init__.py"
-         return os.path.join(path, filename)
-     else:
--        return path + '.py'
-+        return path + ".py"
- 
- 
- def main():
-     try:
-         name = sys.argv[1]
-     except IndexError:
--        raise ArgcompleteMarkerNotFound('missing argument on the command line')
-+        raise ArgcompleteMarkerNotFound("missing argument on the command line")
- 
-     filename = find(name)
--    if hasattr(tokenize, 'open'):
-+    if hasattr(tokenize, "open"):
-         open_func = tokenize.open
-     else:
-         open_func = open
-@@ -76,17 +77,17 @@
-     try:
-         fp = open_func(filename)
-     except OSError:
--        raise ArgcompleteMarkerNotFound('cannot open file')
-+        raise ArgcompleteMarkerNotFound("cannot open file")
- 
-     with fp:
-         head = fp.read(1024)
- 
--    if 'PYTHON_ARGCOMPLETE_OK' not in head:
--        raise ArgcompleteMarkerNotFound('marker not found')
-+    if "PYTHON_ARGCOMPLETE_OK" not in head:
-+        raise ArgcompleteMarkerNotFound("marker not found")
- 
- 
--if __name__ == '__main__':
-+if __name__ == "__main__":
-     try:
-         main()
-     except ArgcompleteMarkerNotFound as e:
--        sys.exit(e)
-+        sys.exit(str(e))
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/completers.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/completers.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/completers.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/completers.py	2023-03-05 04:46:54.952787573 -0500
-@@ -4,6 +4,7 @@
- import os
- import subprocess
- 
-+
- def _call(*args, **kwargs):
-     # TODO: replace "universal_newlines" with "text" once 3.6 support is dropped
-     kwargs["universal_newlines"] = True
-@@ -12,6 +13,7 @@
-     except subprocess.CalledProcessError:
-         return []
- 
-+
- class ChoicesCompleter(object):
-     def __init__(self, choices):
-         self.choices = choices
-@@ -27,6 +29,7 @@
- 
- EnvironCompleter = ChoicesCompleter(os.environ)
- 
-+
- class FilesCompleter(object):
-     """
-     File completer class, optionally takes a list of allowed extensions
-@@ -57,6 +60,7 @@
-                 completion += [f + "/" for f in anticomp]
-         return completion
- 
-+
- class _FilteredFilesCompleter(object):
-     def __init__(self, predicate):
-         """
-@@ -87,10 +91,12 @@
-                 continue
-             yield candidate + "/" if os.path.isdir(candidate) else candidate
- 
-+
- class DirectoriesCompleter(_FilteredFilesCompleter):
-     def __init__(self):
-         _FilteredFilesCompleter.__init__(self, predicate=os.path.isdir)
- 
-+
- class SuppressCompleter(object):
-     """
-     A completer used to suppress the completion of specific arguments
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/__init__.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/__init__.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/__init__.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/__init__.py	2023-03-05 04:46:54.952787573 -0500
-@@ -1,16 +1,22 @@
- # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
- # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
- 
--import os, sys, argparse, contextlib
--from . import completers, my_shlex as shlex
-+import argparse
-+import contextlib
-+import os
-+import sys
-+
-+from . import completers
-+from . import my_shlex as shlex
- from .completers import FilesCompleter, SuppressCompleter
--from .my_argparse import IntrospectiveArgumentParser, action_is_satisfied, action_is_open, action_is_greedy
-+from .my_argparse import IntrospectiveArgumentParser, action_is_greedy, action_is_open, action_is_satisfied
- from .shell_integration import shellcode  # noqa
- 
- _DEBUG = "_ARC_DEBUG" in os.environ
- 
- debug_stream = sys.stderr
- 
-+
- def debug(*args):
-     if _DEBUG:
-         print(file=debug_stream, *args)
-@@ -19,13 +25,16 @@
- BASH_FILE_COMPLETION_FALLBACK = 79
- BASH_DIR_COMPLETION_FALLBACK = 80
- 
--safe_actions = (argparse._StoreAction,
--                argparse._StoreConstAction,
--                argparse._StoreTrueAction,
--                argparse._StoreFalseAction,
--                argparse._AppendAction,
--                argparse._AppendConstAction,
--                argparse._CountAction)
-+safe_actions = (
-+    argparse._StoreAction,
-+    argparse._StoreConstAction,
-+    argparse._StoreTrueAction,
-+    argparse._StoreFalseAction,
-+    argparse._AppendAction,
-+    argparse._AppendConstAction,
-+    argparse._CountAction,
-+)
-+
- 
- @contextlib.contextmanager
- def mute_stdout():
-@@ -36,6 +45,7 @@
-     finally:
-         sys.stdout = stdout
- 
-+
- @contextlib.contextmanager
- def mute_stderr():
-     stderr = sys.stderr
-@@ -46,9 +56,11 @@
-         sys.stderr.close()
-         sys.stderr = stderr
- 
-+
- class ArgcompleteException(Exception):
-     pass
- 
-+
- def split_line(line, point=None):
-     if point is None:
-         point = len(line)
-@@ -94,21 +106,34 @@
-             if lexer.instream.tell() >= point:
-                 return split_word(lexer.token)
-             else:
--                msg = ("Unexpected internal state. "
--                       "Please report this bug at https://github.com/kislyuk/argcomplete/issues.")
-+                msg = (
-+                    "Unexpected internal state. "
-+                    "Please report this bug at https://github.com/kislyuk/argcomplete/issues."
-+                )
-                 raise ArgcompleteException(msg)
- 
-+
- def default_validator(completion, prefix):
-     return completion.startswith(prefix)
- 
-+
- class CompletionFinder(object):
-     """
-     Inherit from this class if you wish to override any of the stages below. Otherwise, use
-     ``argcomplete.autocomplete()`` directly (it's a convenience instance of this class). It has the same signature as
-     :meth:`CompletionFinder.__call__()`.
-     """
--    def __init__(self, argument_parser=None, always_complete_options=True, exclude=None, validator=None,
--                 print_suppressed=False, default_completer=FilesCompleter(), append_space=None):
-+
-+    def __init__(
-+        self,
-+        argument_parser=None,
-+        always_complete_options=True,
-+        exclude=None,
-+        validator=None,
-+        print_suppressed=False,
-+        default_completer=FilesCompleter(),
-+        append_space=None,
-+    ):
-         self._parser = argument_parser
-         self.always_complete_options = always_complete_options
-         self.exclude = exclude
-@@ -123,9 +148,18 @@
-             append_space = os.environ.get("_ARGCOMPLETE_SUPPRESS_SPACE") != "1"
-         self.append_space = append_space
- 
--    def __call__(self, argument_parser, always_complete_options=True, exit_method=os._exit, output_stream=None,
--                 exclude=None, validator=None, print_suppressed=False, append_space=None,
--                 default_completer=FilesCompleter()):
-+    def __call__(
-+        self,
-+        argument_parser,
-+        always_complete_options=True,
-+        exit_method=os._exit,
-+        output_stream=None,
-+        exclude=None,
-+        validator=None,
-+        print_suppressed=False,
-+        append_space=None,
-+        default_completer=FilesCompleter(),
-+    ):
-         """
-         :param argument_parser: The argument parser to autocomplete on
-         :type argument_parser: :class:`argparse.ArgumentParser`
-@@ -163,9 +197,15 @@
-         added to argcomplete.safe_actions, if their values are wanted in the ``parsed_args`` completer argument, or
-         their execution is otherwise desirable.
-         """
--        self.__init__(argument_parser, always_complete_options=always_complete_options, exclude=exclude,
--                      validator=validator, print_suppressed=print_suppressed, append_space=append_space,
--                      default_completer=default_completer)
-+        self.__init__(
-+            argument_parser,
-+            always_complete_options=always_complete_options,
-+            exclude=exclude,
-+            validator=validator,
-+            print_suppressed=print_suppressed,
-+            append_space=append_space,
-+            default_completer=default_completer,
-+        )
- 
-         if "_ARGCOMPLETE" not in os.environ:
-             # not an argument completion invocation
-@@ -222,19 +262,24 @@
-             # Special case for when the current word is "--optional=PARTIAL_VALUE". Give the optional to the parser.
-             comp_words.append(cword_prefix.split("=", 1)[0])
- 
--        debug("\nLINE: {!r}".format(comp_line),
--              "\nPOINT: {!r}".format(comp_point),
--              "\nPREQUOTE: {!r}".format(cword_prequote),
--              "\nPREFIX: {!r}".format(cword_prefix),
--              "\nSUFFIX: {!r}".format(cword_suffix),
--              "\nWORDS:", comp_words)
-+        debug(
-+            "\nLINE: {!r}".format(comp_line),
-+            "\nPOINT: {!r}".format(comp_point),
-+            "\nPREQUOTE: {!r}".format(cword_prequote),
-+            "\nPREFIX: {!r}".format(cword_prefix),
-+            "\nSUFFIX: {!r}".format(cword_suffix),
-+            "\nWORDS:",
-+            comp_words,
-+        )
- 
-         completions = self._get_completions(comp_words, cword_prefix, cword_prequote, last_wordbreak_pos)
- 
-         if dfs:
--            display_completions = {key_part: value.replace(ifs, " ") if value else ""
--                                   for key, value in self._display_completions.items()
--                                   for key_part in key}
-+            display_completions = {
-+                key_part: value.replace(ifs, " ") if value else ""
-+                for key, value in self._display_completions.items()
-+                for key_part in key
-+            }
-             completions = [dfs.join((key, display_completions.get(key) or "")) for key in completions]
- 
-         debug("\nReturning completions:", completions)
-@@ -356,10 +401,12 @@
- 
-     def _get_option_completions(self, parser, cword_prefix):
-         self._display_completions.update(
--            [[tuple(x for x in action.option_strings
--             if x.startswith(cword_prefix)), action.help]
--             for action in parser._actions
--             if action.option_strings])
-+            [
-+                [tuple(x for x in action.option_strings if x.startswith(cword_prefix)), action.help]
-+                for action in parser._actions
-+                if action.option_strings
-+            ]
-+        )
- 
-         option_completions = []
-         for action in parser._actions:
-@@ -438,18 +485,22 @@
+                 if hasattr(action, "_orig_class"):
                      continue
  
-                 if callable(completer):
--                    completions_from_callable = [c for c in completer(
--                        prefix=cword_prefix, action=active_action, parser=parser, parsed_args=parsed_args)
--                        if self.validator(c, cword_prefix)]
-+                    completions_from_callable = [
-+                        c
-+                        for c in completer(
-+                            prefix=cword_prefix, action=active_action, parser=parser, parsed_args=parsed_args
-+                        )
-+                        if self.validator(c, cword_prefix)
-+                    ]
- 
-                     if completions_from_callable:
-                         completions += completions_from_callable
-                         if isinstance(completer, completers.ChoicesCompleter):
-                             self._display_completions.update(
--                                [[(x,), active_action.help] for x in completions_from_callable])
-+                                [[(x,), active_action.help] for x in completions_from_callable]
-+                            )
-                         else:
--                            self._display_completions.update(
--                                [[(x,), ""] for x in completions_from_callable])
-+                            self._display_completions.update([[(x,), ""] for x in completions_from_callable])
-                 else:
-                     debug("Completer is not callable, trying the readline completer protocol instead")
-                     for i in range(9999):
-@@ -486,8 +537,9 @@
-         if isinstance(next_positional, argparse._SubParsersAction):
-             completions += self._get_subparser_completions(next_positional, cword_prefix)
- 
--        completions = self._complete_active_option(active_parser, next_positional, cword_prefix, parsed_args,
--                                                   completions)
-+        completions = self._complete_active_option(
-+            active_parser, next_positional, cword_prefix, parsed_args, completions
-+        )
-         debug("active options:", completions)
-         debug("display completions:", self._display_completions)
- 
-@@ -550,7 +602,7 @@
-             # This workaround has the same effect as __ltrim_colon_completions in bash_completion
-             # (extended to characters other than the colon).
-             if last_wordbreak_pos:
--                completions = [c[last_wordbreak_pos + 1:] for c in completions]
-+                completions = [c[last_wordbreak_pos + 1 :] for c in completions]
-             special_chars += "();<>|&!`$* \t\n\"'"
-         elif cword_prequote == '"':
-             special_chars += '"`$!'
-@@ -599,7 +651,7 @@
-             cword_prequote, cword_prefix, cword_suffix, comp_words, first_colon_pos = split_line(text)
-             comp_words.insert(0, sys.argv[0])
-             matches = self._get_completions(comp_words, cword_prefix, cword_prequote, first_colon_pos)
--            self._rl_matches = [text + match[len(cword_prefix):] for match in matches]
-+            self._rl_matches = [text + match[len(cword_prefix) :] for match in matches]
- 
-         if state < len(self._rl_matches):
-             return self._rl_matches[state]
-@@ -639,6 +691,7 @@
-         """
-         return {" ".join(k): v for k, v in self._display_completions.items()}
- 
-+
- class ExclusiveCompletionFinder(CompletionFinder):
-     @staticmethod
-     def _action_allowed(action, parser):
-@@ -658,6 +711,7 @@
- autocomplete = CompletionFinder()
- autocomplete.__doc__ = """ Use this to access argcomplete. See :meth:`argcomplete.CompletionFinder.__call__()`. """
- 
-+
- def warn(*args):
-     """
-     Prints **args** to standard error when running completions. This will interrupt the user's command line interaction;
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/my_argparse.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/my_argparse.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/my_argparse.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/my_argparse.py	2023-03-05 04:46:54.952787573 -0500
-@@ -1,11 +1,22 @@
- # Copyright 2012-2021, Andrey Kislyuk and argcomplete contributors.
- # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
- 
--from argparse import ArgumentParser, ArgumentError, SUPPRESS, _SubParsersAction
--from argparse import OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE, REMAINDER, PARSER
--from argparse import _get_action_name, _
-+import typing as t
-+from argparse import _  # type:ignore
-+from argparse import (
-+    ONE_OR_MORE,
-+    OPTIONAL,
-+    PARSER,
-+    REMAINDER,
-+    SUPPRESS,
-+    ZERO_OR_MORE,
-+    ArgumentError,
-+    ArgumentParser,
-+    _get_action_name,
-+    _SubParsersAction,
-+)
- 
--_num_consumed_args = {}
-+_num_consumed_args: t.Dict[str, int] = {}
- 
- 
- def action_is_satisfied(action):
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/my_shlex.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/my_shlex.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/my_shlex.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/my_shlex.py	2023-03-05 04:46:54.952787573 -0500
-@@ -19,13 +19,13 @@
- # Modified by argcomplete: 2/3 compatibility
- # Note: cStringIO is not compatible with Unicode
- try:
--    from StringIO import StringIO
-+    from StringIO import StringIO  # type:ignore
- except ImportError:
-     from io import StringIO
- 
- # Modified by argcomplete: 2/3 compatibility
- try:
--    basestring
-+    basestring  # type:ignore
- except NameError:
-     basestring = str
- 
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/shell_integration.py /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/shell_integration.py
---- /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-02-26 03:55:01.000000000 -0500
-+++ /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-05 04:46:54.952787573 -0500
-@@ -5,7 +5,7 @@
- except ImportError:
-     from pipes import quote
- 
--bashcode = r'''
-+bashcode = r"""
- # Run something, muting output or redirecting it to the debug stream
- # depending on the value of _ARC_DEBUG.
- # If ARGCOMPLETE_USE_TEMPFILES is set, use tempfiles for IPC.
-@@ -51,13 +51,13 @@
-     fi
- }
- complete %(complete_opts)s -F _python_argcomplete%(function_suffix)s %(executables)s
--'''
-+"""
- 
--tcshcode = '''\
-+tcshcode = """\
- complete "%(executable)s" 'p@*@`python-argcomplete-tcsh "%(argcomplete_script)s"`@' ;
--'''
-+"""
- 
--fishcode = r'''
-+fishcode = r"""
- function __fish_%(function_name)s_complete
-     set -x _ARGCOMPLETE 1
-     set -x _ARGCOMPLETE_DFS \t
-@@ -74,13 +74,13 @@
-     end
- end
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.bylc6Rwhnb/lib/python3.8/site-packages/argcomplete/shell_integration.py /tmp/tmp.SY2RC2DUs1/lib/python3.8/site-packages/argcomplete/shell_integration.py
+--- /tmp/tmp.bylc6Rwhnb/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-05 04:46:54.000000000 -0500
++++ /tmp/tmp.SY2RC2DUs1/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-03-12 04:57:48.863941939 -0400
+@@ -76,7 +76,28 @@
  complete %(completion_arg)s %(executable)s -f -a '(__fish_%(function_name)s_complete)'
--'''
-+"""
+ """
  
--shell_codes = {'bash': bashcode, 'tcsh': tcshcode, 'fish': fishcode}
-+shell_codes = {"bash": bashcode, "tcsh": tcshcode, "fish": fishcode}
+-shell_codes = {"bash": bashcode, "tcsh": tcshcode, "fish": fishcode}
++powershell_code = r"""
++Register-ArgumentCompleter -Native -CommandName %(executable)s -ScriptBlock {
++    param($commandName, $wordToComplete, $cursorPosition)
++    $completion_file = New-TemporaryFile
++    $env:ARGCOMPLETE_USE_TEMPFILES = 1
++    $env:_ARGCOMPLETE_STDOUT_FILENAME = $completion_file
++    $env:COMP_LINE = $wordToComplete
++    $env:COMP_POINT = $cursorPosition
++    $env:_ARGCOMPLETE = 1
++    $env:_ARGCOMPLETE_SUPPRESS_SPACE = 0
++    $env:_ARGCOMPLETE_IFS = "`n"
++    %(argcomplete_script)s 2>&1 | Out-Null
++
++    Get-Content $completion_file | ForEach-Object {
++        [System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)
++    }
++    rm $completion_file
++    Remove-Item Env:\_ARGCOMPLETE_STDOUT_FILENAME, Env:\ARGCOMPLETE_USE_TEMPFILES, Env:\COMP_LINE, Env:\COMP_POINT, Env:\_ARGCOMPLETE, Env:\_ARGCOMPLETE_SUPPRESS_SPACE, Env:\_ARGCOMPLETE_IFS
++}
++"""  # noqa: E501
++
++shell_codes = {"bash": bashcode, "tcsh": tcshcode, "fish": fishcode, "powershell": powershell_code}
  
  
--def shellcode(executables, use_defaults=True, shell='bash', complete_arguments=None, argcomplete_script=None):
--    '''
-+def shellcode(executables, use_defaults=True, shell="bash", complete_arguments=None, argcomplete_script=None):
-+    """
-     Provide the shell code required to register a python executable for use with the argcomplete module.
- 
-     :param list(str) executables: Executables to be completed (when invoked exactly with this name)
-@@ -91,33 +91,41 @@
-     :param argcomplete_script: Script to call complete with, if not the executable to complete.
-         If supplied, will be used to complete *all* passed executables.
-     :type argcomplete_script: str or None
--    '''
-+    """
- 
-     if complete_arguments is None:
--        complete_options = '-o nospace -o default -o bashdefault' if use_defaults else '-o nospace -o bashdefault'
-+        complete_options = "-o nospace -o default -o bashdefault" if use_defaults else "-o nospace -o bashdefault"
-     else:
-         complete_options = " ".join(complete_arguments)
- 
--    if shell == 'bash':
-+    if shell == "bash":
-         quoted_executables = [quote(i) for i in executables]
-         executables_list = " ".join(quoted_executables)
-         script = argcomplete_script
-         if script:
--            function_suffix = '_' + script
-+            function_suffix = "_" + script
-         else:
--            script = '$1'
--            function_suffix = ''
--        code = bashcode % dict(complete_opts=complete_options, executables=executables_list,
--                               argcomplete_script=script, function_suffix=function_suffix)
--    elif shell == 'fish':
-+            script = "$1"
-+            function_suffix = ""
-+        code = bashcode % dict(
-+            complete_opts=complete_options,
-+            executables=executables_list,
-+            argcomplete_script=script,
-+            function_suffix=function_suffix,
-+        )
-+    elif shell == "fish":
-         code = ""
-         for executable in executables:
-             script = argcomplete_script or executable
--            completion_arg = '--path' if '/' in executable else '--command'  # use path for absolute paths
-+            completion_arg = "--path" if "/" in executable else "--command"  # use path for absolute paths
-             function_name = executable.replace("/", "_")  # / not allowed in function name
- 
--            code += fishcode % dict(executable=executable, argcomplete_script=script,
--                                    completion_arg=completion_arg, function_name=function_name)
-+            code += fishcode % dict(
-+                executable=executable,
-+                argcomplete_script=script,
-+                completion_arg=completion_arg,
-+                function_name=function_name,
-+            )
+ def shellcode(executables, use_defaults=True, shell="bash", complete_arguments=None, argcomplete_script=None):
+@@ -126,6 +147,12 @@
+                 completion_arg=completion_arg,
+                 function_name=function_name,
+             )
++    elif shell == "powershell":
++        code = ""
++        for executable in executables:
++            script = argcomplete_script or executable
++            code += powershell_code % dict(executable=executable, argcomplete_script=script)
++
      else:
          code = ""
          for executable in executables:
-@@ -125,6 +133,6 @@
-             # If no script was specified, default to the executable being completed.
-             if not script:
-                 script = executable
--            code += shell_codes.get(shell, '') % dict(executable=executable, argcomplete_script=script)
-+            code += shell_codes.get(shell, "") % dict(executable=executable, argcomplete_script=script)
- 
-     return code
-Only in /tmp/tmp.Htc19EflVU/lib/python3.8/site-packages: argcomplete-2.0.0.dist-info
-Only in /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages: argcomplete-2.0.5.dist-info
-Only in /tmp/tmp.bl6fSdjXPP/lib/python3.8/site-packages: test
+Only in /tmp/tmp.bylc6Rwhnb/lib/python3.8/site-packages: argcomplete-2.0.5.dist-info
+Only in /tmp/tmp.SY2RC2DUs1/lib/python3.8/site-packages: argcomplete-2.1.1.dist-info
+Only in /tmp/tmp.bylc6Rwhnb/lib/python3.8/site-packages: test
 ***** END DIFF
-88d6d92e3d45b329c4982ab4e57122c8f7610b7320bb99d952239e4b896c2d7a
-88d6d92e3d45b329c4982ab4e57122c8f7610b7320bb99d952239e4b896c2d7a
+2b969eb52a30bf853206c0dfbd0ff6d70c5b1f091e3f169038c1556751e61609
+2b969eb52a30bf853206c0dfbd0ff6d70c5b1f091e3f169038c1556751e61609
 Untagged: localhost/pluginregistry:tmp
-Deleted: 81f8f692e28602ba6869c9a14f3279e765c65679403d98f8e3346a708c96be89
-Deleted: 1d1b459bc9f8f3c9ef8ec2c7cec7344c0c06e3f4cf2cb0321932200edb52de5b
-Deleted: aa77dab62bff2386d86598db94d47b8d1f17ac6c31e9cfd7995ce68094f354b5
-Deleted: c6ee4ae27b7ca12eae69cf3ba9eb6aa635aaf4c4d7a783da9d050295c7d9d6ac
-Deleted: ae8b024075d43814782e9c466bdfa8c3d8e189622b6f9a62f8e6d27006358ae1
-Deleted: 31e94c058eac2735a48f84478b139891621d4aa659f6696cf9c5ba9de10830ab
-Deleted: 82929fc936bd2c877f90283b546925025c6c6369c0aae0eee1045b2afad14312
-Deleted: b4a51a5414d46454732a8afe16103f83c0d205950cb9589f84fe19b8e76edea1
-Deleted: e35b1d6edb36ae382edea8e558afceaf5e65729574576847f48c5743ac9c0b71
-Deleted: 7abe3a0592366946ea16bdc277b19159e23ff61584a9e53fda190fec6466ceb6
-Deleted: f43c9e8425ba7621b2d09c8337f941bd5968cf27c21e15a99a20dea4edd872ba
-Deleted: 96dc5a6cfe50901f308871e4c7abb0c0855ae2796993836b1317bd8a8bd7c6d6
+Deleted: 0ca0dbc11bc1a3b28307ead47643fb779515e0ca68dcfa892734dff9088192a3
+Deleted: 5984cc6ab5471f3a9d1aee96b1df35f0beecd1b35078b9017f3391e1820e0eb6
+Deleted: 32cbfa3b7581fb8c44f46a3ed5a1932bb97b7bc904e38cca03fb7cbf35db1d3a
+Deleted: e90195d64691d11bda537d67c12fe3d482689bd8a54efc2769bb0dc0863b69cf
+Deleted: e6d25f3f6ae4d61d576ecb57229d31644fcd6b88d52d3eb497b0d15839cb0016
+Deleted: bfecd5735e1e7a8cb287070b0c1695ab3e4a112bad7a3b13ebe970035069a577
+Deleted: 683164da14f552a8a5970af00fdef0eac1c1075075c4cacd319c9fc433c0082c
+Deleted: cddeae83f7e99d40501d94ef74501188c49b131ff581ad84b9086d66eb667096
+Deleted: 97c64c91e79315521ec3ffa60c3451418a205476d6aa20acdcd6809a6518f952
+Deleted: bf32c5e81a385ab195a741abf3ac1561029e19db40888971c80d943907e2ec0f
+Deleted: a8b79c6690b12416e50da31669b5c62fbe02f5448543c2fabc561218b85c29ce
+Deleted: 96fe858d19a6054c7f4d19dda25efb470c5fc3f4e020e0931e5bac1bc206b650
 STEP 1/10: FROM registry.access.redhat.com/ubi8/ubi:8.7-1090 AS builder
 STEP 2/10: RUN yum install java-11-openjdk-devel git jq curl -y --nodocs &&     yum update -q -y 
 Updating Subscription Management repositories.
@@ -2041,9 +1236,9 @@ Subscription Manager is operating in container mode.
 
 This system is not registered with an entitlement server. You can use subscription-manager to register.
 
-Red Hat Universal Base Image 8 (RPMs) - BaseOS  2.7 MB/s | 836 kB     00:00    
-Red Hat Universal Base Image 8 (RPMs) - AppStre 8.8 MB/s | 3.2 MB     00:00    
-Red Hat Universal Base Image 8 (RPMs) - CodeRea 140 kB/s |  30 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - BaseOS  2.5 MB/s | 836 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre 8.0 MB/s | 3.2 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea 126 kB/s |  30 kB     00:00    
 Package curl-7.61.1-25.el8_7.2.x86_64 is already installed.
 Dependencies resolved.
 ========================================================================================================
@@ -2053,6 +1248,9 @@ Installing:
  git                         x86_64  2.31.1-3.el8_7                          ubi-8-appstream-rpms  162 k
  java-11-openjdk-devel       x86_64  1:11.0.18.0.10-2.el8_7                  ubi-8-appstream-rpms  3.4 M
  jq                          x86_64  1.6-3.el8                               ubi-8-appstream-rpms  202 k
+Upgrading:
+ curl                        x86_64  7.61.1-25.el8_7.3                       ubi-8-baseos-rpms     352 k
+ libcurl                     x86_64  7.61.1-25.el8_7.3                       ubi-8-baseos-rpms     302 k
 Installing dependencies:
  adwaita-cursor-theme        noarch  3.28.0-3.el8                            ubi-8-appstream-rpms  647 k
  adwaita-icon-theme          noarch  3.28.0-3.el8                            ubi-8-appstream-rpms   11 M
@@ -2205,156 +1403,158 @@ Enabling module streams:
 Transaction Summary
 ========================================================================================================
 Install  144 Packages
+Upgrade    2 Packages
 
-Total download size: 100 M
-Installed size: 358 M
+Total download size: 101 M
 Downloading Packages:
-(1/144): fontpackages-filesystem-1.44-22.el8.no 180 kB/s |  16 kB     00:00    
-(2/144): perl-Scalar-List-Utils-1.49-2.el8.x86_ 475 kB/s |  68 kB     00:00    
-(3/144): less-530-1.el8.x86_64.rpm              1.8 MB/s | 164 kB     00:00    
-(4/144): perl-PathTools-3.74-1.el8.x86_64.rpm   2.0 MB/s |  90 kB     00:00    
-(5/144): libsoup-2.62.3-2.el8.x86_64.rpm        1.9 MB/s | 424 kB     00:00    
-(6/144): perl-threads-2.21-2.el8.x86_64.rpm     1.5 MB/s |  61 kB     00:00    
-(7/144): perl-Pod-Simple-3.35-395.el8.noarch.rp 5.6 MB/s | 213 kB     00:00    
-(8/144): perl-Term-ANSIColor-4.06-396.el8.noarc 1.4 MB/s |  46 kB     00:00    
-(9/144): openssh-clients-8.0p1-17.el8_7.x86_64. 7.6 MB/s | 669 kB     00:00    
-(10/144): perl-Data-Dumper-2.167-399.el8.x86_64 2.0 MB/s |  58 kB     00:00    
-(11/144): libedit-3.1-23.20170329cvs.el8.x86_64 2.7 MB/s | 102 kB     00:00    
-(12/144): avahi-libs-0.7-20.el8.x86_64.rpm      1.0 MB/s |  62 kB     00:00    
-(13/144): freetype-2.9.1-9.el8.x86_64.rpm       8.2 MB/s | 394 kB     00:00    
-(14/144): gdk-pixbuf2-2.36.12-5.el8.x86_64.rpm  5.7 MB/s | 467 kB     00:00    
-(15/144): libgusb-0.3.0-1.el8.x86_64.rpm        1.8 MB/s |  49 kB     00:00    
-(16/144): perl-threads-shared-1.58-2.el8.x86_64 1.7 MB/s |  48 kB     00:00    
-(17/144): perl-HTTP-Tiny-0.074-1.el8.noarch.rpm 2.1 MB/s |  58 kB     00:00    
-(18/144): gsettings-desktop-schemas-3.32.0-6.el 6.5 MB/s | 633 kB     00:00    
-(19/144): libpkgconf-1.4.2-1.el8.x86_64.rpm     1.2 MB/s |  35 kB     00:00    
-(20/144): perl-Pod-Escapes-1.07-395.el8.noarch. 757 kB/s |  20 kB     00:00    
-(21/144): cups-libs-2.2.6-50.el8.x86_64.rpm      11 MB/s | 435 kB     00:00    
-(22/144): perl-Pod-Perldoc-3.28-396.el8.noarch. 2.8 MB/s |  88 kB     00:00    
-(23/144): shared-mime-info-1.9-3.el8.x86_64.rpm 6.1 MB/s | 329 kB     00:00    
-(24/144): libmodman-2.0.1-17.el8.x86_64.rpm     1.3 MB/s |  36 kB     00:00    
-(25/144): perl-Socket-2.027-3.el8.x86_64.rpm    2.0 MB/s |  59 kB     00:00    
-(26/144): perl-File-Path-2.15-2.el8.noarch.rpm  1.3 MB/s |  38 kB     00:00    
-(27/144): perl-Encode-2.97-3.el8.x86_64.rpm      21 MB/s | 1.5 MB     00:00    
-(28/144): perl-libs-5.26.3-421.el8.x86_64.rpm    22 MB/s | 1.6 MB     00:00    
-(29/144): perl-IO-1.38-421.el8.x86_64.rpm       5.0 MB/s | 142 kB     00:00    
-(30/144): openssh-8.0p1-17.el8_7.x86_64.rpm      10 MB/s | 523 kB     00:00    
-(31/144): openssl-1.1.1k-7.el8_6.x86_64.rpm      20 MB/s | 709 kB     00:00    
-(32/144): perl-parent-0.237-1.el8.noarch.rpm    769 kB/s |  20 kB     00:00    
-(33/144): pkgconf-m4-1.4.2-1.el8.noarch.rpm     642 kB/s |  17 kB     00:00    
-(34/144): dejavu-sans-mono-fonts-2.35-7.el8.noa  14 MB/s | 447 kB     00:00    
-(35/144): emacs-filesystem-26.1-7.el8.noarch.rp 2.5 MB/s |  70 kB     00:00    
-(36/144): libpng-1.6.34-5.el8.x86_64.rpm        4.1 MB/s | 126 kB     00:00    
-(37/144): pkgconf-1.4.2-1.el8.x86_64.rpm        1.4 MB/s |  38 kB     00:00    
-(38/144): dejavu-fonts-common-2.35-7.el8.noarch 2.7 MB/s |  74 kB     00:00    
-(39/144): perl-Text-Tabs+Wrap-2013.0523-395.el8 901 kB/s |  24 kB     00:00    
-(40/144): libproxy-0.4.15-5.2.el8.x86_64.rpm    2.0 MB/s |  74 kB     00:00    
-(41/144): groff-base-1.22.3-18.el8.x86_64.rpm    27 MB/s | 1.0 MB     00:00    
-(42/144): fontconfig-2.13.1-4.el8.x86_64.rpm    9.1 MB/s | 274 kB     00:00    
-(43/144): perl-Getopt-Long-2.50-4.el8.noarch.rp 2.1 MB/s |  63 kB     00:00    
-(44/144): lksctp-tools-1.0.18-3.el8.x86_64.rpm  2.4 MB/s | 100 kB     00:00    
-(45/144): perl-podlators-4.11-1.el8.noarch.rpm  4.2 MB/s | 118 kB     00:00    
-(46/144): perl-Time-Local-1.280-1.el8.noarch.rp 1.1 MB/s |  34 kB     00:00    
-(47/144): perl-Carp-1.42-396.el8.noarch.rpm     1.1 MB/s |  30 kB     00:00    
-(48/144): perl-Exporter-5.72-396.el8.noarch.rpm 1.3 MB/s |  34 kB     00:00    
-(49/144): perl-Storable-3.11-3.el8.x86_64.rpm   3.3 MB/s |  98 kB     00:00    
-(50/144): pkgconf-pkg-config-1.4.2-1.el8.x86_64 576 kB/s |  15 kB     00:00    
-(51/144): perl-Text-ParseWords-3.30-395.el8.noa 686 kB/s |  18 kB     00:00    
-(52/144): perl-Unicode-Normalize-1.25-396.el8.x 2.8 MB/s |  82 kB     00:00    
-(53/144): ncurses-6.1-9.20180224.el8.x86_64.rpm  12 MB/s | 387 kB     00:00    
-(54/144): perl-File-Temp-0.230.600-1.el8.noarch 1.7 MB/s |  63 kB     00:00    
-(55/144): glib-networking-2.56.1-1.1.el8.x86_64 3.2 MB/s | 155 kB     00:00    
-(56/144): perl-constant-1.33-396.el8.noarch.rpm 823 kB/s |  25 kB     00:00    
-(57/144): perl-macros-5.26.3-421.el8.x86_64.rpm 2.6 MB/s |  72 kB     00:00    
-(58/144): perl-Term-Cap-1.17-395.el8.noarch.rpm 622 kB/s |  23 kB     00:00    
-(59/144): perl-MIME-Base64-3.15-396.el8.x86_64. 1.0 MB/s |  31 kB     00:00    
-(60/144): perl-Pod-Usage-1.69-395.el8.noarch.rp 1.3 MB/s |  34 kB     00:00    
-(61/144): perl-Errno-1.28-421.el8.x86_64.rpm    1.9 MB/s |  76 kB     00:00    
-(62/144): abattis-cantarell-fonts-0.0.25-6.el8. 4.3 MB/s | 156 kB     00:00    
-(63/144): harfbuzz-1.7.5-3.el8.x86_64.rpm       9.7 MB/s | 294 kB     00:00    
-(64/144): jbigkit-libs-2.1-14.el8.x86_64.rpm    1.5 MB/s |  55 kB     00:00    
-(65/144): libjpeg-turbo-1.5.3-12.el8.x86_64.rpm 3.0 MB/s | 157 kB     00:00    
-(66/144): perl-interpreter-5.26.3-421.el8.x86_6  33 MB/s | 6.3 MB     00:00    
-(67/144): libXcomposite-0.4.4-14.el8.x86_64.rpm 1.1 MB/s |  29 kB     00:00    
-(68/144): javapackages-filesystem-5.3.0-1.modul 1.1 MB/s |  30 kB     00:00    
-(69/144): libfontenc-1.1.3-8.el8.x86_64.rpm     1.3 MB/s |  37 kB     00:00    
-(70/144): libXrandr-1.5.2-1.el8.x86_64.rpm      1.3 MB/s |  34 kB     00:00    
-(71/144): libxkbcommon-0.9.1-1.el8.x86_64.rpm   3.9 MB/s | 116 kB     00:00    
-(72/144): xorg-x11-font-utils-7.5-41.el8.x86_64 3.7 MB/s | 104 kB     00:00    
-(73/144): lua-5.3.4-12.el8.x86_64.rpm           4.9 MB/s | 192 kB     00:00    
-(74/144): perl-Error-0.17025-2.el8.noarch.rpm   1.2 MB/s |  46 kB     00:00    
-(75/144): libXfixes-5.0.3-7.el8.x86_64.rpm      596 kB/s |  25 kB     00:00    
-(76/144): libXft-2.3.3-1.el8.x86_64.rpm         1.5 MB/s |  67 kB     00:00    
-(77/144): dconf-0.28.0-4.el8.x86_64.rpm         1.7 MB/s | 108 kB     00:00    
-(78/144): libXext-1.3.4-1.el8.x86_64.rpm        1.7 MB/s |  45 kB     00:00    
-(79/144): libXtst-1.2.3-7.el8.x86_64.rpm        825 kB/s |  22 kB     00:00    
-(80/144): jq-1.6-3.el8.x86_64.rpm               6.9 MB/s | 202 kB     00:00    
-(81/144): libXrender-0.9.10-7.el8.x86_64.rpm    1.2 MB/s |  33 kB     00:00    
-(82/144): adwaita-cursor-theme-3.28.0-3.el8.noa  20 MB/s | 647 kB     00:00    
-(83/144): perl-TermReadKey-2.37-7.el8.x86_64.rp 1.4 MB/s |  40 kB     00:00    
-(84/144): libXinerama-1.1.4-1.el8.x86_64.rpm    598 kB/s |  16 kB     00:00    
-(85/144): atk-2.28.1-1.el8.x86_64.rpm           9.3 MB/s | 272 kB     00:00    
-(86/144): pixman-0.38.4-2.el8.x86_64.rpm        8.8 MB/s | 257 kB     00:00    
-(87/144): libdatrie-0.2.9-7.el8.x86_64.rpm      1.2 MB/s |  33 kB     00:00    
-(88/144): gdk-pixbuf2-modules-2.36.12-5.el8.x86 4.0 MB/s | 109 kB     00:00    
-(89/144): cairo-gobject-1.15.12-6.el8.x86_64.rp 1.2 MB/s |  33 kB     00:00    
-(90/144): copy-jdk-configs-4.0-2.el8.noarch.rpm 1.1 MB/s |  31 kB     00:00    
-(91/144): libXi-1.7.10-1.el8.x86_64.rpm         1.8 MB/s |  49 kB     00:00    
-(92/144): xorg-x11-fonts-Type1-7.5-19.el8.noarc  16 MB/s | 522 kB     00:00    
-(93/144): libXau-1.0.9-3.el8.x86_64.rpm         1.4 MB/s |  37 kB     00:00    
-(94/144): libwayland-cursor-1.19.0-1.el8.x86_64 992 kB/s |  26 kB     00:00    
-(95/144): libepoxy-1.5.8-1.el8.x86_64.rpm       7.8 MB/s | 225 kB     00:00    
-(96/144): xkeyboard-config-2.28-1.el8.noarch.rp  22 MB/s | 782 kB     00:00    
-(97/144): oniguruma-6.8.2-2.el8.x86_64.rpm      6.5 MB/s | 187 kB     00:00    
-(98/144): at-spi2-core-2.28.0-1.el8.x86_64.rpm  6.0 MB/s | 169 kB     00:00    
-(99/144): hicolor-icon-theme-0.17-2.el8.noarch. 1.8 MB/s |  48 kB     00:00    
-(100/144): ttmkfdir-3.0.9-54.el8.x86_64.rpm     2.3 MB/s |  62 kB     00:00    
-(101/144): jasper-libs-2.0.14-5.el8.x86_64.rpm  5.9 MB/s | 167 kB     00:00    
-(102/144): libX11-common-1.6.8-5.el8.noarch.rpm 5.0 MB/s | 158 kB     00:00    
-(103/144): cairo-1.15.12-6.el8.x86_64.rpm        21 MB/s | 719 kB     00:00    
-(104/144): libthai-0.1.27-2.el8.x86_64.rpm      7.1 MB/s | 203 kB     00:00    
-(105/144): libwayland-client-1.19.0-1.el8.x86_6 1.4 MB/s |  39 kB     00:00    
-(106/144): libwayland-egl-1.19.0-1.el8.x86_64.r 481 kB/s |  19 kB     00:00    
-(107/144): graphite2-1.3.10-10.el8.x86_64.rpm   4.3 MB/s | 122 kB     00:00    
-(108/144): colord-libs-1.4.2-1.el8.x86_64.rpm   8.1 MB/s | 236 kB     00:00    
-(109/144): adwaita-icon-theme-3.28.0-3.el8.noar  69 MB/s |  11 MB     00:00    
-(110/144): libXcursor-1.1.15-3.el8.x86_64.rpm   573 kB/s |  36 kB     00:00    
-(111/144): rest-0.8.1-2.el8.x86_64.rpm          1.7 MB/s |  71 kB     00:00    
-(112/144): libXdamage-1.1.4-14.el8.x86_64.rpm   1.0 MB/s |  27 kB     00:00    
-(113/144): at-spi2-atk-2.26.2-1.el8.x86_64.rpm  3.3 MB/s |  89 kB     00:00    
-(114/144): libxcb-1.13.1-1.el8.x86_64.rpm       7.3 MB/s | 229 kB     00:00    
-(115/144): lcms2-2.9-2.el8.x86_64.rpm           5.6 MB/s | 165 kB     00:00    
-(116/144): pango-1.42.4-8.el8.x86_64.rpm        9.4 MB/s | 297 kB     00:00    
-(117/144): libX11-1.6.8-5.el8.x86_64.rpm         17 MB/s | 611 kB     00:00    
-(118/144): fribidi-1.0.4-9.el8.x86_64.rpm       3.2 MB/s |  89 kB     00:00    
-(119/144): nss-sysinit-3.79.0-10.el8_6.x86_64.r 2.7 MB/s |  75 kB     00:00    
-(120/144): nss-3.79.0-10.el8_6.x86_64.rpm        22 MB/s | 747 kB     00:00    
-(121/144): alsa-lib-1.2.7.2-1.el8.x86_64.rpm     15 MB/s | 496 kB     00:00    
-(122/144): gtk3-3.22.30-11.el8.x86_64.rpm        55 MB/s | 4.5 MB     00:00    
-(123/144): perl-Digest-1.17-395.el8.noarch.rpm  1.0 MB/s |  27 kB     00:00    
-(124/144): nss-softokn-freebl-3.79.0-10.el8_6.x  13 MB/s | 398 kB     00:00    
-(125/144): gtk-update-icon-cache-3.22.30-11.el8 1.2 MB/s |  33 kB     00:00    
-(126/144): nspr-4.34.0-3.el8_6.x86_64.rpm       4.7 MB/s | 143 kB     00:00    
-(127/144): tzdata-java-2022g-1.el8.noarch.rpm   6.5 MB/s | 185 kB     00:00    
-(128/144): perl-URI-1.73-3.el8.noarch.rpm       4.1 MB/s | 116 kB     00:00    
-(129/144): perl-IO-Socket-SSL-2.066-4.module+el 8.9 MB/s | 298 kB     00:00    
-(130/144): perl-Mozilla-CA-20160104-7.module+el 587 kB/s |  15 kB     00:00    
-(131/144): perl-IO-Socket-IP-0.39-5.el8.noarch. 1.3 MB/s |  47 kB     00:00    
-(132/144): nss-util-3.79.0-10.el8_6.x86_64.rpm  5.0 MB/s | 139 kB     00:00    
-(133/144): perl-Digest-MD5-2.55-396.el8.x86_64. 1.4 MB/s |  37 kB     00:00    
-(134/144): perl-Net-SSLeay-1.88-2.module+el8.6.  12 MB/s | 379 kB     00:00    
-(135/144): perl-libnet-3.11-3.el8.noarch.rpm    3.9 MB/s | 121 kB     00:00    
-(136/144): nss-softokn-3.79.0-10.el8_6.x86_64.r  29 MB/s | 1.2 MB     00:00    
-(137/144): perl-Git-2.31.1-3.el8_7.noarch.rpm   2.8 MB/s |  78 kB     00:00    
-(138/144): git-2.31.1-3.el8_7.x86_64.rpm        5.6 MB/s | 162 kB     00:00    
-(139/144): libtiff-4.0.9-26.el8_7.x86_64.rpm    6.3 MB/s | 189 kB     00:00    
-(140/144): git-core-doc-2.31.1-3.el8_7.noarch.r  44 MB/s | 2.6 MB     00:00    
-(141/144): git-core-2.31.1-3.el8_7.x86_64.rpm    45 MB/s | 4.8 MB     00:00    
-(142/144): java-11-openjdk-devel-11.0.18.0.10-2  34 MB/s | 3.4 MB     00:00    
-(143/144): java-11-openjdk-11.0.18.0.10-2.el8_7 9.1 MB/s | 468 kB     00:00    
-(144/144): java-11-openjdk-headless-11.0.18.0.1  73 MB/s |  41 MB     00:00    
+(1/146): fontpackages-filesystem-1.44-22.el8.no 171 kB/s |  16 kB     00:00    
+(2/146): perl-Scalar-List-Utils-1.49-2.el8.x86_ 454 kB/s |  68 kB     00:00    
+(3/146): less-530-1.el8.x86_64.rpm              1.7 MB/s | 164 kB     00:00    
+(4/146): perl-PathTools-3.74-1.el8.x86_64.rpm   2.0 MB/s |  90 kB     00:00    
+(5/146): libsoup-2.62.3-2.el8.x86_64.rpm        1.8 MB/s | 424 kB     00:00    
+(6/146): perl-threads-2.21-2.el8.x86_64.rpm     1.2 MB/s |  61 kB     00:00    
+(7/146): perl-Pod-Simple-3.35-395.el8.noarch.rp 5.6 MB/s | 213 kB     00:00    
+(8/146): openssh-clients-8.0p1-17.el8_7.x86_64. 7.4 MB/s | 669 kB     00:00    
+(9/146): perl-Term-ANSIColor-4.06-396.el8.noarc 1.4 MB/s |  46 kB     00:00    
+(10/146): perl-Data-Dumper-2.167-399.el8.x86_64 1.9 MB/s |  58 kB     00:00    
+(11/146): avahi-libs-0.7-20.el8.x86_64.rpm      2.2 MB/s |  62 kB     00:00    
+(12/146): libedit-3.1-23.20170329cvs.el8.x86_64 2.4 MB/s | 102 kB     00:00    
+(13/146): freetype-2.9.1-9.el8.x86_64.rpm        10 MB/s | 394 kB     00:00    
+(14/146): gdk-pixbuf2-2.36.12-5.el8.x86_64.rpm  8.8 MB/s | 467 kB     00:00    
+(15/146): libgusb-0.3.0-1.el8.x86_64.rpm        1.8 MB/s |  49 kB     00:00    
+(16/146): perl-threads-shared-1.58-2.el8.x86_64 1.7 MB/s |  48 kB     00:00    
+(17/146): perl-HTTP-Tiny-0.074-1.el8.noarch.rpm 1.7 MB/s |  58 kB     00:00    
+(18/146): libpkgconf-1.4.2-1.el8.x86_64.rpm     1.1 MB/s |  35 kB     00:00    
+(19/146): gsettings-desktop-schemas-3.32.0-6.el 6.1 MB/s | 633 kB     00:00    
+(20/146): perl-Pod-Escapes-1.07-395.el8.noarch. 596 kB/s |  20 kB     00:00    
+(21/146): cups-libs-2.2.6-50.el8.x86_64.rpm     9.7 MB/s | 435 kB     00:00    
+(22/146): shared-mime-info-1.9-3.el8.x86_64.rpm 5.3 MB/s | 329 kB     00:00    
+(23/146): libmodman-2.0.1-17.el8.x86_64.rpm     698 kB/s |  36 kB     00:00    
+(24/146): perl-Pod-Perldoc-3.28-396.el8.noarch. 1.1 MB/s |  88 kB     00:00    
+(25/146): perl-Socket-2.027-3.el8.x86_64.rpm    857 kB/s |  59 kB     00:00    
+(26/146): perl-File-Path-2.15-2.el8.noarch.rpm  1.3 MB/s |  38 kB     00:00    
+(27/146): perl-Encode-2.97-3.el8.x86_64.rpm      12 MB/s | 1.5 MB     00:00    
+(28/146): perl-libs-5.26.3-421.el8.x86_64.rpm    12 MB/s | 1.6 MB     00:00    
+(29/146): openssh-8.0p1-17.el8_7.x86_64.rpm      11 MB/s | 523 kB     00:00    
+(30/146): perl-IO-1.38-421.el8.x86_64.rpm       3.5 MB/s | 142 kB     00:00    
+(31/146): perl-parent-0.237-1.el8.noarch.rpm    432 kB/s |  20 kB     00:00    
+(32/146): pkgconf-m4-1.4.2-1.el8.noarch.rpm     376 kB/s |  17 kB     00:00    
+(33/146): openssl-1.1.1k-7.el8_6.x86_64.rpm      12 MB/s | 709 kB     00:00    
+(34/146): emacs-filesystem-26.1-7.el8.noarch.rp 2.4 MB/s |  70 kB     00:00    
+(35/146): libpng-1.6.34-5.el8.x86_64.rpm        4.3 MB/s | 126 kB     00:00    
+(36/146): dejavu-sans-mono-fonts-2.35-7.el8.noa  11 MB/s | 447 kB     00:00    
+(37/146): pkgconf-1.4.2-1.el8.x86_64.rpm        1.4 MB/s |  38 kB     00:00    
+(38/146): dejavu-fonts-common-2.35-7.el8.noarch 2.5 MB/s |  74 kB     00:00    
+(39/146): libproxy-0.4.15-5.2.el8.x86_64.rpm    2.6 MB/s |  74 kB     00:00    
+(40/146): perl-Text-Tabs+Wrap-2013.0523-395.el8 828 kB/s |  24 kB     00:00    
+(41/146): fontconfig-2.13.1-4.el8.x86_64.rpm    8.0 MB/s | 274 kB     00:00    
+(42/146): groff-base-1.22.3-18.el8.x86_64.rpm    24 MB/s | 1.0 MB     00:00    
+(43/146): perl-Getopt-Long-2.50-4.el8.noarch.rp 1.4 MB/s |  63 kB     00:00    
+(44/146): lksctp-tools-1.0.18-3.el8.x86_64.rpm  3.4 MB/s | 100 kB     00:00    
+(45/146): perl-podlators-4.11-1.el8.noarch.rpm  4.0 MB/s | 118 kB     00:00    
+(46/146): perl-Time-Local-1.280-1.el8.noarch.rp 1.2 MB/s |  34 kB     00:00    
+(47/146): perl-Carp-1.42-396.el8.noarch.rpm     1.1 MB/s |  30 kB     00:00    
+(48/146): perl-Exporter-5.72-396.el8.noarch.rpm 1.2 MB/s |  34 kB     00:00    
+(49/146): perl-Storable-3.11-3.el8.x86_64.rpm   3.1 MB/s |  98 kB     00:00    
+(50/146): pkgconf-pkg-config-1.4.2-1.el8.x86_64 474 kB/s |  15 kB     00:00    
+(51/146): perl-Text-ParseWords-3.30-395.el8.noa 403 kB/s |  18 kB     00:00    
+(52/146): perl-Unicode-Normalize-1.25-396.el8.x 2.8 MB/s |  82 kB     00:00    
+(53/146): ncurses-6.1-9.20180224.el8.x86_64.rpm  10 MB/s | 387 kB     00:00    
+(54/146): glib-networking-2.56.1-1.1.el8.x86_64 5.2 MB/s | 155 kB     00:00    
+(55/146): perl-File-Temp-0.230.600-1.el8.noarch 2.1 MB/s |  63 kB     00:00    
+(56/146): perl-constant-1.33-396.el8.noarch.rpm 926 kB/s |  25 kB     00:00    
+(57/146): perl-macros-5.26.3-421.el8.x86_64.rpm 1.6 MB/s |  72 kB     00:00    
+(58/146): perl-Term-Cap-1.17-395.el8.noarch.rpm 670 kB/s |  23 kB     00:00    
+(59/146): perl-MIME-Base64-3.15-396.el8.x86_64. 841 kB/s |  31 kB     00:00    
+(60/146): perl-Pod-Usage-1.69-395.el8.noarch.rp 932 kB/s |  34 kB     00:00    
+(61/146): perl-interpreter-5.26.3-421.el8.x86_6  47 MB/s | 6.3 MB     00:00    
+(62/146): perl-Errno-1.28-421.el8.x86_64.rpm    1.5 MB/s |  76 kB     00:00    
+(63/146): abattis-cantarell-fonts-0.0.25-6.el8. 3.1 MB/s | 156 kB     00:00    
+(64/146): harfbuzz-1.7.5-3.el8.x86_64.rpm       7.6 MB/s | 294 kB     00:00    
+(65/146): jbigkit-libs-2.1-14.el8.x86_64.rpm    1.5 MB/s |  55 kB     00:00    
+(66/146): libjpeg-turbo-1.5.3-12.el8.x86_64.rpm 3.9 MB/s | 157 kB     00:00    
+(67/146): libXcomposite-0.4.4-14.el8.x86_64.rpm 905 kB/s |  29 kB     00:00    
+(68/146): javapackages-filesystem-5.3.0-1.modul 962 kB/s |  30 kB     00:00    
+(69/146): libfontenc-1.1.3-8.el8.x86_64.rpm     1.1 MB/s |  37 kB     00:00    
+(70/146): libxkbcommon-0.9.1-1.el8.x86_64.rpm   4.1 MB/s | 116 kB     00:00    
+(71/146): libXrandr-1.5.2-1.el8.x86_64.rpm      1.2 MB/s |  34 kB     00:00    
+(72/146): lua-5.3.4-12.el8.x86_64.rpm           6.4 MB/s | 192 kB     00:00    
+(73/146): perl-Error-0.17025-2.el8.noarch.rpm   1.6 MB/s |  46 kB     00:00    
+(74/146): xorg-x11-font-utils-7.5-41.el8.x86_64 3.5 MB/s | 104 kB     00:00    
+(75/146): dconf-0.28.0-4.el8.x86_64.rpm         3.8 MB/s | 108 kB     00:00    
+(76/146): libXfixes-5.0.3-7.el8.x86_64.rpm      928 kB/s |  25 kB     00:00    
+(77/146): libXft-2.3.3-1.el8.x86_64.rpm         2.3 MB/s |  67 kB     00:00    
+(78/146): libXext-1.3.4-1.el8.x86_64.rpm        1.6 MB/s |  45 kB     00:00    
+(79/146): libXtst-1.2.3-7.el8.x86_64.rpm        793 kB/s |  22 kB     00:00    
+(80/146): jq-1.6-3.el8.x86_64.rpm               6.1 MB/s | 202 kB     00:00    
+(81/146): adwaita-cursor-theme-3.28.0-3.el8.noa  17 MB/s | 647 kB     00:00    
+(82/146): libXrender-0.9.10-7.el8.x86_64.rpm    1.2 MB/s |  33 kB     00:00    
+(83/146): perl-TermReadKey-2.37-7.el8.x86_64.rp 1.4 MB/s |  40 kB     00:00    
+(84/146): libXinerama-1.1.4-1.el8.x86_64.rpm    590 kB/s |  16 kB     00:00    
+(85/146): atk-2.28.1-1.el8.x86_64.rpm           9.0 MB/s | 272 kB     00:00    
+(86/146): libdatrie-0.2.9-7.el8.x86_64.rpm      1.2 MB/s |  33 kB     00:00    
+(87/146): pixman-0.38.4-2.el8.x86_64.rpm        7.2 MB/s | 257 kB     00:00    
+(88/146): gdk-pixbuf2-modules-2.36.12-5.el8.x86 3.8 MB/s | 109 kB     00:00    
+(89/146): cairo-gobject-1.15.12-6.el8.x86_64.rp 1.2 MB/s |  33 kB     00:00    
+(90/146): copy-jdk-configs-4.0-2.el8.noarch.rpm 1.1 MB/s |  31 kB     00:00    
+(91/146): libXi-1.7.10-1.el8.x86_64.rpm         1.7 MB/s |  49 kB     00:00    
+(92/146): libXau-1.0.9-3.el8.x86_64.rpm         1.3 MB/s |  37 kB     00:00    
+(93/146): xorg-x11-fonts-Type1-7.5-19.el8.noarc  13 MB/s | 522 kB     00:00    
+(94/146): libwayland-cursor-1.19.0-1.el8.x86_64 971 kB/s |  26 kB     00:00    
+(95/146): libepoxy-1.5.8-1.el8.x86_64.rpm       7.4 MB/s | 225 kB     00:00    
+(96/146): oniguruma-6.8.2-2.el8.x86_64.rpm      6.4 MB/s | 187 kB     00:00    
+(97/146): xkeyboard-config-2.28-1.el8.noarch.rp  16 MB/s | 782 kB     00:00    
+(98/146): at-spi2-core-2.28.0-1.el8.x86_64.rpm  5.6 MB/s | 169 kB     00:00    
+(99/146): hicolor-icon-theme-0.17-2.el8.noarch. 1.5 MB/s |  48 kB     00:00    
+(100/146): ttmkfdir-3.0.9-54.el8.x86_64.rpm     2.2 MB/s |  62 kB     00:00    
+(101/146): jasper-libs-2.0.14-5.el8.x86_64.rpm  5.6 MB/s | 167 kB     00:00    
+(102/146): libX11-common-1.6.8-5.el8.noarch.rpm 4.4 MB/s | 158 kB     00:00    
+(103/146): cairo-1.15.12-6.el8.x86_64.rpm        16 MB/s | 719 kB     00:00    
+(104/146): libthai-0.1.27-2.el8.x86_64.rpm      5.5 MB/s | 203 kB     00:00    
+(105/146): libwayland-client-1.19.0-1.el8.x86_6 1.3 MB/s |  39 kB     00:00    
+(106/146): libwayland-egl-1.19.0-1.el8.x86_64.r 730 kB/s |  19 kB     00:00    
+(107/146): graphite2-1.3.10-10.el8.x86_64.rpm   3.5 MB/s | 122 kB     00:00    
+(108/146): colord-libs-1.4.2-1.el8.x86_64.rpm   7.0 MB/s | 236 kB     00:00    
+(109/146): libXcursor-1.1.15-3.el8.x86_64.rpm   1.3 MB/s |  36 kB     00:00    
+(110/146): rest-0.8.1-2.el8.x86_64.rpm          2.5 MB/s |  71 kB     00:00    
+(111/146): adwaita-icon-theme-3.28.0-3.el8.noar  54 MB/s |  11 MB     00:00    
+(112/146): libXdamage-1.1.4-14.el8.x86_64.rpm   383 kB/s |  27 kB     00:00    
+(113/146): libxcb-1.13.1-1.el8.x86_64.rpm       3.6 MB/s | 229 kB     00:00    
+(114/146): at-spi2-atk-2.26.2-1.el8.x86_64.rpm  3.0 MB/s |  89 kB     00:00    
+(115/146): lcms2-2.9-2.el8.x86_64.rpm           5.1 MB/s | 165 kB     00:00    
+(116/146): pango-1.42.4-8.el8.x86_64.rpm        8.6 MB/s | 297 kB     00:00    
+(117/146): fribidi-1.0.4-9.el8.x86_64.rpm       2.8 MB/s |  89 kB     00:00    
+(118/146): libX11-1.6.8-5.el8.x86_64.rpm         13 MB/s | 611 kB     00:00    
+(119/146): nss-sysinit-3.79.0-10.el8_6.x86_64.r 2.6 MB/s |  75 kB     00:00    
+(120/146): gtk3-3.22.30-11.el8.x86_64.rpm        44 MB/s | 4.5 MB     00:00    
+(121/146): alsa-lib-1.2.7.2-1.el8.x86_64.rpm    8.6 MB/s | 496 kB     00:00    
+(122/146): nss-3.79.0-10.el8_6.x86_64.rpm       8.8 MB/s | 747 kB     00:00    
+(123/146): perl-Digest-1.17-395.el8.noarch.rpm  986 kB/s |  27 kB     00:00    
+(124/146): gtk-update-icon-cache-3.22.30-11.el8 908 kB/s |  33 kB     00:00    
+(125/146): nspr-4.34.0-3.el8_6.x86_64.rpm       4.7 MB/s | 143 kB     00:00    
+(126/146): nss-softokn-freebl-3.79.0-10.el8_6.x 7.8 MB/s | 398 kB     00:00    
+(127/146): tzdata-java-2022g-1.el8.noarch.rpm   6.1 MB/s | 185 kB     00:00    
+(128/146): perl-URI-1.73-3.el8.noarch.rpm       3.7 MB/s | 116 kB     00:00    
+(129/146): perl-IO-Socket-SSL-2.066-4.module+el 8.9 MB/s | 298 kB     00:00    
+(130/146): perl-Mozilla-CA-20160104-7.module+el 541 kB/s |  15 kB     00:00    
+(131/146): perl-IO-Socket-IP-0.39-5.el8.noarch. 1.7 MB/s |  47 kB     00:00    
+(132/146): nss-util-3.79.0-10.el8_6.x86_64.rpm  4.8 MB/s | 139 kB     00:00    
+(133/146): perl-Digest-MD5-2.55-396.el8.x86_64. 1.3 MB/s |  37 kB     00:00    
+(134/146): nss-softokn-3.79.0-10.el8_6.x86_64.r  28 MB/s | 1.2 MB     00:00    
+(135/146): perl-Net-SSLeay-1.88-2.module+el8.6. 4.6 MB/s | 379 kB     00:00    
+(136/146): perl-libnet-3.11-3.el8.noarch.rpm    1.9 MB/s | 121 kB     00:00    
+(137/146): perl-Git-2.31.1-3.el8_7.noarch.rpm   1.6 MB/s |  78 kB     00:00    
+(138/146): git-2.31.1-3.el8_7.x86_64.rpm        2.8 MB/s | 162 kB     00:00    
+(139/146): libtiff-4.0.9-26.el8_7.x86_64.rpm    5.5 MB/s | 189 kB     00:00    
+(140/146): git-core-doc-2.31.1-3.el8_7.noarch.r  25 MB/s | 2.6 MB     00:00    
+(141/146): git-core-2.31.1-3.el8_7.x86_64.rpm    33 MB/s | 4.8 MB     00:00    
+(142/146): java-11-openjdk-devel-11.0.18.0.10-2  37 MB/s | 3.4 MB     00:00    
+(143/146): java-11-openjdk-11.0.18.0.10-2.el8_7  11 MB/s | 468 kB     00:00    
+(144/146): libcurl-7.61.1-25.el8_7.3.x86_64.rpm 8.9 MB/s | 302 kB     00:00    
+(145/146): curl-7.61.1-25.el8_7.3.x86_64.rpm    9.0 MB/s | 352 kB     00:00    
+(146/146): java-11-openjdk-headless-11.0.18.0.1  71 MB/s |  41 MB     00:00    
 --------------------------------------------------------------------------------
-Total                                            41 MB/s | 100 MB     00:02     
+Total                                            37 MB/s | 101 MB     00:02     
 Running transaction check
 Transaction check succeeded.
 Running transaction test
@@ -2363,331 +1563,341 @@ Running transaction
   Running scriptlet: copy-jdk-configs-4.0-2.el8.noarch                      1/1 
   Running scriptlet: java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.x86_   1/1 
   Preparing        :                                                        1/1 
-  Installing       : nspr-4.34.0-3.el8_6.x86_64                           1/144 
-  Running scriptlet: nspr-4.34.0-3.el8_6.x86_64                           1/144 
-  Installing       : libpng-2:1.6.34-5.el8.x86_64                         2/144 
-  Installing       : freetype-2.9.1-9.el8.x86_64                          3/144 
-  Installing       : nss-util-3.79.0-10.el8_6.x86_64                      4/144 
-  Installing       : libjpeg-turbo-1.5.3-12.el8.x86_64                    5/144 
-  Installing       : fontpackages-filesystem-1.44-22.el8.noarch           6/144 
-  Installing       : libwayland-client-1.19.0-1.el8.x86_64                7/144 
-  Installing       : pixman-0.38.4-2.el8.x86_64                           8/144 
-  Installing       : atk-2.28.1-1.el8.x86_64                              9/144 
-  Installing       : libwayland-cursor-1.19.0-1.el8.x86_64               10/144 
-  Installing       : dejavu-fonts-common-2.35-7.el8.noarch               11/144 
-  Installing       : dejavu-sans-mono-fonts-2.35-7.el8.noarch            12/144 
-  Installing       : fontconfig-2.13.1-4.el8.x86_64                      13/144 
-  Running scriptlet: fontconfig-2.13.1-4.el8.x86_64                      13/144 
-  Installing       : abattis-cantarell-fonts-0.0.25-6.el8.noarch         14/144 
-  Installing       : gsettings-desktop-schemas-3.32.0-6.el8.x86_64       15/144 
-  Installing       : jasper-libs-2.0.14-5.el8.x86_64                     16/144 
-  Installing       : nss-softokn-freebl-3.79.0-10.el8_6.x86_64           17/144 
-  Installing       : nss-softokn-3.79.0-10.el8_6.x86_64                  18/144 
-  Installing       : nss-3.79.0-10.el8_6.x86_64                          19/144 
-  Installing       : nss-sysinit-3.79.0-10.el8_6.x86_64                  20/144 
-  Installing       : ttmkfdir-3.0.9-54.el8.x86_64                        21/144 
-  Installing       : tzdata-java-2022g-1.el8.noarch                      22/144 
-  Installing       : alsa-lib-1.2.7.2-1.el8.x86_64                       23/144 
-  Running scriptlet: alsa-lib-1.2.7.2-1.el8.x86_64                       23/144 
-  Installing       : fribidi-1.0.4-9.el8.x86_64                          24/144 
-  Installing       : lcms2-2.9-2.el8.x86_64                              25/144 
-  Running scriptlet: lcms2-2.9-2.el8.x86_64                              25/144 
-  Installing       : graphite2-1.3.10-10.el8.x86_64                      26/144 
-  Installing       : harfbuzz-1.7.5-3.el8.x86_64                         27/144 
-  Running scriptlet: harfbuzz-1.7.5-3.el8.x86_64                         27/144 
-  Installing       : libwayland-egl-1.19.0-1.el8.x86_64                  28/144 
-  Installing       : libX11-common-1.6.8-5.el8.noarch                    29/144 
-  Installing       : hicolor-icon-theme-0.17-2.el8.noarch                30/144 
-  Installing       : oniguruma-6.8.2-2.el8.x86_64                        31/144 
-  Running scriptlet: oniguruma-6.8.2-2.el8.x86_64                        31/144 
-  Installing       : xkeyboard-config-2.28-1.el8.noarch                  32/144 
-  Installing       : libxkbcommon-0.9.1-1.el8.x86_64                     33/144 
-  Installing       : libepoxy-1.5.8-1.el8.x86_64                         34/144 
-  Installing       : libXau-1.0.9-3.el8.x86_64                           35/144 
-  Installing       : libxcb-1.13.1-1.el8.x86_64                          36/144 
-  Installing       : libX11-1.6.8-5.el8.x86_64                           37/144 
-  Installing       : libXext-1.3.4-1.el8.x86_64                          38/144 
-  Installing       : libXrender-0.9.10-7.el8.x86_64                      39/144 
-  Installing       : cairo-1.15.12-6.el8.x86_64                          40/144 
-  Installing       : libXi-1.7.10-1.el8.x86_64                           41/144 
-  Installing       : libXfixes-5.0.3-7.el8.x86_64                        42/144 
-  Installing       : libXtst-1.2.3-7.el8.x86_64                          43/144 
-  Installing       : libXcomposite-0.4.4-14.el8.x86_64                   44/144 
-  Installing       : at-spi2-core-2.28.0-1.el8.x86_64                    45/144 
-  Running scriptlet: at-spi2-core-2.28.0-1.el8.x86_64                    45/144 
-  Installing       : at-spi2-atk-2.26.2-1.el8.x86_64                     46/144 
-  Running scriptlet: at-spi2-atk-2.26.2-1.el8.x86_64                     46/144 
-  Installing       : libXcursor-1.1.15-3.el8.x86_64                      47/144 
-  Installing       : libXdamage-1.1.4-14.el8.x86_64                      48/144 
-  Installing       : cairo-gobject-1.15.12-6.el8.x86_64                  49/144 
-  Installing       : libXrandr-1.5.2-1.el8.x86_64                        50/144 
-  Installing       : libXft-2.3.3-1.el8.x86_64                           51/144 
-  Installing       : libXinerama-1.1.4-1.el8.x86_64                      52/144 
-  Installing       : libdatrie-0.2.9-7.el8.x86_64                        53/144 
-  Running scriptlet: libdatrie-0.2.9-7.el8.x86_64                        53/144 
-  Installing       : libthai-0.1.27-2.el8.x86_64                         54/144 
-  Running scriptlet: libthai-0.1.27-2.el8.x86_64                         54/144 
-  Installing       : pango-1.42.4-8.el8.x86_64                           55/144 
-  Running scriptlet: pango-1.42.4-8.el8.x86_64                           55/144 
-  Installing       : adwaita-cursor-theme-3.28.0-3.el8.noarch            56/144 
-  Installing       : adwaita-icon-theme-3.28.0-3.el8.noarch              57/144 
-  Installing       : dconf-0.28.0-4.el8.x86_64                           58/144 
-  Installing       : lua-5.3.4-12.el8.x86_64                             59/144 
-  Installing       : copy-jdk-configs-4.0-2.el8.noarch                   60/144 
-  Installing       : libfontenc-1.1.3-8.el8.x86_64                       61/144 
-  Installing       : javapackages-filesystem-5.3.0-1.module+el8+2447+    62/144 
-  Installing       : jbigkit-libs-2.1-14.el8.x86_64                      63/144 
-  Running scriptlet: jbigkit-libs-2.1-14.el8.x86_64                      63/144 
-  Installing       : libtiff-4.0.9-26.el8_7.x86_64                       64/144 
-  Installing       : ncurses-6.1-9.20180224.el8.x86_64                   65/144 
-  Installing       : lksctp-tools-1.0.18-3.el8.x86_64                    66/144 
-  Running scriptlet: lksctp-tools-1.0.18-3.el8.x86_64                    66/144 
-  Installing       : groff-base-1.22.3-18.el8.x86_64                     67/144 
-  Installing       : emacs-filesystem-1:26.1-7.el8.noarch                68/144 
-  Installing       : pkgconf-m4-1.4.2-1.el8.noarch                       69/144 
-  Installing       : openssl-1:1.1.1k-7.el8_6.x86_64                     70/144 
-  Installing       : perl-Digest-1.17-395.el8.noarch                     71/144 
-  Installing       : perl-Digest-MD5-2.55-396.el8.x86_64                 72/144 
-  Installing       : perl-Data-Dumper-2.167-399.el8.x86_64               73/144 
-  Installing       : perl-libnet-3.11-3.el8.noarch                       74/144 
-  Installing       : perl-Net-SSLeay-1.88-2.module+el8.6.0+13392+f089    75/144 
-  Installing       : perl-URI-1.73-3.el8.noarch                          76/144 
-  Installing       : perl-Pod-Escapes-1:1.07-395.el8.noarch              77/144 
-  Installing       : perl-Time-Local-1:1.280-1.el8.noarch                78/144 
-  Installing       : perl-Mozilla-CA-20160104-7.module+el8.3.0+6498+9    79/144 
-  Installing       : perl-IO-Socket-IP-0.39-5.el8.noarch                 80/144 
-  Installing       : perl-IO-Socket-SSL-2.066-4.module+el8.3.0+6446+5    81/144 
-  Installing       : perl-Term-ANSIColor-4.06-396.el8.noarch             82/144 
-  Installing       : perl-Pod-Simple-1:3.35-395.el8.noarch               83/144 
-  Installing       : perl-Term-Cap-1.17-395.el8.noarch                   84/144 
-  Installing       : perl-File-Temp-0.230.600-1.el8.noarch               85/144 
-  Installing       : perl-HTTP-Tiny-0.074-1.el8.noarch                   86/144 
-  Installing       : perl-podlators-4.11-1.el8.noarch                    87/144 
-  Installing       : perl-Pod-Perldoc-3.28-396.el8.noarch                88/144 
-  Installing       : perl-Text-ParseWords-3.30-395.el8.noarch            89/144 
-  Installing       : perl-Pod-Usage-4:1.69-395.el8.noarch                90/144 
-  Installing       : perl-Storable-1:3.11-3.el8.x86_64                   91/144 
-  Installing       : perl-MIME-Base64-3.15-396.el8.x86_64                92/144 
-  Installing       : perl-Getopt-Long-1:2.50-4.el8.noarch                93/144 
-  Installing       : perl-Socket-4:2.027-3.el8.x86_64                    94/144 
-  Installing       : perl-Errno-1.28-421.el8.x86_64                      95/144 
-  Installing       : perl-Encode-4:2.97-3.el8.x86_64                     96/144 
-  Installing       : perl-parent-1:0.237-1.el8.noarch                    97/144 
-  Installing       : perl-Carp-1.42-396.el8.noarch                       98/144 
-  Installing       : perl-Exporter-5.72-396.el8.noarch                   99/144 
-  Installing       : perl-libs-4:5.26.3-421.el8.x86_64                  100/144 
-  Installing       : perl-Scalar-List-Utils-3:1.49-2.el8.x86_64         101/144 
-  Installing       : perl-macros-4:5.26.3-421.el8.x86_64                102/144 
-  Installing       : perl-threads-shared-1.58-2.el8.x86_64              103/144 
-  Installing       : perl-threads-1:2.21-2.el8.x86_64                   104/144 
-  Installing       : perl-Text-Tabs+Wrap-2013.0523-395.el8.noarch       105/144 
-  Installing       : perl-Unicode-Normalize-1.25-396.el8.x86_64         106/144 
-  Installing       : perl-File-Path-2.15-2.el8.noarch                   107/144 
-  Installing       : perl-PathTools-3.74-1.el8.x86_64                   108/144 
-  Installing       : perl-constant-1.33-396.el8.noarch                  109/144 
-  Installing       : perl-IO-1.38-421.el8.x86_64                        110/144 
-  Installing       : perl-interpreter-4:5.26.3-421.el8.x86_64           111/144 
-  Installing       : perl-Error-1:0.17025-2.el8.noarch                  112/144 
-  Installing       : perl-TermReadKey-2.37-7.el8.x86_64                 113/144 
-  Running scriptlet: openssh-8.0p1-17.el8_7.x86_64                      114/144 
-  Installing       : openssh-8.0p1-17.el8_7.x86_64                      114/144 
-  Installing       : libmodman-2.0.1-17.el8.x86_64                      115/144 
-  Running scriptlet: libmodman-2.0.1-17.el8.x86_64                      115/144 
-  Installing       : libproxy-0.4.15-5.2.el8.x86_64                     116/144 
-  Running scriptlet: libproxy-0.4.15-5.2.el8.x86_64                     116/144 
-  Installing       : glib-networking-2.56.1-1.1.el8.x86_64              117/144 
-  Installing       : libsoup-2.62.3-2.el8.x86_64                        118/144 
-  Installing       : rest-0.8.1-2.el8.x86_64                            119/144 
-  Running scriptlet: rest-0.8.1-2.el8.x86_64                            119/144 
-  Installing       : shared-mime-info-1.9-3.el8.x86_64                  120/144 
-  Running scriptlet: shared-mime-info-1.9-3.el8.x86_64                  120/144 
-  Installing       : gdk-pixbuf2-2.36.12-5.el8.x86_64                   121/144 
-  Running scriptlet: gdk-pixbuf2-2.36.12-5.el8.x86_64                   121/144 
-  Installing       : gdk-pixbuf2-modules-2.36.12-5.el8.x86_64           122/144 
-  Installing       : gtk-update-icon-cache-3.22.30-11.el8.x86_64        123/144 
-  Installing       : libpkgconf-1.4.2-1.el8.x86_64                      124/144 
-  Installing       : pkgconf-1.4.2-1.el8.x86_64                         125/144 
-  Installing       : pkgconf-pkg-config-1.4.2-1.el8.x86_64              126/144 
-  Installing       : xorg-x11-font-utils-1:7.5-41.el8.x86_64            127/144 
-  Installing       : xorg-x11-fonts-Type1-7.5-19.el8.noarch             128/144 
-  Running scriptlet: xorg-x11-fonts-Type1-7.5-19.el8.noarch             128/144 
-  Installing       : libgusb-0.3.0-1.el8.x86_64                         129/144 
-  Installing       : colord-libs-1.4.2-1.el8.x86_64                     130/144 
-  Installing       : libedit-3.1-23.20170329cvs.el8.x86_64              131/144 
-  Installing       : openssh-clients-8.0p1-17.el8_7.x86_64              132/144 
-  Installing       : avahi-libs-0.7-20.el8.x86_64                       133/144 
-  Installing       : cups-libs-1:2.2.6-50.el8.x86_64                    134/144 
-  Installing       : java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   135/144 
-  Running scriptlet: java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   135/144 
-  Installing       : gtk3-3.22.30-11.el8.x86_64                         136/144 
-  Installing       : java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      137/144 
-  Running scriptlet: java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      137/144 
-  Installing       : less-530-1.el8.x86_64                              138/144 
-  Installing       : git-core-2.31.1-3.el8_7.x86_64                     139/144 
-  Installing       : git-core-doc-2.31.1-3.el8_7.noarch                 140/144 
-  Installing       : perl-Git-2.31.1-3.el8_7.noarch                     141/144 
-  Installing       : git-2.31.1-3.el8_7.x86_64                          142/144 
-  Installing       : java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   143/144 
-  Running scriptlet: java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   143/144 
-  Installing       : jq-1.6-3.el8.x86_64                                144/144 
-  Running scriptlet: nss-3.79.0-10.el8_6.x86_64                         144/144 
-  Running scriptlet: dconf-0.28.0-4.el8.x86_64                          144/144 
-  Running scriptlet: copy-jdk-configs-4.0-2.el8.noarch                  144/144 
-  Running scriptlet: java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   144/144 
-  Running scriptlet: java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      144/144 
-  Running scriptlet: java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   144/144 
-  Running scriptlet: jq-1.6-3.el8.x86_64                                144/144 
-  Running scriptlet: fontconfig-2.13.1-4.el8.x86_64                     144/144 
-  Running scriptlet: hicolor-icon-theme-0.17-2.el8.noarch               144/144 
-  Running scriptlet: adwaita-icon-theme-3.28.0-3.el8.noarch             144/144 
-  Running scriptlet: shared-mime-info-1.9-3.el8.x86_64                  144/144 
-  Running scriptlet: gdk-pixbuf2-2.36.12-5.el8.x86_64                   144/144 
-  Verifying        : libsoup-2.62.3-2.el8.x86_64                          1/144 
-  Verifying        : fontpackages-filesystem-1.44-22.el8.noarch           2/144 
-  Verifying        : perl-Scalar-List-Utils-3:1.49-2.el8.x86_64           3/144 
-  Verifying        : less-530-1.el8.x86_64                                4/144 
-  Verifying        : perl-PathTools-3.74-1.el8.x86_64                     5/144 
-  Verifying        : openssh-clients-8.0p1-17.el8_7.x86_64                6/144 
-  Verifying        : perl-threads-1:2.21-2.el8.x86_64                     7/144 
-  Verifying        : perl-Pod-Simple-1:3.35-395.el8.noarch                8/144 
-  Verifying        : perl-Term-ANSIColor-4.06-396.el8.noarch              9/144 
-  Verifying        : perl-Data-Dumper-2.167-399.el8.x86_64               10/144 
-  Verifying        : avahi-libs-0.7-20.el8.x86_64                        11/144 
-  Verifying        : libedit-3.1-23.20170329cvs.el8.x86_64               12/144 
-  Verifying        : gdk-pixbuf2-2.36.12-5.el8.x86_64                    13/144 
-  Verifying        : freetype-2.9.1-9.el8.x86_64                         14/144 
-  Verifying        : gsettings-desktop-schemas-3.32.0-6.el8.x86_64       15/144 
-  Verifying        : libgusb-0.3.0-1.el8.x86_64                          16/144 
-  Verifying        : perl-threads-shared-1.58-2.el8.x86_64               17/144 
-  Verifying        : perl-HTTP-Tiny-0.074-1.el8.noarch                   18/144 
-  Verifying        : libpkgconf-1.4.2-1.el8.x86_64                       19/144 
-  Verifying        : perl-Pod-Escapes-1:1.07-395.el8.noarch              20/144 
-  Verifying        : cups-libs-1:2.2.6-50.el8.x86_64                     21/144 
-  Verifying        : shared-mime-info-1.9-3.el8.x86_64                   22/144 
-  Verifying        : perl-Pod-Perldoc-3.28-396.el8.noarch                23/144 
-  Verifying        : libmodman-2.0.1-17.el8.x86_64                       24/144 
-  Verifying        : perl-Encode-4:2.97-3.el8.x86_64                     25/144 
-  Verifying        : perl-Socket-4:2.027-3.el8.x86_64                    26/144 
-  Verifying        : perl-libs-4:5.26.3-421.el8.x86_64                   27/144 
-  Verifying        : perl-File-Path-2.15-2.el8.noarch                    28/144 
-  Verifying        : openssh-8.0p1-17.el8_7.x86_64                       29/144 
-  Verifying        : perl-IO-1.38-421.el8.x86_64                         30/144 
-  Verifying        : openssl-1:1.1.1k-7.el8_6.x86_64                     31/144 
-  Verifying        : perl-parent-1:0.237-1.el8.noarch                    32/144 
-  Verifying        : pkgconf-m4-1.4.2-1.el8.noarch                       33/144 
-  Verifying        : dejavu-sans-mono-fonts-2.35-7.el8.noarch            34/144 
-  Verifying        : emacs-filesystem-1:26.1-7.el8.noarch                35/144 
-  Verifying        : libpng-2:1.6.34-5.el8.x86_64                        36/144 
-  Verifying        : pkgconf-1.4.2-1.el8.x86_64                          37/144 
-  Verifying        : dejavu-fonts-common-2.35-7.el8.noarch               38/144 
-  Verifying        : libproxy-0.4.15-5.2.el8.x86_64                      39/144 
-  Verifying        : perl-Text-Tabs+Wrap-2013.0523-395.el8.noarch        40/144 
-  Verifying        : groff-base-1.22.3-18.el8.x86_64                     41/144 
-  Verifying        : fontconfig-2.13.1-4.el8.x86_64                      42/144 
-  Verifying        : perl-Getopt-Long-1:2.50-4.el8.noarch                43/144 
-  Verifying        : lksctp-tools-1.0.18-3.el8.x86_64                    44/144 
-  Verifying        : perl-podlators-4.11-1.el8.noarch                    45/144 
-  Verifying        : perl-Time-Local-1:1.280-1.el8.noarch                46/144 
-  Verifying        : perl-Carp-1.42-396.el8.noarch                       47/144 
-  Verifying        : perl-Exporter-5.72-396.el8.noarch                   48/144 
-  Verifying        : perl-Storable-1:3.11-3.el8.x86_64                   49/144 
-  Verifying        : pkgconf-pkg-config-1.4.2-1.el8.x86_64               50/144 
-  Verifying        : perl-Text-ParseWords-3.30-395.el8.noarch            51/144 
-  Verifying        : perl-Unicode-Normalize-1.25-396.el8.x86_64          52/144 
-  Verifying        : ncurses-6.1-9.20180224.el8.x86_64                   53/144 
-  Verifying        : glib-networking-2.56.1-1.1.el8.x86_64               54/144 
-  Verifying        : perl-File-Temp-0.230.600-1.el8.noarch               55/144 
-  Verifying        : perl-constant-1.33-396.el8.noarch                   56/144 
-  Verifying        : perl-interpreter-4:5.26.3-421.el8.x86_64            57/144 
-  Verifying        : perl-macros-4:5.26.3-421.el8.x86_64                 58/144 
-  Verifying        : perl-Term-Cap-1.17-395.el8.noarch                   59/144 
-  Verifying        : perl-MIME-Base64-3.15-396.el8.x86_64                60/144 
-  Verifying        : perl-Pod-Usage-4:1.69-395.el8.noarch                61/144 
-  Verifying        : perl-Errno-1.28-421.el8.x86_64                      62/144 
-  Verifying        : abattis-cantarell-fonts-0.0.25-6.el8.noarch         63/144 
-  Verifying        : harfbuzz-1.7.5-3.el8.x86_64                         64/144 
-  Verifying        : libjpeg-turbo-1.5.3-12.el8.x86_64                   65/144 
-  Verifying        : jbigkit-libs-2.1-14.el8.x86_64                      66/144 
-  Verifying        : libXcomposite-0.4.4-14.el8.x86_64                   67/144 
-  Verifying        : javapackages-filesystem-5.3.0-1.module+el8+2447+    68/144 
-  Verifying        : libfontenc-1.1.3-8.el8.x86_64                       69/144 
-  Verifying        : libxkbcommon-0.9.1-1.el8.x86_64                     70/144 
-  Verifying        : libXrandr-1.5.2-1.el8.x86_64                        71/144 
-  Verifying        : lua-5.3.4-12.el8.x86_64                             72/144 
-  Verifying        : perl-Error-1:0.17025-2.el8.noarch                   73/144 
-  Verifying        : xorg-x11-font-utils-1:7.5-41.el8.x86_64             74/144 
-  Verifying        : dconf-0.28.0-4.el8.x86_64                           75/144 
-  Verifying        : libXfixes-5.0.3-7.el8.x86_64                        76/144 
-  Verifying        : libXft-2.3.3-1.el8.x86_64                           77/144 
-  Verifying        : libXext-1.3.4-1.el8.x86_64                          78/144 
-  Verifying        : libXtst-1.2.3-7.el8.x86_64                          79/144 
-  Verifying        : jq-1.6-3.el8.x86_64                                 80/144 
-  Verifying        : adwaita-cursor-theme-3.28.0-3.el8.noarch            81/144 
-  Verifying        : libXrender-0.9.10-7.el8.x86_64                      82/144 
-  Verifying        : perl-TermReadKey-2.37-7.el8.x86_64                  83/144 
-  Verifying        : libXinerama-1.1.4-1.el8.x86_64                      84/144 
-  Verifying        : atk-2.28.1-1.el8.x86_64                             85/144 
-  Verifying        : pixman-0.38.4-2.el8.x86_64                          86/144 
-  Verifying        : libdatrie-0.2.9-7.el8.x86_64                        87/144 
-  Verifying        : gdk-pixbuf2-modules-2.36.12-5.el8.x86_64            88/144 
-  Verifying        : cairo-gobject-1.15.12-6.el8.x86_64                  89/144 
-  Verifying        : copy-jdk-configs-4.0-2.el8.noarch                   90/144 
-  Verifying        : libXi-1.7.10-1.el8.x86_64                           91/144 
-  Verifying        : xorg-x11-fonts-Type1-7.5-19.el8.noarch              92/144 
-  Verifying        : libXau-1.0.9-3.el8.x86_64                           93/144 
-  Verifying        : libwayland-cursor-1.19.0-1.el8.x86_64               94/144 
-  Verifying        : libepoxy-1.5.8-1.el8.x86_64                         95/144 
-  Verifying        : xkeyboard-config-2.28-1.el8.noarch                  96/144 
-  Verifying        : oniguruma-6.8.2-2.el8.x86_64                        97/144 
-  Verifying        : at-spi2-core-2.28.0-1.el8.x86_64                    98/144 
-  Verifying        : hicolor-icon-theme-0.17-2.el8.noarch                99/144 
-  Verifying        : ttmkfdir-3.0.9-54.el8.x86_64                       100/144 
-  Verifying        : jasper-libs-2.0.14-5.el8.x86_64                    101/144 
-  Verifying        : libX11-common-1.6.8-5.el8.noarch                   102/144 
-  Verifying        : adwaita-icon-theme-3.28.0-3.el8.noarch             103/144 
-  Verifying        : cairo-1.15.12-6.el8.x86_64                         104/144 
-  Verifying        : libthai-0.1.27-2.el8.x86_64                        105/144 
-  Verifying        : libwayland-client-1.19.0-1.el8.x86_64              106/144 
-  Verifying        : libwayland-egl-1.19.0-1.el8.x86_64                 107/144 
-  Verifying        : graphite2-1.3.10-10.el8.x86_64                     108/144 
-  Verifying        : colord-libs-1.4.2-1.el8.x86_64                     109/144 
-  Verifying        : libXcursor-1.1.15-3.el8.x86_64                     110/144 
-  Verifying        : rest-0.8.1-2.el8.x86_64                            111/144 
-  Verifying        : libXdamage-1.1.4-14.el8.x86_64                     112/144 
-  Verifying        : libxcb-1.13.1-1.el8.x86_64                         113/144 
-  Verifying        : at-spi2-atk-2.26.2-1.el8.x86_64                    114/144 
-  Verifying        : lcms2-2.9-2.el8.x86_64                             115/144 
-  Verifying        : pango-1.42.4-8.el8.x86_64                          116/144 
-  Verifying        : libX11-1.6.8-5.el8.x86_64                          117/144 
-  Verifying        : fribidi-1.0.4-9.el8.x86_64                         118/144 
-  Verifying        : gtk3-3.22.30-11.el8.x86_64                         119/144 
-  Verifying        : nss-sysinit-3.79.0-10.el8_6.x86_64                 120/144 
-  Verifying        : nss-3.79.0-10.el8_6.x86_64                         121/144 
-  Verifying        : alsa-lib-1.2.7.2-1.el8.x86_64                      122/144 
-  Verifying        : perl-Digest-1.17-395.el8.noarch                    123/144 
-  Verifying        : nss-softokn-freebl-3.79.0-10.el8_6.x86_64          124/144 
-  Verifying        : gtk-update-icon-cache-3.22.30-11.el8.x86_64        125/144 
-  Verifying        : nspr-4.34.0-3.el8_6.x86_64                         126/144 
-  Verifying        : tzdata-java-2022g-1.el8.noarch                     127/144 
-  Verifying        : perl-URI-1.73-3.el8.noarch                         128/144 
-  Verifying        : perl-IO-Socket-SSL-2.066-4.module+el8.3.0+6446+5   129/144 
-  Verifying        : perl-Mozilla-CA-20160104-7.module+el8.3.0+6498+9   130/144 
-  Verifying        : perl-IO-Socket-IP-0.39-5.el8.noarch                131/144 
-  Verifying        : nss-util-3.79.0-10.el8_6.x86_64                    132/144 
-  Verifying        : perl-Digest-MD5-2.55-396.el8.x86_64                133/144 
-  Verifying        : nss-softokn-3.79.0-10.el8_6.x86_64                 134/144 
-  Verifying        : perl-Net-SSLeay-1.88-2.module+el8.6.0+13392+f089   135/144 
-  Verifying        : perl-libnet-3.11-3.el8.noarch                      136/144 
-  Verifying        : perl-Git-2.31.1-3.el8_7.noarch                     137/144 
-  Verifying        : git-2.31.1-3.el8_7.x86_64                          138/144 
-  Verifying        : git-core-2.31.1-3.el8_7.x86_64                     139/144 
-  Verifying        : git-core-doc-2.31.1-3.el8_7.noarch                 140/144 
-  Verifying        : libtiff-4.0.9-26.el8_7.x86_64                      141/144 
-  Verifying        : java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   142/144 
-  Verifying        : java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   143/144 
-  Verifying        : java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      144/144 
+  Installing       : nspr-4.34.0-3.el8_6.x86_64                           1/148 
+  Running scriptlet: nspr-4.34.0-3.el8_6.x86_64                           1/148 
+  Installing       : libpng-2:1.6.34-5.el8.x86_64                         2/148 
+  Installing       : freetype-2.9.1-9.el8.x86_64                          3/148 
+  Installing       : nss-util-3.79.0-10.el8_6.x86_64                      4/148 
+  Installing       : libjpeg-turbo-1.5.3-12.el8.x86_64                    5/148 
+  Installing       : fontpackages-filesystem-1.44-22.el8.noarch           6/148 
+  Upgrading        : libcurl-7.61.1-25.el8_7.3.x86_64                     7/148 
+  Installing       : libwayland-client-1.19.0-1.el8.x86_64                8/148 
+  Installing       : pixman-0.38.4-2.el8.x86_64                           9/148 
+  Installing       : atk-2.28.1-1.el8.x86_64                             10/148 
+  Installing       : libwayland-cursor-1.19.0-1.el8.x86_64               11/148 
+  Installing       : dejavu-fonts-common-2.35-7.el8.noarch               12/148 
+  Installing       : dejavu-sans-mono-fonts-2.35-7.el8.noarch            13/148 
+  Installing       : fontconfig-2.13.1-4.el8.x86_64                      14/148 
+  Running scriptlet: fontconfig-2.13.1-4.el8.x86_64                      14/148 
+  Installing       : abattis-cantarell-fonts-0.0.25-6.el8.noarch         15/148 
+  Installing       : gsettings-desktop-schemas-3.32.0-6.el8.x86_64       16/148 
+  Installing       : jasper-libs-2.0.14-5.el8.x86_64                     17/148 
+  Installing       : nss-softokn-freebl-3.79.0-10.el8_6.x86_64           18/148 
+  Installing       : nss-softokn-3.79.0-10.el8_6.x86_64                  19/148 
+  Installing       : nss-3.79.0-10.el8_6.x86_64                          20/148 
+  Installing       : nss-sysinit-3.79.0-10.el8_6.x86_64                  21/148 
+  Installing       : ttmkfdir-3.0.9-54.el8.x86_64                        22/148 
+  Installing       : tzdata-java-2022g-1.el8.noarch                      23/148 
+  Installing       : alsa-lib-1.2.7.2-1.el8.x86_64                       24/148 
+  Running scriptlet: alsa-lib-1.2.7.2-1.el8.x86_64                       24/148 
+  Installing       : fribidi-1.0.4-9.el8.x86_64                          25/148 
+  Installing       : lcms2-2.9-2.el8.x86_64                              26/148 
+  Running scriptlet: lcms2-2.9-2.el8.x86_64                              26/148 
+  Installing       : graphite2-1.3.10-10.el8.x86_64                      27/148 
+  Installing       : harfbuzz-1.7.5-3.el8.x86_64                         28/148 
+  Running scriptlet: harfbuzz-1.7.5-3.el8.x86_64                         28/148 
+  Installing       : libwayland-egl-1.19.0-1.el8.x86_64                  29/148 
+  Installing       : libX11-common-1.6.8-5.el8.noarch                    30/148 
+  Installing       : hicolor-icon-theme-0.17-2.el8.noarch                31/148 
+  Installing       : oniguruma-6.8.2-2.el8.x86_64                        32/148 
+  Running scriptlet: oniguruma-6.8.2-2.el8.x86_64                        32/148 
+  Installing       : xkeyboard-config-2.28-1.el8.noarch                  33/148 
+  Installing       : libxkbcommon-0.9.1-1.el8.x86_64                     34/148 
+  Installing       : libepoxy-1.5.8-1.el8.x86_64                         35/148 
+  Installing       : libXau-1.0.9-3.el8.x86_64                           36/148 
+  Installing       : libxcb-1.13.1-1.el8.x86_64                          37/148 
+  Installing       : libX11-1.6.8-5.el8.x86_64                           38/148 
+  Installing       : libXext-1.3.4-1.el8.x86_64                          39/148 
+  Installing       : libXrender-0.9.10-7.el8.x86_64                      40/148 
+  Installing       : cairo-1.15.12-6.el8.x86_64                          41/148 
+  Installing       : libXi-1.7.10-1.el8.x86_64                           42/148 
+  Installing       : libXfixes-5.0.3-7.el8.x86_64                        43/148 
+  Installing       : libXtst-1.2.3-7.el8.x86_64                          44/148 
+  Installing       : libXcomposite-0.4.4-14.el8.x86_64                   45/148 
+  Installing       : at-spi2-core-2.28.0-1.el8.x86_64                    46/148 
+  Running scriptlet: at-spi2-core-2.28.0-1.el8.x86_64                    46/148 
+  Installing       : at-spi2-atk-2.26.2-1.el8.x86_64                     47/148 
+  Running scriptlet: at-spi2-atk-2.26.2-1.el8.x86_64                     47/148 
+  Installing       : libXcursor-1.1.15-3.el8.x86_64                      48/148 
+  Installing       : libXdamage-1.1.4-14.el8.x86_64                      49/148 
+  Installing       : cairo-gobject-1.15.12-6.el8.x86_64                  50/148 
+  Installing       : libXrandr-1.5.2-1.el8.x86_64                        51/148 
+  Installing       : libXft-2.3.3-1.el8.x86_64                           52/148 
+  Installing       : libXinerama-1.1.4-1.el8.x86_64                      53/148 
+  Installing       : libdatrie-0.2.9-7.el8.x86_64                        54/148 
+  Running scriptlet: libdatrie-0.2.9-7.el8.x86_64                        54/148 
+  Installing       : libthai-0.1.27-2.el8.x86_64                         55/148 
+  Running scriptlet: libthai-0.1.27-2.el8.x86_64                         55/148 
+  Installing       : pango-1.42.4-8.el8.x86_64                           56/148 
+  Running scriptlet: pango-1.42.4-8.el8.x86_64                           56/148 
+  Installing       : adwaita-cursor-theme-3.28.0-3.el8.noarch            57/148 
+  Installing       : adwaita-icon-theme-3.28.0-3.el8.noarch              58/148 
+  Installing       : dconf-0.28.0-4.el8.x86_64                           59/148 
+  Installing       : lua-5.3.4-12.el8.x86_64                             60/148 
+  Installing       : copy-jdk-configs-4.0-2.el8.noarch                   61/148 
+  Installing       : libfontenc-1.1.3-8.el8.x86_64                       62/148 
+  Installing       : javapackages-filesystem-5.3.0-1.module+el8+2447+    63/148 
+  Installing       : jbigkit-libs-2.1-14.el8.x86_64                      64/148 
+  Running scriptlet: jbigkit-libs-2.1-14.el8.x86_64                      64/148 
+  Installing       : libtiff-4.0.9-26.el8_7.x86_64                       65/148 
+  Installing       : ncurses-6.1-9.20180224.el8.x86_64                   66/148 
+  Installing       : lksctp-tools-1.0.18-3.el8.x86_64                    67/148 
+  Running scriptlet: lksctp-tools-1.0.18-3.el8.x86_64                    67/148 
+  Installing       : groff-base-1.22.3-18.el8.x86_64                     68/148 
+  Installing       : emacs-filesystem-1:26.1-7.el8.noarch                69/148 
+  Installing       : pkgconf-m4-1.4.2-1.el8.noarch                       70/148 
+  Installing       : openssl-1:1.1.1k-7.el8_6.x86_64                     71/148 
+  Installing       : perl-Digest-1.17-395.el8.noarch                     72/148 
+  Installing       : perl-Digest-MD5-2.55-396.el8.x86_64                 73/148 
+  Installing       : perl-Data-Dumper-2.167-399.el8.x86_64               74/148 
+  Installing       : perl-libnet-3.11-3.el8.noarch                       75/148 
+  Installing       : perl-Net-SSLeay-1.88-2.module+el8.6.0+13392+f089    76/148 
+  Installing       : perl-URI-1.73-3.el8.noarch                          77/148 
+  Installing       : perl-Pod-Escapes-1:1.07-395.el8.noarch              78/148 
+  Installing       : perl-Time-Local-1:1.280-1.el8.noarch                79/148 
+  Installing       : perl-Mozilla-CA-20160104-7.module+el8.3.0+6498+9    80/148 
+  Installing       : perl-IO-Socket-IP-0.39-5.el8.noarch                 81/148 
+  Installing       : perl-IO-Socket-SSL-2.066-4.module+el8.3.0+6446+5    82/148 
+  Installing       : perl-Term-ANSIColor-4.06-396.el8.noarch             83/148 
+  Installing       : perl-Pod-Simple-1:3.35-395.el8.noarch               84/148 
+  Installing       : perl-Term-Cap-1.17-395.el8.noarch                   85/148 
+  Installing       : perl-File-Temp-0.230.600-1.el8.noarch               86/148 
+  Installing       : perl-HTTP-Tiny-0.074-1.el8.noarch                   87/148 
+  Installing       : perl-podlators-4.11-1.el8.noarch                    88/148 
+  Installing       : perl-Pod-Perldoc-3.28-396.el8.noarch                89/148 
+  Installing       : perl-Text-ParseWords-3.30-395.el8.noarch            90/148 
+  Installing       : perl-Pod-Usage-4:1.69-395.el8.noarch                91/148 
+  Installing       : perl-Storable-1:3.11-3.el8.x86_64                   92/148 
+  Installing       : perl-MIME-Base64-3.15-396.el8.x86_64                93/148 
+  Installing       : perl-Getopt-Long-1:2.50-4.el8.noarch                94/148 
+  Installing       : perl-Socket-4:2.027-3.el8.x86_64                    95/148 
+  Installing       : perl-Errno-1.28-421.el8.x86_64                      96/148 
+  Installing       : perl-Encode-4:2.97-3.el8.x86_64                     97/148 
+  Installing       : perl-parent-1:0.237-1.el8.noarch                    98/148 
+  Installing       : perl-Carp-1.42-396.el8.noarch                       99/148 
+  Installing       : perl-Exporter-5.72-396.el8.noarch                  100/148 
+  Installing       : perl-libs-4:5.26.3-421.el8.x86_64                  101/148 
+  Installing       : perl-Scalar-List-Utils-3:1.49-2.el8.x86_64         102/148 
+  Installing       : perl-macros-4:5.26.3-421.el8.x86_64                103/148 
+  Installing       : perl-threads-shared-1.58-2.el8.x86_64              104/148 
+  Installing       : perl-threads-1:2.21-2.el8.x86_64                   105/148 
+  Installing       : perl-Text-Tabs+Wrap-2013.0523-395.el8.noarch       106/148 
+  Installing       : perl-Unicode-Normalize-1.25-396.el8.x86_64         107/148 
+  Installing       : perl-File-Path-2.15-2.el8.noarch                   108/148 
+  Installing       : perl-PathTools-3.74-1.el8.x86_64                   109/148 
+  Installing       : perl-constant-1.33-396.el8.noarch                  110/148 
+  Installing       : perl-IO-1.38-421.el8.x86_64                        111/148 
+  Installing       : perl-interpreter-4:5.26.3-421.el8.x86_64           112/148 
+  Installing       : perl-Error-1:0.17025-2.el8.noarch                  113/148 
+  Installing       : perl-TermReadKey-2.37-7.el8.x86_64                 114/148 
+  Running scriptlet: openssh-8.0p1-17.el8_7.x86_64                      115/148 
+  Installing       : openssh-8.0p1-17.el8_7.x86_64                      115/148 
+  Installing       : libmodman-2.0.1-17.el8.x86_64                      116/148 
+  Running scriptlet: libmodman-2.0.1-17.el8.x86_64                      116/148 
+  Installing       : libproxy-0.4.15-5.2.el8.x86_64                     117/148 
+  Running scriptlet: libproxy-0.4.15-5.2.el8.x86_64                     117/148 
+  Installing       : glib-networking-2.56.1-1.1.el8.x86_64              118/148 
+  Installing       : libsoup-2.62.3-2.el8.x86_64                        119/148 
+  Installing       : rest-0.8.1-2.el8.x86_64                            120/148 
+  Running scriptlet: rest-0.8.1-2.el8.x86_64                            120/148 
+  Installing       : shared-mime-info-1.9-3.el8.x86_64                  121/148 
+  Running scriptlet: shared-mime-info-1.9-3.el8.x86_64                  121/148 
+  Installing       : gdk-pixbuf2-2.36.12-5.el8.x86_64                   122/148 
+  Running scriptlet: gdk-pixbuf2-2.36.12-5.el8.x86_64                   122/148 
+  Installing       : gdk-pixbuf2-modules-2.36.12-5.el8.x86_64           123/148 
+  Installing       : gtk-update-icon-cache-3.22.30-11.el8.x86_64        124/148 
+  Installing       : libpkgconf-1.4.2-1.el8.x86_64                      125/148 
+  Installing       : pkgconf-1.4.2-1.el8.x86_64                         126/148 
+  Installing       : pkgconf-pkg-config-1.4.2-1.el8.x86_64              127/148 
+  Installing       : xorg-x11-font-utils-1:7.5-41.el8.x86_64            128/148 
+  Installing       : xorg-x11-fonts-Type1-7.5-19.el8.noarch             129/148 
+  Running scriptlet: xorg-x11-fonts-Type1-7.5-19.el8.noarch             129/148 
+  Installing       : libgusb-0.3.0-1.el8.x86_64                         130/148 
+  Installing       : colord-libs-1.4.2-1.el8.x86_64                     131/148 
+  Installing       : libedit-3.1-23.20170329cvs.el8.x86_64              132/148 
+  Installing       : openssh-clients-8.0p1-17.el8_7.x86_64              133/148 
+  Installing       : avahi-libs-0.7-20.el8.x86_64                       134/148 
+  Installing       : cups-libs-1:2.2.6-50.el8.x86_64                    135/148 
+  Installing       : java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   136/148 
+  Running scriptlet: java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   136/148 
+  Installing       : gtk3-3.22.30-11.el8.x86_64                         137/148 
+  Installing       : java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      138/148 
+  Running scriptlet: java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      138/148 
+  Installing       : less-530-1.el8.x86_64                              139/148 
+  Installing       : git-core-2.31.1-3.el8_7.x86_64                     140/148 
+  Installing       : git-core-doc-2.31.1-3.el8_7.noarch                 141/148 
+  Installing       : perl-Git-2.31.1-3.el8_7.noarch                     142/148 
+  Installing       : git-2.31.1-3.el8_7.x86_64                          143/148 
+  Installing       : java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   144/148 
+  Running scriptlet: java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   144/148 
+  Installing       : jq-1.6-3.el8.x86_64                                145/148 
+  Upgrading        : curl-7.61.1-25.el8_7.3.x86_64                      146/148 
+  Cleanup          : curl-7.61.1-25.el8_7.2.x86_64                      147/148 
+  Cleanup          : libcurl-7.61.1-25.el8_7.2.x86_64                   148/148 
+  Running scriptlet: nss-3.79.0-10.el8_6.x86_64                         148/148 
+  Running scriptlet: dconf-0.28.0-4.el8.x86_64                          148/148 
+  Running scriptlet: copy-jdk-configs-4.0-2.el8.noarch                  148/148 
+  Running scriptlet: java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   148/148 
+  Running scriptlet: java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      148/148 
+  Running scriptlet: java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   148/148 
+  Running scriptlet: libcurl-7.61.1-25.el8_7.2.x86_64                   148/148 
+  Running scriptlet: fontconfig-2.13.1-4.el8.x86_64                     148/148 
+  Running scriptlet: hicolor-icon-theme-0.17-2.el8.noarch               148/148 
+  Running scriptlet: adwaita-icon-theme-3.28.0-3.el8.noarch             148/148 
+  Running scriptlet: shared-mime-info-1.9-3.el8.x86_64                  148/148 
+  Running scriptlet: gdk-pixbuf2-2.36.12-5.el8.x86_64                   148/148 
+  Verifying        : libsoup-2.62.3-2.el8.x86_64                          1/148 
+  Verifying        : fontpackages-filesystem-1.44-22.el8.noarch           2/148 
+  Verifying        : perl-Scalar-List-Utils-3:1.49-2.el8.x86_64           3/148 
+  Verifying        : less-530-1.el8.x86_64                                4/148 
+  Verifying        : perl-PathTools-3.74-1.el8.x86_64                     5/148 
+  Verifying        : openssh-clients-8.0p1-17.el8_7.x86_64                6/148 
+  Verifying        : perl-threads-1:2.21-2.el8.x86_64                     7/148 
+  Verifying        : perl-Pod-Simple-1:3.35-395.el8.noarch                8/148 
+  Verifying        : perl-Term-ANSIColor-4.06-396.el8.noarch              9/148 
+  Verifying        : perl-Data-Dumper-2.167-399.el8.x86_64               10/148 
+  Verifying        : avahi-libs-0.7-20.el8.x86_64                        11/148 
+  Verifying        : libedit-3.1-23.20170329cvs.el8.x86_64               12/148 
+  Verifying        : gdk-pixbuf2-2.36.12-5.el8.x86_64                    13/148 
+  Verifying        : freetype-2.9.1-9.el8.x86_64                         14/148 
+  Verifying        : gsettings-desktop-schemas-3.32.0-6.el8.x86_64       15/148 
+  Verifying        : libgusb-0.3.0-1.el8.x86_64                          16/148 
+  Verifying        : perl-threads-shared-1.58-2.el8.x86_64               17/148 
+  Verifying        : perl-HTTP-Tiny-0.074-1.el8.noarch                   18/148 
+  Verifying        : libpkgconf-1.4.2-1.el8.x86_64                       19/148 
+  Verifying        : perl-Pod-Escapes-1:1.07-395.el8.noarch              20/148 
+  Verifying        : cups-libs-1:2.2.6-50.el8.x86_64                     21/148 
+  Verifying        : shared-mime-info-1.9-3.el8.x86_64                   22/148 
+  Verifying        : perl-Pod-Perldoc-3.28-396.el8.noarch                23/148 
+  Verifying        : libmodman-2.0.1-17.el8.x86_64                       24/148 
+  Verifying        : perl-Encode-4:2.97-3.el8.x86_64                     25/148 
+  Verifying        : perl-Socket-4:2.027-3.el8.x86_64                    26/148 
+  Verifying        : perl-libs-4:5.26.3-421.el8.x86_64                   27/148 
+  Verifying        : perl-File-Path-2.15-2.el8.noarch                    28/148 
+  Verifying        : openssh-8.0p1-17.el8_7.x86_64                       29/148 
+  Verifying        : perl-IO-1.38-421.el8.x86_64                         30/148 
+  Verifying        : openssl-1:1.1.1k-7.el8_6.x86_64                     31/148 
+  Verifying        : perl-parent-1:0.237-1.el8.noarch                    32/148 
+  Verifying        : pkgconf-m4-1.4.2-1.el8.noarch                       33/148 
+  Verifying        : dejavu-sans-mono-fonts-2.35-7.el8.noarch            34/148 
+  Verifying        : emacs-filesystem-1:26.1-7.el8.noarch                35/148 
+  Verifying        : libpng-2:1.6.34-5.el8.x86_64                        36/148 
+  Verifying        : pkgconf-1.4.2-1.el8.x86_64                          37/148 
+  Verifying        : dejavu-fonts-common-2.35-7.el8.noarch               38/148 
+  Verifying        : libproxy-0.4.15-5.2.el8.x86_64                      39/148 
+  Verifying        : perl-Text-Tabs+Wrap-2013.0523-395.el8.noarch        40/148 
+  Verifying        : groff-base-1.22.3-18.el8.x86_64                     41/148 
+  Verifying        : fontconfig-2.13.1-4.el8.x86_64                      42/148 
+  Verifying        : perl-Getopt-Long-1:2.50-4.el8.noarch                43/148 
+  Verifying        : lksctp-tools-1.0.18-3.el8.x86_64                    44/148 
+  Verifying        : perl-podlators-4.11-1.el8.noarch                    45/148 
+  Verifying        : perl-Time-Local-1:1.280-1.el8.noarch                46/148 
+  Verifying        : perl-Carp-1.42-396.el8.noarch                       47/148 
+  Verifying        : perl-Exporter-5.72-396.el8.noarch                   48/148 
+  Verifying        : perl-Storable-1:3.11-3.el8.x86_64                   49/148 
+  Verifying        : pkgconf-pkg-config-1.4.2-1.el8.x86_64               50/148 
+  Verifying        : perl-Text-ParseWords-3.30-395.el8.noarch            51/148 
+  Verifying        : perl-Unicode-Normalize-1.25-396.el8.x86_64          52/148 
+  Verifying        : ncurses-6.1-9.20180224.el8.x86_64                   53/148 
+  Verifying        : glib-networking-2.56.1-1.1.el8.x86_64               54/148 
+  Verifying        : perl-File-Temp-0.230.600-1.el8.noarch               55/148 
+  Verifying        : perl-constant-1.33-396.el8.noarch                   56/148 
+  Verifying        : perl-interpreter-4:5.26.3-421.el8.x86_64            57/148 
+  Verifying        : perl-macros-4:5.26.3-421.el8.x86_64                 58/148 
+  Verifying        : perl-Term-Cap-1.17-395.el8.noarch                   59/148 
+  Verifying        : perl-MIME-Base64-3.15-396.el8.x86_64                60/148 
+  Verifying        : perl-Pod-Usage-4:1.69-395.el8.noarch                61/148 
+  Verifying        : perl-Errno-1.28-421.el8.x86_64                      62/148 
+  Verifying        : abattis-cantarell-fonts-0.0.25-6.el8.noarch         63/148 
+  Verifying        : harfbuzz-1.7.5-3.el8.x86_64                         64/148 
+  Verifying        : libjpeg-turbo-1.5.3-12.el8.x86_64                   65/148 
+  Verifying        : jbigkit-libs-2.1-14.el8.x86_64                      66/148 
+  Verifying        : libXcomposite-0.4.4-14.el8.x86_64                   67/148 
+  Verifying        : javapackages-filesystem-5.3.0-1.module+el8+2447+    68/148 
+  Verifying        : libfontenc-1.1.3-8.el8.x86_64                       69/148 
+  Verifying        : libxkbcommon-0.9.1-1.el8.x86_64                     70/148 
+  Verifying        : libXrandr-1.5.2-1.el8.x86_64                        71/148 
+  Verifying        : lua-5.3.4-12.el8.x86_64                             72/148 
+  Verifying        : perl-Error-1:0.17025-2.el8.noarch                   73/148 
+  Verifying        : xorg-x11-font-utils-1:7.5-41.el8.x86_64             74/148 
+  Verifying        : dconf-0.28.0-4.el8.x86_64                           75/148 
+  Verifying        : libXfixes-5.0.3-7.el8.x86_64                        76/148 
+  Verifying        : libXft-2.3.3-1.el8.x86_64                           77/148 
+  Verifying        : libXext-1.3.4-1.el8.x86_64                          78/148 
+  Verifying        : libXtst-1.2.3-7.el8.x86_64                          79/148 
+  Verifying        : jq-1.6-3.el8.x86_64                                 80/148 
+  Verifying        : adwaita-cursor-theme-3.28.0-3.el8.noarch            81/148 
+  Verifying        : libXrender-0.9.10-7.el8.x86_64                      82/148 
+  Verifying        : perl-TermReadKey-2.37-7.el8.x86_64                  83/148 
+  Verifying        : libXinerama-1.1.4-1.el8.x86_64                      84/148 
+  Verifying        : atk-2.28.1-1.el8.x86_64                             85/148 
+  Verifying        : pixman-0.38.4-2.el8.x86_64                          86/148 
+  Verifying        : libdatrie-0.2.9-7.el8.x86_64                        87/148 
+  Verifying        : gdk-pixbuf2-modules-2.36.12-5.el8.x86_64            88/148 
+  Verifying        : cairo-gobject-1.15.12-6.el8.x86_64                  89/148 
+  Verifying        : copy-jdk-configs-4.0-2.el8.noarch                   90/148 
+  Verifying        : libXi-1.7.10-1.el8.x86_64                           91/148 
+  Verifying        : xorg-x11-fonts-Type1-7.5-19.el8.noarch              92/148 
+  Verifying        : libXau-1.0.9-3.el8.x86_64                           93/148 
+  Verifying        : libwayland-cursor-1.19.0-1.el8.x86_64               94/148 
+  Verifying        : libepoxy-1.5.8-1.el8.x86_64                         95/148 
+  Verifying        : xkeyboard-config-2.28-1.el8.noarch                  96/148 
+  Verifying        : oniguruma-6.8.2-2.el8.x86_64                        97/148 
+  Verifying        : at-spi2-core-2.28.0-1.el8.x86_64                    98/148 
+  Verifying        : hicolor-icon-theme-0.17-2.el8.noarch                99/148 
+  Verifying        : ttmkfdir-3.0.9-54.el8.x86_64                       100/148 
+  Verifying        : jasper-libs-2.0.14-5.el8.x86_64                    101/148 
+  Verifying        : libX11-common-1.6.8-5.el8.noarch                   102/148 
+  Verifying        : adwaita-icon-theme-3.28.0-3.el8.noarch             103/148 
+  Verifying        : cairo-1.15.12-6.el8.x86_64                         104/148 
+  Verifying        : libthai-0.1.27-2.el8.x86_64                        105/148 
+  Verifying        : libwayland-client-1.19.0-1.el8.x86_64              106/148 
+  Verifying        : libwayland-egl-1.19.0-1.el8.x86_64                 107/148 
+  Verifying        : graphite2-1.3.10-10.el8.x86_64                     108/148 
+  Verifying        : colord-libs-1.4.2-1.el8.x86_64                     109/148 
+  Verifying        : libXcursor-1.1.15-3.el8.x86_64                     110/148 
+  Verifying        : rest-0.8.1-2.el8.x86_64                            111/148 
+  Verifying        : libXdamage-1.1.4-14.el8.x86_64                     112/148 
+  Verifying        : libxcb-1.13.1-1.el8.x86_64                         113/148 
+  Verifying        : at-spi2-atk-2.26.2-1.el8.x86_64                    114/148 
+  Verifying        : lcms2-2.9-2.el8.x86_64                             115/148 
+  Verifying        : pango-1.42.4-8.el8.x86_64                          116/148 
+  Verifying        : libX11-1.6.8-5.el8.x86_64                          117/148 
+  Verifying        : fribidi-1.0.4-9.el8.x86_64                         118/148 
+  Verifying        : gtk3-3.22.30-11.el8.x86_64                         119/148 
+  Verifying        : nss-sysinit-3.79.0-10.el8_6.x86_64                 120/148 
+  Verifying        : nss-3.79.0-10.el8_6.x86_64                         121/148 
+  Verifying        : alsa-lib-1.2.7.2-1.el8.x86_64                      122/148 
+  Verifying        : perl-Digest-1.17-395.el8.noarch                    123/148 
+  Verifying        : nss-softokn-freebl-3.79.0-10.el8_6.x86_64          124/148 
+  Verifying        : gtk-update-icon-cache-3.22.30-11.el8.x86_64        125/148 
+  Verifying        : nspr-4.34.0-3.el8_6.x86_64                         126/148 
+  Verifying        : tzdata-java-2022g-1.el8.noarch                     127/148 
+  Verifying        : perl-URI-1.73-3.el8.noarch                         128/148 
+  Verifying        : perl-IO-Socket-SSL-2.066-4.module+el8.3.0+6446+5   129/148 
+  Verifying        : perl-Mozilla-CA-20160104-7.module+el8.3.0+6498+9   130/148 
+  Verifying        : perl-IO-Socket-IP-0.39-5.el8.noarch                131/148 
+  Verifying        : nss-util-3.79.0-10.el8_6.x86_64                    132/148 
+  Verifying        : perl-Digest-MD5-2.55-396.el8.x86_64                133/148 
+  Verifying        : nss-softokn-3.79.0-10.el8_6.x86_64                 134/148 
+  Verifying        : perl-Net-SSLeay-1.88-2.module+el8.6.0+13392+f089   135/148 
+  Verifying        : perl-libnet-3.11-3.el8.noarch                      136/148 
+  Verifying        : perl-Git-2.31.1-3.el8_7.noarch                     137/148 
+  Verifying        : git-2.31.1-3.el8_7.x86_64                          138/148 
+  Verifying        : git-core-2.31.1-3.el8_7.x86_64                     139/148 
+  Verifying        : git-core-doc-2.31.1-3.el8_7.noarch                 140/148 
+  Verifying        : libtiff-4.0.9-26.el8_7.x86_64                      141/148 
+  Verifying        : java-11-openjdk-devel-1:11.0.18.0.10-2.el8_7.x86   142/148 
+  Verifying        : java-11-openjdk-headless-1:11.0.18.0.10-2.el8_7.   143/148 
+  Verifying        : java-11-openjdk-1:11.0.18.0.10-2.el8_7.x86_64      144/148 
+  Verifying        : libcurl-7.61.1-25.el8_7.3.x86_64                   145/148 
+  Verifying        : libcurl-7.61.1-25.el8_7.2.x86_64                   146/148 
+  Verifying        : curl-7.61.1-25.el8_7.3.x86_64                      147/148 
+  Verifying        : curl-7.61.1-25.el8_7.2.x86_64                      148/148 
 Installed products updated.
 
+Upgraded:
+  curl-7.61.1-25.el8_7.3.x86_64         libcurl-7.61.1-25.el8_7.3.x86_64        
 Installed:
   abattis-cantarell-fonts-0.0.25-6.el8.noarch                                   
   adwaita-cursor-theme-3.28.0-3.el8.noarch                                      
@@ -2839,10 +2049,10 @@ Complete!
 Upgraded:
   libsemanage-2.9-9.el8_6.x86_64                                                
 
---> 385873adb24
+--> 12cbf830928
 STEP 3/10: RUN cd /tmp &&     git clone https://github.com/che-incubator/che-openvsx.git &&     cd che-openvsx/server &&     git checkout che-openvsx
 Branch 'che-openvsx' set up to track remote branch 'che-openvsx' from 'origin'.
---> deba6c0a2de
+--> e0046444dbf
 STEP 4/10: RUN cd /tmp/che-openvsx/server && ./gradlew --no-daemon assemble
 Downloading https://services.gradle.org/distributions/gradle-6.9.1-bin.zip
 ..........10%..........20%..........30%...........40%..........50%..........60%..........70%...........80%..........90%..........100%
@@ -2869,23 +2079,23 @@ Daemon will be stopped at the end of the build
 > Task :jar
 > Task :assemble
 
-BUILD SUCCESSFUL in 1m 40s
+BUILD SUCCESSFUL in 1m 35s
 5 actionable tasks: 5 executed
---> 8771f9e1354
+--> 9e90f7e0b10
 STEP 5/10: RUN mkdir /openvsx-server &&     cp /tmp/che-openvsx/server/scripts/run-server.sh /openvsx-server &&     cp /tmp/che-openvsx/server/build/libs/openvsx-server.jar /openvsx-server
---> 3ce79c1b15a
+--> a8c95afa2e1
 STEP 6/10: RUN cd /openvsx-server && jar -xf openvsx-server.jar && rm openvsx-server.jar
---> 52d371b2326
+--> db160f273b3
 STEP 7/10: COPY /openvsx-sync.json /openvsx-server/
---> db7fffeb123
+--> f1d775eefa7
 STEP 8/10: COPY /build/scripts/download_vsix.sh /tmp
---> 7ca978349bc
+--> c632b4f5e11
 STEP 9/10: RUN /tmp/download_vsix.sh && mv /tmp/vsix /openvsx-server
-Downloading https://open-vsx.org/api/donjayamanne/githistory/0.6.19/file/donjayamanne.githistory-0.6.19.vsix into donjayamanne folder...
-Downloading https://open-vsx.org/api/vscode/github-authentication/1.66.2/file/vscode.github-authentication-1.66.2.vsix into vscode folder...
-Downloading https://open-vsx.org/api/GitHub/vscode-pull-request-github/0.58.1/file/GitHub.vscode-pull-request-github-0.58.1.vsix into github folder...
+Downloading https://open-vsx.org/api/donjayamanne/githistory/0.6.20/file/donjayamanne.githistory-0.6.20.vsix into donjayamanne folder...
+Downloading https://open-vsx.org/api/vscode/github-authentication/1.70.2/file/vscode.github-authentication-1.70.2.vsix into vscode folder...
+Downloading https://open-vsx.org/api/GitHub/vscode-pull-request-github/0.60.0/file/GitHub.vscode-pull-request-github-0.60.0.vsix into github folder...
 Downloading https://open-vsx.org/api/ms-vscode/js-debug/1.76.0/file/ms-vscode.js-debug-1.76.0.vsix into ms-vscode folder...
-Downloading https://open-vsx.org/api/vscode/typescript-language-features/1.66.2/file/vscode.typescript-language-features-1.66.2.vsix into vscode folder...
+Downloading https://open-vsx.org/api/vscode/typescript-language-features/1.70.2/file/vscode.typescript-language-features-1.70.2.vsix into vscode folder...
 Downloading https://open-vsx.org/api/llvm-vs-code-extensions/vscode-clangd/0.1.23/file/llvm-vs-code-extensions.vscode-clangd-0.1.23.vsix into llvm-vs-code-extensions folder...
 Downloading https://open-vsx.org/api/eclipse-cdt/cdt-gdb-vscode/0.0.95/file/eclipse-cdt.cdt-gdb-vscode-0.0.95.vsix into eclipse-cdt folder...
 Downloading https://open-vsx.org/api/bmewburn/vscode-intelephense-client/1.9.5/file/bmewburn.vscode-intelephense-client-1.9.5.vsix into bmewburn folder...
@@ -2897,18 +2107,18 @@ Downloading https://open-vsx.org/api/redhat/java/1.14.0/file/redhat.java-1.14.0.
 Downloading https://open-vsx.org/api/vscjava/vscode-java-debug/0.49.0/file/vscjava.vscode-java-debug-0.49.0.vsix into vscjava folder...
 Downloading https://open-vsx.org/api/vscjava/vscode-java-test/0.38.1/file/vscjava.vscode-java-test-0.38.1.vsix into vscjava folder...
 Downloading https://open-vsx.org/api/redhat/vscode-microprofile/0.6.0/file/redhat.vscode-microprofile-0.6.0.vsix into redhat folder...
-Downloading https://open-vsx.org/api/vscode/html-language-features/1.66.2/file/vscode.html-language-features-1.66.2.vsix into vscode folder...
+Downloading https://open-vsx.org/api/vscode/html-language-features/1.70.2/file/vscode.html-language-features-1.70.2.vsix into vscode folder...
 Downloading https://open-vsx.org/api/redhat/vscode-quarkus/1.12.0/file/redhat.vscode-quarkus-1.12.0.vsix into redhat folder...
 Downloading https://open-vsx.org/api/redhat/fabric8-analytics/0.3.6/file/redhat.fabric8-analytics-0.3.6.vsix into redhat folder...
 Downloading https://open-vsx.org/api/redhat/project-initializer/0.2.2/file/redhat.project-initializer-0.2.2.vsix into redhat folder...
 Downloading https://open-vsx.org/api/redhat/vscode-redhat-account/0.1.0/file/redhat.vscode-redhat-account-0.1.0.vsix into redhat folder...
 Downloading https://open-vsx.org/api/redhat/vscode-openshift-connector/1.2.0/file/redhat.vscode-openshift-connector-1.2.0.vsix into redhat folder...
 Downloading https://open-vsx.org/api/felixfbecker/php-debug/1.22.0/file/felixfbecker.php-debug-1.22.0.vsix into felixfbecker folder...
-Downloading https://open-vsx.org/api/redhat/vscode-xml/0.25.2023022303/file/redhat.vscode-xml-0.25.2023022303.vsix into redhat folder...
+Downloading https://open-vsx.org/api/redhat/vscode-xml/0.25.2023031109/file/redhat.vscode-xml-0.25.2023031109.vsix into redhat folder...
 Downloading https://open-vsx.org/api/muhammad-sammy/csharp/1.25.0/file/muhammad-sammy.csharp-1.25.0.vsix into muhammad-sammy folder...
 Downloading https://open-vsx.org/api/SonarSource/sonarlint-vscode/3.15.1/file/SonarSource.sonarlint-vscode-3.15.1.vsix into sonarsource folder...
-Downloading https://open-vsx.org/api/vscode/git-base/1.66.2/file/vscode.git-base-1.66.2.vsix into vscode folder...
-Downloading https://open-vsx.org/api/vscode/git/1.66.2/file/vscode.git-1.66.2.vsix into vscode folder...
+Downloading https://open-vsx.org/api/vscode/git-base/1.70.2/file/vscode.git-base-1.70.2.vsix into vscode folder...
+Downloading https://open-vsx.org/api/vscode/git/1.70.2/file/vscode.git-1.70.2.vsix into vscode folder...
 Downloading https://open-vsx.org/api/dbaeumer/vscode-eslint/2.4.0/file/dbaeumer.vscode-eslint-2.4.0.vsix into dbaeumer folder...
 Downloading https://open-vsx.org/api/redhat/vscode-commons/0.0.6/file/redhat.vscode-commons-0.0.6.vsix into redhat folder...
 Downloading https://open-vsx.org/api/redhat/vscode-tekton-pipelines/1.0.1/file/redhat.vscode-tekton-pipelines-1.0.1.vsix into redhat folder...
@@ -2918,13 +2128,13 @@ Downloading https://open-vsx.org/api/SonatypeCommunity/vscode-iq-plugin/1.3.3/fi
 Downloading https://open-vsx.org/api/GitLab/gitlab-workflow/3.60.0/file/GitLab.gitlab-workflow-3.60.0.vsix into GitLab folder...
 Downloading https://open-vsx.org/api/timonwong/shellcheck/0.29.4/file/timonwong.shellcheck-0.29.4.vsix into timonwong folder...
 Downloading https://open-vsx.org/api/redhat/ansible/1.2.44/file/redhat.ansible-1.2.44.vsix into redhat folder...
-Downloading https://open-vsx.org/api/vscode/npm/1.66.2/file/vscode.npm-1.66.2.vsix into vscode folder...
+Downloading https://open-vsx.org/api/vscode/npm/1.70.2/file/vscode.npm-1.70.2.vsix into vscode folder...
 Downloading https://open-vsx.org/api/esbenp/prettier-vscode/9.10.4/file/esbenp.prettier-vscode-9.10.4.vsix into esbenp folder...
-Downloading https://open-vsx.org/api/ms-toolsai/jupyter/2023.2.100/file/ms-toolsai.jupyter-2023.2.100.vsix into ms-toolsai folder...
+Downloading https://open-vsx.org/api/ms-toolsai/jupyter/2023.3.100/file/ms-toolsai.jupyter-2023.3.100.vsix into ms-toolsai folder...
 Downloading https://open-vsx.org/api/ms-toolsai/jupyter-renderers/1.0.12/file/ms-toolsai.jupyter-renderers-1.0.12.vsix into ms-toolsai folder...
 Downloading https://open-vsx.org/api/ms-toolsai/jupyter-keymap/1.1.0/file/ms-toolsai.jupyter-keymap-1.1.0.vsix into ms-toolsai folder...
-Downloading https://open-vsx.org/api/eamodio/gitlens/13.3.1/file/eamodio.gitlens-13.3.1.vsix into eamodio folder...
---> 06da5899af7
+Downloading https://open-vsx.org/api/eamodio/gitlens/13.3.2/file/eamodio.gitlens-13.3.2.vsix into eamodio folder...
+--> 3c342a2fe53
 STEP 10/10: RUN tar -czvf openvsx-server.tar.gz openvsx-server 
 openvsx-server/
 openvsx-server/run-server.sh
@@ -2936,17 +2146,17 @@ openvsx-server/vsix/SonatypeCommunity.vscode-iq-plugin-1.3.3.vsix
 openvsx-server/vsix/atlassian.atlascode-3.0.2.vsix
 openvsx-server/vsix/bmewburn.vscode-intelephense-client-1.9.5.vsix
 openvsx-server/vsix/dbaeumer.vscode-eslint-2.4.0.vsix
-openvsx-server/vsix/donjayamanne.githistory-0.6.19.vsix
-openvsx-server/vsix/eamodio.gitlens-13.3.1.vsix
+openvsx-server/vsix/donjayamanne.githistory-0.6.20.vsix
+openvsx-server/vsix/eamodio.gitlens-13.3.2.vsix
 openvsx-server/vsix/eclipse-cdt.cdt-gdb-vscode-0.0.95.vsix
 openvsx-server/vsix/esbenp.prettier-vscode-9.10.4.vsix
 openvsx-server/vsix/felixfbecker.php-debug-1.22.0.vsix
-openvsx-server/vsix/github.vscode-pull-request-github-0.58.1.vsix
+openvsx-server/vsix/github.vscode-pull-request-github-0.60.0.vsix
 openvsx-server/vsix/golang.go-0.38.0.vsix
 openvsx-server/vsix/llvm-vs-code-extensions.vscode-clangd-0.1.23.vsix
 openvsx-server/vsix/ms-kubernetes-tools.vscode-kubernetes-tools-1.3.11.vsix
 openvsx-server/vsix/ms-python.python-2023.4.0.vsix
-openvsx-server/vsix/ms-toolsai.jupyter-2023.2.100.vsix
+openvsx-server/vsix/ms-toolsai.jupyter-2023.3.100.vsix
 openvsx-server/vsix/ms-toolsai.jupyter-keymap-1.1.0.vsix
 openvsx-server/vsix/ms-toolsai.jupyter-renderers-1.0.12.vsix
 openvsx-server/vsix/ms-vscode.js-debug-1.76.0.vsix
@@ -2961,18 +2171,18 @@ openvsx-server/vsix/redhat.vscode-openshift-connector-1.2.0.vsix
 openvsx-server/vsix/redhat.vscode-quarkus-1.12.0.vsix
 openvsx-server/vsix/redhat.vscode-redhat-account-0.1.0.vsix
 openvsx-server/vsix/redhat.vscode-tekton-pipelines-1.0.1.vsix
-openvsx-server/vsix/redhat.vscode-xml-0.25.2023022303.vsix
+openvsx-server/vsix/redhat.vscode-xml-0.25.2023031109.vsix
 openvsx-server/vsix/redhat.vscode-yaml-1.10.1.vsix
 openvsx-server/vsix/sonarsource.sonarlint-vscode-3.15.1.vsix
 openvsx-server/vsix/timonwong.shellcheck-0.29.4.vsix
 openvsx-server/vsix/vscjava.vscode-java-debug-0.49.0.vsix
 openvsx-server/vsix/vscjava.vscode-java-test-0.38.1.vsix
-openvsx-server/vsix/vscode.git-1.66.2.vsix
-openvsx-server/vsix/vscode.git-base-1.66.2.vsix
-openvsx-server/vsix/vscode.github-authentication-1.66.2.vsix
-openvsx-server/vsix/vscode.html-language-features-1.66.2.vsix
-openvsx-server/vsix/vscode.npm-1.66.2.vsix
-openvsx-server/vsix/vscode.typescript-language-features-1.66.2.vsix
+openvsx-server/vsix/vscode.git-1.70.2.vsix
+openvsx-server/vsix/vscode.git-base-1.70.2.vsix
+openvsx-server/vsix/vscode.github-authentication-1.70.2.vsix
+openvsx-server/vsix/vscode.html-language-features-1.70.2.vsix
+openvsx-server/vsix/vscode.npm-1.70.2.vsix
+openvsx-server/vsix/vscode.typescript-language-features-1.70.2.vsix
 openvsx-server/BOOT-INF/
 openvsx-server/BOOT-INF/classes/
 openvsx-server/BOOT-INF/classes/db/
@@ -3612,44 +2822,44 @@ openvsx-server/org/springframework/boot/loader/jarmode/TestJarMode.class
 openvsx-server/org/springframework/boot/loader/util/
 openvsx-server/org/springframework/boot/loader/util/SystemPropertyUtils.class
 COMMIT che-openvsx:tmp
---> 44f32cf75c5
+--> 60387c02fbb
 Successfully tagged localhost/che-openvsx:tmp
-44f32cf75c5ddeb047e19a50d787ce464e495e7ea1e224037a8263c63fcc283f
-3f8004ac72be8c7b41e2d735b0a63f87784efd9edc1bac489725ece8fbea6933
-3f8004ac72be8c7b41e2d735b0a63f87784efd9edc1bac489725ece8fbea6933
+60387c02fbbd9b88b323945c9d98548dae81d42d3534ce850b5f8706b37a88ab
+91e003ed56ec07cad65d2e5a9a8880b470b9f35c049f145bace7975f12b0d239
+91e003ed56ec07cad65d2e5a9a8880b470b9f35c049f145bace7975f12b0d239
 Untagged: localhost/che-openvsx:tmp
-Deleted: 44f32cf75c5ddeb047e19a50d787ce464e495e7ea1e224037a8263c63fcc283f
-Deleted: 06da5899af70ebb0efe287fdb8959e424b3a4aea4372ec19dd57b6ccbfadb2ca
-Deleted: 7ca978349bc57f552d12a7d09b213ba9763a2260f6af7123e1b4df5a91478f89
-Deleted: db7fffeb1230b2705059790164a7308db7e1136fbcac5ad819b7d132a44abb9a
-Deleted: 52d371b232649695dd0833fa25463d15a72acb6cbab0fa2942505703a70e1093
-Deleted: 3ce79c1b15a5af21eb4a7cf7062f2488ac839a5e9d1d25db6795259049f46cac
-Deleted: 8771f9e1354fd4fef1d5a68779138dc6d2a323ebde984535debe796633c27b5d
-Deleted: deba6c0a2de882a64a62292f08d88862d2e93037b42bf6eb5c926da37424d4cf
-Deleted: 385873adb24b51bec5dfc77acac9f66f6276b9f63be65cc96b89cea4541779d8
+Deleted: 60387c02fbbd9b88b323945c9d98548dae81d42d3534ce850b5f8706b37a88ab
+Deleted: 3c342a2fe538700b0e90f3fb26ce97fe1481991c70c274da2b534d7d98585095
+Deleted: c632b4f5e1150158e1f2492f96e6726080dddb9335033cd44aaa68dd13e6a79f
+Deleted: f1d775eefa77de40f9e5c6fbc1948052356c581f1c4219bed2a937ea8fcde9ab
+Deleted: db160f273b310ded33e80027c6dc01a2e1655560e4164215b09e26b9c0eb6561
+Deleted: a8c95afa2e13f14688a3d6ffd80ff514d8e25f3e0dadb4e7fa84e0c35190055d
+Deleted: 9e90f7e0b1066912fd49b0744db85d3c0f66c50fb1f36df413e74ee16ef29a5e
+Deleted: e0046444dbf79228964ce86af6bb080229f7a1e1418211601a4619745aa90935
+Deleted: 12cbf83092849a27c8aca23775baaafa1be9b114a0703786bc1311161aaf5e5c
 STEP 1/4: FROM registry.access.redhat.com/ubi8/nodejs-16:1-90 AS builder
 STEP 2/4: USER 1001
---> 4ce282d1ca2
+--> 40b68f7cda8
 STEP 3/4: ENV npm_config_cache=/tmp/opt/cache
---> caa88ab15ff
+--> 057222fdb62
 STEP 4/4: RUN mkdir -p /tmp/opt/cache &&     npm install --location=global ovsx@0.5.0 --prefix /tmp/opt/ovsx --cache /tmp/opt/cache && chmod -R g+rwX /tmp/opt/ovsx &&     tar -czf ovsx.tar.gz /tmp/opt/ovsx &&     chmod g+rwX /opt/app-root/src/ovsx.tar.gz
 
-added 110 packages, and audited 111 packages in 6s
+added 110 packages, and audited 111 packages in 5s
 
 32 packages are looking for funding
   run `npm fund` for details
 
 found 0 vulnerabilities
 COMMIT che-ovsx:tmp
---> 338b0659380
+--> 4c53e8d420d
 Successfully tagged localhost/che-ovsx:tmp
-338b06593802c568d031bc4320491408ed238efcea8943187e3a4d7701fe6d4c
-44309009c3f27e7f1c94814b3583b74186a7095ffaf20e5c275084241029e41f
-44309009c3f27e7f1c94814b3583b74186a7095ffaf20e5c275084241029e41f
+4c53e8d420d6f16df82dc1914ed70f7ab91766b854e0556df2deb364028117ae
+c812246622c8c11c19f8bea4c64df00aaae627c1adfaeebd3552e08d4221973b
+c812246622c8c11c19f8bea4c64df00aaae627c1adfaeebd3552e08d4221973b
 Untagged: localhost/che-ovsx:tmp
-Deleted: 338b06593802c568d031bc4320491408ed238efcea8943187e3a4d7701fe6d4c
-Deleted: caa88ab15ffd6cb5d1615f8cc68d05cdbc6f54f090c89371c403c0be429294c6
-Deleted: 4ce282d1ca2164a8d113318478aebb0ff022e513d26e14c396e2815b7495536b
+Deleted: 4c53e8d420d6f16df82dc1914ed70f7ab91766b854e0556df2deb364028117ae
+Deleted: 057222fdb6293ec2af42b063e66b42dc25b017a81941c187b95bc6d76d081436
+Deleted: 40b68f7cda8dd8a3f1432a371c21279172ef4d3f4dee1fb3c8f26ad5e446c1eb
 Uploading: root-local.tgz
 Uploading: resources.tgz
 Uploading: openvsx-server.tar.gz

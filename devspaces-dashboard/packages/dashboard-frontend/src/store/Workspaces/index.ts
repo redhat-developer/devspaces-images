@@ -219,21 +219,14 @@ export const actionCreators: ActionCreators = {
         [fileName: string]: string;
       },
     ): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch, getState): Promise<void> => {
+    async (dispatch): Promise<void> => {
       dispatch({ type: 'REQUEST_WORKSPACES' });
       try {
-        const state = getState();
-        const pluginRegistryUrl =
-          state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
-        const pluginRegistryInternalUrl =
-          state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
         await dispatch(
           DevWorkspacesStore.actionCreators.createWorkspaceFromDevfile(
             devfile,
-            optionalFilesContent || {},
-            pluginRegistryUrl,
-            pluginRegistryInternalUrl,
             attributes,
+            optionalFilesContent || {},
           ),
         );
         dispatch({ type: 'ADD_WORKSPACE' });
