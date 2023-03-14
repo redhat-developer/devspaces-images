@@ -76,7 +76,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6ebcf57e74580f8cf11037e7f0633b76e7fc9c6afec25132a2543c310cf964d4
-    createdAt: "2023-03-14T13:08:29+00:00"
+    createdAt: "2023-03-14T16:01:07+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -903,14 +903,6 @@ spec:
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:43ad72312329704639d2c615756e6003acb66118ebbc35fee737fbdfbd4e4665
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:43ad72312329704639d2c615756e6003acb66118ebbc35fee737fbdfbd4e4665
-                - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDMCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:1d1114e9294637d91c099d9b41a16dff843c409acf01b67f77b281bf77afc708
-                - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDMCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ca322b0aead22b50046d592eca00c9a0e1f3a09570180804eb73448723e1bc4a
-                - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDMCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ca322b0aead22b50046d592eca00c9a0e1f3a09570180804eb73448723e1bc4a
-                - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDMCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:1d1114e9294637d91c099d9b41a16dff843c409acf01b67f77b281bf77afc708
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:9d1302e947490a749beb1354ab27cf946f7c3181b03eab1928343801959e2d6c
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDMCQ_
@@ -1300,14 +1292,6 @@ spec:
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:43ad72312329704639d2c615756e6003acb66118ebbc35fee737fbdfbd4e4665
   - name: devspaces_machineexec_plugin_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:43ad72312329704639d2c615756e6003acb66118ebbc35fee737fbdfbd4e4665
-  - name: devspaces_theia_devfile_registry_image_gmxdmcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:1d1114e9294637d91c099d9b41a16dff843c409acf01b67f77b281bf77afc708
-  - name: devspaces_theia_endpoint_devfile_registry_image_gmxdmcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ca322b0aead22b50046d592eca00c9a0e1f3a09570180804eb73448723e1bc4a
-  - name: devspaces_theia_endpoint_plugin_registry_image_gmxdmcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:ca322b0aead22b50046d592eca00c9a0e1f3a09570180804eb73448723e1bc4a
-  - name: devspaces_theia_plugin_registry_image_gmxdmcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:1d1114e9294637d91c099d9b41a16dff843c409acf01b67f77b281bf77afc708
   - name: devspaces_udi_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:9d1302e947490a749beb1354ab27cf946f7c3181b03eab1928343801959e2d6c
   - name: devspaces_udi_plugin_registry_image_gmxdmcq_
