@@ -335,7 +335,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	# CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
 		# TODO also remove theia from factory support 
 		# TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
-	headerMessage="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#removed-functionality-crw-3489'>no longer supported</a>."
+	headerMessage="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#removed-functionalities'>no longer supported</a>."
 	# get existing alm-example json
 	almExampleJSON=$(yq -r '.metadata.annotations."alm-examples"' ${CSVFILE})
 	# transform json to insert these:
