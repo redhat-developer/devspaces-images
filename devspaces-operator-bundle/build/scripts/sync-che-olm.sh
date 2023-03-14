@@ -271,6 +271,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
+
+		# TODO https://issues.redhat.com/browse/CRW-4105 remove these once fully removed upstream 
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
 		["RELATED_IMAGE_postgres_13_3"]="${POSTGRES13_IMAGE}" # CRW-2180 - new @since 2.13
 	
@@ -283,6 +285,13 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_gateway_authorization_sidecar_k8s"]="DELETEME"
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
+
+		# CRW-3489 remove theia from downstream (needs to also be removed from che-plugin-registry and che-operator, but this should do the job downstream only)
+		# TODO remove this when theia fully removed from both plugin registries and che-operator clusterserviceversion files (as no longer needed)
+		["RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDMCQ_"]="DELETEME"
+		["RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDMCQ_"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
 		updateVal="${operator_replacements[$updateName]}"
