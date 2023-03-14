@@ -9,6 +9,7 @@
 
 def List GH_REPOS = [
     'devspaces',
+    // TODO remove theia repo after 3.5 is live
     'devspaces-theia',
     'devspaces-images',
     'devspaces-chectl'

@@ -80,18 +80,16 @@ fi
 '''
 
                         // don't report a diff when new operator-bundle, or we'll never get out of this recursion loop; instead report new images (anything that will cause a new bundle image to be rebuilt)
-                        // ignore theia-dev 
                         def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE = sh (script: '''
 diff -u0 ${WORKSPACE}/devspaces/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle" | \
+grep -E -v "@@|dependencies/LATEST_IMAGES|operator-bundle" | \
 sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || true
                         ''', returnStdout: true).trim()
 
                         // check diff including operator bundle, in case we forgot to update
-                        // ignore theia-dev
                         def DIFF_LATEST_IMAGES_BUNDLE_ONLY = sh (script: '''
 diff -u0 ${WORKSPACE}/devspaces/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle" | \
+grep -E -v "@@|dependencies/LATEST_IMAGES" | grep -E "operator-bundle" | \
 sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || true
                         ''', returnStdout: true).trim()
 

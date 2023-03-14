@@ -1,3 +1,4 @@
+// TODO remove this job after 3.6 is live
 import groovy.json.JsonSlurper
 
 def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text

@@ -33,7 +33,7 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
     <tr><th colspan=4>Images to copy to quay (16):</th></tr>
     <tr><td>
 
-        <li> <a href=https://quay.io/repository/devspaces/code-rhel8?tab=tags>code</a> @since 3.1</li>
+        <li> <a href=https://quay.io/repository/devspaces/code-rhel8?tab=tags>code</a> (@since 3.1)</li>
         <li> <a href=https://quay.io/repository/devspaces/configbump-rhel8?tab=tags>configbump</a> </li>
         <li> <a href=https://quay.io/repository/devspaces/devspaces-rhel8-operator?tab=tags>operator</a> 
         <li> <a href=https://quay.io/repository/devspaces/devspaces-operator-bundle?tab=tags>operator-bundle</a>
@@ -50,14 +50,15 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
         </td><td>
 
         <li> <a href=https://quay.io/repository/devspaces/server-rhel8?tab=tags>server</a> </li>
-        <li> <a href=https://quay.io/repository/devspaces/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
-        <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> </li>
-        <li> <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
         <li> <a href=https://quay.io/repository/devspaces/traefik-rhel8?tab=tags>traefik</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/udi-rhel8?tab=tags>udi</a></li>
         </td><td>
 
-        <li> <a href=https://quay.io/repository/devspaces/udi-rhel8?tab=tags>udi</a></li>
-
+        <!-- TODO remove theia after 3.6 is live -->
+        <li> <a href=https://quay.io/repository/devspaces/theia-dev-rhel8?tab=tags>theia-dev</a> (@removed 3.6) </li>
+        <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> (@removed 3.6) </li>
+        <li> <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> (@removed 3.6) </li>
+        </td><td>
     </td></tr>
   </table>
 </ul>
@@ -80,6 +81,7 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
 
     <li><a href=../Releng/job/copyIIBsToQuay/>Copy IIBs</a> to <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a></li>
 
+        <!-- TODO remove theia after 3.6 is live -->
     <li>Trigger <a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> after a successful push of a 
     <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build of <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a></li>
   </ol>
@@ -108,10 +110,11 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
             }
 
             parameters{ 
+                // TODO remove theia after 3.6 is live
                 textParam("CONTAINERS", '''\
-configbump operator operator-bundle dashboard devfileregistry \
-idea imagepuller machineexec pluginregistry server theia \
-theia-dev theia-endpoint traefik udi''', '''list of 15 containers to copy:<br/>
+code configbump operator operator-bundle dashboard devfileregistry \
+idea imagepuller machineexec pluginregistry server traefik udi \
+theia theia-dev theia-endpoint''', '''list of 16 containers to copy:<br/>
 * no 'devspaces/' or 'devspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')

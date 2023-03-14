@@ -25,22 +25,6 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
 
                     def List PHASE_LIST = PHASES.tokenize(" ").collect { it.trim() }
 
-                    currentQuayImageTheiaDev=""
-                    currentQuayImageTheia=""
-                    currentQuayImageTheiaEndpoint=""
-                    if (PHASE_LIST.contains("1")) {
-                        // 3 jobs
-                        // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
-                        currentJob="theia-sources_" + JOB_BRANCH
-                        currentQuayImageTheiaDev = util.getLatestImageAndTag("devspaces/theia-dev-rhel8", "quay")
-                        println ("Got currentQuayImageDev = " + currentQuayImageTheiaDev)
-                        currentQuayImageTheia = util.getLatestImageAndTag("devspaces/theia-rhel8", "quay")
-                        println ("Got currentQuayImageTheia = " + currentQuayImageTheia)
-                        currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("devspaces/theia-endpoint-rhel8", "quay")
-                        println ("Got currentQuayImageTheiaEndpoint = " + currentQuayImageTheiaEndpoint)
-                        util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
-                    }
-
                     if (PHASE_LIST.contains("2")) {
                         // 10 jobs
                         def jobsList = [
@@ -119,37 +103,6 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         }
                         // wait in parallel
                         parallel(tasks)
-                    }
-
-                    if (PHASE_LIST.contains("1")) {
-                        // TODO add sleep time before starting checks?
-
-                        // wait until theia is rebuilt - check every 10 mins for 10 hrs
-                        if (!util.waitForNewQuayImage("devspaces/theia-dev-rhel8", currentQuayImageTheiaDev, 600, 36000)) {
-                            currentBuild.result = 'FAILED'
-                            currentBuild.description+="<br/>* TIMEOUT: theia-dev"
-                            util.notifyBuildFailed()
-                        }
-                        def int lastBuildId2td=util.getLastBuildResult(jenkinsURL+"devspaces-theia-dev-rhel8_"+JOB_BRANCH)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-dev-rhel8_${JOB_BRANCH}/${lastBuildId2td}>devspaces-theia-dev-rhel8_${JOB_BRANCH}#${lastBuildId2td}</a>"
-
-                        // wait until theia is rebuilt - check every 5 mins for 10 hrs
-                        if (!util.waitForNewQuayImage("devspaces/theia-rhel8", currentQuayImageTheia, 300, 36000)) {
-                            currentBuild.result = 'FAILED'
-                            currentBuild.description+="<br/>* TIMEOUT: theia"
-                            util.notifyBuildFailed()
-                        }
-                        def int lastBuildId2th=util.getLastBuildResult(jenkinsURL+"devspaces-theia-rhel8_"+JOB_BRANCH)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-rhel8_${JOB_BRANCH}/${lastBuildId2th}>devspaces-theia-rhel8_${JOB_BRANCH}#${lastBuildId2th}</a>"
-
-                        // wait until theia-endpoint is rebuilt - check every 5 mins for 10 hrs
-                        if (!util.waitForNewQuayImage("devspaces/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint, 300, 36000)) {
-                            currentBuild.result = 'FAILED'
-                            currentBuild.description+="<br/>* TIMEOUT: theia-endpoint"
-                            util.notifyBuildFailed()
-                        }
-                        def int lastBuildId2te=util.getLastBuildResult(jenkinsURL+"devspaces-theia-endpoint-rhel8_"+JOB_BRANCH)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>devspaces-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
                     }
 
                     if (PHASE_LIST.contains("4")) {

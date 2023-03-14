@@ -54,6 +54,7 @@ else
   exit 1
 fi
 
+#  TODO remove theia jobs after 3.6 is live
 for d in \
     code\
     configbump\
