@@ -4,8 +4,8 @@ platforms:
 
   only:
     - x86_64
-    # - s390x # disabled due to compilation error, see https://issues.redhat.com/browse/CRW-4089
-    # - ppc64le # disabled due to compilation error, see https://issues.redhat.com/browse/CRW-4120
+    - s390x
+    - ppc64le
 
 compose:
   inherit: false
