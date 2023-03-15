@@ -61,7 +61,7 @@ metadata:
               "dashboard": {
                 "headerMessage": {
                   "show": true,
-                  "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3663'>deprecated</a> and will be removed in a future release."
+                  "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionalities'>deprecated</a> and will be removed in a future release."
                 }
               }
             },
@@ -76,7 +76,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:159da2c54ad3e12e2d0662af24d9925464601cf0a280008a348c1daff5a46a5b
-    createdAt: "2023-03-01T20:48:12+00:00"
+    createdAt: "2023-03-15T14:06:38+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -918,11 +918,11 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:fe0e7ff97a77a27e65de5ac109dd83e357786e0c609c8a405874e52577dc92d2
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:1d5cfbeb606c2f4351d817f720b98bf695286009fa4afd8dc8c2a7c8721a857f
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:ec09e0020e1c9490f46799da28a4c81b707ddfad4577237dce262c971534c887
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:ac5eed5e9d92775abc730c79d45d52ff3cd8eddb6a6464976dba505e479c7e1f
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:5bd6245bb0270aaf436e629dc301bc6f7925361883f765413cf426a9f00b8152
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:6a6ce989306596a2efe88665917e2012c78cbb9f5a7d2706cebb03d47eda4009
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:01a02fbf08d4de0d51f7fcbe8cc5aac1e884c8df286340de569259763549c774
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1315,11 +1315,11 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:fe0e7ff97a77a27e65de5ac109dd83e357786e0c609c8a405874e52577dc92d2
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:1d5cfbeb606c2f4351d817f720b98bf695286009fa4afd8dc8c2a7c8721a857f
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:ec09e0020e1c9490f46799da28a4c81b707ddfad4577237dce262c971534c887
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:ac5eed5e9d92775abc730c79d45d52ff3cd8eddb6a6464976dba505e479c7e1f
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:5bd6245bb0270aaf436e629dc301bc6f7925361883f765413cf426a9f00b8152
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:6a6ce989306596a2efe88665917e2012c78cbb9f5a7d2706cebb03d47eda4009
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:01a02fbf08d4de0d51f7fcbe8cc5aac1e884c8df286340de569259763549c774
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
