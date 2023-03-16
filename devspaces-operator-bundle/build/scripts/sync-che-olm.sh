@@ -345,7 +345,9 @@ done
 
 # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
 # https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
-DIGEST=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.Digest')
+# https://issues.redhat.com/browse/CRW-4125 exclude freshmaker respins from the CRD
+DS_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1) # get 3.5-16, not 3.5-16.1678881134
+DIGEST=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION_ZZZ} | yq -r '.Digest')
 sed -r -e "s#quay.io/devfile/universal-developer-image.+#registry.redhat.io/devspaces/udi-rhel8@${DIGEST}#g" -i \
 	"${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml"
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
