@@ -81,11 +81,11 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 
 # copy entrypoint.sh
-rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}/build/dockerfiles
+rsync -azrlt --checksum ${SOURCEDIR}/build/dockerfiles/entrypoint.sh ${TARGETDIR}/build/dockerfiles
 #copy upstream Dockerfile as rhel.Dockerfile
-rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/Dockerfile ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
+rsync -azrlt --checksum ${SOURCEDIR}/build/dockerfiles/Dockerfile ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
 #copy brew.dockerfile
-rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/brew.Dockerfile ${TARGETDIR}/build/dockerfiles
+rsync -azrlt --checksum ${SOURCEDIR}build/dockerfiles/brew.Dockerfile ${TARGETDIR}/build/dockerfiles
 
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
