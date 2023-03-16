@@ -7,7 +7,7 @@
 #
 
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8/ubi:8.7-1054.1675788412 as projector-builder
+FROM registry.access.redhat.com/ubi8/ubi:8.7-1090 as projector-builder
 
 RUN yum install java-11-openjdk unzip -y --nodocs
 RUN mkdir /projector && mkdir /projector-assembly
@@ -26,6 +26,6 @@ RUN ./gradlew :projector-server:distZip
 RUN find projector-server/build/distributions -type f -name "projector-server-*.zip" -exec mv {} "/projector-assembly/asset-projector-server-assembly.zip" \;
 
 # https://registry.access.redhat.com/ubi8/ubi-micro
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-1
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-6
 WORKDIR /projector
 COPY --from=projector-builder /projector-assembly/asset-projector-server-assembly.zip asset-projector-server-assembly.zip
