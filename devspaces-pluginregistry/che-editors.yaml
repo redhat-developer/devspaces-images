@@ -13,12 +13,12 @@ editors:
         repository: https://github.com/eclipse-che/che-theia
         firstPublicationDate: '2019-03-07'
     commands:
-      - id: init-remote-runtime-injector
+      - id: init-container-command
         apply:
           component: remote-runtime-injector
     events:
       preStart:
-        - init-remote-runtime-injector
+        - init-container-command
     components:
       - name: theia-ide
         container:
@@ -196,15 +196,19 @@ editors:
       - id: init-container-command
         apply:
           component: idea-rhel8-injector
+      - id: init-che-idea-command
+        exec:
+          component: idea-rhel8
+          commandLine: 'nohup /projector/entrypoint-volume.sh > /projector/entrypoint-logs.txt 2>&1 &'
     events:
       preStart:
         - init-container-command
+      postStart:
+        - init-che-idea-command
     components:
       - name: idea-rhel8
         container:
           image: 'registry.redhat.io/devspaces/udi-rhel8:3.6'
-          command:
-            - /projector/entrypoint-volume.sh
           env:
             - name: PROJECTOR_ASSEMBLY_DIR
               value: /projector
@@ -297,9 +301,15 @@ editors:
       - id: init-container-command
         apply:
           component: che-code-injector
+      - id: init-che-code-command
+        exec:
+          component: che-code-runtime-description
+          commandLine: 'nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &'
     events:
       preStart:
         - init-container-command
+      postStart:
+        - init-che-code-command
     components:
       - name: che-code-injector
         container:
@@ -319,8 +329,6 @@ editors:
           memoryRequest: 256Mi
           cpuLimit: 500m
           cpuRequest: 30m
-          command:
-            - /checode/entrypoint-volume.sh
           volumeMounts:
             - name: checode
               path: /checode
@@ -379,9 +387,15 @@ editors:
       - id: init-container-command
         apply:
           component: che-code-injector
+      - id: init-che-code-command
+        exec:
+          component: che-code-runtime-description
+          commandLine: 'nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &'
     events:
       preStart:
         - init-container-command
+      postStart:
+        - init-che-code-command
     components:
       - name: che-code-injector
         container:
@@ -401,8 +415,6 @@ editors:
           memoryRequest: 256Mi
           cpuLimit: 500m
           cpuRequest: 30m
-          command:
-            - /checode/entrypoint-volume.sh
           volumeMounts:
             - name: checode
               path: /checode
