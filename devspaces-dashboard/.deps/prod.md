@@ -3,18 +3,18 @@
 | Packages | License | Resolved CQs |
 | --- | --- | --- |
 | [`@babel/runtime@7.17.7`](https://github.com/babel/babel.git) | MIT | #1946 |
-| [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@devfile/api/2.2.1-alpha-1667236163) |
+| [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | clearlydefined |
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-devworkspace-generator@0.0.1-96cdbb4`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.62.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.62.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.62.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.63.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.63.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.63.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-ff55f9a`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1672830275`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@fastify/cors@7.0.0`](git+https://github.com/fastify/fastify-cors.git) | MIT | clearlydefined |
 | [`@fastify/error@3.0.0`](git+https://github.com/fastify/fastify-error.git) | MIT | clearlydefined |
-| [`@fastify/http-proxy@7.1.0`](git+https://github.com/fastify/fastify-http-proxy.git) | MIT | clearlydefined |
+| [`@fastify/http-proxy@7.2.0`](git+https://github.com/fastify/fastify-http-proxy.git) | MIT | clearlydefined |
 | [`@fastify/oauth2@5.0.0`](git+https://github.com/fastify/fastify-oauth2.git) | MIT | clearlydefined |
 | [`@fastify/reply-from@7.0.1`](git+https://github.com/fastify/fastify-reply-from.git) | MIT | clearlydefined |
 | [`@fastify/static@5.0.2`](https://github.com/fastify/fastify-static.git) | MIT | clearlydefined |
@@ -182,7 +182,7 @@
 | [`glob-to-regexp@0.3.0`](https://github.com/fitzgen/glob-to-regexp.git) | BSD | #1140 |
 | [`glob@7.2.0`](git://github.com/isaacs/node-glob.git) | ISC | clearlydefined |
 | [`globals@9.18.0`](https://github.com/sindresorhus/globals.git) | MIT | clearlydefined |
-| [`graceful-fs@4.2.9`](https://github.com/isaacs/node-graceful-fs) | ISC | clearlydefined |
+| [`graceful-fs@4.2.9`](https://github.com/isaacs/node-graceful-fs) | ISC | #7413 |
 | [`gravatar-url@3.1.0`](https://github.com/sindresorhus/gravatar-url.git) | MIT | clearlydefined |
 | [`har-schema@2.0.0`](https://github.com/ahmadnassri/har-schema.git) | ISC | clearlydefined |
 | [`har-validator@5.1.5`](https://github.com/ahmadnassri/node-har-validator.git) | MIT | clearlydefined |

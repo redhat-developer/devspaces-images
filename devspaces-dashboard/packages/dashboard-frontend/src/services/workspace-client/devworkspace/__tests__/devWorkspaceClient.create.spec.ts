@@ -135,6 +135,48 @@ describe('DevWorkspace client, create', () => {
       );
     });
 
+    it('should add cluster console url and title as environment variables', async () => {
+      const clusterConsoleUrl = 'https://console-openshift-console.url';
+      const clusterConsoleTitle = 'OpenShift console';
+      const clusterConsole = {
+        url: clusterConsoleUrl,
+        title: clusterConsoleTitle,
+      };
+
+      await client.createDevWorkspaceTemplate(
+        namespace,
+        testDevWorkspace,
+        testDevWorkspaceTemplate,
+        undefined,
+        undefined,
+        undefined,
+        clusterConsole,
+      );
+
+      expect(spyCreateWorkspaceTemplate).toBeCalledWith(
+        expect.objectContaining({
+          spec: expect.objectContaining({
+            components: expect.arrayContaining([
+              expect.objectContaining({
+                container: expect.objectContaining({
+                  env: expect.arrayContaining([
+                    {
+                      name: 'CLUSTER_CONSOLE_URL',
+                      value: clusterConsoleUrl,
+                    },
+                    {
+                      name: 'CLUSTER_CONSOLE_TITLE',
+                      value: clusterConsoleTitle,
+                    },
+                  ]),
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
+    });
+
     it('should add owner reference to devWorkspace template to allow automatic cleanup', async () => {
       const pluginRegistryUrl = 'http://plugin.registry.url';
       const internalPluginRegistryUrl = 'http://internal.plugin.registry.url';

@@ -309,7 +309,12 @@ describe('Factory Loader container, step CREATE_WORKSPACE__FETCH_DEVFILE', () =>
       jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(mockRequestFactoryResolver).toHaveBeenCalledWith(factoryUrl, expectedOverrideParams),
+        expect(mockRequestFactoryResolver).toHaveBeenCalledWith(
+          factoryUrl,
+          expect.objectContaining({
+            overrides: expectedOverrideParams,
+          }),
+        ),
       );
     });
 

@@ -11,7 +11,7 @@
  */
 
 import { Store } from 'redux';
-import common, { api } from '@eclipse-che/common';
+import common, { api, ApplicationId } from '@eclipse-che/common';
 import { lazyInject } from '../../inversify.config';
 import { AppState } from '../../store';
 import * as BannerAlertStore from '../../store/BannerAlert';
@@ -46,6 +46,7 @@ import { WebsocketClient } from '../dashboard-backend-client/websocketClient';
 import { selectEventsResourceVersion } from '../../store/Events/selectors';
 import { selectPodsResourceVersion } from '../../store/Pods/selectors';
 import { ChannelListener } from '../dashboard-backend-client/websocketClient/messageHandler';
+import { selectApplications } from '../../store/ClusterInfo/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -83,6 +84,7 @@ export default class Bootstrap {
       this.fetchInfrastructureNamespaces(),
       this.fetchWorkspaceSettings(),
       this.fetchServerConfig(),
+      this.fetchClusterInfo(),
     ]);
 
     const results = await Promise.allSettled([
@@ -102,7 +104,6 @@ export default class Bootstrap {
       this.fetchPods().then(() => {
         this.watchWebSocketPods();
       }),
-      this.fetchClusterInfo(),
       this.fetchClusterConfig(),
     ]);
 
@@ -312,12 +313,16 @@ export default class Bootstrap {
       const settings = this.store.getState().workspacesSettings.settings;
       const pluginRegistryUrl = settings['cheWorkspacePluginRegistryUrl'];
       const pluginRegistryInternalUrl = settings['cheWorkspacePluginRegistryInternalUrl'];
+      const clusterConsole = selectApplications(state).find(
+        app => app.id === ApplicationId.CLUSTER_CONSOLE,
+      );
       const updates = await this.devWorkspaceClient.checkForTemplatesUpdate(
         defaultNamespace,
         pluginsByUrl,
         pluginRegistryUrl,
         pluginRegistryInternalUrl,
         openVSXUrl,
+        clusterConsole,
       );
       if (Object.keys(updates).length > 0) {
         await this.devWorkspaceClient.updateTemplates(defaultNamespace, updates);

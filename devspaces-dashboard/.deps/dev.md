@@ -270,7 +270,7 @@
 | [`acorn-import-assertions@1.8.0`](https://github.com/xtuc/acorn-import-assertions) | MIT | clearlydefined |
 | [`acorn-jsx@5.3.2`](https://github.com/acornjs/acorn-jsx) | MIT | clearlydefined |
 | [`acorn-walk@7.2.0`](https://github.com/acornjs/acorn.git) | MIT | clearlydefined |
-| [`acorn@8.7.1`](https://github.com/acornjs/acorn.git) | MIT | clearlydefined |
+| [`acorn@8.8.2`](https://github.com/acornjs/acorn.git) | MIT | #6951 |
 | [`add-stream@1.0.0`](https://github.com/wilsonjackson/add-stream) | MIT | clearlydefined |
 | [`agent-base@6.0.2`](git://github.com/TooTallNate/node-agent-base.git) | MIT | clearlydefined |
 | [`agentkeepalive@4.2.1`](git://github.com/node-modules/agentkeepalive.git) | MIT | clearlydefined |
@@ -418,7 +418,7 @@
 | [`diff-sequences@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`dir-glob@3.0.1`](https://github.com/kevva/dir-glob.git) | MIT | clearlydefined |
 | [`dns-equal@1.0.0`](git+https://github.com/watson/dns-equal.git) | MIT | clearlydefined |
-| [`dns-packet@5.3.1`](https://github.com/mafintosh/dns-packet.git) | MIT | clearlydefined |
+| [`dns-packet@5.4.0`](https://github.com/mafintosh/dns-packet.git) | MIT | clearlydefined |
 | [`doctrine@2.1.0`](https://github.com/eslint/doctrine.git) | Apache-2.0 | #1987 |
 | [`dom-accessibility-api@0.5.13`](https://github.com/eps1lon/dom-accessibility-api.git) | MIT | clearlydefined |
 | [`dom-converter@0.2.0`](https://github.com/AriaMinaei/dom-converter) | MIT | clearlydefined |
@@ -905,7 +905,7 @@
 | [`tapable@2.2.1`](http://github.com/webpack/tapable.git) | MIT | clearlydefined |
 | [`temp-dir@1.0.0`](https://github.com/sindresorhus/temp-dir.git) | MIT | clearlydefined |
 | [`terminal-link@2.1.1`](https://github.com/sindresorhus/terminal-link.git) | MIT | clearlydefined |
-| [`terser-webpack-plugin@5.3.1`](https://github.com/webpack-contrib/terser-webpack-plugin.git) | MIT | clearlydefined |
+| [`terser-webpack-plugin@5.3.1`](https://github.com/webpack-contrib/terser-webpack-plugin.git) | MIT | #7461 |
 | [`terser@5.14.2`](https://github.com/terser/terser) | BSD-2-Clause | clearlydefined |
 | [`test-exclude@6.0.0`](git+https://github.com/istanbuljs/test-exclude.git) | ISC | clearlydefined |
 | [`text-extensions@1.9.0`](https://github.com/sindresorhus/text-extensions.git) | MIT | clearlydefined |
@@ -954,7 +954,7 @@
 | [`w3c-xmlserializer@2.0.0`](https://github.com/jsdom/w3c-xmlserializer.git) | MIT | clearlydefined |
 | [`walk-up-path@1.0.0`](git+https://github.com/isaacs/walk-up-path) | ISC | clearlydefined |
 | [`walker@1.0.8`](https://github.com/daaku/nodejs-walker) | Apache-2.0 | clearlydefined |
-| [`watchpack@2.3.1`](https://github.com/webpack/watchpack.git) | MIT | clearlydefined |
+| [`watchpack@2.4.0`](https://github.com/webpack/watchpack.git) | MIT | clearlydefined |
 | [`wbuf@1.7.3`](git@github.com:indutny/wbuf) | MIT | clearlydefined |
 | [`wcwidth@1.0.1`](git+https://github.com/timoxley/wcwidth.git) | MIT | #944 |
 | [`webidl-conversions@6.1.0`](https://github.com/jsdom/webidl-conversions.git) | BSD-2-Clause | clearlydefined |
@@ -964,7 +964,7 @@
 | [`webpack-merge@4.2.2`](https://github.com/survivejs/webpack-merge.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/webpack-merge/4.2.2) |
 | [`webpack-node-externals@3.0.0`](https://github.com/liady/webpack-node-externals.git) | MIT | clearlydefined |
 | [`webpack-sources@1.4.3`](git+https://github.com/webpack/webpack-sources.git) | MIT | clearlydefined |
-| [`webpack@5.72.1`](https://github.com/webpack/webpack.git) | MIT | clearlydefined |
+| [`webpack@5.76.0`](https://github.com/webpack/webpack.git) | MIT | #7409 |
 | [`websocket-driver@0.7.4`](git://github.com/faye/websocket-driver-node.git) | Apache-2.0 | clearlydefined |
 | [`websocket-extensions@0.1.4`](git://github.com/faye/websocket-extensions-node.git) | Apache-2.0 | [CQ23021](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23021) |
 | [`whatwg-encoding@1.0.5`](https://github.com/jsdom/whatwg-encoding.git) | MIT | clearlydefined |

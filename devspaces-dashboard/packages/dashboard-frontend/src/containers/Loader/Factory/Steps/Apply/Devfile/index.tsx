@@ -282,9 +282,12 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
   }
 
   private async createWorkspaceFromDevfile(devfile: devfileApi.Devfile): Promise<void> {
-    const params = Object.fromEntries(this.props.searchParams);
     const optionalFilesContent = this.props.factoryResolver?.optionalFilesContent || {};
-    await this.props.createWorkspaceFromDevfile(devfile, params, optionalFilesContent);
+    await this.props.createWorkspaceFromDevfile(
+      devfile,
+      this.state.factoryParams,
+      optionalFilesContent,
+    );
   }
 
   private handleCreateWorkspaceError(): void {

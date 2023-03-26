@@ -15,19 +15,12 @@ import path from 'path';
 import * as axios from 'axios';
 import https from 'https';
 
-export interface ICrtConfig {
-  ssCrtPath?: string;
-  publicCrtPath?: string;
-}
-
-const DEFAULT_CHE_SELF_SIGNED_MOUNT_PATH = '/public-certs/che-self-signed';
+const DEFAULT_CHE_SELF_SIGNED_MOUNT_PATH = '/public-certs';
 const CHE_SELF_SIGNED_MOUNT_PATH = process.env.CHE_SELF_SIGNED_MOUNT_PATH;
 
-const certificateAuthority = getCertificateAuthority({
-  publicCrtPath: CHE_SELF_SIGNED_MOUNT_PATH
-    ? CHE_SELF_SIGNED_MOUNT_PATH
-    : DEFAULT_CHE_SELF_SIGNED_MOUNT_PATH,
-});
+const certificateAuthority = getCertificateAuthority(
+  CHE_SELF_SIGNED_MOUNT_PATH ? CHE_SELF_SIGNED_MOUNT_PATH : DEFAULT_CHE_SELF_SIGNED_MOUNT_PATH,
+);
 
 export const axiosInstance = certificateAuthority
   ? axios.default.create({
@@ -37,21 +30,46 @@ export const axiosInstance = certificateAuthority
     })
   : axios.default;
 
-function getCertificateAuthority(config: ICrtConfig): Buffer[] | undefined {
-  const certificateAuthority: Buffer[] = [];
-  if (config.ssCrtPath && fs.existsSync(config.ssCrtPath)) {
-    certificateAuthority.push(fs.readFileSync(config.ssCrtPath));
-  }
+function searchCertificate(
+  certPath: string,
+  certificateAuthority: Buffer[],
+  subdirLevel = 1,
+): void {
+  const maxSubdirQuantity = 10;
+  const maxSubdirLevel = 5;
 
-  if (config.publicCrtPath && fs.existsSync(config.publicCrtPath)) {
-    const publicCertificates = fs.readdirSync(config.publicCrtPath);
+  const tmpPaths: string[] = [];
+  try {
+    const publicCertificates = fs.readdirSync(certPath);
     for (const publicCertificate of publicCertificates) {
-      if (publicCertificate.endsWith('.crt')) {
-        const certPath = path.join(config.publicCrtPath, publicCertificate);
-        certificateAuthority.push(fs.readFileSync(certPath));
+      const newPath = path.join(certPath, publicCertificate);
+      if (fs.lstatSync(newPath).isDirectory()) {
+        if (tmpPaths.length < maxSubdirQuantity) {
+          tmpPaths.push(newPath);
+        }
+      } else {
+        const fullPath = path.join(certPath, publicCertificate);
+        certificateAuthority.push(fs.readFileSync(fullPath));
       }
     }
+  } catch (e) {
+    // no-op
   }
+
+  if (subdirLevel < maxSubdirLevel) {
+    for (const path of tmpPaths) {
+      searchCertificate(path, certificateAuthority, ++subdirLevel);
+    }
+  }
+}
+
+function getCertificateAuthority(certPath: string): Buffer[] | undefined {
+  if (!fs.existsSync(certPath)) {
+    return undefined;
+  }
+
+  const certificateAuthority: Buffer[] = [];
+  searchCertificate(certPath, certificateAuthority);
 
   return certificateAuthority.length > 0 ? certificateAuthority : undefined;
 }

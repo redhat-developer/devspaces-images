@@ -80,7 +80,9 @@ export class ServerConfigApiService implements IServerConfigApi {
     const { devEnvironments } = cheCustomResource.spec;
     return {
       containerBuildConfiguration: devEnvironments?.containerBuildConfiguration,
-      disableContainerBuildCapabilities: devEnvironments?.disableContainerBuildCapabilities,
+      disableContainerBuildCapabilities:
+        devEnvironments?.disableContainerBuildCapabilities ||
+        !!process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES'],
     };
   }
 
@@ -89,15 +91,39 @@ export class ServerConfigApiService implements IServerConfigApi {
   }
 
   getDefaultEditor(cheCustomResource: CustomResourceDefinition): string | undefined {
-    return cheCustomResource.spec.devEnvironments?.defaultEditor;
+    return (
+      cheCustomResource.spec.devEnvironments?.defaultEditor ||
+      process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR']
+    );
   }
 
   getDefaultComponents(cheCustomResource: CustomResourceDefinition): V221DevfileComponents[] {
-    return cheCustomResource.spec.devEnvironments?.defaultComponents || [];
+    if (cheCustomResource.spec.devEnvironments?.defaultComponents) {
+      return cheCustomResource.spec.devEnvironments.defaultComponents;
+    }
+
+    if (process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS']) {
+      try {
+        return JSON.parse(process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS']);
+      } catch (e) {
+        console.error(
+          `Unable to parse default components from environment variable CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS: ${e}`,
+        );
+      }
+    }
+
+    return [];
   }
 
   getOpenVSXURL(cheCustomResource: CustomResourceDefinition): string {
-    return cheCustomResource.spec.components?.pluginRegistry?.openVSXURL || '';
+    // Undefined and empty value are treated in a different ways:
+    //   - empty value forces to use embedded registry
+    //   - undefined value means that the default value should be used
+    if (cheCustomResource.spec.components?.pluginRegistry?.openVSXURL !== undefined) {
+      return cheCustomResource.spec.components.pluginRegistry.openVSXURL;
+    }
+
+    return process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'] || '';
   }
 
   getPvcStrategy(cheCustomResource: CustomResourceDefinition): string | undefined {
@@ -105,10 +131,15 @@ export class ServerConfigApiService implements IServerConfigApi {
   }
 
   getDashboardWarning(cheCustomResource: CustomResourceDefinition): string | undefined {
-    if (!cheCustomResource.spec.components?.dashboard?.headerMessage?.show) {
-      return undefined;
+    // Return the message if it is defined and the show flag is true
+    if (cheCustomResource.spec.components?.dashboard?.headerMessage?.text) {
+      return cheCustomResource.spec.components?.dashboard?.headerMessage?.show
+        ? cheCustomResource.spec.components.dashboard.headerMessage.text
+        : undefined;
     }
-    return cheCustomResource.spec.components?.dashboard?.headerMessage?.text;
+
+    // Return default message independently of the show flag.
+    return process.env['CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT'];
   }
 
   // getRunningWorkspacesLimit return the maximum number of running workspaces.

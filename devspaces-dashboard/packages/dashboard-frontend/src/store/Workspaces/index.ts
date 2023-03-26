@@ -16,6 +16,7 @@ import { createObject } from '../helpers';
 import devfileApi from '../../services/devfileApi';
 import { Workspace } from '../../services/workspace-adapter';
 import * as DevWorkspacesStore from './devWorkspaces';
+import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
@@ -107,7 +108,7 @@ export type ActionCreators = {
   updateWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
     devfile: devfileApi.Devfile,
-    attributes: { [key: string]: string },
+    attributes: Partial<FactoryParams>,
     optionalFilesContent?: {
       [fileName: string]: string;
     },
@@ -214,7 +215,7 @@ export const actionCreators: ActionCreators = {
   createWorkspaceFromDevfile:
     (
       devfile: devfileApi.Devfile,
-      attributes: { [key: string]: string },
+      attributes: Partial<FactoryParams>,
       optionalFilesContent?: {
         [fileName: string]: string;
       },

@@ -11,7 +11,7 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { ApplicationInfo, ClusterInfo } from '@eclipse-che/common';
+import { ApplicationId, ApplicationInfo, ClusterInfo } from '@eclipse-che/common';
 import { baseApiPath } from '../../constants/config';
 import { getSchema } from '../../services/helpers';
 
@@ -34,6 +34,7 @@ function buildApplicationInfo(): ClusterInfo {
   const applications: ApplicationInfo[] = [];
   if (clusterConsoleUrl) {
     applications.push({
+      id: ApplicationId.CLUSTER_CONSOLE,
       icon: clusterConsoleIcon,
       title: clusterConsoleTitle,
       url: clusterConsoleUrl,
