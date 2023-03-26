@@ -47,7 +47,7 @@
 		},
 		{
 			"name": "ms-vscode.js-debug",
-			"version": "1.76.1",
+			"version": "1.77.0",
 			"repo": "https://github.com/microsoft/vscode-js-debug",
 			"metadata": {
 				"id": "25629058-ddac-4e17-abba-74678e126c5d",
@@ -115,6 +115,7 @@
 	"remoteIndicatorCommands": {
 		"openDocumentationCommand": "Dev Spaces: Open Documentation",
 		"openDashboardCommand": "Dev Spaces: Open Dashboard",
+		"openOpenShiftConsoleCommand": "Dev Spaces: Open OpenShift Console",
 		"stopWorkspaceCommand": "Dev Spaces: Stop Workspace",
 		"restartWorkspaceCommand": "Dev Spaces: Restart Workspace",
 		"restartWorkspaceFromLocalDevfileCommand": "Dev Spaces: Restart Workspace from Local Devfile"

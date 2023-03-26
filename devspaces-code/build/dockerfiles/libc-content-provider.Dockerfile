@@ -72,5 +72,5 @@ RUN chmod a+x /checode/out/server-main.js \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.7-1085
+FROM registry.access.redhat.com/ubi8-minimal:8.7-1085.1679482090
 COPY --from=builder --chown=0:0 /checode /checode-linux-libc

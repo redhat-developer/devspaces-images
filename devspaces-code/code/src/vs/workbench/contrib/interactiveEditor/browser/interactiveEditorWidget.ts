@@ -5,17 +5,17 @@
 
 import 'vs/css!./interactiveEditor';
 import { CancellationToken, CancellationTokenSource } from 'vs/base/common/cancellation';
-import { DisposableStore, dispose, toDisposable } from 'vs/base/common/lifecycle';
+import { DisposableStore, combinedDisposable, toDisposable } from 'vs/base/common/lifecycle';
 import { IActiveCodeEditor, ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { EditorLayoutInfo, EditorOption } from 'vs/editor/common/config/editorOptions';
 import { Range } from 'vs/editor/common/core/range';
-import { IEditorContribution, IEditorDecorationsCollection } from 'vs/editor/common/editorCommon';
+import { IEditorContribution, IEditorDecorationsCollection, ScrollType } from 'vs/editor/common/editorCommon';
 import { localize } from 'vs/nls';
 import { IContextKey, IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { IInstantiationService, ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
 import { ZoneWidget } from 'vs/editor/contrib/zoneWidget/browser/zoneWidget';
 import { assertType } from 'vs/base/common/types';
-import { IInteractiveEditorResponse, IInteractiveEditorService, CTX_INTERACTIVE_EDITOR_FOCUSED, CTX_INTERACTIVE_EDITOR_HAS_ACTIVE_REQUEST, CTX_INTERACTIVE_EDITOR_INNER_CURSOR_FIRST, CTX_INTERACTIVE_EDITOR_INNER_CURSOR_LAST, CTX_INTERACTIVE_EDITOR_EMPTY, CTX_INTERACTIVE_EDITOR_OUTER_CURSOR_POSITION, CTX_INTERACTIVE_EDITOR_PREVIEW, CTX_INTERACTIVE_EDITOR_VISIBLE, MENU_INTERACTIVE_EDITOR_WIDGET, CTX_INTERACTIVE_EDITOR_HISTORY_VISIBLE, IInteractiveEditorRequest, IInteractiveEditorSession, CTX_INTERACTIVE_EDITOR_HISTORY_POSSIBLE, IInteractiveEditorSlashCommand } from 'vs/workbench/contrib/interactiveEditor/common/interactiveEditor';
+import { IInteractiveEditorResponse, IInteractiveEditorService, CTX_INTERACTIVE_EDITOR_FOCUSED, CTX_INTERACTIVE_EDITOR_HAS_ACTIVE_REQUEST, CTX_INTERACTIVE_EDITOR_INNER_CURSOR_FIRST, CTX_INTERACTIVE_EDITOR_INNER_CURSOR_LAST, CTX_INTERACTIVE_EDITOR_EMPTY, CTX_INTERACTIVE_EDITOR_OUTER_CURSOR_POSITION, CTX_INTERACTIVE_EDITOR_VISIBLE, MENU_INTERACTIVE_EDITOR_WIDGET, IInteractiveEditorRequest, IInteractiveEditorSession, IInteractiveEditorSlashCommand, IInteractiveEditorSessionProvider, InteractiveEditorResponseFeedbackKind } from 'vs/workbench/contrib/interactiveEditor/common/interactiveEditor';
 import { EditOperation } from 'vs/editor/common/core/editOperation';
 import { Iterable } from 'vs/base/common/iterator';
 import { ICursorStateComputer, IModelDecorationOptions, IModelDeltaDecoration, ITextModel, IValidEditOperation } from 'vs/editor/common/model';
@@ -40,7 +40,7 @@ import { isCancellationError } from 'vs/base/common/errors';
 import { IEditorWorkerService } from 'vs/editor/common/services/editorWorker';
 import { ILogService } from 'vs/platform/log/common/log';
 import { StopWatch } from 'vs/base/common/stopwatch';
-import { Action, IAction } from 'vs/base/common/actions';
+import { Action, IAction, Separator } from 'vs/base/common/actions';
 import { Codicon } from 'vs/base/common/codicons';
 import { ThemeIcon } from 'vs/base/common/themables';
 import { LRUCache } from 'vs/base/common/map';
@@ -55,12 +55,8 @@ import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeat
 import { CompletionContext, CompletionItem, CompletionItemInsertTextRule, CompletionItemKind, CompletionItemProvider, CompletionList, ProviderResult } from 'vs/editor/common/languages';
 import { LanguageSelector } from 'vs/editor/common/languageSelector';
 import { DEFAULT_FONT_FAMILY } from 'vs/workbench/browser/style';
-
-interface IHistoryEntry {
-	updateVisibility(visible: boolean): void;
-	updateActions(actions: IAction[]): void;
-	remove(): void;
-}
+import { IInteractiveSessionService } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
+import { renderFormattedText } from 'vs/base/browser/formattedTextRenderer';
 
 class InteractiveEditorWidget {
 
@@ -72,17 +68,16 @@ class InteractiveEditorWidget {
 		'div.interactive-editor@root',
 		[
 			h('div.body', [
-				h('div.content', [
+				h('div.content@content', [
 					h('div.input@input', [
 						h('div.editor-placeholder@placeholder'),
 						h('div.editor-container@editor'),
 					]),
-					h('div.history.hidden@history'),
+					h('div.toolbar@rhsToolbar'),
 				]),
-				h('div.toolbar@rhsToolbar'),
 			]),
 			h('div.progress@progress'),
-			h('div.message.hidden@message'),
+			h('div.status.hidden@status'),
 		]
 	);
 
@@ -92,18 +87,16 @@ class InteractiveEditorWidget {
 	readonly inputEditor: ICodeEditor;
 	private readonly _inputModel: ITextModel;
 	private readonly _ctxInputEmpty: IContextKey<boolean>;
-	private readonly _ctxHistoryPossible: IContextKey<boolean>;
-	private readonly _ctxHistoryVisible: IContextKey<boolean>;
 
 	private readonly _progressBar: ProgressBar;
 
 	private readonly _onDidChangeHeight = new Emitter<void>();
-	readonly onDidChangeHeight: Event<void> = this._onDidChangeHeight.event;
+	readonly onDidChangeHeight: Event<void> = Event.filter(this._onDidChangeHeight.event, _ => !this._isLayouting);
 
-	private _isExpanded = false;
 	private _editorDim: Dimension | undefined;
+	private _isLayouting: boolean = false;
 
-	public acceptInput: (preview: boolean) => void = InteractiveEditorWidget._noop;
+	public acceptInput: () => void = InteractiveEditorWidget._noop;
 	private _cancelInput: () => void = InteractiveEditorWidget._noop;
 
 	constructor(
@@ -112,9 +105,6 @@ class InteractiveEditorWidget {
 		@IContextKeyService private readonly _contextKeyService: IContextKeyService,
 		@IInstantiationService private readonly _instantiationService: IInstantiationService,
 	) {
-
-		this._ctxHistoryPossible = CTX_INTERACTIVE_EDITOR_HISTORY_POSSIBLE.bindTo(this._contextKeyService);
-		this._ctxHistoryVisible = CTX_INTERACTIVE_EDITOR_HISTORY_VISIBLE.bindTo(this._contextKeyService);
 
 		// editor logic
 		const editorOptions: IEditorConstructionOptions = {
@@ -135,7 +125,7 @@ class InteractiveEditorWidget {
 				useShadows: false,
 				vertical: 'hidden',
 				horizontal: 'auto',
-				// alwaysConsumeMouseWheel: false
+				alwaysConsumeMouseWheel: false
 			},
 			lineDecorationsWidth: 0,
 			overviewRulerBorder: false,
@@ -146,7 +136,8 @@ class InteractiveEditorWidget {
 			revealHorizontalRightPadding: 5,
 			minimap: { enabled: false },
 			guides: { indentation: false },
-			cursorWidth: 2,
+			rulers: [],
+			cursorWidth: 1,
 			wrappingStrategy: 'advanced',
 			wrappingIndent: 'none',
 			renderWhitespace: 'none',
@@ -215,7 +206,6 @@ class InteractiveEditorWidget {
 		this._store.dispose();
 		this._historyStore.dispose();
 		this._ctxInputEmpty.reset();
-		this._ctxHistoryVisible.reset();
 	}
 
 	get domNode(): HTMLElement {
@@ -223,22 +213,26 @@ class InteractiveEditorWidget {
 	}
 
 	layout(dim: Dimension) {
+		this._isLayouting = true;
+		try {
+			const innerEditorWidth = Math.min(
+				Number.MAX_SAFE_INTEGER, //  TODO@jrieken define max width?
+				dim.width - (getTotalWidth(this._elements.rhsToolbar) + 12 /* L/R-padding */)
+			);
+			const newDim = new Dimension(innerEditorWidth, this.inputEditor.getContentHeight());
+			if (!this._editorDim || !Dimension.equals(this._editorDim, newDim)) {
+				this._editorDim = newDim;
+				this.inputEditor.layout(this._editorDim);
 
-		const innerEditorWidth = Math.min(
-			Number.MAX_SAFE_INTEGER, //  TODO@jrieken define max width?
-			dim.width - (getTotalWidth(this._elements.rhsToolbar) + 12 /* L/R-padding */)
-		);
-		const newDim = new Dimension(innerEditorWidth, this.inputEditor.getContentHeight());
-		if (!this._editorDim || !Dimension.equals(this._editorDim, newDim)) {
-			this._editorDim = newDim;
-			this.inputEditor.layout(this._editorDim);
-
-			this._elements.placeholder.style.width = `${innerEditorWidth - 4 /* input-padding*/}px`;
+				this._elements.placeholder.style.width = `${innerEditorWidth - 4 /* input-padding*/}px`;
+			}
+		} finally {
+			this._isLayouting = false;
 		}
 	}
 
 	getHeight(): number {
-		const base = getTotalHeight(this._elements.progress) + getTotalHeight(this._elements.message) + getTotalHeight(this._elements.history);
+		const base = getTotalHeight(this._elements.progress) + getTotalHeight(this._elements.status);
 		const editorHeight = this.inputEditor.getContentHeight() + 6 /* padding and border */;
 		return base + editorHeight + 12 /* padding */;
 	}
@@ -251,7 +245,7 @@ class InteractiveEditorWidget {
 		}
 	}
 
-	getInput(placeholder: string, value: string, token: CancellationToken): Promise<{ value: string; preview: boolean } | undefined> {
+	getInput(placeholder: string, value: string, token: CancellationToken): Promise<string | undefined> {
 
 		this._elements.placeholder.innerText = placeholder;
 		this._elements.placeholder.style.fontSize = `${this.inputEditor.getOption(EditorOption.fontSize)}px`;
@@ -259,16 +253,18 @@ class InteractiveEditorWidget {
 
 		this._inputModel.setValue(value);
 		this.inputEditor.setSelection(this._inputModel.getFullModelRange());
+		this.inputEditor.updateOptions({ ariaLabel: localize('aria-label.N', "Interactive Editor Input: {0}", placeholder) });
 
 		const disposeOnDone = new DisposableStore();
 
 		disposeOnDone.add(this.inputEditor.onDidLayoutChange(() => this._onDidChangeHeight.fire()));
+		disposeOnDone.add(this.inputEditor.onDidContentSizeChange(() => this._onDidChangeHeight.fire()));
 
 		const ctxInnerCursorFirst = CTX_INTERACTIVE_EDITOR_INNER_CURSOR_FIRST.bindTo(this._contextKeyService);
 		const ctxInnerCursorLast = CTX_INTERACTIVE_EDITOR_INNER_CURSOR_LAST.bindTo(this._contextKeyService);
 		const ctxInputEditorFocused = CTX_INTERACTIVE_EDITOR_FOCUSED.bindTo(this._contextKeyService);
 
-		return new Promise<{ value: string; preview: boolean } | undefined>(resolve => {
+		return new Promise<string | undefined>(resolve => {
 
 			this._cancelInput = () => {
 				this.acceptInput = InteractiveEditorWidget._noop;
@@ -277,7 +273,7 @@ class InteractiveEditorWidget {
 				return true;
 			};
 
-			this.acceptInput = (preview) => {
+			this.acceptInput = () => {
 				const newValue = this.inputEditor.getModel()!.getValue();
 				if (newValue.trim().length === 0) {
 					// empty or whitespace only
@@ -287,7 +283,7 @@ class InteractiveEditorWidget {
 
 				this.acceptInput = InteractiveEditorWidget._noop;
 				this._cancelInput = InteractiveEditorWidget._noop;
-				resolve({ value: newValue, preview });
+				resolve(newValue);
 			};
 
 			disposeOnDone.add(token.onCancellationRequested(() => this._cancelInput()));
@@ -310,7 +306,7 @@ class InteractiveEditorWidget {
 			const updateFocused = () => {
 				const hasFocus = this.inputEditor.hasWidgetFocus();
 				ctxInputEditorFocused.set(hasFocus);
-				this._elements.input.classList.toggle('synthetic-focus', hasFocus);
+				this._elements.content.classList.toggle('synthetic-focus', hasFocus);
 			};
 			disposeOnDone.add(this.inputEditor.onDidFocusEditorWidget(updateFocused));
 			disposeOnDone.add(this.inputEditor.onDidBlurEditorWidget(updateFocused));
@@ -332,76 +328,56 @@ class InteractiveEditorWidget {
 		this.inputEditor.setSelection(this._inputModel.getFullModelRange());
 	}
 
-	toggleHistory(): void {
-		this._isExpanded = !this._isExpanded;
-		this._elements.history.classList.toggle('hidden', !this._isExpanded);
-		this._ctxHistoryVisible.set(this._isExpanded);
-		this._onDidChangeHeight.fire();
-	}
-
-	createHistoryEntry(value: string): IHistoryEntry {
-
-		const { root, label, actions } = h('div.history-entry@item', [
+	createStatusEntry() {
+		const { root, label, actions } = h('div.status-item@item', [
 			h('div.label@label'),
 			h('div.actions@actions'),
 		]);
 
-		label.innerText = value;
-
 		const toolbar = this._instantiationService.createInstance(WorkbenchToolBar, actions, {});
 		this._historyStore.add(toolbar);
 
-		this._elements.history.insertBefore(root, this._elements.history.firstChild);
-		if (this._isExpanded) {
-			this._onDidChangeHeight.fire();
-		}
+		reset(this._elements.status, root);
+		this._onDidChangeHeight.fire();
 
-		this._ctxHistoryPossible.set(true);
+		let oldClasses: string[] = [];
 
 		return {
-			updateVisibility: (visible) => {
-				root.classList.toggle('hidden', !visible);
-				if (this._isExpanded) {
-					this._onDidChangeHeight.fire();
+			update: (update: { message?: HTMLElement | string; actions?: IAction[]; classes?: string[] }) => {
+				if (update.message) {
+					reset(label, update.message);
+					this._elements.status.classList.remove('hidden');
 				}
+				if (update.actions) {
+					toolbar.setActions(update.actions);
+				}
+				if (update.classes) {
+					oldClasses.forEach(value => root.classList.remove(value));
+					oldClasses = update.classes.slice();
+					root.classList.add(...update.classes);
+				}
+			},
+			updateMessage(message: string) {
+				label.innerText = message;
 			},
 			updateActions(actions: IAction[]) {
 				toolbar.setActions(actions);
 			},
+			updateClasses: (classes: string[]) => {
+				root.classList.add(...classes);
+			},
 			remove: () => {
 				root.remove();
-				if (this._isExpanded) {
-					this._onDidChangeHeight.fire();
-				}
+				toolbar.dispose();
+				this._elements.status.classList.add('hidden');
+				this._onDidChangeHeight.fire();
 			}
 		};
 	}
 
-	clearHistory() {
-		this._historyStore.clear();
-		this._isExpanded = false;
-		this._elements.history.classList.toggle('hidden', true);
-		this._ctxHistoryPossible.reset();
-		this._ctxHistoryVisible.reset();
-		reset(this._elements.history);
-	}
-
-	showMessage(value: string) {
-		this._elements.message.classList.remove('hidden');
-		this._elements.message.innerText = value;
-		this._onDidChangeHeight.fire();
-	}
-
-	clearMessage() {
-		this._elements.message.classList.add('hidden');
-		reset(this._elements.message);
-		this._onDidChangeHeight.fire();
-	}
-
 	reset() {
 		this._ctxInputEmpty.reset();
-		this.clearHistory();
-		this.clearMessage();
+		reset(this._elements.status);
 	}
 
 	focus() {
@@ -478,11 +454,13 @@ export class InteractiveEditorZoneWidget extends ZoneWidget {
 		const info = this.editor.getLayoutInfo();
 		const spaceLeft = info.lineNumbersWidth + info.glyphMarginWidth + info.decorationsWidth;
 		const spaceRight = info.minimap.minimapWidth + info.verticalScrollbarWidth;
+		const inputLeftPadding = 4;
+		const inputRightPadding = 4;
 
-		const width = widthInPixel - (spaceLeft + spaceRight);
+		const width = widthInPixel - (spaceLeft + spaceRight + inputLeftPadding + inputRightPadding);
 		this._dimension = new Dimension(width, heightInPixel);
-		this.widget.domNode.style.marginLeft = `${spaceLeft}px`;
-		this.widget.domNode.style.marginRight = `${spaceRight}px`;
+		this.widget.domNode.style.marginLeft = `${spaceLeft + inputLeftPadding}px`;
+		this.widget.domNode.style.marginRight = `${spaceRight + inputRightPadding}px`;
 		this.widget.layout(this._dimension);
 	}
 
@@ -495,7 +473,7 @@ export class InteractiveEditorZoneWidget extends ZoneWidget {
 		super._relayout(this._computeHeightInLines());
 	}
 
-	async getInput(where: IPosition, placeholder: string, value: string, token: CancellationToken): Promise<{ value: string; preview: boolean } | undefined> {
+	async getInput(where: IPosition, placeholder: string, value: string, token: CancellationToken): Promise<string | undefined> {
 		assertType(this.editor.hasModel());
 		super.show(where, this._computeHeightInLines());
 		this._ctxVisible.set(true);
@@ -506,7 +484,18 @@ export class InteractiveEditorZoneWidget extends ZoneWidget {
 	}
 
 	updatePosition(where: IPosition) {
+		// todo@jrieken
+		// UGYLY: we need to restore focus because showing the zone removes and adds it and that
+		// means we loose focus for a bit
+		const hasFocusNow = this.widget.inputEditor.hasWidgetFocus();
 		super.show(where, this._computeHeightInLines());
+		if (hasFocusNow) {
+			this.widget.inputEditor.focus();
+		}
+	}
+
+	protected override revealRange(_range: Range, _isLastLine: boolean) {
+		// disabled
 	}
 
 	override hide(): void {
@@ -517,29 +506,45 @@ export class InteractiveEditorZoneWidget extends ZoneWidget {
 	}
 }
 
-class UndoStepAction extends Action {
+class ToggleInlineDiff extends Action {
 
-	static all: UndoStepAction[] = [];
-
-	static updateUndoSteps() {
-		UndoStepAction.all.forEach(action => {
-			const isMyAltId = action.myAlternativeVersionId === action.model.getAlternativeVersionId();
-			action.enabled = isMyAltId;
-		});
+	constructor(private readonly _inlineDiff: InlineDiffDecorations) {
+		super('diff', '', ThemeIcon.asClassName(Codicon.diff), true);
+		this.checked = _inlineDiff.visible;
+		this.tooltip = localize('toggleInlineDiff', "Toggle Inline Diff");
+		this.label = _inlineDiff.visible ? localize('hideInlineDiff', "Hide") : localize('showInlineDiff', "Show");
 	}
 
-	readonly myAlternativeVersionId: number;
+	override async run(): Promise<void> {
+		this._inlineDiff.visible = !this._inlineDiff.visible;
+		this.checked = this._inlineDiff.visible;
+		this.label = this._inlineDiff.visible ? localize('hideInlineDiff', "Hide") : localize('showInlineDiff', "Show");
+	}
+}
 
-	constructor(readonly model: ITextModel) {
-		super(`undo@${model.getAlternativeVersionId()}`, localize('undoStep', "Undo This Step"), ThemeIcon.asClassName(Codicon.discard), false);
-		this.myAlternativeVersionId = model.getAlternativeVersionId();
-		UndoStepAction.all.push(this);
-		UndoStepAction.updateUndoSteps();
+class UndoAction extends Action {
+
+	private readonly _myAlternativeVersionId: number;
+
+	constructor(private readonly _model: ITextModel, private readonly _provider: IInteractiveEditorSessionProvider, private readonly _session: IInteractiveEditorSession, private readonly _response: IInteractiveEditorResponse) {
+		super('undo', localize('undo', "Undo"), ThemeIcon.asClassName(Codicon.discard), false);
+		this._myAlternativeVersionId = _model.getAlternativeVersionId();
+
+		const update = () => {
+			this.enabled = this._myAlternativeVersionId === this._model.getAlternativeVersionId();
+		};
+		this._store.add(_model.onDidChangeContent(() => update()));
+		update();
 	}
 
-	override async run() {
-		this.model.undo();
-		UndoStepAction.updateUndoSteps();
+	override async run(): Promise<void> {
+		if (this._myAlternativeVersionId === this._model.getAlternativeVersionId()) {
+			this._model.undo();
+
+			if (this._provider.handleInteractiveEditorResponseFeedback) {
+				this._provider.handleInteractiveEditorResponseFeedback(this._session, this._response, InteractiveEditorResponseFeedbackKind.Undone);
+			}
+		}
 	}
 }
 
@@ -592,8 +597,18 @@ class InlineDiffDecorations {
 	private _data: { tracking: IModelDeltaDecoration; decorating: IModelDecorationOptions }[] = [];
 	private _visible: boolean = false;
 
-	constructor(editor: ICodeEditor) {
+	constructor(editor: ICodeEditor, visible: boolean = false) {
 		this._collection = editor.createDecorationsCollection();
+		this._visible = visible;
+	}
+
+	get visible() {
+		return this._visible;
+	}
+
+	set visible(value: boolean) {
+		this._visible = value;
+		this.update();
 	}
 
 	clear() {
@@ -605,7 +620,7 @@ class InlineDiffDecorations {
 		this._data.push(InlineDiffDecorations._asDecorationData(op));
 	}
 
-	private _update() {
+	update() {
 		this._collection.set(this._data.map(d => {
 			const res = { ...d.tracking };
 			if (this._visible) {
@@ -614,16 +629,6 @@ class InlineDiffDecorations {
 			return res;
 		}));
 	}
-
-	updateVisible(value: boolean) {
-		this._visible = value;
-		this._update();
-	}
-
-	// toggleVisible() {
-	// 	this._visible = !this._visible;
-	// 	this._update();
-	// }
 
 	private static _asDecorationData(edit: IValidEditOperation): { tracking: IModelDeltaDecoration; decorating: IModelDecorationOptions } {
 		let content = edit.text;
@@ -639,15 +644,76 @@ class InlineDiffDecorations {
 
 		const decorating: IModelDecorationOptions = {
 			description: 'interactive-editor-inline-diff',
-			className: 'interactive-editor-lines-inserted-range',
+			className: !edit.range.isEmpty() ? 'interactive-editor-lines-inserted-range' : undefined,
+			showIfCollapsed: true,
 			before: {
 				content,
 				inlineClassName: 'interactive-editor-lines-deleted-range-inline',
-				attachedData: edit
+				attachedData: edit,
 			}
 		};
 
 		return { tracking, decorating };
+	}
+}
+
+class FeedbackToggles {
+
+	private readonly _onDidChange = new Emitter<this>();
+	readonly onDidChange: Event<this> = this._onDidChange.event;
+
+	private readonly _helpful: Action;
+	private readonly _unHelpful: Action;
+
+	constructor(provider: IInteractiveEditorSessionProvider, session: IInteractiveEditorSession, response: IInteractiveEditorResponse) {
+
+		const supportsFeedback = typeof provider.handleInteractiveEditorResponseFeedback === 'function';
+
+		const update = (kind: InteractiveEditorResponseFeedbackKind) => {
+			if (supportsFeedback) {
+				provider.handleInteractiveEditorResponseFeedback!(session, response, kind);
+
+				if (kind === InteractiveEditorResponseFeedbackKind.Helpful) {
+					this._helpful.tooltip = localize('thanks', "Thanks for your feedback!");
+					this._helpful.checked = true;
+					this._helpful.enabled = false;
+					this._unHelpful.tooltip = localize('thanks', "Thanks for your feedback!");
+					this._unHelpful.enabled = false;
+				} else {
+					this._unHelpful.tooltip = localize('thanks', "Thanks for your feedback!");
+					this._unHelpful.checked = true;
+					this._unHelpful.enabled = false;
+					this._helpful.tooltip = localize('thanks', "Thanks for your feedback!");
+					this._helpful.enabled = false;
+				}
+
+				this._onDidChange.fire(this);
+			}
+		};
+
+		this._helpful = new Action('interactiveEditor.helpful', localize('helpful', "Vote Up"), ThemeIcon.asClassName(Codicon.thumbsup), supportsFeedback, () => update(InteractiveEditorResponseFeedbackKind.Helpful));
+		this._unHelpful = new Action('interactiveEditor.unHelpful', localize('unhelpful', "Vote Down"), ThemeIcon.asClassName(Codicon.thumbsdown), supportsFeedback, () => update(InteractiveEditorResponseFeedbackKind.Unhelpful));
+
+		this._helpful.tooltip = this._helpful.label;
+		this._unHelpful.tooltip = this._unHelpful.label;
+	}
+
+	dispose() {
+		this._onDidChange.dispose();
+		this._helpful.dispose();
+		this._unHelpful.dispose();
+	}
+
+	get actions() {
+		// const result: IAction[] = [];
+		// if (this._helpful.enabled || this._helpful.checked) {
+		// 	result.push(this._helpful);
+		// }
+		// if (this._unHelpful.enabled || this._unHelpful.checked) {
+		// 	result.push(this._unHelpful);
+		// }
+		// return result;
+		return [this._helpful, this._unHelpful];
 	}
 }
 
@@ -676,8 +742,8 @@ export class InteractiveEditorController implements IEditorContribution {
 	private readonly _store = new DisposableStore();
 	private readonly _recorder = new SessionRecorder();
 	private readonly _zone: InteractiveEditorZoneWidget;
-	private readonly _ctxShowPreview: IContextKey<boolean>;
 	private readonly _ctxHasActiveRequest: IContextKey<boolean>;
+	private _inlineDiffEnabled: boolean = false;
 
 	private _ctsSession: CancellationTokenSource = new CancellationTokenSource();
 	private _ctsRequest?: CancellationTokenSource;
@@ -693,7 +759,6 @@ export class InteractiveEditorController implements IEditorContribution {
 		@ITelemetryService private readonly _telemetryService: ITelemetryService
 	) {
 		this._zone = this._store.add(_instaService.createInstance(InteractiveEditorZoneWidget, this._editor));
-		this._ctxShowPreview = CTX_INTERACTIVE_EDITOR_PREVIEW.bindTo(contextKeyService);
 		this._ctxHasActiveRequest = CTX_INTERACTIVE_EDITOR_HAS_ACTIVE_REQUEST.bindTo(contextKeyService);
 	}
 
@@ -723,7 +788,8 @@ export class InteractiveEditorController implements IEditorContribution {
 
 		const thisSession = this._ctsSession = new CancellationTokenSource();
 		const textModel = this._editor.getModel();
-		const session = await provider.prepareInteractiveEditorSession(textModel, this._editor.getSelection(), this._ctsSession.token);
+		const selection = this._editor.getSelection();
+		const session = await provider.prepareInteractiveEditorSession(textModel, selection, this._ctsSession.token);
 		if (!session) {
 			this._logService.trace('[IE] NO session', provider.debugName);
 			return;
@@ -741,13 +807,14 @@ export class InteractiveEditorController implements IEditorContribution {
 			undos: ''
 		};
 
-		const inlineDiffDecorations = new InlineDiffDecorations(this._editor);
+		const statusWidget = this._zone.widget.createStatusEntry();
+		const inlineDiffDecorations = new InlineDiffDecorations(this._editor, this._inlineDiffEnabled);
 
 		const blockDecoration = this._editor.createDecorationsCollection();
 		const wholeRangeDecoration = this._editor.createDecorationsCollection();
 
 		if (!initialRange) {
-			initialRange = this._editor.getSelection();
+			initialRange = session.wholeRange ? Range.lift(session.wholeRange) : selection;
 		}
 		if (initialRange.isEmpty()) {
 			initialRange = new Range(
@@ -785,14 +852,15 @@ export class InteractiveEditorController implements IEditorContribution {
 
 		let ignoreModelChanges = false;
 		this._editor.onDidChangeModelContent(e => {
-
-			// UPDATE undo actions based on alternative version id
-			UndoStepAction.updateUndoSteps();
-
-			data.edits = true;
-
-			// CANCEL if the document has changed outside the current range
 			if (!ignoreModelChanges) {
+
+				// remove inline diff when the model changes
+				inlineDiffDecorations.clear();
+
+				// note when "other" edits happen
+				data.edits = true;
+
+				// CANCEL if the document has changed outside the current range
 				const wholeRange = wholeRangeDecoration.getRange(0);
 				if (!wholeRange) {
 					this._ctsSession.cancel();
@@ -812,6 +880,8 @@ export class InteractiveEditorController implements IEditorContribution {
 		}, undefined, store);
 
 		let round = 0;
+		const roundStore = new DisposableStore();
+		store.add(roundStore);
 
 		do {
 
@@ -834,19 +904,29 @@ export class InteractiveEditorController implements IEditorContribution {
 			this._ctsRequest = new CancellationTokenSource(this._ctsSession.token);
 
 			this._historyOffset = -1;
-			const input = await this._zone.getInput(wholeRange.getEndPosition(), placeholder, value, this._ctsRequest.token);
+			const inputPromise = this._zone.getInput(wholeRange.getEndPosition(), placeholder, value, this._ctsRequest.token);
 
-			this._zone.widget.clearMessage();
+			// reveal the line after the whole range to ensure that the input box is visible
+			this._editor.revealPosition({ lineNumber: wholeRange.endLineNumber + 1, column: 1 }, ScrollType.Smooth);
 
-			if (!input || !input.value) {
+			const input = await inputPromise;
+			roundStore.clear();
+
+			if (!input) {
 				continue;
 			}
 
-			const historyEntry = this._zone.widget.createHistoryEntry(input.value);
+			const refer = session.slashCommands?.some(value => value.refer && input.startsWith(`/${value.command}`));
+			if (refer) {
+				this._logService.info('[IE] seeing refer command, continuing outside editor', provider.debugName);
+				this._editor.setSelection(wholeRange);
+				this._instaService.invokeFunction(sendRequest, input);
+				continue;
+			}
 
 			const sw = StopWatch.create();
 			const request: IInteractiveEditorRequest = {
-				prompt: input.value,
+				prompt: input,
 				selection: this._editor.getSelection(),
 				wholeRange
 			};
@@ -863,7 +943,9 @@ export class InteractiveEditorController implements IEditorContribution {
 				if (!isCancellationError(e)) {
 					this._logService.error('[IE] ERROR during request', provider.debugName);
 					this._logService.error(e);
-					this._zone.widget.showMessage(toErrorMessage(e));
+					// this._zone.widget.showMessage(toErrorMessage(e));
+					statusWidget.update({ message: toErrorMessage(e), classes: ['error'], actions: [] });
+					// statusWidget
 					continue;
 				}
 			} finally {
@@ -872,38 +954,36 @@ export class InteractiveEditorController implements IEditorContribution {
 				this._logService.trace('[IE] request took', sw.elapsed(), provider.debugName);
 			}
 
-
 			if (this._ctsRequest.token.isCancellationRequested) {
 				this._logService.trace('[IE] request CANCELED', provider.debugName);
-				value = input.value;
-				historyEntry.remove();
+				value = input;
 				continue;
 			}
 
 			if (!reply) {
 				this._logService.trace('[IE] NO reply or edits', provider.debugName);
-				value = input.value;
-				this._zone.widget.showMessage(localize('empty', "No results, tweak your input and try again."));
-				historyEntry.remove();
+				value = input;
+				statusWidget.update({ message: localize('empty', "No results, please refine your input and try again."), classes: ['warn'], actions: [] });
 				continue;
 			}
 
 			if (reply.type === 'bulkEdit') {
 				this._logService.info('[IE] performaing a BULK EDIT, exiting interactive editor', provider.debugName);
-				this._bulkEditService.apply(reply.edits, { editor: this._editor, label: localize('ie', "{0}", input.value), showPreview: true });
+				this._bulkEditService.apply(reply.edits, { editor: this._editor, label: localize('ie', "{0}", input), showPreview: true });
 				// todo@jrieken preview bulk edit?
 				// todo@jrieken keep interactive editor?
 				break;
 			}
 
 			if (reply.type === 'message') {
-				this._logService.info('[IE] received a MESSAGE, exiting interactive editor', provider.debugName);
-				this._instaService.invokeFunction(showMessageResponse, request.prompt);
+				this._logService.info('[IE] received a MESSAGE, continuing outside editor', provider.debugName);
+				this._instaService.invokeFunction(showMessageResponse, request.prompt, reply.message.value);
+
 				continue;
 			}
 
 			// make edits more minimal
-			const moreMinimalEdits = (await this._editorWorkerService.computeMoreMinimalEdits(textModel.uri, reply.edits, true));
+			const moreMinimalEdits = (await this._editorWorkerService.computeHumanReadableDiff(textModel.uri, reply.edits));
 			this._logService.trace('[IE] edits from PROVIDER and after making them MORE MINIMAL', provider.debugName, reply.edits, moreMinimalEdits);
 			this._recorder.addExchange(session, request, reply);
 
@@ -942,39 +1022,45 @@ export class InteractiveEditorController implements IEditorContribution {
 				ignoreModelChanges = false;
 			}
 
-			inlineDiffDecorations.updateVisible(input.preview);
+			inlineDiffDecorations.update();
 
-			const that = this;
-			historyEntry.updateActions([
-				// new class extends Action {
-				// 	constructor() {
-				// 		super(Math.random().toString(), localize('ie.inlineDiff', "Toggle Inline Diff"), ThemeIcon.asClassName(Codicon.diff), true);
-				// 	}
-				// 	override async run() {
-				// 		inlineDiffDecorations.toggleVisible();
-				// 	}
-				// },
-				new class extends UndoStepAction {
-					constructor() {
-						super(textModel);
-					}
-					override async run() {
-						super.run();
-						historyEntry.updateVisibility(false);
-						value = input.value;
-						that._ctsRequest?.cancel();
-						data.undos += round + '|';
-					}
-				}]);
+			const toggleAction = new ToggleInlineDiff(inlineDiffDecorations);
+			const fixedActions: Action[] = [new UndoAction(textModel, provider, session, reply), toggleAction];
+			roundStore.add(combinedDisposable(...fixedActions));
 
-			if (!InteractiveEditorController._promptHistory.includes(input.value)) {
-				InteractiveEditorController._promptHistory.unshift(input.value);
+			const feedback = new FeedbackToggles(provider, session, reply);
+			roundStore.add(feedback);
+			roundStore.add(feedback.onDidChange(() => { statusWidget.update({ actions: Separator.join(feedback.actions, fixedActions) }); }));
+
+			const editsCount = (moreMinimalEdits ?? reply.edits).length;
+
+			const message = renderFormattedText(
+				editsCount === 1
+					? localize({ key: 'edit.1', comment: ['[[ and ]] are markdown must not be removed'] }, "Done, made [[1 change]]")
+					: localize({ key: 'edit.N', comment: ['[[ and ]] are markdown must not be removed'] }, "Done, made [[{0} changes]]", editsCount),
+				{
+					actionHandler: {
+						disposables: roundStore,
+						callback: () => toggleAction.run(),
+					}
+				});
+
+			statusWidget.update({
+				message,
+				classes: [],
+				actions: Separator.join(feedback.actions, fixedActions),
+			});
+
+			if (!InteractiveEditorController._promptHistory.includes(input)) {
+				InteractiveEditorController._promptHistory.unshift(input);
 			}
 			placeholder = reply.placeholder ?? session.placeholder ?? '';
 			value = '';
 			data.rounds += round + '|';
 
 		} while (!thisSession.token.isCancellationRequested);
+
+		this._inlineDiffEnabled = inlineDiffDecorations.visible;
 
 		// done, cleanup
 		wholeRangeDecoration.clear();
@@ -984,7 +1070,6 @@ export class InteractiveEditorController implements IEditorContribution {
 		store.dispose();
 		session.dispose?.();
 
-		dispose(UndoStepAction.all);
 
 		this._zone.hide();
 		this._editor.focus();
@@ -995,15 +1080,8 @@ export class InteractiveEditorController implements IEditorContribution {
 		this._telemetryService.publicLog2<TelemetryData, TelemetryDataClassification>('interactiveEditor/session', data);
 	}
 
-	accept(preview: boolean = this._preview): void {
-		this._zone.widget.acceptInput(preview);
-	}
-
-	private _preview: boolean = false; // TODO@jrieken persist this
-
-	togglePreview(): void {
-		this._preview = !this._preview;
-		this._ctxShowPreview.set(this._preview);
+	accept(): void {
+		this._zone.widget.acceptInput();
 	}
 
 	cancelCurrentRequest(): void {
@@ -1037,10 +1115,6 @@ export class InteractiveEditorController implements IEditorContribution {
 		const entry = InteractiveEditorController._promptHistory[pos];
 		this._zone.widget.populateInputField(entry);
 		this._historyOffset = pos;
-	}
-
-	toggleHistory(): void {
-		this._zone.widget.toggleHistory();
 	}
 
 	recordings() {
@@ -1124,8 +1198,12 @@ function installSlashCommandSupport(accessor: ServicesAccessor, editor: IActiveC
 	return store;
 }
 
-async function showMessageResponse(accessor: ServicesAccessor, query: string) {
+async function showMessageResponse(accessor: ServicesAccessor, query: string, response: string) {
+	const interactiveSessionService = accessor.get(IInteractiveSessionService);
+	interactiveSessionService.addCompleteRequest(query, { message: response });
+}
 
+async function sendRequest(accessor: ServicesAccessor, query: string) {
 
 	const widgetService = accessor.get(IInteractiveSessionWidgetService);
 	const viewsService = accessor.get(IViewsService);
