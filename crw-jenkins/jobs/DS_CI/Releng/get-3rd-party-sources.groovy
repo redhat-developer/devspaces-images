@@ -31,8 +31,8 @@ Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they ca
     <p><pre>
         kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
         REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
-        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z"
-        Staged devspaces-3.yy.z in 0:04:30.158899
+        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z.yyyy-mm-dd"
+        Staged devspaces-3.yy.z.2023-03-21 in 0:04:30.158899
     </pre></p>
 </blockquote></p>
 ''')
@@ -53,7 +53,7 @@ Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they ca
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
             stringParam("CSV_VERSION", config.CSVs."operator-bundle"[JOB_BRANCH].CSV_VERSION)
-            booleanParam("PUBLISH", true, "if true, rsync source tarballs to spmm-util and trigger staging")
+            booleanParam("PUBLISH", true, "if true, rsync sources to spmm-util; run <tt>stage-mw-release devspaces-3.yy.z.yyyy-mm-dd</tt>")
         }
 
         definition {

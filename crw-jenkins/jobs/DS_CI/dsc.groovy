@@ -67,8 +67,8 @@ Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/r
     <p><pre>
         kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
         REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
-        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z"
-        Staged devspaces-3.yy.z in 0:04:30.158899
+        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z.yyyy-mm-dd"
+        Staged devspaces-3.yy.z.2023-03-21 in 0:04:30.158899
     </pre></p>
 </blockquote></p>
 ''')
@@ -110,8 +110,8 @@ if unset, version is DS_VERSION-YYYYmmdd-commitSHA<br/>
 :: for all other suffixes, use server and operator tags = ''' + JOB_BRANCH + '''<br/>
 :: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a<br/>
 <br/>
-* push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
-* for GA suffix, push to spmm-util automatically (and copy to Github)
+* push all CI and RC bits to GH<br/>
+* for GA suffix, push to GH and spmm-util; run <tt>stage-mw-release devspaces-3.yy.z.yyyy-mm-dd</tt> 
 ''')
                 stringParam("nodeVersion", config."Management-Jobs".dsc[JB].node_version, "Node version required to build dsc")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
