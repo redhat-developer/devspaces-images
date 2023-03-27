@@ -78,11 +78,19 @@ export class ServerConfigApiService implements IServerConfigApi {
     'containerBuildConfiguration' | 'disableContainerBuildCapabilities'
   > {
     const { devEnvironments } = cheCustomResource.spec;
+    const disableContainerBuildCapabilitiesEnvVar =
+      process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES'];
+
+    // `defaultDisableContainerBuildCapabilities` is true if the env var is undefined or is not equal to 'false'
+    const defaultDisableContainerBuildCapabilities =
+      disableContainerBuildCapabilitiesEnvVar === undefined ||
+      disableContainerBuildCapabilitiesEnvVar.toLowerCase() !== 'false';
     return {
       containerBuildConfiguration: devEnvironments?.containerBuildConfiguration,
       disableContainerBuildCapabilities:
-        devEnvironments?.disableContainerBuildCapabilities ||
-        !!process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES'],
+        devEnvironments?.disableContainerBuildCapabilities !== undefined
+          ? devEnvironments?.disableContainerBuildCapabilities
+          : defaultDisableContainerBuildCapabilities,
     };
   }
 
