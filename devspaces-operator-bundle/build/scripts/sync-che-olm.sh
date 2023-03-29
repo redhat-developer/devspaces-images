@@ -18,6 +18,7 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 3.y
+DS_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1) # get 3.5-16, not 3.5-16.1678881134
 CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
@@ -96,6 +97,7 @@ DS_SERVER_IMAGE="${DS_RRIO}/server-rhel8:${DS_VERSION}"
 DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
+UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:"${DS_VERSION_ZZZ}" | yq -r '.Digest')"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES13_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
@@ -285,6 +287,18 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_gateway_authorization_sidecar_k8s"]="DELETEME"
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
+
+    ["CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL"]="https://open-vsx.org"
+    ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR"]="che-incubator/che-code/latest"
+    # CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
+      # TODO also remove theia from factory support
+      # TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
+    ["CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT"]="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#removed-functionalities'>no longer supported</a>."
+
+    # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
+    # https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
+    # https://issues.redhat.com/browse/CRW-4125 exclude freshmaker respins from the CRD
+    ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS"]="[{\"name\": \"universal-developer-image\", \"container\": {\"image\": ${UDI_IMAGE}\"\"}}]"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
 		updateVal="${operator_replacements[$updateName]}"
@@ -337,33 +351,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		updateVal="${operator_replacements_theia_removals[$updateName]}"
 		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
 	done
-	echo "Converted (yq #3 - theia removals) ${CSVFILE}"
-
-	# CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
-		# TODO also remove theia from factory support 
-		# TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
-	headerMessage="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#removed-functionalities'>no longer supported</a>."
-	# get existing alm-example json
-	almExampleJSON=$(yq -r '.metadata.annotations."alm-examples"' ${CSVFILE})
-	# transform json to insert these:
-	# 	['.spec.components.dashboard.headerMessage.show']="true"
-	# 	['.spec.components.dashboard.headerMessage.text']="headerMessage"
-	# update only the second entry, where "apiVersion" == "org.eclipse.che/v2" ==> .[1]
-	almExampleJSON=$(echo $almExampleJSON | jq -r --arg headerMessage "${headerMessage}" '.[1].spec.components|={"dashboard":{"headerMessage":{"show":true,"text":"'"$headerMessage"'"}}}')
-	# replace old annotation with new one:
-	yq -Y --arg almExampleJSON "${almExampleJSON}" '.metadata.annotations."alm-examples"|=$almExampleJSON' "${CSVFILE}" > "${CSVFILE}2"
-	echo "${COPYRIGHT}$(cat "${CSVFILE}2")" > "${CSVFILE}"
-	rm -f "${CSVFILE}2"
-	echo;echo "Inserted headerMessage (yq #5) ${CSVFILE}"
 done
-
-# https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
-# https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
-# https://issues.redhat.com/browse/CRW-4125 exclude freshmaker respins from the CRD
-DS_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1) # get 3.5-16, not 3.5-16.1678881134
-DIGEST=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION_ZZZ} | yq -r '.Digest')
-sed -r -e "s#quay.io/devfile/universal-developer-image.+#registry.redhat.io/devspaces/udi-rhel8@${DIGEST}#g" -i \
-	"${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml"
-cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
 
 popd >/dev/null || exit
