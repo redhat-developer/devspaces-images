@@ -2273,10 +2273,6 @@ spec:
                       description: Deprecated in favor of `disableInternalClusterSVCNames`.
                       type: boolean
                     workspaceDefaultComponents:
-                      default:
-                        - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:a7d56d0550e88cbb6e154072c3b526127df05e760f46e93daa9cc5b202c0fe32
-                          name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile does
                         not contain any components.
@@ -5371,15 +5367,9 @@ spec:
                   type: object
                 devEnvironments:
                   default:
-                    defaultComponents:
-                      - container:
-                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:a7d56d0550e88cbb6e154072c3b526127df05e760f46e93daa9cc5b202c0fe32
-                        name: universal-developer-image
-                    defaultEditor: che-incubator/che-code/latest
                     defaultNamespace:
                       autoProvision: true
                       template: <username>-devspaces
-                    disableContainerBuildCapabilities: true
                     maxNumberOfWorkspacesPerUser: -1
                     secondsOfInactivityBeforeIdling: 1800
                     secondsOfRunBeforeIdling: -1
@@ -5398,10 +5388,6 @@ spec:
                           type: string
                       type: object
                     defaultComponents:
-                      default:
-                        - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:a7d56d0550e88cbb6e154072c3b526127df05e760f46e93daa9cc5b202c0fe32
-                          name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile, that
                         does not contain any components.
@@ -6903,7 +6889,6 @@ spec:
                         type: object
                       type: array
                     defaultEditor:
-                      default: che-incubator/che-code/latest
                       description: The default editor to workspace create with. It
                         could be a plugin ID or a URI. The plugin ID must have `publisher/plugin/version`
                         format. The URI must start from `http://` or `https://`.
@@ -6945,7 +6930,6 @@ spec:
                         type: object
                       type: array
                     disableContainerBuildCapabilities:
-                      default: false
                       description: Disables the container build capabilities.
                       type: boolean
                     maxNumberOfRunningWorkspacesPerUser:
