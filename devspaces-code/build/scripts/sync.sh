@@ -86,8 +86,6 @@ sed_in_place() {
   fi
 }
 
-sed_in_place -r \ '/"native-keymap":*/d' "${TARGETDIR}"/code/package.json
-
 sed_in_place -r \
   `# Update DevSpaces version for Dockerfile` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
