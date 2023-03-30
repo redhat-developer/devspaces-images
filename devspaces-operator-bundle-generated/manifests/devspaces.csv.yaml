@@ -1,13 +1,3 @@
-#
-#  Copyright (c) 2018-2023 Red Hat, Inc.
-#    This program and the accompanying materials are made
-#    available under the terms of the Eclipse Public License 2.0
-#    which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-#  SPDX-License-Identifier: EPL-2.0
-#
-#  Contributors:
-#    Red Hat, Inc. - initial API and implementation
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
@@ -57,14 +47,7 @@ metadata:
             "namespace": "openshift-devspaces"
           },
           "spec": {
-            "components": {
-              "dashboard": {
-                "headerMessage": {
-                  "show": true,
-                  "text": "Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/release_notes_and_known_issues/index#removed-functionalities'>no longer supported</a>."
-                }
-              }
-            },
+            "components": {},
             "containerRegistry": {},
             "devEnvironments": {},
             "gitServices": {},
@@ -76,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1c4aaa5691f520c5a42bdc8b14f9339d64a8bfb4cbe56b7c025b172a4b0f2974
-    createdAt: "2023-03-29T17:31:22+00:00"
+    createdAt: "2023-03-30T16:59:31+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -866,10 +849,13 @@ spec:
                 - /manager
                 env:
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT
+                  value: Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a>
+                    for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/release_notes_and_known_issues/index#removed-functionalities'>no
+                    longer supported</a>.
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
-                  value: https://open-vsx.org
+                  value: ''
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
-                  value: '[{"name": "universal-developer-image", "container": {"image": "quay.io/devfile/universal-developer-image:ubi8-latest"}}]'
+                  value: '[{"name": "universal-developer-image", "container": {"image": registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8@""}}]'
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
                   value: che-incubator/che-code/latest
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -895,15 +881,15 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:4f38f39a0d627a9a74c3db14dff664bde5cb02509ac359b2a30c11350678cd62
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:8dd7e92bdcfb9e9166dd1815cda6ab27a51fe15038350f2fa413b972ff2362b5
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:0232dfb6a827b9736087c3dcd96cfa9d138fd89d679cf4a98d047f077326008f
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:fe17299bdcb9be8851c8cb2a6cbf22f0554bf6321ad9f36e99d7f3da41db2c14
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDMCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:c1fec306d288246c1ddc4ba3b882e43c143791a6e5cf292939bc15124503cc6a
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:5a847eb1bd4fb9c3266a920aa75b7283f091b83bde10df23687067dc4634eb0a
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDMCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:c1fec306d288246c1ddc4ba3b882e43c143791a6e5cf292939bc15124503cc6a
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:5a847eb1bd4fb9c3266a920aa75b7283f091b83bde10df23687067dc4634eb0a
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDMCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:37abec5a5670461fa5f3d3740f6a22ce4ffdd48113386f533ef8b2567e35664a
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDMCQ_
@@ -1284,15 +1270,15 @@ spec:
   - name: devspaces-operator
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1c4aaa5691f520c5a42bdc8b14f9339d64a8bfb4cbe56b7c025b172a4b0f2974
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:4f38f39a0d627a9a74c3db14dff664bde5cb02509ac359b2a30c11350678cd62
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:8dd7e92bdcfb9e9166dd1815cda6ab27a51fe15038350f2fa413b972ff2362b5
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:0232dfb6a827b9736087c3dcd96cfa9d138fd89d679cf4a98d047f077326008f
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:fe17299bdcb9be8851c8cb2a6cbf22f0554bf6321ad9f36e99d7f3da41db2c14
   - name: devspaces_code_devfile_registry_image_gmxdmcq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:c1fec306d288246c1ddc4ba3b882e43c143791a6e5cf292939bc15124503cc6a
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:5a847eb1bd4fb9c3266a920aa75b7283f091b83bde10df23687067dc4634eb0a
   - name: devspaces_code_plugin_registry_image_gmxdmcq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:c1fec306d288246c1ddc4ba3b882e43c143791a6e5cf292939bc15124503cc6a
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:5a847eb1bd4fb9c3266a920aa75b7283f091b83bde10df23687067dc4634eb0a
   - name: devspaces_idea_devfile_registry_image_gmxdmcq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:37abec5a5670461fa5f3d3740f6a22ce4ffdd48113386f533ef8b2567e35664a
   - name: devspaces_idea_plugin_registry_image_gmxdmcq_
