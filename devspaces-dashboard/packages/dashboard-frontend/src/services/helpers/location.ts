@@ -110,6 +110,20 @@ export function sanitizeLocation<T extends { search: string; pathname: string } 
   // clear search params
   if (location.search) {
     const searchParams = new window.URLSearchParams(location.search);
+
+    // sanitize the URL inside searchParams
+    const targetParam = 'url';
+    let targetValue = searchParams.get(targetParam);
+    if (targetValue !== null) {
+      toRemove.forEach(param => {
+        const re = new RegExp('[&|?]' + param + '=[^&]+', 'i');
+        if (targetValue) {
+          targetValue = targetValue.replace(re, '');
+        }
+      });
+      searchParams.set(targetParam, targetValue);
+    }
+
     toRemove.forEach(val => searchParams.delete(val));
     location.search = '?' + searchParams.toString();
   }
