@@ -1,3 +1,224 @@
+## [v2.9.6](https://github.com/traefik/traefik/tree/v2.9.6) (2022-12-07)
+[All Commits](https://github.com/traefik/traefik/compare/v2.9.5...v2.9.6)
+
+
+**Bug fixes:**
+- **[acme]** Update go-acme/lego to v4.9.1 ([#9550](https://github.com/traefik/traefik/pull/9550) by [ldez](https://github.com/ldez))
+- **[k8s/crd]** Support of allowEmptyServices in TraefikService ([#9424](https://github.com/traefik/traefik/pull/9424) by [jeromeguiard](https://github.com/jeromeguiard))
+- **[logs]** Remove logs of the request ([#9574](https://github.com/traefik/traefik/pull/9574) by [ldez](https://github.com/ldez))
+- **[plugins]** Increase the timeout on plugin download ([#9529](https://github.com/traefik/traefik/pull/9529) by [ldez](https://github.com/ldez))
+- **[server]** Update golang.org/x/net ([#9582](https://github.com/traefik/traefik/pull/9582) by [ldez](https://github.com/ldez))
+- **[tls]** Handle broken TLS conf better ([#9572](https://github.com/traefik/traefik/pull/9572) by [mpl](https://github.com/mpl))
+- **[tracing]** Update DataDog tracing dependency to v1.43.1 ([#9526](https://github.com/traefik/traefik/pull/9526) by [rtribotte](https://github.com/rtribotte))
+- **[webui]** Add missing serialNumber passTLSClientCert option to middleware panel ([#9539](https://github.com/traefik/traefik/pull/9539) by [rtribotte](https://github.com/rtribotte))
+
+**Documentation:**
+- **[docker]** Add networking example ([#9542](https://github.com/traefik/traefik/pull/9542) by [Janik-Haag](https://github.com/Janik-Haag))
+- **[hub]** Add information about the Hub Agent ([#9560](https://github.com/traefik/traefik/pull/9560) by [nmengin](https://github.com/nmengin))
+- **[k8s/helm]** Update Helm installation section ([#9564](https://github.com/traefik/traefik/pull/9564) by [mloiseleur](https://github.com/mloiseleur))
+- **[middleware]** Clarify PathPrefix matcher greediness ([#9519](https://github.com/traefik/traefik/pull/9519) by [mpl](https://github.com/mpl))
+- Prepare release v2.9.6 ([#9585](https://github.com/traefik/traefik/pull/9585) by [tomMoulard](https://github.com/tomMoulard))
+
+
+## [v2.9.5](https://github.com/traefik/traefik/tree/v2.9.5) (2022-11-17)
+[All Commits](https://github.com/traefik/traefik/compare/v2.9.2...v2.9.5)
+
+
+**Bug fixes:**
+- **[logs,middleware]** Create a new capture instance for each incoming request ([#9510](https://github.com/traefik/traefik/pull/9510) by [sdelicata](https://github.com/sdelicata))
+
+**Documentation:**
+- **[k8s/helm]** Update helm repository ([#9506](https://github.com/traefik/traefik/pull/9506) by [charlie-haley](https://github.com/charlie-haley))
+- Prepare release v2.9.5 ([#9513](https://github.com/traefik/traefik/pull/9513) by [rtribotte](https://github.com/rtribotte))
+- Enhance wording of building-testing page ([#9509](https://github.com/traefik/traefik/pull/9509) by [svx](https://github.com/svx))
+- Add link descriptions and update wording ([#9507](https://github.com/traefik/traefik/pull/9507) by [svx](https://github.com/svx))
+- Removes the experimental tag on the Traefik Hub header ([#9498](https://github.com/traefik/traefik/pull/9498) by [tfny](https://github.com/tfny))
+
+
+## [v2.9.2](https://github.com/traefik/traefik/tree/v2.9.2) (2022-10-27)
+[All Commits](https://github.com/traefik/traefik/compare/v2.9.1...v2.9.2)
+
+
+**Bug fixes:**
+- **[acme]** Update go-acme/lego to v4.9.0 ([#9413](https://github.com/traefik/traefik/pull/9413) by [tony-defa](https://github.com/tony-defa))
+- **[kv,redis]** Fix Redis configuration type ([#9435](https://github.com/traefik/traefik/pull/9435) by [ldez](https://github.com/ldez))
+- **[logs,middleware,metrics]** Handle capture on redefined http.responseWriters ([#9440](https://github.com/traefik/traefik/pull/9440) by [rtribotte](https://github.com/rtribotte))
+- **[middleware,k8s]** Remove raw cert escape in PassTLSClientCert middleware ([#9412](https://github.com/traefik/traefik/pull/9412) by [rtribotte](https://github.com/rtribotte))
+- **[plugins]** Update Yaegi to v0.14.3 ([#9468](https://github.com/traefik/traefik/pull/9468) by [ldez](https://github.com/ldez))
+- Remove side effect on default transport tests ([#9460](https://github.com/traefik/traefik/pull/9460) by [sdelicata](https://github.com/sdelicata))
+
+**Documentation:**
+- **[k8s]** Fix links to gateway API guides ([#9445](https://github.com/traefik/traefik/pull/9445) by [kevinpollet](https://github.com/kevinpollet))
+- Prepare release v2.9.2 ([#9477](https://github.com/traefik/traefik/pull/9477) by [kevinpollet](https://github.com/kevinpollet))
+- Simplify dashboard rule example ([#9454](https://github.com/traefik/traefik/pull/9454) by [sosoba](https://github.com/sosoba))
+- Add v2.9 to release page ([#9438](https://github.com/traefik/traefik/pull/9438) by [kevinpollet](https://github.com/kevinpollet))
+
+
+## [v2.9.1](https://github.com/traefik/traefik/tree/v2.9.1) (2022-10-03)
+[All Commits](https://github.com/traefik/traefik/compare/v2.9.0-rc1...v2.9.1)
+
+
+**Bug fixes:**
+- **[acme]** Fix ACME panic ([#9365](https://github.com/traefik/traefik/pull/9365) by [ldez](https://github.com/ldez))
+
+**Documentation:**
+- **[metrics]** Rework metrics overview page ([#9366](https://github.com/traefik/traefik/pull/9366) by [ddtmachado](https://github.com/ddtmachado))
+- Prepare release v2.9.1 ([#9410](https://github.com/traefik/traefik/pull/9410) by [tomMoulard](https://github.com/tomMoulard))
+- Prepare release v2.9.0 ([#9409](https://github.com/traefik/traefik/pull/9409) by [tomMoulard](https://github.com/tomMoulard))
+- Prepare release v2.9.0-rc5 ([#9402](https://github.com/traefik/traefik/pull/9402) by [ldez](https://github.com/ldez))
+- Prepare release v2.9.0-rc4 ([#9372](https://github.com/traefik/traefik/pull/9372) by [kevinpollet](https://github.com/kevinpollet))
+- Prepare release v2.9.0-rc3 ([#9344](https://github.com/traefik/traefik/pull/9344) by [kevinpollet](https://github.com/kevinpollet))
+
+**Misc:**
+- Merge current v2.8 into v2.9 ([#9400](https://github.com/traefik/traefik/pull/9400) by [ldez](https://github.com/ldez))
+- Merge current v2.8 into v2.9 ([#9371](https://github.com/traefik/traefik/pull/9371) by [ldez](https://github.com/ldez))
+- Merge current v2.8 into v2.9 ([#9367](https://github.com/traefik/traefik/pull/9367) by [ldez](https://github.com/ldez))
+- Merge current v2.8 into v2.9 ([#9350](https://github.com/traefik/traefik/pull/9350) by [ldez](https://github.com/ldez))
+- Merge current v2.8 into v2.9 ([#9343](https://github.com/traefik/traefik/pull/9343) by [kevinpollet](https://github.com/kevinpollet))
+
+## [v2.9.0-rc1](https://github.com/traefik/traefik/tree/v2.9.0-rc1) (2022-09-14)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.0-rc1...v2.9.0-rc1)
+
+**Enhancements:**
+- **[acme,tls]** ACME Default Certificate ([#9189](https://github.com/traefik/traefik/pull/9189) by [rtribotte](https://github.com/rtribotte))
+- **[consul,etcd,zk,kv,redis]** Update valkeyrie to v1.0.0 ([#9316](https://github.com/traefik/traefik/pull/9316) by [ldez](https://github.com/ldez))
+- **[consulcatalog,nomad]** Support Nomad canary deployment ([#9216](https://github.com/traefik/traefik/pull/9216) by [rtribotte](https://github.com/rtribotte))
+- **[consulcatalog]** Move consulcatalog provider to only use health apis ([#9140](https://github.com/traefik/traefik/pull/9140) by [kevinpollet](https://github.com/kevinpollet))
+- **[docker]** Add support for reaching containers using host networking on Podman ([#9190](https://github.com/traefik/traefik/pull/9190) by [freundTech](https://github.com/freundTech))
+- **[docker]** Use IPv6 address ([#9183](https://github.com/traefik/traefik/pull/9183) by [tomMoulard](https://github.com/tomMoulard))
+- **[docker]** Add allowEmptyServices for Docker provider ([#8690](https://github.com/traefik/traefik/pull/8690) by [jvasseur](https://github.com/jvasseur))
+- **[ecs]**  Add support for ECS Anywhere ([#9324](https://github.com/traefik/traefik/pull/9324) by [tuxpower](https://github.com/tuxpower))
+- **[healthcheck]** Add a method option to the service Health Check ([#9165](https://github.com/traefik/traefik/pull/9165) by [ddtmachado](https://github.com/ddtmachado))
+- **[http3]** Upgrade quic-go to v0.28.0 ([#9187](https://github.com/traefik/traefik/pull/9187) by [tomMoulard](https://github.com/tomMoulard))
+- **[http]** Start polling HTTP provider at the beginning ([#9116](https://github.com/traefik/traefik/pull/9116) by [moutoum](https://github.com/moutoum))
+- **[k8s/crd,plugins]** Load plugin configuration field value from Kubernetes Secret ([#9103](https://github.com/traefik/traefik/pull/9103) by [rtribotte](https://github.com/rtribotte))
+- **[logs,tcp]** Quiet down TCP RST packet error on read operation ([#9007](https://github.com/traefik/traefik/pull/9007) by [rtribotte](https://github.com/rtribotte))
+- **[metrics]** Add traffic size metrics ([#9208](https://github.com/traefik/traefik/pull/9208) by [tomMoulard](https://github.com/tomMoulard))
+- **[middleware,pilot]** Remove Pilot support ([#9330](https://github.com/traefik/traefik/pull/9330) by [ldez](https://github.com/ldez))
+- **[rules,tcp]** Support ALPN for TCP + TLS routers ([#8913](https://github.com/traefik/traefik/pull/8913) by [sh7dm](https://github.com/sh7dm))
+- **[tcp,service,udp]** Make the loadbalancers servers order random ([#9037](https://github.com/traefik/traefik/pull/9037) by [qmloong](https://github.com/qmloong))
+- **[tls]** Change default TLS options for more security ([#8951](https://github.com/traefik/traefik/pull/8951) by [ddtmachado](https://github.com/ddtmachado))
+- **[tracing]** Add Datadog GlobalTags support ([#9266](https://github.com/traefik/traefik/pull/9266) by [sdelicata](https://github.com/sdelicata))
+
+
+**Documentation:**
+- Prepare release v2.9.0-rc1 ([#9334](https://github.com/traefik/traefik/pull/9334) by [rtribotte](https://github.com/rtribotte))
+
+**Misc:**
+- Merge v2.8.5 into master ([#9329](https://github.com/traefik/traefik/pull/9329) by [rtribotte](https://github.com/rtribotte))
+- Merge current v2.8 into master ([#9291](https://github.com/traefik/traefik/pull/9291) by [rtribotte](https://github.com/rtribotte))
+- Merge current v2.8 into master ([#9265](https://github.com/traefik/traefik/pull/9265) by [kevinpollet](https://github.com/kevinpollet))
+- Merge current v2.8 into master ([#9209](https://github.com/traefik/traefik/pull/9209) by [kevinpollet](https://github.com/kevinpollet))
+- Merge current v2.8 into master ([#9146](https://github.com/traefik/traefik/pull/9146) by [kevinpollet](https://github.com/kevinpollet))
+- Merge current v2.8 into master ([#9135](https://github.com/traefik/traefik/pull/9135) by [kevinpollet](https://github.com/kevinpollet))
+
+## [v2.8.8](https://github.com/traefik/traefik/tree/v2.8.8) (2022-09-30)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.7...v2.8.8)
+
+
+**Bug fixes:**
+- **[server]** Update golang.org/x/net to latest version ([#9398](https://github.com/traefik/traefik/pull/9398) by [tspearconquest](https://github.com/tspearconquest))
+
+**Documentation:**
+- **[docker]** Fix watch option description for Docker provider ([#9391](https://github.com/traefik/traefik/pull/9391) by [bhuisgen](https://github.com/bhuisgen))
+- **[ecs]** Fix autoDiscoverClusters option documentation for ECS provider ([#9392](https://github.com/traefik/traefik/pull/9392) by [johnpekcan](https://github.com/johnpekcan))
+- **[k8s]** Improve documentation for publishedService and IP options ([#9380](https://github.com/traefik/traefik/pull/9380) by [samip5](https://github.com/samip5))
+- Prepare release v2.8.8 ([#9399](https://github.com/traefik/traefik/pull/9399) by [ldez](https://github.com/ldez))~~
+
+## [v2.8.7](https://github.com/traefik/traefik/tree/v2.8.7) (2022-09-23)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.6...v2.8.7)
+
+
+
+**Documentation:**
+- Prepare release v2.8.7 ([#9373](https://github.com/traefik/traefik/pull/9373) by [ldez](https://github.com/ldez))
+
+## [v2.8.6](https://github.com/traefik/traefik/tree/v2.8.6) (2022-09-23)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.5...v2.8.6)
+
+
+**Bug fixes:**
+- **[consulcatalog]** Fix UDP loadbalancer tags not being used with Consul Catalog ([#9357](https://github.com/traefik/traefik/pull/9357) by [t3hchipmunk](https://github.com/t3hchipmunk))
+- **[docker,rancher,ecs,provider]** Simplify AddServer algorithm ([#9358](https://github.com/traefik/traefik/pull/9358) by [ldez](https://github.com/ldez))
+- **[plugins]** Allow empty plugin configuration ([#9338](https://github.com/traefik/traefik/pull/9338) by [ldez](https://github.com/ldez))
+- **[rules]** Fix query parameter matching with equal ([#9369](https://github.com/traefik/traefik/pull/9369) by [ldez](https://github.com/ldez))
+- **[server]** Optimize websocket headers handling ([#9360](https://github.com/traefik/traefik/pull/9360) by [juliens](https://github.com/juliens))
+
+**Documentation:**
+- **[ecs]** Add documentation for ECS constraints option ([#9354](https://github.com/traefik/traefik/pull/9354) by [rtribotte](https://github.com/rtribotte))
+- **[k8s/gatewayapi]** Fix link to RouteNamespaces ([#9349](https://github.com/traefik/traefik/pull/9349) by [ldez](https://github.com/ldez))
+- Prepare release v2.8.6 ([#9370](https://github.com/traefik/traefik/pull/9370) by [kevinpollet](https://github.com/kevinpollet))
+- Add documentation for json schema usage to validate config in the FAQ ([#9340](https://github.com/traefik/traefik/pull/9340) by [rtribotte](https://github.com/rtribotte))
+- Add a note on case insensitive regex matching ([#9322](https://github.com/traefik/traefik/pull/9322) by [NEwa-05](https://github.com/NEwa-05))
+
+## [v2.8.5](https://github.com/traefik/traefik/tree/v2.8.5) (2022-09-13)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.4...v2.8.5)
+
+
+**Bug fixes:**
+- **[plugins]** Update Yaegi to v0.14.2 ([#9327](https://github.com/traefik/traefik/pull/9327) by [kevinpollet](https://github.com/kevinpollet))
+- **[server]** Fix IPv6 addr with square brackets ([#9313](https://github.com/traefik/traefik/pull/9313) by [moonlightwatch](https://github.com/moonlightwatch))
+- **[webui,api]** Display default TLS options in the dashboard ([#9312](https://github.com/traefik/traefik/pull/9312) by [skwair](https://github.com/skwair))
+
+**Documentation:**
+- **[docker]** Add healthcheck timeout seconds to value ([#9306](https://github.com/traefik/traefik/pull/9306) by [fty4](https://github.com/fty4))
+- Prepare release v2.8.5 ([#9328](https://github.com/traefik/traefik/pull/9328) by [rtribotte](https://github.com/rtribotte))
+- Update deprecation notes about Pilot ([#9314](https://github.com/traefik/traefik/pull/9314) by [nmengin](https://github.com/nmengin))
+- Added resources for businesses ([#9268](https://github.com/traefik/traefik/pull/9268) by [tomatokoolaid](https://github.com/tomatokoolaid))
+
+## [v2.8.4](https://github.com/traefik/traefik/tree/v2.8.4) (2022-09-02)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.3...v2.8.4)
+
+
+**Bug fixes:**
+- **[docker,docker/swarm]** Fix Docker provider mem leak on operation retries ([#9288](https://github.com/traefik/traefik/pull/9288) by [rtribotte](https://github.com/rtribotte))
+- **[middleware]** Fix retry middleware on panic ([#9284](https://github.com/traefik/traefik/pull/9284) by [ldez](https://github.com/ldez))
+- **[plugins]** Allow Traefik starting even if plugin service is unavailable ([#9287](https://github.com/traefik/traefik/pull/9287) by [ldez](https://github.com/ldez))
+- Update paerser to v0.1.9 ([#9270](https://github.com/traefik/traefik/pull/9270) by [tomMoulard](https://github.com/tomMoulard))
+
+**Documentation:**
+- **[acme]** Fix infoblox acme provider documentation ([#9277](https://github.com/traefik/traefik/pull/9277) by [ldez](https://github.com/ldez))
+- **[k8s/crd]** Fix serversTransport CRD documentation ([#9283](https://github.com/traefik/traefik/pull/9283) by [cuishuang](https://github.com/cuishuang))
+- **[k8s/crd]** Fix k8s for example for rootCAs serversTransport ([#9274](https://github.com/traefik/traefik/pull/9274) by [ben-krieger](https://github.com/ben-krieger))
+- **[k8s]** Add missing networking apiGroup in Kubernetes RBACs examples and references ([#9295](https://github.com/traefik/traefik/pull/9295) by [fibsifan](https://github.com/fibsifan))
+- Prepare release v2.8.4 ([#9301](https://github.com/traefik/traefik/pull/9301) by [rtribotte](https://github.com/rtribotte))
+- Update deprecation notes about Pilot ([#9300](https://github.com/traefik/traefik/pull/9300) by [nmengin](https://github.com/nmengin))
+
+## [v2.8.3](https://github.com/traefik/traefik/tree/v2.8.3) (2022-08-12)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.2...v2.8.3)
+
+
+**Bug fixes:**
+- **[file]** Update paerser to v0.1.8 ([#9258](https://github.com/traefik/traefik/pull/9258) by [ldez](https://github.com/ldez))
+- **[file]** Update paerser to v0.1.7 ([#9250](https://github.com/traefik/traefik/pull/9250) by [ldez](https://github.com/ldez))
+- **[marathon]** Add missing context in backoff for Marathon ([#9246](https://github.com/traefik/traefik/pull/9246) by [rtribotte](https://github.com/rtribotte))
+
+**Documentation:**
+- Prepare release v2.8.3 ([#9259](https://github.com/traefik/traefik/pull/9259) by [kevinpollet](https://github.com/kevinpollet))
+- Add migration guide for v2.8.3 ([#9253](https://github.com/traefik/traefik/pull/9253) by [ldez](https://github.com/ldez))
+
+## [v2.8.2](https://github.com/traefik/traefik/tree/v2.8.2) (2022-08-11)
+[All Commits](https://github.com/traefik/traefik/compare/v2.8.1...v2.8.2)
+
+
+**Bug fixes:**
+- **[k8s/ingress,k8s]** Place namespace before name in router key for Ingress ([#9221](https://github.com/traefik/traefik/pull/9221) by [longshine](https://github.com/longshine))
+- **[kv]** Update valkeyrie to a9a70ee ([#9243](https://github.com/traefik/traefik/pull/9243) by [kevinpollet](https://github.com/kevinpollet))
+- **[logs,middleware,tracing]** Remove request dump from IPWhitelist debug log and tracing message ([#9244](https://github.com/traefik/traefik/pull/9244) by [rtribotte](https://github.com/rtribotte))
+- **[metrics]** Control allocation and copy of labelNamesValues type ([#9241](https://github.com/traefik/traefik/pull/9241) by [rtribotte](https://github.com/rtribotte))
+- **[metrics]** Fix service up gauge for Prometheus metrics ([#9197](https://github.com/traefik/traefik/pull/9197) by [juliens](https://github.com/juliens))
+- **[plugins]** Bump paerser to v0.1.6 ([#9224](https://github.com/traefik/traefik/pull/9224) by [ldez](https://github.com/ldez))
+- Add missing inline tag for YAML serialization ([#9182](https://github.com/traefik/traefik/pull/9182) by [kevinpollet](https://github.com/kevinpollet))
+
+**Documentation:**
+- **[k8s]** Add getting started guide for Kubernetes ([#9163](https://github.com/traefik/traefik/pull/9163) by [moutoum](https://github.com/moutoum))
+- **[k8s]** Fix wording of default behavior for namespaces option ([#9222](https://github.com/traefik/traefik/pull/9222) by [markormesher](https://github.com/markormesher))
+- **[plugins]** Remove Traefik Pilot and add a Traefik Plugins Catalog page ([#9171](https://github.com/traefik/traefik/pull/9171) by [sdelicata](https://github.com/sdelicata))
+- Update Thank You page with proper branding and grammar fixes ([#9203](https://github.com/traefik/traefik/pull/9203) by [tfny](https://github.com/tfny))
+- Update CONTRIBUTING.md to contain all information in one place ([#9192](https://github.com/traefik/traefik/pull/9192) by [tfny](https://github.com/tfny))
+- Update the PR guidelines in Contributing docs ([#9179](https://github.com/traefik/traefik/pull/9179) by [tfny](https://github.com/tfny))
+- Prepare release v2.8.2 ([#9245](https://github.com/traefik/traefik/pull/9245) by [rtribotte](https://github.com/rtribotte))
+
 ## [v2.8.1](https://github.com/traefik/traefik/tree/v2.8.1) (2022-07-11)
 [All Commits](https://github.com/traefik/traefik/compare/v2.8.0...v2.8.1)
 
