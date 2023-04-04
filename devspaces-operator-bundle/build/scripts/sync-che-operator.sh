@@ -236,7 +236,7 @@ declare -A operator_replacements=(
   # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
   # https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
   # https://issues.redhat.com/browse/CRW-4125 exclude freshmaker respins from the CRD
-  ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS"]="[{\"name\": \"universal-developer-image\", \"container\": {\"image\": ${UDI_IMAGE}\"\"}}]"
+  ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS"]="[{\"name\": \"universal-developer-image\", \"container\": {\"image\": \"${UDI_IMAGE}\"}}]"
 )
 
 OPERATOR_DEPLOYMENT_YAML="config/manager/manager.yaml"
