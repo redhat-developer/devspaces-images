@@ -913,7 +913,7 @@ spec:
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
-                  value: registry.redhat.io/rhel8/postgresql-13@sha256:34a368248dbf6cc5c85573c9af1d58ef892cf8ddb2bf1e5d0d66aa205a7d1ad5
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:48873cd9b4199ee96bb4f9bbe6b2caace940a6ec7263dbe513397e7b86a16447
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:33931dce809712888d1a8061bfa676963f517daca993984afed3251bc1fb5987
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1302,7 +1302,7 @@ spec:
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
-    image: registry.redhat.io/rhel8/postgresql-13@sha256:34a368248dbf6cc5c85573c9af1d58ef892cf8ddb2bf1e5d0d66aa205a7d1ad5
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:48873cd9b4199ee96bb4f9bbe6b2caace940a6ec7263dbe513397e7b86a16447
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:33931dce809712888d1a8061bfa676963f517daca993984afed3251bc1fb5987
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
