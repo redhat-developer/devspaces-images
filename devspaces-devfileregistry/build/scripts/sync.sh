@@ -174,7 +174,4 @@ replaceField()
 
 pushd "${TARGETDIR}" >/dev/null || exit 1
 
-# TODO transform che-theia references to DS theia references, including:
-# description, icon, attributes.version, attributes.title, attributes.repository
-
 popd >/dev/null || exit
