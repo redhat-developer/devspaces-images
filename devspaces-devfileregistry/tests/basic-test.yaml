@@ -36,7 +36,7 @@
           shell: oc exec {{ pod_name.stdout }} -- ls -las /var/www/html/ /var/www/html/devfiles
           register: ls_cmd_run
         - name: Make sure devfile templates are generated
-          shell: oc exec {{ pod_name.stdout }} -- find /var/www/html/devfiles -name devworkspace-che-theia-latest.yaml | grep .
+          shell: oc exec {{ pod_name.stdout }} -- find /var/www/html/devfiles -name devworkspace-che-code-latest.yaml | grep .
           register: ls_cmd_run
         - debug:
             msg: "{{ ls_cmd_run.stdout }}"
