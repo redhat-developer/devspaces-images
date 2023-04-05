@@ -216,8 +216,9 @@ CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
   # -e "s@registry.redhat.io/devspaces/devspaces-rhel8-operator@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator@g"
   # ...
 # OPTION 2: use images from reg-proxy, which could be older than the RHEC Freshmaker updates (required for initial GA of 3.y.0)
-sed -r -i "${CSVFILE}" \
-  -e "s@(registry.redhat.io|quay.io)/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
+# CRW-4077 : DO NOT change image references if they have a @sha256: reference, only :3.y
+sed -i "${CSVFILE}" -r \
+  -e "s%(registry.redhat.io|quay.io)/devspaces/(.+:${DS_VERSION})%registry-proxy.engineering.redhat.com/rh-osbs/devspaces-\2%g" \
   -e "s@devspaces-rhel8-operator@operator@g" \
   -e "s@:latest@:${DS_VERSION}@g"
 
