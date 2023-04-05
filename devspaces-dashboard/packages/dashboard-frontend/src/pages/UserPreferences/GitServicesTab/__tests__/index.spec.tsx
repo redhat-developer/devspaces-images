@@ -22,6 +22,14 @@ import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { selectIsLoading, selectGitOauth } from '../../../../store/GitOauthConfig/selectors';
 import { actionCreators } from '../../../../store/GitOauthConfig';
 
+// mute the outputs
+console.error = jest.fn();
+jest.mock('../ProviderWarning', () => {
+  return function ProviderWarning(props: { warning: React.ReactNode }): React.ReactElement {
+    return <span>{props.warning}</span>;
+  };
+});
+
 describe('GitServices', () => {
   const mockRevokeOauth = jest.fn();
   const requestGitOauthConfig = jest.fn();
@@ -46,7 +54,7 @@ describe('GitServices', () => {
     jest.clearAllMocks();
   });
 
-  it('should correctly render the component without sit services', () => {
+  it('should correctly render the component without git services', () => {
     const component = getComponent(new FakeStoreBuilder().build());
     render(component);
 
@@ -58,17 +66,25 @@ describe('GitServices', () => {
     expect(json).toMatchSnapshot();
   });
 
-  it('should correctly render the component which contains two git services', () => {
+  it('should correctly render the component which contains four git services', () => {
     const component = getComponent(
       new FakeStoreBuilder()
         .withGitOauthConfig([
           new FakeGitOauthBuilder()
             .withName('github')
-            .withEndpointUrl('https://github.com')
+            .withEndpointUrl('https://github.dummy.endpoint.com')
             .build(),
           new FakeGitOauthBuilder()
             .withName('gitlab')
-            .withEndpointUrl('https://gitlab.com')
+            .withEndpointUrl('https://gitlab.dummy.endpoint.com')
+            .build(),
+          new FakeGitOauthBuilder()
+            .withName('bitbucket')
+            .withEndpointUrl('https://bitbucket.dummy.endpoint.org')
+            .build(),
+          new FakeGitOauthBuilder()
+            .withName('azure-devops')
+            .withEndpointUrl('https://azure.dummy.endpoint.com/')
             .build(),
         ])
         .build(),
@@ -77,6 +93,14 @@ describe('GitServices', () => {
 
     const emptyStateText = screen.queryByText('No Git Services');
     expect(emptyStateText).not.toBeTruthy();
+
+    const actions = screen.queryAllByRole('button', { name: /actions/i });
+
+    expect(actions.length).toEqual(4);
+    expect(actions[0]).not.toBeDisabled();
+    expect(actions[1]).toBeDisabled();
+    expect(actions[2]).toBeDisabled();
+    expect(actions[3]).toBeDisabled();
 
     const json = renderer.create(component).toJSON();
 

@@ -21,6 +21,7 @@ import EmptyState from './EmptyState';
 import { api } from '@eclipse-che/common';
 import * as GitOauthConfig from '../../../store/GitOauthConfig';
 import GitServicesToolbar, { GitServicesToolbar as Toolbar } from './GitServicesToolbar';
+import ProviderWarning from './ProviderWarning';
 
 export const enabledProviders: api.GitOauthProvider[] = ['github'];
 
@@ -78,19 +79,41 @@ export class GitServicesTab extends React.PureComponent<Props, State> {
   }
 
   private buildGitOauthRow(gitOauth: api.GitOauthProvider, server: string): React.ReactNode[] {
-    const oauthRow: React.ReactNode[] = [<span key={gitOauth}>{providersMap[gitOauth]}</span>];
+    const oauthRow: React.ReactNode[] = [];
+    const isDisabled = this.isDisabled(gitOauth);
 
-    if (/^http[s]?:\/\/.*/.test(server)) {
-      oauthRow.push(
-        <span key={server}>
-          <a href={server} target="_blank" rel="noreferrer">
-            {server}
-          </a>
-        </span>,
-      );
-    } else {
-      oauthRow.push(<span key={server}>{server}</span>);
-    }
+    oauthRow.push(
+      <span key={gitOauth}>
+        {providersMap[gitOauth]}
+        {isDisabled && (
+          <ProviderWarning
+            warning={
+              <>
+                Provided API does not support the automatic token revocation. You can revoke it
+                manually on &nbsp;
+                <a
+                  href={server}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: 'var(--pf-global--info-color--100)' }}
+                >
+                  {server}
+                </a>
+                .
+              </>
+            }
+          />
+        )}
+      </span>,
+    );
+
+    oauthRow.push(
+      <span key={server}>
+        <a href={server} target="_blank" rel="noreferrer">
+          {server}
+        </a>
+      </span>,
+    );
 
     return oauthRow;
   }
