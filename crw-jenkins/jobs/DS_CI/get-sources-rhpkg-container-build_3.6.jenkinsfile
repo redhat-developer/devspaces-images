@@ -43,6 +43,7 @@ timeout(240) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
             echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
             retry(2) {
+              // TODO CRW-3080 remove node env invocation here, if/when no longer needed (?)
               sh('''#!/bin/bash
 . ~/node_env ''' + DS_VERSION + '''
 echo "Node: $(node --version) ( $(which node) )"

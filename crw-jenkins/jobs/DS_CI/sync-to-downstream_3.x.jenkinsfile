@@ -25,14 +25,11 @@ def debugDiskUsage = true
 // CRW-2656, CRW-3565 if a code build, ONLY use dynamic PSI builders so there's maximum disk space available
 // CRW-2736 if an idea build, must run on x64 only (single arch for now; failed when tested on ppc64le - missing support for that arch)
 // NB 2022-01-14 remove s390x-rhel8-perm as it can be flaky with ssh connections (maybe because of CRW-3281 - crwjen-1.s390 has only 4GB RAM?)
-// TODO remove theia rules after 3.6 is live
-def String nodeLabelAnyArch = (REPOS.contains("theia")) ?
-  'x86_64-rhel8-dyn' :
-  ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
+def String nodeLabelAnyArch = ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
     'x86_64-rhel8' : 
     'x86_64-rhel8||ppc64le-rhel8'
   )
-def String nodeLabelXArch = (REPOS.contains("theia")||REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
+def String nodeLabelXArch = (REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
 
 currentBuild.description=""
 for (int i=0; i < SYNC_REPOS.size(); i++) {

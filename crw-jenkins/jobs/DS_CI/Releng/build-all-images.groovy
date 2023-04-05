@@ -65,9 +65,7 @@ for global CVE updates.
                 stringParam("PHASES", "2 3 4", '''
 Phases:
 <ol>
-    <!-- TODO remove theia after 3.6 is live -->
-    <li> build theia images sequentially (3 images) (@removed 3.6)</li>
-    <li> build internals in parallel (10 images): 
+    <li start=2> build internals in parallel (10 images): 
         <ul>
             <li> configbump, operator, dashboard, devfileregistry, imagepuller, </li>
             <li> machineexec, pluginregistry, server, traefik, udi (@since 2.16)</li>

@@ -46,7 +46,6 @@ done
 
 if [[ ! ${DS_VERSION} ]]; then usage; fi
 
-# TODO remove theia jobs after 3.6 is live
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
     for d in \
@@ -61,8 +60,6 @@ if [[ -f /tmp/token ]]; then
         operator\
         pluginregistry\
         server\
-        theia-akamai\
-        theia-sources\
         traefik\
         dsc\
         udi\

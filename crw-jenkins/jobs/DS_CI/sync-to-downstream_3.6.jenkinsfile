@@ -22,16 +22,14 @@ def commentedOnPullRequestBuildLinks="false"
 
 def debugDiskUsage = true
 
-// CRW-2656, CRW-3565 if a theia or code build, ONLY use dynamic PSI builders so there's maximum disk space available
+// CRW-2656, CRW-3565 if a code build, ONLY use dynamic PSI builders so there's maximum disk space available
 // CRW-2736 if an idea build, must run on x64 only (single arch for now; failed when tested on ppc64le - missing support for that arch)
 // NB 2022-01-14 remove s390x-rhel8-perm as it can be flaky with ssh connections (maybe because of CRW-3281 - crwjen-1.s390 has only 4GB RAM?)
-def String nodeLabelAnyArch = (REPOS.contains("theia")) ?
-  'x86_64-rhel8-dyn' :
-  ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
+def String nodeLabelAnyArch = ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
     'x86_64-rhel8' : 
     'x86_64-rhel8||ppc64le-rhel8'
   )
-def String nodeLabelXArch = (REPOS.contains("theia")||REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
+def String nodeLabelXArch = (REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
 
 currentBuild.description=""
 for (int i=0; i < SYNC_REPOS.size(); i++) {
@@ -44,7 +42,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
     if (SYNC_REPOi.contains("-code")) {
       currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
       def String nodeLabelString = ""
-      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 240) {
         node(nodeLabelAnyArch){
           // prestage #0 - get arches on which to build
           stage("Get arches + delete old assets"){
@@ -103,11 +101,11 @@ popd
         def String thisArch=nodeLabel
         // prestage #2 for building lang servers - create assets and publish to GH releases
         tasks[SYNC_REPOi + " " + thisArch] = { ->
-          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 240) {
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                   def util = load "${WORKSPACE}/util2.groovy"
                   cleanWs()
 
@@ -122,21 +120,6 @@ echo "<<<############### df -h before building #################"
                   // might be already defined by the referring job
                   CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
-
-
-// CRW-3493 hack no longer needed as jenkins builders ONLY have python 3.10 (3.11 doesn't work with node-gyp)
-// enable python 3.10 for theia builds, 3.11 for all others
-//                   def pyver = REPOS.contains("theia") ? "3.10.8" : "3.11.0"
-//                   sh(script: '''#!/bin/bash
-// pyver="'''+pyver+'''"
-// pyenv install ${pyver} -s
-// pyenv global ${pyver} || true
-// pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
-// $HOME/.pyenv/shims/python --version
-// export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
-// echo $PATH
-// python --version
-// ''', returnStdout: true)
 
                   util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
@@ -303,6 +286,11 @@ sources
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+
+# CRW-4043 if there's a midstream build/dockerfiles/brew.Dockerfile, copy it as downstream root Dockerfile
+if [[ -f ${SOURCEDIR}/build/dockerfiles/brew.Dockerfile ]]; then
+  cp -f ${SOURCEDIR}/build/dockerfiles/brew.Dockerfile ${TARGETDIR}/Dockerfile
+fi
 rm -f /tmp/rsync-excludes
 ''')
 
@@ -533,27 +521,18 @@ echo "<<<############### df -h end of sync repos #################"
 ''', returnStatus: true)
         }
 
-      } // wrap
-    } // stage
-  } // node
-} // timeout
-
-// kick off dsc_3.y job if operator or metadata were synced above 
-node(nodeLabelAnyArch){ 
-  stage ("Build dsc on ${nodeLabelAnyArch}") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-    def util = load "${WORKSPACE}/util2.groovy"
-    withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
-      if (REPOS.contains("-operator-")) { 
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-        println "########################################################################################################"
-        println "##  Build dsc ${JOB_BRANCH}"
-        println "########################################################################################################"
-        echo "currentBuild.result = " + currentBuild.result
-        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-          if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
-            jobPath='/job/DS_CI/job/dsc_' + JOB_BRANCH
-            final jobResult = build(
+        // kick off dsc_3.y job if operator or metadata were synced above 
+        if (REPOS.contains("-operator-")) { 
+          withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            println "########################################################################################################"
+            println "##  Build dsc ${JOB_BRANCH}"
+            println "########################################################################################################"
+            echo "currentBuild.result = " + currentBuild.result
+            if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+              if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
+                jobPath='/job/DS_CI/job/dsc_' + JOB_BRANCH
+                final jobResult = build(
                   job: jobPath.replaceAll("/job/","/"),
                   wait: false,
                   propagate: false,
@@ -589,36 +568,38 @@ node(nodeLabelAnyArch){
                       value: CLEAN_ON_FAILURE
                     ]
                   ]
-            )
-            println("triggered build(" + jobPath + ") [no wait]")
-            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-            currentBuild.description+=" <a href=${jobPath}/>" + jobPath + "</a> triggered; " 
-          } else {
-            println "No changes upstream, nothing to rebuild in dsc!"
-            currentBuild.description+=" no dsc build; "
-            currentBuild.result = 'UNSTABLE'
-          }
-        } else {
-          util.notifyBuildFailed()
-        } // if
-      } // if operator
-      if (comments_url_UDI?.trim()) {
-        // special case for UDI because it doesn't use template_3.x job
-        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
-      } else if (util.globalVar({comments_url})?.trim()) {
-        // comment on the PR with this job's build description
-        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-      }
-    } // with
-    cleanWs(
-        cleanWhenSuccess: true,
-        cleanWhenUnstable: true,
-        cleanWhenNotBuilt: false,
-        cleanWhenFailure: CLEAN_ON_FAILURE,
-        cleanWhenAborted: true,
-        deleteDirs: true,
-        disableDeferredWipeout: true,
-        notFailBuild: true
-    )
-  } // stage
-} //node
+                )
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+=" <a href=${jobPath}/>" + jobPath + "</a> triggered; " 
+              } else {
+                println "No changes upstream, nothing to rebuild in dsc!"
+                currentBuild.description+=" no dsc build; "
+                currentBuild.result = 'UNSTABLE'
+              } // if trigger
+            } else {
+              util.notifyBuildFailed()
+            } // if
+            if (comments_url_UDI?.trim()) {
+              // special case for UDI because it doesn't use template_3.x job
+              println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
+            } else if (util.globalVar({comments_url})?.trim()) {
+              // comment on the PR with this job's build description
+              println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+            }
+          } // with 
+        } // if operator or bundle
+      } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } // stage
+  } // node
+} // timeout

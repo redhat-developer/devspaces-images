@@ -53,12 +53,6 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
         <li> <a href=https://quay.io/repository/devspaces/traefik-rhel8?tab=tags>traefik</a> </li>
         <li> <a href=https://quay.io/repository/devspaces/udi-rhel8?tab=tags>udi</a></li>
         </td><td>
-
-        <!-- TODO remove theia after 3.6 is live -->
-        <li> <a href=https://quay.io/repository/devspaces/theia-dev-rhel8?tab=tags>theia-dev</a> (@removed 3.6) </li>
-        <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> (@removed 3.6) </li>
-        <li> <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> (@removed 3.6) </li>
-        </td><td>
     </td></tr>
   </table>
 </ul>
@@ -82,8 +76,8 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
     <li><a href=../Releng/job/copyIIBsToQuay/>Copy IIBs</a> to <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a></li>
 
         <!-- TODO remove theia after 3.6 is live -->
-    <li>Trigger <a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> after a successful push of a 
-    <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build of <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a></li>
+    <!-- <li>Trigger <a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> after a successful push of a 
+    <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build of <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a></li> -->
   </ol>
 ''')
 
@@ -110,11 +104,9 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
             }
 
             parameters{ 
-                // TODO remove theia after 3.6 is live
                 textParam("CONTAINERS", '''\
 code configbump operator operator-bundle dashboard devfileregistry \
-idea imagepuller machineexec pluginregistry server traefik udi \
-theia theia-dev theia-endpoint''', '''list of 16 containers to copy:<br/>
+idea imagepuller machineexec pluginregistry server traefik udi''', '''list of 13 containers to copy:<br/>
 * no 'devspaces/' or 'devspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
