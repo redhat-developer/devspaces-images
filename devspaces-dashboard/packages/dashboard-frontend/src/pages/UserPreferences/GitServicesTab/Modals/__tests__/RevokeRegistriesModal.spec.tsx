@@ -14,6 +14,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RevokeRegistriesModal from '../RevokeGitServicesModal';
+import { GitOauthProvider } from '@eclipse-che/common/lib/dto/api';
 import { api } from '@eclipse-che/common';
 
 describe('Revoke Registries Modal', () => {
@@ -22,7 +23,7 @@ describe('Revoke Registries Modal', () => {
 
   function getComponent(
     isRevokeModalOpen: boolean,
-    selectedItems: api.GitOauthProvider[],
+    selectedItems: GitOauthProvider[],
     gitOauth?: api.GitOauthProvider,
   ): React.ReactElement {
     return (

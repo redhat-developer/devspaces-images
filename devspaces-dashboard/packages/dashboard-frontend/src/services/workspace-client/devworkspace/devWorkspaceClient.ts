@@ -78,8 +78,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly maxStatusAttempts: number;
   private readonly pluginRegistryUrlEnvName: string;
   private readonly pluginRegistryInternalUrlEnvName: string;
-  private readonly clusterConsoleUrlEnvName: string;
-  private readonly clusterConsoleTitleEnvName: string;
   private readonly openVSXUrlEnvName: string;
   private readonly dashboardUrlEnvName: string;
   private readonly defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler;
@@ -94,8 +92,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     this.pluginRegistryInternalUrlEnvName = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';
     this.openVSXUrlEnvName = 'OPENVSX_REGISTRY_URL';
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
-    this.clusterConsoleUrlEnvName = 'CLUSTER_CONSOLE_URL';
-    this.clusterConsoleTitleEnvName = 'CLUSTER_CONSOLE_TITLE';
     this.defaultPluginsHandler = defaultPluginsHandler;
   }
 
@@ -139,98 +135,74 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return workspace;
   }
 
-  async createDevWorkspace(
+  async createFromResources(
     defaultNamespace: string,
-    devWorkspaceResource: devfileApi.DevWorkspace,
+    devworkspace: devfileApi.DevWorkspace,
+    devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
     editorId: string | undefined,
-  ): Promise<{ headers: DwApi.Headers; devWorkspace: devfileApi.DevWorkspace }> {
-    devWorkspaceResource.spec.routingClass = 'che';
-    devWorkspaceResource.spec.started = false;
-    devWorkspaceResource.metadata.namespace = defaultNamespace;
-
-    if (!devWorkspaceResource.metadata.annotations) {
-      devWorkspaceResource.metadata.annotations = {};
-    }
-
-    devWorkspaceResource.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
-      new Date().toISOString();
-
-    if (editorId) {
-      devWorkspaceResource.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
-    }
-
-    // temporarily remove components as they are not created yet
-    const components = devWorkspaceResource.spec.template.components;
-    devWorkspaceResource.spec.template.components = [];
-
-    const { headers, devWorkspace } = await DwApi.createWorkspace(devWorkspaceResource);
-
-    // restore components
-    devWorkspace.spec.template.components = components;
-
-    return { headers, devWorkspace };
-  }
-
-  async createDevWorkspaceTemplate(
-    defaultNamespace: string,
-    devWorkspace: devfileApi.DevWorkspace,
-    devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate,
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     openVSXUrl: string | undefined,
-    clusterConsole?: {
-      url: string;
-      title: string;
-    },
-  ): Promise<devfileApi.DevWorkspaceTemplate> {
-    devWorkspaceTemplateResource.metadata.namespace = defaultNamespace;
+  ): Promise<any> {
+    // create DW
+    devworkspace.spec.routingClass = 'che';
+    devworkspace.metadata.namespace = defaultNamespace;
+    if (!devworkspace.metadata.annotations) {
+      devworkspace.metadata.annotations = {};
+    }
+    devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
+      new Date().toISOString();
+    // remove components which is not created yet
+    const components = devworkspace.spec.template.components;
+    devworkspace.spec.template.components = [];
 
+    if (editorId) {
+      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
+    }
+
+    devworkspace.spec.started = false;
+    const createdWorkspace = await DwApi.createWorkspace(devworkspace);
+
+    this.addEnvVarsToContainers(
+      components,
+      pluginRegistryUrl,
+      pluginRegistryInternalUrl,
+      openVSXUrl,
+    );
+
+    // create DWT
+    devworkspaceTemplate.metadata.namespace = defaultNamespace;
     // add owner reference (to allow automatic cleanup)
-    devWorkspaceTemplateResource.metadata.ownerReferences = [
+    devworkspaceTemplate.metadata.ownerReferences = [
       {
         apiVersion: `${devWorkspaceApiGroup}/${devWorkspaceVersion}`,
         kind: devWorkspaceSingularSubresource,
-        name: devWorkspace.metadata.name,
-        uid: devWorkspace.metadata.uid,
+        name: createdWorkspace.metadata.name,
+        uid: createdWorkspace.metadata.uid,
       },
     ];
-
     this.addEnvVarsToContainers(
-      devWorkspaceTemplateResource.spec?.components,
+      devworkspaceTemplate.spec?.components,
       pluginRegistryUrl,
       pluginRegistryInternalUrl,
       openVSXUrl,
-      clusterConsole,
     );
 
-    return DwtApi.createTemplate(devWorkspaceTemplateResource);
-  }
+    await DwtApi.createTemplate(devworkspaceTemplate);
 
-  async updateDevWorkspace(
-    devWorkspace: devfileApi.DevWorkspace,
-    pluginRegistryUrl: string | undefined,
-    pluginRegistryInternalUrl: string | undefined,
-    openVSXUrl: string | undefined,
-    clusterConsole?: {
-      url: string;
-      title: string;
-    },
-  ): Promise<{ headers: DwApi.Headers; devWorkspace: devfileApi.DevWorkspace }> {
-    this.addEnvVarsToContainers(
-      devWorkspace.spec.template.components,
-      pluginRegistryUrl,
-      pluginRegistryInternalUrl,
-      openVSXUrl,
-      clusterConsole,
+    // update DW
+    return DwApi.patchWorkspace(
+      createdWorkspace.metadata.namespace,
+      createdWorkspace.metadata.name,
+      [
+        {
+          op: 'replace',
+          path: '/spec/template/components',
+          value: components,
+        },
+      ],
     );
-
-    return await DwApi.patchWorkspace(devWorkspace.metadata.namespace, devWorkspace.metadata.name, [
-      {
-        op: 'replace',
-        path: '/spec/template/components',
-        value: devWorkspace.spec.template.components,
-      },
-    ]);
+    await delay();
   }
 
   /**
@@ -245,10 +217,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     openVSXUrl: string | undefined,
-    clusterConsole?: {
-      url: string;
-      title: string;
-    },
   ): void {
     if (components === undefined) {
       return;
@@ -266,8 +234,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
           env.name !== this.dashboardUrlEnvName &&
           env.name !== this.pluginRegistryUrlEnvName &&
           env.name !== this.pluginRegistryInternalUrlEnvName &&
-          env.name !== this.clusterConsoleUrlEnvName &&
-          env.name !== this.clusterConsoleTitleEnvName &&
           env.name !== this.openVSXUrlEnvName,
       );
       envs.push({
@@ -284,18 +250,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
         envs.push({
           name: this.pluginRegistryInternalUrlEnvName,
           value: pluginRegistryInternalUrl,
-        });
-      }
-      if (clusterConsole?.url !== undefined) {
-        envs.push({
-          name: this.clusterConsoleUrlEnvName,
-          value: clusterConsole.url,
-        });
-      }
-      if (clusterConsole?.title !== undefined) {
-        envs.push({
-          name: this.clusterConsoleTitleEnvName,
-          value: clusterConsole.title,
         });
       }
       if (openVSXUrl !== undefined) {
@@ -408,8 +362,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
     }
 
-    const { devWorkspace } = await DwApi.patchWorkspace(namespace, name, patch);
-    return devWorkspace;
+    return DwApi.patchWorkspace(namespace, name, patch);
   }
 
   async updateAnnotation(workspace: devfileApi.DevWorkspace): Promise<devfileApi.DevWorkspace> {
@@ -418,12 +371,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       path: '/metadata/annotations',
       value: workspace.metadata.annotations || {},
     };
-    const { devWorkspace } = await DwApi.patchWorkspace(
-      workspace.metadata.namespace,
-      workspace.metadata.name,
-      [patch],
-    );
-    return devWorkspace;
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, [patch]);
   }
 
   private escape(key: string): string {
@@ -520,12 +468,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (patch.length === 0) {
       return workspace;
     }
-    const { devWorkspace } = await DwApi.patchWorkspace(
-      workspace.metadata.namespace,
-      workspace.metadata.name,
-      patch,
-    );
-    return devWorkspace;
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
   }
 
   async manageDebugMode(
@@ -550,12 +493,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (patch.length === 0) {
       return workspace;
     }
-    const { devWorkspace } = await DwApi.patchWorkspace(
-      workspace.metadata.namespace,
-      workspace.metadata.name,
-      patch,
-    );
-    return devWorkspace;
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
   }
 
   /**
@@ -598,12 +536,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (patch.length === 0) {
       return workspace;
     }
-    const { devWorkspace } = await DwApi.patchWorkspace(
-      workspace.metadata.namespace,
-      workspace.metadata.name,
-      patch,
-    );
-    return devWorkspace;
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
   }
 
   async changeWorkspaceStatus(
@@ -639,7 +572,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
     }
 
-    const { devWorkspace: changedWorkspace } = await DwApi.patchWorkspace(
+    const changedWorkspace = await DwApi.patchWorkspace(
       workspace.metadata.namespace,
       workspace.metadata.name,
       patch,
@@ -696,10 +629,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     openVSXUrl: string | undefined,
-    clusterConsole?: {
-      url: string;
-      title: string;
-    },
   ): Promise<{ [templateName: string]: api.IPatch[] }> {
     const templates = await DwtApi.getTemplates(namespace);
     const managedTemplates = templates.filter(
@@ -736,7 +665,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
               pluginRegistryUrl,
               pluginRegistryInternalUrl,
               openVSXUrl,
-              clusterConsole,
             );
           } else {
             spec[key] = plugin[key];

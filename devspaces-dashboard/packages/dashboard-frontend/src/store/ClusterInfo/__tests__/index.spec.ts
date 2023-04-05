@@ -14,7 +14,7 @@ import mockAxios, { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { AnyAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { ApplicationId, ClusterInfo } from '@eclipse-che/common';
+import { ClusterInfo } from '@eclipse-che/common';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import { AppState } from '../..';
 import * as testStore from '..';
@@ -24,7 +24,6 @@ describe('clusterInfo store', () => {
   const clusterInfo: ClusterInfo = {
     applications: [
       {
-        id: ApplicationId.CLUSTER_CONSOLE,
         url: 'web/console/url',
         title: 'Web Console',
         icon: 'web/console/icon.png',
@@ -185,7 +184,6 @@ describe('clusterInfo store', () => {
         clusterInfo: {
           applications: [
             {
-              id: ApplicationId.CLUSTER_CONSOLE,
               url: 'web/console/url',
               title: 'Web Console',
               icon: 'web/console/icon.png',

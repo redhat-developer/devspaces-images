@@ -12,12 +12,7 @@
 
 import React from 'react';
 import { WizardStep } from '@patternfly/react-core';
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  InProgressIcon,
-  ExclamationTriangleIcon,
-} from '@patternfly/react-icons';
+import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon } from '@patternfly/react-icons';
 
 import workspaceStatusLabelStyles from '../../WorkspaceStatusLabel/index.module.css';
 import styles from './index.module.css';
@@ -64,8 +59,7 @@ export class LoaderStep {
   private _id: number;
   private _title: string;
   private _parentId: number | undefined;
-  public hasError = false;
-  public hasWarning = false;
+  public hasError: boolean;
 
   static toWizardSteps(
     currentStepId: number,
@@ -103,38 +97,30 @@ export class LoaderStep {
   }
 
   private buildIcon(currentStepId: number): React.ReactNode {
+    if (currentStepId < this.id) {
+      return '';
+    }
+
+    if (currentStepId > this.id) {
+      return (
+        <CheckCircleIcon data-testid="step-done-icon" className={styles.stepIcon} color="green" />
+      );
+    }
+
     if (this.hasError) {
       return (
         <ExclamationCircleIcon
           data-testid="step-failed-icon"
-          className={`${styles.errorIcon} ${styles.stepIcon}`}
-        />
-      );
-    }
-
-    if (this.hasWarning) {
-      return (
-        <ExclamationTriangleIcon
-          data-testid="step-warning-icon"
-          className={`${styles.warningIcon} ${styles.stepIcon}`}
-        />
-      );
-    }
-
-    if (currentStepId < this.id) {
-      return '';
-    } else if (currentStepId > this.id) {
-      return (
-        <CheckCircleIcon
-          data-testid="step-done-icon"
-          className={`${styles.successIcon} ${styles.stepIcon}`}
+          className={styles.stepIcon}
+          color="red"
         />
       );
     } else {
       return (
         <InProgressIcon
           data-testid="step-in-progress-icon"
-          className={`${styles.inProgressIcon} ${workspaceStatusLabelStyles.rotate} ${styles.stepIcon}`}
+          className={`${workspaceStatusLabelStyles.rotate} ${styles.stepIcon}`}
+          color="#0e6fe0"
         />
       );
     }

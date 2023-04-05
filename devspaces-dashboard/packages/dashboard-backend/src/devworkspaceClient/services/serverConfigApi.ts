@@ -78,19 +78,9 @@ export class ServerConfigApiService implements IServerConfigApi {
     'containerBuildConfiguration' | 'disableContainerBuildCapabilities'
   > {
     const { devEnvironments } = cheCustomResource.spec;
-    const disableContainerBuildCapabilitiesEnvVar =
-      process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES'];
-
-    // `defaultDisableContainerBuildCapabilities` is true if the env var is undefined or is not equal to 'false'
-    const defaultDisableContainerBuildCapabilities =
-      disableContainerBuildCapabilitiesEnvVar === undefined ||
-      disableContainerBuildCapabilitiesEnvVar.toLowerCase() !== 'false';
     return {
       containerBuildConfiguration: devEnvironments?.containerBuildConfiguration,
-      disableContainerBuildCapabilities:
-        devEnvironments?.disableContainerBuildCapabilities !== undefined
-          ? devEnvironments?.disableContainerBuildCapabilities
-          : defaultDisableContainerBuildCapabilities,
+      disableContainerBuildCapabilities: devEnvironments?.disableContainerBuildCapabilities,
     };
   }
 
@@ -99,39 +89,15 @@ export class ServerConfigApiService implements IServerConfigApi {
   }
 
   getDefaultEditor(cheCustomResource: CustomResourceDefinition): string | undefined {
-    return (
-      cheCustomResource.spec.devEnvironments?.defaultEditor ||
-      process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR']
-    );
+    return cheCustomResource.spec.devEnvironments?.defaultEditor;
   }
 
   getDefaultComponents(cheCustomResource: CustomResourceDefinition): V221DevfileComponents[] {
-    if (cheCustomResource.spec.devEnvironments?.defaultComponents) {
-      return cheCustomResource.spec.devEnvironments.defaultComponents;
-    }
-
-    if (process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS']) {
-      try {
-        return JSON.parse(process.env['CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS']);
-      } catch (e) {
-        console.error(
-          `Unable to parse default components from environment variable CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS: ${e}`,
-        );
-      }
-    }
-
-    return [];
+    return cheCustomResource.spec.devEnvironments?.defaultComponents || [];
   }
 
   getOpenVSXURL(cheCustomResource: CustomResourceDefinition): string {
-    // Undefined and empty value are treated in a different ways:
-    //   - empty value forces to use embedded registry
-    //   - undefined value means that the default value should be used
-    if (cheCustomResource.spec.components?.pluginRegistry?.openVSXURL !== undefined) {
-      return cheCustomResource.spec.components.pluginRegistry.openVSXURL;
-    }
-
-    return process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'] || '';
+    return cheCustomResource.spec.components?.pluginRegistry?.openVSXURL || '';
   }
 
   getPvcStrategy(cheCustomResource: CustomResourceDefinition): string | undefined {
@@ -139,15 +105,10 @@ export class ServerConfigApiService implements IServerConfigApi {
   }
 
   getDashboardWarning(cheCustomResource: CustomResourceDefinition): string | undefined {
-    // Return the message if it is defined and the show flag is true
-    if (cheCustomResource.spec.components?.dashboard?.headerMessage?.text) {
-      return cheCustomResource.spec.components?.dashboard?.headerMessage?.show
-        ? cheCustomResource.spec.components.dashboard.headerMessage.text
-        : undefined;
+    if (!cheCustomResource.spec.components?.dashboard?.headerMessage?.show) {
+      return undefined;
     }
-
-    // Return default message independently of the show flag.
-    return process.env['CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT'];
+    return cheCustomResource.spec.components?.dashboard?.headerMessage?.text;
   }
 
   // getRunningWorkspacesLimit return the maximum number of running workspaces.

@@ -39,7 +39,6 @@ import { buildFactoryParams, FactoryParams } from '../../../../buildFactoryParam
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '../../../../const';
 import findTargetWorkspace from '../../../../findTargetWorkspace';
 import prepareResources from './prepareResources';
-import { selectDevWorkspaceWarnings } from '../../../../../../store/Workspaces/devWorkspaces/selectors';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -50,7 +49,6 @@ export type State = LoaderStepState & {
   newWorkspaceName?: string;
   resources?: DevWorkspaceResources;
   shouldCreate: boolean; // should the loader create a workspace
-  warning?: string; // the devWorkspace warning to show
 };
 
 class StepApplyResources extends AbstractLoaderStep<Props, State> {
@@ -102,16 +100,6 @@ class StepApplyResources extends AbstractLoaderStep<Props, State> {
       return true;
     }
 
-    // a warning appeared
-    if (
-      workspace !== undefined &&
-      nextWorkspace !== undefined &&
-      this.props.devWorkspaceWarnings[workspace.uid] !==
-        nextProps.devWorkspaceWarnings[nextWorkspace.uid]
-    ) {
-      return true;
-    }
-
     return false;
   }
 
@@ -127,13 +115,6 @@ class StepApplyResources extends AbstractLoaderStep<Props, State> {
       this.setState({
         shouldCreate: false,
       });
-
-      const warning = this.props.devWorkspaceWarnings[workspace.uid];
-      if (warning) {
-        this.setState({
-          warning,
-        });
-      }
     }
 
     this.prepareAndRun();
@@ -151,20 +132,9 @@ class StepApplyResources extends AbstractLoaderStep<Props, State> {
   protected async runStep(): Promise<boolean> {
     await delay(MIN_STEP_DURATION_MS);
 
-    const { devWorkspaceResources, loaderSteps, currentStepIndex } = this.props;
-    const { factoryParams, shouldCreate, resources, warning } = this.state;
+    const { devWorkspaceResources } = this.props;
+    const { factoryParams, shouldCreate, resources } = this.state;
     const { cheEditor, factoryId, sourceUrl, storageType, policiesCreate } = factoryParams;
-
-    if (warning) {
-      // update step title
-      const currentStep = loaderSteps.get(currentStepIndex).value;
-      const newTitle = `Warning: ${warning}`;
-      if (newTitle !== currentStep.title) {
-        currentStep.title = newTitle;
-        currentStep.hasWarning = true;
-        this.forceUpdate();
-      }
-    }
 
     const targetWorkspace = this.findTargetWorkspace(this.props, this.state);
     if (targetWorkspace) {
@@ -280,7 +250,6 @@ const mapStateToProps = (state: AppState) => ({
   factoryResolver: selectFactoryResolver(state),
   factoryResolverConverted: selectFactoryResolverConverted(state),
   devWorkspaceResources: selectDevWorkspaceResources(state),
-  devWorkspaceWarnings: selectDevWorkspaceWarnings(state),
 });
 
 const connector = connect(

@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ApplicationId } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
 import { baseApiPath } from '../../../constants/config';
 import { setup, teardown } from '../../../helpers/tests/appBuilder';
@@ -41,7 +40,6 @@ describe('Cluster Info Route', () => {
           icon: `${clusterConsoleUrl}/static/assets/redhat.svg`,
           title: 'OpenShift console',
           url: clusterConsoleUrl,
-          id: ApplicationId.CLUSTER_CONSOLE,
         },
       ],
     });

@@ -11,12 +11,8 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { stubCheServerOptionsRequests } from '../hooks/stubCheServerOptionsRequests';
-
-// to workaround the issue with TextEncoder
-import { TextEncoder } from 'util';
-(global as any).TextEncoder = TextEncoder;
 import fastifyHttpProxy from '@fastify/http-proxy';
+import { stubCheServerOptionsRequests } from '../hooks/stubCheServerOptionsRequests';
 
 export function registerCheApiProxy(
   server: FastifyInstance,

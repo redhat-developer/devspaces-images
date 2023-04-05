@@ -40,10 +40,9 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
-    expect(initialState).toStrictEqual(expectedState);
+    expect(initialState).toEqual(expectedState);
   });
 
   it('should return state if action type is not matched', () => {
@@ -52,7 +51,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
     const incomingAction = {
       type: 'OTHER_ACTION',
@@ -64,9 +62,8 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle REQUEST_DEVWORKSPACE', () => {
@@ -76,7 +73,6 @@ describe('DevWorkspace, reducers', () => {
       startedWorkspaces: {},
       error: 'unexpected error',
       resourceVersion: '0',
-      warnings: {},
     };
     const incomingAction: testStore.RequestDevWorkspacesAction = {
       type: testStore.Type.REQUEST_DEVWORKSPACE,
@@ -90,11 +86,9 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
-      error: undefined,
     };
 
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle RECEIVE_DEVWORKSPACE', () => {
@@ -103,7 +97,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
     const incomingAction: testStore.ReceiveWorkspacesAction = {
       type: testStore.Type.RECEIVE_DEVWORKSPACE,
@@ -118,10 +111,9 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '1',
-      warnings: {},
     };
 
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle RECEIVE_DEVWORKSPACE_ERROR', () => {
@@ -130,7 +122,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
     const incomingAction: testStore.ReceiveErrorAction = {
       type: testStore.Type.RECEIVE_DEVWORKSPACE_ERROR,
@@ -145,10 +136,9 @@ describe('DevWorkspace, reducers', () => {
       startedWorkspaces: {},
       error: 'Error',
       resourceVersion: '0',
-      warnings: {},
     };
 
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle UPDATE_DEVWORKSPACE', () => {
@@ -157,7 +147,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
     const updatedWorkspace = cloneDeep(devWorkspace);
@@ -178,10 +167,9 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [updatedWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle ADD_DEVWORKSPACE', () => {
@@ -190,7 +178,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
     const incomingAction: testStore.AddWorkspaceAction = {
@@ -205,10 +192,9 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle TERMINATE_DEVWORKSPACE', () => {
@@ -217,7 +203,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
     const incomingAction: testStore.TerminateWorkspaceAction = {
@@ -239,10 +224,9 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [updatedWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 
   it('should handle DELETE_DEVWORKSPACE', () => {
@@ -251,7 +235,6 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [devWorkspace],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
     const incomingAction: testStore.DeleteWorkspaceAction = {
@@ -266,39 +249,8 @@ describe('DevWorkspace, reducers', () => {
       workspaces: [],
       startedWorkspaces: {},
       resourceVersion: '0',
-      warnings: {},
     };
 
-    expect(newState).toStrictEqual(expectedState);
-  });
-
-  it('should handle UPDATE_WARNING', () => {
-    const initialState: testStore.State = {
-      isLoading: false,
-      workspaces: [],
-      startedWorkspaces: {},
-      resourceVersion: '0',
-      warnings: {},
-    };
-
-    const incomingAction: testStore.UpdateWarningAction = {
-      type: testStore.Type.UPDATE_WARNING,
-      workspace: devWorkspace,
-      warning: 'Unsupported Devfile feature',
-    };
-
-    const newState = testStore.reducer(initialState, incomingAction);
-
-    const expectedState: testStore.State = {
-      isLoading: false,
-      workspaces: [],
-      startedWorkspaces: {},
-      resourceVersion: '0',
-      warnings: {
-        [WorkspaceAdapter.getUID(devWorkspace)]: 'Unsupported Devfile feature',
-      },
-    };
-
-    expect(newState).toStrictEqual(expectedState);
+    expect(newState).toEqual(expectedState);
   });
 });

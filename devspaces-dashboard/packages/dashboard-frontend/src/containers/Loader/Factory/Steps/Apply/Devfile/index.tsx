@@ -41,7 +41,6 @@ import findTargetWorkspace from '../../../../findTargetWorkspace';
 import { getGitRemotes, GitRemote } from './getGitRemotes';
 import { getProjectFromUrl } from './getProjectFromUrl';
 import { prepareDevfile } from './prepareDevfile';
-import { selectDevWorkspaceWarnings } from '../../../../../../store/Workspaces/devWorkspaces/selectors';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {
@@ -59,7 +58,6 @@ export type State = LoaderStepState & {
   factoryParams: FactoryParams;
   newWorkspaceName?: string;
   shouldCreate: boolean; // should the loader create a workspace
-  warning?: string; // the devWorkspace warning to show
 };
 
 class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
@@ -111,16 +109,6 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
       return true;
     }
 
-    // a warning appeared
-    if (
-      workspace !== undefined &&
-      nextWorkspace !== undefined &&
-      this.props.devWorkspaceWarnings[workspace.uid] !==
-        nextProps.devWorkspaceWarnings[nextWorkspace.uid]
-    ) {
-      return true;
-    }
-
     return false;
   }
 
@@ -136,13 +124,6 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
       this.setState({
         shouldCreate: false,
       });
-
-      const warning = this.props.devWorkspaceWarnings[workspace.uid];
-      if (warning) {
-        this.setState({
-          warning,
-        });
-      }
     }
 
     this.prepareAndRun();
@@ -198,25 +179,8 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
   protected async runStep(): Promise<boolean> {
     await delay(MIN_STEP_DURATION_MS);
 
-    const {
-      factoryResolverConverted,
-      factoryResolver,
-      defaultDevfile,
-      loaderSteps,
-      currentStepIndex,
-    } = this.props;
-    const { shouldCreate, devfile, warning } = this.state;
-
-    if (warning) {
-      // update step title
-      const currentStep = loaderSteps.get(currentStepIndex).value;
-      const newTitle = `Warning: ${warning}`;
-      if (newTitle !== currentStep.title) {
-        currentStep.title = newTitle;
-        currentStep.hasWarning = true;
-        this.forceUpdate();
-      }
-    }
+    const { factoryResolverConverted, factoryResolver, defaultDevfile } = this.props;
+    const { shouldCreate, devfile } = this.state;
 
     const workspace = this.findTargetWorkspace(this.props, this.state);
     if (workspace !== undefined) {
@@ -282,12 +246,9 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
   }
 
   private async createWorkspaceFromDevfile(devfile: devfileApi.Devfile): Promise<void> {
+    const params = Object.fromEntries(this.props.searchParams);
     const optionalFilesContent = this.props.factoryResolver?.optionalFilesContent || {};
-    await this.props.createWorkspaceFromDevfile(
-      devfile,
-      this.state.factoryParams,
-      optionalFilesContent,
-    );
+    await this.props.createWorkspaceFromDevfile(devfile, params, optionalFilesContent);
   }
 
   private handleCreateWorkspaceError(): void {
@@ -455,7 +416,6 @@ const mapStateToProps = (state: AppState) => ({
   factoryResolver: selectFactoryResolver(state),
   factoryResolverConverted: selectFactoryResolverConverted(state),
   defaultDevfile: selectDefaultDevfile(state),
-  devWorkspaceWarnings: selectDevWorkspaceWarnings(state),
 });
 
 const connector = connect(

@@ -29,7 +29,6 @@ import { DEFAULT_REGISTRY } from '../DevfileRegistries';
 import { isOAuthResponse } from '../../services/oauth';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client';
-import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -85,7 +84,7 @@ export type KnownAction =
 export type ActionCreators = {
   requestFactoryResolver: (
     location: string,
-    factoryParams: Partial<FactoryParams>,
+    overrideParams?: { [params: string]: string },
   ) => AppThunk<KnownAction, Promise<void>>;
 };
 
@@ -129,19 +128,13 @@ export const actionCreators: ActionCreators = {
   requestFactoryResolver:
     (
       location: string,
-      factoryParams: Partial<FactoryParams> = {},
+      overrideParams?: { [params: string]: string },
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       await dispatch({ type: 'REQUEST_FACTORY_RESOLVER', check: AUTHORIZED });
       const state = getState();
       const namespace = selectDefaultNamespace(state).name;
       const optionalFilesContent = {};
-
-      const overrideParams = factoryParams
-        ? Object.assign({}, factoryParams.overrides, {
-            error_code: factoryParams?.errorCode,
-          })
-        : undefined;
 
       try {
         let data: FactoryResolver;
@@ -171,7 +164,6 @@ export const actionCreators: ActionCreators = {
             location,
             defaultComponents,
             namespace,
-            factoryParams,
           );
         } else {
           const devfileV1 = normalizeDevfileV1(
@@ -184,7 +176,6 @@ export const actionCreators: ActionCreators = {
             location,
             defaultComponents,
             namespace,
-            factoryParams,
           );
         }
         const converted: ConvertedState = {

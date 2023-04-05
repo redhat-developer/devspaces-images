@@ -88,9 +88,7 @@ describe('FactoryResolver store', () => {
       >;
 
       const location = 'http://factory-link';
-      await store.dispatch(
-        factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
-      );
+      await store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location));
 
       const actions = store.getActions();
       expect(actions).toEqual(
@@ -120,9 +118,7 @@ describe('FactoryResolver store', () => {
       >;
 
       const location = 'http://factory-link';
-      await store.dispatch(
-        factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
-      );
+      await store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location));
 
       const actions = store.getActions();
       expect(actions).toEqual(
@@ -176,7 +172,7 @@ describe('FactoryResolver store', () => {
 
       const location = 'http://factory-link';
       await expect(
-        store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location, {})),
+        store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location)),
       ).rejects.toMatch('Unexpected error');
       expect(actions).toEqual(expectedActions);
 
@@ -208,7 +204,7 @@ describe('FactoryResolver store', () => {
 
       const location = 'http://factory-link';
       await expect(
-        store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location, {})),
+        store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location)),
       ).rejects.toMatch('The specified link does not contain a valid Devfile.');
       expect(actions).toEqual(expectedActions);
     });
@@ -245,7 +241,7 @@ describe('FactoryResolver store', () => {
 
       const location = 'http://factory-link';
       await expect(
-        store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location, {})),
+        store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location)),
       ).rejects.toEqual({
         attributes: {
           oauth_provider: 'oauth_provider',

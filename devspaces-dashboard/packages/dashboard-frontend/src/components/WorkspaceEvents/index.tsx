@@ -59,9 +59,9 @@ export class WorkspaceEvents extends React.PureComponent<Props> {
     return events
       .filter(event => event.message)
       .sort(compareEventTime)
-      .map((event, index) => {
+      .map(event => {
         return (
-          <StackItem key={`${event.message}${event.metadata.uid}` || index}>
+          <StackItem key={event.message}>
             <div className={styles.fadeIn}>
               <WorkspaceEventsItem event={event}></WorkspaceEventsItem>
             </div>
