@@ -14,6 +14,7 @@ package org.eclipse.che.api.factory.server.azure.devops;
 import static org.eclipse.che.api.factory.server.azure.devops.AzureDevOps.getAuthenticateUrlPath;
 import static org.eclipse.che.commons.lang.StringUtils.trimEnd;
 
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -135,16 +136,20 @@ public class AzureDevOpsPersonalAccessTokenFetcher implements PersonalAccessToke
     }
 
     try {
-      AzureDevOpsUser user;
       if (personalAccessToken.getScmTokenName() != null
           && personalAccessToken.getScmTokenName().startsWith(OAUTH_2_PREFIX)) {
-        user = azureDevOpsApiClient.getUserWithOAuthToken(personalAccessToken.getToken());
+        String[] scopes = azureDevOpsApiClient.getTokenScopes(personalAccessToken.getToken());
+        return Optional.of(Sets.newHashSet(scopes).containsAll(Sets.newHashSet(this.scopes)));
       } else {
-        user =
+        AzureDevOpsUser user =
             azureDevOpsApiClient.getUserWithPAT(
                 personalAccessToken.getToken(), personalAccessToken.getScmOrganization());
+        if (personalAccessToken.getScmUserId().equals(user.getId())) {
+          return Optional.of(Boolean.TRUE);
+        } else {
+          return Optional.of(Boolean.FALSE);
+        }
       }
-      return Optional.of(personalAccessToken.getScmUserId().equals(user.getId()));
     } catch (ScmItemNotFoundException | ScmCommunicationException | ScmBadRequestException e) {
       return Optional.of(Boolean.FALSE);
     }

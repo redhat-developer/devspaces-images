@@ -118,7 +118,7 @@ public class GitlabFactoryParametersResolverTest {
     // when
     FactoryDto factory = (FactoryDto) gitlabFactoryParametersResolver.createFactory(params);
     // then
-    verify(urlFactoryBuilder).buildDefaultDevfile(eq("repo"));
+    verify(urlFactoryBuilder).buildDefaultDevfile(eq("proj"));
     assertEquals(factory, computedFactory);
     SourceDto source = factory.getDevfile().getProjects().get(0).getSource();
     assertEquals(source.getLocation(), gitlabUrl);

@@ -29,7 +29,12 @@ class GitlabAuthorizingFileContentProvider extends AuthorizingFileContentProvide
   @Override
   protected boolean isPublicRepository(GitlabUrl remoteFactoryUrl) {
     try {
-      urlFetcher.fetch(remoteFactoryUrl.getHostName() + '/' + remoteFactoryUrl.getSubGroups());
+      urlFetcher.fetch(
+          remoteFactoryUrl.getHostName()
+              + '/'
+              + remoteFactoryUrl.getUsername()
+              + '/'
+              + remoteFactoryUrl.getProject());
       return true;
     } catch (IOException e) {
       return false;

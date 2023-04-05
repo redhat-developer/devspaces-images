@@ -187,15 +187,10 @@ public class FactoryService extends Service {
         throws BadRequestException {
       for (FactoryParametersResolver factoryParametersResolver :
           specificFactoryParametersResolvers) {
-        try {
-          if (factoryParametersResolver.accept(parameters)) {
-            return factoryParametersResolver;
-          }
-        } catch (IllegalArgumentException e) {
-          // ignore and try next resolver
+        if (factoryParametersResolver.accept(parameters)) {
+          return factoryParametersResolver;
         }
       }
-
       if (defaultFactoryResolver.accept(parameters)) {
         return defaultFactoryResolver;
       } else {

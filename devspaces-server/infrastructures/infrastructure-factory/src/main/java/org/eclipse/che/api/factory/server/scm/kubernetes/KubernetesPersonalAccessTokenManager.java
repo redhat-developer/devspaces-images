@@ -37,7 +37,6 @@ import org.eclipse.che.api.factory.server.scm.exception.ScmUnauthorizedException
 import org.eclipse.che.api.factory.server.scm.exception.UnknownScmProviderException;
 import org.eclipse.che.api.factory.server.scm.exception.UnsatisfiedScmPreconditionException;
 import org.eclipse.che.api.workspace.server.spi.InfrastructureException;
-import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.commons.lang.StringUtils;
@@ -141,21 +140,7 @@ public class KubernetesPersonalAccessTokenManager implements PersonalAccessToken
   public Optional<PersonalAccessToken> get(Subject cheUser, String scmServerUrl)
       throws ScmConfigurationPersistenceException, ScmUnauthorizedException,
           ScmCommunicationException {
-    return doGetPersonalAccessToken(cheUser, null, scmServerUrl);
-  }
 
-  @Override
-  public Optional<PersonalAccessToken> get(
-      Subject cheUser, String oAuthProviderName, @Nullable String scmServerUrl)
-      throws ScmConfigurationPersistenceException, ScmUnauthorizedException,
-          ScmCommunicationException {
-    return doGetPersonalAccessToken(cheUser, oAuthProviderName, scmServerUrl);
-  }
-
-  private Optional<PersonalAccessToken> doGetPersonalAccessToken(
-      Subject cheUser, @Nullable String oAuthProviderName, @Nullable String scmServerUrl)
-      throws ScmConfigurationPersistenceException, ScmUnauthorizedException,
-          ScmCommunicationException {
     try {
       for (KubernetesNamespaceMeta namespaceMeta : namespaceFactory.list()) {
         List<Secret> secrets =
@@ -167,14 +152,8 @@ public class KubernetesPersonalAccessTokenManager implements PersonalAccessToken
           Map<String, String> annotations = secret.getMetadata().getAnnotations();
           String trimmedUrl = StringUtils.trimEnd(annotations.get(ANNOTATION_SCM_URL), '/');
           if (annotations.get(ANNOTATION_CHE_USERID).equals(cheUser.getUserId())
-              && (oAuthProviderName == null
-                  || oAuthProviderName.equals(
-                      annotations.get(ANNOTATION_SCM_PERSONAL_ACCESS_TOKEN_NAME)))
-              && (scmServerUrl == null
-                  || trimmedUrl.equals(StringUtils.trimEnd(scmServerUrl, '/')))) {
-            String token =
-                new String(Base64.getDecoder().decode(secret.getData().get("token"))).trim();
-            PersonalAccessToken personalAccessToken =
+              && trimmedUrl.equals(StringUtils.trimEnd(scmServerUrl, '/'))) {
+            PersonalAccessToken token =
                 new PersonalAccessToken(
                     trimmedUrl,
                     annotations.get(ANNOTATION_CHE_USERID),
@@ -183,9 +162,9 @@ public class KubernetesPersonalAccessTokenManager implements PersonalAccessToken
                     annotations.get(ANNOTATION_SCM_USERID),
                     annotations.get(ANNOTATION_SCM_PERSONAL_ACCESS_TOKEN_NAME),
                     annotations.get(ANNOTATION_SCM_PERSONAL_ACCESS_TOKEN_ID),
-                    token);
-            if (scmPersonalAccessTokenFetcher.isValid(personalAccessToken)) {
-              return Optional.of(personalAccessToken);
+                    new String(Base64.getDecoder().decode(secret.getData().get("token"))));
+            if (scmPersonalAccessTokenFetcher.isValid(token)) {
+              return Optional.of(token);
             } else {
               // Removing token that is no longer valid. If several tokens exist the next one could
               // be valid. If no valid token can be found, the caller should react in the same way

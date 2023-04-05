@@ -66,10 +66,6 @@ public class DefaultFactoryUrl implements RemoteFactoryUrl {
     return null;
   }
 
-  public URL getUrl() {
-    return url;
-  }
-
   @Override
   public Optional<String> getCredentials() {
     if (url == null || isNullOrEmpty(url.getUserInfo())) {

@@ -28,8 +28,7 @@ import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.google.common.net.HttpHeaders;
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 import org.eclipse.che.api.factory.server.scm.GitUserData;
-import org.eclipse.che.api.factory.server.scm.OAuthTokenFetcher;
-import org.eclipse.che.api.factory.server.scm.PersonalAccessTokenManager;
+import org.eclipse.che.security.oauth.OAuthAPI;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.AfterMethod;
@@ -40,8 +39,7 @@ import org.testng.annotations.Test;
 @Listeners(MockitoTestNGListener.class)
 public class GitlabUserDataFetcherTest {
 
-  @Mock OAuthTokenFetcher oAuthTokenFetcher;
-  @Mock PersonalAccessTokenManager personalAccessTokenManager;
+  @Mock OAuthAPI oAuthAPI;
 
   GitlabUserDataFetcher gitlabUserDataFetcher;
 
@@ -57,11 +55,7 @@ public class GitlabUserDataFetcherTest {
     wireMock = new WireMock("localhost", wireMockServer.port());
     gitlabUserDataFetcher =
         new GitlabUserDataFetcher(
-            wireMockServer.url("/"),
-            wireMockServer.url("/"),
-            "http://che.api",
-            personalAccessTokenManager,
-            oAuthTokenFetcher);
+            wireMockServer.url("/"), wireMockServer.url("/"), "http://che.api", oAuthAPI);
 
     stubFor(
         get(urlEqualTo("/api/v4/user"))
@@ -81,7 +75,7 @@ public class GitlabUserDataFetcherTest {
   public void shouldFetchGitUserData() throws Exception {
     OAuthToken oAuthToken =
         newDto(OAuthToken.class).withToken("oauthtoken").withScope("api write_repository openid");
-    when(oAuthTokenFetcher.getToken(anyString())).thenReturn(oAuthToken);
+    when(oAuthAPI.getToken(anyString())).thenReturn(oAuthToken);
 
     GitUserData gitUserData = gitlabUserDataFetcher.fetchGitUserData();
     assertEquals(gitUserData.getScmUsername(), "John Smith");

@@ -34,7 +34,6 @@ import org.eclipse.che.api.core.rest.Service;
 import org.eclipse.che.api.workspace.server.devfile.schema.DevfileSchemaProvider;
 
 /** Defines Devfile REST API. */
-@Deprecated
 @Tag(name = "devfile", description = "Devfile REST API")
 @Path("/devfile")
 public class DevfileService extends Service {

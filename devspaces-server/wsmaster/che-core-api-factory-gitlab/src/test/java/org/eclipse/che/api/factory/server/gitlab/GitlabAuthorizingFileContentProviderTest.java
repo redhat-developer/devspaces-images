@@ -33,7 +33,10 @@ public class GitlabAuthorizingFileContentProviderTest {
   public void shouldExpandRelativePaths() throws Exception {
     URLFetcher urlFetcher = Mockito.mock(URLFetcher.class);
     GitlabUrl gitlabUrl =
-        new GitlabUrl().withHostName("https://gitlab.net").withSubGroups("eclipse/che");
+        new GitlabUrl()
+            .withHostName("https://gitlab.net")
+            .withUsername("eclipse")
+            .withProject("che");
     FileContentProvider fileContentProvider =
         new GitlabAuthorizingFileContentProvider(gitlabUrl, urlFetcher, personalAccessTokenManager);
     var personalAccessToken = new PersonalAccessToken("foo", "che", "my-token");
@@ -49,7 +52,8 @@ public class GitlabAuthorizingFileContentProviderTest {
   @Test
   public void shouldPreserveAbsolutePaths() throws Exception {
     URLFetcher urlFetcher = Mockito.mock(URLFetcher.class);
-    GitlabUrl gitlabUrl = new GitlabUrl().withHostName("gitlab.net").withSubGroups("eclipse/che");
+    GitlabUrl gitlabUrl =
+        new GitlabUrl().withHostName("gitlab.net").withUsername("eclipse").withProject("che");
     FileContentProvider fileContentProvider =
         new GitlabAuthorizingFileContentProvider(gitlabUrl, urlFetcher, personalAccessTokenManager);
     String url =
