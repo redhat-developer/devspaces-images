@@ -55,7 +55,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                                     println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
                                     def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
                                     lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
-                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
+                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 240) // DO wait for these to finish
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
@@ -91,7 +91,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                                     println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
                                     def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
                                     lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
-                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
+                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 240) // DO wait for these to finish
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'

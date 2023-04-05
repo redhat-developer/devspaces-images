@@ -20,7 +20,7 @@ def NEW_MID_SHA=""
 
 
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8'
-timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 240) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {

@@ -8,7 +8,7 @@ import groovy.transform.Field
 
 def errorOccurred = false
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8'
-timeout(120) {
+timeout(240) {
     node(nodeLabel){ 
         try { 
             stage ("Check for updated images") {

@@ -50,7 +50,7 @@ Sync job between midstream repo https://github.com/redhat-developer/devspaces-im
                 // currently not used
                 // stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
-                stringParam("TIMEOUT", "120", "Override default timeout (in minutes) when building individual containers")
+                stringParam("TIMEOUT", "240", "Override default timeout (in minutes) when building individual containers")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 

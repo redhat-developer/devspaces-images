@@ -45,7 +45,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
     if (SYNC_REPOi.contains("-code")) {
       currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
       def String nodeLabelString = ""
-      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 240) {
         node(nodeLabelAnyArch){
           // prestage #0 - get arches on which to build
           stage("Get arches + delete old assets"){
@@ -104,7 +104,7 @@ popd
         def String thisArch=nodeLabel
         // prestage #2 for building lang servers - create assets and publish to GH releases
         tasks[SYNC_REPOi + " " + thisArch] = { ->
-          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 240) {
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
