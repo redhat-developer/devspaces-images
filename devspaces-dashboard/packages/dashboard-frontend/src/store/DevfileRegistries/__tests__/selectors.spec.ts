@@ -18,7 +18,7 @@ import { selectDefaultDevfile } from '../selectors';
 import { AnyAction } from 'redux';
 import { dump } from 'js-yaml';
 import devfileApi from '../../../services/devfileApi';
-import { api as dashboardBackendApi } from '@eclipse-che/common';
+import { api } from '@eclipse-che/common';
 
 describe('devfileRegistries selectors', () => {
   const registryUrl = 'https://registry-url';
@@ -65,7 +65,7 @@ describe('devfileRegistries selectors', () => {
         defaults: {
           components: defaultComponents,
         },
-      } as dashboardBackendApi.IServerConfig)
+      } as api.IServerConfig)
       .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
     const state = fakeStore.getState();
 

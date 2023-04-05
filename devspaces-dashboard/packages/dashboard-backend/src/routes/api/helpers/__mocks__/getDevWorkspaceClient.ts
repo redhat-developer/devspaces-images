@@ -18,6 +18,7 @@ import {
   V221DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
+import { IncomingHttpHeaders } from 'http';
 import {
   DevWorkspaceClient,
   IDevWorkspaceApi,
@@ -56,6 +57,7 @@ export const stubDevWorkspace: V1alpha2DevWorkspace = {
   apiVersion: 'workspace.devfile.io/v1alpha2',
   kind: 'DevWorkspace',
 };
+export const stubHeaders: IncomingHttpHeaders = {};
 
 export const stubDevWorkspaceTemplatesList = [
   {
@@ -95,11 +97,13 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       getWorkspaceStartTimeout: _cheCustomResource => stubWorkspaceStartupTimeout,
     } as IServerConfigApi,
     devworkspaceApi: {
-      create: (_devworkspace, _namespace) => Promise.resolve(stubDevWorkspace),
+      create: (_devworkspace, _namespace) =>
+        Promise.resolve({ devWorkspace: stubDevWorkspace, headers: stubHeaders }),
       delete: (_namespace, _name) => Promise.resolve(undefined),
       getByName: (_namespace, _name) => Promise.resolve(stubDevWorkspace),
       listInNamespace: _namespace => Promise.resolve(stubDevWorkspacesList),
-      patch: (_namespace, _name, _patches) => Promise.resolve(stubDevWorkspace),
+      patch: (_namespace, _name, _patches) =>
+        Promise.resolve({ devWorkspace: stubDevWorkspace, headers: stubHeaders }),
     } as IDevWorkspaceApi,
     dockerConfigApi: {
       read: _namespace => Promise.resolve(stubDockerConfig),

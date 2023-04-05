@@ -18,7 +18,7 @@ import { SamplesListTab } from '..';
 import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
-import { api as dashboardBackendApi } from '@eclipse-che/common';
+import { api } from '@eclipse-che/common';
 import devfileApi from '../../../../services/devfileApi';
 
 const onDevfileMock: (
@@ -70,7 +70,7 @@ describe('Samples list tab', () => {
         defaults: {
           pvcStrategy: preferredStorageType,
         },
-      } as dashboardBackendApi.IServerConfig)
+      } as api.IServerConfig)
       .withDevWorkspaces({
         workspaces: [],
       })

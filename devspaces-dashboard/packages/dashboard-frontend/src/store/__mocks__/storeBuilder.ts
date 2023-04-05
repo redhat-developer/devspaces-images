@@ -102,6 +102,7 @@ export class FakeStoreBuilder {
       workspaces: [],
       resourceVersion: '0',
       startedWorkspaces: {},
+      warnings: {},
     },
     workspacesSettings: {
       isLoading: false,
@@ -301,6 +302,7 @@ export class FakeStoreBuilder {
     options: {
       workspaces?: devfileApi.DevWorkspace[];
       startedWorkspaces?: { [uid: string]: string };
+      warnings?: { [uid: string]: string };
     },
     isLoading = false,
     error?: string,
@@ -310,6 +312,9 @@ export class FakeStoreBuilder {
     }
     if (options.startedWorkspaces) {
       this.state.devWorkspaces.startedWorkspaces = Object.assign({}, options.startedWorkspaces);
+    }
+    if (options.warnings) {
+      this.state.devWorkspaces.warnings = Object.assign({}, options.warnings);
     }
     this.state.devWorkspaces.isLoading = isLoading;
     this.state.devWorkspaces.error = error;

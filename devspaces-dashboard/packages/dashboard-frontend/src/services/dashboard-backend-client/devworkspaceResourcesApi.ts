@@ -14,7 +14,7 @@ import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
 import { prefix } from './const';
 
-export async function fetchResources(params: api.IDevworkspaceResources): Promise<string> {
+export async function fetchResources(params: api.IDevWorkspaceResources): Promise<string> {
   try {
     const response = await axios.post(`${prefix}/devworkspace-resources`, params);
     return response.data;

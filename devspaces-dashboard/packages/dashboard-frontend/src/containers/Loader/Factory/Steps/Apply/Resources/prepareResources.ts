@@ -81,4 +81,14 @@ function addSuffix(devWorkspace: DevWorkspace, devWorkspaceTemplate: DevWorkspac
 
   // update DevWorkspaceTemplate name
   devWorkspaceTemplate.metadata.name = editorPluginName + suffix;
+
+  // update DevWorkspace contribution name
+  const contributions = devWorkspace.spec.contributions;
+  if (contributions && contributions.length > 0) {
+    contributions.forEach(contribution => {
+      if (contribution.name === 'editor' && contribution.kubernetes) {
+        contribution.kubernetes.name = editorPluginName + suffix;
+      }
+    });
+  }
 }

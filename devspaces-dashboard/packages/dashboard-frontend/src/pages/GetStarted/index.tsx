@@ -37,6 +37,7 @@ import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
 import devfileApi from '../../services/devfileApi';
+import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 
@@ -116,9 +117,9 @@ export class GetStarted extends React.PureComponent<Props, State> {
       [fileName: string]: string;
     },
   ): Promise<void> {
-    const attr: { [key: string]: string } = {};
+    const attr: Partial<FactoryParams> = {};
     if (stackName) {
-      attr.stackName = stackName;
+      attr.factoryId = stackName;
     }
     if (isCheDevfile(devfile) && !devfile.metadata.name && devfile.metadata.generateName) {
       const name = devfile.metadata.generateName + getRandomString(4).toLowerCase();
@@ -131,7 +132,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
     let workspace: Workspace | undefined;
     try {
       await this.props.createWorkspaceFromDevfile(devfile, attr, optionalFilesContent);
-      this.props.setWorkspaceQualifiedName(namespace, devfile.metadata.name as string);
+      this.props.setWorkspaceQualifiedName(namespace, devfile.metadata.name);
       workspace = this.props.activeWorkspace;
     } catch (e) {
       const errorMessage = common.helpers.errors.getMessage(e);

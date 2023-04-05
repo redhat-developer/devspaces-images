@@ -29,6 +29,8 @@ import * as ServerConfigStore from '../../../ServerConfig';
 import { DevWorkspaceBuilder } from '../../../__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import { checkRunningWorkspacesLimit } from '../checkRunningWorkspacesLimit';
+import { dump } from 'js-yaml';
+import { FactoryParams } from '../../../../containers/Loader/buildFactoryParams';
 
 jest.mock('../../../../services/dashboard-backend-client/serverConfigApi');
 jest.mock('../../../../services/helpers/delay', () => ({
@@ -53,7 +55,9 @@ metadata:
 // DevWorkspaceClient mocks
 const mockChangeWorkspaceStatus = jest.fn();
 const mockCheckForDevWorkspaceError = jest.fn();
-const mockCreateFromResources = jest.fn();
+const mockCreateDevWorkspace = jest.fn();
+const mockCreateDevWorkspaceTemplate = jest.fn();
+const mockUpdateDevWorkspace = jest.fn();
 const mockDelete = jest.fn();
 const mockGetAllWorkspaces = jest.fn();
 const mockGetWorkspaceByName = jest.fn();
@@ -74,7 +78,9 @@ describe('DevWorkspace store, actions', () => {
     container.snapshot();
     devWorkspaceClient.changeWorkspaceStatus = mockChangeWorkspaceStatus;
     devWorkspaceClient.checkForDevWorkspaceError = mockCheckForDevWorkspaceError;
-    devWorkspaceClient.createFromResources = mockCreateFromResources;
+    devWorkspaceClient.createDevWorkspace = mockCreateDevWorkspace;
+    devWorkspaceClient.createDevWorkspaceTemplate = mockCreateDevWorkspaceTemplate;
+    devWorkspaceClient.updateDevWorkspace = mockUpdateDevWorkspace;
     devWorkspaceClient.delete = mockDelete;
     devWorkspaceClient.getAllWorkspaces = mockGetAllWorkspaces;
     devWorkspaceClient.getWorkspaceByName = mockGetWorkspaceByName;
@@ -88,7 +94,21 @@ describe('DevWorkspace store, actions', () => {
     storeBuilder = new FakeStoreBuilder().withInfrastructureNamespace([
       { name: 'user-che', attributes: { default: 'true', phase: 'Active' } },
     ]);
-    store = storeBuilder.build();
+    store = storeBuilder
+      .withDwServerConfig({
+        defaults: {
+          editor: 'che-incubator/che-code/latest',
+        },
+      } as api.IServerConfig)
+      .withWorkspacesSettings({ cheWorkspacePluginRegistryUrl: 'https://dummy.registry' })
+      .withDevfileRegistries({
+        devfiles: {
+          ['https://dummy.registry/plugins/che-incubator/che-code/latest/devfile.yaml']: {
+            content: dump(new DevWorkspaceBuilder().build()),
+          },
+        },
+      })
+      .build();
   });
 
   afterEach(() => {
@@ -119,7 +139,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE, RECEIVE_DEVWORKSPACE and UPDATE_DEVWORKSPACE when fetching DevWorkspaces', async () => {
@@ -158,7 +178,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when fails to fetch DevWorkspaces', async () => {
@@ -183,7 +203,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -216,7 +236,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when fails to fetch a DevWorkspace', async () => {
@@ -243,7 +263,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -289,7 +309,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when failed to start a DevWorkspace', async () => {
@@ -329,7 +349,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -345,7 +365,7 @@ describe('DevWorkspace store, actions', () => {
 
       const expectedActions: Array<testStore.KnownAction> = [];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create RECEIVE_DEVWORKSPACE_ERROR when fails to stop DevWorkspace', async () => {
@@ -368,7 +388,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -390,7 +410,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create RECEIVE_DEVWORKSPACE_ERROR when fails to terminate a DevWorkspace', async () => {
@@ -413,7 +433,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -438,7 +458,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when fails to update a workspace annotation', async () => {
@@ -465,7 +485,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -490,7 +510,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when fails to update a workspace annotation', async () => {
@@ -517,7 +537,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -534,7 +554,13 @@ describe('DevWorkspace store, actions', () => {
         },
       };
 
-      mockCreateFromResources.mockResolvedValueOnce(devWorkspace);
+      mockCreateDevWorkspace.mockResolvedValueOnce({
+        headers: { warning: 'Unsupported Devfile feature' },
+        devWorkspace,
+      });
+      mockCreateDevWorkspaceTemplate.mockResolvedValueOnce({ headers: {}, devWorkspaceTemplate });
+      mockCreateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+      mockUpdateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
       mockOnStart.mockResolvedValueOnce(undefined);
 
       await store.dispatch(
@@ -545,12 +571,21 @@ describe('DevWorkspace store, actions', () => {
 
       const expectedActions: Array<testStore.KnownAction> = [
         {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
+          type: testStore.Type.UPDATE_WARNING,
+          workspace: devWorkspace,
+          warning: 'Unsupported Devfile feature',
+        },
+        {
           type: testStore.Type.ADD_DEVWORKSPACE,
           workspace: devWorkspace,
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create RECEIVE_DEVWORKSPACE_ERROR when fails to create a new workspace from resources', async () => {
@@ -565,7 +600,7 @@ describe('DevWorkspace store, actions', () => {
         },
       };
 
-      mockCreateFromResources.mockRejectedValueOnce(new Error('Something unexpected happened.'));
+      mockCreateDevWorkspace.mockRejectedValueOnce(new Error('Something unexpected happened.'));
 
       try {
         await store.dispatch(
@@ -579,12 +614,16 @@ describe('DevWorkspace store, actions', () => {
 
       const expectedActions: Array<testStore.KnownAction> = [
         {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
           error: `Failed to create a new workspace, reason: Something unexpected happened.`,
           type: testStore.Type.RECEIVE_DEVWORKSPACE_ERROR,
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -598,16 +637,20 @@ describe('DevWorkspace store, actions', () => {
           namespace: 'user-che',
         },
       };
+      const attr: Partial<FactoryParams> = {};
 
-      mockCreateFromResources.mockResolvedValueOnce(devWorkspace);
+      mockCreateDevWorkspace.mockResolvedValueOnce({ devWorkspace, headers: {} });
+      mockUpdateDevWorkspace.mockResolvedValueOnce({ devWorkspace, headers: {} });
 
-      await store.dispatch(
-        testStore.actionCreators.createWorkspaceFromDevfile(devfile, {}, undefined, undefined, {}),
-      );
+      await store.dispatch(testStore.actionCreators.createWorkspaceFromDevfile(devfile, attr, {}));
 
       const actions = store.getActions();
 
       const expectedActions: Array<testStore.KnownAction> = [
+        {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
         {
           type: testStore.Type.REQUEST_DEVWORKSPACE,
           check: AUTHORIZED,
@@ -618,11 +661,10 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when fails to create a new workspace from devfile', async () => {
-      const devWorkspace = new DevWorkspaceBuilder().build();
       const devfile: devfileApi.Devfile = {
         schemaVersion: '2.1.0',
         metadata: {
@@ -630,18 +672,13 @@ describe('DevWorkspace store, actions', () => {
           namespace: 'user-che',
         },
       };
+      const attr: Partial<FactoryParams> = {};
 
-      mockCreateFromResources.mockRejectedValueOnce(new Error('Something unexpected happened.'));
+      mockCreateDevWorkspace.mockRejectedValueOnce(new Error('Something unexpected happened.'));
 
       try {
         await store.dispatch(
-          testStore.actionCreators.createWorkspaceFromDevfile(
-            devfile,
-            {},
-            undefined,
-            undefined,
-            {},
-          ),
+          testStore.actionCreators.createWorkspaceFromDevfile(devfile, attr, {}),
         );
       } catch (e) {
         // no-op
@@ -655,12 +692,16 @@ describe('DevWorkspace store, actions', () => {
           check: AUTHORIZED,
         },
         {
-          error: 'Something unexpected happened.',
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
+          error: 'Failed to create a new workspace, reason: Something unexpected happened.',
           type: testStore.Type.RECEIVE_DEVWORKSPACE_ERROR,
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
   });
 
@@ -688,7 +729,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create UPDATE_DEVWORKSPACE when event phase equals MODIFIED', async () => {
@@ -714,7 +755,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create DELETE_DEVWORKSPACE when event phase equals DELETED', async () => {
@@ -740,7 +781,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE and resubscribe to channel', async () => {
@@ -789,7 +830,7 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
-      expect(actions).toEqual(expectedActions);
+      expect(actions).toStrictEqual(expectedActions);
       expect(unsubscribeFromChannelSpy).toHaveBeenCalledWith(api.webSocket.Channel.DEV_WORKSPACE);
       expect(subscribeToChannelSpy).toHaveBeenCalledWith(
         api.webSocket.Channel.DEV_WORKSPACE,

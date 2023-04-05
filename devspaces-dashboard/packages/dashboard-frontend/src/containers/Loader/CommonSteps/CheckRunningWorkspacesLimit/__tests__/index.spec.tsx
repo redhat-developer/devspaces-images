@@ -203,7 +203,7 @@ describe('Workspace Loader, step CHECK_RUNNING_WORKSPACES_LIMIT', () => {
       await waitFor(() => expect(hasError.textContent).toEqual('true'));
 
       const closeRunningWorkspaceButton = screen.queryByText(
-        `Close running workspace (${runningDevworkspace.metadata.name}) and restart ${targetDevworkspace.metadata.name}`,
+        `Close running workspace (${runningDevworkspace.metadata.name}) and restart`,
       );
       expect(closeRunningWorkspaceButton).not.toBeNull();
 

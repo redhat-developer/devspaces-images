@@ -17,7 +17,7 @@ import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import StepFetchDevfile, { State } from '..';
+import StepFetchDevfile, { State, UnsupportedGitProviderError } from '..';
 import { List, LoaderStep, LoadingStep } from '../../../../../../../components/Loader/Step';
 import {
   buildLoaderSteps,
@@ -132,6 +132,24 @@ describe('Factory Loader container, step CREATE_WORKSPACE__FETCH_DEVFILE', () =>
     userEvent.click(restartButton);
 
     expect(mockOnRestart).toHaveBeenCalled();
+  });
+
+  test('unsupported git provider', async () => {
+    const localState: Partial<State> = {
+      lastError: new UnsupportedGitProviderError('Failed to fetch devfile'),
+      factoryParams: buildFactoryParams(searchParams),
+    };
+    renderComponent(store, loaderSteps, searchParams, currentStepIndex, localState);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const defaultDevfileButton = await screen.findByRole('button', {
+      name: 'Continue with the default devfile',
+    });
+    expect(defaultDevfileButton).toBeDefined();
+    userEvent.click(defaultDevfileButton);
+
+    await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
   });
 
   test('no project url, remotes exist', async () => {

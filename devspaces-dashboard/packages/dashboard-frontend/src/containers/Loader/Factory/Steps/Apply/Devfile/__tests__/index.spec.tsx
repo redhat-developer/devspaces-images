@@ -657,6 +657,40 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
 
     expect(hasError.textContent).toEqual('false');
   });
+
+  test('handle warning when creating a workspace', async () => {
+    const devWorkspace = new DevWorkspaceBuilder()
+      .withUID('workspace-uid')
+      .withName(devfileName)
+      .withNamespace('user-che')
+      .build();
+    const warningMessage = 'This is a warning';
+
+    const store = getStoreBuilder()
+      .withFactoryResolver({
+        resolver: {},
+        converted: {
+          devfileV2: devfile,
+        },
+      })
+      .withDevWorkspaces({
+        workspaces: [devWorkspace],
+        warnings: { 'workspace-uid': warningMessage },
+      })
+      .build();
+
+    renderComponent(store, loaderSteps, searchParams, currentStepIndex);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    await waitFor(() => expect(screen.getByText(`Warning: ${warningMessage}`)).toBeTruthy());
+
+    await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('false');
+  });
 });
 
 function getStoreBuilder(): FakeStoreBuilder {

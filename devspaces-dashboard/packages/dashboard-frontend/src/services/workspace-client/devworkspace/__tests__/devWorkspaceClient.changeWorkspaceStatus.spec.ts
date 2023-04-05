@@ -49,7 +49,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
 
     const spyPatchWorkspace = jest
       .spyOn(DwApi, 'patchWorkspace')
-      .mockResolvedValueOnce(testWorkspace);
+      .mockResolvedValueOnce({ devWorkspace: testWorkspace, headers: {} });
 
     jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
 
@@ -84,7 +84,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
 
     const spyPatchWorkspace = jest
       .spyOn(DwApi, 'patchWorkspace')
-      .mockResolvedValueOnce(testWorkspace);
+      .mockResolvedValueOnce({ devWorkspace: testWorkspace, headers: {} });
 
     jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
 
@@ -114,7 +114,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
 
     const spyPatchWorkspace = jest
       .spyOn(DwApi, 'patchWorkspace')
-      .mockResolvedValueOnce(testWorkspace);
+      .mockResolvedValueOnce({ devWorkspace: testWorkspace, headers: {} });
 
     jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
 

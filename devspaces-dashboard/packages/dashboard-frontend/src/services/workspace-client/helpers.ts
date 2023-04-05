@@ -11,11 +11,14 @@
  */
 
 import common from '@eclipse-che/common';
-import axios from 'axios';
 import devfileApi from '../devfileApi';
 import { load, dump } from 'js-yaml';
 import { ICheEditorYaml } from './devworkspace/devWorkspaceClient';
 import { CHE_EDITOR_YAML_PATH } from './';
+import { AppState } from '../../store';
+import { ThunkDispatch } from 'redux-thunk';
+import { KnownAction } from '../../store/DevfileRegistries';
+import { getEditor } from '../../store/DevfileRegistries/getEditor';
 
 /**
  * Checks for HTTP 401 Unauthorized response status code
@@ -76,6 +79,8 @@ function hasStatus(response: unknown, _status: number): boolean {
 export async function getCustomEditor(
   pluginRegistryUrl: string | undefined,
   optionalFilesContent: { [fileName: string]: string },
+  dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
+  getState: () => AppState,
 ): Promise<string | undefined> {
   let editorsDevfile: devfileApi.Devfile | undefined = undefined;
 
@@ -110,11 +115,11 @@ export async function getCustomEditor(
       repositoryEditorYamlUrl = cheEditorYaml.reference;
     }
     if (repositoryEditorYamlUrl) {
-      const response = await axios.get<string>(repositoryEditorYamlUrl, {
-        responseType: 'text',
-      });
-      if (response.data) {
-        repositoryEditorYaml = load(response.data);
+      const response = await getEditor(repositoryEditorYamlUrl, dispatch, getState);
+      if (response.content) {
+        repositoryEditorYaml = load(response.content);
+      } else {
+        throw new Error(response.error);
       }
     }
 

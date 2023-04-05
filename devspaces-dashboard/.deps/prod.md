@@ -3,7 +3,7 @@
 | Packages | License | Resolved CQs |
 | --- | --- | --- |
 | [`@babel/runtime@7.17.7`](https://github.com/babel/babel.git) | MIT | #1946 |
-| [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | clearlydefined |
+| [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@devfile/api/2.2.1-alpha-1667236163) |
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-devworkspace-generator@0.0.1-96cdbb4`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/common@7.62.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |

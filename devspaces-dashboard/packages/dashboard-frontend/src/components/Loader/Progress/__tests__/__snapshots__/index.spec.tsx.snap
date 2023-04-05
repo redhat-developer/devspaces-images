@@ -30,9 +30,9 @@ exports[`Loader Progress Step INITIALIZATION snapshot 1`] = `
         <svg
           aria-hidden={true}
           aria-labelledby={null}
-          className="rotate stepIcon"
+          className="inProgressIcon rotate stepIcon"
           data-testid="step-in-progress-icon"
-          fill="#0e6fe0"
+          fill="currentColor"
           height="1em"
           role="img"
           style={
@@ -135,9 +135,9 @@ exports[`Loader Progress Step INITIALIZATION snapshot 1`] = `
               <svg
                 aria-hidden={true}
                 aria-labelledby={null}
-                className="rotate stepIcon"
+                className="inProgressIcon rotate stepIcon"
                 data-testid="step-in-progress-icon"
-                fill="#0e6fe0"
+                fill="currentColor"
                 height="1em"
                 role="img"
                 style={

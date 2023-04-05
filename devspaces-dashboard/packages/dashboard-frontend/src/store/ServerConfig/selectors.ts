@@ -28,7 +28,7 @@ export const selectDefaultPlugins = createSelector(
 
 export const selectOpenVSXUrl = createSelector(
   selectState,
-  state => state.config.pluginRegistry.openVSXURL,
+  state => state.config.pluginRegistry?.openVSXURL,
 );
 
 export const selectPvcStrategy = createSelector(

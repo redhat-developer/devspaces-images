@@ -93,7 +93,7 @@ describe('Quick Add page', () => {
     devfileButton.click();
 
     expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(dummyDevfile, {
-      stackName: 'dummyStackName',
+      factoryId: 'dummyStackName',
     });
   });
 

@@ -44,6 +44,13 @@ export class ApplyingDevfileError extends Error {
   }
 }
 
+export class UnsupportedGitProviderError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UnsupportedGitProviderError';
+  }
+}
+
 const RELOADS_LIMIT = 2;
 type ReloadsInfo = {
   [url: string]: number;
@@ -190,6 +197,9 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
       if (errorMessage.includes('schema validation failed')) {
         throw new ApplyingDevfileError(errorMessage);
       }
+      if (errorMessage === 'Failed to fetch devfile') {
+        throw new UnsupportedGitProviderError(errorMessage);
+      }
       throw e;
     }
     if (!resolveDone) {
@@ -311,6 +321,32 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
             errorMessage={helpers.errors.getMessage(error)}
             textAfter="If you continue it will be ignored and a regular workspace will be created.
             You will have a chance to fix the Devfile from the IDE once it is started."
+          />
+        ),
+        actionCallbacks: [
+          {
+            title: 'Continue with the default devfile',
+            callback: () => this.handleDevfileError(),
+          },
+          {
+            title: 'Reload',
+            callback: () => this.clearStepError(),
+          },
+        ],
+      };
+    }
+    if (error instanceof UnsupportedGitProviderError) {
+      return {
+        key: 'factory-loader-devfile-error',
+        title: 'Warning',
+        variant: AlertVariant.warning,
+        children: (
+          <ExpandableWarning
+            textBefore="Looking for a Devfile in the git repository failed."
+            errorMessage={helpers.errors.getMessage(error)}
+            textAfter="The git provider may not be supported by Eclipse Che (or the git server hasn't been configured
+            appropriately). Note that the git cloning of the repository will succeed if it's public or it's private
+            and the developer git credentials secret has been configured."
           />
         ),
         actionCallbacks: [
