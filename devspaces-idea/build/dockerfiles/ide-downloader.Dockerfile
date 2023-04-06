@@ -7,7 +7,7 @@
 #
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.7-1085
+FROM registry.access.redhat.com/ubi8-minimal:8.7-1107
 
 RUN microdnf install wget -y --nodocs
 RUN mkdir /ide
