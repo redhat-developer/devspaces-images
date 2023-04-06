@@ -115,21 +115,37 @@ done <   <(find bundle config deploy api -type f -print0)
 
 
 # Clean up defaults.
-# https://issues.redhat.com/browse/CRW-4077
-OLD_DEFAULT_COMPONENTS_3_3='\"[{\\\"name\\\": \\\"universal-developer-image\\\", \\\"container\\\": {\\\"image\\\": \\\"registry.redhat.io/devspaces/udi-rhel8@sha256:aa39ede33bcbda6aa2723d271c79ab8d8fd388c7dfcbc3d4ece745b7e9c84193\\\"}}]\"'
-OLD_DEFAULT_COMPONENTS_3_4='\"[{\\\"name\\\": \\\"universal-developer-image\\\", \\\"container\\\": {\\\"image\\\": \\\"registry.redhat.io/devspaces/udi-rhel8@sha256:8de469cc9131a42092bd66e0f27a52bbc9b9a449235abf5b900d172a1bd3c985\\\"}}]\"'
-OLD_DEFAULT_COMPONENTS_3_5='\"[{\\\"name\\\": \\\"universal-developer-image\\\", \\\"container\\\": {\\\"image\\\": \\\"registry.redhat.io/devspaces/udi-rhel8@sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b\\\"}}]\"'
-OLD_DEFAULT_COMPONENTS=${OLD_DEFAULT_COMPONENTS_3_3},${OLD_DEFAULT_COMPONENTS_3_4},${OLD_DEFAULT_COMPONENTS_3_5}
-sed -i \
-  "s|defaults.GetDevEnvironmentsDefaultComponents()|defaults.GetDevEnvironmentsDefaultComponents(),$(echo $OLD_DEFAULT_COMPONENTS | tr -d '\n')|g" \
-  "${TARGETDIR}"/pkg/deploy/migration/checluster-defaults-cleanupfunc.go
+# https://issues.redhat.com/browse/CRW-4077 / as of Che 7.64.x
+# shellcheck disable=SC2089,SC2090,SC2086
+if [[ -f "${TARGETDIR}"/pkg/deploy/migration/checluster-defaults-cleanupfunc.go ]]; then
+	OLD_DEFAULT_COMPONENTS_3_3='\"[{\\\"name\\\": \\\"universal-developer-image\\\", \\\"container\\\": {\\\"image\\\": \\\"registry.redhat.io/devspaces/udi-rhel8@sha256:aa39ede33bcbda6aa2723d271c79ab8d8fd388c7dfcbc3d4ece745b7e9c84193\\\"}}]\"'
+	OLD_DEFAULT_COMPONENTS_3_4='\"[{\\\"name\\\": \\\"universal-developer-image\\\", \\\"container\\\": {\\\"image\\\": \\\"registry.redhat.io/devspaces/udi-rhel8@sha256:8de469cc9131a42092bd66e0f27a52bbc9b9a449235abf5b900d172a1bd3c985\\\"}}]\"'
+	OLD_DEFAULT_COMPONENTS_3_5='\"[{\\\"name\\\": \\\"universal-developer-image\\\", \\\"container\\\": {\\\"image\\\": \\\"registry.redhat.io/devspaces/udi-rhel8@sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b\\\"}}]\"'
+	OLD_DEFAULT_COMPONENTS=${OLD_DEFAULT_COMPONENTS_3_3},${OLD_DEFAULT_COMPONENTS_3_4},${OLD_DEFAULT_COMPONENTS_3_5}
+	sed -i \
+	"s|defaults.GetDevEnvironmentsDefaultComponents()|defaults.GetDevEnvironmentsDefaultComponents(),$(echo $OLD_DEFAULT_COMPONENTS | tr -d '\n')|g" \
+	"${TARGETDIR}"/pkg/deploy/migration/checluster-defaults-cleanupfunc.go
 
-OLD_HEADER_MESSAGE_TEXT_3_4="\"Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.4/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.4/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3405'>deprecated</a> and will be removed in a future release.\""
-OLD_HEADER_MESSAGE_TEXT_3_5="\"Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionalities'>deprecated</a> and will be removed in a future release.\""
-OLD_HEADER_MESSAGE_TEXTS=${OLD_HEADER_MESSAGE_TEXT_3_4},${OLD_HEADER_MESSAGE_TEXT_3_5}
-sed -i \
-  "s|defaults.GetDashboardHeaderMessageText()|defaults.GetDashboardHeaderMessageText(),${OLD_HEADER_MESSAGE_TEXTS}|g" \
-  "${TARGETDIR}"/pkg/deploy/migration/checluster-defaults-cleanupfunc.go
+	OLD_HEADER_MESSAGE_TEXT_3_4="\"Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.4/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.4/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3405'>deprecated</a> and will be removed in a future release.\""
+	OLD_HEADER_MESSAGE_TEXT_3_5="\"Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionalities'>deprecated</a> and will be removed in a future release.\""
+	OLD_HEADER_MESSAGE_TEXTS=${OLD_HEADER_MESSAGE_TEXT_3_4},${OLD_HEADER_MESSAGE_TEXT_3_5}
+	sed -i \
+	"s|defaults.GetDashboardHeaderMessageText()|defaults.GetDashboardHeaderMessageText(),${OLD_HEADER_MESSAGE_TEXTS}|g" \
+	"${TARGETDIR}"/pkg/deploy/migration/checluster-defaults-cleanupfunc.go
+else
+	# shellcheck disable=SC2086
+	while IFS= read -r -d '' d; do
+		sed -r \
+			`# hardcoded test values` \
+			-e 's|"docker.io/eclipse/che-operator:latest": * "che-operator:latest"|"'${DS_RRIO}/${DS_OPERATOR}':latest":  "'${DS_OPERATOR}':latest"|' \
+			-e 's|"eclipse/che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${DS_RRIO}'/server-operator-rhel8:2.0": "server-operator-rhel8:2.0"|' \
+			-e 's|"che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${DS_RRIO}/${DS_OPERATOR}:${DS_VERSION}'":  "'${DS_OPERATOR}:${DS_VERSION}'"|' \
+		"$d" > "${TARGETDIR}/${d}"
+		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
+			echo "    ${0##*/} :: Converted (sed) ${d}"
+		fi
+	done <   <(find pkg/deploy -type f -name "defaults_test.go" -print0)
+fi
 
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
