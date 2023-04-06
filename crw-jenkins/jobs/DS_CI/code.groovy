@@ -31,7 +31,18 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="che-incubator/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/devspaces-images"
 
-            SOURCE_BRANCH=""+config.Jobs.code[JB].upstream_branch[0]
+            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.configbump[JB].upstream_branch[0]
+            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.configbump[JB].upstream_branch[1]
+
+            def BRANCH_CHECK_EVEN=CMD_EVEN.execute().text
+            def BRANCH_CHECK_ODD=CMD_ODD.execute().text
+
+            SOURCE_BRANCH="main"
+            if (BRANCH_CHECK_EVEN) {
+                SOURCE_BRANCH=""+config.Jobs.configbump[JB].upstream_branch[0]
+            } else if (BRANCH_CHECK_ODD) {
+                SOURCE_BRANCH=""+config.Jobs.configbump[JB].upstream_branch[1]
+            }
 
             description('''
 Artifact builder + sync job; triggers brew after syncing
