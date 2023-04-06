@@ -16,39 +16,32 @@ import (
 	"os"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
-
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
+	chev2 "github.com/eclipse-che/che-operator/api/v2"
 	util "github.com/eclipse-che/che-operator/pkg/common/utils"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 )
 
 var (
-	defaultCheVersion                                       string
-	defaultCheFlavor                                        string
-	defaultCheServerImage                                   string
-	defaultDashboardImage                                   string
-	defaultPluginRegistryImage                              string
-	defaultDevfileRegistryImage                             string
-	defaultCheTLSSecretsCreationJobImage                    string
-	defaultSingleHostGatewayImage                           string
-	defaultSingleHostGatewayConfigSidecarImage              string
-	defaultGatewayAuthenticationSidecarImage                string
-	defaultGatewayAuthorizationSidecarImage                 string
-	defaultCheWorkspacePluginBrokerMetadataImage            string
-	defaultCheWorkspacePluginBrokerArtifactsImage           string
-	defaultCheServerSecureExposerJwtProxyImage              string
-	defaultConsoleLinkName                                  string
-	defaultConsoleLinkDisplayName                           string
-	defaultConsoleLinkSection                               string
-	defaultsConsoleLinkImage                                string
-	defaultDevEnvironmentsDefaultEditor                     string
-	defaultDevEnvironmentsDefaultComponents                 string
-	defaultDevEnvironmentsDisableContainerBuildCapabilities string
-	defaultPluginRegistryOpenVSXURL                         string
-	defaultDashboardHeaderMessageText                       string
+	defaultCheVersion                             string
+	defaultCheFlavor                              string
+	defaultCheServerImage                         string
+	defaultDashboardImage                         string
+	defaultPluginRegistryImage                    string
+	defaultDevfileRegistryImage                   string
+	defaultCheTLSSecretsCreationJobImage          string
+	defaultSingleHostGatewayImage                 string
+	defaultSingleHostGatewayConfigSidecarImage    string
+	defaultGatewayAuthenticationSidecarImage      string
+	defaultGatewayAuthorizationSidecarImage       string
+	defaultCheWorkspacePluginBrokerMetadataImage  string
+	defaultCheWorkspacePluginBrokerArtifactsImage string
+	defaultCheServerSecureExposerJwtProxyImage    string
+	defaultConsoleLinkName                        string
+	defaultConsoleLinkDisplayName                 string
+	defaultConsoleLinkSection                     string
+	defaultsConsoleLinkImage                      string
 
 	initialized = false
 )
@@ -61,7 +54,9 @@ func InitializeForTesting(operatorDeploymentFilePath string) {
 
 	for _, container := range operatorDeployment.Spec.Template.Spec.Containers {
 		for _, env := range container.Env {
-			os.Setenv(env.Name, env.Value)
+			if env.Value != "" {
+				os.Setenv(env.Name, env.Value)
+			}
 		}
 	}
 
@@ -75,14 +70,6 @@ func Initialize() {
 	defaultConsoleLinkName = ensureEnv("CONSOLE_LINK_NAME")
 	defaultConsoleLinkSection = ensureEnv("CONSOLE_LINK_SECTION")
 	defaultsConsoleLinkImage = ensureEnv("CONSOLE_LINK_IMAGE")
-
-	defaultDevEnvironmentsDisableContainerBuildCapabilities = ensureEnv("CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES")
-	defaultDevEnvironmentsDefaultComponents = ensureEnv("CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS")
-
-	// can be empty
-	defaultDevEnvironmentsDefaultEditor = os.Getenv("CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR")
-	defaultPluginRegistryOpenVSXURL = os.Getenv("CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL")
-	defaultDashboardHeaderMessageText = os.Getenv("CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT")
 
 	defaultCheServerImage = ensureEnv(util.GetArchitectureDependentEnvName("RELATED_IMAGE_che_server"))
 	defaultDashboardImage = ensureEnv(util.GetArchitectureDependentEnvName("RELATED_IMAGE_dashboard"))
@@ -112,7 +99,7 @@ func ensureEnv(name string) string {
 	return value
 }
 
-func GetCheServerImage(checluster interface{}) string {
+func GetCheServerImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -136,7 +123,7 @@ func GetCheVersion() string {
 	return defaultCheVersion
 }
 
-func GetDashboardImage(checluster interface{}) string {
+func GetDashboardImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -144,7 +131,7 @@ func GetDashboardImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultDashboardImage)
 }
 
-func GetPluginRegistryImage(checluster interface{}) string {
+func GetPluginRegistryImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -152,7 +139,7 @@ func GetPluginRegistryImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultPluginRegistryImage)
 }
 
-func GetDevfileRegistryImage(checluster interface{}) string {
+func GetDevfileRegistryImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -160,7 +147,7 @@ func GetDevfileRegistryImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultDevfileRegistryImage)
 }
 
-func GetCheWorkspacePluginBrokerMetadataImage(checluster interface{}) string {
+func GetCheWorkspacePluginBrokerMetadataImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -168,7 +155,7 @@ func GetCheWorkspacePluginBrokerMetadataImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultCheWorkspacePluginBrokerMetadataImage)
 }
 
-func GetCheWorkspacePluginBrokerArtifactsImage(checluster interface{}) string {
+func GetCheWorkspacePluginBrokerArtifactsImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -176,7 +163,7 @@ func GetCheWorkspacePluginBrokerArtifactsImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultCheWorkspacePluginBrokerArtifactsImage)
 }
 
-func GetCheServerSecureExposerJwtProxyImage(checluster interface{}) string {
+func GetCheServerSecureExposerJwtProxyImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -184,7 +171,7 @@ func GetCheServerSecureExposerJwtProxyImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultCheServerSecureExposerJwtProxyImage)
 }
 
-func GetGatewayImage(checluster interface{}) string {
+func GetGatewayImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -192,7 +179,7 @@ func GetGatewayImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultSingleHostGatewayImage)
 }
 
-func GetGatewayConfigSidecarImage(checluster interface{}) string {
+func GetGatewayConfigSidecarImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -200,7 +187,7 @@ func GetGatewayConfigSidecarImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultSingleHostGatewayConfigSidecarImage)
 }
 
-func GetGatewayAuthenticationSidecarImage(checluster interface{}) string {
+func GetGatewayAuthenticationSidecarImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -208,7 +195,7 @@ func GetGatewayAuthenticationSidecarImage(checluster interface{}) string {
 	return PatchDefaultImageName(checluster, defaultGatewayAuthenticationSidecarImage)
 }
 
-func GetGatewayAuthorizationSidecarImage(checluster interface{}) string {
+func GetGatewayAuthorizationSidecarImage(checluster *chev2.CheCluster) string {
 	if !initialized {
 		logrus.Fatalf("Operator defaults are not initialized.")
 	}
@@ -256,68 +243,29 @@ func GetConsoleLinkImage() string {
 	return defaultsConsoleLinkImage
 }
 
-func GetPluginRegistryOpenVSXURL() string {
-	if !initialized {
-		logrus.Fatalf("Operator defaults are not initialized.")
-	}
-
-	return defaultPluginRegistryOpenVSXURL
-}
-
-func GetDashboardHeaderMessageText() string {
-	if !initialized {
-		logrus.Fatalf("Operator defaults are not initialized.")
-	}
-
-	return defaultDashboardHeaderMessageText
-}
-
-func GetDevEnvironmentsDefaultEditor() string {
-	if !initialized {
-		logrus.Fatalf("Operator defaults are not initialized.")
-	}
-
-	return defaultDevEnvironmentsDefaultEditor
-}
-
-func GetDevEnvironmentsDefaultComponents() string {
-	if !initialized {
-		logrus.Fatalf("Operator defaults are not initialized.")
-	}
-
-	return defaultDevEnvironmentsDefaultComponents
-}
-
-func GetDevEnvironmentsDisableContainerBuildCapabilities() string {
-	if !initialized {
-		logrus.Fatalf("Operator defaults are not initialized.")
-	}
-
-	return defaultDevEnvironmentsDisableContainerBuildCapabilities
-}
-
-func PatchDefaultImageName(checluster interface{}, imageName string) string {
-	checlusterUnstructured, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(checluster)
-	hostname, _, _ := unstructured.NestedString(checlusterUnstructured, "spec", "containerRegistry", "hostname")
-	organization, _, _ := unstructured.NestedString(checlusterUnstructured, "spec", "containerRegistry", "organization")
-
-	if hostname == "" && organization == "" {
+func PatchDefaultImageName(checluster *chev2.CheCluster, imageName string) string {
+	if !checluster.IsAirGapMode() {
 		return imageName
 	}
 
-	if hostname == "" {
+	var hostname, organization string
+	if checluster.Spec.ContainerRegistry.Hostname != "" {
+		hostname = checluster.Spec.ContainerRegistry.Hostname
+	} else {
 		hostname = getHostnameFromImage(imageName)
 	}
 
-	if organization == "" {
+	if checluster.Spec.ContainerRegistry.Organization != "" {
+		organization = checluster.Spec.ContainerRegistry.Organization
+	} else {
 		organization = getOrganizationFromImage(imageName)
 	}
 
-	image := GetImageNameFromFullImage(imageName)
+	image := getImageNameFromFullImage(imageName)
 	return fmt.Sprintf("%s/%s/%s", hostname, organization, image)
 }
 
-func GetImageNameFromFullImage(image string) string {
+func getImageNameFromFullImage(image string) string {
 	imageParts := strings.Split(image, "/")
 	nameAndTag := ""
 	switch len(imageParts) {

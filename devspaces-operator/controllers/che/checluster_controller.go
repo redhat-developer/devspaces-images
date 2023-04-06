@@ -92,7 +92,6 @@ func NewReconciler(
 	// order does matter
 	if !test.IsTestMode() {
 		reconcileManager.RegisterReconciler(migration.NewMigrator())
-		reconcileManager.RegisterReconciler(migration.NewCheClusterDefaultsCleaner())
 		reconcileManager.RegisterReconciler(NewCheClusterValidator())
 	}
 	reconcileManager.RegisterReconciler(imagepuller.NewImagePuller())
@@ -293,9 +292,6 @@ func (r *CheClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		if !done {
 			return result, err
 		} else {
-			if err := deploy.SetStatusDetails(deployContext, "", ""); err != nil {
-				return ctrl.Result{}, err
-			}
 			logrus.Info("Successfully reconciled.")
 			return ctrl.Result{}, nil
 		}

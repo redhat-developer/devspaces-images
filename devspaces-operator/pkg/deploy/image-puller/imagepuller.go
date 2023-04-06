@@ -196,7 +196,7 @@ func isRFC1123Char(ch byte) bool {
 func getDefaultImages() string {
 	images := map[string]string{}
 	for _, pattern := range defaultImagePatterns {
-		matches := utils.GetGetArchitectureDependentEnvsByRegExp(pattern)
+		matches := utils.GetEnvsByRegExp(pattern)
 		sort.SliceStable(matches, func(i, j int) bool {
 			return strings.Compare(matches[i].Name, matches[j].Name) < 0
 		})

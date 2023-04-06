@@ -15,8 +15,9 @@ package dashboard
 import (
 	"os"
 
-	"k8s.io/apimachinery/pkg/api/resource"
 	fakeDiscovery "k8s.io/client-go/discovery/fake"
+
+	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	configv1 "github.com/openshift/api/config/v1"
@@ -179,26 +180,6 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 				{
 					Name: "OPENSHIFT_CONSOLE_URL",
 				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT",
-					Value: defaults.GetDashboardHeaderMessageText(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR",
-					Value: defaults.GetDevEnvironmentsDefaultEditor(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS",
-					Value: defaults.GetDevEnvironmentsDefaultComponents(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL",
-					Value: defaults.GetPluginRegistryOpenVSXURL(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES",
-					Value: defaults.GetDevEnvironmentsDisableContainerBuildCapabilities(),
-				},
 			},
 			cheCluster: &chev2.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
@@ -256,26 +237,6 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 					Name:  "OPENSHIFT_CONSOLE_URL",
 					Value: "https://console-openshift-console.apps.my-host/",
 				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT",
-					Value: defaults.GetDashboardHeaderMessageText(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR",
-					Value: defaults.GetDevEnvironmentsDefaultEditor(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS",
-					Value: defaults.GetDevEnvironmentsDefaultComponents(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL",
-					Value: defaults.GetPluginRegistryOpenVSXURL(),
-				},
-				{
-					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES",
-					Value: defaults.GetDevEnvironmentsDisableContainerBuildCapabilities(),
-				},
 			},
 			cheCluster: &chev2.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
@@ -306,7 +267,7 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, len(deployment.Spec.Template.Spec.Containers), 1)
-			test.AssertEqualEnvVars(t, testCase.envVars, deployment.Spec.Template.Spec.Containers[0].Env)
+			assert.Empty(t, cmp.Diff(testCase.envVars, deployment.Spec.Template.Spec.Containers[0].Env))
 		})
 	}
 }

@@ -63,8 +63,7 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 		},
 		Spec: chev2.CheClusterSpec{
 			DevEnvironments: chev2.CheClusterDevEnvironments{
-				DisableContainerBuildCapabilities: pointer.BoolPtr(true),
-				NodeSelector:                      map[string]string{"a": "b", "c": "d"},
+				NodeSelector: map[string]string{"a": "b", "c": "d"},
 				Tolerations: []corev1.Toleration{
 					{
 						Key:      "a",

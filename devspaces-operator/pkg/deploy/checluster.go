@@ -14,13 +14,20 @@ package deploy
 import (
 	"context"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/types"
 )
+
+// UpdateCheCRSpec - updates Che CR "spec" by field
+func UpdateCheCRSpec(deployContext *chetypes.DeployContext, field string, value string) error {
+	err := deployContext.ClusterAPI.Client.Update(context.TODO(), deployContext.CheCluster)
+	if err == nil {
+		logrus.Infof("Custom resource spec %s updated with %s: %s", deployContext.CheCluster.Name, field, value)
+		return nil
+	}
+	return err
+}
 
 func UpdateCheCRStatus(deployContext *chetypes.DeployContext, field string, value string) (err error) {
 	err = deployContext.ClusterAPI.Client.Status().Update(context.TODO(), deployContext.CheCluster)
@@ -49,20 +56,8 @@ func SetStatusDetails(deployContext *chetypes.DeployContext, reason string, mess
 }
 
 func ReloadCheClusterCR(deployContext *chetypes.DeployContext) error {
-	cheCluster := &chev2.CheCluster{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "CheCluster",
-			APIVersion: chev2.GroupVersion.String(),
-		},
-	}
-
-	if err := deployContext.ClusterAPI.Client.Get(
+	return deployContext.ClusterAPI.Client.Get(
 		context.TODO(),
 		types.NamespacedName{Name: deployContext.CheCluster.Name, Namespace: deployContext.CheCluster.Namespace},
-		cheCluster); err != nil {
-		return err
-	}
-
-	deployContext.CheCluster = cheCluster
-	return nil
+		deployContext.CheCluster)
 }
