@@ -89,7 +89,8 @@
 }
 
 .monaco-workbench .hover-language-status>.element>.left>.detail:not(:empty)::before {
-	content: '\2013';
+	/* allow-any-unicode-next-line */
+	content: '–';
 	padding: 0 4px;
 	opacity: 0.6;
 }

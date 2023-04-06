@@ -11,9 +11,9 @@ import { ITypeScriptServiceClient, ServerResponse } from '../typescriptService';
 import { coalesce } from '../utils/arrays';
 import { Disposable } from '../utils/dispose';
 import { exists } from '../utils/fs';
-import { isTsConfigFileName } from '../configuration/languageDescription';
+import { isTsConfigFileName } from '../utils/languageDescription';
 import { Lazy } from '../utils/lazy';
-import { isImplicitProjectConfigFile } from '../tsconfig';
+import { isImplicitProjectConfigFile } from '../utils/tsconfig';
 import { TSConfig, TsConfigProvider } from './tsconfigProvider';
 
 

@@ -64,8 +64,6 @@ export const enum TestCommandId {
 	DebugLastRun = 'testing.debugLastRun',
 	DebugSelectedAction = 'testing.debugSelected',
 	FilterAction = 'workbench.actions.treeView.testExplorer.filter',
-	GetExplorerSelection = '_testing.getExplorerSelection',
-	GetSelectedProfiles = 'testing.getSelectedProfiles',
 	GoToTest = 'testing.editFocusedTest',
 	HideTestAction = 'testing.hideTest',
 	OpenOutputPeek = 'testing.openOutputPeek',

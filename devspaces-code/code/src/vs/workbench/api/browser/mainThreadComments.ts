@@ -381,8 +381,7 @@ export class MainThreadCommentController implements ICommentController {
 				threads: [],
 				commentingRanges: {
 					resource: resource,
-					ranges: [],
-					fileComments: false
+					ranges: []
 				}
 			};
 		}
@@ -403,8 +402,7 @@ export class MainThreadCommentController implements ICommentController {
 			threads: ret,
 			commentingRanges: {
 				resource: resource,
-				ranges: commentingRanges?.ranges || [],
-				fileComments: commentingRanges?.fileComments
+				ranges: commentingRanges || []
 			}
 		};
 	}
@@ -433,6 +431,11 @@ export class MainThreadCommentController implements ICommentController {
 		};
 	}
 
+	async getCommentingRanges(resource: URI, token: CancellationToken): Promise<IRange[]> {
+		const commentingRanges = await this._proxy.$provideCommentingRanges(this.handle, resource, token);
+		return commentingRanges || [];
+	}
+
 	async toggleReaction(uri: URI, thread: languages.CommentThread, comment: languages.Comment, reaction: languages.CommentReaction, token: CancellationToken): Promise<void> {
 		return this._proxy.$toggleReaction(this._handle, thread.commentThreadHandle, uri, comment, reaction);
 	}
@@ -446,7 +449,7 @@ export class MainThreadCommentController implements ICommentController {
 		return ret;
 	}
 
-	createCommentThreadTemplate(resource: UriComponents, range: IRange | undefined): void {
+	createCommentThreadTemplate(resource: UriComponents, range: IRange): void {
 		this._proxy.$createCommentThreadTemplate(this.handle, resource, range);
 	}
 

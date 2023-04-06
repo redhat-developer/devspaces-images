@@ -277,7 +277,7 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 		@ITelemetryService private readonly telemetryService: ITelemetryService,
 		@INotebookExecutionService private readonly notebookExecutionService: INotebookExecutionService,
 		@INotebookExecutionStateService notebookExecutionStateService: INotebookExecutionStateService,
-		@IEditorProgressService private editorProgressService: IEditorProgressService,
+		@IEditorProgressService private readonly editorProgressService: IEditorProgressService,
 		@INotebookLoggingService readonly logService: INotebookLoggingService,
 	) {
 		super();
@@ -1037,10 +1037,6 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 		return this._webview?.webview;
 	}
 
-	setEditorProgressService(editorProgressService: IEditorProgressService): void {
-		this.editorProgressService = editorProgressService;
-	}
-
 	setParentContextKeyService(parentContextKeyService: IContextKeyService): void {
 		this.scopedContextKeyService.updateParent(parentContextKeyService);
 	}
@@ -1569,18 +1565,17 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 
 			for (let i = 0; i < viewModel.length; i++) {
 				const cell = viewModel.cellAt(i)!;
-				const cellHeight = totalHeightCache[i] ?? 0;
 
-				if (offset + cellHeight < scrollTop) {
-					offset += cellHeight;
+				if (offset + (totalHeightCache[i] ?? 0) < scrollTop) {
+					offset += (totalHeightCache ? totalHeightCache[i] : 0);
 					continue;
+				} else {
+					if (cell.cellKind === CellKind.Markup) {
+						requests.push([cell, offset]);
+					}
 				}
 
-				if (cell.cellKind === CellKind.Markup) {
-					requests.push([cell, offset]);
-				}
-
-				offset += cellHeight;
+				offset += (totalHeightCache ? totalHeightCache[i] : 0);
 
 				if (offset > scrollBottom) {
 					break;

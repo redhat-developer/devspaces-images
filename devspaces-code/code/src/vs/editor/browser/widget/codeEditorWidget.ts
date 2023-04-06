@@ -32,7 +32,7 @@ import { ISelection, Selection } from 'vs/editor/common/core/selection';
 import { InternalEditorAction } from 'vs/editor/common/editorAction';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
-import { EndOfLinePreference, IIdentifiedSingleEditOperation, IModelDecoration, IModelDecorationOptions, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, ICursorStateComputer, IAttachedView } from 'vs/editor/common/model';
+import { EndOfLinePreference, IIdentifiedSingleEditOperation, IModelDecoration, IModelDecorationOptions, IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel, ICursorStateComputer } from 'vs/editor/common/model';
 import { IWordAtPosition } from 'vs/editor/common/core/wordHelper';
 import { ClassName } from 'vs/editor/common/model/intervalTree';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModel';
@@ -85,19 +85,23 @@ export interface ICodeEditorWidgetOptions {
 }
 
 class ModelData {
-	constructor(
-		public readonly model: ITextModel,
-		public readonly viewModel: ViewModel,
-		public readonly view: View,
-		public readonly hasRealView: boolean,
-		public readonly listenersToRemove: IDisposable[],
-		public readonly attachedView: IAttachedView,
-	) {
+	public readonly model: ITextModel;
+	public readonly viewModel: ViewModel;
+	public readonly view: View;
+	public readonly hasRealView: boolean;
+	public readonly listenersToRemove: IDisposable[];
+
+	constructor(model: ITextModel, viewModel: ViewModel, view: View, hasRealView: boolean, listenersToRemove: IDisposable[]) {
+		this.model = model;
+		this.viewModel = viewModel;
+		this.view = view;
+		this.hasRealView = hasRealView;
+		this.listenersToRemove = listenersToRemove;
 	}
 
 	public dispose(): void {
 		dispose(this.listenersToRemove);
-		this.model.onBeforeDetached(this.attachedView);
+		this.model.onBeforeDetached();
 		if (this.hasRealView) {
 			this.view.dispose();
 		}
@@ -1587,7 +1591,7 @@ export class CodeEditorWidget extends Disposable implements editorBrowser.ICodeE
 		this._configuration.setIsDominatedByLongLines(model.isDominatedByLongLines());
 		this._configuration.setModelLineCount(model.getLineCount());
 
-		const attachedView = model.onBeforeAttached();
+		model.onBeforeAttached();
 
 		const viewModel = new ViewModel(
 			this._id,
@@ -1597,8 +1601,7 @@ export class CodeEditorWidget extends Disposable implements editorBrowser.ICodeE
 			MonospaceLineBreaksComputerFactory.create(this._configuration.options),
 			(callback) => dom.scheduleAtNextAnimationFrame(callback),
 			this.languageConfigurationService,
-			this._themeService,
-			attachedView,
+			this._themeService
 		);
 
 		// Someone might destroy the model from under the editor, so prevent any exceptions by setting a null model
@@ -1716,7 +1719,7 @@ export class CodeEditorWidget extends Disposable implements editorBrowser.ICodeE
 			view.domNode.domNode.setAttribute('data-uri', model.uri.toString());
 		}
 
-		this._modelData = new ModelData(model, viewModel, view, hasRealView, listenersToRemove, attachedView);
+		this._modelData = new ModelData(model, viewModel, view, hasRealView, listenersToRemove);
 	}
 
 	protected _createView(viewModel: ViewModel): [View, boolean] {

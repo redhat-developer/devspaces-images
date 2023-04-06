@@ -101,13 +101,25 @@ export const enum State {
 	Auto = 2
 }
 
+function isSuggestPreviewEnabled(editor: ICodeEditor): boolean {
+	return editor.getOption(EditorOption.suggest).preview;
+}
+
 function canShowQuickSuggest(editor: ICodeEditor, contextKeyService: IContextKeyService, configurationService: IConfigurationService): boolean {
 	if (!Boolean(contextKeyService.getContextKeyValue('inlineSuggestionVisible'))) {
 		// Allow if there is no inline suggestion.
 		return true;
 	}
 
-	return !editor.getOption(EditorOption.inlineSuggest).suppressSuggestions;
+	const allowQuickSuggestions = configurationService.getValue('editor.inlineSuggest.allowQuickSuggestions', { overrideIdentifier: editor.getModel()?.getLanguageId(), resource: editor.getModel()?.uri });
+	if (allowQuickSuggestions !== undefined) {
+		// Use setting if available.
+		return Boolean(allowQuickSuggestions);
+	}
+
+	// Don't allow if inline suggestions are visible and no suggest preview is configured.
+	// TODO disabled for copilot
+	return false && isSuggestPreviewEnabled(editor);
 }
 
 function canShowSuggestOnTriggerCharacters(editor: ICodeEditor, contextKeyService: IContextKeyService, configurationService: IConfigurationService): boolean {
@@ -116,7 +128,12 @@ function canShowSuggestOnTriggerCharacters(editor: ICodeEditor, contextKeyServic
 		return true;
 	}
 
-	return !editor.getOption(EditorOption.inlineSuggest).suppressSuggestions;
+	const allowQuickSuggestions = configurationService.getValue('editor.inlineSuggest.allowSuggestOnTriggerCharacters', { overrideIdentifier: editor.getModel()?.getLanguageId(), resource: editor.getModel()?.uri });
+	if (allowQuickSuggestions !== undefined) {
+		// Use setting if available.
+		return Boolean(allowQuickSuggestions);
+	}
+	return true;
 }
 
 export class SuggestModel implements IDisposable {

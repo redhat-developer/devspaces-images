@@ -139,13 +139,12 @@ export class DebugSession implements IDebugSession {
 		const parent = this._options.parentSession;
 		if (parent) {
 			toDispose.add(parent.onDidEndAdapter(() => {
-				// copy the parent repl and get a new detached repl for this child, and
-				// remove its parent, if it's still running
-				if (!this.hasSeparateRepl() && this.raw?.isInShutdown === false) {
+				// copy the parent repl and get a new detached repl for this child
+				if (!this.hasSeparateRepl()) {
 					this.repl = this.repl.clone();
 					replListener.value = this.repl.onDidChangeElements(() => this._onDidChangeREPLElements.fire());
-					this.parentSession = undefined;
 				}
+				this.parentSession = undefined;
 			}));
 		}
 	}

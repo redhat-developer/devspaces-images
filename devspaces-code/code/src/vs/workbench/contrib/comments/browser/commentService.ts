@@ -61,12 +61,13 @@ export interface ICommentController {
 	};
 	options?: CommentOptions;
 	contextValue?: string;
-	createCommentThreadTemplate(resource: UriComponents, range: IRange | undefined): void;
+	createCommentThreadTemplate(resource: UriComponents, range: IRange): void;
 	updateCommentThreadTemplate(threadHandle: number, range: IRange): Promise<void>;
 	deleteCommentThreadMain(commentThreadId: string): void;
 	toggleReaction(uri: URI, thread: CommentThread, comment: Comment, reaction: CommentReaction, token: CancellationToken): Promise<void>;
 	getDocumentComments(resource: URI, token: CancellationToken): Promise<ICommentInfo>;
 	getNotebookComments(resource: URI, token: CancellationToken): Promise<INotebookCommentInfo>;
+	getCommentingRanges(resource: URI, token: CancellationToken): Promise<IRange[]>;
 }
 
 export interface ICommentService {
@@ -89,7 +90,7 @@ export interface ICommentService {
 	registerCommentController(owner: string, commentControl: ICommentController): void;
 	unregisterCommentController(owner: string): void;
 	getCommentController(owner: string): ICommentController | undefined;
-	createCommentThreadTemplate(owner: string, resource: URI, range: Range | undefined): void;
+	createCommentThreadTemplate(owner: string, resource: URI, range: Range): void;
 	updateCommentThreadTemplate(owner: string, threadHandle: number, range: Range): Promise<void>;
 	getCommentMenus(owner: string): CommentMenus;
 	updateComments(ownerId: string, event: CommentThreadChangedEvent<IRange>): void;
@@ -98,6 +99,7 @@ export interface ICommentService {
 	getDocumentComments(resource: URI): Promise<(ICommentInfo | null)[]>;
 	getNotebookComments(resource: URI): Promise<(INotebookCommentInfo | null)[]>;
 	updateCommentingRanges(ownerId: string): void;
+	getCommentingRanges(resource: URI): Promise<IRange[]>;
 	hasReactionHandler(owner: string): boolean;
 	toggleReaction(owner: string, resource: URI, thread: CommentThread<IRange | ICellRange>, comment: Comment, reaction: CommentReaction): Promise<void>;
 	setActiveCommentThread(commentThread: CommentThread<IRange | ICellRange> | null): void;
@@ -248,7 +250,7 @@ export class CommentService extends Disposable implements ICommentService {
 		return this._commentControls.get(owner);
 	}
 
-	createCommentThreadTemplate(owner: string, resource: URI, range: Range | undefined): void {
+	createCommentThreadTemplate(owner: string, resource: URI, range: Range): void {
 		const commentController = this._commentControls.get(owner);
 
 		if (!commentController) {
@@ -342,5 +344,16 @@ export class CommentService extends Disposable implements ICommentService {
 		});
 
 		return Promise.all(commentControlResult);
+	}
+
+	async getCommentingRanges(resource: URI): Promise<IRange[]> {
+		const commentControlResult: Promise<IRange[]>[] = [];
+
+		this._commentControls.forEach(control => {
+			commentControlResult.push(control.getCommentingRanges(resource, CancellationToken.None));
+		});
+
+		const ret = await Promise.all(commentControlResult);
+		return ret.reduce((prev, curr) => { prev.push(...curr); return prev; }, []);
 	}
 }

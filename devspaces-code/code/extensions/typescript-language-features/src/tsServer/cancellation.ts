@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import Tracer from '../logging/tracer';
+import Tracer from '../utils/tracer';
 
 export interface OngoingRequestCanceller {
 	readonly cancellationPipeName: string | undefined;

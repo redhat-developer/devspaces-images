@@ -27,6 +27,7 @@ import { IProfileQuickPickItem, TerminalProfileQuickpick } from 'vs/workbench/co
 import { TestThemeService } from 'vs/platform/theme/test/common/testThemeService';
 import { IPickOptions, IQuickInputService, Omit, QuickPickInput } from 'vs/platform/quickinput/common/quickInput';
 import { CancellationToken } from 'vs/base/common/cancellation';
+import { ITerminalCommandSelector } from 'vs/platform/terminal/common/xterm/terminalQuickFix';
 
 class TestTerminalProfileService extends TerminalProfileService implements Partial<ITerminalProfileService>{
 	hasRefreshedProfiles: Promise<void> | undefined;
@@ -89,6 +90,7 @@ class TestTerminalExtensionService extends TestExtensionService {
 class TestTerminalContributionService implements ITerminalContributionService {
 	_serviceBrand: undefined;
 	terminalProfiles: readonly IExtensionTerminalProfile[] = [];
+	terminalQuickFixes: Promise<ITerminalCommandSelector[]> = Promise.resolve([]);
 	setProfiles(profiles: IExtensionTerminalProfile[]): void {
 		this.terminalProfiles = profiles;
 	}

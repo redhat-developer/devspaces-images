@@ -18,7 +18,6 @@ import { range } from 'vs/base/common/arrays';
 import { ThrottledDelayer } from 'vs/base/common/async';
 import { compareAnything } from 'vs/base/common/comparers';
 import { memoize } from 'vs/base/common/decorators';
-import { isCancellationError } from 'vs/base/common/errors';
 import { Emitter, Event } from 'vs/base/common/event';
 import { IMatch } from 'vs/base/common/filters';
 import { IMarkdownString } from 'vs/base/common/htmlContent';
@@ -411,18 +410,11 @@ export class QuickInputList {
 			) {
 				return;
 			}
-			try {
-				await delayer.trigger(async () => {
-					if (e.element) {
-						this.showHover(e.element);
-					}
-				});
-			} catch (e) {
-				// Ignore cancellation errors due to mouse out
-				if (!isCancellationError(e)) {
-					throw e;
+			await delayer.trigger(async () => {
+				if (e.element) {
+					this.showHover(e.element);
 				}
-			}
+			});
 		}));
 		this.disposables.push(this.list.onMouseOut(e => {
 			// onMouseOut triggers every time a new element has been moused over

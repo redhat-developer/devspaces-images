@@ -1233,24 +1233,18 @@ export function searchMatchComparer(elementA: RenderableMatch, elementB: Rendera
 
 export function compareNotebookPos(match1: NotebookMatch, match2: NotebookMatch): number {
 	if (match1.cellIndex === match2.cellIndex) {
-
-		if (match1.webviewIndex !== undefined && match2.webviewIndex !== undefined) {
-			return match1.webviewIndex - match2.webviewIndex;
-		} else if (match1.webviewIndex === undefined && match2.webviewIndex === undefined) {
-			if (match1.matchStartIndex === match2.matchStartIndex) {
-				return match1.matchEndIndex - match2.matchEndIndex;
-			} else if (match1.matchStartIndex < match2.matchStartIndex) {
+		if (match1.matchStartIndex === match2.matchStartIndex) {
+			if (match1.matchEndIndex === match2.matchEndIndex) {
+				return 0;
+			} else if (match1.matchEndIndex < match2.matchEndIndex) {
 				return -1;
 			} else {
 				return 1;
 			}
+		} else if (match1.matchStartIndex < match2.matchStartIndex) {
+			return -1;
 		} else {
-			// webview matches should always be after content matches
-			if (match1.webviewIndex !== undefined) {
-				return 1;
-			} else {
-				return -1;
-			}
+			return 1;
 		}
 	} else if (match1.cellIndex < match2.cellIndex) {
 		return -1;

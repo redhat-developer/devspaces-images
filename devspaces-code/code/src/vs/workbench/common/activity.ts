@@ -9,7 +9,7 @@ export interface IActivity {
 	id: string;
 	name: string;
 	keybindingId?: string;
-	classNames?: string[];
+	cssClass?: string;
 	iconUrl?: URI;
 }
 

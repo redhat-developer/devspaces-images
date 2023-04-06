@@ -110,10 +110,6 @@ export class OverlayWebview extends Disposable implements IOverlayWebview {
 	}
 
 	public claim(owner: any, scopedContextKeyService: IContextKeyService | undefined) {
-		if (this._isDisposed) {
-			return;
-		}
-
 		const oldOwner = this._owner;
 
 		this._owner = owner;

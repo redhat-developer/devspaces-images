@@ -4,12 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as dom from 'vs/base/browser/dom';
-import { IActionViewItemOptions } from 'vs/base/browser/ui/actionbar/actionViewItems';
 import { renderIcon } from 'vs/base/browser/ui/iconLabel/iconLabels';
 import { IListVirtualDelegate } from 'vs/base/browser/ui/list/list';
 import { IListAccessibilityProvider } from 'vs/base/browser/ui/list/listWidget';
 import { ITreeNode, ITreeRenderer } from 'vs/base/browser/ui/tree/tree';
-import { IAction } from 'vs/base/common/actions';
 import { IntervalTimer } from 'vs/base/common/async';
 import { Codicon } from 'vs/base/common/codicons';
 import { Emitter, Event } from 'vs/base/common/event';
@@ -24,7 +22,6 @@ import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
 import { EDITOR_FONT_DEFAULTS, IEditorOptions } from 'vs/editor/common/config/editorOptions';
 import { Range } from 'vs/editor/common/core/range';
 import { ILanguageService } from 'vs/editor/common/languages/language';
-import { PLAINTEXT_LANGUAGE_ID } from 'vs/editor/common/languages/modesRegistry';
 import { ITextModel } from 'vs/editor/common/model';
 import { IModelService } from 'vs/editor/common/services/model';
 import { BracketMatchingController } from 'vs/editor/contrib/bracketMatching/browser/bracketMatching';
@@ -34,9 +31,8 @@ import { ViewportSemanticTokensContribution } from 'vs/editor/contrib/semanticTo
 import { SmartSelectController } from 'vs/editor/contrib/smartSelect/browser/smartSelect';
 import { WordHighlighterContribution } from 'vs/editor/contrib/wordHighlighter/browser/wordHighlighter';
 import { localize } from 'vs/nls';
-import { IMenuEntryActionViewItemOptions, MenuEntryActionViewItem } from 'vs/platform/actions/browser/menuEntryActionViewItem';
 import { MenuWorkbenchToolBar } from 'vs/platform/actions/browser/toolbar';
-import { MenuId, MenuItemAction } from 'vs/platform/actions/common/actions';
+import { MenuId } from 'vs/platform/actions/common/actions';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
@@ -50,8 +46,8 @@ import { getSimpleEditorOptions } from 'vs/workbench/contrib/codeEditor/browser/
 import { IInteractiveSessionCodeBlockActionContext } from 'vs/workbench/contrib/interactiveSession/browser/actions/interactiveSessionCodeblockActions';
 import { InteractiveSessionFollowups } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionFollowups';
 import { InteractiveSessionEditorOptions } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionOptions';
-import { CONTEXT_RESPONSE_HAS_PROVIDER_ID, CONTEXT_RESPONSE_VOTE } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
-import { IInteractiveSessionReplyFollowup, IInteractiveSessionService, IInteractiveSlashCommand, InteractiveSessionVoteDirection } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
+import { interactiveSessionResponseHasProviderId } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
+import { IInteractiveSessionReplyFollowup, IInteractiveSessionService, IInteractiveSlashCommand } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
 import { IInteractiveRequestViewModel, IInteractiveResponseViewModel, IInteractiveWelcomeMessageViewModel, isRequestVM, isResponseVM, isWelcomeVM } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionViewModel';
 import { getNWords } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionWordCounter';
 
@@ -172,13 +168,6 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		const titleToolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, header, MenuId.InteractiveSessionTitle, {
 			menuOptions: {
 				shouldForwardArgs: true
-			},
-			actionViewItemProvider: (action: IAction, options: IActionViewItemOptions) => {
-				if (action instanceof MenuItemAction) {
-					return scopedInstantiationService.createInstance(InteractiveSessionVoteButton, action, options as IMenuEntryActionViewItemOptions);
-				}
-
-				return undefined;
 			}
 		}));
 
@@ -194,19 +183,13 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 				'welcome';
 		this.traceLayout('renderElement', `${kind}, index=${index}`);
 
-		CONTEXT_RESPONSE_HAS_PROVIDER_ID.bindTo(templateData.contextKeyService).set(isResponseVM(element) && !!element.providerResponseId && !element.isPlaceholder);
-		if (isResponseVM(element)) {
-			CONTEXT_RESPONSE_VOTE.bindTo(templateData.contextKeyService).set(element.vote === InteractiveSessionVoteDirection.Up ? 'up' : element.vote === InteractiveSessionVoteDirection.Down ? 'down' : '');
-		} else {
-			CONTEXT_RESPONSE_VOTE.bindTo(templateData.contextKeyService).set('');
-		}
+		interactiveSessionResponseHasProviderId.bindTo(templateData.contextKeyService).set(isResponseVM(element) && !!element.providerResponseId && !element.isPlaceholder);
 
 		templateData.titleToolbar.context = element;
 
 		templateData.rowContainer.classList.toggle('interactive-request', isRequestVM(element));
 		templateData.rowContainer.classList.toggle('interactive-response', isResponseVM(element));
 		templateData.rowContainer.classList.toggle('interactive-welcome', isWelcomeVM(element));
-		templateData.rowContainer.classList.toggle('filtered-response', !!(isResponseVM(element) && element.errorDetails?.responseIsFiltered));
 		templateData.username.textContent = element.username;
 
 		if (element.avatarIconUri) {
@@ -242,7 +225,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 			runProgressiveRender(true);
 			timer.cancelAndSet(runProgressiveRender, 50);
 		} else if (isResponseVM(element)) {
-			this.basicRenderElement(element.response.value, element, index, templateData);
+			this.basicRenderElement(element.response.value, element, index, templateData, element.isCanceled);
 		} else if (isRequestVM(element)) {
 			this.basicRenderElement(element.messageText, element, index, templateData);
 		} else {
@@ -250,16 +233,14 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		}
 	}
 
-	private basicRenderElement(markdownValue: string, element: InteractiveTreeItem, index: number, templateData: IInteractiveListItemTemplate) {
-		const fillInIncompleteTokens = isResponseVM(element) && (!element.isComplete || element.isCanceled || element.errorDetails?.responseIsFiltered || element.errorDetails?.responseIsIncomplete);
+	private basicRenderElement(markdownValue: string, element: InteractiveTreeItem, index: number, templateData: IInteractiveListItemTemplate, fillInIncompleteTokens = false) {
 		const result = this.renderMarkdown(new MarkdownString(markdownValue), element, templateData.elementDisposables, templateData, fillInIncompleteTokens);
 		dom.clearNode(templateData.value);
 		templateData.value.appendChild(result.element);
 		templateData.elementDisposables.add(result);
 
 		if (isResponseVM(element) && element.errorDetails?.message) {
-			const icon = element.errorDetails.responseIsFiltered ? Codicon.info : Codicon.error;
-			const errorDetails = dom.append(templateData.value, $('.interactive-response-error-details', undefined, renderIcon(icon)));
+			const errorDetails = dom.append(templateData.value, $('.interactive-response-error-details', undefined, renderIcon(Codicon.error)));
 			errorDetails.appendChild($('span', undefined, element.errorDetails.message));
 		}
 
@@ -313,7 +294,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		if (element.isCanceled) {
 			this.traceLayout('runProgressiveRender', `canceled, index=${index}`);
 			element.renderData = undefined;
-			this.basicRenderElement(element.response.value, element, index, templateData);
+			this.basicRenderElement(element.response.value, element, index, templateData, true);
 			isFullyRendered = true;
 		} else {
 			// TODO- this method has the side effect of updating element.renderData
@@ -329,7 +310,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 					this.traceLayout('runProgressiveRender', `Rendered all available words, but model is not complete.`);
 				}
 				disposables.clear();
-				this.basicRenderElement(element.response.value, element, index, templateData);
+				this.basicRenderElement(element.response.value, element, index, templateData, !element.isComplete);
 			} else if (toRender) {
 				// Doing the progressive render
 				const plusCursor = toRender.match(/```.*$/) ? toRender + `\n${InteractiveListItemRenderer.cursorCharacter}` : toRender + ` ${InteractiveListItemRenderer.cursorCharacter}`;
@@ -589,7 +570,6 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 	private getEditorOptionsFromConfig(): IEditorOptions {
 		return {
 			wordWrap: this.options.configuration.resultEditor.wordWrap,
-			fontLigatures: this.options.configuration.resultEditor.fontLigatures,
 			bracketPairColorization: this.options.configuration.resultEditor.bracketPairColorization,
 			fontFamily: this.options.configuration.resultEditor.fontFamily === 'default' ?
 				EDITOR_FONT_DEFAULTS.fontFamily :
@@ -615,8 +595,7 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 			this.layout(width);
 		}
 
-		const text = this.fixCodeText(data.text, data.languageId);
-		this.setText(text);
+		this.setText(data.text);
 		this.setLanguage(data.languageId);
 
 		this.layout(width);
@@ -637,16 +616,6 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 			codeBlockIndex: data.codeBlockIndex,
 			element: data.element
 		};
-	}
-
-	private fixCodeText(text: string, languageId: string): string {
-		if (languageId === 'php') {
-			if (!text.trim().startsWith('<')) {
-				return `<?php\n${text}\n?>`;
-			}
-		}
-
-		return text;
 	}
 
 	private setText(newText: string): void {
@@ -680,7 +649,9 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 
 	private setLanguage(languageId: string): void {
 		const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(languageId);
-		this.textModel.setLanguage(vscodeLanguageId ?? PLAINTEXT_LANGUAGE_ID);
+		if (vscodeLanguageId) {
+			this.textModel.setLanguage(vscodeLanguageId);
+		}
 	}
 }
 
@@ -749,12 +720,5 @@ class ResourcePool<T extends IDisposable> extends Disposable {
 	release(item: T): void {
 		this._inUse.delete(item);
 		this.pool.push(item);
-	}
-}
-
-class InteractiveSessionVoteButton extends MenuEntryActionViewItem {
-	override render(container: HTMLElement): void {
-		super.render(container);
-		container.classList.toggle('checked', this.action.checked);
 	}
 }

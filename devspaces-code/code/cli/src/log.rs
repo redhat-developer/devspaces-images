@@ -10,13 +10,13 @@ use opentelemetry::{
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::{env, path::Path, sync::Arc};
 use std::{
 	io::Write,
 	sync::atomic::{AtomicU32, Ordering},
 };
-use std::{path::Path, sync::Arc};
 
-use crate::constants::COLORS_ENABLED;
+const NO_COLOR_ENV: &str = "NO_COLOR";
 
 static INSTANCE_COUNTER: AtomicU32 = AtomicU32::new(0);
 
@@ -71,7 +71,7 @@ impl Level {
 	}
 
 	pub fn color_code(&self) -> Option<&str> {
-		if !*COLORS_ENABLED {
+		if env::var(NO_COLOR_ENV).is_ok() || !atty::is(atty::Stream::Stdout) {
 			return None;
 		}
 

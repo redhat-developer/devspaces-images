@@ -7,9 +7,9 @@ import { CancellationToken } from 'vs/base/common/cancellation';
 import { Event } from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { URI } from 'vs/base/common/uri';
-import { ProviderResult } from 'vs/editor/common/languages';
+import { CompletionItemKind, ProviderResult } from 'vs/editor/common/languages';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
-import { InteractiveSessionModel } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionModel';
+import { IInteractiveResponseErrorDetails, InteractiveSessionModel } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionModel';
 
 export interface IInteractiveSession {
 	id: number;
@@ -24,12 +24,6 @@ export interface IInteractiveSession {
 export interface IInteractiveRequest {
 	session: IInteractiveSession;
 	message: string | IInteractiveSessionReplyFollowup;
-}
-
-export interface IInteractiveResponseErrorDetails {
-	message: string;
-	responseIsIncomplete?: boolean;
-	responseIsFiltered?: boolean;
 }
 
 export interface IInteractiveResponse {
@@ -52,6 +46,7 @@ export interface IInteractiveProvider {
 	prepareSession(initialState: IPersistedInteractiveState | undefined, token: CancellationToken): ProviderResult<IInteractiveSession | undefined>;
 	resolveRequest?(session: IInteractiveSession, context: any, token: CancellationToken): ProviderResult<IInteractiveRequest>;
 	provideWelcomeMessage?(token: CancellationToken): ProviderResult<(string | IInteractiveSessionReplyFollowup[])[] | undefined>;
+	provideSuggestions?(token: CancellationToken): ProviderResult<string[] | undefined>;
 	provideFollowups?(session: IInteractiveSession, token: CancellationToken): ProviderResult<IInteractiveSessionFollowup[] | undefined>;
 	provideReply(request: IInteractiveRequest, progress: (progress: IInteractiveProgress) => void, token: CancellationToken): ProviderResult<IInteractiveResponse>;
 	provideSlashCommands?(session: IInteractiveSession, token: CancellationToken): ProviderResult<IInteractiveSlashCommand[]>;
@@ -59,7 +54,7 @@ export interface IInteractiveProvider {
 
 export interface IInteractiveSlashCommand {
 	command: string;
-	sortText?: string;
+	kind: CompletionItemKind;
 	detail?: string;
 }
 
@@ -161,6 +156,7 @@ export interface IInteractiveSessionService {
 	addInteractiveRequest(context: any): void;
 	addCompleteRequest(message: string, response: IInteractiveSessionCompleteResponse): void;
 	sendInteractiveRequestToProvider(providerId: string, message: IInteractiveSessionDynamicRequest): void;
+	provideSuggestions(providerId: string, token: CancellationToken): Promise<string[] | undefined>;
 	releaseSession(sessionId: number): void;
 
 	onDidPerformUserAction: Event<IInteractiveSessionUserActionEvent>;

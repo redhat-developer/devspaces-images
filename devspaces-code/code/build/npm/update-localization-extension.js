@@ -24,7 +24,7 @@ function update(options) {
 		throw new Error(`${location} doesn't exist.`);
 	}
 	let externalExtensionsLocation = options.externalExtensionsLocation;
-	if (externalExtensionsLocation !== undefined && !fs.existsSync(externalExtensionsLocation)) {
+	if (externalExtensionsLocation !== undefined && !fs.existsSync(location)) {
 		throw new Error(`${externalExtensionsLocation} doesn't exist.`);
 	}
 	let locExtFolder = idOrPath;

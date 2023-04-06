@@ -29,8 +29,8 @@ async function setup(url, file) {
 	await fs.writeFile(file, contents);
 }
 
-async function main(url, dir) {
-	const root = dir ?? process.cwd();
+async function main(url) {
+	const root = process.cwd();
 
 	for await (const file of getYarnLockFiles(root)) {
 		console.log(`Enabling custom NPM registry: ${path.relative(root, file)}`);
@@ -38,4 +38,4 @@ async function main(url, dir) {
 	}
 }
 
-main(process.argv[2], process.argv[3]);
+main(process.argv[2]);

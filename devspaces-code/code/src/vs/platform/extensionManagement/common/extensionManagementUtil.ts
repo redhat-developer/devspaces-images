@@ -75,7 +75,7 @@ export function getExtensionId(publisher: string, name: string): string {
 }
 
 export function adoptToGalleryExtensionId(id: string): string {
-	return id.toLowerCase();
+	return id.toLocaleLowerCase();
 }
 
 export function getGalleryExtensionId(publisher: string | undefined, name: string): string {

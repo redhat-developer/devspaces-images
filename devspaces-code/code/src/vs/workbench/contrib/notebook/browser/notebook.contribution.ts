@@ -770,12 +770,6 @@ configurationRegistry.registerConfiguration({
 			default: true,
 			tags: ['notebookLayout']
 		},
-		[NotebookSetting.diffOverviewRuler]: {
-			description: nls.localize('notebook.diff.enableOverviewRuler.description', "Whether to render the overview ruler in the diff editor for notebook."),
-			type: 'boolean',
-			default: false,
-			tags: ['notebookLayout']
-		},
 		[NotebookSetting.cellToolbarVisibility]: {
 			markdownDescription: nls.localize('notebook.cellToolbarVisibility.description', "Whether the cell toolbar should appear on hover or click."),
 			type: 'string',
@@ -898,7 +892,7 @@ configurationRegistry.registerConfiguration({
 			markdownDescription: nls.localize('notebook.outputScrolling', "Use a scrollable region for notebook output when longer than the limit"),
 			type: 'boolean',
 			tags: ['notebookLayout'],
-			default: typeof product.quality === 'string' && product.quality !== 'stable' // only enable as default in insiders
+			default: typeof product.quality !== 'string' ? product.quality !== 'stable' : false, // only enable as default in insiders
 		},
 		[NotebookSetting.outputWordWrap]: {
 			markdownDescription: nls.localize('notebook.outputWordWrap', "Controls whether the lines in output should wrap."),

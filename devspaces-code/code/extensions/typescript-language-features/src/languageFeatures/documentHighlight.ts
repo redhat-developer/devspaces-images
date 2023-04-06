@@ -4,10 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { DocumentSelector } from '../configuration/documentSelector';
-import type * as Proto from '../tsServer/protocol/protocol';
-import * as typeConverters from '../typeConverters';
+import type * as Proto from '../protocol';
 import { ITypeScriptServiceClient } from '../typescriptService';
+import { DocumentSelector } from '../utils/documentSelector';
+import * as typeConverters from '../utils/typeConverters';
 
 class TypeScriptDocumentHighlightProvider implements vscode.DocumentHighlightProvider {
 	public constructor(

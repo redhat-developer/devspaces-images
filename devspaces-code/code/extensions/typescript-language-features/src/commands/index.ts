@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import TypeScriptServiceClientHost from '../typeScriptServiceClientHost';
-import { ActiveJsTsEditorTracker } from '../ui/activeJsTsEditorTracker';
+import { ActiveJsTsEditorTracker } from '../utils/activeJsTsEditorTracker';
 import { Lazy } from '../utils/lazy';
-import { PluginManager } from '../tsServer/plugins';
+import { PluginManager } from '../utils/plugins';
 import { CommandManager } from './commandManager';
 import { ConfigurePluginCommand } from './configurePlugin';
 import { JavaScriptGoToProjectConfigCommand, TypeScriptGoToProjectConfigCommand } from './goToProjectConfiguration';

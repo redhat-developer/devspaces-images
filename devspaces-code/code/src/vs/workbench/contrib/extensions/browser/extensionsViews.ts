@@ -477,12 +477,12 @@ export class ExtensionsListView extends ViewPane {
 			return this.sortExtensions(themesExtensions, options);
 		}
 
-		const isLanguageBasicExtension = (e: IExtension): boolean => {
+		const isLangaugeBasicExtension = (e: IExtension): boolean => {
 			return FORCE_FEATURE_EXTENSIONS.indexOf(e.identifier.id) === -1
 				&& (Array.isArray(e.local?.manifest?.contributes?.grammars) && e.local!.manifest!.contributes!.grammars.length > 0);
 		};
 		if (showBasicsOnly) {
-			const basics = result.filter(isLanguageBasicExtension);
+			const basics = result.filter(isLangaugeBasicExtension);
 			return this.sortExtensions(basics, options);
 		}
 		if (showFeaturesOnly) {
@@ -490,7 +490,7 @@ export class ExtensionsListView extends ViewPane {
 				return e.local
 					&& e.local.manifest
 					&& !isThemeExtension(e)
-					&& !isLanguageBasicExtension(e);
+					&& !isLangaugeBasicExtension(e);
 			});
 			return this.sortExtensions(others, options);
 		}

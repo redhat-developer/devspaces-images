@@ -3,8 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OffsetRange } from 'vs/editor/common/core/offsetRange';
-import { IDiffAlgorithm, SequenceDiff, ISequence, ITimeout, InfiniteTimeout, DiffAlgorithmResult } from 'vs/editor/common/diff/algorithms/diffAlgorithm';
+import { IDiffAlgorithm, SequenceDiff, OffsetRange, ISequence } from 'vs/editor/common/diff/algorithms/diffAlgorithm';
 import { Array2D } from 'vs/editor/common/diff/algorithms/utils';
 
 /**
@@ -12,11 +11,7 @@ import { Array2D } from 'vs/editor/common/diff/algorithms/utils';
  * The algorithm can be improved by processing the 2d array diagonally.
 */
 export class DynamicProgrammingDiffing implements IDiffAlgorithm {
-	compute(sequence1: ISequence, sequence2: ISequence, timeout: ITimeout = InfiniteTimeout.instance, equalityScore?: (offset1: number, offset2: number) => number): DiffAlgorithmResult {
-		if (sequence1.length === 0 || sequence2.length === 0) {
-			return DiffAlgorithmResult.trivial(sequence1, sequence2);
-		}
-
+	compute(sequence1: ISequence, sequence2: ISequence, equalityScore?: (offset1: number, offset2: number) => number): SequenceDiff[] {
 		/**
 		 * lcsLengths.get(i, j): Length of the longest common subsequence of sequence1.substring(0, i + 1) and sequence2.substring(0, j + 1).
 		 */
@@ -27,10 +22,6 @@ export class DynamicProgrammingDiffing implements IDiffAlgorithm {
 		// ==== Initializing lcsLengths ====
 		for (let s1 = 0; s1 < sequence1.length; s1++) {
 			for (let s2 = 0; s2 < sequence2.length; s2++) {
-				if (!timeout.isValid()) {
-					return DiffAlgorithmResult.trivialTimedOut(sequence1, sequence2);
-				}
-
 				const horizontalLen = s1 === 0 ? 0 : lcsLengths.get(s1 - 1, s2);
 				const verticalLen = s2 === 0 ? 0 : lcsLengths.get(s1, s2 - 1);
 
@@ -102,6 +93,6 @@ export class DynamicProgrammingDiffing implements IDiffAlgorithm {
 		}
 		reportDecreasingAligningPositions(-1, -1);
 		result.reverse();
-		return new DiffAlgorithmResult(result, false);
+		return result;
 	}
 }

@@ -917,14 +917,10 @@ abstract class AbstractTreeView extends Disposable implements ITreeView {
 		return this.tree?.getSelection() ?? [];
 	}
 
-	setFocus(item?: ITreeItem): void {
+	setFocus(item: ITreeItem): void {
 		if (this.tree) {
-			if (item) {
-				this.focus(true, item);
-				this.tree.setFocus([item]);
-			} else {
-				this.tree.setFocus([]);
-			}
+			this.focus(true, item);
+			this.tree.setFocus([item]);
 		}
 	}
 

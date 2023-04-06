@@ -1168,12 +1168,12 @@ export interface ITextModel {
 	/**
 	 * @internal
 	 */
-	onBeforeAttached(): IAttachedView;
+	onBeforeAttached(): void;
 
 	/**
 	 * @internal
 	 */
-	onBeforeDetached(view: IAttachedView): void;
+	onBeforeDetached(): void;
 
 	/**
 	 * Returns if this model is attached to an editor or not.
@@ -1222,18 +1222,6 @@ export interface ITextModel {
 	 * @internal
 	 */
 	readonly tokenization: ITokenizationTextModelPart;
-}
-
-/**
- * @internal
- */
-export interface IAttachedView {
-	/**
-	 * @param stabilized Indicates if the visible lines are probably going to change soon or can be considered stable.
-	 * Is true on reveal range and false on scroll.
-	 * Tokenizers should tokenize synchronously if stabilized is true.
-	 */
-	setVisibleLines(visibleLines: { startLineNumber: number; endLineNumber: number }[], stabilized: boolean): void;
 }
 
 export const enum PositionAffinity {

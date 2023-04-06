@@ -41,10 +41,8 @@ async function main() {
 
 	if (args.help) {
 		console.log(
-			'./scripts/code-web.sh|bat[, folderMountPath[, options]]\n' +
-			'                           Start with an empty workspace and no folder opened in explorer\n' +
-			'  folderMountPath          Open local folder (eg: use `.` to open current directory)\n' +
-			'  --playground             Include the vscode-web-playground extension\n'
+			'./scripts/code-web.sh|bat [options]\n' +
+			' --playground             Include the vscode-web-playground extension (added by default if no folderPath is provided)\n'
 		);
 		startServer(['--help']);
 		return;
@@ -61,9 +59,7 @@ async function main() {
 	if (args['port'] === undefined) {
 		serverArgs.push('--port', PORT);
 	}
-
-	// only use `./scripts/code-web.sh --playground` to add vscode-web-playground extension by default.
-	if (args['playground'] === true) {
+	if (args['playground'] === true || (args['_'].length === 0 && !args['folder-uri'])) {
 		serverArgs.push('--extensionPath', WEB_DEV_EXTENSIONS_ROOT);
 		serverArgs.push('--folder-uri', 'memfs:///sample-folder');
 		await ensureWebDevExtensions(args['verbose']);
@@ -78,6 +74,7 @@ async function main() {
 	serverArgs.push('--sourcesPath', APP_ROOT);
 
 	serverArgs.push(...process.argv.slice(2).filter(v => !v.startsWith('--playground') && v !== '--no-playground'));
+
 
 	startServer(serverArgs);
 	if (openSystemBrowser) {
@@ -147,5 +144,6 @@ async function ensureWebDevExtensions(verbose) {
 		}
 	}
 }
+
 
 main();

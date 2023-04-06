@@ -8,7 +8,6 @@ import { ServicesAccessor } from 'vs/editor/browser/editorExtensions';
 import { localize } from 'vs/nls';
 import { Action2, MenuId, registerAction2 } from 'vs/platform/actions/common/actions';
 import { INTERACTIVE_SESSION_CATEGORY } from 'vs/workbench/contrib/interactiveSession/browser/actions/interactiveSessionActions';
-import { CONTEXT_RESPONSE_VOTE } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
 import { IInteractiveSessionService, IInteractiveSessionUserActionEvent, InteractiveSessionVoteDirection } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
 import { isResponseVM } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionViewModel';
 
@@ -24,9 +23,9 @@ export function registerInteractiveSessionTitleActions() {
 				f1: false,
 				category: INTERACTIVE_SESSION_CATEGORY,
 				icon: Codicon.thumbsup,
-				toggled: CONTEXT_RESPONSE_VOTE.isEqualTo('up'),
 				menu: {
 					id: MenuId.InteractiveSessionTitle,
+					// when: interactiveSessionResponseHasProviderId, // re-add when the provider id has been adopted
 					group: 'navigation',
 					order: 1
 				}
@@ -48,7 +47,6 @@ export function registerInteractiveSessionTitleActions() {
 					responseId: item.providerResponseId
 				}
 			});
-			item.setVote(InteractiveSessionVoteDirection.Up);
 		}
 	});
 
@@ -63,9 +61,9 @@ export function registerInteractiveSessionTitleActions() {
 				f1: false,
 				category: INTERACTIVE_SESSION_CATEGORY,
 				icon: Codicon.thumbsdown,
-				toggled: CONTEXT_RESPONSE_VOTE.isEqualTo('down'),
 				menu: {
 					id: MenuId.InteractiveSessionTitle,
+					// when: interactiveSessionResponseHasProviderId, // re-add when the provider id has been adopted
 					group: 'navigation',
 					order: 2
 				}
@@ -87,7 +85,6 @@ export function registerInteractiveSessionTitleActions() {
 					responseId: item.providerResponseId
 				}
 			});
-			item.setVote(InteractiveSessionVoteDirection.Down);
 		}
 	});
 }

@@ -54,6 +54,7 @@ import { IUserDataProfile } from 'vs/platform/userDataProfile/common/userDataPro
 import { IPolicyService } from 'vs/platform/policy/common/policy';
 import { IUserDataProfilesMainService } from 'vs/platform/userDataProfile/electron-main/userDataProfile';
 import { ILoggerMainService } from 'vs/platform/log/electron-main/loggerService';
+import { canUseUtilityProcess } from 'vs/base/parts/sandbox/electron-main/electronTypes';
 
 //#region Helper Interfaces
 
@@ -1323,6 +1324,15 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 			}
 		}
 
+		let preferUtilityProcess = false;
+		if (canUseUtilityProcess) {
+			if (typeof windowConfig?.experimental?.sharedProcessUseUtilityProcess === 'boolean') {
+				preferUtilityProcess = windowConfig.experimental.sharedProcessUseUtilityProcess;
+			} else {
+				preferUtilityProcess = typeof product.quality === 'string' && product.quality !== 'stable';
+			}
+		}
+
 		// Build up the window configuration from provided options, config and environment
 		const configuration: INativeWindowConfiguration = {
 
@@ -1386,7 +1396,9 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 			accessibilitySupport: app.accessibilitySupportEnabled,
 			colorScheme: this.themeMainService.getColorScheme(),
 			policiesData: this.policyService.serialize(),
-			continueOn: this.environmentMainService.continueOn
+			continueOn: this.environmentMainService.continueOn,
+
+			preferUtilityProcess
 		};
 
 		// New window

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { PluginManager } from './tsServer/plugins';
+import { PluginManager } from './utils/plugins';
 
 class ApiV0 {
 	public constructor(

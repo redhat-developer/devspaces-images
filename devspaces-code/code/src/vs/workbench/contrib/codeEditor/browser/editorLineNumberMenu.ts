@@ -9,7 +9,7 @@ import { isMacintosh } from 'vs/base/common/platform';
 import { ICodeEditor, IEditorMouseEvent, MouseTargetType } from 'vs/editor/browser/editorBrowser';
 import { registerEditorContribution, EditorContributionInstantiation } from 'vs/editor/browser/editorExtensions';
 import { IEditorContribution } from 'vs/editor/common/editorCommon';
-import { IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from 'vs/platform/actions/common/actions';
+import { IMenuService, MenuId } from 'vs/platform/actions/common/actions';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { TextEditorSelectionSource } from 'vs/platform/editor/common/editor';
@@ -17,7 +17,7 @@ import { IInstantiationService, ServicesAccessor } from 'vs/platform/instantiati
 import { Registry } from 'vs/platform/registry/common/platform';
 
 export interface IGutterActionsGenerator {
-	(context: { lineNumber: number; editor: ICodeEditor; accessor: ServicesAccessor }, result: { push(action: IAction, group?: string): void }): void;
+	(context: { lineNumber: number; editor: ICodeEditor; accessor: ServicesAccessor }, result: { push(action: IAction): void }): void;
 }
 
 export class GutterActionsRegistryImpl {
@@ -83,47 +83,37 @@ export class EditorLineNumberContextMenu extends Disposable implements IEditorCo
 		const contextKeyService = this.contextKeyService.createOverlay([['editorLineNumber', lineNumber]]);
 		const menu = this.menuService.createMenu(MenuId.EditorLineNumberContext, contextKeyService);
 
-		const allActions: [string, (IAction | MenuItemAction | SubmenuItemAction)[]][] = [];
+		const actions: IAction[][] = [];
 
 		this.instantiationService.invokeFunction(accessor => {
 			for (const generator of GutterActionsRegistry.getGutterActionsGenerators()) {
-				const collectedActions = new Map<string, IAction[]>();
-				generator({ lineNumber, editor: this.editor, accessor }, {
-					push: (action: IAction, group: string = 'navigation') => {
-						const actions = (collectedActions.get(group) ?? []);
-						actions.push(action);
-						collectedActions.set(group, actions);
-					}
-				});
-				for (const [group, actions] of collectedActions.entries()) {
-					allActions.push([group, actions]);
-				}
+				const collectedActions: IAction[] = [];
+				generator({ lineNumber, editor: this.editor, accessor }, { push: (action: IAction) => collectedActions.push(action) });
+				actions.push(collectedActions);
 			}
 
-			allActions.sort((a, b) => a[0].localeCompare(b[0]));
-
 			const menuActions = menu.getActions({ arg: { lineNumber, uri: model.uri }, shouldForwardArgs: true });
-			allActions.push(...menuActions);
+			actions.push(...menuActions.map(a => a[1]));
 
 			// if the current editor selections do not contain the target line number,
 			// set the selection to the clicked line number
 			if (e.target.type === MouseTargetType.GUTTER_LINE_NUMBERS) {
 				const currentSelections = this.editor.getSelections();
-				const lineRange = {
-					startLineNumber: lineNumber,
-					endLineNumber: lineNumber,
-					startColumn: 1,
-					endColumn: model.getLineLength(lineNumber) + 1
-				};
-				const containsSelection = currentSelections?.some(selection => !selection.isEmpty() && selection.intersectRanges(lineRange) !== null);
+				const containsSelection = currentSelections?.some(selection => selection.containsPosition({ lineNumber, column: 1 }));
 				if (!containsSelection) {
-					this.editor.setSelection(lineRange, TextEditorSelectionSource.PROGRAMMATIC);
+					const selection = {
+						startLineNumber: lineNumber,
+						endLineNumber: lineNumber,
+						startColumn: 1,
+						endColumn: model.getLineLength(lineNumber) + 1
+					};
+					this.editor.setSelection(selection, TextEditorSelectionSource.PROGRAMMATIC);
 				}
 			}
 
 			this.contextMenuService.showContextMenu({
 				getAnchor: () => anchor,
-				getActions: () => Separator.join(...allActions.map((a) => a[1])),
+				getActions: () => Separator.join(...actions),
 				onHide: () => menu.dispose(),
 			});
 		});

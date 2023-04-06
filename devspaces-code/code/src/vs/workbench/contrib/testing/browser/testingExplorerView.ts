@@ -86,10 +86,6 @@ export class TestingExplorerView extends ViewPane {
 	private readonly dimensions = { width: 0, height: 0 };
 	private lastFocusState = LastFocusState.Input;
 
-	public get focusedTreeElements() {
-		return this.viewModel.tree.getFocus().filter(isDefined);
-	}
-
 	constructor(
 		options: IViewletViewOptions,
 		@IContextMenuService contextMenuService: IContextMenuService,
@@ -135,11 +131,7 @@ export class TestingExplorerView extends ViewPane {
 		}
 	}
 
-	/**
-	 * Gets include/exclude items in the tree, based either on visible tests
-	 * or a use selection.
-	 */
-	public getTreeIncludeExclude(profile?: ITestRunProfile, filterToType: 'visible' | 'selected' = 'visible') {
+	public getSelectedOrVisibleItems(profile?: ITestRunProfile) {
 		const projection = this.viewModel.projection.value;
 		if (!projection) {
 			return { include: [], exclude: [] };
@@ -154,7 +146,7 @@ export class TestingExplorerView extends ViewPane {
 
 		// To calculate includes and excludes, we include the first children that
 		// have a majority of their items included too, and then apply exclusions.
-		const include = new Set<InternalTestItem>();
+		const include: InternalTestItem[] = [];
 		const exclude: InternalTestItem[] = [];
 
 		const attempt = (element: TestExplorerTreeElement, alreadyIncluded: boolean) => {
@@ -184,7 +176,7 @@ export class TestingExplorerView extends ViewPane {
 				// probably fans out later. (Worse case we'll directly include its single child)
 				&& inTree.visibleChildrenCount !== 1
 			) {
-				include.add(element.test);
+				include.push(element.test);
 				alreadyIncluded = true;
 			}
 
@@ -193,29 +185,6 @@ export class TestingExplorerView extends ViewPane {
 				attempt(child, alreadyIncluded);
 			}
 		};
-
-		if (filterToType === 'selected') {
-			const sel = this.viewModel.tree.getSelection().filter(isDefined);
-			if (sel.length) {
-
-				L:
-				for (const node of sel) {
-					if (node instanceof TestItemTreeElement) {
-						// avoid adding an item if its parent is already included
-						for (let i: TestItemTreeElement | null = node; i; i = i.parent) {
-							if (include.has(i.test)) {
-								continue L;
-							}
-						}
-
-						include.add(node.test);
-						node.children.forEach(c => attempt(c, true));
-					}
-				}
-
-				return { include: [...include], exclude };
-			}
-		}
 
 		for (const root of this.testService.collection.rootItems) {
 			const element = projection.getElementByTestId(root.item.extId);
@@ -235,7 +204,7 @@ export class TestingExplorerView extends ViewPane {
 				// note we intentionally check children > 0 here, unlike above, since
 				// we don't want to bother dispatching to controllers who have no discovered tests
 				if (element.children.size > 0 && visibleChildren * 2 >= element.children.size) {
-					include.add(element.test);
+					include.push(element.test);
 					element.children.forEach(c => attempt(c, true));
 				} else {
 					element.children.forEach(c => attempt(c, false));
@@ -245,7 +214,7 @@ export class TestingExplorerView extends ViewPane {
 			}
 		}
 
-		return { include: [...include], exclude };
+		return { include, exclude };
 	}
 
 	/**
@@ -321,7 +290,7 @@ export class TestingExplorerView extends ViewPane {
 					undefined,
 					undefined,
 					() => {
-						const { include, exclude } = this.getTreeIncludeExclude(profile);
+						const { include, exclude } = this.getSelectedOrVisibleItems(profile);
 						this.testService.runResolvedTests({
 							exclude: exclude.map(e => e.item.extId),
 							targets: [{

@@ -438,7 +438,7 @@ export class View extends ViewEventHandler {
 			scrollTop: scrollPosition.scrollTop,
 			scrollLeft: scrollPosition.scrollLeft
 		}, ScrollType.Immediate);
-		this._context.viewModel.visibleLinesStabilized();
+		this._context.viewModel.tokenizeViewport();
 	}
 
 	public getOffsetForColumn(modelLineNumber: number, modelColumn: number): number {

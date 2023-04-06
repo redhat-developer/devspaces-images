@@ -883,7 +883,6 @@ export class MonarchTokenizer implements languages.ITokenizationSupport, IDispos
 
 		if (languageId !== this._languageId) {
 			// Fire language loading event
-			this._languageService.requestBasicLanguageFeatures(languageId);
 			languages.TokenizationRegistry.getOrCreate(languageId);
 			this._embeddedLanguages[languageId] = true;
 		}

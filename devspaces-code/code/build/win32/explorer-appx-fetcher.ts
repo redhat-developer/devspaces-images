@@ -5,13 +5,12 @@
 
 'use strict';
 
-import * as fs from 'fs';
 import * as debug from 'debug';
 import * as extract from 'extract-zip';
+import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as product from '../../product.json';
 import { downloadArtifact } from '@electron/get';
-
-const root = path.dirname(path.dirname(__dirname));
 
 const d = debug('explorer-appx-fetcher');
 
@@ -19,12 +18,12 @@ export async function downloadExplorerAppx(outDir: string, quality: string = 'st
 	const fileNamePrefix = quality === 'insider' ? 'code_insiders' : 'code';
 	const fileName = `${fileNamePrefix}_explorer_${targetArch}.zip`;
 
-	if (await fs.existsSync(path.resolve(outDir, 'resources.pri'))) {
+	if (await fs.pathExists(path.resolve(outDir, 'resources.pri'))) {
 		return;
 	}
 
-	if (!await fs.existsSync(outDir)) {
-		await fs.mkdirSync(outDir, { recursive: true });
+	if (!await fs.pathExists(outDir)) {
+		await fs.mkdirp(outDir);
 	}
 
 	d(`downloading ${fileName}`);
@@ -41,10 +40,11 @@ export async function downloadExplorerAppx(outDir: string, quality: string = 'st
 	});
 
 	d(`unpacking from ${fileName}`);
-	await extract(artifact, { dir: fs.realpathSync(outDir) });
+	await extract(artifact, { dir: outDir });
 }
 
-async function main(outputDir?: string): Promise<void> {
+async function main(): Promise<void> {
+	const outputDir = process.env['VSCODE_EXPLORER_APPX_DIR'];
 	let arch = process.env['VSCODE_ARCH'];
 
 	if (!outputDir) {
@@ -55,12 +55,11 @@ async function main(outputDir?: string): Promise<void> {
 		arch = 'x86';
 	}
 
-	const product = JSON.parse(fs.readFileSync(path.join(root, 'product.json'), 'utf8'));
 	await downloadExplorerAppx(outputDir, (product as any).quality, arch);
 }
 
 if (require.main === module) {
-	main(process.argv[2]).catch(err => {
+	main().catch(err => {
 		console.error(err);
 		process.exit(1);
 	});

@@ -191,7 +191,6 @@ class RenameController implements IEditorContribution {
 		}
 
 		if (this._cts.token.isCancellationRequested) {
-			this._cts.dispose();
 			return undefined;
 		}
 		this._cts.dispose();

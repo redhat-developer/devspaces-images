@@ -340,16 +340,15 @@ export abstract class BasePanelPart extends CompositePart<PaneComposite> impleme
 	}
 
 	private static toActivity(id: string, name: string, icon: URI | ThemeIcon | undefined, keybindingId: string | undefined): IActivity {
-		let classNames: string[] | undefined = undefined;
+		let cssClass: string | undefined = undefined;
 		let iconUrl: URI | undefined = undefined;
 		if (URI.isUri(icon)) {
 			iconUrl = icon;
 			const cssUrl = asCSSUrl(icon);
 			const hash = new StringSHA1();
 			hash.update(cssUrl);
-			const iconId = `activity-${id.replace(/\./g, '-')}-${hash.digest()}`;
-			classNames = [iconId, 'uri-icon'];
-			const iconClass = `.monaco-workbench .basepanel .monaco-action-bar .action-label.${iconId}`;
+			cssClass = `activity-${id.replace(/\./g, '-')}-${hash.digest()}`;
+			const iconClass = `.monaco-workbench .basepanel .monaco-action-bar .action-label.${cssClass}`;
 			createCSSRule(iconClass, `
 				mask: ${cssUrl} no-repeat 50% 50%;
 				mask-size: 16px;
@@ -359,10 +358,10 @@ export abstract class BasePanelPart extends CompositePart<PaneComposite> impleme
 				-webkit-mask-origin: padding;
 			`);
 		} else if (ThemeIcon.isThemeIcon(icon)) {
-			classNames = ThemeIcon.asClassNameArray(icon);
+			cssClass = ThemeIcon.asClassName(icon);
 		}
 
-		return { id, name, classNames, iconUrl, keybindingId };
+		return { id, name, cssClass, iconUrl, keybindingId };
 	}
 
 	private showOrHideViewContainer(viewContainer: ViewContainer, viewContainerModel: IViewContainerModel): void {

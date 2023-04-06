@@ -4,15 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { DocumentSelector } from '../configuration/documentSelector';
-import { LanguageDescription } from '../configuration/languageDescription';
-import { API } from '../tsServer/api';
-import type * as Proto from '../tsServer/protocol/protocol';
-import { Position } from '../typeConverters';
+import type * as Proto from '../protocol';
 import { ClientCapability, ITypeScriptServiceClient } from '../typescriptService';
+import API from '../utils/api';
+import { conditionalRegistration, requireMinVersion, requireSomeCapability } from '../utils/dependentRegistration';
 import { Disposable } from '../utils/dispose';
-import FileConfigurationManager, { InlayHintSettingNames, getInlayHintsPreferences } from './fileConfigurationManager';
-import { conditionalRegistration, requireMinVersion, requireSomeCapability } from './util/dependentRegistration';
+import { DocumentSelector } from '../utils/documentSelector';
+import { LanguageDescription } from '../utils/languageDescription';
+import { Position } from '../utils/typeConverters';
+import FileConfigurationManager, { getInlayHintsPreferences, InlayHintSettingNames } from './fileConfigurationManager';
 
 
 const inlayHintSettingNames = Object.freeze([

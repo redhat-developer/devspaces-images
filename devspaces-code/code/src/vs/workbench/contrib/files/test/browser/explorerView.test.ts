@@ -44,7 +44,7 @@ suite('Files - ExplorerView', () => {
 	test('decoration provider', async function () {
 		const d = new Date().getTime();
 		const s1 = createStat.call(this, '/path', 'path', true, false, 8096, d);
-		s1.error = new Error('A test error');
+		s1.isError = true;
 		const s2 = createStat.call(this, '/path/to', 'to', true, false, 8096, d, true);
 		const s3 = createStat.call(this, '/path/to/stat', 'stat', false, false, 8096, d);
 		assert.strictEqual(provideDecorations(s3), undefined);
@@ -53,7 +53,7 @@ suite('Files - ExplorerView', () => {
 			letter: '\u2937'
 		});
 		assert.deepStrictEqual(provideDecorations(s1), {
-			tooltip: 'Unable to resolve workspace folder (A test error)',
+			tooltip: 'Unable to resolve workspace folder',
 			letter: '!',
 			color: listInvalidItemForeground
 		});

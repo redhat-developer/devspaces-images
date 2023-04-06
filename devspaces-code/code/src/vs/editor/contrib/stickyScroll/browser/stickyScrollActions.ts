@@ -142,7 +142,7 @@ export class SelectEditor extends EditorAction2 {
 				value: localize('selectEditor.title', "Select Editor"),
 				original: 'Select Editor'
 			},
-			precondition: EditorContextKeys.stickyScrollFocused.isEqualTo(true),
+			precondition: ContextKeyExpr.has('config.editor.stickyScroll.enabled'),
 			keybinding: {
 				weight,
 				primary: KeyCode.Escape

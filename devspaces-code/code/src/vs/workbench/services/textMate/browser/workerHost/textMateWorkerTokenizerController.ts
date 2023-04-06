@@ -10,7 +10,7 @@ import { LineRange } from 'vs/editor/common/core/lineRange';
 import { Range } from 'vs/editor/common/core/range';
 import { IBackgroundTokenizationStore, ILanguageIdCodec } from 'vs/editor/common/languages';
 import { ITextModel } from 'vs/editor/common/model';
-import { TokenizationStateStore } from 'vs/editor/common/model/textModelTokens';
+import { ContiguousGrowingArray } from 'vs/editor/common/model/textModelTokens';
 import { IModelContentChange, IModelContentChangedEvent } from 'vs/editor/common/textModelEvents';
 import { ContiguousMultilineTokensBuilder } from 'vs/editor/common/tokens/contiguousMultilineTokensBuilder';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
@@ -26,7 +26,7 @@ export class TextMateWorkerTokenizerController extends Disposable {
 	 * These states will eventually equal the worker states.
 	 * _states[i] stores the state at the end of line number i+1.
 	 */
-	private readonly _states = new TokenizationStateStore<StateStack>();
+	private readonly _states = new ContiguousGrowingArray<StateStack | null>(null);
 
 	private readonly _loggingEnabled = observableConfigValue('editor.experimental.asyncTokenizationLogging', false, this._configurationService);
 
@@ -123,7 +123,8 @@ export class TextMateWorkerTokenizerController extends Disposable {
 			this._pendingChanges[0].versionId <= versionId
 		) {
 			const change = this._pendingChanges.shift()!;
-			this._states.acceptChanges(change.changes);
+			const op = lineArrayEditFromModelContentChange(change.changes);
+			op.applyTo(this._states);
 		}
 
 		if (this._pendingChanges.length > 0) {
@@ -179,15 +180,15 @@ export class TextMateWorkerTokenizerController extends Disposable {
 
 		// Apply state deltas to _states and _backgroundTokenizationStore
 		for (const d of stateDeltas) {
-			let prevState = d.startLineNumber <= 1 ? this._initialState : this._states.getEndState(d.startLineNumber - 1);
+			let prevState = d.startLineNumber <= 1 ? this._initialState : this._states.get(d.startLineNumber - 1 - 1);
 			for (let i = 0; i < d.stateDeltas.length; i++) {
 				const delta = d.stateDeltas[i];
 				let state: StateStack;
 				if (delta) {
 					state = applyStateStackDiff(prevState, delta)!;
-					this._states.setEndState(d.startLineNumber + i, state);
+					this._states.set(d.startLineNumber + i - 1, state);
 				} else {
-					state = this._states.getEndState(d.startLineNumber + i)!;
+					state = this._states.get(d.startLineNumber + i - 1)!;
 				}
 
 				const offset = curToFutureTransformerStates.transform(d.startLineNumber + i - 1);

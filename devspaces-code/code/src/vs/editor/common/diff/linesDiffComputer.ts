@@ -7,7 +7,7 @@ import { LineRange } from 'vs/editor/common/core/lineRange';
 import { Range } from 'vs/editor/common/core/range';
 
 export interface ILinesDiffComputer {
-	computeDiff(originalLines: string[], modifiedLines: string[], options: ILinesDiffComputerOptions): LinesDiff;
+	computeDiff(originalLines: string[], modifiedLines: string[], options: ILinesDiffComputerOptions): ILinesDiff;
 }
 
 export interface ILinesDiffComputerOptions {
@@ -15,17 +15,9 @@ export interface ILinesDiffComputerOptions {
 	readonly maxComputationTimeMs: number;
 }
 
-export class LinesDiff {
-	constructor(
-		readonly changes: readonly LineRangeMapping[],
-
-		/**
-		 * Indicates if the time out was reached.
-		 * In that case, the diffs might be an approximation and the user should be asked to rerun the diff with more time.
-		 */
-		readonly hitTimeout: boolean,
-	) {
-	}
+export interface ILinesDiff {
+	readonly quitEarly: boolean;
+	readonly changes: LineRangeMapping[];
 }
 
 /**
@@ -45,7 +37,7 @@ export class LineRangeMapping {
 	/**
 	 * If inner changes have not been computed, this is set to undefined.
 	 * Otherwise, it represents the character-level diff in this line range.
-	 * The original range of each range mapping should be contained in the original line range (same for modified), exceptions are new-lines.
+	 * The original range of each range mapping should be contained in the original line range (same for modified).
 	 * Must not be an empty array.
 	 */
 	public readonly innerChanges: RangeMapping[] | undefined;

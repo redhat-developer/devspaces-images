@@ -5,29 +5,8 @@
 
 import * as cp from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
+import * as tmp from 'tmp';
 import * as crypto from 'crypto';
-
-class Temp {
-	private _files: string[] = [];
-
-	tmpNameSync(): string {
-		const file = path.join(os.tmpdir(), crypto.randomBytes(20).toString('hex'));
-		this._files.push(file);
-		return file;
-	}
-
-	dispose(): void {
-		for (const file of this._files) {
-			try {
-				fs.unlinkSync(file);
-			} catch (err) {
-				// noop
-			}
-		}
-	}
-}
 
 function getParams(type: string): string {
 	switch (type) {
@@ -47,8 +26,7 @@ function getParams(type: string): string {
 }
 
 export function main([esrpCliPath, type, cert, username, password, folderPath, pattern]: string[]) {
-	const tmp = new Temp();
-	process.on('exit', () => tmp.dispose());
+	tmp.setGracefulCleanup();
 
 	const patternPath = tmp.tmpNameSync();
 	fs.writeFileSync(patternPath, pattern);

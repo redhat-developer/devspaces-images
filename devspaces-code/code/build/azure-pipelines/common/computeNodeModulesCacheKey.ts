@@ -24,8 +24,7 @@ for (const dir of dirs) {
 		dependencies: packageJson.dependencies,
 		devDependencies: packageJson.devDependencies,
 		optionalDependencies: packageJson.optionalDependencies,
-		resolutions: packageJson.resolutions,
-		distro: packageJson.distro
+		resolutions: packageJson.resolutions
 	};
 	shasum.update(JSON.stringify(relevantPackageJsonSections));
 

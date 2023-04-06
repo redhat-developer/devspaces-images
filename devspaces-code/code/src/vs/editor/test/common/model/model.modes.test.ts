@@ -19,10 +19,9 @@ suite('Editor Model - Model Modes 1', () => {
 
 	let calledFor: string[] = [];
 
-	function getAndClear(): string[] {
-		const result = calledFor;
+	function checkAndClear(arr: string[]) {
+		assert.deepStrictEqual(calledFor, arr);
 		calledFor = [];
-		return result;
 	}
 
 	const tokenizationSupport: languages.ITokenizationSupport = {
@@ -58,98 +57,98 @@ suite('Editor Model - Model Modes 1', () => {
 
 	test('model calls syntax highlighter 1', () => {
 		thisModel.tokenization.forceTokenization(1);
-		assert.deepStrictEqual(getAndClear(), ['1']);
+		checkAndClear(['1']);
 	});
 
 	test('model calls syntax highlighter 2', () => {
 		thisModel.tokenization.forceTokenization(2);
-		assert.deepStrictEqual(getAndClear(), ['1', '2']);
+		checkAndClear(['1', '2']);
 
 		thisModel.tokenization.forceTokenization(2);
-		assert.deepStrictEqual(getAndClear(), []);
+		checkAndClear([]);
 	});
 
 	test('model caches states', () => {
 		thisModel.tokenization.forceTokenization(1);
-		assert.deepStrictEqual(getAndClear(), ['1']);
+		checkAndClear(['1']);
 
 		thisModel.tokenization.forceTokenization(2);
-		assert.deepStrictEqual(getAndClear(), ['2']);
+		checkAndClear(['2']);
 
 		thisModel.tokenization.forceTokenization(3);
-		assert.deepStrictEqual(getAndClear(), ['3']);
+		checkAndClear(['3']);
 
 		thisModel.tokenization.forceTokenization(4);
-		assert.deepStrictEqual(getAndClear(), ['4']);
+		checkAndClear(['4']);
 
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['5']);
+		checkAndClear(['5']);
 
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), []);
+		checkAndClear([]);
 	});
 
 	test('model invalidates states for one line insert', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1', '2', '3', '4', '5']);
+		checkAndClear(['1', '2', '3', '4', '5']);
 
 		thisModel.applyEdits([EditOperation.insert(new Position(1, 1), '-')]);
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['-']);
+		checkAndClear(['-']);
 
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), []);
+		checkAndClear([]);
 	});
 
 	test('model invalidates states for many lines insert', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1', '2', '3', '4', '5']);
+		checkAndClear(['1', '2', '3', '4', '5']);
 
 		thisModel.applyEdits([EditOperation.insert(new Position(1, 1), '0\n-\n+')]);
 		assert.strictEqual(thisModel.getLineCount(), 7);
 		thisModel.tokenization.forceTokenization(7);
-		assert.deepStrictEqual(getAndClear(), ['0', '-', '+']);
+		checkAndClear(['0', '-', '+']);
 
 		thisModel.tokenization.forceTokenization(7);
-		assert.deepStrictEqual(getAndClear(), []);
+		checkAndClear([]);
 	});
 
 	test('model invalidates states for one new line', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1', '2', '3', '4', '5']);
+		checkAndClear(['1', '2', '3', '4', '5']);
 
 		thisModel.applyEdits([EditOperation.insert(new Position(1, 2), '\n')]);
 		thisModel.applyEdits([EditOperation.insert(new Position(2, 1), 'a')]);
 		thisModel.tokenization.forceTokenization(6);
-		assert.deepStrictEqual(getAndClear(), ['1', 'a']);
+		checkAndClear(['1', 'a']);
 	});
 
 	test('model invalidates states for one line delete', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1', '2', '3', '4', '5']);
+		checkAndClear(['1', '2', '3', '4', '5']);
 
 		thisModel.applyEdits([EditOperation.insert(new Position(1, 2), '-')]);
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1']);
+		checkAndClear(['1']);
 
 		thisModel.applyEdits([EditOperation.delete(new Range(1, 1, 1, 2))]);
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['-']);
+		checkAndClear(['-']);
 
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), []);
+		checkAndClear([]);
 	});
 
 	test('model invalidates states for many lines delete', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1', '2', '3', '4', '5']);
+		checkAndClear(['1', '2', '3', '4', '5']);
 
 		thisModel.applyEdits([EditOperation.delete(new Range(1, 1, 3, 1))]);
 		thisModel.tokenization.forceTokenization(3);
-		assert.deepStrictEqual(getAndClear(), ['3']);
+		checkAndClear(['3']);
 
 		thisModel.tokenization.forceTokenization(3);
-		assert.deepStrictEqual(getAndClear(), []);
+		checkAndClear([]);
 	});
 });
 
@@ -173,10 +172,9 @@ suite('Editor Model - Model Modes 2', () => {
 
 	let calledFor: string[] = [];
 
-	function getAndClear(): string[] {
-		const actual = calledFor;
+	function checkAndClear(arr: string[]): void {
+		assert.deepStrictEqual(calledFor, arr);
 		calledFor = [];
-		return actual;
 	}
 
 	const tokenizationSupport: languages.ITokenizationSupport = {
@@ -211,54 +209,54 @@ suite('Editor Model - Model Modes 2', () => {
 
 	test('getTokensForInvalidLines one text insert', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
+		checkAndClear(['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
 		thisModel.applyEdits([EditOperation.insert(new Position(1, 6), '-')]);
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1-', 'Line2']);
+		checkAndClear(['Line1-', 'Line2']);
 	});
 
 	test('getTokensForInvalidLines two text insert', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
+		checkAndClear(['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
 		thisModel.applyEdits([
 			EditOperation.insert(new Position(1, 6), '-'),
 			EditOperation.insert(new Position(3, 6), '-')
 		]);
 
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1-', 'Line2', 'Line3-', 'Line4']);
+		checkAndClear(['Line1-', 'Line2', 'Line3-', 'Line4']);
 	});
 
 	test('getTokensForInvalidLines one multi-line text insert, one small text insert', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
+		checkAndClear(['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
 		thisModel.applyEdits([EditOperation.insert(new Position(1, 6), '\nNew line\nAnother new line')]);
 		thisModel.applyEdits([EditOperation.insert(new Position(5, 6), '-')]);
 		thisModel.tokenization.forceTokenization(7);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'New line', 'Another new line', 'Line2', 'Line3-', 'Line4']);
+		checkAndClear(['Line1', 'New line', 'Another new line', 'Line2', 'Line3-', 'Line4']);
 	});
 
 	test('getTokensForInvalidLines one delete text', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
+		checkAndClear(['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
 		thisModel.applyEdits([EditOperation.delete(new Range(1, 1, 1, 5))]);
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['1', 'Line2']);
+		checkAndClear(['1', 'Line2']);
 	});
 
 	test('getTokensForInvalidLines one line delete text', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
+		checkAndClear(['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
 		thisModel.applyEdits([EditOperation.delete(new Range(1, 1, 2, 1))]);
 		thisModel.tokenization.forceTokenization(4);
-		assert.deepStrictEqual(getAndClear(), ['Line2']);
+		checkAndClear(['Line2']);
 	});
 
 	test('getTokensForInvalidLines multiple lines delete text', () => {
 		thisModel.tokenization.forceTokenization(5);
-		assert.deepStrictEqual(getAndClear(), ['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
+		checkAndClear(['Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
 		thisModel.applyEdits([EditOperation.delete(new Range(1, 1, 3, 3))]);
 		thisModel.tokenization.forceTokenization(3);
-		assert.deepStrictEqual(getAndClear(), ['ne3', 'Line4']);
+		checkAndClear(['ne3', 'Line4']);
 	});
 });

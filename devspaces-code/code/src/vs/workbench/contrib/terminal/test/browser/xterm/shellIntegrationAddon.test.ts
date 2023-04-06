@@ -5,12 +5,23 @@
 
 import { Terminal } from 'xterm';
 import { strictEqual, deepStrictEqual, deepEqual } from 'assert';
+import { timeout } from 'vs/base/common/async';
 import * as sinon from 'sinon';
 import { parseKeyValueAssignment, parseMarkSequence, deserializeMessage, ShellIntegrationAddon } from 'vs/platform/terminal/common/xterm/shellIntegrationAddon';
 import { ITerminalCapabilityStore, TerminalCapability } from 'vs/platform/terminal/common/capabilities/capabilities';
 import { TestInstantiationService } from 'vs/platform/instantiation/test/common/instantiationServiceMock';
 import { ILogService, NullLogService } from 'vs/platform/log/common/log';
-import { writeP } from 'vs/workbench/contrib/terminal/browser/terminalTestHelpers';
+
+async function writeP(terminal: Terminal, data: string): Promise<void> {
+	return new Promise<void>((resolve, reject) => {
+		const failTimeout = timeout(2000);
+		failTimeout.then(() => reject('Writing to xterm is taking longer than 2 seconds'));
+		terminal.write(data, () => {
+			failTimeout.cancel();
+			resolve();
+		});
+	});
+}
 
 class TestShellIntegrationAddon extends ShellIntegrationAddon {
 	getCommandDetectionMock(terminal: Terminal): sinon.SinonMock {

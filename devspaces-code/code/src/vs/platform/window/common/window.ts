@@ -137,7 +137,7 @@ export interface IWindowSettings {
 	readonly enableMenuBarMnemonics: boolean;
 	readonly closeWhenEmpty: boolean;
 	readonly clickThroughInactive: boolean;
-	readonly experimental?: { useSandbox: boolean };
+	readonly experimental?: { useSandbox: boolean; sharedProcessUseUtilityProcess: boolean };
 }
 
 export function getTitleBarStyle(configurationService: IConfigurationService): 'native' | 'custom' {
@@ -318,6 +318,8 @@ export interface INativeWindowConfiguration extends IWindowConfiguration, Native
 
 	os: IOSConfiguration;
 	policiesData?: IStringDictionary<{ definition: PolicyDefinition; value: PolicyValue }>;
+
+	preferUtilityProcess: boolean; // TODO@bpasero remove me once full app sandbox landed
 }
 
 /**

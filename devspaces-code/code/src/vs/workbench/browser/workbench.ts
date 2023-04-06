@@ -147,7 +147,6 @@ export class Workbench extends Layout {
 				const configurationService = accessor.get(IConfigurationService);
 				const hostService = accessor.get(IHostService);
 				const dialogService = accessor.get(IDialogService);
-				const notificationService = accessor.get(INotificationService) as NotificationService;
 
 				// Layout
 				this.initLayout(accessor);
@@ -163,7 +162,7 @@ export class Workbench extends Layout {
 				this.registerListeners(lifecycleService, storageService, configurationService, hostService, dialogService);
 
 				// Render Workbench
-				this.renderWorkbench(instantiationService, notificationService, storageService, configurationService);
+				this.renderWorkbench(instantiationService, accessor.get(INotificationService) as NotificationService, storageService, configurationService);
 
 				// Workbench Layout
 				this.createWorkbenchLayout();

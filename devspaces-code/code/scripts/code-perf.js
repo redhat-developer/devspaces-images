@@ -7,12 +7,13 @@
 
 const path = require('path');
 const perf = require('@vscode/vscode-perf');
+const minimist = require('minimist');
 
 const VSCODE_FOLDER = path.join(__dirname, '..');
 
 async function main() {
 
-	const args = process.argv;
+	const args = [...process.argv];
 	/** @type {string | undefined} */
 	let build = undefined;
 
@@ -42,13 +43,10 @@ async function main() {
 		args.push(path.join(VSCODE_FOLDER, 'package.json'));
 	}
 
-	if (build) {
-		args.push('--build');
-		args.push(build);
-	}
-
-	await perf.run();
-	process.exit(0);
+	await perf.run(build ? {
+		...minimist(args),
+		build
+	} : undefined);
 }
 
 /**

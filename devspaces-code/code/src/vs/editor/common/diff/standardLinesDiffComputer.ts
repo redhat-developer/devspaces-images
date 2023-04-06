@@ -6,23 +6,22 @@
 import { assertFn, checkAdjacentItems } from 'vs/base/common/assert';
 import { CharCode } from 'vs/base/common/charCode';
 import { LineRange } from 'vs/editor/common/core/lineRange';
-import { OffsetRange } from 'vs/editor/common/core/offsetRange';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
-import { DateTimeout, ISequence, ITimeout, InfiniteTimeout, SequenceDiff } from 'vs/editor/common/diff/algorithms/diffAlgorithm';
+import { OffsetRange, SequenceDiff, ISequence } from 'vs/editor/common/diff/algorithms/diffAlgorithm';
 import { DynamicProgrammingDiffing } from 'vs/editor/common/diff/algorithms/dynamicProgrammingDiffing';
 import { optimizeSequenceDiffs, smoothenSequenceDiffs } from 'vs/editor/common/diff/algorithms/joinSequenceDiffs';
 import { MyersDiffAlgorithm } from 'vs/editor/common/diff/algorithms/myersDiffAlgorithm';
-import { ILinesDiffComputer, ILinesDiffComputerOptions, LineRangeMapping, LinesDiff, RangeMapping } from 'vs/editor/common/diff/linesDiffComputer';
+import { ILinesDiff, ILinesDiffComputer, ILinesDiffComputerOptions, LineRangeMapping, RangeMapping } from 'vs/editor/common/diff/linesDiffComputer';
 
 export class StandardLinesDiffComputer implements ILinesDiffComputer {
 	private readonly dynamicProgrammingDiffing = new DynamicProgrammingDiffing();
 	private readonly myersDiffingAlgorithm = new MyersDiffAlgorithm();
 
-	computeDiff(originalLines: string[], modifiedLines: string[], options: ILinesDiffComputerOptions): LinesDiff {
-		const timeout = options.maxComputationTimeMs === 0 ? InfiniteTimeout.instance : new DateTimeout(options.maxComputationTimeMs);
-		const considerWhitespaceChanges = !options.ignoreTrimWhitespace;
+	constructor(
+	) { }
 
+	computeDiff(originalLines: string[], modifiedLines: string[], options: ILinesDiffComputerOptions): ILinesDiff {
 		const perfectHashes = new Map<string, number>();
 		function getOrCreateHash(text: string): number {
 			let hash = perfectHashes.get(text);
@@ -39,13 +38,12 @@ export class StandardLinesDiffComputer implements ILinesDiffComputer {
 		const sequence1 = new LineSequence(srcDocLines, originalLines);
 		const sequence2 = new LineSequence(tgtDocLines, modifiedLines);
 
-		const lineAlignmentResult = (() => {
+		let lineAlignments = (() => {
 			if (sequence1.length + sequence2.length < 1500) {
 				// Use the improved algorithm for small files
 				return this.dynamicProgrammingDiffing.compute(
 					sequence1,
 					sequence2,
-					timeout,
 					(offset1, offset2) =>
 						originalLines[offset1] === modifiedLines[offset2]
 							? modifiedLines[offset2].length === 0
@@ -61,17 +59,11 @@ export class StandardLinesDiffComputer implements ILinesDiffComputer {
 			);
 		})();
 
-		let lineAlignments = lineAlignmentResult.diffs;
-		let hitTimeout = lineAlignmentResult.hitTimeout;
 		lineAlignments = optimizeSequenceDiffs(sequence1, sequence2, lineAlignments);
 
 		const alignments: RangeMapping[] = [];
 
 		const scanForWhitespaceChanges = (equalLinesCount: number) => {
-			if (!considerWhitespaceChanges) {
-				return;
-			}
-
 			for (let i = 0; i < equalLinesCount; i++) {
 				const seq1Offset = seq1LastStart + i;
 				const seq2Offset = seq2LastStart + i;
@@ -79,13 +71,10 @@ export class StandardLinesDiffComputer implements ILinesDiffComputer {
 					// This is because of whitespace changes, diff these lines
 					const characterDiffs = this.refineDiff(originalLines, modifiedLines, new SequenceDiff(
 						new OffsetRange(seq1Offset, seq1Offset + 1),
-						new OffsetRange(seq2Offset, seq2Offset + 1),
-					), timeout, considerWhitespaceChanges);
-					for (const a of characterDiffs.mappings) {
+						new OffsetRange(seq2Offset, seq2Offset + 1)
+					));
+					for (const a of characterDiffs) {
 						alignments.push(a);
-					}
-					if (characterDiffs.hitTimeout) {
-						hitTimeout = true;
 					}
 				}
 			}
@@ -104,161 +93,64 @@ export class StandardLinesDiffComputer implements ILinesDiffComputer {
 			seq1LastStart = diff.seq1Range.endExclusive;
 			seq2LastStart = diff.seq2Range.endExclusive;
 
-			const characterDiffs = this.refineDiff(originalLines, modifiedLines, diff, timeout, considerWhitespaceChanges);
-			if (characterDiffs.hitTimeout) {
-				hitTimeout = true;
-			}
-			for (const a of characterDiffs.mappings) {
+			const characterDiffs = this.refineDiff(originalLines, modifiedLines, diff);
+			for (const a of characterDiffs) {
 				alignments.push(a);
 			}
 		}
 
 		scanForWhitespaceChanges(originalLines.length - seq1LastStart);
 
-		const changes = lineRangeMappingFromRangeMappings(alignments, originalLines, modifiedLines);
-		return new LinesDiff(changes, hitTimeout);
+		const changes: LineRangeMapping[] = lineRangeMappingFromRangeMappings(alignments);
+
+		return {
+			quitEarly: false,
+			changes: changes,
+		};
 	}
 
-	private refineDiff(originalLines: string[], modifiedLines: string[], diff: SequenceDiff, timeout: ITimeout, considerWhitespaceChanges: boolean): { mappings: RangeMapping[]; hitTimeout: boolean } {
-		const sourceSlice = new Slice(originalLines, diff.seq1Range, considerWhitespaceChanges);
-		const targetSlice = new Slice(modifiedLines, diff.seq2Range, considerWhitespaceChanges);
+	private refineDiff(originalLines: string[], modifiedLines: string[], diff: SequenceDiff): RangeMapping[] {
+		const sourceSlice = new Slice(originalLines, diff.seq1Range);
+		const targetSlice = new Slice(modifiedLines, diff.seq2Range);
 
-		const diffResult = sourceSlice.length + targetSlice.length < 500
-			? this.dynamicProgrammingDiffing.compute(sourceSlice, targetSlice, timeout)
-			: this.myersDiffingAlgorithm.compute(sourceSlice, targetSlice, timeout);
+		const originalDiffs = sourceSlice.length + targetSlice.length < 500
+			? this.dynamicProgrammingDiffing.compute(sourceSlice, targetSlice)
+			: this.myersDiffingAlgorithm.compute(sourceSlice, targetSlice);
 
-		let diffs = diffResult.diffs;
-		diffs = optimizeSequenceDiffs(sourceSlice, targetSlice, diffs);
-		diffs = coverFullWords(sourceSlice, targetSlice, diffs);
+		let diffs = optimizeSequenceDiffs(sourceSlice, targetSlice, originalDiffs);
 		diffs = smoothenSequenceDiffs(sourceSlice, targetSlice, diffs);
-
 		const result = diffs.map(
 			(d) =>
 				new RangeMapping(
-					sourceSlice.translateRange(d.seq1Range),
-					targetSlice.translateRange(d.seq2Range)
+					sourceSlice.translateRange(d.seq1Range).delta(diff.seq1Range.start),
+					targetSlice.translateRange(d.seq2Range).delta(diff.seq2Range.start)
 				)
 		);
-
-		// Assert: result applied on original should be the same as diff applied to original
-
-		return {
-			mappings: result,
-			hitTimeout: diffResult.hitTimeout,
-		};
+		return result;
 	}
 }
 
-function coverFullWords(sequence1: Slice, sequence2: Slice, sequenceDiffs: SequenceDiff[]): SequenceDiff[] {
-	const additional: SequenceDiff[] = [];
-
-	let lastModifiedWord: { added: number; deleted: number; count: number; s1Range: OffsetRange; s2Range: OffsetRange } | undefined = undefined;
-
-	function maybePushWordToAdditional() {
-		if (!lastModifiedWord) {
-			return;
-		}
-
-		const originalLength1 = lastModifiedWord.s1Range.length - lastModifiedWord.deleted;
-		const originalLength2 = lastModifiedWord.s2Range.length - lastModifiedWord.added;
-		if (originalLength1 !== originalLength2) {
-			// TODO figure out why this happens
-		}
-
-		if (Math.max(lastModifiedWord.deleted, lastModifiedWord.added) + (lastModifiedWord.count - 1) > originalLength1) {
-			additional.push(new SequenceDiff(lastModifiedWord.s1Range, lastModifiedWord.s2Range));
-		}
-
-		lastModifiedWord = undefined;
-	}
-
-	for (const s of sequenceDiffs) {
-		function processWord(s1Range: OffsetRange, s2Range: OffsetRange) {
-			if (!lastModifiedWord || !lastModifiedWord.s1Range.containsRange(s1Range) || !lastModifiedWord.s2Range.containsRange(s2Range)) {
-				if (lastModifiedWord && !(lastModifiedWord.s1Range.endExclusive < s1Range.start && lastModifiedWord.s2Range.endExclusive < s2Range.start)) {
-					const s1Added = OffsetRange.tryCreate(lastModifiedWord.s1Range.endExclusive, s1Range.start);
-					const s2Added = OffsetRange.tryCreate(lastModifiedWord.s2Range.endExclusive, s2Range.start);
-					lastModifiedWord.deleted += s1Added?.length ?? 0;
-					lastModifiedWord.added += s2Added?.length ?? 0;
-
-					lastModifiedWord.s1Range = lastModifiedWord.s1Range.join(s1Range);
-					lastModifiedWord.s2Range = lastModifiedWord.s2Range.join(s2Range);
-				} else {
-					maybePushWordToAdditional();
-					lastModifiedWord = { added: 0, deleted: 0, count: 0, s1Range: s1Range, s2Range: s2Range };
-				}
-			}
-
-			const changedS1 = s1Range.intersect(s.seq1Range);
-			const changedS2 = s2Range.intersect(s.seq2Range);
-			lastModifiedWord.count++;
-			lastModifiedWord.deleted += changedS1?.length ?? 0;
-			lastModifiedWord.added += changedS2?.length ?? 0;
-		}
-
-		const w1Before = sequence1.findWordContaining(s.seq1Range.start - 1);
-		const w2Before = sequence2.findWordContaining(s.seq2Range.start - 1);
-
-		const w1After = sequence1.findWordContaining(s.seq1Range.endExclusive);
-		const w2After = sequence2.findWordContaining(s.seq2Range.endExclusive);
-
-		if (w1Before && w1After && w2Before && w2After && w1Before.equals(w1After) && w2Before.equals(w2After)) {
-			processWord(w1Before, w2Before);
-		} else {
-			if (w1Before && w2Before) {
-				processWord(w1Before, w2Before);
-			}
-			if (w1After && w2After) {
-				processWord(w1After, w2After);
-			}
-		}
-	}
-
-	maybePushWordToAdditional();
-
-	const merged = mergeSequenceDiffs(sequenceDiffs, additional);
-	return merged;
-}
-
-function mergeSequenceDiffs(sequenceDiffs1: SequenceDiff[], sequenceDiffs2: SequenceDiff[]): SequenceDiff[] {
-	const result: SequenceDiff[] = [];
-
-	while (sequenceDiffs1.length > 0 || sequenceDiffs2.length > 0) {
-		const sd1 = sequenceDiffs1[0];
-		const sd2 = sequenceDiffs2[0];
-
-		let next: SequenceDiff;
-		if (sd1 && (!sd2 || sd1.seq1Range.start < sd2.seq1Range.start)) {
-			next = sequenceDiffs1.shift()!;
-		} else {
-			next = sequenceDiffs2.shift()!;
-		}
-
-		if (result.length > 0 && result[result.length - 1].seq1Range.endExclusive >= next.seq1Range.start) {
-			result[result.length - 1] = result[result.length - 1].join(next);
-		} else {
-			result.push(next);
-		}
-	}
-
-	return result;
-}
-
-export function lineRangeMappingFromRangeMappings(alignments: RangeMapping[], originalLines: string[], modifiedLines: string[]): LineRangeMapping[] {
+export function lineRangeMappingFromRangeMappings(alignments: RangeMapping[]): LineRangeMapping[] {
 	const changes: LineRangeMapping[] = [];
 	for (const g of group(
-		alignments.map(a => getLineRangeMapping(a, originalLines, modifiedLines)),
+		alignments,
 		(a1, a2) =>
-			a1.originalRange.overlapOrTouch(a2.originalRange)
-			|| a1.modifiedRange.overlapOrTouch(a2.modifiedRange)
+			(a2.originalRange.startLineNumber - (a1.originalRange.endLineNumber - (a1.originalRange.endColumn > 1 ? 0 : 1)) <= 1)
+			|| (a2.modifiedRange.startLineNumber - (a1.modifiedRange.endLineNumber - (a1.modifiedRange.endColumn > 1 ? 0 : 1)) <= 1)
 	)) {
 		const first = g[0];
 		const last = g[g.length - 1];
 
 		changes.push(new LineRangeMapping(
-			first.originalRange.join(last.originalRange),
-			first.modifiedRange.join(last.modifiedRange),
-			g.map(a => a.innerChanges![0]),
+			new LineRange(
+				first.originalRange.startLineNumber,
+				last.originalRange.endLineNumber + (last.originalRange.endColumn > 1 || last.modifiedRange.endColumn > 1 ? 1 : 0)
+			),
+			new LineRange(
+				first.modifiedRange.startLineNumber,
+				last.modifiedRange.endLineNumber + (last.originalRange.endColumn > 1 || last.modifiedRange.endColumn > 1 ? 1 : 0)
+			),
+			g
 		));
 	}
 
@@ -271,40 +163,8 @@ export function lineRangeMappingFromRangeMappings(alignments: RangeMapping[], or
 		);
 	});
 
+
 	return changes;
-}
-
-export function getLineRangeMapping(rangeMapping: RangeMapping, originalLines: string[], modifiedLines: string[]): LineRangeMapping {
-	let lineStartDelta = 0;
-	let lineEndDelta = 0;
-
-	// rangeMapping describes the edit that replaces `rangeMapping.originalRange` with `newText := getText(modifiedLines, rangeMapping.modifiedRange)`.
-
-	// original: xxx[ \n <- this line is not modified
-	// modified: xxx[ \n
-	if (rangeMapping.modifiedRange.startColumn - 1 >= modifiedLines[rangeMapping.modifiedRange.startLineNumber - 1].length
-		&& rangeMapping.originalRange.startColumn - 1 >= originalLines[rangeMapping.originalRange.startLineNumber - 1].length) {
-		lineStartDelta = 1; // +1 is always possible, as startLineNumber < endLineNumber + 1
-	}
-
-	// original: ]xxx \n <- this line is not modified
-	// modified: ]xx  \n
-	if (rangeMapping.modifiedRange.endColumn === 1 && rangeMapping.originalRange.endColumn === 1
-		&& rangeMapping.originalRange.startLineNumber + lineStartDelta <= rangeMapping.originalRange.endLineNumber
-		&& rangeMapping.modifiedRange.startLineNumber + lineStartDelta <= rangeMapping.modifiedRange.endLineNumber) {
-		lineEndDelta = -1; // We can only do this if the range is not empty yet
-	}
-
-	const originalLineRange = new LineRange(
-		rangeMapping.originalRange.startLineNumber + lineStartDelta,
-		rangeMapping.originalRange.endLineNumber + 1 + lineEndDelta
-	);
-	const modifiedLineRange = new LineRange(
-		rangeMapping.modifiedRange.startLineNumber + lineStartDelta,
-		rangeMapping.modifiedRange.endLineNumber + 1 + lineEndDelta
-	);
-
-	return new LineRangeMapping(originalLineRange, modifiedLineRange, [rangeMapping]);
 }
 
 function* group<T>(items: Iterable<T>, shouldBeGrouped: (item1: T, item2: T) => boolean): Iterable<T[]> {
@@ -356,56 +216,34 @@ function getIndentation(str: string): number {
 }
 
 class Slice implements ISequence {
-	private readonly elements: number[] = [];
-	private readonly firstCharOffsetByLineMinusOne: number[] = [];
-	public readonly lineRange: OffsetRange;
-	// To account for trimming
-	private readonly offsetByLine: number[] = [];
+	private readonly elements: Int32Array;
+	private readonly firstCharOnLineOffsets: Int32Array;
 
-	constructor(public readonly lines: string[], lineRange: OffsetRange, public readonly considerWhitespaceChanges: boolean) {
-		// This slice has to have lineRange.length many \n! (otherwise diffing against an empty slice will be problematic)
-		// (Unless it covers the entire document, in that case the other slice also has to cover the entire document ands it's okay)
+	constructor(public readonly lines: string[], public readonly lineRange: OffsetRange) {
+		let chars = 0;
+		this.firstCharOnLineOffsets = new Int32Array(lineRange.length);
 
-		// If the slice covers the end, but does not start at the beginning, we include just the \n of the previous line.
-		let trimFirstLineFully = false;
-		if (lineRange.start > 0 && lineRange.endExclusive >= lines.length) {
-			lineRange = new OffsetRange(lineRange.start - 1, lineRange.endExclusive);
-			trimFirstLineFully = true;
+		for (let i = lineRange.start; i < lineRange.endExclusive; i++) {
+			const line = lines[i];
+			chars += line.length;
+			this.firstCharOnLineOffsets[i - lineRange.start] = chars + 1;
+			chars++;
 		}
 
-		this.lineRange = lineRange;
-
-		for (let i = this.lineRange.start; i < this.lineRange.endExclusive; i++) {
-			let line = lines[i];
-			let offset = 0;
-			if (trimFirstLineFully) {
-				offset = line.length;
-				line = '';
-				trimFirstLineFully = false;
-			} else if (!considerWhitespaceChanges) {
-				const trimmedStartLine = line.trimStart();
-				offset = line.length - trimmedStartLine.length;
-				line = trimmedStartLine.trimEnd();
-			}
-
-			this.offsetByLine.push(offset);
+		this.elements = new Int32Array(chars);
+		let offset = 0;
+		for (let i = lineRange.start; i < lineRange.endExclusive; i++) {
+			const line = lines[i];
 
 			for (let i = 0; i < line.length; i++) {
-				this.elements.push(line.charCodeAt(i));
+				this.elements[offset + i] = line.charCodeAt(i);
 			}
-
-			// Don't add an \n that does not exist in the document.
+			offset += line.length;
 			if (i < lines.length - 1) {
-				this.elements.push('\n'.charCodeAt(0));
-				this.firstCharOffsetByLineMinusOne[i - this.lineRange.start] = this.elements.length;
+				this.elements[offset] = '\n'.charCodeAt(0);
+				offset += 1;
 			}
 		}
-		// To account for the last line
-		this.offsetByLine.push(0);
-	}
-
-	toString() {
-		return `Slice: "${this.text}"`;
 	}
 
 	get text(): string {
@@ -447,62 +285,26 @@ class Slice implements ISequence {
 	}
 
 	public translateOffset(offset: number): Position {
-		// find smallest i, so that lineBreakOffsets[i] <= offset using binary search
-		if (this.lineRange.isEmpty) {
-			return new Position(this.lineRange.start + 1, 1);
-		}
+		// find smallest i, so that lineBreakOffsets[i] > offset using binary search
 
 		let i = 0;
-		let j = this.firstCharOffsetByLineMinusOne.length;
+		let j = this.firstCharOnLineOffsets.length;
 		while (i < j) {
 			const k = Math.floor((i + j) / 2);
-			if (this.firstCharOffsetByLineMinusOne[k] > offset) {
+			if (this.firstCharOnLineOffsets[k] > offset) {
 				j = k;
 			} else {
 				i = k + 1;
 			}
 		}
 
-		const offsetOfPrevLineBreak = i === 0 ? 0 : this.firstCharOffsetByLineMinusOne[i - 1];
-		return new Position(this.lineRange.start + i + 1, offset - offsetOfPrevLineBreak + 1 + this.offsetByLine[i]);
+		const offsetOfPrevLineBreak = i === 0 ? 0 : this.firstCharOnLineOffsets[i - 1];
+		return new Position(i + 1, offset - offsetOfPrevLineBreak + 1);
 	}
 
 	public translateRange(range: OffsetRange): Range {
 		return Range.fromPositions(this.translateOffset(range.start), this.translateOffset(range.endExclusive));
 	}
-
-	/**
-	 * Finds the word that contains the character at the given offset
-	 */
-	public findWordContaining(offset: number): OffsetRange | undefined {
-		if (offset < 0 || offset >= this.elements.length) {
-			return undefined;
-		}
-
-		if (!isWordChar(this.elements[offset])) {
-			return undefined;
-		}
-
-		// find start
-		let start = offset;
-		while (start > 0 && isWordChar(this.elements[start - 1])) {
-			start--;
-		}
-
-		// find end
-		let end = offset;
-		while (end < this.elements.length && isWordChar(this.elements[end])) {
-			end++;
-		}
-
-		return new OffsetRange(start, end);
-	}
-}
-
-function isWordChar(charCode: number): boolean {
-	return charCode >= CharCode.a && charCode <= CharCode.z
-		|| charCode >= CharCode.A && charCode <= CharCode.Z
-		|| charCode >= CharCode.Digit0 && charCode <= CharCode.Digit9;
 }
 
 const enum CharBoundaryCategory {

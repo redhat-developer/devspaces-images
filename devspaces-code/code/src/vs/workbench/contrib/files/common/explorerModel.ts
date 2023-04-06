@@ -84,7 +84,7 @@ export class ExplorerModel implements IDisposable {
 
 export class ExplorerItem {
 	_isDirectoryResolved: boolean; // used in tests
-	public error: Error | undefined = undefined;
+	public isError = false;
 	private _isExcluded = false;
 
 	public nestedParent: ExplorerItem | undefined;
@@ -245,7 +245,7 @@ export class ExplorerItem {
 		local._mtime = disk.mtime;
 		local._isDirectoryResolved = disk._isDirectoryResolved;
 		local._isSymbolicLink = disk.isSymbolicLink;
-		local.error = disk.error;
+		local.isError = disk.isError;
 
 		// Merge Children if resolved
 		if (mergingDirectories && disk._isDirectoryResolved) {
@@ -310,13 +310,13 @@ export class ExplorerItem {
 				// Resolve metadata only when the mtime is needed since this can be expensive
 				// Mtime is only used when the sort order is 'modified'
 				const resolveMetadata = sortOrder === SortOrder.Modified;
-				this.error = undefined;
+				this.isError = false;
 				try {
 					const stat = await this.fileService.resolve(this.resource, { resolveSingleChildDescendants: true, resolveMetadata });
 					const resolved = ExplorerItem.create(this.fileService, this.configService, stat, this);
 					ExplorerItem.mergeLocalWithDisk(resolved, this);
 				} catch (e) {
-					this.error = e;
+					this.isError = true;
 					throw e;
 				}
 				this._isDirectoryResolved = true;

@@ -77,11 +77,6 @@ export interface IModelContentChangedEvent {
 	 * The model has been reset to a new value.
 	 */
 	readonly isFlush: boolean;
-
-	/**
-	 * Flag that indicates that this event describes an eol change.
-	 */
-	readonly isEolChange: boolean;
 }
 
 /**
@@ -97,6 +92,7 @@ export interface IModelDecorationsChangedEvent {
  * @internal
  */
 export interface IModelTokensChangedEvent {
+	readonly tokenizationSupportChanged: boolean;
 	readonly semanticTokensApplied: boolean;
 	readonly ranges: {
 		/**
@@ -378,15 +374,13 @@ export class InternalModelContentChangeEvent {
 		const isUndoing = (a.isUndoing || b.isUndoing);
 		const isRedoing = (a.isRedoing || b.isRedoing);
 		const isFlush = (a.isFlush || b.isFlush);
-		const isEolChange = a.isEolChange && b.isEolChange; // both must be true to not confuse listeners who skip such edits
 		return {
 			changes: changes,
 			eol: eol,
-			isEolChange: isEolChange,
 			versionId: versionId,
 			isUndoing: isUndoing,
 			isRedoing: isRedoing,
-			isFlush: isFlush,
+			isFlush: isFlush
 		};
 	}
 }

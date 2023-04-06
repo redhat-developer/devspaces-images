@@ -80,7 +80,7 @@ export class ActivityAction extends Action {
 	private clazz: string | undefined;
 
 	constructor(private _activity: IActivity) {
-		super(_activity.id, _activity.name, _activity.classNames?.join(' '), true);
+		super(_activity.id, _activity.name, _activity.cssClass);
 	}
 
 	get activity(): IActivity {
@@ -360,8 +360,12 @@ export class ActivityActionViewItem extends BaseActionViewItem {
 	protected override updateLabel(): void {
 		this.label.className = 'action-label';
 
-		if (this.activity.classNames) {
-			this.label.classList.add(...this.activity.classNames);
+		if (this.activity.cssClass) {
+			this.label.classList.add(...this.activity.cssClass.split(' '));
+		}
+
+		if (this.options.icon && !this.activity.iconUrl) {
+			this.label.classList.add('codicon'); // Only apply codicon class to activity bar icon items without iconUrl
 		}
 
 		if (!this.options.icon) {
@@ -462,7 +466,7 @@ export class CompositeOverflowActivityAction extends ActivityAction {
 		super({
 			id: 'additionalComposites.action',
 			name: localize('additionalViews', "Additional Views"),
-			classNames: ThemeIcon.asClassNameArray(Codicon.more)
+			cssClass: ThemeIcon.asClassName(Codicon.more)
 		});
 	}
 

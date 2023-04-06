@@ -226,7 +226,6 @@ export class FileBasedRecommendations extends ExtensionRecommendations {
 
 				if (matched) {
 					matchedConditions.push(condition);
-					conditionsByPattern.pop();
 				} else {
 					if (isLanguageCondition || isFileContentCondition) {
 						unmatchedConditions.push(condition);

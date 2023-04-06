@@ -387,10 +387,6 @@
 			"project": "vscode-workbench"
 		},
 		{
-			"name": "vs/workbench/services/hover",
-			"project": "vscode-workbench"
-		},
-		{
 			"name": "vs/workbench/services/log",
 			"project": "vscode-workbench"
 		},

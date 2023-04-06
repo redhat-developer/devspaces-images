@@ -35,7 +35,7 @@ export interface IViewModel extends ICursorSimpleModel {
 	 * Gives a hint that a lot of requests are about to come in for these line numbers.
 	 */
 	setViewport(startLineNumber: number, endLineNumber: number, centeredLineNumber: number): void;
-	visibleLinesStabilized(): void;
+	tokenizeViewport(): void;
 	setHasFocus(hasFocus: boolean): void;
 	onCompositionStart(): void;
 	onCompositionEnd(): void;

@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import TypeScriptServiceClientHost from '../typeScriptServiceClientHost';
-import { ActiveJsTsEditorTracker } from '../ui/activeJsTsEditorTracker';
+import { ActiveJsTsEditorTracker } from '../utils/activeJsTsEditorTracker';
 import { Lazy } from '../utils/lazy';
-import { openProjectConfigForFile, ProjectType } from '../tsconfig';
+import { openProjectConfigForFile, ProjectType } from '../utils/tsconfig';
 import { Command } from './commandManager';
 
 export class TypeScriptGoToProjectConfigCommand implements Command {

@@ -38,7 +38,6 @@ import { NotebookPerfMarks } from 'vs/workbench/contrib/notebook/common/notebook
 import { IEditorDropService } from 'vs/workbench/services/editor/browser/editorDropService';
 import { GroupsOrder, IEditorGroup, IEditorGroupsService } from 'vs/workbench/services/editor/common/editorGroupsService';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
-import { IEditorProgressService } from 'vs/platform/progress/common/progress';
 
 const NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY = 'NotebookEditorViewState';
 
@@ -77,8 +76,7 @@ export class NotebookEditor extends EditorPane implements INotebookEditorPane {
 		@INotebookEditorService private readonly _notebookWidgetService: INotebookEditorService,
 		@IContextKeyService private readonly _contextKeyService: IContextKeyService,
 		@IFileService private readonly _fileService: IFileService,
-		@ITextResourceConfigurationService configurationService: ITextResourceConfigurationService,
-		@IEditorProgressService private readonly _editorProgressService: IEditorProgressService,
+		@ITextResourceConfigurationService configurationService: ITextResourceConfigurationService
 	) {
 		super(NotebookEditor.ID, telemetryService, themeService, storageService);
 		this._editorMemento = this.getEditorMemento<INotebookEditorViewState>(_editorGroupService, configurationService, NOTEBOOK_EDITOR_VIEW_STATE_PREFERENCE_KEY);
@@ -233,10 +231,7 @@ export class NotebookEditor extends EditorPane implements INotebookEditorPane {
 
 			const viewState = options?.viewState ?? this._loadNotebookEditorViewState(input);
 
-			// We might be moving the notebook widget between groups, and these services are tied to the group
-			this._widget.value!.setParentContextKeyService(this._contextKeyService);
-			this._widget.value!.setEditorProgressService(this._editorProgressService);
-
+			this._widget.value?.setParentContextKeyService(this._contextKeyService);
 			await this._widget.value!.setModel(model.notebook, viewState, perf);
 			const isReadOnly = input.hasCapability(EditorInputCapabilities.Readonly);
 			await this._widget.value!.setOptions({ ...options, isReadOnly });
