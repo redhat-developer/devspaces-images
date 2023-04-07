@@ -49,7 +49,7 @@ import { FactoryParams } from '../../../containers/Loader/buildFactoryParams';
 import { getEditor } from '../../DevfileRegistries/getEditor';
 import { selectApplications } from '../../ClusterInfo/selectors';
 
-export const onStatusChangeCallbacks = new Map<string, (status: DevWorkspaceStatus) => void>();
+export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
 export interface State {
   isLoading: boolean;
@@ -326,12 +326,12 @@ export const actionCreators: ActionCreators = {
         // wait for status to become STARTING or 10 seconds, whichever comes first
         const defer: IDeferred<void> = getDefer();
         const toDispose = new DisposableCollection();
-        const statusStartingHandler = async (status: DevWorkspaceStatus) => {
+        const statusStartingHandler = async (status: string) => {
           if (status === DevWorkspaceStatus.STARTING) {
             defer.resolve();
           }
         };
-        const workspaceUID = workspace.metadata.uid;
+        const workspaceUID = WorkspaceAdapter.getUID(workspace);
         onStatusChangeCallbacks.set(workspaceUID, statusStartingHandler);
         toDispose.push({
           dispose: () => onStatusChangeCallbacks.delete(workspaceUID),
@@ -362,7 +362,7 @@ export const actionCreators: ActionCreators = {
     async (dispatch): Promise<void> => {
       const defer: IDeferred<void> = getDefer();
       const toDispose = new DisposableCollection();
-      const onStatusChangeCallback = async (status: DevWorkspaceStatus) => {
+      const onStatusChangeCallback = async (status: string) => {
         if (status === DevWorkspaceStatus.STOPPED || status === DevWorkspaceStatus.FAILED) {
           toDispose.dispose();
           try {
@@ -749,11 +749,12 @@ export const actionCreators: ActionCreators = {
         const devworkspaceId = workspace.status?.devworkspaceId;
         const phase = workspace.status?.phase;
         const prevPhase = prevWorkspace?.status?.phase;
-        if (devworkspaceId !== undefined && phase !== undefined && prevPhase !== phase) {
-          const onStatusChangeListener = onStatusChangeCallbacks.get(devworkspaceId);
+        const workspaceUID = WorkspaceAdapter.getUID(workspace);
+        if (phase && prevPhase !== phase) {
+          const onStatusChangeListener = onStatusChangeCallbacks.get(workspaceUID);
 
           if (onStatusChangeListener) {
-            onStatusChangeListener(DevWorkspaceStatus[phase]);
+            onStatusChangeListener(phase);
           }
         }
 
