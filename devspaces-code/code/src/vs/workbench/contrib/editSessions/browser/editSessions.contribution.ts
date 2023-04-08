@@ -489,8 +489,8 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 		}
 
 		try {
-			const { changes, conflictingChanges } = await this.generateChanges(editSession, ref, force);
-			if (changes.length === 0) {
+			const { changes, conflictingChanges, contributedStateHandlers } = await this.generateChanges(editSession, ref, force);
+			if (changes.length === 0 && contributedStateHandlers.length === 0) {
 				return;
 			}
 
@@ -519,6 +519,10 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 				}
 			}
 
+			for (const handleContributedState of contributedStateHandlers) {
+				handleContributedState();
+			}
+
 			this.logService.info(`Deleting edit session with ref ${ref} after successfully applying it to current workspace...`);
 			await this.editSessionsStorageService.delete(ref);
 			this.logService.info(`Deleted edit session with ref ${ref}.`);
@@ -534,6 +538,7 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 
 	private async generateChanges(editSession: EditSession, ref: string, force = false) {
 		const changes: ({ uri: URI; type: ChangeType; contents: string | undefined })[] = [];
+		const contributedStateHandlers: (() => void)[] = [];
 		const conflictingChanges = [];
 		const workspaceFolders = this.contextService.getWorkspace().folders;
 
@@ -580,7 +585,7 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 
 			if (!folderRoot) {
 				this.logService.info(`Skipping applying ${folder.workingChanges.length} changes from edit session with ref ${ref} as no matching workspace folder was found.`);
-				return { changes: [], conflictingChanges: [] };
+				return { changes: [], conflictingChanges: [], contributedStateHandlers: [] };
 			}
 
 			const localChanges = new Set<string>();
@@ -604,18 +609,17 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 
 			const workspaceFolder = folderRoot;
 			if (workspaceFolder) {
-				// apply additional state from registered edit session contributors
 				// look through all registered contributions to gather additional state
 				EditSessionRegistry.getEditSessionContributions().forEach(([key, contrib]) => {
 					const state = folder[key];
 					if (state) {
-						contrib.resumeState(workspaceFolder, state);
+						contributedStateHandlers.push(() => contrib.resumeState(workspaceFolder, state));
 					}
 				});
 			}
 		}
 
-		return { changes, conflictingChanges };
+		return { changes, conflictingChanges, contributedStateHandlers };
 	}
 
 	private async willChangeLocalContents(localChanges: Set<string>, uriWithIncomingChanges: URI, incomingChange: Change) {
@@ -640,6 +644,7 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 
 	async storeEditSession(fromStoreCommand: boolean, cancellationToken: CancellationToken): Promise<string | undefined> {
 		const folders: Folder[] = [];
+		let editSessionSize = 0;
 		let hasEdits = false;
 
 		// Save all saveable editors before building edit session contents
@@ -677,8 +682,14 @@ export class EditSessionsContribution extends Disposable implements IWorkbenchCo
 
 				hasEdits = true;
 
+				const contents = encodeBase64((await this.fileService.readFile(uri)).value);
+				editSessionSize += contents.length;
+				if (editSessionSize > this.editSessionsStorageService.SIZE_LIMIT) {
+					this.notificationService.error(localize('payload too large', 'Your working changes exceed the size limit and cannot be stored.'));
+					return undefined;
+				}
+
 				if (await this.fileService.exists(uri)) {
-					const contents = encodeBase64((await this.fileService.readFile(uri)).value);
 					workingChanges.push({ type: ChangeType.Addition, fileType: FileType.File, contents: contents, relativeFilePath: relativeFilePath });
 				} else {
 					// Assume it's a deletion
