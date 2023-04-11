@@ -29,7 +29,7 @@ describe('Normalize Devfile V2', () => {
     ];
   });
 
-  it('should not apply defaultComponents', () => {
+  it('should not apply defaultComponents if components exist', () => {
     const devfileLike = {
       schemaVersion: '2.1.0',
       metadata: {
@@ -66,21 +66,49 @@ describe('Normalize Devfile V2', () => {
     );
   });
 
+  it('should not apply defaultComponents if parent exist', () => {
+    const devfileLike = {
+      schemaVersion: '2.1.0',
+      metadata: {
+        generateName: 'empty',
+      },
+      parent: {
+        id: 'java-maven',
+        registryUrl: 'https://registry.devfile.io/',
+        version: '1.2.0',
+      },
+      components: [],
+    } as devfileApi.DevfileLike;
+
+    const targetDevfile = normalizeDevfileV2(
+      devfileLike,
+      {} as FactoryResolver,
+      'http://dummy-registry/devfiles/empty.yaml',
+      defaultComponents,
+      'che',
+      {},
+    );
+
+    expect(targetDevfile).not.toEqual(
+      expect.objectContaining({
+        components: defaultComponents,
+      }),
+    );
+    expect(targetDevfile).toEqual(
+      expect.objectContaining({
+        components: devfileLike.components,
+      }),
+    );
+  });
+
   it('should apply defaultComponents', () => {
     const devfileLike = {
       schemaVersion: '2.1.0',
       metadata: {
         generateName: 'empty',
       },
+      components: [],
     } as devfileApi.DevfileLike;
-    const defaultComponents = [
-      {
-        container: {
-          image: 'quay.io/devfile/universal-developer-image:latest',
-        },
-        name: 'universal-developer-image',
-      },
-    ] as V220DevfileComponents[];
 
     const targetDevfile = normalizeDevfileV2(
       devfileLike,

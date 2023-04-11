@@ -59,21 +59,23 @@ export default function normalizeDevfileV2(
   devfile.metadata.namespace = namespace;
 
   // propagate default components
-  if (!devfile.components || devfile.components.length === 0) {
+  if (!devfile.parent && (!devfile.components || devfile.components.length === 0)) {
     devfile.components = cloneDeep(defaultComponents);
   }
 
-  // apply the custom image from factory params
-  if (factoryParams.image && devfile.components[0].container?.image) {
-    devfile.components[0].container.image = factoryParams.image;
-  }
-
-  // temporary solution for fix che-server serialization bug with empty volume
-  devfile.components.forEach(component => {
-    if (Object.keys(component).length === 1 && component.name) {
-      component.volume = {};
+  if (devfile.components && devfile.components.length > 0) {
+    // apply the custom image from factory params
+    if (factoryParams.image && devfile.components[0].container?.image) {
+      devfile.components[0].container.image = factoryParams.image;
     }
-  });
+
+    // temporary solution for fix che-server serialization bug with empty volume
+    devfile.components.forEach(component => {
+      if (Object.keys(component).length === 1 && component.name) {
+        component.volume = {};
+      }
+    });
+  }
 
   // add a default project
   const projects: DevfileV2ProjectSource[] = [];
