@@ -157,6 +157,8 @@ RUN \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template
 
+RUN dnf install -y -q compat-sap-c++-9
+
 RUN \
     ## Rootless podman install #2: install podman buildah skopeo e2fsprogs (above)
     ## Rootless podman install #3: tweaks to make rootless buildah work
