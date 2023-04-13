@@ -22,8 +22,8 @@ baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/rh
 enabled=1
 gpgcheck=0
 
-[rhel-8-for-sap-rpms-pulp]
-name=rhel-8-sap-rpms-pulp
-baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/sap/os
+[rhel-8-for-sap-solutions-rpms]
+name=rhel-8-for-sap-solutions-rpms
+baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/sap-solutions/os
 enabled=1
 gpgcheck=0
