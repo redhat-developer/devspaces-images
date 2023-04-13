@@ -20,7 +20,6 @@ s390x:
 - rhel-8-for-s390x-appstream-rpms
 - ocp-tools-4.11-for-rhel-8-s390x-rpms
 - rhocp-4.12-for-rhel-8-s390x-rpms
-- rhel-8-for-s390x-sap-solutions-rpms
 ppc64le:
 - rhel-8-for-ppc64le-baseos-rpms
 - rhel-8-for-ppc64le-appstream-rpms
