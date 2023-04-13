@@ -247,9 +247,6 @@ RUN \
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh && \
-    if [[ ! "$(uname -m)" == 's390x' ]]; then \
-        dnf -y -q install compat-sap-c++-9; \
-    fi && \
     ########################################################################
     # .NET (dotnet) 6.0 (s390x and x64 only) + 7.0 (ppc64le, s390x and x64 only) (Tech Preview)
     ########################################################################

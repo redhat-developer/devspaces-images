@@ -21,9 +21,3 @@ name=rhocp-4.12-for-rhel-8-rpms
 baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/rhocp/4.12/os/
 enabled=1
 gpgcheck=0
-
-[rhel-8-for-sap-solutions-rpms]
-name=rhel-8-for-sap-solutions-rpms
-baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/sap-solutions/os
-enabled=1
-gpgcheck=0
