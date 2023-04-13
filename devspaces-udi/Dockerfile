@@ -106,7 +106,7 @@ RUN \
     # install all the rpms and modules
     microdnf install -y dnf && \
     dnf -y -q module reset   container-tools       maven     nodejs                 python39                   php; \
-    dnf -y -q install compat-sap-c++-9 && \
+    dnf -y -q install compat-sap-c++-10 && \
     dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION python39:${PYTHON_VERSION} php:$PHP_VERSION && \
     dnf -y -q install --setopt=tsflags=nodocs \
         golang \
