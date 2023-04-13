@@ -247,6 +247,9 @@ RUN \
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh && \
+
+RUN dnf install -y compat-sap-c++-9
+
     ########################################################################
     # .NET (dotnet) 6.0 (s390x and x64 only) + 7.0 (ppc64le, s390x and x64 only) (Tech Preview)
     ########################################################################
