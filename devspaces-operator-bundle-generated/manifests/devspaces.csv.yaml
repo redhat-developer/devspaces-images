@@ -58,7 +58,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:033ea58d5a0c7f13c87d97ede7182498291de75f1ffd689eb9bd5b66a2535b21
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0af4dc815b82bcec969f866c7b2e3690e0e7d161ede1bdef7c48d0ecf26ebfa3
     createdAt: "2023-04-13T13:38:52+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -887,9 +887,9 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:37381cff6fe687c7a6b4e4dcdf1f618286460e366968468897b32b1b2fff4287
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:fadc14d1bdba3632725350d007b4af3376aecd8fbe85ed6d779f1e9aebd080d2
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:1cda0a2375785607f46f74c32cfb046049b850b27568646fdaf43d42ecf3a2ab
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:fadc14d1bdba3632725350d007b4af3376aecd8fbe85ed6d779f1e9aebd080d2
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:1cda0a2375785607f46f74c32cfb046049b850b27568646fdaf43d42ecf3a2ab
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDOCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:dace00f44fe77cb6f097a36620b24f482dcd9689f59c223c52bb2bb249b4dab6
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDOCQ_
@@ -924,7 +924,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:033ea58d5a0c7f13c87d97ede7182498291de75f1ffd689eb9bd5b66a2535b21
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0af4dc815b82bcec969f866c7b2e3690e0e7d161ede1bdef7c48d0ecf26ebfa3
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1261,10 +1261,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.5.0
   relatedImages:
-  - name: devspaces-rhel8-operator-033ea58d5a0c7f13c87d97ede7182498291de75f1ffd689eb9bd5b66a2535b21-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:033ea58d5a0c7f13c87d97ede7182498291de75f1ffd689eb9bd5b66a2535b21
+  - name: devspaces-rhel8-operator-0af4dc815b82bcec969f866c7b2e3690e0e7d161ede1bdef7c48d0ecf26ebfa3-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0af4dc815b82bcec969f866c7b2e3690e0e7d161ede1bdef7c48d0ecf26ebfa3
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:033ea58d5a0c7f13c87d97ede7182498291de75f1ffd689eb9bd5b66a2535b21
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:0af4dc815b82bcec969f866c7b2e3690e0e7d161ede1bdef7c48d0ecf26ebfa3
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:4ba568ff4cb6cc6fcee616f08dd63ed5a4eebe466f770362027ba93f9fa36208
   - name: dashboard
@@ -1272,9 +1272,9 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:37381cff6fe687c7a6b4e4dcdf1f618286460e366968468897b32b1b2fff4287
   - name: devspaces_code_devfile_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:fadc14d1bdba3632725350d007b4af3376aecd8fbe85ed6d779f1e9aebd080d2
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:1cda0a2375785607f46f74c32cfb046049b850b27568646fdaf43d42ecf3a2ab
   - name: devspaces_code_plugin_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:fadc14d1bdba3632725350d007b4af3376aecd8fbe85ed6d779f1e9aebd080d2
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:1cda0a2375785607f46f74c32cfb046049b850b27568646fdaf43d42ecf3a2ab
   - name: devspaces_idea_devfile_registry_image_gmxdocq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:dace00f44fe77cb6f097a36620b24f482dcd9689f59c223c52bb2bb249b4dab6
   - name: devspaces_idea_plugin_registry_image_gmxdocq_
