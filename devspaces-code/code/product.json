@@ -1,6 +1,6 @@
 {
 	"nameShort": "VS Code - Open Source",
-	"nameLong": "Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE",
+	"nameLong": "<h2>Red Hat OpenShift Dev Spaces <br /><h3>with Microsoft Visual Studio Code - Open Source IDE</h3></h2>",
 	"applicationName": "code-oss",
 	"dataFolderName": ".vscode-oss",
 	"win32MutexName": "che-code",
