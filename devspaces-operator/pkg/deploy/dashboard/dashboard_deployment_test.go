@@ -15,9 +15,8 @@ package dashboard
 import (
 	"os"
 
-	fakeDiscovery "k8s.io/client-go/discovery/fake"
-
 	"k8s.io/apimachinery/pkg/api/resource"
+	fakeDiscovery "k8s.io/client-go/discovery/fake"
 
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	configv1 "github.com/openshift/api/config/v1"
@@ -51,6 +50,11 @@ func TestDashboardDeploymentSecurityContext(t *testing.T) {
 }
 
 func TestDashboardDeploymentResources(t *testing.T) {
+	memoryRequest := resource.MustParse("150Mi")
+	cpuRequest := resource.MustParse("150m")
+	memoryLimit := resource.MustParse("250Mi")
+	cpuLimit := resource.MustParse("250m")
+
 	type resourcesTestCase struct {
 		name          string
 		initObjects   []runtime.Object
@@ -97,12 +101,12 @@ func TestDashboardDeploymentResources(t *testing.T) {
 										Name: defaults.GetCheFlavor() + "-dashboard",
 										Resources: &chev2.ResourceRequirements{
 											Requests: &chev2.ResourceList{
-												Memory: resource.MustParse("150Mi"),
-												Cpu:    resource.MustParse("150m"),
+												Memory: &memoryRequest,
+												Cpu:    &cpuRequest,
 											},
 											Limits: &chev2.ResourceList{
-												Memory: resource.MustParse("250Mi"),
-												Cpu:    resource.MustParse("250m"),
+												Memory: &memoryLimit,
+												Cpu:    &cpuLimit,
 											},
 										},
 									},
@@ -180,6 +184,26 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 				{
 					Name: "OPENSHIFT_CONSOLE_URL",
 				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT",
+					Value: defaults.GetDashboardHeaderMessageText(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR",
+					Value: defaults.GetDevEnvironmentsDefaultEditor(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS",
+					Value: defaults.GetDevEnvironmentsDefaultComponents(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL",
+					Value: defaults.GetPluginRegistryOpenVSXURL(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES",
+					Value: defaults.GetDevEnvironmentsDisableContainerBuildCapabilities(),
+				},
 			},
 			cheCluster: &chev2.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
@@ -237,6 +261,26 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 					Name:  "OPENSHIFT_CONSOLE_URL",
 					Value: "https://console-openshift-console.apps.my-host/",
 				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT",
+					Value: defaults.GetDashboardHeaderMessageText(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR",
+					Value: defaults.GetDevEnvironmentsDefaultEditor(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS",
+					Value: defaults.GetDevEnvironmentsDefaultComponents(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL",
+					Value: defaults.GetPluginRegistryOpenVSXURL(),
+				},
+				{
+					Name:  "CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES",
+					Value: defaults.GetDevEnvironmentsDisableContainerBuildCapabilities(),
+				},
 			},
 			cheCluster: &chev2.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
@@ -267,7 +311,7 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, len(deployment.Spec.Template.Spec.Containers), 1)
-			assert.Empty(t, cmp.Diff(testCase.envVars, deployment.Spec.Template.Spec.Containers[0].Env))
+			test.AssertEqualEnvVars(t, testCase.envVars, deployment.Spec.Template.Spec.Containers[0].Env)
 		})
 	}
 }
