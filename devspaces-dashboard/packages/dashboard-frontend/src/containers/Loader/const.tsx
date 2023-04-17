@@ -17,6 +17,7 @@ export const FACTORY_URL_ATTR = 'url';
 export const POLICIES_CREATE_ATTR = 'policies.create';
 export const STORAGE_TYPE_ATTR = 'storageType';
 export const REMOTES_ATTR = 'remotes';
+export const IMAGE_ATTR = 'image';
 export const PROPAGATE_FACTORY_ATTRS = [
   'workspaceDeploymentAnnotations',
   'workspaceDeploymentLabels',

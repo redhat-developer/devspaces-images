@@ -52,6 +52,7 @@ export const devWorkspaceResourcesExample = {
 
     return dump(devfile, { indent: 2 });
   },
-  editorEntry: 'che-incubator/che-code/insiders',
+  editorId: 'che-incubator/che-code/insiders',
+  pluginRegistryUrl: 'http://plugin-registry.eclipse-che.svc:8080/v3',
   projects: [],
 };

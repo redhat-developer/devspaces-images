@@ -157,7 +157,7 @@ describe('Workspace Loader, step OPEN_WORKSPACE', () => {
     await waitFor(() => expect(hasError.textContent).toEqual('false'));
 
     // wait a bit more than necessary to end the timeout
-    const time = (TIMEOUT_TO_GET_URL_SEC + 1) * 1000;
+    const time = (TIMEOUT_TO_GET_URL_SEC + 5) * 1000;
     jest.advanceTimersByTime(time);
 
     // there should be the error message

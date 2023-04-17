@@ -23,36 +23,43 @@ export class DevfileAdapter {
     this._devfile = devfile;
   }
 
+  public static getAttributesFromDevfileV2(devfile: devfileApi.Devfile) {
+    let attributes = {};
+    if (devfile.schemaVersion?.startsWith('2.0')) {
+      if (!devfile.metadata.attributes) {
+        devfile.metadata.attributes = attributes;
+      } else {
+        attributes = devfile.metadata.attributes;
+      }
+    } else {
+      if (!devfile.attributes) {
+        devfile.attributes = attributes;
+      } else {
+        attributes = devfile.attributes;
+      }
+    }
+
+    return attributes;
+  }
+
   get devfile(): Devfile {
     return this._devfile;
   }
 
   set storageType(type: che.WorkspaceStorageType) {
     if (isDevfileV2(this._devfile)) {
+      const attributes = DevfileAdapter.getAttributesFromDevfileV2(this._devfile);
       if (type && type !== 'persistent') {
-        if (this._devfile.schemaVersion === '2.0.0') {
-          if (!this._devfile.metadata.attributes) {
-            this._devfile.metadata.attributes = {};
-          }
-          this._devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = type;
-        } else {
-          // for devfiles version 2.1.0 and above
-          if (!this._devfile.attributes) {
-            this._devfile.attributes = {};
-          }
-          this._devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = type;
-        }
+        attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = type;
       } else {
-        if (this._devfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
-          delete this._devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR];
-          if (Object.keys(this._devfile.metadata.attributes).length === 0) {
-            delete this._devfile.metadata.attributes;
-          }
+        if (attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
+          delete attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR];
         }
-        if (this._devfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
-          delete this._devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR];
-          if (Object.keys(this._devfile.attributes).length === 0) {
+        if (Object.keys(attributes).length === 0) {
+          if (this._devfile.attributes === attributes) {
             delete this._devfile.attributes;
+          } else if (this._devfile.metadata.attributes === attributes) {
+            delete this._devfile.metadata.attributes;
           }
         }
       }

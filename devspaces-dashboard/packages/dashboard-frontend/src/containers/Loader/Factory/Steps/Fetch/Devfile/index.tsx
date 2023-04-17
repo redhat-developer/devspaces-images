@@ -231,12 +231,9 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
    */
   private async resolveDevfile(factoryUrl: string): Promise<boolean> {
     const { factoryParams } = this.state;
-    const params = Object.assign({}, factoryParams.overrides, {
-      error_code: factoryParams.errorCode,
-    });
 
     try {
-      await this.props.requestFactoryResolver(factoryUrl, params);
+      await this.props.requestFactoryResolver(factoryUrl, factoryParams);
       this.clearNumberOfTries();
       return true;
     } catch (e) {

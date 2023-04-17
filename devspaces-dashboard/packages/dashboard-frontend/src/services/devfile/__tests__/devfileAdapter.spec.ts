@@ -14,8 +14,49 @@ import { DevfileBuilder } from '../../../store/__mocks__/devfile';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../devfileApi/devWorkspace/spec/template';
 import { DevfileAdapter } from '../adapter';
 import { convertDevfileV1toDevfileV2 } from '../converters';
+import devfileApi from '../../devfileApi';
 
 describe('DevfileAdapter Service', () => {
+  describe('getAttributesFromDevfileV2', () => {
+    it('should returns attributes from the devfile v2.0.0', async () => {
+      const devfileV2 = {
+        schemaVersion: '2.0.0',
+        metadata: {
+          name: 'wksp-test',
+        },
+      } as devfileApi.Devfile;
+      const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfileV2);
+
+      expect(attributes === devfileV2.metadata.attributes).toBeTruthy();
+      expect(attributes === devfileV2.attributes).toBeFalsy();
+    });
+
+    it('should returns attributes from the devfile v2.1.0', async () => {
+      const devfileV2 = {
+        schemaVersion: '2.1.0',
+        metadata: {
+          name: 'wksp-test',
+        },
+      } as devfileApi.Devfile;
+      const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfileV2);
+
+      expect(attributes === devfileV2.metadata.attributes).toBeFalsy();
+      expect(attributes === devfileV2.attributes).toBeTruthy();
+    });
+
+    it('should returns attributes from the devfile v2.2.0', async () => {
+      const devfileV2 = {
+        schemaVersion: '2.2.0',
+        metadata: {
+          name: 'wksp-test',
+        },
+      } as devfileApi.Devfile;
+      const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfileV2);
+
+      expect(attributes === devfileV2.metadata.attributes).toBeFalsy();
+      expect(attributes === devfileV2.attributes).toBeTruthy();
+    });
+  });
   describe('update storageType', () => {
     describe('devfile V2', () => {
       describe('setting the "ephemeral" storage', () => {

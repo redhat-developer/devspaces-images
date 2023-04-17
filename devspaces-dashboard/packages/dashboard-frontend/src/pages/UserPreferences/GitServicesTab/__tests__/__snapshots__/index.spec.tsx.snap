@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GitServices should correctly render the component which contains two git services 1`] = `
+exports[`GitServices should correctly render the component which contains four git services 1`] = `
 Array [
   <span
     className="progressLine"
@@ -72,7 +72,7 @@ Array [
       >
         <tr
           className=""
-          data-ouia-component-id="OUIA-Generated-TableRow-4"
+          data-ouia-component-id="OUIA-Generated-TableRow-6"
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
@@ -121,7 +121,7 @@ Array [
       >
         <tr
           className=""
-          data-ouia-component-id="OUIA-Generated-TableRow-5"
+          data-ouia-component-id="OUIA-Generated-TableRow-7"
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
@@ -159,11 +159,11 @@ Array [
             onMouseEnter={[Function]}
           >
             <a
-              href="https://github.com"
+              href="https://github.dummy.endpoint.com"
               rel="noreferrer"
               target="_blank"
             >
-              https://github.com
+              https://github.dummy.endpoint.com
             </a>
           </td>
           <td
@@ -179,7 +179,7 @@ Array [
           >
             <div
               className="pf-c-dropdown pf-m-align-right"
-              data-ouia-component-id="OUIA-Generated-Dropdown-3"
+              data-ouia-component-id="OUIA-Generated-Dropdown-5"
               data-ouia-component-type="PF4/Dropdown"
               data-ouia-safe={true}
             >
@@ -189,7 +189,7 @@ Array [
                 aria-label="Actions"
                 className="pf-c-dropdown__toggle pf-m-plain"
                 disabled={false}
-                id="pf-dropdown-toggle-id-2"
+                id="pf-dropdown-toggle-id-4"
                 onClick={[Function]}
                 onKeyDown={[Function]}
                 type="button"
@@ -218,7 +218,7 @@ Array [
         </tr>
         <tr
           className=""
-          data-ouia-component-id="OUIA-Generated-TableRow-6"
+          data-ouia-component-id="OUIA-Generated-TableRow-8"
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
@@ -249,6 +249,22 @@ Array [
             onMouseEnter={[Function]}
           >
             GitLab
+            <span>
+              Provided API does not support the automatic token revocation. You can revoke it manually on  
+              <a
+                href="https://gitlab.dummy.endpoint.com"
+                rel="noreferrer"
+                style={
+                  Object {
+                    "color": "var(--pf-global--info-color--100)",
+                  }
+                }
+                target="_blank"
+              >
+                https://gitlab.dummy.endpoint.com
+              </a>
+              .
+            </span>
           </td>
           <td
             className=""
@@ -257,11 +273,11 @@ Array [
             onMouseEnter={[Function]}
           >
             <a
-              href="https://gitlab.com"
+              href="https://gitlab.dummy.endpoint.com"
               rel="noreferrer"
               target="_blank"
             >
-              https://gitlab.com
+              https://gitlab.dummy.endpoint.com
             </a>
           </td>
           <td
@@ -277,7 +293,7 @@ Array [
           >
             <div
               className="pf-c-dropdown pf-m-align-right"
-              data-ouia-component-id="OUIA-Generated-Dropdown-4"
+              data-ouia-component-id="OUIA-Generated-Dropdown-6"
               data-ouia-component-type="PF4/Dropdown"
               data-ouia-safe={true}
             >
@@ -287,7 +303,235 @@ Array [
                 aria-label="Actions"
                 className="pf-c-dropdown__toggle pf-m-plain"
                 disabled={true}
-                id="pf-dropdown-toggle-id-3"
+                id="pf-dropdown-toggle-id-5"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 192 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          className=""
+          data-ouia-component-id="OUIA-Generated-TableRow-9"
+          data-ouia-component-type="PF4/TableRow"
+          data-ouia-safe={true}
+          hidden={false}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+        >
+          <td
+            className="pf-c-table__check"
+            data-key={0}
+            data-label={null}
+            onMouseEnter={[Function]}
+          >
+            <label>
+              <input
+                aria-label="Select row 2"
+                checked={false}
+                disabled={true}
+                name="checkrow2"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
+          </td>
+          <td
+            className=""
+            data-key={1}
+            data-label="Name"
+            onMouseEnter={[Function]}
+          >
+            Bitbucket
+            <span>
+              Provided API does not support the automatic token revocation. You can revoke it manually on  
+              <a
+                href="https://bitbucket.dummy.endpoint.org"
+                rel="noreferrer"
+                style={
+                  Object {
+                    "color": "var(--pf-global--info-color--100)",
+                  }
+                }
+                target="_blank"
+              >
+                https://bitbucket.dummy.endpoint.org
+              </a>
+              .
+            </span>
+          </td>
+          <td
+            className=""
+            data-key={2}
+            data-label="Server"
+            onMouseEnter={[Function]}
+          >
+            <a
+              href="https://bitbucket.dummy.endpoint.org"
+              rel="noreferrer"
+              target="_blank"
+            >
+              https://bitbucket.dummy.endpoint.org
+            </a>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={3}
+            data-label={null}
+            onMouseEnter={[Function]}
+            style={
+              Object {
+                "paddingRight": 0,
+              }
+            }
+          >
+            <div
+              className="pf-c-dropdown pf-m-align-right"
+              data-ouia-component-id="OUIA-Generated-Dropdown-7"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe={true}
+            >
+              <button
+                aria-expanded={false}
+                aria-haspopup={true}
+                aria-label="Actions"
+                className="pf-c-dropdown__toggle pf-m-plain"
+                disabled={true}
+                id="pf-dropdown-toggle-id-6"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 192 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          className=""
+          data-ouia-component-id="OUIA-Generated-TableRow-10"
+          data-ouia-component-type="PF4/TableRow"
+          data-ouia-safe={true}
+          hidden={false}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+        >
+          <td
+            className="pf-c-table__check"
+            data-key={0}
+            data-label={null}
+            onMouseEnter={[Function]}
+          >
+            <label>
+              <input
+                aria-label="Select row 3"
+                checked={false}
+                disabled={true}
+                name="checkrow3"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
+          </td>
+          <td
+            className=""
+            data-key={1}
+            data-label="Name"
+            onMouseEnter={[Function]}
+          >
+            Microsoft Azure DevOps
+            <span>
+              Provided API does not support the automatic token revocation. You can revoke it manually on  
+              <a
+                href="https://azure.dummy.endpoint.com/"
+                rel="noreferrer"
+                style={
+                  Object {
+                    "color": "var(--pf-global--info-color--100)",
+                  }
+                }
+                target="_blank"
+              >
+                https://azure.dummy.endpoint.com/
+              </a>
+              .
+            </span>
+          </td>
+          <td
+            className=""
+            data-key={2}
+            data-label="Server"
+            onMouseEnter={[Function]}
+          >
+            <a
+              href="https://azure.dummy.endpoint.com/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              https://azure.dummy.endpoint.com/
+            </a>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={3}
+            data-label={null}
+            onMouseEnter={[Function]}
+            style={
+              Object {
+                "paddingRight": 0,
+              }
+            }
+          >
+            <div
+              className="pf-c-dropdown pf-m-align-right"
+              data-ouia-component-id="OUIA-Generated-Dropdown-8"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe={true}
+            >
+              <button
+                aria-expanded={false}
+                aria-haspopup={true}
+                aria-label="Actions"
+                className="pf-c-dropdown__toggle pf-m-plain"
+                disabled={true}
+                id="pf-dropdown-toggle-id-7"
                 onClick={[Function]}
                 onKeyDown={[Function]}
                 type="button"
@@ -320,7 +564,7 @@ Array [
 ]
 `;
 
-exports[`GitServices should correctly render the component without sit services 1`] = `
+exports[`GitServices should correctly render the component without git services 1`] = `
 Array [
   <span
     className="progressLine"

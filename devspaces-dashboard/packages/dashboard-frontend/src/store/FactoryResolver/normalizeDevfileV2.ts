@@ -21,6 +21,8 @@ import {
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { generateWorkspaceName } from '../../services/helpers/generateName';
+import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
+import { DevfileAdapter } from '../../services/devfile/adapter';
 
 /**
  * Returns a devfile from the FactoryResolver object.
@@ -29,6 +31,8 @@ import { generateWorkspaceName } from '../../services/helpers/generateName';
  * @param location a source location.
  * @param defaultComponents Default components. These default components
  * are meant to be used when a Devfile does not contain any components.
+ * @param namespace the namespace where the pod lives.
+ * @param factoryParams a Partial<FactoryParams> object.
  */
 export default function normalizeDevfileV2(
   devfileLike: devfileApi.DevfileLike,
@@ -36,6 +40,7 @@ export default function normalizeDevfileV2(
   location: string,
   defaultComponents: V220DevfileComponents[],
   namespace: string,
+  factoryParams: Partial<FactoryParams>,
 ): devfileApi.Devfile {
   const scmInfo = data['scm_info'];
 
@@ -54,16 +59,23 @@ export default function normalizeDevfileV2(
   devfile.metadata.namespace = namespace;
 
   // propagate default components
-  if (!devfile.components || devfile.components.length === 0) {
-    devfile.components = defaultComponents;
+  if (!devfile.parent && (!devfile.components || devfile.components.length === 0)) {
+    devfile.components = cloneDeep(defaultComponents);
   }
 
-  // temporary solution for fix che-server serialization bug with empty volume
-  devfile.components.forEach(component => {
-    if (Object.keys(component).length === 1 && component.name) {
-      component.volume = {};
+  if (devfile.components && devfile.components.length > 0) {
+    // apply the custom image from factory params
+    if (factoryParams.image && devfile.components[0].container?.image) {
+      devfile.components[0].container.image = factoryParams.image;
     }
-  });
+
+    // temporary solution for fix che-server serialization bug with empty volume
+    devfile.components.forEach(component => {
+      if (Object.keys(component).length === 1 && component.name) {
+        component.volume = {};
+      }
+    });
+  }
 
   // add a default project
   const projects: DevfileV2ProjectSource[] = [];
@@ -101,14 +113,13 @@ export default function normalizeDevfileV2(
   } else if (location) {
     devfileSource = dump({ url: { location } });
   }
-  if (!devfile.metadata.attributes) {
-    devfile.metadata.attributes = {};
+
+  const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfile);
+
+  if (!attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
+    attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
   }
-  if (!devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
-    devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
-  }
-  devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
-    devfileSource;
+  attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] = devfileSource;
 
   return devfile;
 }

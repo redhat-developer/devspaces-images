@@ -71,6 +71,7 @@ export class KubeConfigApiService implements IKubeConfigApi {
         );
 
         // if -f ${kubeConfigDirectory}/config is not found then sync kubeconfig to the container
+        const kubeConfig = this.setNamespaceInContext(this.kubeConfig, namespace);
         await exec(
           podName,
           namespace,
@@ -78,7 +79,7 @@ export class KubeConfigApiService implements IKubeConfigApi {
           [
             'sh',
             '-c',
-            `[ -f ${kubeConfigDirectory}/config ] || echo '${this.kubeConfig}' > ${kubeConfigDirectory}/config`,
+            `[ -f ${kubeConfigDirectory}/config ] || echo '${kubeConfig}' > ${kubeConfigDirectory}/config`,
           ],
           this.getServerConfig(),
         );
@@ -184,5 +185,18 @@ export class KubeConfigApiService implements IKubeConfigApi {
       );
     }
     return '';
+  }
+
+  private setNamespaceInContext(kubeConfig: string, namespace: string): string {
+    try {
+      const kubeConfigJson = JSON.parse(kubeConfig);
+      for (const context of kubeConfigJson.contexts) {
+        context.context.namespace = namespace;
+      }
+      return JSON.stringify(kubeConfigJson, undefined, '  ');
+    } catch (e) {
+      console.error('Failed to parse kubeconfig', e);
+      return kubeConfig;
+    }
   }
 }

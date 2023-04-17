@@ -20,6 +20,7 @@ import {
   POLICIES_CREATE_ATTR,
   REMOTES_ATTR,
   STORAGE_TYPE_ATTR,
+  IMAGE_ATTR,
 } from './const';
 
 export type FactoryParams = {
@@ -33,6 +34,7 @@ export type FactoryParams = {
   storageType: che.WorkspaceStorageType | undefined;
   cheEditor: string | undefined;
   remotes: string | undefined;
+  image: string | undefined;
 };
 
 export type PoliciesCreate = 'perclick' | 'peruser';
@@ -51,6 +53,7 @@ export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams
     storageType: getStorageType(searchParams),
     remotes: getRemotes(searchParams),
     useDevworkspaceResources: getDevworkspaceResourcesUrl(searchParams) !== undefined,
+    image: getImage(searchParams),
   };
 }
 
@@ -123,4 +126,8 @@ function buildOverrideParams(searchParams: URLSearchParams): Record<string, stri
 
 function isOverrideAttr(attr: string): attr is string {
   return attr.startsWith(OVERRIDE_ATTR_PREFIX);
+}
+
+function getImage(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(IMAGE_ATTR) || undefined;
 }
