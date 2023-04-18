@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:461fb22a8c5de977cd2df07ecb36bdb2012c666c33817f8d39fae7fa67556ba5
-    createdAt: "2023-04-06T01:46:54+00:00"
+    createdAt: "2023-04-17T21:29:32+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -852,12 +852,14 @@ spec:
                   value: Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a>
                     for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.6/html-single/release_notes_and_known_issues/index#removed-functionalities'>no
                     longer supported</a>.
+                - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
+                  value: ''
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
                   value: '[{"name": "universal-developer-image", "container": {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:d54d403c8ca8c1c8d14ec18072c174c0b1a2ebe1710299b68a5f3ce02e309f48"}}]'
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
                   value: che-incubator/che-code/latest
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
-                  value: 'false'
+                  value: "false"
                 - name: CHE_FLAVOR
                   value: devspaces
                 - name: CHE_VERSION
@@ -881,7 +883,7 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:ec153968baf331a5ed9a70d5fe654ead63cd431a9913daec991f4aa89758d8c4
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:15a91f472bb27110231330acdf49b45e30051bd7c21ca0a94fb463a437ba14dc
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:bbe2f68d5cd38e966a86ea63a2bfce2fcf528075fa91efa09befe8bc01a38127
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:86d5f6bf1cda9874b5805acdb2498f796c74c82bd5809bd1ee2f6665a8b900ec
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDMCQ_
@@ -899,9 +901,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:5fe72773375c3f5e9352d3e7b65ecf5dd854c3329119f8143b05171cada946b2
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:06c93536c646aef0bcdcc282fbf9dd4acecc6572df2c0eed58c6a319aad3f076
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:82fe4c551bb70a689c9576baa870a4b52734e184264359ed5994a87478171f70
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:d3be55814c3443efc0c59e42a5799de592630a0180ec42f36bfb32d2dd74e8e8
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:ed9cc65612e954e4a28a0933d4acb3915778f1c7d70ccc2c458b34b612a13514
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:7090861e10ec56e310ecc7cba869f80e9df4612be6fbfc67bdb323bd05539303
                 - name: RELATED_IMAGE_postgres
@@ -1266,7 +1268,7 @@ spec:
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:ec153968baf331a5ed9a70d5fe654ead63cd431a9913daec991f4aa89758d8c4
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:15a91f472bb27110231330acdf49b45e30051bd7c21ca0a94fb463a437ba14dc
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:bbe2f68d5cd38e966a86ea63a2bfce2fcf528075fa91efa09befe8bc01a38127
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:86d5f6bf1cda9874b5805acdb2498f796c74c82bd5809bd1ee2f6665a8b900ec
   - name: devspaces_code_devfile_registry_image_gmxdmcq_
@@ -1284,9 +1286,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:5fe72773375c3f5e9352d3e7b65ecf5dd854c3329119f8143b05171cada946b2
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:06c93536c646aef0bcdcc282fbf9dd4acecc6572df2c0eed58c6a319aad3f076
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:82fe4c551bb70a689c9576baa870a4b52734e184264359ed5994a87478171f70
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:d3be55814c3443efc0c59e42a5799de592630a0180ec42f36bfb32d2dd74e8e8
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:ed9cc65612e954e4a28a0933d4acb3915778f1c7d70ccc2c458b34b612a13514
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:7090861e10ec56e310ecc7cba869f80e9df4612be6fbfc67bdb323bd05539303
   - name: postgres
