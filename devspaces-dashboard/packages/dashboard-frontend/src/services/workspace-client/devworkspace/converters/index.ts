@@ -15,6 +15,8 @@ import devfileApi from '../../../devfileApi';
 import { DevWorkspaceSpecTemplateAttribute } from '../../../devfileApi/devWorkspace/spec/template';
 import { DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
 
+export const devfileSchemaVersion = '2.2.0';
+
 export const devWorkspaceVersion = 'v1alpha2';
 export const devWorkspaceApiGroup = 'workspace.devfile.io';
 export const devWorkspaceSingularSubresource = 'devworkspace';
@@ -76,7 +78,7 @@ export function devfileToDevWorkspace(
 
 export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): devfileApi.Devfile {
   const template = {
-    schemaVersion: '2.1.0',
+    schemaVersion: devfileSchemaVersion,
     metadata: {
       name: devworkspace.metadata.name,
       namespace: devworkspace.metadata.namespace,

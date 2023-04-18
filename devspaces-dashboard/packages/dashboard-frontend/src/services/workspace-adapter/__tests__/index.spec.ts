@@ -192,7 +192,7 @@ describe('for Dev workspace', () => {
 
   it('should return devfile', () => {
     const devfile = {
-      schemaVersion: '2.1.0',
+      schemaVersion: '2.2.0',
       metadata: {
         name: 'my-wksp',
         namespace: 'my-namespace',

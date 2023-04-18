@@ -27,7 +27,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
   describe('DEVWORKSPACE_METADATA_ANNOTATION attribute', () => {
     test('add the attribute with annotation', () => {
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           generateName: 'wksp-',
         },
@@ -62,7 +62,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
       };
 
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           name: 'asdf',
           generateName: 'wksp-',
@@ -95,7 +95,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
       const badMetadataAnnotation = 'bad-metadata-annotation';
 
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           generateName: 'wksp-',
           attributes: {
@@ -127,7 +127,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
       };
 
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           generateName: 'wksp-',
           attributes: {
@@ -149,7 +149,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
     it('should not change the name', () => {
       const factoryId = 'url=https://devfile-location';
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           name: 'wksp-test',
         },
@@ -163,7 +163,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
     it('should append a suffix to the name', () => {
       const factoryId = 'url=https://devfile-location';
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           name: 'wksp-test',
         },
@@ -177,7 +177,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
     it('should generate a new name #1', () => {
       const factoryId = 'url=https://devfile-location';
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           generateName: 'wksp-',
         },
@@ -191,7 +191,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
     it('should generate a new name #2', () => {
       const factoryId = 'url=https://devfile-location';
       const devfile = {
-        schemaVersion: '2.1.0',
+        schemaVersion: '2.2.0',
         metadata: {
           generateName: 'wksp-',
         },
@@ -206,7 +206,7 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
   describe('storage type', () => {
     const factoryId = 'url=https://devfile-location';
     const devfile = {
-      schemaVersion: '2.1.0',
+      schemaVersion: '2.2.0',
       metadata: {
         name: 'wksp-test',
       },
