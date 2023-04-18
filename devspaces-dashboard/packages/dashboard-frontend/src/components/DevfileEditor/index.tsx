@@ -41,7 +41,7 @@ const MONACO_CONFIG: editor.IStandaloneEditorConstructionOptions = {
   wordWrap: 'on',
   lineNumbers: 'on',
   scrollBeyondLastLine: false,
-  readOnly: false,
+  readOnly: true,
 };
 
 (self as any).MonacoEnvironment = {
