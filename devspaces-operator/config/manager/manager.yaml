@@ -48,10 +48,10 @@ spec:
               name: metrics
           env:
             - name: CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT
-              value: 'Microsoft Visual Studio Code - Open Source is the default <a
-                href=''https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/user_guide/index#selecting-a-workspace-ide''>editor</a>
-                for new workspaces. Eclipse Theia is <a href=''https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/release_notes_and_known_issues/index#removed-functionalities''>no
-                longer supported</a>.'
+              value: Microsoft Visual Studio Code - Open Source is the default <a
+                href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a>
+                for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/release_notes_and_known_issues/index#removed-functionalities'>no
+                longer supported</a>.
             - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
