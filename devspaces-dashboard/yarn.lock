@@ -354,10 +354,10 @@
   resolved "https://registry.npmjs.org/@eclipse-che/api/-/api-7.44.0.tgz"
   integrity sha512-X2vawP2Pm+WD8HswYhXU9lC1WqsRe0g0mibPSN3hYzbmKMSKuPaJG/hBtGDtdp0NI35iIoinoAfFaAtdWBko3Q==
 
-"@eclipse-che/che-devworkspace-generator@0.0.1-96cdbb4":
-  version "0.0.1-96cdbb4"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-0.0.1-96cdbb4.tgz#d45bec844630cd62a5028a4a94a3ee9d07c3988c"
-  integrity sha512-eGl0xRoQQ4wI9cqbiXzTzfF7YrtgXzqTSsLDy82shMi0O4H9jmPJWe2ZVUxhW3DyKDWUO7/1mceQx5knbgciUw==
+"@eclipse-che/che-devworkspace-generator@0.0.1-1f238bb":
+  version "0.0.1-1f238bb"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-0.0.1-1f238bb.tgz#f4809b7a06b407f67826e99b63e822dea54c2d1a"
+  integrity sha512-7gVrEySSpzrUqa7nvyt7a63hzkEXplkvj7fI1yE65s1dbEgnilrqpIJG7073D2ukrCFvKIsMTbnIytB/z0duFg==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
