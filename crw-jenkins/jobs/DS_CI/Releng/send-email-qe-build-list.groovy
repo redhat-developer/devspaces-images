@@ -25,7 +25,7 @@ for (JB in JOB_BRANCHES) {
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."send-email-qe-build-list"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''
-Send an email to QE announcing an ER or RC build, including a list of images.
+Send an email to QE announcing an ER or RC build, including a list of images. This job will also trigger <a href=../copyIIBsToQuay>copyIIBsToQuay</a> to refresh <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a> tags. 
             ''')
 
             properties {

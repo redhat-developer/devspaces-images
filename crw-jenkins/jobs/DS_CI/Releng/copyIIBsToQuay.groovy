@@ -52,6 +52,7 @@ Copy latest filtered IIBs to <a href=https://quay.io/devspaces/iib>https://quay.
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "Branch of sources to use for scripts")
                 stringParam("DS_VERSION", DS_VERSION, "Version of DS to use when copying IIBs to Quay")
                 stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
+                booleanParam("FORCE_BUILD", false, "If true and target image exists, will re-filter and re-push it; if false, avoid updating image timestamps")
             }
 
             // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.
