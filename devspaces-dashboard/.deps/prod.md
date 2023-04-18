@@ -5,10 +5,10 @@
 | [`@babel/runtime@7.17.7`](https://github.com/babel/babel.git) | MIT | #1946 |
 | [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | clearlydefined |
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
-| [`@eclipse-che/che-devworkspace-generator@0.0.1-96cdbb4`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.63.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.63.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.63.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/che-devworkspace-generator@0.0.1-1f238bb`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.65.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.65.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.65.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-ff55f9a`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1672830275`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
@@ -44,7 +44,7 @@
 | [`@types/react-redux@7.1.23`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react@17.0.40`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #1210 |
 | [`@types/request@2.48.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/scheduler@0.16.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/scheduler@0.16.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #7582 |
 | [`@types/tough-cookie@4.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/ws@6.0.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`abstract-logging@2.0.1`](git+https://github.com/jsumners/abstract-logging.git) | MIT | clearlydefined |
@@ -265,7 +265,7 @@
 | [`monaco-languages@1.10.0`](https://github.com/Microsoft/monaco-languages) | MIT | clearlydefined |
 | [`mri@1.1.4`](https://github.com/lukeed/mri.git) | MIT | clearlydefined |
 | [`ms@2.0.0`](https://github.com/zeit/ms.git) | MIT | clearlydefined |
-| [`nanoid@3.3.4`](https://github.com/ai/nanoid.git) | MIT | clearlydefined |
+| [`nanoid@3.3.4`](https://github.com/ai/nanoid.git) | MIT | #7571 |
 | [`node-fetch@2.6.7`](https://github.com/bitinn/node-fetch.git) | MIT | #6954 |
 | [`npm-run-path@4.0.1`](https://github.com/sindresorhus/npm-run-path.git) | MIT | clearlydefined |
 | [`oauth-sign@0.9.0`](https://github.com/mikeal/oauth-sign) | Apache-2.0 | clearlydefined |
