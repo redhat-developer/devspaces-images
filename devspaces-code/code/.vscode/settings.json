@@ -120,6 +120,14 @@
 	},
 	"githubPullRequests.assignCreated": "${user}",
 	"githubPullRequests.defaultMergeMethod": "squash",
+	"githubPullRequests.ignoredPullRequestBranches": [
+		"main"
+	],
 	"application.experimental.rendererProfiling": true,
-	"editor.experimental.asyncTokenization": true
+	"editor.experimental.asyncTokenization": true,
+	"editor.experimental.asyncTokenizationVerification": true,
+	"notebook.experimental.findInMarkdownMode": {
+        "source": true,
+        "preview": true
+    }
 }

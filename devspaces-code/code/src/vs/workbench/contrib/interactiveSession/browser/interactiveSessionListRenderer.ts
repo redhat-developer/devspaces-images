@@ -4,10 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as dom from 'vs/base/browser/dom';
+import { IActionViewItemOptions } from 'vs/base/browser/ui/actionbar/actionViewItems';
 import { renderIcon } from 'vs/base/browser/ui/iconLabel/iconLabels';
 import { IListVirtualDelegate } from 'vs/base/browser/ui/list/list';
 import { IListAccessibilityProvider } from 'vs/base/browser/ui/list/listWidget';
 import { ITreeNode, ITreeRenderer } from 'vs/base/browser/ui/tree/tree';
+import { IAction } from 'vs/base/common/actions';
 import { IntervalTimer } from 'vs/base/common/async';
 import { Codicon } from 'vs/base/common/codicons';
 import { Emitter, Event } from 'vs/base/common/event';
@@ -17,11 +19,13 @@ import { Disposable, DisposableStore, IDisposable } from 'vs/base/common/lifecyc
 import { ResourceMap } from 'vs/base/common/map';
 import { FileAccess } from 'vs/base/common/network';
 import { ThemeIcon } from 'vs/base/common/themables';
+import { withNullAsUndefined } from 'vs/base/common/types';
 import { EditorExtensionsRegistry } from 'vs/editor/browser/editorExtensions';
 import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
 import { EDITOR_FONT_DEFAULTS, IEditorOptions } from 'vs/editor/common/config/editorOptions';
 import { Range } from 'vs/editor/common/core/range';
 import { ILanguageService } from 'vs/editor/common/languages/language';
+import { PLAINTEXT_LANGUAGE_ID } from 'vs/editor/common/languages/modesRegistry';
 import { ITextModel } from 'vs/editor/common/model';
 import { IModelService } from 'vs/editor/common/services/model';
 import { BracketMatchingController } from 'vs/editor/contrib/bracketMatching/browser/bracketMatching';
@@ -31,8 +35,9 @@ import { ViewportSemanticTokensContribution } from 'vs/editor/contrib/semanticTo
 import { SmartSelectController } from 'vs/editor/contrib/smartSelect/browser/smartSelect';
 import { WordHighlighterContribution } from 'vs/editor/contrib/wordHighlighter/browser/wordHighlighter';
 import { localize } from 'vs/nls';
+import { IMenuEntryActionViewItemOptions, MenuEntryActionViewItem } from 'vs/platform/actions/browser/menuEntryActionViewItem';
 import { MenuWorkbenchToolBar } from 'vs/platform/actions/browser/toolbar';
-import { MenuId } from 'vs/platform/actions/common/actions';
+import { MenuId, MenuItemAction } from 'vs/platform/actions/common/actions';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
@@ -46,10 +51,10 @@ import { getSimpleEditorOptions } from 'vs/workbench/contrib/codeEditor/browser/
 import { IInteractiveSessionCodeBlockActionContext } from 'vs/workbench/contrib/interactiveSession/browser/actions/interactiveSessionCodeblockActions';
 import { InteractiveSessionFollowups } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionFollowups';
 import { InteractiveSessionEditorOptions } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionOptions';
-import { interactiveSessionResponseHasProviderId } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
-import { IInteractiveSessionReplyFollowup, IInteractiveSessionService, IInteractiveSlashCommand } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
+import { CONTEXT_RESPONSE_HAS_PROVIDER_ID, CONTEXT_RESPONSE_VOTE } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
+import { IInteractiveSessionReplyFollowup, IInteractiveSessionService, IInteractiveSlashCommand, InteractiveSessionVoteDirection } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionService';
 import { IInteractiveRequestViewModel, IInteractiveResponseViewModel, IInteractiveWelcomeMessageViewModel, isRequestVM, isResponseVM, isWelcomeVM } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionViewModel';
-import { getNWords } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionWordCounter';
+import { IWordCountResult, getNWords } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionWordCounter';
 
 const $ = dom.$;
 
@@ -93,6 +98,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 	private readonly _editorPool: EditorPool;
 
 	private _currentLayoutWidth: number = 0;
+	private _isVisible = true;
 
 	constructor(
 		private readonly editorOptions: InteractiveSessionEditorOptions,
@@ -121,8 +127,8 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		}
 	}
 
-	private shouldRenderProgressively(element: IInteractiveResponseViewModel): boolean {
-		return !this.configService.getValue('interactive.experimental.disableProgressiveRendering') && element.progressiveResponseRenderingEnabled;
+	private progressiveRenderEnabled(): boolean {
+		return !this.configService.getValue('interactive.experimental.disableProgressiveRendering');
 	}
 
 	private getProgressiveRenderRate(element: IInteractiveResponseViewModel): number {
@@ -144,6 +150,10 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		}
 
 		return 8;
+	}
+
+	setVisible(visible: boolean): void {
+		this._isVisible = visible;
 	}
 
 	layout(width: number): void {
@@ -168,6 +178,13 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		const titleToolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, header, MenuId.InteractiveSessionTitle, {
 			menuOptions: {
 				shouldForwardArgs: true
+			},
+			actionViewItemProvider: (action: IAction, options: IActionViewItemOptions) => {
+				if (action instanceof MenuItemAction) {
+					return scopedInstantiationService.createInstance(InteractiveSessionVoteButton, action, options as IMenuEntryActionViewItemOptions);
+				}
+
+				return undefined;
 			}
 		}));
 
@@ -183,13 +200,19 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 				'welcome';
 		this.traceLayout('renderElement', `${kind}, index=${index}`);
 
-		interactiveSessionResponseHasProviderId.bindTo(templateData.contextKeyService).set(isResponseVM(element) && !!element.providerResponseId && !element.isPlaceholder);
+		CONTEXT_RESPONSE_HAS_PROVIDER_ID.bindTo(templateData.contextKeyService).set(isResponseVM(element) && !!element.providerResponseId);
+		if (isResponseVM(element)) {
+			CONTEXT_RESPONSE_VOTE.bindTo(templateData.contextKeyService).set(element.vote === InteractiveSessionVoteDirection.Up ? 'up' : element.vote === InteractiveSessionVoteDirection.Down ? 'down' : '');
+		} else {
+			CONTEXT_RESPONSE_VOTE.bindTo(templateData.contextKeyService).set('');
+		}
 
 		templateData.titleToolbar.context = element;
 
 		templateData.rowContainer.classList.toggle('interactive-request', isRequestVM(element));
 		templateData.rowContainer.classList.toggle('interactive-response', isResponseVM(element));
 		templateData.rowContainer.classList.toggle('interactive-welcome', isWelcomeVM(element));
+		templateData.rowContainer.classList.toggle('filtered-response', !!(isResponseVM(element) && element.errorDetails?.responseIsFiltered));
 		templateData.username.textContent = element.username;
 
 		if (element.avatarIconUri) {
@@ -204,10 +227,11 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 
 		// Do a progressive render if
 		// - This the last response in the list
+		// - And it is not a placeholder response ("Thinking...")
 		// - And the response is not complete
 		//   - Or, we previously started a progressive rendering of this element (if the element is complete, we will finish progressive rendering with a very fast rate)
 		// - And, the feature is not disabled in configuration
-		if (isResponseVM(element) && index === this.delegate.getListLength() - 1 && (!element.isComplete || element.renderData) && this.shouldRenderProgressively(element)) {
+		if (isResponseVM(element) && index === this.delegate.getListLength() - 1 && !element.isPlaceholder && (!element.isComplete || element.renderData) && this.progressiveRenderEnabled()) {
 			this.traceLayout('renderElement', `start progressive render ${kind}, index=${index}`);
 			const progressiveRenderingDisposables = templateData.elementDisposables.add(new DisposableStore());
 			const timer = templateData.elementDisposables.add(new IntervalTimer());
@@ -222,10 +246,10 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 					throw err;
 				}
 			};
-			runProgressiveRender(true);
 			timer.cancelAndSet(runProgressiveRender, 50);
+			runProgressiveRender(true);
 		} else if (isResponseVM(element)) {
-			this.basicRenderElement(element.response.value, element, index, templateData, element.isCanceled);
+			this.basicRenderElement(element.response.value, element, index, templateData);
 		} else if (isRequestVM(element)) {
 			this.basicRenderElement(element.messageText, element, index, templateData);
 		} else {
@@ -233,14 +257,16 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		}
 	}
 
-	private basicRenderElement(markdownValue: string, element: InteractiveTreeItem, index: number, templateData: IInteractiveListItemTemplate, fillInIncompleteTokens = false) {
+	private basicRenderElement(markdownValue: string, element: InteractiveTreeItem, index: number, templateData: IInteractiveListItemTemplate) {
+		const fillInIncompleteTokens = isResponseVM(element) && (!element.isComplete || element.isCanceled || element.errorDetails?.responseIsFiltered || element.errorDetails?.responseIsIncomplete);
 		const result = this.renderMarkdown(new MarkdownString(markdownValue), element, templateData.elementDisposables, templateData, fillInIncompleteTokens);
 		dom.clearNode(templateData.value);
 		templateData.value.appendChild(result.element);
 		templateData.elementDisposables.add(result);
 
 		if (isResponseVM(element) && element.errorDetails?.message) {
-			const errorDetails = dom.append(templateData.value, $('.interactive-response-error-details', undefined, renderIcon(Codicon.error)));
+			const icon = element.errorDetails.responseIsFiltered ? Codicon.info : Codicon.error;
+			const errorDetails = dom.append(templateData.value, $('.interactive-response-error-details', undefined, renderIcon(icon)));
 			errorDetails.appendChild($('span', undefined, element.errorDetails.message));
 		}
 
@@ -287,18 +313,24 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		}
 	}
 
+	/**
+	 *	@returns true if progressive rendering should be considered complete- the element's data is fully rendered or the view is not visible
+	 */
 	private doNextProgressiveRender(element: IInteractiveResponseViewModel, index: number, templateData: IInteractiveListItemTemplate, isInRenderElement: boolean, disposables: DisposableStore): boolean {
+		if (!this._isVisible) {
+			return true;
+		}
+
 		disposables.clear();
 
 		let isFullyRendered = false;
 		if (element.isCanceled) {
 			this.traceLayout('runProgressiveRender', `canceled, index=${index}`);
 			element.renderData = undefined;
-			this.basicRenderElement(element.response.value, element, index, templateData, true);
+			this.basicRenderElement(element.response.value, element, index, templateData);
 			isFullyRendered = true;
 		} else {
-			// TODO- this method has the side effect of updating element.renderData
-			const toRender = this.getProgressiveMarkdownToRender(element);
+			const renderValue = this.getWordsForProgressiveRender(element);
 			isFullyRendered = !!element.renderData?.isFullyRendered;
 			if (isFullyRendered) {
 				// We've reached the end of the available content, so do a normal render
@@ -310,11 +342,21 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 					this.traceLayout('runProgressiveRender', `Rendered all available words, but model is not complete.`);
 				}
 				disposables.clear();
-				this.basicRenderElement(element.response.value, element, index, templateData, !element.isComplete);
-			} else if (toRender) {
-				// Doing the progressive render
-				const plusCursor = toRender.match(/```.*$/) ? toRender + `\n${InteractiveListItemRenderer.cursorCharacter}` : toRender + ` ${InteractiveListItemRenderer.cursorCharacter}`;
+				this.basicRenderElement(element.response.value, element, index, templateData);
+			} else if (renderValue) {
+				element.renderData = {
+					renderedWordCount: renderValue.actualWordCount,
+					lastRenderTime: Date.now(),
+					isFullyRendered: renderValue.isFullString
+				};
+
+				// Don't add the cursor if it will go after a codeblock, since this will always cause layout shifting
+				// when the codeblock is the last thing in the response, and that happens often.
+				const plusCursor = renderValue.value.match(/```\s*$/) ?
+					renderValue.value :
+					renderValue.value + ` ${InteractiveListItemRenderer.cursorCharacter}`;
 				const result = this.renderMarkdown(new MarkdownString(plusCursor), element, disposables, templateData, true);
+				// Doing the progressive render
 				dom.clearNode(templateData.value);
 				templateData.value.appendChild(result.element);
 				disposables.add(result);
@@ -381,7 +423,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 		return ref;
 	}
 
-	private getProgressiveMarkdownToRender(element: IInteractiveResponseViewModel): string | undefined {
+	private getWordsForProgressiveRender(element: IInteractiveResponseViewModel): IWordCountResult | undefined {
 		const renderData = element.renderData ?? { renderedWordCount: 0, lastRenderTime: 0 };
 		const rate = this.getProgressiveRenderRate(element);
 		const numWordsToRender = renderData.lastRenderTime === 0 ?
@@ -394,15 +436,7 @@ export class InteractiveListItemRenderer extends Disposable implements ITreeRend
 			return undefined;
 		}
 
-		const result = getNWords(element.response.value, numWordsToRender);
-
-		element.renderData = {
-			renderedWordCount: result.actualWordCount,
-			lastRenderTime: Date.now(),
-			isFullyRendered: result.isFullString
-		};
-
-		return result.value;
+		return getNWords(element.response.value, numWordsToRender);
 	}
 
 	disposeElement(node: ITreeNode<InteractiveTreeItem, FuzzyScore>, index: number, templateData: IInteractiveListItemTemplate): void {
@@ -487,6 +521,8 @@ export interface IInteractiveResultCodeBlockInfo {
 
 export const codeBlockInfosByModelUri = new ResourceMap<IInteractiveResultCodeBlockInfo>();
 
+const defaultCodeblockPadding = 10;
+
 class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPart {
 	private readonly _onDidChangeContentHeight = this._register(new Emitter<number>());
 	public readonly onDidChangeContentHeight = this._onDidChangeContentHeight.event;
@@ -497,6 +533,8 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 
 	public readonly textModel: ITextModel;
 	public readonly element: HTMLElement;
+
+	private currentScrollWidth = 0;
 
 	constructor(
 		private readonly options: InteractiveSessionEditorOptions,
@@ -525,7 +563,7 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 			scrollBeyondLastLine: false,
 			lineDecorationsWidth: 8,
 			dragAndDrop: false,
-			padding: { top: 2, bottom: 2 },
+			padding: { top: defaultCodeblockPadding, bottom: defaultCodeblockPadding },
 			mouseWheelZoom: false,
 			scrollbar: {
 				alwaysConsumeMouseWheel: false
@@ -550,6 +588,9 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 			this.editor.updateOptions(this.getEditorOptionsFromConfig());
 		}));
 
+		this._register(this.editor.onDidScrollChange(e => {
+			this.currentScrollWidth = e.scrollWidth;
+		}));
 		this._register(this.editor.onDidContentSizeChange(e => {
 			if (e.contentHeightChanged) {
 				this._onDidChangeContentHeight.fire(e.contentHeight);
@@ -567,9 +608,21 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 		this.editor.setModel(this.textModel);
 	}
 
+	private updatePaddingForLayout() {
+		// scrollWidth = "the width of the content that needs to be scrolled"
+		// contentWidth = "the width of the area where content is displayed"
+		const horizontalScrollbarVisible = this.currentScrollWidth > this.editor.getLayoutInfo().contentWidth;
+		const scrollbarHeight = this.editor.getLayoutInfo().horizontalScrollbarHeight;
+		const bottomPadding = horizontalScrollbarVisible ?
+			Math.max(defaultCodeblockPadding - scrollbarHeight, 2) :
+			defaultCodeblockPadding;
+		this.editor.updateOptions({ padding: { top: defaultCodeblockPadding, bottom: bottomPadding } });
+	}
+
 	private getEditorOptionsFromConfig(): IEditorOptions {
 		return {
 			wordWrap: this.options.configuration.resultEditor.wordWrap,
+			fontLigatures: this.options.configuration.resultEditor.fontLigatures,
 			bracketPairColorization: this.options.configuration.resultEditor.bracketPairColorization,
 			fontFamily: this.options.configuration.resultEditor.fontFamily === 'default' ?
 				EDITOR_FONT_DEFAULTS.fontFamily :
@@ -584,6 +637,7 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 		const realContentHeight = this.editor.getContentHeight();
 		const editorBorder = 2;
 		this.editor.layout({ width: width - editorBorder, height: realContentHeight });
+		this.updatePaddingForLayout();
 	}
 
 	render(data: IInteractiveResultCodeBlockData, width: number): void {
@@ -595,8 +649,11 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 			this.layout(width);
 		}
 
-		this.setText(data.text);
-		this.setLanguage(data.languageId);
+		const text = this.fixCodeText(data.text, data.languageId);
+		this.setText(text);
+
+		const vscodeLanguageId = withNullAsUndefined(this.languageService.getLanguageIdByLanguageName(data.languageId));
+		this.setLanguage(vscodeLanguageId);
 
 		this.layout(width);
 
@@ -614,8 +671,19 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 		this.toolbar.context = <IInteractiveSessionCodeBlockActionContext>{
 			code: data.text,
 			codeBlockIndex: data.codeBlockIndex,
-			element: data.element
+			element: data.element,
+			languageId: vscodeLanguageId
 		};
+	}
+
+	private fixCodeText(text: string, languageId: string): string {
+		if (languageId === 'php') {
+			if (!text.trim().startsWith('<')) {
+				return `<?php\n${text}\n?>`;
+			}
+		}
+
+		return text;
 	}
 
 	private setText(newText: string): void {
@@ -647,11 +715,8 @@ class CodeBlockPart extends Disposable implements IInteractiveResultCodeBlockPar
 		}
 	}
 
-	private setLanguage(languageId: string): void {
-		const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(languageId);
-		if (vscodeLanguageId) {
-			this.textModel.setLanguage(vscodeLanguageId);
-		}
+	private setLanguage(vscodeLanguageId: string | undefined): void {
+		this.textModel.setLanguage(vscodeLanguageId ?? PLAINTEXT_LANGUAGE_ID);
 	}
 }
 
@@ -720,5 +785,12 @@ class ResourcePool<T extends IDisposable> extends Disposable {
 	release(item: T): void {
 		this._inUse.delete(item);
 		this.pool.push(item);
+	}
+}
+
+class InteractiveSessionVoteButton extends MenuEntryActionViewItem {
+	override render(container: HTMLElement): void {
+		super.render(container);
+		container.classList.toggle('checked', this.action.checked);
 	}
 }

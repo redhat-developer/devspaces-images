@@ -139,6 +139,7 @@ export interface IProductConfiguration {
 	};
 
 	readonly documentationUrl?: string;
+	readonly serverDocumentationUrl?: string;
 	readonly releaseNotesUrl?: string;
 	readonly keyboardShortcutsUrlMac?: string;
 	readonly keyboardShortcutsUrlLinux?: string;
@@ -151,6 +152,7 @@ export interface IProductConfiguration {
 	readonly reportIssueUrl?: string;
 	readonly reportMarketplaceIssueUrl?: string;
 	readonly licenseUrl?: string;
+	readonly serverLicenseUrl?: string;
 	readonly privacyStatementUrl?: string;
 	readonly showTelemetryOptOut?: boolean;
 
@@ -189,6 +191,12 @@ export interface IProductConfiguration {
 
 	readonly 'editSessions.store'?: Omit<ConfigurationSyncStore, 'insidersUrl' | 'stableUrl'>;
 	readonly darwinUniversalAssetId?: string;
+	readonly profileTemplates?: IProfileTemplateInfo[];
+}
+
+export interface IProfileTemplateInfo {
+	readonly name: string;
+	readonly url: string;
 }
 
 export interface ITunnelApplicationConfig {

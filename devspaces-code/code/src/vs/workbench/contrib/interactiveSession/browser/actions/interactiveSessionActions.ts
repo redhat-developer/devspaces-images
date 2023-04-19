@@ -16,9 +16,11 @@ import { KeybindingWeight } from 'vs/platform/keybinding/common/keybindingsRegis
 import { ViewAction } from 'vs/workbench/browser/parts/views/viewPane';
 import { ActiveEditorContext } from 'vs/workbench/common/contextkeys';
 import { IInteractiveSessionEditorOptions, InteractiveSessionEditor } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionEditor';
-import { InteractiveSessionViewPane } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionSidebar';
+import { InteractiveSessionEditorInput } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionEditorInput';
+import { InteractiveSessionViewPane } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionViewPane';
 import { IInteractiveSessionWidgetService } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionWidget';
 import { CONTEXT_IN_INTERACTIVE_INPUT, CONTEXT_IN_INTERACTIVE_SESSION } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionContextKeys';
+import { IInteractiveSessionWidgetHistoryService } from 'vs/workbench/contrib/interactiveSession/common/interactiveSessionWidgetHistoryService';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 
 export const INTERACTIVE_SESSION_CATEGORY = { value: localize('interactiveSession.category', "Interactive Session"), original: 'Interactive Session' };
@@ -48,28 +50,6 @@ export function registerInteractiveSessionActions() {
 		}
 	});
 
-	// registerAction2(class OpenInteractiveSessionWindow extends Action2 {
-	// 	constructor() {
-	// 		super({
-	// 			id: 'workbench.action.interactiveSession.start',
-	// 			title: localize('interactiveSession', 'Open Interactive Session...'),
-	// 			icon: Codicon.commentDiscussion,
-	// 			precondition: ContextKeyExpr.and(CTX_INTERACTIVE_EDITOR_VISIBLE),
-	// 			f1: false,
-	// 			menu: {
-	// 				id: MENU_INTERACTIVE_EDITOR_WIDGET,
-	// 				group: 'Z',
-	// 				order: 1
-	// 			}
-	// 		});
-	// 	}
-
-	// 	override run(accessor: ServicesAccessor, ...args: any[]): void {
-	// 		const viewsService = accessor.get(IViewsService);
-	// 		viewsService.openView(InteractiveSessionViewPane.ID, true);
-	// 	}
-	// });
-
 	registerAction2(class ClearEditorAction extends Action2 {
 		constructor() {
 			super({
@@ -93,6 +73,24 @@ export function registerInteractiveSessionActions() {
 			if (editorService.activeEditorPane instanceof InteractiveSessionEditor) {
 				await editorService.activeEditorPane.clear();
 			}
+		}
+	});
+
+	registerAction2(class ClearEditorAction extends Action2 {
+		constructor() {
+			super({
+				id: 'workbench.action.interactiveSessionEditor.clearHistory',
+				title: {
+					value: localize('interactiveSession.clearHistory.label', "Clear Input History"),
+					original: 'Clear Input History'
+				},
+				category: INTERACTIVE_SESSION_CATEGORY,
+				f1: true,
+			});
+		}
+		async run(accessor: ServicesAccessor, ...args: any[]) {
+			const historyService = accessor.get(IInteractiveSessionWidgetHistoryService);
+			historyService.clearHistory();
 		}
 	});
 
@@ -176,7 +174,7 @@ export function getOpenInteractiveSessionEditorAction(id: string, label: string,
 
 		async run(accessor: ServicesAccessor) {
 			const editorService = accessor.get(IEditorService);
-			await editorService.openEditor({ resource: InteractiveSessionEditor.getNewEditorUri(), options: <IInteractiveSessionEditorOptions>{ providerId: id } });
+			await editorService.openEditor({ resource: InteractiveSessionEditorInput.getNewEditorUri(), options: <IInteractiveSessionEditorOptions>{ providerId: id, pinned: true } });
 		}
 	};
 }

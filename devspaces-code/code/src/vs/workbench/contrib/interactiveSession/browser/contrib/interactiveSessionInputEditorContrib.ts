@@ -10,7 +10,7 @@ import { ICodeEditorService } from 'vs/editor/browser/services/codeEditorService
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { IDecorationOptions } from 'vs/editor/common/editorCommon';
-import { CompletionContext, CompletionItem, CompletionList } from 'vs/editor/common/languages';
+import { CompletionContext, CompletionItem, CompletionItemKind, CompletionList } from 'vs/editor/common/languages';
 import { ITextModel } from 'vs/editor/common/model';
 import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import { localize } from 'vs/nls';
@@ -20,6 +20,7 @@ import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { IInteractiveSessionWidget } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSession';
 import { IInteractiveSessionWidgetService, InteractiveSessionWidget } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionWidget';
 import { LifecyclePhase } from 'vs/workbench/services/lifecycle/common/lifecycle';
+import { InteractiveSessionInputPart } from 'vs/workbench/contrib/interactiveSession/browser/interactiveSessionInputPart';
 
 const decorationDescription = 'interactive session';
 const slashCommandPlaceholderDecorationType = 'interactive-session-detail';
@@ -60,7 +61,7 @@ class InputEditorDecorations extends Disposable {
 	}
 
 	private async updateInputEditorDecorations() {
-		const value = this.widget.inputEditor.getModel()?.getValue();
+		const value = this.widget.inputEditor.getValue();
 		const slashCommands = await this.widget.getSlashCommands();
 
 		if (!value) {
@@ -139,7 +140,7 @@ class SlashCommandCompletions extends Disposable {
 	) {
 		super();
 
-		this._register(this.languageFeaturesService.completionProvider.register({ scheme: InteractiveSessionWidget.INPUT_SCHEME, hasAccessToAllModels: true }, {
+		this._register(this.languageFeaturesService.completionProvider.register({ scheme: InteractiveSessionInputPart.INPUT_SCHEME, hasAccessToAllModels: true }, {
 			triggerCharacters: ['/'],
 			provideCompletionItems: async (model: ITextModel, _position: Position, _context: CompletionContext, _token: CancellationToken) => {
 				const widget = this.interactiveSessionWidgetService.getWidgetByInputUri(model.uri);
@@ -147,12 +148,12 @@ class SlashCommandCompletions extends Disposable {
 					return null;
 				}
 
-				const slashCommands = await widget.getSlashCommands();
-				if (!slashCommands) {
+				if (model.getValueInRange(new Range(1, 1, 1, 2)) !== '/' && model.getValueLength() > 0) {
 					return null;
 				}
 
-				if (model.getValueInRange(new Range(1, 1, 1, 2)) !== '/') {
+				const slashCommands = await widget.getSlashCommands();
+				if (!slashCommands) {
 					return null;
 				}
 
@@ -164,7 +165,8 @@ class SlashCommandCompletions extends Disposable {
 							insertText: `${withSlash} `,
 							detail: c.detail,
 							range: new Range(1, 1, 1, 1),
-							kind: c.kind,
+							sortText: c.sortText ?? c.command,
+							kind: CompletionItemKind.Text // The icons are disabled here anyway
 						};
 					})
 				};
