@@ -41,7 +41,7 @@ const MONACO_CONFIG: editor.IStandaloneEditorConstructionOptions = {
   wordWrap: 'on',
   lineNumbers: 'on',
   scrollBeyondLastLine: false,
-  readOnly: true,
+  readOnly: false,
 };
 
 (self as any).MonacoEnvironment = {
@@ -160,7 +160,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
           { value },
           {
             ...MONACO_CONFIG,
-            readOnly: !!this.props.isReadonly,
+            readOnly: true,
           },
         ),
       );
