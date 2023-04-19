@@ -24,7 +24,6 @@ def debugDiskUsage = true
 
 // CRW-2656, CRW-3565 if a code build, ONLY use dynamic PSI builders so there's maximum disk space available
 // CRW-2736 if an idea build, must run on x64 only (single arch for now; failed when tested on ppc64le - missing support for that arch)
-// NB 2022-01-14 remove s390x-rhel8-perm as it can be flaky with ssh connections (maybe because of CRW-3281 - crwjen-1.s390 has only 4GB RAM?)
 def String nodeLabelAnyArch = ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
     'x86_64-rhel8' : 
     'x86_64-rhel8||ppc64le-rhel8'
@@ -89,8 +88,7 @@ popd
       for (int j=0; j < nodeLabels.size(); j++) {
         switch(nodeLabels[j]) {
           case "s390x":
-            // CRW-3281 - crwjen-1.s390 has only 4GB RAM; can't use it for code-rhel8 builds
-            nodeLabel = REPOS.contains("code") ? "s390x-rhel8&&!crwjen-1.s390" : "s390x-rhel8"
+            nodeLabel = "s390x-rhel8"
             break
           case "ppc64le":
             nodeLabel = "ppc64le-rhel8"
