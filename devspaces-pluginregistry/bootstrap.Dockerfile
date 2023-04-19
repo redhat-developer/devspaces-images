@@ -11,7 +11,7 @@
 #
 
 # https://registry.access.redhat.com/ubi8/python-38
-FROM registry.access.redhat.com/ubi8/python-38:1-125.1680797945 as builder
+FROM registry.access.redhat.com/ubi8/python-38:1-125.1681314502 as builder
 #FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
 USER 0
 
