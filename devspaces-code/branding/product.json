@@ -1,6 +1,6 @@
 {
 	"nameShort": "VS Code - Open Source",
-	"nameLong": "<h2>Red Hat OpenShift Dev Spaces <br /><h3>with Microsoft Visual Studio Code - Open Source IDE</h3></h2>",
+	"nameLong": "Red Hat OpenShift Dev Spaces with VS Code for the Web",
 	"workbenchConfigFilePath": "workbench-config.json",
 	"codiconCssFilePath": "css/codicon.css",
 	"icons": {
