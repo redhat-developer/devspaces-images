@@ -30,6 +30,13 @@ export class WebSocketMessageHandler {
   }
 
   /**
+   * `hasListener` returns true if there is at least one listener for the given channel.
+   */
+  public hasListener(channel: api.webSocket.Channel): boolean {
+    return this.listeners.has(channel);
+  }
+
+  /**
    * Removes a listener.
    */
   public removeListener(channel: api.webSocket.Channel, listener: ChannelListener): void {

@@ -17,6 +17,7 @@ export enum Channel {
   DEV_WORKSPACE = 'devWorkspace',
   EVENT = 'event',
   POD = 'pod',
+  LOGS = 'logs',
 }
 
 export function isWebSocketChannel(channel: unknown): channel is Channel {
@@ -24,7 +25,8 @@ export function isWebSocketChannel(channel: unknown): channel is Channel {
     (channel !== undefined &&
       ((channel as Channel) === Channel.DEV_WORKSPACE ||
         (channel as Channel) === Channel.EVENT)) ||
-    (channel as Channel) === Channel.POD
+    (channel as Channel) === Channel.POD ||
+    (channel as Channel) === Channel.LOGS
   );
 }
 
@@ -40,9 +42,16 @@ export function isWebSocketSubscriptionMethod(
 
 export type SubscribeMessage = {
   method: 'SUBSCRIBE';
-  params: SubscribeParams;
-  channel: Channel;
-};
+} & (
+  | {
+      channel: Channel.DEV_WORKSPACE | Channel.EVENT | Channel.POD;
+      params: SubscribeParams;
+    }
+  | {
+      channel: Channel.LOGS;
+      params: SubscribeLogsParams;
+    }
+);
 
 export type UnsubscribeMessage = {
   method: 'UNSUBSCRIBE';
@@ -57,7 +66,10 @@ export function isWebSocketSubscriptionMessage(
     message !== undefined &&
     ((isWebSocketSubscriptionMethod((message as SubscribeMessage).method) &&
       (message as SubscribeMessage).method === 'SUBSCRIBE' &&
-      isWebSocketSubscribeParams((message as SubscribeMessage).params)) ||
+      (isWebSocketSubscribeParams((message as SubscribeMessage).params) ||
+        isWebSocketSubscribeLogsParams(
+          (message as SubscribeMessage).params,
+        ))) ||
       ((message as UnsubscribeMessage).method === 'UNSUBSCRIBE' &&
         isWebSocketUnsubscribeParams(
           (message as UnsubscribeMessage).params,
@@ -71,6 +83,12 @@ export type SubscribeParams = {
   resourceVersion: string;
 };
 
+export type SubscribeLogsParams = {
+  namespace: string;
+  podName: string;
+  containerName?: string;
+};
+
 export function isWebSocketSubscribeParams(
   parameters: unknown,
 ): parameters is SubscribeParams {
@@ -78,6 +96,16 @@ export function isWebSocketSubscribeParams(
     parameters !== undefined &&
     (parameters as SubscribeParams).namespace !== undefined &&
     (parameters as SubscribeParams).resourceVersion !== undefined
+  );
+}
+
+export function isWebSocketSubscribeLogsParams(
+  parameters: unknown,
+): parameters is SubscribeLogsParams {
+  return (
+    parameters !== undefined &&
+    (parameters as SubscribeLogsParams).namespace !== undefined &&
+    (parameters as SubscribeLogsParams).podName !== undefined
   );
 }
 
@@ -110,14 +138,22 @@ export type PodMessage = {
   eventPhase: EventPhase.ADDED | EventPhase.MODIFIED | EventPhase.DELETED;
   pod: V1Pod;
 };
+export type LogsMessage = {
+  eventPhase: EventPhase.ADDED;
+  podName: string;
+  containerName: string;
+  logs: string;
+};
 export type StatusMessage = {
   eventPhase: EventPhase.ERROR;
   status: V1Status;
+  params: SubscribeParams | SubscribeLogsParams;
 };
 export type NotificationMessage =
   | EventMessage
   | DevWorkspaceMessage
   | PodMessage
+  | LogsMessage
   | StatusMessage;
 export type EventData = {
   channel: Channel;
@@ -181,5 +217,15 @@ export function isStatusMessage(message: unknown): message is StatusMessage {
     message !== undefined &&
     (message as StatusMessage).eventPhase === EventPhase.ERROR &&
     (message as StatusMessage).status !== undefined
+  );
+}
+
+export function isLogsMessage(message: unknown): message is LogsMessage {
+  return (
+    message !== undefined &&
+    (message as LogsMessage).eventPhase === EventPhase.ADDED &&
+    (message as LogsMessage).podName !== undefined &&
+    (message as LogsMessage).containerName !== undefined &&
+    (message as LogsMessage).logs !== undefined
   );
 }

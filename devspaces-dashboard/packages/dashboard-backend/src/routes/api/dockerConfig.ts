@@ -15,7 +15,7 @@ import { baseApiPath } from '../../constants/config';
 import { dockerConfigSchema, namespacedSchema } from '../../constants/schemas';
 import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
 import { getToken } from './helpers/getToken';
-import { restParams } from '../../typings/models';
+import { restParams } from '../../models';
 import { getSchema } from '../../services/helpers';
 
 const tags = ['Docker Config'];

@@ -809,6 +809,7 @@ describe('DevWorkspace store, actions', () => {
             message: 'The resourceVersion for the provided watch is too old.',
           } as V1Status,
           eventPhase: api.webSocket.EventPhase.ERROR,
+          params: { namespace, resourceVersion: '123' },
         }),
       );
 
@@ -835,7 +836,7 @@ describe('DevWorkspace store, actions', () => {
       expect(subscribeToChannelSpy).toHaveBeenCalledWith(
         api.webSocket.Channel.DEV_WORKSPACE,
         namespace,
-        expect.any(Function),
+        { getResourceVersion: expect.any(Function) },
       );
     });
   });

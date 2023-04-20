@@ -181,6 +181,10 @@ describe('Pods store, actions', () => {
             message: 'The resourceVersion for the provided watch is too old.',
           } as V1Status,
           eventPhase: api.webSocket.EventPhase.ERROR,
+          params: {
+            namespace,
+            resourceVersion: '123',
+          },
         }),
       );
 
@@ -200,11 +204,9 @@ describe('Pods store, actions', () => {
 
       expect(actions).toEqual(expectedActions);
       expect(unsubscribeFromChannelSpy).toHaveBeenCalledWith(api.webSocket.Channel.POD);
-      expect(subscribeToChannelSpy).toHaveBeenCalledWith(
-        api.webSocket.Channel.POD,
-        namespace,
-        expect.any(Function),
-      );
+      expect(subscribeToChannelSpy).toHaveBeenCalledWith(api.webSocket.Channel.POD, namespace, {
+        getResourceVersion: expect.any(Function),
+      });
     });
   });
 });

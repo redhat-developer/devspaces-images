@@ -37,45 +37,54 @@ export class EventApiService implements IEventApi {
       const resp = await this.coreV1API.listNamespacedEvent(namespace);
       return resp.body;
     } catch (e) {
-      throw createError(e, EVENT_API_ERROR_LABEL, 'Unable to list events.');
+      throw createError(e, EVENT_API_ERROR_LABEL, 'Unable to list events');
     }
   }
 
   public async watchInNamespace(
-    namespace: string,
-    resourceVersion: string,
     listener: MessageListener,
+    params: api.webSocket.SubscribeParams,
   ): Promise<void> {
-    const path = `/api/v1/namespaces/${namespace}/events`;
-    const queryParams = { watch: true, resourceVersion };
+    const path = `/api/v1/namespaces/${params.namespace}/events`;
+    const queryParams = { watch: true, resourceVersion: params.resourceVersion };
 
     this.stopWatching();
 
     const request: Request = await this.customObjectWatch.watch(
       path,
       queryParams,
-      (eventPhase: string, apiObj: CoreV1Event | V1Status) => {
-        switch (eventPhase) {
-          case api.webSocket.EventPhase.ADDED:
-          case api.webSocket.EventPhase.MODIFIED:
-          case api.webSocket.EventPhase.DELETED: {
-            const event = apiObj as CoreV1Event;
-            listener({ eventPhase, event });
-            break;
-          }
-          case api.webSocket.EventPhase.ERROR: {
-            const status = apiObj as V1Status;
-            listener({ eventPhase, status });
-            break;
-          }
-        }
-      },
-      (error: unknown) => {
-        console.error(`[ERROR] Stopped watching ${path}. Reason:`, error);
-      },
+      (eventPhase: string, apiObj: CoreV1Event | V1Status) =>
+        this.handleWatchMessage(eventPhase, apiObj, listener, params),
+      (error: unknown) => this.handleWatchError(error, path),
     );
 
     this.stopWatch = () => request.destroy();
+  }
+
+  private handleWatchMessage(
+    eventPhase: string,
+    apiObj: k8s.CoreV1Event | k8s.V1Status,
+    listener: MessageListener,
+    params: api.webSocket.SubscribeParams,
+  ): void {
+    switch (eventPhase) {
+      case api.webSocket.EventPhase.ADDED:
+      case api.webSocket.EventPhase.MODIFIED:
+      case api.webSocket.EventPhase.DELETED: {
+        const event = apiObj as CoreV1Event;
+        listener({ eventPhase, event });
+        break;
+      }
+      case api.webSocket.EventPhase.ERROR: {
+        const status = apiObj as V1Status;
+        listener({ eventPhase, status, params });
+        break;
+      }
+    }
+  }
+
+  private handleWatchError(error: unknown, path: string): void {
+    console.error(`[ERROR] Stopped watching ${path}. Reason:`, error);
   }
 
   /**

@@ -19,15 +19,16 @@ import { AppState } from '..';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
 import devfileApi from '../../services/devfileApi';
 import { State as BrandingState } from '../Branding';
-import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries/index';
+import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries';
 import { RegistryEntry } from '../DockerConfig/types';
 import { ConvertedState, ResolverState, State as FactoryResolverState } from '../FactoryResolver';
 import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';
 import { State as PluginsState } from '../Plugins/chePlugins';
 import { State as UserProfileState } from '../UserProfile';
-import { State as WorkspacesState } from '../Workspaces/index';
+import { State as WorkspacesState } from '../Workspaces';
 import mockThunk from './thunk';
 import { IGitOauth } from '../GitOauthConfig/types';
+import { State as LogsState } from '../Pods/Logs';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -144,7 +145,16 @@ export class FakeStoreBuilder {
       registries: [],
       error: undefined,
     },
+    logs: {
+      logs: {},
+    },
   };
+
+  constructor(store?: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>) {
+    if (store) {
+      this.state = store.getState();
+    }
+  }
 
   public withDwServerConfig(config: api.IServerConfig): FakeStoreBuilder {
     this.state.dwServerConfig = {
@@ -387,12 +397,6 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public build(): MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>> {
-    const middlewares = [mockThunk];
-    const mockStore = createMockStore<AppState>(middlewares);
-    return mockStore(this.state);
-  }
-
   public withSanityCheck(options: {
     authorized?: Promise<boolean>;
     error?: string;
@@ -403,5 +407,16 @@ export class FakeStoreBuilder {
       this.state.sanityCheck.lastFetched = Date.now();
     }
     return this;
+  }
+
+  public withLogs(logs: LogsState['logs']) {
+    this.state.logs.logs = Object.assign({}, logs);
+    return this;
+  }
+
+  public build(): MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>> {
+    const middlewares = [mockThunk];
+    const mockStore = createMockStore<AppState>(middlewares);
+    return mockStore(this.state);
   }
 }

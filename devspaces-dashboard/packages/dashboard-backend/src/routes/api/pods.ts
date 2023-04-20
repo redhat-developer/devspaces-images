@@ -13,8 +13,8 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../../constants/config';
 import { namespacedSchema } from '../../constants/schemas';
+import { restParams } from '../../models';
 import { getSchema } from '../../services/helpers';
-import { restParams } from '../../typings/models';
 import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
 import { getToken } from './helpers/getToken';
 

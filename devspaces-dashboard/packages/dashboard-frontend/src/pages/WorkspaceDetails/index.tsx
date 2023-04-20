@@ -38,6 +38,7 @@ import { buildDetailsLocation } from '../../services/helpers/location';
 import WorkspaceEvents from '../../components/WorkspaceEvents';
 
 import styles from './index.module.css';
+import WorkspaceLogs from '../../components/WorkspaceLogs';
 
 export const SECTION_THEME = PageSectionVariants.light;
 
@@ -145,6 +146,8 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
           return WorkspaceDetailsTab.DEVWORKSPACE;
         case WorkspaceDetailsTab.EVENTS:
           return WorkspaceDetailsTab.EVENTS;
+        case WorkspaceDetailsTab.LOGS:
+          return WorkspaceDetailsTab.LOGS;
       }
     }
     return WorkspaceDetailsTab.OVERVIEW;
@@ -262,6 +265,9 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
                 workspace={workspace}
                 isActive={WorkspaceDetailsTab.DEVWORKSPACE === this.state.activeTabKey}
               />
+            </Tab>
+            <Tab eventKey={WorkspaceDetailsTab.LOGS} title={WorkspaceDetailsTab.LOGS}>
+              <WorkspaceLogs workspaceUID={workspace.uid} />
             </Tab>
             <Tab eventKey={WorkspaceDetailsTab.EVENTS} title={WorkspaceDetailsTab.EVENTS}>
               <WorkspaceEvents workspaceUID={workspace.uid} />

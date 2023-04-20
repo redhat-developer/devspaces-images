@@ -1,0 +1,30 @@
+.viewer {
+  border: var(--pf-global--BackgroundColor--dark-200) solid 2px;
+  border-radius: 2px;
+  color: var(--pf-global--palette--black-400);
+  background-color: var(--pf-global--palette--black-1000);
+  height: calc(100vh - 31em);
+  min-height: 15em;
+  font-size: small;
+}
+
+.expanded.viewer {
+  height: calc(100% - 3em);
+}
+
+.linesCounter {
+  background-color: var(--pf-global--BackgroundColor--dark-300);
+  padding: 0 5px;
+  line-height: 2em;
+  font-weight: 600;
+}
+
+.logs {
+  overflow: auto;
+  height: calc(100% - 2em);
+  padding: 0 5px;
+}
+
+.errorColor {
+  color: var(--pf-global--danger-color--100);
+}

@@ -24,7 +24,7 @@ describe('subscriptionsManager', () => {
     const subscribeMessage = subscriptionsManager.addSubscription(
       api.webSocket.Channel.EVENT,
       'user-che',
-      () => '1234',
+      { getResourceVersion: () => '1234' },
     );
 
     expect(subscribeMessage).toEqual({
@@ -45,12 +45,12 @@ describe('subscriptionsManager', () => {
     const subscribeMessage1 = subscriptionsManager.addSubscription(
       api.webSocket.Channel.EVENT,
       'user-che',
-      () => '1234',
+      { getResourceVersion: () => '1234' },
     );
     const subscribeMessage2 = subscriptionsManager.addSubscription(
       api.webSocket.Channel.EVENT,
       'user-che',
-      () => '1234',
+      { getResourceVersion: () => '1234' },
     );
 
     expect(subscribeMessage1).toEqual(subscribeMessage2);
@@ -61,7 +61,9 @@ describe('subscriptionsManager', () => {
   });
 
   it('should remove a subscription', () => {
-    subscriptionsManager.addSubscription(api.webSocket.Channel.EVENT, 'user-che', () => '1234');
+    subscriptionsManager.addSubscription(api.webSocket.Channel.EVENT, 'user-che', {
+      getResourceVersion: () => '1234',
+    });
 
     const allSubscribeMessages = subscriptionsManager.getSubscriptions();
     expect(allSubscribeMessages).toHaveLength(1);

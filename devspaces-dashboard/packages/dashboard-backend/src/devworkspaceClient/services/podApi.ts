@@ -42,40 +42,49 @@ export class PodApiService implements IPodApi {
   }
 
   public async watchInNamespace(
-    namespace: string,
-    resourceVersion: string,
     listener: MessageListener,
+    params: api.webSocket.SubscribeParams,
   ): Promise<void> {
-    const path = `/api/v1/namespaces/${namespace}/pods`;
-    const queryParams = { watch: true, resourceVersion };
+    const path = `/api/v1/namespaces/${params.namespace}/pods`;
+    const queryParams = { watch: true, resourceVersion: params.resourceVersion };
 
     this.stopWatching();
 
     const request: Request = await this.customObjectWatch.watch(
       path,
       queryParams,
-      (eventPhase: string, apiObj: V1Pod | V1Status) => {
-        switch (eventPhase) {
-          case api.webSocket.EventPhase.ADDED:
-          case api.webSocket.EventPhase.MODIFIED:
-          case api.webSocket.EventPhase.DELETED: {
-            const pod = apiObj as V1Pod;
-            listener({ eventPhase, pod });
-            break;
-          }
-          case api.webSocket.EventPhase.ERROR: {
-            const status = apiObj as V1Status;
-            listener({ eventPhase, status });
-            break;
-          }
-        }
-      },
-      (error: unknown) => {
-        console.error(`[ERROR] Stopped watching ${path}. Reason:`, error);
-      },
+      (eventPhase: string, apiObj: V1Pod | V1Status) =>
+        this.handleWatchMessage(eventPhase, apiObj, listener, params),
+      (error: unknown) => this.handleWatchError(error, path),
     );
 
     this.stopWatch = () => request.destroy();
+  }
+
+  private handleWatchError(error: unknown, path: string): void {
+    console.error(`[ERROR] Stopped watching ${path}. Reason:`, error);
+  }
+
+  private handleWatchMessage(
+    eventPhase: string,
+    apiObj: k8s.V1Pod | k8s.V1Status,
+    listener: MessageListener,
+    params: api.webSocket.SubscribeParams,
+  ): void {
+    switch (eventPhase) {
+      case api.webSocket.EventPhase.ADDED:
+      case api.webSocket.EventPhase.MODIFIED:
+      case api.webSocket.EventPhase.DELETED: {
+        const pod = apiObj as V1Pod;
+        listener({ eventPhase, pod });
+        break;
+      }
+      case api.webSocket.EventPhase.ERROR: {
+        const status = apiObj as V1Status;
+        listener({ eventPhase, status, params });
+        break;
+      }
+    }
   }
 
   /**

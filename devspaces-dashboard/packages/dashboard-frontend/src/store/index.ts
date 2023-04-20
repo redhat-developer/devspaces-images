@@ -31,6 +31,7 @@ import * as WorkspacesSettingsStore from './Workspaces/Settings';
 import * as GitOauthConfigStore from './GitOauthConfig';
 import * as EventsStore from './Events';
 import * as PodsStore from './Pods';
+import * as LogsStore from './Pods/Logs';
 
 // the top-level state object
 export interface AppState {
@@ -53,6 +54,7 @@ export interface AppState {
   workspacesSettings: WorkspacesSettingsStore.State;
   events: EventsStore.State;
   pods: PodsStore.State;
+  logs: LogsStore.State;
 }
 
 export const reducers = {
@@ -75,6 +77,7 @@ export const reducers = {
   workspacesSettings: WorkspacesSettingsStore.reducer,
   events: EventsStore.reducer,
   pods: PodsStore.reducer,
+  logs: LogsStore.reducer,
 };
 
 export type AppThunk<ActionType extends Action, ReturnType = void> = ThunkAction<

@@ -13,18 +13,3 @@
 .header {
   display: block;
 }
-
-.icon {
-  background-color: var(--pf-global--palette--cyan-300);
-  border-radius: 20px;
-  color: var(--pf-global--palette--white);
-  display: inline-block;
-  flex-shrink: 0;
-  font-size: 14px;
-  line-height: 16px;
-  margin-right: 4px;
-  min-width: 18px;
-  padding: 1px 4px;
-  text-align: center;
-  white-space: nowrap;
-}

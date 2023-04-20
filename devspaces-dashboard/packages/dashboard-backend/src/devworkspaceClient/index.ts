@@ -16,8 +16,9 @@ import { DevWorkspaceTemplateApiService } from './services/devWorkspaceTemplateA
 import { DockerConfigApiService } from './services/dockerConfigApi';
 import { EventApiService } from './services/eventApi';
 import { KubeConfigApiService } from './services/kubeConfigApi';
+import { LogsApiService } from './services/logsApi';
 import { NamespaceApiService } from './services/namespaceApi';
-import { PodApiService } from './services/podAPI';
+import { PodApiService } from './services/podApi';
 import { ServerConfigApiService } from './services/serverConfigApi';
 import { UserProfileApiService } from './services/userProfileApi';
 import {
@@ -27,6 +28,7 @@ import {
   IDockerConfigApi,
   IEventApi,
   IKubeConfigApi,
+  ILogsApi,
   INamespaceApi,
   IPodApi,
   IServerConfigApi,
@@ -76,5 +78,9 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   get userProfileApi(): IUserProfileApi {
     return new UserProfileApiService(this.kubeConfig);
+  }
+
+  get logsApi(): ILogsApi {
+    return new LogsApiService(this.kubeConfig);
   }
 }

@@ -13,7 +13,8 @@
     "format:fix": "yarn prettier --config .prettierrc --write src/",
     "lint:check": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}'",
     "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --fix",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "yarn test --watch"
   },
   "devDependencies": {
     "@devfile/api": "^2.2.0-alpha-1633545768",

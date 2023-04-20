@@ -11,7 +11,7 @@
  */
 
 import { authenticationHeaderSchema } from '../constants/schemas';
-import { restParams } from '../typings/models';
+import { restParams } from '../models';
 import createError from '@fastify/error';
 import { FastifyError } from 'fastify';
 

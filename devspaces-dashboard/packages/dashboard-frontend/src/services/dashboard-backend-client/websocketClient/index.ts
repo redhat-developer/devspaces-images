@@ -16,7 +16,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import { getDefer, IDeferred } from '../../helpers/deferred';
 import { prefix } from '../const';
 import { ChannelListener, WebSocketMessageHandler } from './messageHandler';
-import { ReturnResourceVersion, WebSocketSubscriptionsManager } from './subscriptionsManager';
+import { SubscriptionArgs, WebSocketSubscriptionsManager } from './subscriptionsManager';
 
 export enum ConnectionEvent {
   OPEN = 'open',
@@ -140,16 +140,8 @@ export class WebsocketClient {
   /**
    * Send a message that subscribes to events for the given channel.
    */
-  subscribeToChannel(
-    channel: api.webSocket.Channel,
-    namespace: string,
-    getResourceVersion: ReturnResourceVersion,
-  ): void {
-    const subscribeMessage = this.subscriptionsManager.addSubscription(
-      channel,
-      namespace,
-      getResourceVersion,
-    );
+  public subscribeToChannel(...args: SubscriptionArgs): void {
+    const subscribeMessage = this.subscriptionsManager.addSubscription(...args);
 
     if (this.websocketStream === undefined) {
       return;
@@ -165,7 +157,7 @@ export class WebsocketClient {
   /**
    * Send a message that unsubscribes from events for the given channel.
    */
-  unsubscribeFromChannel(channel: api.webSocket.Channel): void {
+  public unsubscribeFromChannel(channel: api.webSocket.Channel): void {
     const unsubscribeMessage = this.subscriptionsManager.removeSubscription(channel);
 
     if (this.websocketStream === undefined) {
@@ -187,5 +179,12 @@ export class WebsocketClient {
     listener: ChannelListener,
   ): void {
     this.messageHandler.addListener(channel, listener);
+  }
+
+  /**
+   * Returns true if the given channel has a listener.
+   */
+  public hasChannelMessageListener(channel: api.webSocket.Channel): boolean {
+    return this.messageHandler.hasListener(channel);
   }
 }

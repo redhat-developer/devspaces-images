@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The LogsTools component snapshot in expanded state 1`] = `
+<div
+  className="pf-l-split"
+>
+  <div
+    className="pf-l-split__item"
+  >
+    <div>
+      left
+    </div>
+  </div>
+  <div
+    className="pf-l-split__item pf-m-fill"
+  />
+  <div
+    className="pf-l-split__item alignCenter expandedPadding"
+  >
+    <div>
+      right
+    </div>
+  </div>
+</div>
+`;
+
+exports[`The LogsTools component snapshot with both parts present 1`] = `
+<div
+  className="pf-l-split"
+>
+  <div
+    className="pf-l-split__item"
+  >
+    <div>
+      left
+    </div>
+  </div>
+  <div
+    className="pf-l-split__item pf-m-fill"
+  />
+  <div
+    className="pf-l-split__item alignCenter "
+  >
+    <div>
+      right
+    </div>
+  </div>
+</div>
+`;
+
+exports[`The LogsTools component snapshot with left part only 1`] = `
+<div
+  className="pf-l-split"
+>
+  <div
+    className="pf-l-split__item"
+  >
+    <div>
+      left
+    </div>
+  </div>
+  <div
+    className="pf-l-split__item pf-m-fill"
+  />
+  <div
+    className="pf-l-split__item alignCenter "
+  />
+</div>
+`;
+
+exports[`The LogsTools component snapshot with right part only 1`] = `
+<div
+  className="pf-l-split"
+>
+  <div
+    className="pf-l-split__item"
+  />
+  <div
+    className="pf-l-split__item pf-m-fill"
+  />
+  <div
+    className="pf-l-split__item alignCenter "
+  >
+    <div>
+      right
+    </div>
+  </div>
+</div>
+`;

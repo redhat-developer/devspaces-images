@@ -21,7 +21,7 @@ import {
 import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
 import { getToken } from './helpers/getToken';
 import { getSchema } from '../../services/helpers';
-import { restParams } from '../../typings/models';
+import { restParams } from '../../models';
 
 const tags = ['Devworkspace Template'];
 

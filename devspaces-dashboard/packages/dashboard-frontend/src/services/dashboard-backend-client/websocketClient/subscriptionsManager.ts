@@ -13,45 +13,60 @@
 import { api } from '@eclipse-che/common';
 
 type ResourceVersion = string;
-type Namespace = string;
 export type ReturnResourceVersion = () => ResourceVersion;
+
+export type SubscriptionArgs =
+  | [
+      channel:
+        | api.webSocket.Channel.DEV_WORKSPACE
+        | api.webSocket.Channel.EVENT
+        | api.webSocket.Channel.POD,
+      namespace: string,
+      options: { getResourceVersion: ReturnResourceVersion },
+    ]
+  | [channel: api.webSocket.Channel.LOGS, namespace: string, options: { podName: string }];
 
 /**
  * This class manages subscriptions to web socket channels.
  */
 export class WebSocketSubscriptionsManager {
-  private readonly subscriptions: Map<api.webSocket.Channel, [Namespace, ReturnResourceVersion]> =
-    new Map();
+  private readonly subscriptions: Map<api.webSocket.Channel, SubscriptionArgs> = new Map();
 
   /**
    * Adds the subscription for the given channel and returns the subscribe message.
    */
-  public addSubscription(
-    channel: api.webSocket.Channel,
-    namespace: string,
-    getResourceVersion: ReturnResourceVersion,
-  ): api.webSocket.SubscribeMessage | undefined {
+  public addSubscription(...args: SubscriptionArgs): api.webSocket.SubscribeMessage | undefined {
+    const [channel] = args;
     if (this.subscriptions.has(channel) === false) {
       // store subscription to be able to re-subscribe later
-      this.subscriptions.set(channel, [namespace, getResourceVersion]);
+      this.subscriptions.set(channel, args);
     }
-
-    return this.buildSubscribeMessage(channel, namespace, getResourceVersion);
+    return this.buildSubscribeMessage(...args);
   }
 
-  private buildSubscribeMessage(
-    channel: api.webSocket.Channel,
-    namespace: string,
-    getResourceVersion: ReturnResourceVersion,
-  ): api.webSocket.SubscribeMessage {
-    return {
-      method: 'SUBSCRIBE',
-      channel,
-      params: {
-        namespace,
-        resourceVersion: getResourceVersion(),
-      },
-    };
+  private buildSubscribeMessage(...args: SubscriptionArgs): api.webSocket.SubscribeMessage {
+    const [channel, namespace] = args;
+    if (channel === api.webSocket.Channel.LOGS) {
+      const options = args[2];
+      return {
+        method: 'SUBSCRIBE',
+        channel,
+        params: {
+          namespace,
+          ...options,
+        },
+      };
+    } else {
+      const options = args[2];
+      return {
+        method: 'SUBSCRIBE',
+        channel,
+        params: {
+          namespace,
+          resourceVersion: options.getResourceVersion(),
+        },
+      };
+    }
   }
 
   /**
@@ -78,8 +93,8 @@ export class WebSocketSubscriptionsManager {
    */
   public getSubscriptions(): api.webSocket.SubscribeMessage[] {
     const messages: api.webSocket.SubscribeMessage[] = [];
-    this.subscriptions.forEach(([namespace, getResourceVersion], channel) => {
-      messages.push(this.buildSubscribeMessage(channel, namespace, getResourceVersion));
+    this.subscriptions.forEach(subscriptionArgs => {
+      messages.push(this.buildSubscribeMessage(...subscriptionArgs));
     });
     return messages;
   }

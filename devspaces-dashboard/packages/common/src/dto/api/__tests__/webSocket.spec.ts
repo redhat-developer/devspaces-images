@@ -15,6 +15,7 @@ import {
   Channel,
   isDevWorkspaceMessage,
   isEventMessage,
+  isLogsMessage,
   isNotificationMessage,
   isPodMessage,
   isStatusMessage,
@@ -54,6 +55,17 @@ describe('api.webSocket typeguards', () => {
         params: {
           namespace: 'foo',
           resourceVersion: 'bar',
+        },
+        channel: Channel.DEV_WORKSPACE,
+      }),
+    ).toBeTruthy();
+
+    expect(
+      isWebSocketSubscriptionMessage({
+        method: 'SUBSCRIBE',
+        params: {
+          namespace: 'foo',
+          podName: 'bar',
         },
         channel: Channel.DEV_WORKSPACE,
       }),
@@ -251,5 +263,20 @@ describe('api.webSocket typeguards', () => {
     expect(isWebSocketEventData(undefined)).toBeFalsy();
     expect(isWebSocketEventData({})).toBeFalsy();
     expect(isWebSocketEventData('foo')).toBeFalsy();
+  });
+
+  test('isLogsMessage', () => {
+    expect(
+      isLogsMessage({
+        eventPhase: webSocket.EventPhase.ADDED,
+        podName: 'foo',
+        containerName: 'bar',
+        logs: 'baz',
+        failure: false,
+      }),
+    ).toBeTruthy();
+
+    expect(isLogsMessage(undefined)).toBeFalsy();
+    expect(isLogsMessage({})).toBeFalsy();
   });
 });

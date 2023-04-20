@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es6"],
+    "target": "ES2021",
+    "lib": ["ES2021"],
     "module": "commonjs",
     "paths": {
       "@eclipse-che/common": ["../common/src"]
@@ -14,7 +14,6 @@
   "exclude": [
     "node_modules",
     "lib",
-    "**/__tests__/*",
   ],
   "include": ["src", "src/devfileSchemas/**/*.json"],
   "references": [

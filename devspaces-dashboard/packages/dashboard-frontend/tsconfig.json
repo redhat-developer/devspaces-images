@@ -21,12 +21,12 @@
     "rootDir": "src"
   },
   "include": [
-    "src"
+    "src",
+    "src/**/*.json"
   ],
   "exclude": [
     "node_modules",
     "lib",
-    "**/__tests__/*"
   ],
   "references": [
     { "path": "../common" }

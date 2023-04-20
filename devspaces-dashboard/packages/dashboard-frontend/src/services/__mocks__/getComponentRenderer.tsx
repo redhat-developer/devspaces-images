@@ -14,6 +14,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 
+export * from '@testing-library/react';
+
 export default function <T extends Array<unknown>>(
   getComponent: (..._args: T) => React.ReactElement,
 ): {

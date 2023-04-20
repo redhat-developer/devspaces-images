@@ -69,6 +69,12 @@ export interface IUserProfile {
 
 export type IEventList = CoreV1EventList;
 export type IPodList = V1PodList;
+export type PodLogs = {
+  [containerName: string]: {
+    logs: string;
+    failure: boolean;
+  };
+};
 
 export interface IDevWorkspaceList {
   apiVersion?: string;

@@ -10,29 +10,28 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1Pod } from '@kubernetes/client-node';
 import {
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
   PageSection,
-  PageSectionVariants,
   Title,
 } from '@patternfly/react-core';
 import { FileIcon } from '@patternfly/react-icons';
-import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { Workspace } from '../../services/workspace-adapter';
 import { AppState } from '../../store';
+import * as LogsStore from '../../store/Pods/Logs';
+import { selectPodLogs } from '../../store/Pods/Logs/selectors';
+import { selectAllPods } from '../../store/Pods/selectors';
 import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
-import WorkspaceLogsTools from './Tools';
-
+import { WorkspaceLogsContainerSelector } from './ContainerSelector';
 import styles from './index.module.css';
-import { DevWorkspaceStatus } from '../../services/helpers/types';
-
-const MAX_LOG_LENGTH = 500;
-const LOGS_CONTAINER_ID = 'output-logs';
-const ERROR_REGEX = /^[1-9]{0,5} error occurred:/i;
+import { WorkspaceLogsToolsPanel } from './ToolsPanel';
+import { WorkspaceLogsViewer } from './Viewer';
+import { WorkspaceLogsViewerTools } from './ViewerTools';
 
 export type Props = {
   workspaceUID: string | undefined;
@@ -40,9 +39,10 @@ export type Props = {
 
 export type State = {
   isExpanded: boolean;
-  isStarting: boolean;
-  isFailed: boolean;
-  logs: string[];
+  containers: string[];
+  containerName?: string;
+  pod: V1Pod | undefined;
+  watchLogs: boolean;
 };
 
 export class WorkspaceLogs extends React.PureComponent<Props, State> {
@@ -51,133 +51,165 @@ export class WorkspaceLogs extends React.PureComponent<Props, State> {
 
     this.state = {
       isExpanded: false,
-      isStarting: false,
-      isFailed: false,
-      logs: [],
+      containers: [],
+      pod: this.findPod(props),
+      watchLogs: false,
     };
   }
 
   public componentDidMount(): void {
-    window.addEventListener('resize', this.updateScrollTop, false);
-    this.updateLogsData();
-    this.updateScrollTop();
-  }
-
-  public componentDidUpdate(): void {
-    this.updateLogsData();
-    this.updateScrollTop();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.updateScrollTop);
-  }
-
-  updateScrollTop() {
-    const objLog = document.getElementById(LOGS_CONTAINER_ID);
-    if (objLog && document.activeElement?.id !== LOGS_CONTAINER_ID) {
-      objLog.scrollTop = objLog.scrollHeight;
+    const pod = this.findPod(this.props);
+    if (pod !== undefined) {
+      this.startWatchingLogs(pod);
     }
   }
 
-  private findWorkspace(
-    uid: string | undefined,
-    allWorkspaces: Workspace[],
-  ): Workspace | undefined {
-    if (uid === undefined) {
+  public componentDidUpdate(prevProps: Props): void {
+    const pod = this.findPod(this.props);
+    const podName = pod?.metadata?.name;
+    const containers = pod?.spec?.containers?.map(c => c.name) || [];
+    const initContainers = pod?.spec?.initContainers?.map(c => c.name) || [];
+
+    const prevPod = this.findPod(prevProps);
+    const prevPodName = prevPod?.metadata?.name;
+    const prevContainers = prevPod?.spec?.containers?.map(c => c.name) || [];
+    const prevInitContainers = prevPod?.spec?.initContainers?.map(c => c.name) || [];
+
+    if (
+      podName !== prevPodName ||
+      containers.toString() !== prevContainers.toString() ||
+      initContainers.toString() !== prevInitContainers.toString()
+    ) {
+      this.setState({ pod });
+    }
+
+    if (pod !== undefined && this.state.watchLogs === false) {
+      this.startWatchingLogs(pod);
+    }
+    if (pod === undefined && this.state.watchLogs === true) {
+      if (prevPod !== undefined) {
+        this.stopWatchingLogs(prevPod);
+      }
+    }
+  }
+
+  public componentWillUnmount(): void {
+    const pod = this.findPod(this.props);
+    if (pod !== undefined) {
+      this.stopWatchingLogs(pod);
+    }
+  }
+
+  private async startWatchingLogs(pod: V1Pod): Promise<void> {
+    this.setState({ watchLogs: true });
+    await this.props.watchPodLogs(pod);
+  }
+
+  private async stopWatchingLogs(pod: V1Pod): Promise<void> {
+    this.setState({ watchLogs: false });
+    await this.props.stopWatchingPodLogs(pod);
+  }
+
+  private findWorkspace(props: Props): Workspace | undefined {
+    if (props.workspaceUID === undefined) {
       return;
     }
-    return allWorkspaces.find(w => w.uid === uid);
+    return this.props.allWorkspaces.find(w => w.uid === props.workspaceUID);
   }
 
-  private updateLogsData() {
-    const { workspaceUID } = this.props;
-
-    const workspace = this.findWorkspace(workspaceUID, this.props.allWorkspaces);
-
+  private findPod(props: Props): V1Pod | undefined {
+    const workspace = this.findWorkspace(props);
     if (workspace === undefined) {
       return;
     }
-
-    const logs = workspace.logs || [];
-    const isStarting = workspace.isStarting || false;
-    if (this.state.isStarting !== isStarting || !isEqual(this.state.logs, logs)) {
-      this.setState({
-        isStarting,
-        logs,
-      });
-    }
-
-    const isFailed = workspace.status === DevWorkspaceStatus.FAILED;
-    this.setState({
-      isFailed,
-    });
+    return props.allPods.find(pod => pod.metadata?.name?.includes(workspace.id));
   }
 
-  private getLines(): JSX.Element[] {
-    let logs = this.state.logs || [];
-    if (logs.length > MAX_LOG_LENGTH) {
-      logs = logs.slice(logs.length - MAX_LOG_LENGTH);
-    }
-
-    const createLine = (text: string): React.ReactElement => {
-      const isError = ERROR_REGEX.test(text);
-      const message = isError ? text.trimStart().replace(ERROR_REGEX, '').trimEnd() : text.trim();
-      return (
-        <p
-          className={isError ? styles.errorColor : ''}
-          key={message}
-          data-testid="workspace-logs-line"
-        >
-          {message}
-        </p>
-      );
-    };
-
-    return logs.map((item: string) => {
-      return createLine(item);
-    });
+  private handleContainerNameChange(containerName: string) {
+    this.setState({ containerName });
   }
 
-  private get terminal(): React.ReactElement {
-    const lines = this.getLines();
+  private getContainerLogs(props: Props, state: State): LogsStore.ContainerLogs | undefined {
+    const { pod, containerName } = state;
+    if (pod === undefined || containerName === undefined) {
+      return;
+    }
+    const podName = pod.metadata?.name;
+    const logs = props.podLogsFn(podName);
+    if (logs === undefined) {
+      return;
+    }
+    const containerLogs = logs[containerName];
+    if (containerLogs === undefined) {
+      return;
+    }
+    return containerLogs;
+  }
+
+  private showEmptyState() {
     return (
-      <div className={styles.consoleOutput}>
-        <div>{lines.length} lines</div>
-        <pre id={LOGS_CONTAINER_ID} tabIndex={0}>
-          {lines}
-        </pre>
-      </div>
+      <EmptyState>
+        <EmptyStateIcon icon={FileIcon} />
+        <Title headingLevel="h4" size="lg">
+          No Logs to show
+        </Title>
+        <EmptyStateBody>Logs will be shown for a starting workspace.</EmptyStateBody>
+      </EmptyState>
     );
   }
 
-  render() {
-    const { isExpanded, isStarting, isFailed, logs } = this.state;
-    const shouldToggleNavbar = true;
+  private handleExpansionToggle(isExpanded: boolean): void {
+    this.setState({ isExpanded });
+  }
 
-    if (isStarting === false && isFailed == false) {
-      return (
-        <EmptyState>
-          <EmptyStateIcon icon={FileIcon} />
-          <Title headingLevel="h4" size="lg">
-            No Logs to show
-          </Title>
-          <EmptyStateBody>Logs will be shown for a starting workspace.</EmptyStateBody>
-        </EmptyState>
-      );
+  private handleDownload(): void {
+    const { containerName } = this.state;
+    const workspace = this.findWorkspace(this.props);
+
+    const containerLogs = this.getContainerLogs(this.props, this.state);
+    const logs = containerLogs?.logs || '';
+
+    const name = workspace?.name || 'wksp';
+    const filename = `${name}-${containerName}.log`;
+    const anchor = document.createElement('a');
+    anchor.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(logs));
+    anchor.setAttribute('download', filename);
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
+
+  render() {
+    const { isExpanded, pod } = this.state;
+
+    if (pod === undefined) {
+      return this.showEmptyState();
     }
 
+    const containerLogs = this.getContainerLogs(this.props, this.state);
+
+    const expandedStyle = isExpanded ? styles.viewerExpanded : '';
+
     return (
-      <PageSection variant={PageSectionVariants.light}>
-        <div className={isExpanded ? styles.tabExpanded : ''}>
-          <WorkspaceLogsTools
-            logs={logs ? logs : []}
-            shouldToggleNavbar={shouldToggleNavbar}
-            handleExpand={isExpanded => {
-              this.setState({ isExpanded });
-            }}
-          />
-          {this.terminal}
-        </div>
+      <PageSection className={expandedStyle} isFilled>
+        <WorkspaceLogsToolsPanel
+          isExpanded={isExpanded}
+          leftPart={
+            <WorkspaceLogsContainerSelector
+              pod={pod}
+              onContainerChange={name => this.handleContainerNameChange(name)}
+            />
+          }
+          rightPart={
+            <WorkspaceLogsViewerTools
+              onToggle={isExpanded => this.handleExpansionToggle(isExpanded)}
+              onDownload={() => this.handleDownload()}
+            />
+          }
+        />
+        <div className={styles.panelViewerDivider} />
+        <WorkspaceLogsViewer isExpanded={isExpanded} logsData={containerLogs} />
       </PageSection>
     );
   }
@@ -185,9 +217,11 @@ export class WorkspaceLogs extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
+  allPods: selectAllPods(state),
+  podLogsFn: selectPodLogs(state),
 });
 
-const connector = connect(mapStateToProps);
+const connector = connect(mapStateToProps, LogsStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(WorkspaceLogs);

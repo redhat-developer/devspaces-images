@@ -43,7 +43,7 @@ export interface INamespaceApi {
   getNamespaces(token: string): Promise<Array<string>>;
 }
 
-export interface IDevWorkspaceApi extends IWatcherService {
+export interface IDevWorkspaceApi extends IWatcherService<api.webSocket.SubscribeParams> {
   /**
    * Get the DevWorkspace with given namespace in the specified namespace
    */
@@ -77,19 +77,21 @@ export interface IDevWorkspaceApi extends IWatcherService {
   ): Promise<{ devWorkspace: V1alpha2DevWorkspace; headers: Partial<IncomingHttpHeaders> }>;
 }
 
-export interface IEventApi extends IWatcherService {
+export interface IEventApi extends IWatcherService<api.webSocket.SubscribeParams> {
   /**
    * Get list of Events in the given namespace
    */
   listInNamespace(namespace: string): Promise<api.IEventList>;
 }
 
-export interface IPodApi extends IWatcherService {
+export interface IPodApi extends IWatcherService<api.webSocket.SubscribeParams> {
   /**
    * Get list of Pods in the given namespace
    */
   listInNamespace(namespace: string): Promise<api.IPodList>;
 }
+
+export type ILogsApi = IWatcherService<api.webSocket.SubscribeLogsParams>;
 
 export interface IDevWorkspaceTemplateApi {
   listInNamespace(namespace: string): Promise<V1alpha2DevWorkspaceTemplate[]>;
@@ -238,18 +240,13 @@ export interface IDevWorkspaceClient {
   userProfileApi: IUserProfileApi;
 }
 
-export interface IWatcherService {
+export interface IWatcherService<T = Record<string, unknown>> {
   /**
    * Listen to objects changes in the given namespace
-   * @param namespace namespace where to listen to Events changes
-   * @param resourceVersion special mark that all changes up to a given resourceVersion have already been sent
    * @param listener callback will be invoked when change happens
+   * @param params optional parameters, e.g. `resourceVersion` to start watching from a specific version
    */
-  watchInNamespace(
-    namespace: string,
-    resourceVersion: string,
-    listener: MessageListener,
-  ): Promise<void>;
+  watchInNamespace(listener: MessageListener, params: T): Promise<void>;
 
   /**
    * Stop watching objects changes in the given namespace

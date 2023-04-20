@@ -97,9 +97,14 @@ if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
   fi
 fi
 
+DASHBOARD_POD_NAME=$(kubectl get pods -n $CHE_NAMESPACE -o=custom-columns=:metadata.name | grep dashboard)
+export SERVICE_ACCOUNT_TOKEN=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- cat /run/secrets/kubernetes.io/serviceaccount/token)
+export CHECLUSTER_CR_NAMESPACE=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAMESPACE)
+export CHECLUSTER_CR_NAME=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAME)
+
 # consider renaming it to CHE_API_URL since it's not just host
 export CHE_HOST=http://localhost:8080
-export CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+export CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE $CHECLUSTER_CR_NAME -o=json | jq -r '.status.cheURL')
 
 # do nothing
 PRERUN_COMMAND="echo"
@@ -114,11 +119,6 @@ if [[ ! -z "$GATEWAY" &&
   export CHE_API_PROXY_UPSTREAM="http://localhost:${CHE_FORWARDED_PORT}"
   PRERUN_COMMAND="kubectl port-forward service/che-host ${CHE_FORWARDED_PORT}:8080 -n $CHE_NAMESPACE"
 fi
-
-DASHBOARD_POD_NAME=$(kubectl get pods -n $CHE_NAMESPACE -o=custom-columns=:metadata.name | grep che-dashboard)
-export SERVICE_ACCOUNT_TOKEN=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- cat /run/secrets/kubernetes.io/serviceaccount/token)
-export CHECLUSTER_CR_NAMESPACE=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAMESPACE)
-export CHECLUSTER_CR_NAME=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAME)
 
 # relative path from backend package
 FRONTEND_RESOURCES=../../../../$DASHBOARD_FRONTEND/lib/public

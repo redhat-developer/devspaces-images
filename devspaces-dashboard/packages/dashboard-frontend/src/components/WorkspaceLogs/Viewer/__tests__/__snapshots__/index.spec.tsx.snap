@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WorkspaceLogsViewer snapshot compressed viewer 1`] = `
+<div
+  className="viewer "
+>
+  <div
+    className="linesCounter"
+  >
+    2
+     lines
+  </div>
+  <pre
+    className="logs"
+    id="output-logs"
+    tabIndex={0}
+  >
+    logs line 1
+logs line 2
+  </pre>
+</div>
+`;
+
+exports[`WorkspaceLogsViewer snapshot error logs 1`] = `
+<div
+  className="viewer "
+>
+  <div
+    className="linesCounter"
+  >
+    0
+     lines
+  </div>
+  <pre
+    className="logs"
+    id="output-logs"
+    tabIndex={0}
+  >
+    
+  </pre>
+</div>
+`;
+
+exports[`WorkspaceLogsViewer snapshot expanded viewer 1`] = `
+<div
+  className="viewer expanded"
+>
+  <div
+    className="linesCounter"
+  >
+    2
+     lines
+  </div>
+  <pre
+    className="logs"
+    id="output-logs"
+    tabIndex={0}
+  >
+    logs line 1
+logs line 2
+  </pre>
+</div>
+`;

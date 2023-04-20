@@ -161,12 +161,11 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
   }
 
   async watchInNamespace(
-    namespace: string,
-    resourceVersion: string,
     listener: MessageListener,
+    params: api.webSocket.SubscribeParams,
   ): Promise<void> {
-    const path = `/apis/${devworkspaceGroup}/${devworkspaceLatestVersion}/watch/namespaces/${namespace}/${devworkspacePlural}`;
-    const queryParams = { watch: true, resourceVersion };
+    const path = `/apis/${devworkspaceGroup}/${devworkspaceLatestVersion}/watch/namespaces/${params.namespace}/${devworkspacePlural}`;
+    const queryParams = { watch: true, resourceVersion: params.resourceVersion };
 
     this.stopWatching();
 
@@ -184,7 +183,7 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
           }
           case api.webSocket.EventPhase.ERROR: {
             const status = apiObj as V1Status;
-            listener({ eventPhase, status });
+            listener({ eventPhase, status, params });
             break;
           }
         }

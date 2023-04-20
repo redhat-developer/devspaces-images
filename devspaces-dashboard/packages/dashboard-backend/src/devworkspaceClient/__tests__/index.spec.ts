@@ -16,8 +16,11 @@ import { DevWorkspaceClient } from '..';
 import { DevWorkspaceApiService } from '../services/devWorkspaceApi';
 import { DevWorkspaceTemplateApiService } from '../services/devWorkspaceTemplateApi';
 import { DockerConfigApiService } from '../services/dockerConfigApi';
+import { EventApiService } from '../services/eventApi';
 import { KubeConfigApiService } from '../services/kubeConfigApi';
+import { LogsApiService } from '../services/logsApi';
 import { NamespaceApiService } from '../services/namespaceApi';
+import { PodApiService } from '../services/podApi';
 import { ServerConfigApiService } from '../services/serverConfigApi';
 import { UserProfileApiService } from '../services/userProfileApi';
 
@@ -38,12 +41,15 @@ describe('DevWorkspace client', () => {
   test('client', () => {
     const client = new DevWorkspaceClient(config);
 
+    expect(client.devWorkspaceTemplateApi).toBeInstanceOf(DevWorkspaceTemplateApiService);
     expect(client.devworkspaceApi).toBeInstanceOf(DevWorkspaceApiService);
     expect(client.dockerConfigApi).toBeInstanceOf(DockerConfigApiService);
+    expect(client.eventApi).toBeInstanceOf(EventApiService);
     expect(client.kubeConfigApi).toBeInstanceOf(KubeConfigApiService);
+    expect(client.logsApi).toBeInstanceOf(LogsApiService);
     expect(client.namespaceApi).toBeInstanceOf(NamespaceApiService);
+    expect(client.podApi).toBeInstanceOf(PodApiService);
     expect(client.serverConfigApi).toBeInstanceOf(ServerConfigApiService);
-    expect(client.devWorkspaceTemplateApi).toBeInstanceOf(DevWorkspaceTemplateApiService);
     expect(client.userProfileApi).toBeInstanceOf(UserProfileApiService);
   });
 });

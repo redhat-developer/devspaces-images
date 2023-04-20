@@ -694,11 +694,9 @@ export const actionCreators: ActionCreators = {
             const state = getState();
             return selectDevWorkspacesResourceVersion(state);
           };
-          websocketClient.subscribeToChannel(
-            api.webSocket.Channel.DEV_WORKSPACE,
-            namespace,
+          websocketClient.subscribeToChannel(api.webSocket.Channel.DEV_WORKSPACE, namespace, {
             getResourceVersion,
-          );
+          });
         }
         return;
       }

@@ -14,7 +14,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../../constants/config';
 import { getSchema } from '../../services/helpers';
 import { devfileVersionSchema } from '../../constants/schemas';
-import { restParams } from '../../typings/models';
+import { restParams } from '../../models';
 import * as devfileSchemaV200 from '../../devfileSchemas/2.0.0/devfile.json';
 import * as devfileSchemaV210 from '../../devfileSchemas/2.1.0/devfile.json';
 import * as devfileSchemaV220 from '../../devfileSchemas/2.2.0/devfile.json';

@@ -132,11 +132,9 @@ export const actionCreators: ActionCreators = {
             const state = getState();
             return selectEventsResourceVersion(state);
           };
-          websocketClient.subscribeToChannel(
-            api.webSocket.Channel.EVENT,
-            namespace,
+          websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
             getResourceVersion,
-          );
+          });
         }
         return;
       }

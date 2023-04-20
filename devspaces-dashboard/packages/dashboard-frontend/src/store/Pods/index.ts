@@ -140,11 +140,9 @@ export const actionCreators: ActionCreators = {
             const state = getState();
             return selectPodsResourceVersion(state);
           };
-          websocketClient.subscribeToChannel(
-            api.webSocket.Channel.POD,
-            namespace,
+          websocketClient.subscribeToChannel(api.webSocket.Channel.POD, namespace, {
             getResourceVersion,
-          );
+          });
         }
         return;
       }

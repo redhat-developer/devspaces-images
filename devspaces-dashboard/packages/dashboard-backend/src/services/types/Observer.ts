@@ -29,8 +29,8 @@ export interface Subject {
 /**
  * This interface adds methods for starting/stopping watching changes of the subject.
  */
-export interface SubjectWatcher extends Subject {
-  start(namespace: string, resourceVersion: string): Promise<void>;
+export interface SubjectWatcher<T> extends Subject {
+  start(namespace: string, params: T): Promise<void>;
   stop(): void;
 }
 

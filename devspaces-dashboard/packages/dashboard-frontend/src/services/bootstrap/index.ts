@@ -187,11 +187,9 @@ export default class Bootstrap {
       return selectDevWorkspacesResourceVersion(state);
     };
 
-    this.websocketClient.subscribeToChannel(
-      api.webSocket.Channel.DEV_WORKSPACE,
-      namespace,
+    this.websocketClient.subscribeToChannel(api.webSocket.Channel.DEV_WORKSPACE, namespace, {
       getResourceVersion,
-    );
+    });
   }
 
   private async watchWebSocketEvents(): Promise<void> {
@@ -216,11 +214,9 @@ export default class Bootstrap {
       return selectEventsResourceVersion(state);
     };
 
-    this.websocketClient.subscribeToChannel(
-      api.webSocket.Channel.EVENT,
-      namespace,
+    this.websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
       getResourceVersion,
-    );
+    });
   }
 
   private async watchWebSocketPods(): Promise<void> {
@@ -245,11 +241,9 @@ export default class Bootstrap {
       return selectPodsResourceVersion(state);
     };
 
-    this.websocketClient.subscribeToChannel(
-      api.webSocket.Channel.POD,
-      namespace,
+    this.websocketClient.subscribeToChannel(api.webSocket.Channel.POD, namespace, {
       getResourceVersion,
-    );
+    });
   }
 
   private async fetchWorkspaces(): Promise<void> {

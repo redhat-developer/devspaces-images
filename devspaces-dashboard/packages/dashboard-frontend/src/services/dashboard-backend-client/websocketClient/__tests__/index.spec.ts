@@ -240,11 +240,9 @@ describe('websocketClient', () => {
         websocketClient.connect();
         await serverMock.connected;
 
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.EVENT,
-          namespace,
+        websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
           getResourceVersion,
-        );
+        });
 
         expect(addSubscriptionSpy).toBeCalledTimes(1);
 
@@ -269,11 +267,9 @@ describe('websocketClient', () => {
 
         // do not connect to the server
 
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.EVENT,
-          namespace,
+        websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
           getResourceVersion,
-        );
+        });
 
         expect(addSubscriptionSpy).toBeCalledTimes(1);
 
@@ -293,11 +289,9 @@ describe('websocketClient', () => {
         websocketClient.connect();
         // do not wait for the connection to be established
 
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.EVENT,
-          namespace,
+        websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
           getResourceVersion,
-        );
+        });
 
         expect(addSubscriptionSpy).toBeCalledTimes(1);
 
@@ -383,16 +377,12 @@ describe('websocketClient', () => {
           'getSubscriptions',
         );
 
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.EVENT,
-          namespace,
+        websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
           getResourceVersion,
-        );
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.DEV_WORKSPACE,
-          namespace,
+        });
+        websocketClient.subscribeToChannel(api.webSocket.Channel.DEV_WORKSPACE, namespace, {
           getResourceVersion,
-        );
+        });
 
         websocketClient.connect();
         await serverMock.connected;
@@ -423,11 +413,9 @@ describe('websocketClient', () => {
           'getSubscriptions',
         );
 
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.EVENT,
-          namespace,
+        websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
           getResourceVersion,
-        );
+        });
 
         (websocketClient as any).reSubscribeToChannels();
         // do not connect to the server
@@ -447,11 +435,9 @@ describe('websocketClient', () => {
           'getSubscriptions',
         );
 
-        websocketClient.subscribeToChannel(
-          api.webSocket.Channel.EVENT,
-          namespace,
+        websocketClient.subscribeToChannel(api.webSocket.Channel.EVENT, namespace, {
           getResourceVersion,
-        );
+        });
 
         websocketClient.connect();
         (websocketClient as any).reSubscribeToChannels();

@@ -26,39 +26,35 @@ export function registerWebsocket(server: FastifyInstance) {
 
 function webSocketHandler(connection: SocketStream, request: FastifyRequest): void {
   const ws = connection.socket;
-
-  const token = getToken(request);
-  const { eventApi, devworkspaceApi, podApi } = getDevWorkspaceClient(token);
-
   const subscriptionManager = new SubscriptionManager(ws);
 
-  const eventWatcher = new ObjectsWatcher(eventApi, api.webSocket.Channel.EVENT);
-  const devWorkspaceWatcher = new ObjectsWatcher(
-    devworkspaceApi,
-    api.webSocket.Channel.DEV_WORKSPACE,
-  );
-  const podWatcher = new ObjectsWatcher(podApi, api.webSocket.Channel.POD);
+  const token = getToken(request);
+  const { eventApi, devworkspaceApi, logsApi, podApi } = getDevWorkspaceClient(token);
 
-  async function handleChannelSubscribe(
-    channel: api.webSocket.Channel,
-    params: api.webSocket.SubscribeParams,
-  ): Promise<void> {
-    subscriptionManager.subscribe(channel);
+  const channel = api.webSocket.Channel;
+  const watchers = {
+    [channel.DEV_WORKSPACE]: new ObjectsWatcher(devworkspaceApi, channel.DEV_WORKSPACE),
+    [channel.EVENT]: new ObjectsWatcher(eventApi, channel.EVENT),
+    [channel.LOGS]: new ObjectsWatcher(logsApi, channel.LOGS),
+    [channel.POD]: new ObjectsWatcher(podApi, channel.POD),
+  };
 
-    switch (channel) {
-      case api.webSocket.Channel.DEV_WORKSPACE: {
-        devWorkspaceWatcher.attach(subscriptionManager);
-        await devWorkspaceWatcher.start(params.namespace, params.resourceVersion);
+  async function handleChannelSubscribe(message: api.webSocket.SubscribeMessage): Promise<void> {
+    subscriptionManager.subscribe(message.channel);
+
+    switch (message.channel) {
+      case channel.DEV_WORKSPACE:
+      case channel.EVENT:
+      case channel.POD: {
+        const watcher = watchers[message.channel];
+        watcher.attach(subscriptionManager);
+        await watcher.start(message.params.namespace, message.params);
         break;
       }
-      case api.webSocket.Channel.EVENT: {
-        eventWatcher.attach(subscriptionManager);
-        await eventWatcher.start(params.namespace, params.resourceVersion);
-        break;
-      }
-      case api.webSocket.Channel.POD: {
-        podWatcher.attach(subscriptionManager);
-        await podWatcher.start(params.namespace, params.resourceVersion);
+      case channel.LOGS: {
+        const watcher = watchers[message.channel];
+        watcher.attach(subscriptionManager);
+        await watcher.start(message.params.namespace, message.params);
         break;
       }
     }
@@ -66,26 +62,12 @@ function webSocketHandler(connection: SocketStream, request: FastifyRequest): vo
   function handleChannelUnsubscribe(channel: api.webSocket.Channel) {
     subscriptionManager.unsubscribe(channel);
 
-    switch (channel) {
-      case api.webSocket.Channel.DEV_WORKSPACE: {
-        devWorkspaceWatcher.detach();
-        devWorkspaceWatcher.stop();
-        break;
-      }
-      case api.webSocket.Channel.EVENT: {
-        eventWatcher.detach();
-        eventWatcher.stop();
-        break;
-      }
-      case api.webSocket.Channel.POD: {
-        podWatcher.detach();
-        podWatcher.stop();
-        break;
-      }
-    }
+    const watcher = watchers[channel];
+    watcher.detach();
+    watcher.stop();
   }
   function handleUnsubscribeAll() {
-    [api.webSocket.Channel.DEV_WORKSPACE, api.webSocket.Channel.EVENT].forEach(channel =>
+    [channel.DEV_WORKSPACE, channel.EVENT, channel.LOGS, channel.POD].forEach(channel =>
       handleChannelUnsubscribe(channel),
     );
   }
@@ -113,13 +95,15 @@ function webSocketHandler(connection: SocketStream, request: FastifyRequest): vo
       throw e;
     }
 
+    console.log(`[INFO] WS message:`, message);
+
     switch (message.method) {
       case 'UNSUBSCRIBE': {
         handleChannelUnsubscribe(message.channel);
         break;
       }
       case 'SUBSCRIBE': {
-        await handleChannelSubscribe(message.channel, message.params);
+        await handleChannelSubscribe(message);
         break;
       }
     }

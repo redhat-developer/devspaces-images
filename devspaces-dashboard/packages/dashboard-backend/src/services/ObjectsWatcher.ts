@@ -17,15 +17,13 @@ import { NotificationMessage, Observer, SubjectWatcher } from './types/Observer'
 /**
  * This class implements the Observer pattern. It allows to manage subscribers and notify them.
  */
-export class ObjectsWatcher implements SubjectWatcher {
+export class ObjectsWatcher<T> implements SubjectWatcher<T> {
   private observer: Observer | undefined;
-  private readonly ApiService: IWatcherService;
-  private readonly channel: api.webSocket.Channel;
 
-  constructor(apiService: IWatcherService, channel: api.webSocket.Channel) {
-    this.ApiService = apiService;
-    this.channel = channel;
-  }
+  constructor(
+    private readonly apiService: IWatcherService<T>,
+    private readonly channel: api.webSocket.Channel,
+  ) {}
 
   attach(observer: Observer): void {
     this.observer = observer;
@@ -39,13 +37,13 @@ export class ObjectsWatcher implements SubjectWatcher {
     this.observer?.update(this.channel, message);
   }
 
-  async start(namespace: string, resourceVersion: string): Promise<void> {
+  async start(namespace: string, params: T): Promise<void> {
     const listener = (message: NotificationMessage) => this.notify(message);
 
-    await this.ApiService.watchInNamespace(namespace, resourceVersion, listener);
+    await this.apiService.watchInNamespace(listener, params);
   }
 
   stop(): void {
-    this.ApiService.stopWatching();
+    this.apiService.stopWatching();
   }
 }

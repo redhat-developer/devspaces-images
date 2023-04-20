@@ -89,6 +89,7 @@ export enum WorkspaceDetailsTab {
   DEVFILE = 'Devfile',
   DEVWORKSPACE = 'DevWorkspace',
   EVENTS = 'Events',
+  LOGS = 'Logs',
 }
 
 export enum WorkspaceAction {

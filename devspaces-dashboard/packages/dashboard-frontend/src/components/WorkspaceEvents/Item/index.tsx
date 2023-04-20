@@ -20,10 +20,10 @@ import {
   Text,
   TextContent,
   TextVariants,
-  Tooltip,
 } from '@patternfly/react-core';
 import { format } from 'date-fns';
 import React from 'react';
+import { ResourceIcon } from '../../ResourceIcon';
 import styles from './index.module.css';
 
 export type Props = {
@@ -38,12 +38,9 @@ export class WorkspaceEventsItem extends React.PureComponent<Props> {
     const kind = event.involvedObject.kind;
     const name = event.involvedObject.name;
     if (kind !== undefined && name !== undefined) {
-      const iconText = kind.replace(/[a-z]/g, '');
       return (
         <span data-testid="event-involved-object">
-          <Tooltip aria="none" aria-live="polite" content={kind}>
-            <span className={styles.icon}>{iconText}</span>
-          </Tooltip>
+          <ResourceIcon kind={kind} />
           {name}
         </span>
       );
