@@ -887,9 +887,9 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:ed5f3bd5c8f486c33496a0461ed70f4752bd0a8816821047d3fc01959e2e76c8
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:72b7fc72796c0918e22daa0eccb4a5ea7b9dc511fb055cb84acfb78f8ee1ce4c
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:d510d92a7dc7cb545e905823c52652c953d634ec8c54aa9296e2bfc2a083b4a6
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:72b7fc72796c0918e22daa0eccb4a5ea7b9dc511fb055cb84acfb78f8ee1ce4c
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:d510d92a7dc7cb545e905823c52652c953d634ec8c54aa9296e2bfc2a083b4a6
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDOCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:3f24aa4f919daddb0866bd7bc0c02999d04ed59122584424cf74cf08f89a884b
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDOCQ_
@@ -1272,9 +1272,9 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:ed5f3bd5c8f486c33496a0461ed70f4752bd0a8816821047d3fc01959e2e76c8
   - name: devspaces_code_devfile_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:72b7fc72796c0918e22daa0eccb4a5ea7b9dc511fb055cb84acfb78f8ee1ce4c
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:d510d92a7dc7cb545e905823c52652c953d634ec8c54aa9296e2bfc2a083b4a6
   - name: devspaces_code_plugin_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:72b7fc72796c0918e22daa0eccb4a5ea7b9dc511fb055cb84acfb78f8ee1ce4c
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:d510d92a7dc7cb545e905823c52652c953d634ec8c54aa9296e2bfc2a083b4a6
   - name: devspaces_idea_devfile_registry_image_gmxdocq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:3f24aa4f919daddb0866bd7bc0c02999d04ed59122584424cf74cf08f89a884b
   - name: devspaces_idea_plugin_registry_image_gmxdocq_
