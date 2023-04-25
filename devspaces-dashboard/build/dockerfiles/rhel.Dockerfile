@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM registry.access.redhat.com/ubi8/nodejs-16:1-98 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-16:1-98.1682303932 as builder
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
 
@@ -19,7 +19,7 @@ RUN npm i -g yarn; yarn install
 RUN yarn build
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM registry.access.redhat.com/ubi8/nodejs-16:1-98
+FROM registry.access.redhat.com/ubi8/nodejs-16:1-98.1682303932
 USER 0
 
 RUN \
