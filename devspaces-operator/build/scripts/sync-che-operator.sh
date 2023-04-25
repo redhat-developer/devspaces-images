@@ -124,6 +124,7 @@ sed -i \
   "s|defaults.GetDevEnvironmentsDefaultComponents()|defaults.GetDevEnvironmentsDefaultComponents(),$(echo $OLD_DEFAULT_COMPONENTS | tr -d '\n')|g" \
   "${TARGETDIR}"/pkg/deploy/migration/checluster-defaults-cleanupfunc.go
 
+# this is only needed for 3.4-3.5 to clean up hardcoded values
 OLD_HEADER_MESSAGE_TEXT_3_4="\"Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.4/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.4/html-single/release_notes_and_known_issues/index#deprecated-functionality-crw-3405'>deprecated</a> and will be removed in a future release.\""
 OLD_HEADER_MESSAGE_TEXT_3_5="\"Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/release_notes_and_known_issues/index#deprecated-functionalities'>deprecated</a> and will be removed in a future release.\""
 OLD_HEADER_MESSAGE_TEXTS=${OLD_HEADER_MESSAGE_TEXT_3_4},${OLD_HEADER_MESSAGE_TEXT_3_5}
