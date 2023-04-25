@@ -849,9 +849,7 @@ spec:
                 - /manager
                 env:
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT
-                  value: Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a>
-                    for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/release_notes_and_known_issues/index#removed-functionalities'>no
-                    longer supported</a>.
+                  value: ''
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
                   value: ''
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
@@ -887,9 +885,9 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:aa10989a4c1f047d440b8a8b23f1d7e69955f27b4c399f90c1631c462595873f
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:8073502037ee3551d7feb485de87a3e4d83789e0876fec2c9b277501da73b6c5
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:0577592ad00ffdc9abb07fc1decf7d63425ea42df9b0c774e2ea3326ffd5dc17
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:8073502037ee3551d7feb485de87a3e4d83789e0876fec2c9b277501da73b6c5
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:0577592ad00ffdc9abb07fc1decf7d63425ea42df9b0c774e2ea3326ffd5dc17
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDOCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:3f24aa4f919daddb0866bd7bc0c02999d04ed59122584424cf74cf08f89a884b
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDOCQ_
@@ -1272,9 +1270,9 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:aa10989a4c1f047d440b8a8b23f1d7e69955f27b4c399f90c1631c462595873f
   - name: devspaces_code_devfile_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:8073502037ee3551d7feb485de87a3e4d83789e0876fec2c9b277501da73b6c5
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:0577592ad00ffdc9abb07fc1decf7d63425ea42df9b0c774e2ea3326ffd5dc17
   - name: devspaces_code_plugin_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:8073502037ee3551d7feb485de87a3e4d83789e0876fec2c9b277501da73b6c5
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:0577592ad00ffdc9abb07fc1decf7d63425ea42df9b0c774e2ea3326ffd5dc17
   - name: devspaces_idea_devfile_registry_image_gmxdocq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:3f24aa4f919daddb0866bd7bc0c02999d04ed59122584424cf74cf08f89a884b
   - name: devspaces_idea_plugin_registry_image_gmxdocq_
