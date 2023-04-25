@@ -232,7 +232,7 @@ declare -A operator_replacements=(
   # CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
     # TODO also remove theia from factory support
     # TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
-  ["CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT"]="Microsoft Visual Studio Code - Open Source is the default <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a> for new workspaces. Eclipse Theia is <a href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html-single/release_notes_and_known_issues/index#removed-functionalities'>no longer supported</a>."
+  ["CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT"]=""
 
   # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
   # https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
