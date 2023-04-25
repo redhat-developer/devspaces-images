@@ -15,7 +15,7 @@
           "7.64.x",
           "7.63.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -75,7 +75,7 @@
           "7.64.x",
           "7.63.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -165,7 +165,7 @@
           "7.64.x",
           "7.63.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -234,7 +234,7 @@
           "devspaces-3.6-rhel-8",
           "devspaces-3.6-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -264,7 +264,7 @@
           "devspaces-3.6-rhel-8",
           "devspaces-3.6-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -402,7 +402,7 @@
           "7.63.x"
         ],
         "node_version": "16.13.2",
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -434,7 +434,7 @@
           "7.64.x",
           "7.63.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "upstream_branch": [
@@ -449,7 +449,7 @@
         "disabled": true
       },
       "3.6": {
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "disabled": false
@@ -463,7 +463,7 @@
         "disabled": true
       },
       "3.6": {
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "disabled": false
@@ -477,7 +477,7 @@
         "disabled": true
       },
       "3.6": {
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "disabled": false
@@ -491,7 +491,7 @@
         "disabled": true
       },
       "3.6": {
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "disabled": false
@@ -505,7 +505,7 @@
         "disabled": true
       },
       "3.6": {
-        "disabled": true
+        "disabled": false
       },
       "3.7": {
         "disabled": false
@@ -523,15 +523,15 @@
       },
       "3.6": {
         "CSV_VERSION": "3.6.0",
-        "CSV_VERSION_PREV": "3.5.0"
+        "CSV_VERSION_PREV": "3.5.0-0.1679521107.p"
       },
       "3.7": {
         "CSV_VERSION": "3.7.0",
-        "CSV_VERSION_PREV": "3.5.0"
+        "CSV_VERSION_PREV": "3.5.0-0.1679521107.p"
       },
       "3.x": {
         "CSV_VERSION": "3.7.0",
-        "CSV_VERSION_PREV": "3.5.0"
+        "CSV_VERSION_PREV": "3.5.0-0.1679521107.p"
       }
     }
   },
