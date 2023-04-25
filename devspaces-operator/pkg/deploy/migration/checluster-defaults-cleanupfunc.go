@@ -78,7 +78,7 @@ func cleanUpDevEnvironmentsDefaultComponents(ctx *chetypes.DeployContext) (bool,
 
 	return false, nil
 }
-// this is only needed for 3.4-3.5 to clean up hardcoded values
+
 // cleanUpDashboardHeaderMessage cleans up CheCluster CR `Spec.Components.Dashboard.HeaderMessage`.
 func cleanUpDashboardHeaderMessage(ctx *chetypes.DeployContext) (bool, error) {
 	dashboardHeaderMessageText := []string{
