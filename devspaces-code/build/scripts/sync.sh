@@ -43,6 +43,7 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 
+# workaround for CRW-4328 and broken rhpkg release -- add a .spec file (that will be ignored)
 # ignore changes in these files
 echo ".che/
 .rebase/
@@ -68,6 +69,7 @@ devfile.yaml
 get-sources.sh
 rebase.sh
 sources
+sources.spec
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
