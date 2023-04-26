@@ -24,7 +24,6 @@ for (JB in JOB_BRANCHES) {
             disabled(config."Management-Jobs"."operator-bundle"[JB].disabled) // on reload of job, disable to avoid churn
             UPSTM_NAME="che-operator"
             MIDSTM_NAME="operator-bundle"
-            SOURCE_REPO="eclipse/" + UPSTM_NAME
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/devspaces-images"
 
