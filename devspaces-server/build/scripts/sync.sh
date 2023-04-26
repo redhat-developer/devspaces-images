@@ -93,6 +93,13 @@ getPNCIDs () {
 
     # 0. compute buildConfig ID, eg., main => 8937 or 7.56.x => 8936; also compute pnc_project_id = 1274
     pnc_buildconfig_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==${SOURCE_BRANCH}" | yq -r '.[].id')
+    if [[ ! $pnc_buildconfig_id ]]; then 
+        echo "[ERROR] Could not find a build-config for pnc build-config list --query \"project.name==devspaces-server;scmRevision==${SOURCE_BRANCH}\" | yq -r '.[].id'"
+        echo "[ERROR] Please check your build-configs at https://orch.psi.redhat.com/pnc-web/#/projects/1274 - maybe something is misconfigured?"
+        exit 2
+    else
+        echo "[INFO] Found build-config for scmRevision ${SOURCE_BRANCH}: $pnc_buildconfig_id"
+    fi
     pnc_project_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==${SOURCE_BRANCH}" | yq -r '.[].project.id')
 }
 
