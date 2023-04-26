@@ -68,7 +68,8 @@ if [[ ! -x $BUILDER ]]; then
   fi
 fi
 
-# global / generic changes
+# workaround for CRW-4328 and broken rhpkg release -- add a .spec file (that will be ignored)
+# ignore changes in these files
 echo ".github/
 .git/
 .gitattributes
@@ -81,6 +82,7 @@ echo ".github/
 /cvp.yml
 /cvp-owners.yml
 /sources
+sources.spec
 /get-source*.sh
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
