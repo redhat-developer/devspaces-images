@@ -144,7 +144,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devWorkspaceResource: devfileApi.DevWorkspace,
     editorId: string | undefined,
   ): Promise<{ headers: DwApi.Headers; devWorkspace: devfileApi.DevWorkspace }> {
-    devWorkspaceResource.spec.routingClass = 'che';
+    if (!devWorkspaceResource.spec.routingClass) {
+      devWorkspaceResource.spec.routingClass = 'che';
+    }
     devWorkspaceResource.spec.started = false;
     devWorkspaceResource.metadata.namespace = defaultNamespace;
 

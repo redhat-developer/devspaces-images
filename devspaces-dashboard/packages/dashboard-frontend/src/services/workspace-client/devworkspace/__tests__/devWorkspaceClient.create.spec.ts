@@ -13,6 +13,7 @@
 import { container } from '../../../../inversify.config';
 import { DevWorkspaceClient } from '../devWorkspaceClient';
 import * as DwtApi from '../../../dashboard-backend-client/devWorkspaceTemplateApi';
+import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
 import devfileApi from '../../../devfileApi';
 
 describe('DevWorkspace client, create', () => {
@@ -43,6 +44,7 @@ describe('DevWorkspace client, create', () => {
     let testDevWorkspace: devfileApi.DevWorkspace;
     let testDevWorkspaceTemplate: devfileApi.DevWorkspaceTemplate;
     let spyCreateWorkspaceTemplate: jest.SpyInstance;
+    let spyCreateWorkspace: jest.SpyInstance;
 
     beforeEach(() => {
       testDevWorkspace = {
@@ -200,6 +202,25 @@ describe('DevWorkspace client, create', () => {
                 uid: testDevWorkspace.metadata.uid,
               }),
             ]),
+          }),
+        }),
+      );
+    });
+
+    it('should add routingClass if it does not exist', async () => {
+      const routingClass = 'che';
+      const responce = {
+        headers: {},
+        devWorkspace: testDevWorkspace,
+      };
+      spyCreateWorkspace = jest.spyOn(DwApi, 'createWorkspace').mockResolvedValueOnce(responce);
+
+      await client.createDevWorkspace(namespace, testDevWorkspace, undefined);
+
+      expect(spyCreateWorkspace).toBeCalledWith(
+        expect.objectContaining({
+          spec: expect.objectContaining({
+            routingClass: routingClass,
           }),
         }),
       );
