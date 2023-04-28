@@ -13,7 +13,10 @@
 import { V1alpha2DevWorkspaceSpecTemplateComponents } from '@devfile/api';
 import devfileApi from '../../../devfileApi';
 import { DevWorkspaceSpecTemplateAttribute } from '../../../devfileApi/devWorkspace/spec/template';
-import { DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
+import {
+  DEVWORKSPACE_DEVFILE_VERSION,
+  DEVWORKSPACE_METADATA_ANNOTATION,
+} from '../devWorkspaceClient';
 
 export const devfileSchemaVersion = '2.2.0';
 
@@ -108,6 +111,10 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
     if (Object.keys(devWorkspaceAttributes).length > 0) {
       template.attributes = devWorkspaceAttributes;
     }
+  }
+  const schemaVersion = devworkspace.metadata?.annotations?.[DEVWORKSPACE_DEVFILE_VERSION];
+  if (schemaVersion) {
+    template.schemaVersion = schemaVersion;
   }
   return template;
 }

@@ -160,7 +160,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
           { value },
           {
             ...MONACO_CONFIG,
-            readOnly: true,
+            readOnly: !!this.props.isReadonly,
           },
         ),
       );

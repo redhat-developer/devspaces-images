@@ -31,6 +31,7 @@ import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
+  DEVWORKSPACE_DEVFILE_VERSION,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
@@ -645,7 +646,13 @@ export const actionCreators: ActionCreators = {
         if (devWorkspaceResource === undefined) {
           throw new Error('Failed to find a DevWorkspace in the fetched resources.');
         }
-
+        if (devWorkspaceResource.metadata) {
+          if (!devWorkspaceResource.metadata.annotations) {
+            devWorkspaceResource.metadata.annotations = {};
+          }
+          devWorkspaceResource.metadata.annotations[DEVWORKSPACE_DEVFILE_VERSION] =
+            devfile.schemaVersion;
+        }
         devWorkspaceTemplateResource = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
         ) as devfileApi.DevWorkspaceTemplate;

@@ -46,6 +46,7 @@ export type Props = {
   workspace: Workspace;
   isRunning: boolean;
   onDevWorkspaceWarning: () => void;
+  isReadonly?: boolean;
 };
 
 export type State = {
@@ -145,7 +146,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
   public render(): React.ReactElement {
     const originDevfile = this.props.workspace.devfile;
     const { devfile, additionSchema, isExpanded } = this.state;
-    const isReadonly = this.props.workspace.isDeprecated;
+    const isReadonly = this.props.isReadonly ? true : this.props.workspace.isDeprecated;
     const saveButtonDisabled =
       !this.state.hasChanges ||
       !this.state.isDevfileValid ||
