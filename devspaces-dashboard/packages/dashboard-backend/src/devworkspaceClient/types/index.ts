@@ -222,6 +222,13 @@ export interface IKubeConfigApi {
   injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void>;
 }
 
+export interface IPodmanApi {
+  /**
+   * Executes the 'podman login' command to the OpenShift internal registry.
+   */
+  podmanLogin(namespace: string, devworkspaceId: string): Promise<void>;
+}
+
 export interface IUserProfileApi {
   /**
    * Returns user profile object that contains username and email.

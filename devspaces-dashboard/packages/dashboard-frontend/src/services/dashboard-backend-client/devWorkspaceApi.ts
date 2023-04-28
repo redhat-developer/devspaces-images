@@ -122,6 +122,16 @@ export async function injectKubeConfig(namespace: string, devworkspaceId: string
   }
 }
 
+export async function podmanLogin(namespace: string, devworkspaceId: string): Promise<void> {
+  try {
+    await axios.post(
+      `${prefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/podmanLogin`,
+    );
+  } catch (e) {
+    throw new Error(`Failed to podman login. ${helpers.errors.getMessage(e)}`);
+  }
+}
+
 export async function getDevfileSchema(
   schemaVersion: string,
 ): Promise<JSONSchema7 | { [key: string]: any }> {

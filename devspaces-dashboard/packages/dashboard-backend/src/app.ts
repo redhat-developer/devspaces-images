@@ -26,6 +26,7 @@ import { registerDevWorkspaceTemplates } from './routes/api/devworkspaceTemplate
 import { registerWebsocket } from './routes/api/websocket';
 import { registerDockerConfigRoutes } from './routes/api/dockerConfig';
 import { registerKubeConfigRoute } from './routes/api/kubeConfig';
+import { registerPodmanLoginRoute } from './routes/api/podmanLogin';
 import { registerNamespacesRoute } from './routes/api/namespaces';
 import { registerServerConfigRoute } from './routes/api/serverConfig';
 import { registerUserProfileRoute } from './routes/api/userProfile';
@@ -99,6 +100,8 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerPodsRoutes(server);
 
   registerKubeConfigRoute(server);
+
+  registerPodmanLoginRoute(server);
 
   registerServerConfigRoute(server);
 
