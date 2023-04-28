@@ -883,7 +883,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:28a2d3a1b7254a93e5f67c63a9003e28fb66c5162a9287c2940515889ab23756
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:cba6311d213b8e2a2b854aae4899babb106e4360ce3694f5c3612381c5c83564
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:8461f44e57c9aced2d4189a1885dbe73d676349b271be9fe1088e70b7ef4a4f8
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDOCQ_
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:e2b328ba77c5460de11c0fe4690fceb62468103732a18a1163df241ab7449638
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDOCQ_
@@ -903,7 +903,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:e491bf48aa985bdc7410ace4184c8e9d8fad3e7f403fe1e14d9603013f9ed400
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:9b5ab824f2be7489c6e0f95f1f6efffe87c55b032e9542b40233b64e0c04f6ef
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:7897d30917dfc601e14196954c18253087d00a8d315acc89da382116a9908652
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1268,7 +1268,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:28a2d3a1b7254a93e5f67c63a9003e28fb66c5162a9287c2940515889ab23756
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:cba6311d213b8e2a2b854aae4899babb106e4360ce3694f5c3612381c5c83564
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:8461f44e57c9aced2d4189a1885dbe73d676349b271be9fe1088e70b7ef4a4f8
   - name: devspaces_code_devfile_registry_image_gmxdocq_
     image: registry.redhat.io/devspaces/code-rhel8@sha256:e2b328ba77c5460de11c0fe4690fceb62468103732a18a1163df241ab7449638
   - name: devspaces_code_plugin_registry_image_gmxdocq_
@@ -1288,7 +1288,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:e491bf48aa985bdc7410ace4184c8e9d8fad3e7f403fe1e14d9603013f9ed400
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:9b5ab824f2be7489c6e0f95f1f6efffe87c55b032e9542b40233b64e0c04f6ef
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:7897d30917dfc601e14196954c18253087d00a8d315acc89da382116a9908652
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
