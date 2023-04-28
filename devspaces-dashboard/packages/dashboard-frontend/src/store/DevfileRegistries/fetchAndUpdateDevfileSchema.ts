@@ -22,6 +22,9 @@ export default async function fetchAndUpdateDevfileSchema(
     schema.properties.schemaVersion.const === undefined
   ) {
     schema.properties.schemaVersion.const = schemaVersion;
+    if (schema.properties.schemaVersion.pattern) {
+      delete schema.properties.schemaVersion.pattern;
+    }
   }
 
   return schema;

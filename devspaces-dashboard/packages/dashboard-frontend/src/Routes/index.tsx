@@ -46,8 +46,8 @@ function Routes(): React.ReactElement {
   ));
   return (
     <Switch>
-      <Route key="simple-factory-url-1" path="/http:\/\/*" render={redirectToFactoryLoader} />
-      <Route key="simple-factory-url-2" path="/https:\/\/*" render={redirectToFactoryLoader} />
+      <Route key="simple-factory-location-1" path="/http*" render={redirectToFactoryLoader} />
+      <Route key="simple-factory-location-2" path="/git@*" render={redirectToFactoryLoader} />
       {...routes}
       <Redirect key="redirect-to-home" path="*" to={ROUTE.HOME} />
     </Switch>
@@ -56,14 +56,8 @@ function Routes(): React.ReactElement {
 
 function redirectToFactoryLoader(props: RouteComponentProps): React.ReactElement {
   const { pathname, search } = props.location;
-  let factoryUrl = pathname.substring(1) + search;
-  if (!factoryUrl.includes('?')) {
-    factoryUrl = factoryUrl.replace('&', '?');
-  }
-  const factoryLoaderPath = buildFactoryLoaderPath(factoryUrl).replace(
-    /^\/f/,
-    ROUTE.FACTORY_LOADER,
-  );
+  const location = pathname.substring(1) + search;
+  const factoryLoaderPath = buildFactoryLoaderPath(location).replace(/^\/f/, ROUTE.FACTORY_LOADER);
   return <Redirect key="redirect-to-factory" to={factoryLoaderPath} />;
 }
 

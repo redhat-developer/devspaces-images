@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) 2018-2023 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+
+import { sanitizeLocation } from '../helpers/location';
+import { Location } from 'history';
+
+export interface FactoryLocation {
+  readonly searchParams: URLSearchParams;
+  readonly isFullPathUrl: boolean;
+  readonly isSshLocation: boolean;
+  readonly toString: () => string;
+}
+
+export class FactoryLocationAdapter implements FactoryLocation {
+  private readonly fullPathUrl: string | undefined;
+  private readonly sshLocation: string | undefined;
+  private readonly search: URLSearchParams;
+  private readonly pathname: string;
+
+  constructor(href: string) {
+    if (!href.includes('?')) {
+      href = href.replace('&', '?');
+    }
+    const [pathname, search] = href.split('?');
+    const sanitizedLocation = sanitizeLocation({ search, pathname } as Location);
+
+    this.search = new window.URLSearchParams(sanitizedLocation.search);
+    this.pathname = pathname;
+
+    if (FactoryLocationAdapter.isFullPathUrl(sanitizedLocation.pathname)) {
+      this.fullPathUrl = sanitizedLocation.pathname;
+      if (sanitizedLocation.search) {
+        this.fullPathUrl += sanitizedLocation.search;
+      }
+    } else if (FactoryLocationAdapter.isSshLocation(sanitizedLocation.pathname)) {
+      this.sshLocation = sanitizedLocation.pathname;
+      if (sanitizedLocation.search) {
+        this.sshLocation += sanitizedLocation.search;
+      }
+    } else {
+      throw new Error(`Unsupported factory location: "${href}"`);
+    }
+  }
+
+  public static isFullPathUrl(href: string): boolean {
+    return /^(https?:\/\/.)[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)$/.test(
+      href,
+    );
+  }
+
+  public static isSshLocation(href: string): boolean {
+    return /^git@[^:]+:.*\/[^/]+$/.test(href);
+  }
+
+  get searchParams(): URLSearchParams {
+    return this.search;
+  }
+
+  get isFullPathUrl(): boolean {
+    return this.fullPathUrl !== undefined;
+  }
+
+  get isSshLocation(): boolean {
+    return this.sshLocation !== undefined;
+  }
+
+  public toString(): string {
+    const search = this.search.toString();
+    if (search) {
+      return this.pathname + '?' + this.search.toString();
+    }
+    return this.pathname;
+  }
+}

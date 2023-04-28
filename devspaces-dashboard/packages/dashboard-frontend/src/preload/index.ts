@@ -12,6 +12,7 @@
 
 import { PROPAGATE_FACTORY_ATTRS, REMOTES_ATTR } from '../containers/Loader/const';
 import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
+import { FactoryLocationAdapter, FactoryLocation } from '../services/factory-location-adapter';
 import { sanitizeLocation } from '../services/helpers/location';
 
 (function acceptNewFactoryLink(): void {
@@ -21,14 +22,9 @@ import { sanitizeLocation } from '../services/helpers/location';
 
   storePathIfNeeded(window.location.pathname);
 
-  const hash = window.location.hash.replace(/(\/?)#(\/?)/, '#');
-  if (hash.startsWith('#http')) {
-    let factoryUrl = hash.substring(1);
-    if (!factoryUrl.includes('?')) {
-      factoryUrl = factoryUrl.replace('&', '?');
-    }
-    window.location.href =
-      window.location.origin + '/dashboard' + buildFactoryLoaderPath(factoryUrl);
+  const hash = window.location.hash.replace(/(\/?)#(\/?)/, '');
+  if (FactoryLocationAdapter.isFullPathUrl(hash) || FactoryLocationAdapter.isSshLocation(hash)) {
+    window.location.href = window.location.origin + '/dashboard' + buildFactoryLoaderPath(hash);
   } else if (
     window.location.search.startsWith(`?${REMOTES_ATTR}=`) ||
     window.location.search.includes(`&${REMOTES_ATTR}=`)
@@ -47,19 +43,31 @@ export function storePathIfNeeded(path: string) {
   }
 }
 
-export function buildFactoryLoaderPath(url: string, appendUrl = true): string {
-  const fullUrl = sanitizeLocation<URL>(new window.URL(url));
+export function buildFactoryLoaderPath(location: string, appendUrl = true): string {
+  let factory: FactoryLocation | URL;
+  if (appendUrl) {
+    try {
+      factory = new FactoryLocationAdapter(location);
+    } catch (e) {
+      console.error(e);
+      return '/';
+    }
+  } else {
+    factory = sanitizeLocation<URL>(new window.URL(location));
+  }
 
   const initParams = PROPAGATE_FACTORY_ATTRS.map(paramName => {
-    const paramValue = extractUrlParam(fullUrl, paramName);
+    const paramValue = extractUrlParam(factory.searchParams, paramName);
     return [paramName, paramValue];
   }).filter(([, paramValue]) => paramValue);
 
-  const devfilePath = extractUrlParam(fullUrl, 'devfilePath') || extractUrlParam(fullUrl, 'df');
+  const devfilePath =
+    extractUrlParam(factory.searchParams, 'devfilePath') ||
+    extractUrlParam(factory.searchParams, 'df');
   if (devfilePath) {
     initParams.push(['override.devfileFilename', devfilePath]);
   }
-  const newWorkspace = extractUrlParam(fullUrl, 'new');
+  const newWorkspace = extractUrlParam(factory.searchParams, 'new');
   if (newWorkspace) {
     initParams.push(['policies.create', 'perclick']);
   }
@@ -67,20 +75,20 @@ export function buildFactoryLoaderPath(url: string, appendUrl = true): string {
   const searchParams = new URLSearchParams(initParams);
 
   if (appendUrl) {
-    searchParams.append('url', fullUrl.toString());
+    searchParams.append('url', factory.toString());
   }
 
   return '/f?' + searchParams.toString();
 }
 
-function extractUrlParam(fullUrl: URL, paramName: string): string {
-  const param = fullUrl.searchParams.get(paramName);
+function extractUrlParam(params: URLSearchParams, paramName: string): string {
+  const param = params.get(paramName);
   let value = '';
   if (param) {
     value = param.slice();
-  } else if (fullUrl.searchParams.has(paramName)) {
+  } else if (params.has(paramName)) {
     value = 'true';
   }
-  fullUrl.searchParams.delete(paramName);
+  params.delete(paramName);
   return value;
 }
