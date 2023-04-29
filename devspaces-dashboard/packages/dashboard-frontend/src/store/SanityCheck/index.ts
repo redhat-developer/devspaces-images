@@ -109,7 +109,7 @@ export const actionCreators: ActionCreators = {
         }
       } catch (e) {
         let errorMessage =
-          'Backend in not available. Try to refresh the page or re-login to the Dashboard.';
+          'Backend is not available. Try to refresh the page or re-login to the Dashboard.';
         if (isUnauthorized(e) || isForbidden(e)) {
           errorMessage = 'User session has expired. You need to re-login to the Dashboard.';
         }
