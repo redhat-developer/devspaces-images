@@ -5351,7 +5351,7 @@ spec:
                 default:
                   defaultNamespace:
                     autoProvision: true
-                    template: <username>-devspaces
+                    template: <username>-che
                   maxNumberOfWorkspacesPerUser: -1
                   secondsOfInactivityBeforeIdling: 1800
                   secondsOfRunBeforeIdling: -1
@@ -6835,7 +6835,7 @@ spec:
                   defaultNamespace:
                     default:
                       autoProvision: true
-                      template: <username>-devspaces
+                      template: <username>-che
                     description: User's default namespace.
                     properties:
                       autoProvision:
@@ -6845,7 +6845,7 @@ spec:
                           must be pre-created by a cluster administrator.
                         type: boolean
                       template:
-                        default: <username>-devspaces
+                        default: <username>-che
                         description: If you don't create the user namespaces in advance,
                           this field defines the Kubernetes namespace created when
                           you start your first workspace. You can use `<username>`
