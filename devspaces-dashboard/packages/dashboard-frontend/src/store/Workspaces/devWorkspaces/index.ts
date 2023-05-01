@@ -772,6 +772,10 @@ export const actionCreators: ActionCreators = {
         ) {
           try {
             await podmanLogin(workspace.metadata.namespace, devworkspaceId);
+          } catch (e) {
+            console.error(e);
+          }
+          try {
             await injectKubeConfig(workspace.metadata.namespace, devworkspaceId);
           } catch (e) {
             console.error(e);
