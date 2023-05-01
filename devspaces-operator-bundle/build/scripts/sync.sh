@@ -55,9 +55,10 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     
     MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
     if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
-    configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json")"
+    # load the latest job-config.json, not the branched version; this ensures we get CVE updates (CRW-4324)
+    configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json")"
     if [[ $configjson == *"404"* ]] || [[ $configjson == *"Not Found"* ]]; then 
-        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json"
+        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json"
         echo "[ERROR] Please use -p flag to set CSV_VERSION_PREV"
         exit 1
     fi
