@@ -78,7 +78,7 @@
     "yaml-language-server": "^0.13.0"
   },
   "devDependencies": {
-    "@devfile/api": "^2.2.0-alpha-1633545768",
+    "@devfile/api": "^2.2.1-alpha-1667236163",
     "@eclipse-che/api": "^7.18.1",
     "@kubernetes/client-node": "^0.18.0",
     "@react-mock/state": "^0.1.8",

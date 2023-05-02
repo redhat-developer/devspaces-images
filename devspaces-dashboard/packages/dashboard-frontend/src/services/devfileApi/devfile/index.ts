@@ -10,10 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V220Devfile } from '@devfile/api';
+import { V221Devfile } from '@devfile/api';
 import { DevfileMetadata, DevfileMetadataLike } from './metadata';
 
-export type DevfileLike = V220Devfile & {
+export type DevfileLike = V221Devfile & {
   metadata?: DevfileMetadataLike;
 };
 

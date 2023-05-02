@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V220DevfileProjects, V220DevfileProjectsItemsGit } from '@devfile/api';
+import { V221DevfileProjects, V221DevfileProjectsItemsGit } from '@devfile/api';
 import common, { helpers } from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
@@ -390,7 +390,7 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
    * @param newRemotes The array of new Git remotes to add
    */
   private addRemotesToProject(
-    gitProject: V220DevfileProjectsItemsGit,
+    gitProject: V221DevfileProjectsItemsGit,
     checkoutRemote: GitRemote,
     newRemotes: GitRemote[],
   ) {
@@ -408,7 +408,7 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
   /**
    * Returns the Git project to replace remotes for
    */
-  private getGitProjectForConfiguringRemotes(projects: V220DevfileProjects[] | undefined) {
+  private getGitProjectForConfiguringRemotes(projects: V221DevfileProjects[] | undefined) {
     if (!projects) {
       return undefined;
     }

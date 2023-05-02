@@ -10,10 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V220DevfileProjects } from '@devfile/api';
+import { V221DevfileProjects } from '@devfile/api';
 import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 
-export function getProjectFromUrl(url: string, remoteName = 'origin'): V220DevfileProjects {
+export function getProjectFromUrl(url: string, remoteName = 'origin'): V221DevfileProjects {
   const sourceUrl = new URL(url);
   const name = getProjectName(url);
   if (sourceUrl.pathname.endsWith('.git')) {

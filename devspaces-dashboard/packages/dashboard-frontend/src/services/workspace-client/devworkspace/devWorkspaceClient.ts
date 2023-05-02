@@ -14,7 +14,7 @@ import {
   V1alpha2DevWorkspaceSpecTemplateComponents,
   V1alpha2DevWorkspaceTemplateSpec,
   V1alpha2DevWorkspaceTemplateSpecComponents,
-  V220DevfileComponentsItemsContainer,
+  V221DevfileComponentsItemsContainer,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
@@ -45,6 +45,7 @@ import {
   devWorkspaceVersion,
 } from './converters';
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
+import { DevWorkspacePlugin } from '../../devfileApi/devWorkspace';
 
 const COMPONENT_UPDATE_POLICY = 'che.eclipse.org/components-update-policy';
 const REGISTRY_URL = 'che.eclipse.org/plugin-registry-url';
@@ -59,7 +60,7 @@ export const DEVWORKSPACE_DEVFILE_VERSION = 'che.eclipse.org/devfile-version';
 
 export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
 
-export interface ICheEditorOverrideContainer extends V220DevfileComponentsItemsContainer {
+export interface ICheEditorOverrideContainer extends V221DevfileComponentsItemsContainer {
   name: string;
 }
 export interface ICheEditorYaml {
@@ -672,7 +673,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
     const contributions = workspace.spec.contributions.filter(
       contribution => contribution.name !== pluginName,
-    );
+    ) as DevWorkspacePlugin[];
     contributions.push({
       name: pluginName,
       kubernetes: {

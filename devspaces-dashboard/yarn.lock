@@ -322,10 +322,10 @@
     request "^2.81.0"
     rewire "^3.0.2"
 
-"@devfile/api@^2.2.0-alpha-1633545768", "@devfile/api@latest":
-  version "2.2.0-alpha-1646855991"
-  resolved "https://registry.npmjs.org/@devfile/api/-/api-2.2.0-alpha-1646855991.tgz"
-  integrity sha512-1UKJlFgG7+DPC1FXZvziBf+99rjjnChYxl00NVwtLMqLj8lOxsStGHnX/5vzbOq8gBYDQ2aqWB0FFQsLzAMJ5A==
+"@devfile/api@^2.2.1-alpha-1667236163":
+  version "2.2.1-alpha-1667236163"
+  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.1-alpha-1667236163.tgz#33cf448dae960c071037b32c6c68f96ba26f1990"
+  integrity sha512-tspoTrbyMbPIVwTD2qr6ljvQAJLE1lCN6uBFIGcYXKw89JGt0s0+WLQ/qIh2+RP5pDpDWbDp/yNFKCmzaOLupg==
   dependencies:
     "@types/bluebird" "3.5.21"
     "@types/request" "*"
@@ -333,10 +333,10 @@
     request "^2.81.0"
     rewire "^3.0.2"
 
-"@devfile/api@^2.2.1-alpha-1667236163":
-  version "2.2.1-alpha-1667236163"
-  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.1-alpha-1667236163.tgz#33cf448dae960c071037b32c6c68f96ba26f1990"
-  integrity sha512-tspoTrbyMbPIVwTD2qr6ljvQAJLE1lCN6uBFIGcYXKw89JGt0s0+WLQ/qIh2+RP5pDpDWbDp/yNFKCmzaOLupg==
+"@devfile/api@latest":
+  version "2.2.0-alpha-1646855991"
+  resolved "https://registry.npmjs.org/@devfile/api/-/api-2.2.0-alpha-1646855991.tgz"
+  integrity sha512-1UKJlFgG7+DPC1FXZvziBf+99rjjnChYxl00NVwtLMqLj8lOxsStGHnX/5vzbOq8gBYDQ2aqWB0FFQsLzAMJ5A==
   dependencies:
     "@types/bluebird" "3.5.21"
     "@types/request" "*"

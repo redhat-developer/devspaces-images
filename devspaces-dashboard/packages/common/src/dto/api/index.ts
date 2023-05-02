@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1alpha2DevWorkspace, V220DevfileComponents } from '@devfile/api';
+import { V1alpha2DevWorkspace, V221DevfileComponents } from '@devfile/api';
 import { CoreV1EventList, V1PodList } from '@kubernetes/client-node';
 import * as webSocket from './webSocket';
 
@@ -47,7 +47,7 @@ export interface IServerConfig {
   };
   defaults: {
     editor: string | undefined;
-    components: V220DevfileComponents[];
+    components: V221DevfileComponents[];
     plugins: IWorkspacesDefaultPlugins[];
     pvcStrategy: string | undefined;
   };

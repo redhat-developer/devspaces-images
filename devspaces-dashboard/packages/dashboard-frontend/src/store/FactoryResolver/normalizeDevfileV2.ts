@@ -12,7 +12,7 @@
 
 import { dump } from 'js-yaml';
 import { cloneDeep } from 'lodash';
-import { V220DevfileComponents } from '@devfile/api';
+import { V221DevfileComponents } from '@devfile/api';
 import { FactoryResolver, DevfileV2ProjectSource } from '../../services/helpers/types';
 import devfileApi from '../../services/devfileApi';
 import { getProjectName } from '../../services/helpers/getProjectName';
@@ -38,7 +38,7 @@ export default function normalizeDevfileV2(
   devfileLike: devfileApi.DevfileLike,
   data: FactoryResolver,
   location: string,
-  defaultComponents: V220DevfileComponents[],
+  defaultComponents: V221DevfileComponents[],
   namespace: string,
   factoryParams: Partial<FactoryParams>,
 ): devfileApi.Devfile {

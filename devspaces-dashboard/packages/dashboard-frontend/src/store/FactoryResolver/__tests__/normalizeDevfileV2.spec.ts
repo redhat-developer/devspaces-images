@@ -13,10 +13,10 @@
 import normalizeDevfileV2 from '../normalizeDevfileV2';
 import devfileApi from '../../../services/devfileApi';
 import { FactoryResolver } from '../../../services/helpers/types';
-import { V220DevfileComponents } from '@devfile/api';
+import { V221DevfileComponents } from '@devfile/api';
 
 describe('Normalize Devfile V2', () => {
-  let defaultComponents: V220DevfileComponents[];
+  let defaultComponents: V221DevfileComponents[];
 
   beforeEach(() => {
     defaultComponents = [
