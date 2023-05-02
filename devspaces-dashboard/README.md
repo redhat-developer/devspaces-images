@@ -159,6 +159,19 @@ To build, run:
 podman build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:next
 ```
 
+### Build a new image and apply it to the CheCluster in the current context
+
+Export globally environment variables first:
+```sh
+$ export IMAGE_REGISTRY_USER_NAME=<IMAGE_REGISTRY_USER_NAME> && \
+  export IMAGE_REGISTRY_HOST=<IMAGE_REGISTRY_HOST>
+```
+
+To a new image and apply it to the CheCluster, run:
+```sh
+yarn build-and-patch
+```
+
 ## Branding
 
 Default branding data for the User Dashboard is located in [branding.constant.ts](/packages/dashboard-frontend/src/services/bootstrap/branding.constant.ts)#BRANDING_DEFAULT. It can be overridden without re-building the project in [product.json](/packages/dashboard-frontend/assets/branding/product.json) file which should contain only values that should overwrite default ones.
