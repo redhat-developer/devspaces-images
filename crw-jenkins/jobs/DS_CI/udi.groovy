@@ -83,7 +83,7 @@ UDI image builder (including assets); triggers brew
 
             parameters{
                 // TODO if we sync from Che UDI, change parameters to match what template job requires
-                textParam("REPOS", "devspaces-" + MIDSTM_NAME, "Do not change this value")
+                stringParam("REPOS", "devspaces-" + MIDSTM_NAME, "Do not change this value")
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
