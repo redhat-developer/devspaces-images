@@ -45,3 +45,8 @@ To apply it:
 ```
 kubectl apply -f deploy_example.yaml
 ```
+
+## Trademark
+
+"Che" is a trademark of the Eclipse Foundation.
+
