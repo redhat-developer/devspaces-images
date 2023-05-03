@@ -29,7 +29,7 @@ ENV BACKEND=packages/dashboard-backend
 COPY ${BACKEND}/package.json /dashboard/${BACKEND}/
 
 WORKDIR /dashboard
-RUN yarn install --network-timeout 1000000
+RUN yarn install --network-timeout 3600000
 COPY packages/ /dashboard/packages
 RUN yarn build
 

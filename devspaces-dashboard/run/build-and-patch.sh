@@ -31,9 +31,9 @@ CHECLUSTER_CR_NAME=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- print
 PREVIOUS_CHE_DASHBOARD_IMAGE=$(kubectl get checluster -n $CHE_NAMESPACE $CHECLUSTER_CR_NAME -o=json | jq -r '.spec.components.dashboard.deployment.containers[0].image')
 
 if [ "$PREVIOUS_CHE_DASHBOARD_IMAGE" = "null" ]; then
-  kubectl patch checluster -n $CHE_NAMESPACE $CHECLUSTER_CR_NAME --type=json -p="[{\"op\": \"replace\", \"path\": \"/spec/components/dashboard\", \"value\": {deployment: {containers: [{image: \"${CHE_DASHBOARD_IMAGE}\", name: che-dasboard}]}}}]"
+  kubectl patch -n "$CHE_NAMESPACE" "checluster/$CHECLUSTER_CR_NAME" --type=json -p="[{\"op\": \"replace\", \"path\": \"/spec/components/dashboard\", \"value\": {deployment: {containers: [{image: \"${CHE_DASHBOARD_IMAGE}\", name: che-dasboard}]}}}]"
 else
-  kubectl patch checluster -n $CHE_NAMESPACE $CHECLUSTER_CR_NAME --type=json -p="[{\"op\": \"replace\", \"path\": \"/spec/components/dashboard.deployment.containers[0].image\", \"value\": ${CHE_DASHBOARD_IMAGE}}]"
+  kubectl patch -n "$CHE_NAMESPACE" "checluster/$CHECLUSTER_CR_NAME" --type=json -p="[{\"op\": \"replace\", \"path\": \"/spec/components/dashboard.deployment.containers[0].image\", \"value\": ${CHE_DASHBOARD_IMAGE}}]"
 fi
 
 echo 'Done.'
