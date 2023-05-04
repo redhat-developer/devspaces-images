@@ -46,7 +46,6 @@ import { loadResourcesContent } from '../../../services/registry/resources';
 import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
 import { selectDevWorkspacesResourceVersion } from './selectors';
 import OAuthService from '../../../services/oauth';
-import { EDITOR_ATTR } from '../../../containers/Loader/const';
 import { FactoryParams } from '../../../containers/Loader/buildFactoryParams';
 import { getEditor } from '../../DevfileRegistries/getEditor';
 import { selectApplications } from '../../ClusterInfo/selectors';
@@ -597,13 +596,9 @@ export const actionCreators: ActionCreators = {
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
       let editorContent: string | undefined;
       // do we have an optional editor parameter ?
-      if (attributes[EDITOR_ATTR]) {
-        const response = await getEditor(
-          attributes[EDITOR_ATTR],
-          dispatch,
-          getState,
-          pluginRegistryUrl,
-        );
+      const editor = attributes.cheEditor;
+      if (editor) {
+        const response = await getEditor(editor, dispatch, getState, pluginRegistryUrl);
         if (response.content) {
           editorContent = response.content;
         } else {
@@ -673,7 +668,7 @@ export const actionCreators: ActionCreators = {
         actionCreators.createWorkspaceFromResources(
           devWorkspaceResource,
           devWorkspaceTemplateResource,
-          attributes[EDITOR_ATTR],
+          editor,
         ),
       );
     },
