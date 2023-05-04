@@ -30,6 +30,11 @@ import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../../const'
 
 jest.mock('../../../../../../pages/Loader');
 
+const isAvailableEndpointMock = jest.fn();
+jest.mock('../../../../../../services/helpers/api-ping', () => ({
+  isAvailableEndpoint: (url: string | undefined) => isAvailableEndpointMock(url),
+}));
+
 const { renderComponent } = getComponentRenderer(getComponent);
 
 const mockOnNextStep = jest.fn();
@@ -106,32 +111,6 @@ describe('Workspace Loader, step OPEN_WORKSPACE', () => {
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 
-  test('workspace is RUNNING', async () => {
-    const store = new FakeStoreBuilder()
-      .withDevWorkspaces({
-        workspaces: [
-          new DevWorkspaceBuilder()
-            .withName(workspaceName)
-            .withNamespace(namespace)
-            .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
-            .build(),
-        ],
-      })
-      .build();
-
-    renderComponent(store, loaderSteps);
-
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
-
-    const currentStepId = screen.getByTestId('current-step-id');
-    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
-
-    jest.advanceTimersByTime(5000);
-
-    // wait for opening IDE url
-    await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
-  });
-
   test(`workspace is RUNNING and mainUrl is not propagated more than TIMEOUT_TO_GET_URL_SEC seconds`, async () => {
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
@@ -172,90 +151,6 @@ describe('Workspace Loader, step OPEN_WORKSPACE', () => {
     );
   });
 
-  test(`workspace is RUNNING and mainUrl is propagated within TIMEOUT_TO_GET_URL_SEC seconds`, async () => {
-    const store = new FakeStoreBuilder()
-      .withDevWorkspaces({
-        workspaces: [
-          new DevWorkspaceBuilder()
-            .withName(workspaceName)
-            .withNamespace(namespace)
-            .withStatus({ phase: 'RUNNING' })
-            .build(),
-        ],
-      })
-      .build();
-
-    const { reRenderComponent } = renderComponent(store, loaderSteps);
-
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
-
-    const currentStepId = screen.getByTestId('current-step-id');
-    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
-
-    // wait less than necessary to end the timeout
-    const time = (TIMEOUT_TO_GET_URL_SEC - 1) * 1000;
-    jest.advanceTimersByTime(time);
-
-    const currentStep = screen.getByTestId(stepId);
-
-    // no errors at this moment
-    const hasError = within(currentStep).getByTestId('hasError');
-    expect(hasError.textContent).toEqual('false');
-
-    const nextStore = new FakeStoreBuilder()
-      .withDevWorkspaces({
-        workspaces: [
-          new DevWorkspaceBuilder()
-            .withName(workspaceName)
-            .withNamespace(namespace)
-            .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
-            .build(),
-        ],
-      })
-      .build();
-    reRenderComponent(nextStore, loaderSteps);
-
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
-
-    // wait for opening IDE url
-    await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
-  });
-
-  test('workspace is FAILING', async () => {
-    const store = new FakeStoreBuilder()
-      .withDevWorkspaces({
-        workspaces: [
-          new DevWorkspaceBuilder()
-            .withName(workspaceName)
-            .withNamespace(namespace)
-            .withStatus({ phase: 'FAILING' })
-            .build(),
-        ],
-      })
-      .build();
-
-    renderComponent(store, loaderSteps);
-
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
-
-    const currentStepId = screen.getByTestId('current-step-id');
-    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
-
-    const currentStep = screen.getByTestId(stepId);
-
-    // should report the error
-    const hasError = within(currentStep).getByTestId('hasError');
-    expect(hasError.textContent).toEqual('true');
-
-    const alertTitle = screen.getByTestId('alert-title');
-    expect(alertTitle.textContent).toEqual('Failed to open the workspace');
-
-    const alertBody = screen.getByTestId('alert-body');
-    expect(alertBody.textContent).toEqual(
-      'The workspace status changed unexpectedly to "Failing".',
-    );
-  });
-
   test('restart flow', async () => {
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
@@ -279,6 +174,238 @@ describe('Workspace Loader, step OPEN_WORKSPACE', () => {
     userEvent.click(restartButton);
 
     expect(mockOnRestart).toHaveBeenCalled();
+  });
+
+  describe('with available endpoint', () => {
+    beforeEach(() => isAvailableEndpointMock.mockResolvedValue(Promise.resolve(true)));
+
+    describe('workspace is RUNNING', () => {
+      test('open IDE url', async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
+                .build(),
+            ],
+          })
+          .build();
+
+        renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        jest.advanceTimersByTime(5000);
+
+        // wait for opening IDE url
+        await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
+      });
+
+      test('workspace is FAILING', async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'FAILING' })
+                .build(),
+            ],
+          })
+          .build();
+
+        renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        const currentStep = screen.getByTestId(stepId);
+
+        // should report the error
+        const hasError = within(currentStep).getByTestId('hasError');
+        expect(hasError.textContent).toEqual('true');
+
+        const alertTitle = screen.getByTestId('alert-title');
+        expect(alertTitle.textContent).toEqual('Failed to open the workspace');
+
+        const alertBody = screen.getByTestId('alert-body');
+        expect(alertBody.textContent).toEqual(
+          'The workspace status changed unexpectedly to "Failing".',
+        );
+      });
+
+      test(`mainUrl is propagated within TIMEOUT_TO_GET_URL_SEC seconds`, async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'RUNNING' })
+                .build(),
+            ],
+          })
+          .build();
+
+        const { reRenderComponent } = renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        // wait less than necessary to end the timeout
+        const time = (TIMEOUT_TO_GET_URL_SEC - 1) * 1000;
+        jest.advanceTimersByTime(time);
+
+        const currentStep = screen.getByTestId(stepId);
+
+        // no errors at this moment
+        const hasError = within(currentStep).getByTestId('hasError');
+        expect(hasError.textContent).toEqual('false');
+
+        const nextStore = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
+                .build(),
+            ],
+          })
+          .build();
+        reRenderComponent(nextStore, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        // wait for opening IDE url
+        await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
+      });
+    });
+  });
+
+  describe('without available endpoint', () => {
+    beforeEach(() => isAvailableEndpointMock.mockResolvedValue(Promise.resolve(false)));
+
+    describe('workspace is RUNNING', () => {
+      test('does not open IDE url', async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
+                .build(),
+            ],
+          })
+          .build();
+
+        renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        jest.advanceTimersByTime(5000);
+
+        // wait for opening IDE url
+        await waitFor(() => expect(mockLocationReplace).not.toHaveBeenCalledWith('main-url'));
+      });
+
+      test('workspace is FAILING', async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'FAILING' })
+                .build(),
+            ],
+          })
+          .build();
+
+        renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        const currentStep = screen.getByTestId(stepId);
+
+        // should report the error
+        const hasError = within(currentStep).getByTestId('hasError');
+        expect(hasError.textContent).toEqual('true');
+
+        const alertTitle = screen.getByTestId('alert-title');
+        expect(alertTitle.textContent).toEqual('Failed to open the workspace');
+
+        const alertBody = screen.getByTestId('alert-body');
+        expect(alertBody.textContent).toEqual(
+          'The workspace status changed unexpectedly to "Failing".',
+        );
+      });
+
+      test(`mainUrl should not propagate within TIMEOUT_TO_GET_URL_SEC seconds`, async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'RUNNING' })
+                .build(),
+            ],
+          })
+          .build();
+
+        const { reRenderComponent } = renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        // wait less than necessary to end the timeout
+        const time = (TIMEOUT_TO_GET_URL_SEC - 1) * 1000;
+        jest.advanceTimersByTime(time);
+
+        const currentStep = screen.getByTestId(stepId);
+
+        // no errors at this moment
+        const hasError = within(currentStep).getByTestId('hasError');
+        expect(hasError.textContent).toEqual('false');
+
+        const nextStore = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
+                .build(),
+            ],
+          })
+          .build();
+        reRenderComponent(nextStore, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        // wait for opening IDE url
+        await waitFor(() => expect(mockLocationReplace).not.toHaveBeenCalledWith('main-url'));
+      });
+    });
   });
 });
 
