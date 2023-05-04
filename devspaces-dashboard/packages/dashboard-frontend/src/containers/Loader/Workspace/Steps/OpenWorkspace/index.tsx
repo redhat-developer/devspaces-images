@@ -27,6 +27,7 @@ import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../const';
 import findTargetWorkspace from '../../../findTargetWorkspace';
+import { isAvailableEndpoint } from '../../../../../services/helpers/api-ping';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -87,7 +88,6 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
 
   protected async runStep(): Promise<boolean> {
     await delay(MIN_STEP_DURATION_MS);
-
     const { matchParams } = this.props;
     const workspace = this.findTargetWorkspace(this.props);
 
@@ -100,7 +100,6 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
     if (!workspace.isRunning) {
       throw new Error(`The workspace status changed unexpectedly to "${workspace.status}".`);
     }
-
     if (!workspace.ideUrl) {
       // wait for the IDE url to be set
       try {
@@ -115,7 +114,6 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
             },
           });
         });
-
         return false;
       } catch (e) {
         throw new Error(
@@ -124,9 +122,13 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
       }
     }
 
-    window.location.replace(workspace.ideUrl);
+    const isAvailable = await isAvailableEndpoint(workspace.ideUrl);
+    if (isAvailable) {
+      window.location.replace(workspace.ideUrl);
+      return true;
+    }
 
-    return true;
+    return false;
   }
 
   protected findTargetWorkspace(props: Props): Workspace | undefined {

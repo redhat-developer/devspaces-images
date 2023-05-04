@@ -123,13 +123,13 @@ export class DevWorkspaceClient extends WorkspaceClient {
     workspaceName: string,
   ): Promise<devfileApi.DevWorkspace> {
     let workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
-    let attempted = 0;
-    while (!workspace.status?.phase && attempted < this.maxStatusAttempts) {
-      if (attempted > 0) {
+    let attempt = 0;
+    while (!workspace.status?.phase && attempt < this.maxStatusAttempts) {
+      if (attempt > 0) {
         await delay();
       }
       workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
-      attempted++;
+      attempt++;
     }
     const workspaceStatus = workspace?.status;
     if (!workspaceStatus || !workspaceStatus.phase) {

@@ -14,7 +14,7 @@
 
 import { api } from '@eclipse-che/common';
 import * as mockClient from '@kubernetes/client-node';
-import { CoreV1Api, CoreV1Event, V1Pod, V1Status } from '@kubernetes/client-node';
+import { CoreV1Api, V1Pod, V1Status } from '@kubernetes/client-node';
 import { PodApiService } from '../podApi';
 
 jest.mock('../helpers/prepareCustomObjectWatch');

@@ -47,6 +47,7 @@ import { selectEventsResourceVersion } from '../../store/Events/selectors';
 import { selectPodsResourceVersion } from '../../store/Pods/selectors';
 import { ChannelListener } from '../dashboard-backend-client/websocketClient/messageHandler';
 import { selectApplications } from '../../store/ClusterInfo/selectors';
+import { isAvailableEndpoint } from '../helpers/api-ping';
 
 /**
  * This class executes a few initial instructions
@@ -415,8 +416,12 @@ export default class Bootstrap {
     } catch (e) {
       if (e instanceof WorkspaceRunningError) {
         if (e.workspace.ideUrl) {
-          window.location.href = e.workspace.ideUrl;
-          return;
+          const ideUrl = e.workspace.ideUrl;
+          isAvailableEndpoint(ideUrl).then(isAvailable => {
+            if (isAvailable) {
+              window.location.replace(ideUrl);
+            }
+          });
         }
       } else {
         console.warn('Unable to check for stopped workspace.', e);
