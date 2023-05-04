@@ -4,8 +4,9 @@ platforms:
 
   only:
     - x86_64
-    - s390x
-    - ppc64le
+    # disable to test a theory about arch-specific problem in https://issues.redhat.com/browse/CRW-4352
+    # - s390x
+    # - ppc64le
 
 compose:
   inherit: false
