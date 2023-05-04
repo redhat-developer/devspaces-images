@@ -56,7 +56,7 @@ spec:
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:9c38682157a69a82f5b1899e264f9f97337a75481316f3e4de5d757634f97b3d"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:bbbfcf16d08f6d079df64251234546b1ab639d0908f98803032e6193b98351bc"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
