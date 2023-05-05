@@ -3,15 +3,18 @@ name=rhel-8-appstream-rpms-pulp
 baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/appstream/os
 enabled=1
 gpgcheck=0
- 
+sslverify=0
+
 [rhel-8-for-baseos-rpms-pulp]
 name=rhel-8-baseos-rpms-pulp
 baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/baseos/os
 enabled=1
 gpgcheck=0
+sslverify=0
 
 [rhel-8-for-codeready-builder-rpms-pulp]
 name=rhel-8-codeready-builder-rpms-pulp
 baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/codeready-builder/os
 enabled=1
 gpgcheck=0
+sslverify=0
