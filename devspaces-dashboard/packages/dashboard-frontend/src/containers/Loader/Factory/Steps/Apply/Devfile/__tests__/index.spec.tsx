@@ -45,7 +45,7 @@ import { prepareDevfile } from '../prepareDevfile';
 jest.mock('../prepareDevfile.ts');
 jest.mock('../../../../../../../pages/Loader');
 
-const mockCreateWorkspaceFromDevfile = jest.fn().mockResolvedValue(undefined);
+let mockCreateWorkspaceFromDevfile;
 jest.mock('../../../../../../../store/Workspaces/index', () => {
   return {
     actionCreators: {
@@ -85,6 +85,8 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
   let factoryId: string;
 
   beforeEach(() => {
+    mockCreateWorkspaceFromDevfile = jest.fn().mockResolvedValue(undefined);
+
     (prepareDevfile as jest.Mock).mockReturnValue(devfile);
 
     history = createMemoryHistory({
@@ -502,7 +504,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, true),
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
       );
     });
 
@@ -526,8 +528,58 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, true),
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
       );
+    });
+
+    test('create workspace error', async () => {
+      mockCreateWorkspaceFromDevfile = jest.fn().mockRejectedValue(new Error());
+      const store = getStoreBuilder()
+        .withDevWorkspaces({
+          workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
+        })
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: devfile,
+          },
+        })
+        .build();
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      const restartButton = await screen.findByRole('button', {
+        name: 'Continue with the default devfile',
+      });
+      expect(restartButton).toBeDefined();
+    });
+
+    test('restart from error', async () => {
+      const localState: Partial<State> = {
+        factoryParams: buildFactoryParams(searchParams),
+        restartFromError: true,
+        shouldCreate: true,
+      };
+      const store = getStoreBuilder()
+        .withDevWorkspaces({
+          workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
+        })
+        .withFactoryResolver({
+          resolver: {},
+          converted: {
+            devfileV2: devfile,
+          },
+        })
+        .build();
+
+      renderComponent(store, loaderSteps, searchParams, currentStepIndex, localState);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+      );
+      await waitFor(() => expect(mockCreateWorkspaceFromDevfile).not.toHaveBeenCalled());
     });
 
     test('unique name', async () => {
