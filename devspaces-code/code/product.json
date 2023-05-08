@@ -1,6 +1,6 @@
 {
 	"nameShort": "VS Code - Open Source",
-	"nameLong": "Red Hat OpenShift Dev Spaces",
+	"nameLong": "Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE",
 	"applicationName": "code-oss",
 	"dataFolderName": ".vscode-oss",
 	"win32MutexName": "che-code",
@@ -98,7 +98,6 @@
 		"serviceUrl": "https://open-vsx.org/vscode/gallery",
 		"itemUrl": "https://open-vsx.org/vscode/item"
 	},
-	"nameLongSubtitle": "with Microsoft Visual Studio Code - Open Source IDE",
 	"workbenchConfigFilePath": "workbench-config.json",
 	"codiconCssFilePath": "css/codicon.css",
 	"icons": {
