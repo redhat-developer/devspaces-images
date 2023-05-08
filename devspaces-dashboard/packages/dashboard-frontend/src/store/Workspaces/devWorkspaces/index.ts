@@ -32,7 +32,6 @@ import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
-  DEVWORKSPACE_DEVFILE_VERSION,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
@@ -49,6 +48,7 @@ import OAuthService from '../../../services/oauth';
 import { FactoryParams } from '../../../containers/Loader/buildFactoryParams';
 import { getEditor } from '../../DevfileRegistries/getEditor';
 import { selectApplications } from '../../ClusterInfo/selectors';
+import { cloneDeep } from 'lodash';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -646,8 +646,6 @@ export const actionCreators: ActionCreators = {
           if (!devWorkspaceResource.metadata.annotations) {
             devWorkspaceResource.metadata.annotations = {};
           }
-          devWorkspaceResource.metadata.annotations[DEVWORKSPACE_DEVFILE_VERSION] =
-            devfile.schemaVersion;
         }
         devWorkspaceTemplateResource = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
@@ -680,7 +678,7 @@ export const actionCreators: ActionCreators = {
         const { status } = message;
 
         const errorMessage = `WebSocket(DEV_WORKSPACE): status code ${status.code}, reason: ${status.message}`;
-        console.warn(errorMessage);
+        console.debug(errorMessage);
 
         if (status.code !== 200) {
           /* in case of error status trying to fetch all devWorkspaces and re-subscribe to websocket channel */

@@ -1,0 +1,10 @@
+schemaVersion: 2.0.0
+attributes:
+  author: Somebody
+  dw.metadata.annotations:
+    any.custom.settings: 'true'
+metadata:
+  description: nodejs-stack sample
+  name: nodejs-stack
+  namespace: dwclient-test
+components: []

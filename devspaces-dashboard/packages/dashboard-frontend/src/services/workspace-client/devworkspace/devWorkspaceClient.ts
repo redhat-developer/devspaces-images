@@ -56,7 +56,7 @@ export const DEVWORKSPACE_DEBUG_START_ANNOTATION = 'controller.devfile.io/debug-
 
 export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
 
-export const DEVWORKSPACE_DEVFILE_VERSION = 'che.eclipse.org/devfile-version';
+export const DEVWORKSPACE_DEVFILE = 'che.eclipse.org/devfile';
 
 export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
 

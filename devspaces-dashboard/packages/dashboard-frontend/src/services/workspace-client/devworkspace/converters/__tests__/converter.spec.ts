@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import { devfileToDevWorkspace, devWorkspaceToDevfile } from '..';
+import { devfileSchemaVersion, devfileToDevWorkspace, devWorkspaceToDevfile } from '..';
 
 describe('testing sample conversions', () => {
   describe('devfile to devworkspace', () => {
@@ -27,6 +27,9 @@ describe('testing sample conversions', () => {
     });
   });
   describe('devworkspace to devfile', () => {
+    // mute the outputs
+    console.debug = jest.fn();
+
     test('the sample-devworkspace fixture should convert into sample-devfile fixture', () => {
       const input: any = yaml.load(
         fs.readFileSync(__dirname + '/fixtures/sample-devworkspace.yaml', 'utf-8'),
@@ -36,6 +39,30 @@ describe('testing sample conversions', () => {
       );
       delete (output as any).metadata.attributes;
       expect(devWorkspaceToDevfile(input)).toStrictEqual(output);
+    });
+
+    test('the test-devworkspace-devfile-annotation fixture should convert into test-devfile-metadata-description fixture', () => {
+      const input: any = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devworkspace-devfile-annotation.yaml', 'utf-8'),
+      );
+      const output = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devfile-metadata-description.yaml', 'utf-8'),
+      );
+      expect(devWorkspaceToDevfile(input)).toStrictEqual(output);
+    });
+
+    test('should eliminate the devworkspace devfile annotation in the case with an error', () => {
+      const input: any = yaml.load(
+        fs.readFileSync(
+          __dirname + '/fixtures/test-devworkspace-devfile-annotation-error.yaml',
+          'utf-8',
+        ),
+      );
+      const devfile = devWorkspaceToDevfile(input);
+      expect(console.debug).toBeCalledWith(
+        'Failed to parse the origin devfile. The target object is not devfile V2.',
+      );
+      expect(devfile.schemaVersion).toEqual(devfileSchemaVersion);
     });
   });
   describe('parent section', () => {

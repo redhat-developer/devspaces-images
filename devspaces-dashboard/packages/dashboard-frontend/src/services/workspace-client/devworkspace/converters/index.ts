@@ -11,12 +11,11 @@
  */
 
 import { V1alpha2DevWorkspaceSpecTemplateComponents } from '@devfile/api';
-import devfileApi from '../../../devfileApi';
+import devfileApi, { isDevfileV2 } from '../../../devfileApi';
 import { DevWorkspaceSpecTemplateAttribute } from '../../../devfileApi/devWorkspace/spec/template';
-import {
-  DEVWORKSPACE_DEVFILE_VERSION,
-  DEVWORKSPACE_METADATA_ANNOTATION,
-} from '../devWorkspaceClient';
+import { DEVWORKSPACE_DEVFILE, DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
+import { load } from 'js-yaml';
+import { helpers } from '@eclipse-che/common';
 
 export const devfileSchemaVersion = '2.2.0';
 
@@ -80,12 +79,30 @@ export function devfileToDevWorkspace(
 }
 
 export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): devfileApi.Devfile {
+  let originDevfile: devfileApi.Devfile | undefined;
+  if (devworkspace.metadata?.annotations?.[DEVWORKSPACE_DEVFILE]) {
+    try {
+      const loadedObject = load(devworkspace.metadata.annotations[DEVWORKSPACE_DEVFILE]);
+      if (isDevfileV2(loadedObject)) {
+        originDevfile = loadedObject;
+      } else {
+        throw new Error('The target object is not devfile V2.');
+      }
+    } catch (e) {
+      const errorMessage = helpers.errors.getMessage(e);
+      console.debug(`Failed to parse the origin devfile. ${errorMessage}`);
+    }
+  }
+
+  const schemaVersion = originDevfile?.schemaVersion || devfileSchemaVersion;
+  const metadata = originDevfile?.metadata || {
+    name: devworkspace.metadata.name,
+    namespace: devworkspace.metadata.namespace,
+  };
+
   const template = {
-    schemaVersion: devfileSchemaVersion,
-    metadata: {
-      name: devworkspace.metadata.name,
-      namespace: devworkspace.metadata.namespace,
-    },
+    schemaVersion,
+    metadata,
     components: [],
   } as devfileApi.Devfile;
   if (devworkspace.spec.template.parent) {
@@ -111,10 +128,6 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
     if (Object.keys(devWorkspaceAttributes).length > 0) {
       template.attributes = devWorkspaceAttributes;
     }
-  }
-  const schemaVersion = devworkspace.metadata?.annotations?.[DEVWORKSPACE_DEVFILE_VERSION];
-  if (schemaVersion) {
-    template.schemaVersion = schemaVersion;
   }
   return template;
 }

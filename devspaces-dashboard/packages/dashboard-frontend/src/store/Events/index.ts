@@ -115,7 +115,7 @@ export const actionCreators: ActionCreators = {
         const { status } = message;
 
         const errorMessage = `WebSocket(EVENT): status code ${status.code}, reason: ${status.message}`;
-        console.warn(errorMessage);
+        console.debug(errorMessage);
 
         if (status.code !== 200) {
           /* in case of error status trying to fetch all events and re-subscribe to websocket channel */

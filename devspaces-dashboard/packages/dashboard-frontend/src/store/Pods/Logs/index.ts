@@ -120,12 +120,12 @@ export const actionCreators: ActionCreators = {
         const { params, status } = message;
 
         if (!api.webSocket.isWebSocketSubscribeLogsParams(params)) {
-          console.warn('WebSocket(LOGS): unexpected message:', message);
+          console.debug('WebSocket(LOGS): unexpected message:', message);
           return;
         }
 
         const errorMessage = status.message || 'Unknown error while watching logs';
-        console.warn(`WebSocket(LOGS): status code ${status.code}, reason: ${errorMessage}`);
+        console.debug(`WebSocket(LOGS): status code ${status.code}, reason: ${errorMessage}`);
 
         /* if container name is specified, then it's a single container logs. */
 
@@ -147,7 +147,7 @@ export const actionCreators: ActionCreators = {
 
         const allPods = selectAllPods(getState());
         if (allPods.find(pod => pod.metadata?.name === params.podName) === undefined) {
-          console.warn('WebSocket(LOGS): pod not found, stop watching logs:', params.podName);
+          console.debug('WebSocket(LOGS): pod not found, stop watching logs:', params.podName);
           return;
         }
         websocketClient.subscribeToChannel(api.webSocket.Channel.LOGS, params.namespace, {

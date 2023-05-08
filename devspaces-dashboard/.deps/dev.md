@@ -969,9 +969,9 @@
 | [`whatwg-mimetype@2.3.0`](https://github.com/jsdom/whatwg-mimetype.git) | MIT | clearlydefined |
 | [`whatwg-url@8.7.0`](https://github.com/jsdom/whatwg-url.git) | MIT | clearlydefined |
 | [`which-boxed-primitive@1.0.2`](git+https://github.com/inspect-js/which-boxed-primitive.git) | MIT | clearlydefined |
-| [`which-module@2.0.0`](git+https://github.com/nexdrew/which-module.git) | ISC | clearlydefined |
+| [`which-module@2.0.0`](git+https://github.com/nexdrew/which-module.git) | ISC | #8224 |
 | [`wide-align@1.1.5`](https://github.com/iarna/wide-align) | ISC | clearlydefined |
-| [`wildcard@2.0.0`](git://github.com/DamonOehlman/wildcard.git) | MIT | clearlydefined |
+| [`wildcard@2.0.0`](git://github.com/DamonOehlman/wildcard.git) | MIT | #8274 |
 | [`word-wrap@1.2.3`](https://github.com/jonschlinkert/word-wrap.git) | MIT | clearlydefined |
 | [`wordwrap@1.0.0`](git://github.com/substack/node-wordwrap.git) | MIT | clearlydefined |
 | [`wrap-ansi@6.2.0`](https://github.com/chalk/wrap-ansi.git) | MIT | clearlydefined |

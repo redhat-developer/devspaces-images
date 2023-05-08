@@ -1,0 +1,23 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  labels: {}
+  name: nodejs-stack
+  namespace: dwclient-test
+  annotations:
+    any.custom.settings: 'true'
+    che.eclipse.org/devfile: |
+      metadata:
+        description: nodejs-stack sample
+        name: nodejs-stack
+        namespace: dwclient-test
+  uid: ''
+spec:
+  routingClass: che
+  started: true
+  template:
+    attributes:
+      author: Somebody
+      dw.metadata.annotations:
+        any.custom.settings: 'true'
+    components: []
