@@ -31,17 +31,17 @@
 }
 
 .keybinding {
-  margin: 0 3px;
   padding: 3px;
-  font-weight: bold;
   border: 1px solid #ccc;
   border-radius: 3px;
+  margin: 0 3px;
   box-shadow: inset -0.125rem -0.125rem 0.25rem -0.0625rem rgb(3 3 3 / 16%);
+  font-weight: bold;
 }
 
 .errorMessage {
   padding: 5px;
-  white-space: pre-wrap;
-  background-color: var(--pf-global--palette--red-50);
   border-radius: 3px;
+  background-color: var(--pf-global--palette--red-50);
+  white-space: pre-wrap;
 }

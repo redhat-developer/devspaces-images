@@ -2,8 +2,8 @@
   position: relative;
   top: 1px;
   display: block;
-  height: 0;
   overflow: visible;
+  height: 0;
 }
 
 .progressLine * {

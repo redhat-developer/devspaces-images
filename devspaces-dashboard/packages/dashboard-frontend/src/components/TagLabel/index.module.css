@@ -11,12 +11,12 @@
  */
 
 .versionLabel {
+  padding: 0 5px;
+  margin-left: 5px;
   background-color: var(--pf-global--BackgroundColor--100);
-  vertical-align: top;
   font-size: x-small;
   line-height: 12px;
-  margin-left: 5px;
-  padding: 0 5px;
+  vertical-align: top;
 }
 
 .versionLabel .pf-c-label__content::before {

@@ -39,7 +39,10 @@
 | [`@babel/types@7.18.4`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@bcoe/v8-coverage@0.2.3`](git://github.com/demurgos/v8-coverage.git) | MIT | clearlydefined |
 | [`@cnakazawa/watch@1.0.4`](git://github.com/mikeal/watch.git) | Apache-2.0 | clearlydefined |
-| [`@csstools/selector-specificity@2.0.2`](https://github.com/csstools/postcss-plugins.git) | CC0-1.0 | clearlydefined |
+| [`@csstools/css-parser-algorithms@2.1.1`](https://github.com/csstools/postcss-plugins.git) | MIT | #8044 |
+| [`@csstools/css-tokenizer@2.1.1`](https://github.com/csstools/postcss-plugins.git) | MIT | #8033 |
+| [`@csstools/media-query-list-parser@2.0.4`](https://github.com/csstools/postcss-plugins.git) | MIT | #8067 |
+| [`@csstools/selector-specificity@2.2.0`](https://github.com/csstools/postcss-plugins.git) | CC0-1.0 | clearlydefined |
 | [`@discoveryjs/json-ext@0.5.7`](https://github.com/discoveryjs/json-ext.git) | MIT | clearlydefined |
 | [`@eslint/eslintrc@0.4.3`](https://github.com/eslint/eslintrc.git) | MIT | clearlydefined |
 | [`@gar/promisify@1.1.3`](https://github.com/wraithgar/gar-promisify.git) | MIT | clearlydefined |
@@ -346,7 +349,6 @@
 | [`cli-width@3.0.0`](git@github.com:knownasilya/cli-width.git) | ISC | clearlydefined |
 | [`cliui@6.0.0`](http://github.com/yargs/cliui.git) | ISC | clearlydefined |
 | [`clone-deep@4.0.1`](https://github.com/jonschlinkert/clone-deep.git) | MIT | clearlydefined |
-| [`clone-regexp@2.2.0`](https://github.com/sindresorhus/clone-regexp.git) | MIT | clearlydefined |
 | [`clone@1.0.4`](git://github.com/pvorb/node-clone.git) | MIT | #2729 |
 | [`cmd-shim@4.1.0`](https://github.com/npm/cmd-shim.git) | ISC | clearlydefined |
 | [`co@4.6.0`](https://github.com/tj/co.git) | MIT | clearlydefined |
@@ -355,7 +357,7 @@
 | [`color-convert@2.0.1`](https://github.com/Qix-/color-convert.git) | MIT | clearlydefined |
 | [`color-name@1.1.4`](git@github.com:colorjs/color-name.git) | MIT | clearlydefined |
 | [`color-support@1.1.3`](git+https://github.com/isaacs/color-support.git) | ISC | clearlydefined |
-| [`colord@2.9.2`](https://github.com/omgovich/colord.git) | MIT | clearlydefined |
+| [`colord@2.9.3`](https://github.com/omgovich/colord.git) | MIT | clearlydefined |
 | [`colorette@2.0.16`](https://github.com/jorgebucaran/colorette.git) | MIT | clearlydefined |
 | [`columnify@1.6.0`](git://github.com/timoxley/columnify.git) | MIT | clearlydefined |
 | [`commander@2.20.3`](https://github.com/tj/commander.js.git) | MIT | clearlydefined |
@@ -381,10 +383,11 @@
 | [`copy-descriptor@0.1.1`](https://github.com/jonschlinkert/copy-descriptor.git) | MIT | clearlydefined |
 | [`copy-webpack-plugin@10.2.4`](https://github.com/webpack-contrib/copy-webpack-plugin.git) | MIT | clearlydefined |
 | [`core-js-pure@3.21.1`](https://github.com/zloirock/core-js.git) | MIT | clearlydefined |
-| [`cosmiconfig@7.0.1`](git+https://github.com/davidtheclark/cosmiconfig.git) | MIT | clearlydefined |
+| [`cosmiconfig@8.1.3`](git+https://github.com/cosmiconfig/cosmiconfig.git) | MIT | #7589 |
 | [`css-functions-list@3.1.0`](git+https://github.com/niksy/css-functions-list.git) | MIT | clearlydefined |
 | [`css-loader@3.6.0`](https://github.com/webpack-contrib/css-loader.git) | MIT | clearlydefined |
 | [`css-select@4.2.1`](git://github.com/fb55/css-select.git) | BSD-2-Clause | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/css-select/4.2.1) |
+| [`css-tree@2.3.1`](https://github.com/csstree/csstree.git) | MIT | clearlydefined |
 | [`css-what@5.1.0`](https://github.com/fb55/css-what) | BSD-2-Clause | clearlydefined |
 | [`css.escape@1.5.1`](https://github.com/mathiasbynens/CSS.escape.git) | MIT | clearlydefined |
 | [`css@3.0.0`](https://github.com/reworkcss/css.git) | MIT | clearlydefined |
@@ -459,7 +462,6 @@
 | [`events@3.3.0`](git://github.com/Gozala/events.git) | MIT | clearlydefined |
 | [`exec-sh@0.3.6`](git@github.com:tsertkov/exec-sh.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/exec-sh/0.3.6) |
 | [`execa@5.1.1`](https://github.com/sindresorhus/execa.git) | MIT | clearlydefined |
-| [`execall@2.0.0`](https://github.com/sindresorhus/execall.git) | MIT | clearlydefined |
 | [`exit@0.1.2`](git://github.com/cowboy/node-exit.git) | MIT | clearlydefined |
 | [`expand-brackets@2.1.4`](https://github.com/jonschlinkert/expand-brackets.git) | MIT | clearlydefined |
 | [`expect@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
@@ -497,7 +499,6 @@
 | [`get-package-type@0.1.0`](git+https://github.com/cfware/get-package-type.git) | MIT | clearlydefined |
 | [`get-pkg-repo@4.2.1`](https://github.com/conventional-changelog/get-pkg-repo.git) | MIT | clearlydefined |
 | [`get-port@5.1.1`](https://github.com/sindresorhus/get-port.git) | MIT | clearlydefined |
-| [`get-stdin@8.0.0`](https://github.com/sindresorhus/get-stdin.git) | MIT | clearlydefined |
 | [`get-symbol-description@1.0.0`](git+https://github.com/inspect-js/get-symbol-description.git) | MIT | clearlydefined |
 | [`get-value@2.0.6`](https://github.com/jonschlinkert/get-value.git) | MIT | clearlydefined |
 | [`git-raw-commits@2.0.11`](https://github.com/conventional-changelog/conventional-changelog.git) | MIT | clearlydefined |
@@ -532,7 +533,7 @@
 | [`html-entities@2.3.3`](https://github.com/mdevils/html-entities.git) | MIT | clearlydefined |
 | [`html-escaper@2.0.2`](https://github.com/WebReflection/html-escaper.git) | MIT | clearlydefined |
 | [`html-minifier-terser@6.1.0`](git+https://github.com/terser/html-minifier-terser.git) | MIT | #2968 |
-| [`html-tags@3.2.0`](https://github.com/sindresorhus/html-tags.git) | MIT | clearlydefined |
+| [`html-tags@3.3.1`](https://github.com/sindresorhus/html-tags.git) | MIT | clearlydefined |
 | [`html-webpack-plugin@5.5.0`](https://github.com/jantimon/html-webpack-plugin.git) | MIT | clearlydefined |
 | [`http-cache-semantics@4.1.0`](https://github.com/kornelski/http-cache-semantics.git) | BSD-2-Clause | clearlydefined |
 | [`http-deceiver@1.2.7`](git+ssh://git@github.com/indutny/http-deceiver.git) | MIT | clearlydefined |
@@ -644,7 +645,7 @@
 | [`just-diff@5.0.3`](https://github.com/angus-c/just) | MIT | clearlydefined |
 | [`kind-of@6.0.3`](https://github.com/jonschlinkert/kind-of.git) | MIT | clearlydefined |
 | [`kleur@3.0.3`](https://github.com/lukeed/kleur.git) | MIT | clearlydefined |
-| [`known-css-properties@0.25.0`](https://github.com/known-css/known-css-properties.git) | MIT | clearlydefined |
+| [`known-css-properties@0.27.0`](https://github.com/known-css/known-css-properties.git) | MIT | clearlydefined |
 | [`lerna@5.1.8`](git+https://github.com/lerna/lerna.git) | MIT | clearlydefined |
 | [`levn@0.4.1`](git://github.com/gkz/levn.git) | MIT | clearlydefined |
 | [`libnpmaccess@4.0.3`](https://github.com/npm/libnpmaccess.git) | ISC | clearlydefined |
@@ -668,6 +669,7 @@
 | [`map-obj@1.0.1`](https://github.com/sindresorhus/map-obj.git) | MIT | clearlydefined |
 | [`map-visit@1.0.0`](https://github.com/jonschlinkert/map-visit.git) | MIT | clearlydefined |
 | [`mathml-tag-names@2.1.3`](https://github.com/wooorm/mathml-tag-names.git) | MIT | clearlydefined |
+| [`mdn-data@2.0.30`](https://github.com/mdn/data.git) | CC0-1.0 | clearlydefined |
 | [`media-typer@0.3.0`](https://github.com/jshttp/media-typer.git) | MIT | clearlydefined |
 | [`memfs@3.4.3`](https://github.com/streamich/memfs.git) | Unlicense | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/memfs/3.4.3) |
 | [`memory-fs@0.5.0`](https://github.com/webpack/memory-fs.git) | MIT | clearlydefined |
@@ -890,13 +892,14 @@
 | [`strong-log-transformer@2.1.0`](git://github.com/strongloop/strong-log-transformer) | Apache-2.0 | #1138 |
 | [`style-loader@3.3.1`](https://github.com/webpack-contrib/style-loader.git) | MIT | clearlydefined |
 | [`style-search@0.1.0`](git+https://github.com/davidtheclark/style-search.git) | ISC | clearlydefined |
-| [`stylelint-config-recommended@8.0.0`](https://github.com/stylelint/stylelint-config-recommended.git) | MIT | clearlydefined |
-| [`stylelint-config-standard@26.0.0`](https://github.com/stylelint/stylelint-config-standard.git) | MIT | clearlydefined |
+| [`stylelint-config-idiomatic-order@9.0.0`](git+https://github.com/ream88/stylelint-config-idiomatic-order.git) | MIT | clearlydefined |
+| [`stylelint-config-recommended@12.0.0`](https://github.com/stylelint/stylelint-config-recommended.git) | MIT | #8039 |
+| [`stylelint-config-standard@33.0.0`](https://github.com/stylelint/stylelint-config-standard.git) | MIT | #8038 |
 | [`stylelint-order@5.0.0`](https://github.com/hudochenkov/stylelint-order.git) | MIT | clearlydefined |
-| [`stylelint-webpack-plugin@3.3.0`](https://github.com/webpack-contrib/stylelint-webpack-plugin.git) | MIT | clearlydefined |
-| [`stylelint@14.9.1`](https://github.com/stylelint/stylelint.git) | MIT | clearlydefined |
+| [`stylelint-webpack-plugin@4.1.1`](https://github.com/webpack-contrib/stylelint-webpack-plugin.git) | MIT | clearlydefined |
+| [`stylelint@15.6.1`](https://github.com/stylelint/stylelint.git) | MIT | #8034 |
 | [`supports-color@7.2.0`](https://github.com/chalk/supports-color.git) | MIT | clearlydefined |
-| [`supports-hyperlinks@2.2.0`](https://github.com/jamestalmage/supports-hyperlinks.git) | MIT | clearlydefined |
+| [`supports-hyperlinks@3.0.0`](https://github.com/jamestalmage/supports-hyperlinks.git) | MIT | clearlydefined |
 | [`svg-tags@1.0.0`](git://github.com/element-io/svg-tags.git) | MIT | clearlydefined |
 | [`symbol-tree@3.2.4`](https://github.com/jsdom/js-symbol-tree.git) | MIT | clearlydefined |
 | [`table@6.8.0`](https://github.com/gajus/table) | BSD-3-Clause | #4596 |

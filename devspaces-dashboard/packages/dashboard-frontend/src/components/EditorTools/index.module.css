@@ -16,8 +16,8 @@
 }
 
 .editorTools > * {
-  float: right;
   height: inherit;
+  float: right;
   font-size: small;
   user-select: none;
 }

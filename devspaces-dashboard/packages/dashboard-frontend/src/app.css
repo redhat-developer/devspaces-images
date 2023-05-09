@@ -21,11 +21,11 @@ body {
 .page-description {
   min-height: 30px;
   padding: 5px 25px;
-  color: #6e6e6e;
-  font-size: 14px;
-  background-color: #ededed;
   border-top: 1px solid #cbcbcb;
   border-bottom: 1px solid #cbcbcb;
+  background-color: #ededed;
+  color: #6e6e6e;
+  font-size: 14px;
 }
 
 .page-description a {
@@ -47,31 +47,25 @@ div.tippy-popper a:hover {
 
 div.main-page-loader {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   z-index: 80;
   margin: auto;
-  color: #fff;
-  font-size: 24px;
-  font-family: Helvetica, Arial, sans-serif;
   background-color: #000;
+  color: #fff;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  inset: 0;
 }
 
 div.main-page-loader .ide-page-loader-content img {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   max-width: 140px;
   max-height: 140px;
   margin: auto;
-  animation-name: opacity;
   animation-duration: 2s;
-  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  animation-name: opacity;
+  animation-timing-function: ease-in-out;
+  inset: 0;
 }
 
 @keyframes opacity {
@@ -99,12 +93,12 @@ div.main-page-loader .ide-page-loader-content img {
 
 .header-buttons .pf-c-button {
   padding: 0 15px;
-  color: #fff;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 36px;
-  background-color: #4a90e2;
   border-radius: 2px;
+  background-color: #4a90e2;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 36px;
 }
 
 .header-buttons + section.pf-c-page__main-section {
@@ -113,44 +107,44 @@ div.main-page-loader .ide-page-loader-content img {
 }
 
 .show-header {
-  animation-name: show;
   animation-duration: 0.1s;
+  animation-name: show;
   animation-timing-function: linear;
 }
 
 @keyframes show {
   0% {
+    overflow: hidden;
     min-height: 0;
     max-height: 0;
-    overflow: hidden;
   }
 
   100% {
+    overflow: visible;
     min-height: 57px;
     max-height: 57px;
-    overflow: visible;
   }
 }
 
 .hide-header {
+  overflow: hidden;
   min-height: 0;
   max-height: 0;
-  overflow: hidden;
-  animation-name: hide;
   animation-duration: 0.1s;
+  animation-name: hide;
   animation-timing-function: linear;
 }
 
 @keyframes hide {
   0% {
+    overflow: visible;
     min-height: 57px;
     max-height: 57px;
-    overflow: visible;
   }
 
   100% {
+    overflow: hidden;
     min-height: 0;
     max-height: 0;
-    overflow: hidden;
   }
 }

@@ -23,8 +23,8 @@
 }
 
 .navItem > span {
-  width: calc(100% - 12px);
   overflow: hidden;
+  width: calc(100% - 12px);
   text-overflow: ellipsis;
 }
 

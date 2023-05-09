@@ -8,10 +8,10 @@
 }
 
 .rotate {
-  animation-name: spinnerRotate;
   animation-duration: 1s;
-  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  animation-name: spinnerRotate;
+  animation-timing-function: ease-in-out;
 }
 
 @keyframes spinnerRotate {

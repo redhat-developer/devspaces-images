@@ -1,7 +1,7 @@
 .workspaceStatus,
 .disabledWorkspaceStatus {
-  margin-right: 10px;
   padding-bottom: 0;
+  margin-right: 10px;
 }
 
 .workspaceStatus > *,
@@ -29,8 +29,8 @@
 }
 
 .infoModalHeader {
-  font-weight: bold;
   font-size: larger;
+  font-weight: bold;
 }
 
 .infoModalHeader svg {

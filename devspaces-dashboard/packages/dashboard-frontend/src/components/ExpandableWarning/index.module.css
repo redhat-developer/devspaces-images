@@ -11,8 +11,8 @@
  */
 
 .error {
-  border-top: 2px solid;
   border-color: var(--pf-global--palette--red-100);
+  border-top: 2px solid;
   background-color: var(--pf-global--palette--red-50);
 }
 
@@ -23,6 +23,6 @@
 
 .hideOverflow {
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
