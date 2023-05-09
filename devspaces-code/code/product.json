@@ -98,6 +98,8 @@
 		"serviceUrl": "https://open-vsx.org/vscode/gallery",
 		"itemUrl": "https://open-vsx.org/vscode/item"
 	},
+	"welcomePageTitle": "Red Hat OpenShift Dev Spaces",
+	"welcomePageSubtitle": "with Microsoft Visual Studio Code - Open Source IDE",
 	"workbenchConfigFilePath": "workbench-config.json",
 	"codiconCssFilePath": "css/codicon.css",
 	"icons": {
