@@ -33,8 +33,8 @@ export class FactoryLocationAdapter implements FactoryLocation {
     const [pathname, search] = href.split('?');
     const sanitizedLocation = sanitizeLocation({ search, pathname } as Location);
 
+    this.pathname = sanitizedLocation.pathname;
     this.search = new window.URLSearchParams(sanitizedLocation.search);
-    this.pathname = pathname;
 
     if (FactoryLocationAdapter.isFullPathUrl(sanitizedLocation.pathname)) {
       this.fullPathUrl = sanitizedLocation.pathname;
@@ -76,7 +76,7 @@ export class FactoryLocationAdapter implements FactoryLocation {
   public toString(): string {
     const search = this.search.toString();
     if (search) {
-      return this.pathname + '?' + this.search.toString();
+      return this.pathname + '?' + search;
     }
     return this.pathname;
   }

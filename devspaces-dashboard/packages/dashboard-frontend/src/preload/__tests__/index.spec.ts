@@ -114,6 +114,15 @@ describe('Location test', () => {
       );
     });
 
+    test('image parameter', () => {
+      const result = buildFactoryLoaderPath(
+        'https://github.com/che-samples/java-spring-petclinic/tree/devfilev2?image=quay.io/devfile/universal-developer-image:latest',
+      );
+      expect(result).toEqual(
+        '/f?image=quay.io%2Fdevfile%2Funiversal-developer-image%3Alatest&url=https%3A%2F%2Fgithub.com%2Fche-samples%2Fjava-spring-petclinic%2Ftree%2Fdevfilev2',
+      );
+    });
+
     test('unsupported parameter', () => {
       const result = buildFactoryLoaderPath(
         'https://github.com/che-samples/java-spring-petclinic/tree/devfilev2?unsupportedParameter=foo',
