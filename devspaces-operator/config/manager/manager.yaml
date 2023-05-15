@@ -48,15 +48,12 @@ spec:
               name: metrics
           env:
             - name: CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT
-              value: 'Microsoft Visual Studio Code - Open Source is the default <a
-                href=''https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/user_guide/index#selecting-a-workspace-ide''>editor</a>
-                for new workspaces. Eclipse Theia is <a href=''https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.7/html-single/release_notes_and_known_issues/index#removed-functionalities''>no
-                longer supported</a>.'
+              value: ''
             - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:9cee4d56859cdbc85361e845d6a7c97cf3c8f2b7b946c2794288455fc7636ab9"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:fe29da92ed90062727be74782dfbb4e40849f569ea0ebd51cf013508480e1c97"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -95,10 +92,6 @@ spec:
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.11
             - name: RELATED_IMAGE_plugin_registry
               value: registry.redhat.io/devspaces/pluginregistry-rhel8:3.7
-            - name: RELATED_IMAGE_postgres
-              value: registry.redhat.io/rhel8/postgresql-96:1
-            - name: RELATED_IMAGE_postgres_13_3
-              value: registry.redhat.io/rhel8/postgresql-13:1
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.6
             - name: RELATED_IMAGE_single_host_gateway
