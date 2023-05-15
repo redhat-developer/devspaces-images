@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021-22 Red Hat, Inc.
+# Copyright (c) 2021-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -22,8 +22,6 @@ CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
 UBI_TAG=8.6
-POSTGRES_TAG=1
-POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
 OPENSHIFT_TAG="v4.11"
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
@@ -46,8 +44,6 @@ usage () {
 	echo "Options:
 	--ds-tag ${DS_VERSION}
 	--ubi-tag ${UBI_TAG}
-	--postgres-tag ${POSTGRES_TAG}
-	--postgres13-tag ${POSTGRES13_TAG}
 	--openshift-tag ${OPENSHIFT_TAG}
 	"
 	exit
@@ -70,8 +66,6 @@ while [[ "$#" -gt 0 ]]; do
 	# optional tag overrides
 	'--ds-tag') DS_VERSION="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
-	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
-	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
 	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
   esac
   shift 1
@@ -99,8 +93,6 @@ UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 UDI_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1) # get 3.5-16, not 3.5-16.1678881134
 UDI_IMAGE_TAG=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${UDI_VERSION_ZZZ} | yq -r '.Digest')
 UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@${UDI_IMAGE_TAG}"
-POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
-POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES13_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
@@ -216,9 +208,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|registry.redhat.io/ubi8/ubi-minimal:.+|${UBI_IMAGE}|" \
 		-e "s|registry.access.redhat.com/ubi8/ubi-minimal:.+|${UBI_IMAGE}|g" \
 		\
-		-e "s|centos/postgresql-96-centos7:9.6|${POSTGRES_IMAGE}|" \
-		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
-		\
 		`# use internal image for operator, as devspaces-operator only exists in RHEC and Quay repos` \
 		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${DS_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
@@ -275,10 +264,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 
-		# TODO https://issues.redhat.com/browse/CRW-4105 remove these once fully removed upstream 
-		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
-		["RELATED_IMAGE_postgres_13_3"]="${POSTGRES13_IMAGE}" # CRW-2180 - new @since 2.13
-	
 		# CRW-2303 - @since 2.12 DWO only (but needs to be available even on non-DWO installs)
 		["RELATED_IMAGE_gateway_authentication_sidecar"]="${OAUTH_PROXY_IMAGE}"
 		["RELATED_IMAGE_gateway_authorization_sidecar"]="${RBAC_PROXY_IMAGE}"
