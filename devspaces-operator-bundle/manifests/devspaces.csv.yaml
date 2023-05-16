@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.7
-    createdAt: "2023-05-15T15:09:47+00:00"
+    createdAt: "2023-05-16T13:12:08+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -463,7 +463,7 @@ spec:
         version: v1
   description: |
     A collaborative Kubernetes-native development solution that delivers OpenShift workspaces and in-browser IDE for rapid cloud application development.
-    This operator installs PostgreSQL, Plugin and Devfile registries, Dashboard, Gateway and the Red Hat OpenShift Dev Spaces server, as well as configures all these services.
+    This operator installs the Plugin and Devfile registries, Dashboard, Gateway and the Red Hat OpenShift Dev Spaces server, and configures these services.
     OpenShift OAuth is used directly for authentication. TLS mode is on.
 
     ## How to Install
@@ -475,7 +475,6 @@ spec:
     By default, the operator deploys Red Hat OpenShift Dev Spaces with:
     * 10Gi storage
     * Auto-generated passwords
-    * Bundled PostgreSQL
     * Bundled Plugin and Devfile registries
 
     Use `oc edit checluster/eclipse-che -n eclipse-che` to update Red Hat OpenShift Dev Spaces default installation options.
