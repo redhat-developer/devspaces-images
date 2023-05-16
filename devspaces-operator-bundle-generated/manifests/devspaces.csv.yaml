@@ -58,8 +58,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b983a4a6a5b04c932888152633b2202e197ed03d511805be4cfa63182d909a8a
-    createdAt: "2023-05-15T15:09:47+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c93971114ffc3436c8e31bbb1b028d1d498f0832d5b0814d979bac9a5c4fc2ae
+    createdAt: "2023-05-16T13:12:08+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -409,7 +409,7 @@ spec:
       version: v1
   description: |
     A collaborative Kubernetes-native development solution that delivers OpenShift workspaces and in-browser IDE for rapid cloud application development.
-    This operator installs PostgreSQL, Plugin and Devfile registries, Dashboard, Gateway and the Red Hat OpenShift Dev Spaces server, as well as configures all these services.
+    This operator installs the Plugin and Devfile registries, Dashboard, Gateway and the Red Hat OpenShift Dev Spaces server, and configures these services.
     OpenShift OAuth is used directly for authentication. TLS mode is on.
 
     ## How to Install
@@ -421,7 +421,6 @@ spec:
     By default, the operator deploys Red Hat OpenShift Dev Spaces with:
     * 10Gi storage
     * Auto-generated passwords
-    * Bundled PostgreSQL
     * Bundled Plugin and Devfile registries
 
     Use `oc edit checluster/eclipse-che -n eclipse-che` to update Red Hat OpenShift Dev Spaces default installation options.
@@ -918,7 +917,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b983a4a6a5b04c932888152633b2202e197ed03d511805be4cfa63182d909a8a
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c93971114ffc3436c8e31bbb1b028d1d498f0832d5b0814d979bac9a5c4fc2ae
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1255,10 +1254,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.5.0
   relatedImages:
-  - name: devspaces-rhel8-operator-b983a4a6a5b04c932888152633b2202e197ed03d511805be4cfa63182d909a8a-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b983a4a6a5b04c932888152633b2202e197ed03d511805be4cfa63182d909a8a
+  - name: devspaces-rhel8-operator-c93971114ffc3436c8e31bbb1b028d1d498f0832d5b0814d979bac9a5c4fc2ae-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c93971114ffc3436c8e31bbb1b028d1d498f0832d5b0814d979bac9a5c4fc2ae
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:b983a4a6a5b04c932888152633b2202e197ed03d511805be4cfa63182d909a8a
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c93971114ffc3436c8e31bbb1b028d1d498f0832d5b0814d979bac9a5c4fc2ae
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:0e3ec9ac338b259b1386554998e4f1ce23f6777ab68a0f1483a9105e970735d3
   - name: dashboard
