@@ -339,11 +339,9 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
         variant: AlertVariant.warning,
         children: (
           <ExpandableWarning
-            textBefore="Looking for a Devfile in the git repository failed."
+            textBefore="Could not find any devfile in the Git repository"
             errorMessage={helpers.errors.getMessage(error)}
-            textAfter="The git provider may not be supported by Eclipse Che (or the git server hasn't been configured
-            appropriately). Note that the git cloning of the repository will succeed if it's public or it's private
-            and the developer git credentials secret has been configured."
+            textAfter="The Git provider is not supported."
           />
         ),
         actionCallbacks: [
