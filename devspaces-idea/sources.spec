@@ -13,3 +13,10 @@ Distribution: Red Hat
 Vendor: Red Hat
 %description
 This is a dirty hack for https://issues.redhat.com/browse/CRW-4328 and https://pagure.io/rpkg/issue/684
+
+# workaround for https://issues.redhat.com/browse/CRW-4378 - must list all the files already in the sources file, because reasons.
+Source001: asset-ide-packaging.tar.gz
+Source002: asset-projector-server-assembly.zip
+Source003: asset-static-assembly.tar.gz
+Source004: asset-che-plugin-assembly.zip
+Source005: asset-machine-exec
