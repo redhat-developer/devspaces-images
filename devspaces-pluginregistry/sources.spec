@@ -15,6 +15,7 @@ Vendor: Red Hat
 This is a dirty hack for https://issues.redhat.com/browse/CRW-4328 and https://pagure.io/rpkg/issue/684
 
 # workaround for https://issues.redhat.com/browse/CRW-4378 - must list all the files already in the sources file, because reasons.
-Source001: resources.tgz
-Source002: openvsx-server.tar.gz
-Source003: ovsx.tar.gz
+Source001: root-local.tgz
+Source002: resources.tgz
+Source003: openvsx-server.tar.gz
+Source004: ovsx.tar.gz
