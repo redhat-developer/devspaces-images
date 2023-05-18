@@ -12,4 +12,7 @@ URL: https://github.com/redhat-developer/devspaces-images/
 Distribution: Red Hat
 Vendor: Red Hat
 %description
-This is a dirty hack for https://issues.redhat.com/browse/CRW-4328 and https://pagure.io/rpkg/issue/684
+This is a dirty hack for https://issues.redhat.com/browse/CRW-4328 and https://pagure.io/rpkg/issue/684Source001: root-local.tgz
+
+# workaround for https://issues.redhat.com/browse/CRW-4378 - must list all the files already in the sources file, because reasons.
+Source001: resources.tgz
