@@ -107,6 +107,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 		TARGZs="${TARGZs} root-local.tgz"
 	else
 		TAR_DIFF="No such file root-local.tgz -- could not fetch from 'rhpkg sources'"
+		TARGZs="${TARGZs} root-local.tgz"
 	fi
 	if [[ ${TAR_DIFF} ]]; then
 		echo "DIFF START *****"
