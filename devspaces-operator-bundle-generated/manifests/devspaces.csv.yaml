@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:bb6eb3e1fb5a13d0d8961c127147a55675441f4ef964106c1167d7933f1f81d0
-    createdAt: "2023-05-19T22:41:19+00:00"
+    createdAt: "2023-05-19T23:05:31+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -852,7 +852,7 @@ spec:
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
                   value: ''
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
-                  value: '[{"name": "universal-developer-image", "container": {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:fe29da92ed90062727be74782dfbb4e40849f569ea0ebd51cf013508480e1c97"}}]'
+                  value: '[{"name": "universal-developer-image", "container": {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:a1b83269301c5df07cb4bdccb811e8c9ad5d308a746d54d7744bffc0c0c3ff34"}}]'
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
                   value: che-incubator/che-code/latest
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -892,9 +892,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDOCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:21a57e4e6d70329916a86c5d80a24ffe71214e2e2c534a84a463a3dd9b3e98d9
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:fe29da92ed90062727be74782dfbb4e40849f569ea0ebd51cf013508480e1c97
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:a1b83269301c5df07cb4bdccb811e8c9ad5d308a746d54d7744bffc0c0c3ff34
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDOCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:fe29da92ed90062727be74782dfbb4e40849f569ea0ebd51cf013508480e1c97
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:a1b83269301c5df07cb4bdccb811e8c9ad5d308a746d54d7744bffc0c0c3ff34
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:eb951af6132643b224d10a1f4dd193964187b61b10aaaefdd012fcde15533043
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1273,9 +1273,9 @@ spec:
   - name: devspaces_idea_plugin_registry_image_gmxdocq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:21a57e4e6d70329916a86c5d80a24ffe71214e2e2c534a84a463a3dd9b3e98d9
   - name: devspaces_udi_devfile_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:fe29da92ed90062727be74782dfbb4e40849f569ea0ebd51cf013508480e1c97
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:a1b83269301c5df07cb4bdccb811e8c9ad5d308a746d54d7744bffc0c0c3ff34
   - name: devspaces_udi_plugin_registry_image_gmxdocq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:fe29da92ed90062727be74782dfbb4e40849f569ea0ebd51cf013508480e1c97
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:a1b83269301c5df07cb4bdccb811e8c9ad5d308a746d54d7744bffc0c0c3ff34
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:eb951af6132643b224d10a1f4dd193964187b61b10aaaefdd012fcde15533043
   - name: gateway_authentication_sidecar
