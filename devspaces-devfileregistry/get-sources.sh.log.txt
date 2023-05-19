@@ -1,0 +1,615 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-127 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-127 AS builder
+STEP 2/23: USER 0
+--> 55ee5cdf346
+STEP 3/23: ARG BOOTSTRAP=true
+--> 04f9295fe4e
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 873570502d4
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> e88b996f030
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 67ed91a4d32
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> deb097784fa
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> fa35e614cfa
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 7a0ea88034b
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> ae4ef9e1ab0
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.x86_64                 
+  criu-3.15-3.module+el8.8.0+18060+3f21f2cc.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/f7/00/144b1dbfcd62c50475b4c6fb09d832ac553e3a0fd969d31bdc608852084b/yq-3.2.2-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/ab/ce/2141e1cabe39c90e01fde7feb44c07867fb49bf1c0c091d68fd8924fd6a2/argcomplete-3.0.8-py3-none-any.whl (40kB)
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting tomlkit>=0.11.6
+  Downloading https://files.pythonhosted.org/packages/ef/a8/b1c193be753c02e2a94af6e37ee45d3378a74d44fe778c2434a63af92731/tomlkit-0.11.8-py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Installing collected packages: PyYAML, tomlkit, argcomplete, xmltodict, yq
+Successfully installed PyYAML-6.0 argcomplete-3.0.8 tomlkit-0.11.8 xmltodict-0.13.0 yq-3.2.2
+python: Python 3.8.16
+yq: yq 3.2.2
+jq: jq-1.6
+--> d30a1d23274
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 227f2b7ea76
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> db871e63b97
+STEP 14/23: COPY ./VERSION /
+--> 565e370620e
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> f60e30b248a
+STEP 16/23: WORKDIR /build/
+--> 7a6a3cde627
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-638fadc
+added 119 packages from 183 contributors and audited 119 packages in 9.926s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 2 vulnerabilities (1 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 652aca7a426
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> e9012bbf1a0
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.7 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.7 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.7 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/code-rhel8:3.7 PASS - 3.7 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.7 PASS - 3.7 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.7 PASS - 3.7 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 62ff438763e
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 346a2b208fc
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> f226ec72f49
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 02e9f505743
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 9692a5e2bc4
+Successfully tagged localhost/devfileregistry:tmp
+9692a5e2bc46a45d66432f691a14c57bdd162de5079e884084ef5fd81d6a1330
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.wJtZKVCNzN/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
+--- /tmp/tmp.wJtZKVCNzN/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2023-05-18 07:39:56.000000000 -0400
++++ /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2023-05-19 18:09:25.307676826 -0400
+@@ -3,10 +3,10 @@
+ Version: 6.0
+ Summary: YAML parser and emitter for Python
+ Home-page: https://pyyaml.org/
+-Download-URL: https://pypi.org/project/PyYAML/
+ Author: Kirill Simonov
+ Author-email: xi@resolvent.net
+ License: MIT
++Download-URL: https://pypi.org/project/PyYAML/
+ Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
+ Project-URL: CI, https://github.com/yaml/pyyaml/actions
+ Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
+@@ -43,3 +43,4 @@
+ 
+ PyYAML is applicable for a broad range of tasks from complex
+ configuration files to object serialization and persistence.
++
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.wJtZKVCNzN/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
+--- /tmp/tmp.wJtZKVCNzN/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2023-05-18 07:39:56.000000000 -0400
++++ /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2023-05-19 18:09:25.307676826 -0400
+@@ -1,8 +1,8 @@
+ PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+-PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
++PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
+ PyYAML-6.0.dist-info/RECORD,,
+-PyYAML-6.0.dist-info/WHEEL,sha256=q64M4lAWOr6eqbs0L0fvZKS87xBNWz2Lb7YBpE1K7J4,104
++PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
+ PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-38.pyc,,
+@@ -24,6 +24,7 @@
+ yaml/__pycache__/scanner.cpython-38.pyc,,
+ yaml/__pycache__/serializer.cpython-38.pyc,,
+ yaml/__pycache__/tokens.cpython-38.pyc,,
++yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.wJtZKVCNzN/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
+--- /tmp/tmp.wJtZKVCNzN/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2023-05-18 07:39:56.000000000 -0400
++++ /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2023-05-19 18:09:25.307676826 -0400
+@@ -1,5 +1,8 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.40.0)
++Generator: bdist_wheel (0.37.0)
+ Root-Is-Purelib: false
+-Tag: cp38-cp38-linux_ppc64le
++Tag: cp38-cp38-manylinux_2_5_x86_64
++Tag: cp38-cp38-manylinux1_x86_64
++Tag: cp38-cp38-manylinux_2_12_x86_64
++Tag: cp38-cp38-manylinux2010_x86_64
+ 
+Only in /tmp/tmp.XJLYtReW30/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/external_images_by_devfile.txt /tmp/tmp.sho8sOIWlN/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.rFWZ9GziM0/devfiles/external_images_by_devfile.txt	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/external_images_by_devfile.txt	2023-05-19 18:09:26.132676826 -0400
+@@ -1,57 +1,57 @@
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/index.json /tmp/tmp.sho8sOIWlN/devfiles/index.json
+--- /tmp/tmp.rFWZ9GziM0/devfiles/index.json	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/index.json	2023-05-19 18:09:26.132676826 -0400
+@@ -11,7 +11,7 @@
+     ],
+     "icon": "/images/type-lombok.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml",
+@@ -31,7 +31,7 @@
+     ],
+     "icon": "/images/type-quarkus.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml",
+@@ -51,7 +51,7 @@
+     ],
+     "icon": "/images/type-node.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml",
+@@ -70,7 +70,7 @@
+     ],
+     "icon": "/images/type-node.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml",
+@@ -88,7 +88,7 @@
+     ],
+     "icon": "/images/type-python.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml",
+@@ -112,7 +112,7 @@
+     ],
+     "icon": "/images/type-cpp.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml",
+@@ -135,7 +135,7 @@
+     ],
+     "icon": "/images/type-dotnet.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml",
+@@ -154,7 +154,7 @@
+     ],
+     "icon": "/images/type-go.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml",
+@@ -172,7 +172,7 @@
+     ],
+     "icon": "/images/type-php.svg",
+     "links": {
+-      "v2": "https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8",
++      "v2": "https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8",
+       "devWorkspaces": {
+         "che-incubator/che-idea/latest": "/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml",
+         "che-incubator/che-code/insiders": "/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml",
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml	2023-05-19 18:09:26.133676826 -0400
+@@ -8,7 +8,7 @@
+   - UBI8
+ icon: /images/type-lombok.svg
+ links:
+-  v2: https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml	2023-05-19 18:09:26.133676826 -0400
+@@ -8,7 +8,7 @@
+   - UBI8
+ icon: /images/type-quarkus.svg
+ links:
+-  v2: https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/nodejs__nodejs-mongodb-sample/meta.yaml	2023-05-19 18:09:26.133676826 -0400
+@@ -8,7 +8,7 @@
+   - UBI8
+ icon: /images/type-node.svg
+ links:
+-  v2: https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/nodejs__web-nodejs-sample/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/nodejs__web-nodejs-sample/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/nodejs__web-nodejs-sample/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/nodejs__web-nodejs-sample/meta.yaml	2023-05-19 18:09:26.133676826 -0400
+@@ -7,7 +7,7 @@
+   - UBI8
+ icon: /images/type-node.svg
+ links:
+-  v2: https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/python__python-hello-world/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/python__python-hello-world/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/python__python-hello-world/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/python__python-hello-world/meta.yaml	2023-05-19 18:09:26.133676826 -0400
+@@ -6,7 +6,7 @@
+   - UBI8
+ icon: /images/type-python.svg
+ links:
+-  v2: https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/TP__cpp__c-plus-plus/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/TP__cpp__c-plus-plus/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/TP__cpp__c-plus-plus/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/TP__cpp__c-plus-plus/meta.yaml	2023-05-19 18:09:26.132676826 -0400
+@@ -12,7 +12,7 @@
+   - UBI8
+ icon: /images/type-cpp.svg
+ links:
+-  v2: https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/TP__dotnet__dotnet-web-simple/meta.yaml	2023-05-19 18:09:26.132676826 -0400
+@@ -11,7 +11,7 @@
+   - UBI8
+ icon: /images/type-dotnet.svg
+ links:
+-  v2: https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/TP__go__golang-health-check/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/TP__go__golang-health-check/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/TP__go__golang-health-check/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/TP__go__golang-health-check/meta.yaml	2023-05-19 18:09:26.132676826 -0400
+@@ -7,7 +7,7 @@
+   - UBI8
+ icon: /images/type-go.svg
+ links:
+-  v2: https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.rFWZ9GziM0/devfiles/TP__php__php-hello-world/meta.yaml /tmp/tmp.sho8sOIWlN/devfiles/TP__php__php-hello-world/meta.yaml
+--- /tmp/tmp.rFWZ9GziM0/devfiles/TP__php__php-hello-world/meta.yaml	2023-05-18 07:39:57.000000000 -0400
++++ /tmp/tmp.sho8sOIWlN/devfiles/TP__php__php-hello-world/meta.yaml	2023-05-19 18:09:26.133676826 -0400
+@@ -6,7 +6,7 @@
+   - UBI8
+ icon: /images/type-php.svg
+ links:
+-  v2: https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8
++  v2: https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3.7-rhel-8
+   devWorkspaces:
+     che-incubator/che-idea/latest: /devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml
+     che-incubator/che-code/insiders: /devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 9692a5e2bc46a45d66432f691a14c57bdd162de5079e884084ef5fd81d6a1330
+Deleted: 02e9f5057437522a9ce840e0821844e9ecf6f87842f12add764f0a9d7ce5ddd5
+Deleted: f226ec72f4950135ba225ad136b8500198f4e92e6e8e32670114c094f995390f
+Deleted: 346a2b208fc2f02f61ad809a917ae130386efba35cb42224e064178c953f9131
+Deleted: 62ff438763e59f90fd35f2bf7c5d0e8b724893f79489692bc71dae4a32951479
+Deleted: e9012bbf1a0a65a1557bf29bbf0551cd65bfe5747d8ada97538c34418b0dc509
+Deleted: 652aca7a426b0db60512475b5cfb8de8ebf02d051f60854793a2c36f1276cc22
+Deleted: 7a6a3cde62782e3cde792cbc8ddd4e8c3e08a08764f76993ddec2f613087ee9e
+Deleted: f60e30b248ab9b9b726927060c19d18c2fbbb42140a93a6f9ceb5a51b03bdfbc
+Deleted: 565e370620e4dfe49fbd0c29efb9bdf01764d618c5b8baf9fe1a9047b79cbfb2
+Deleted: db871e63b9700507618a7481b87c840dd293599fdef7471aef1967b468e967a1
+Deleted: 227f2b7ea76cf51383e7e52cf6d5000828cb7dd90b9c2f87b8c258c0fdfffd3d
+Deleted: d30a1d23274714286ece79799f3757d841bdc5bda4ed0ccbc1e629f6de7c6de3
+Deleted: ae4ef9e1ab09b377d6045e4a67c70c80a158e85f20bfedb841c5ef8cf773f9aa
+Deleted: 7a0ea88034b19a5537f369c6b840af30f170d26065b04bd96d1d77bc0a1f5283
+Deleted: fa35e614cfae0f5af525524a811f7c368a77e93265fb1166b8652fce5e167a7a
+Deleted: deb097784fad2da378509bee192a07f4bb523e11dd2f5245fa9f5b254bfe5e19
+Deleted: 67ed91a4d32396e16cc9854efef367c13c5f74e986fefbd94ed1c7e035bd4153
+Deleted: e88b996f030ea591e24b7e6a5ddce40797bb47821ed016fc5f2d096bd55e4da2
+Deleted: 873570502d4aa4c524a5dcf2a596a8027c7c36e72c2847055ef96612c5df5299
+Deleted: 04f9295fe4ed539c3fe723de332f296d7fdc8092a955acf2deefae919da96d77
+Deleted: 55ee5cdf3468538f8ed80067cb50e3fd2341adc14a62df96a8951aebca71455d
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
