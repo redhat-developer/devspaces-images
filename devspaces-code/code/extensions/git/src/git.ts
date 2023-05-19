@@ -2020,8 +2020,7 @@ export class Repository {
 			args.push('--ignore-submodules');
 		}
 
-		// --find-renames option is only available starting with git 2.18.0
-		if (opts?.similarityThreshold && this._git.compareGitVersionTo('2.18.0') !== -1) {
+		if (opts?.similarityThreshold) {
 			args.push(`--find-renames=${opts.similarityThreshold}%`);
 		}
 

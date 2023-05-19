@@ -188,7 +188,7 @@ class InteractiveQuickPickSession extends Disposable {
 			options,
 			{
 				getListLength: () => {
-					return 1;
+					return this._viewModel.getItems().length;
 				},
 				getSlashCommands() {
 					return [];

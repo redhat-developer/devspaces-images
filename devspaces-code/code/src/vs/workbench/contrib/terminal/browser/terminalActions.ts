@@ -266,12 +266,7 @@ export function registerTerminalActions() {
 		id: TerminalCommandId.MoveToTerminalPanel,
 		title: terminalStrings.moveToTerminalPanel,
 		precondition: ContextKeyExpr.and(ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated), TerminalContextKeys.terminalEditorActive),
-		run: (c, _, args) => {
-			const source = toOptionalUri(args) ?? c.editorService.activeInstance;
-			if (source) {
-				c.service.moveToTerminalView(source);
-			}
-		}
+		run: (c, _, args) => c.service.moveToTerminalView(toOptionalUri(args))
 	});
 
 	registerTerminalAction({

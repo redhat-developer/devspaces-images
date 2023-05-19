@@ -16,6 +16,17 @@ import { ResourceMap } from '../utils/resourceMap';
 import { API } from './api';
 import type * as Proto from './protocol/protocol';
 
+const enum BufferLanguage {
+	TypeScript = 1,
+	JavaScript = 2,
+}
+
+const enum BufferState {
+	Initial = 1,
+	Open = 2,
+	Closed = 2,
+}
+
 type ScriptKind = 'TS' | 'TSX' | 'JS' | 'JSX';
 
 function mode2ScriptKind(mode: string): ScriptKind | undefined {
@@ -27,8 +38,6 @@ function mode2ScriptKind(mode: string): ScriptKind | undefined {
 	}
 	return undefined;
 }
-
-const enum BufferState { Initial, Open, Closed }
 
 const enum BufferOperationType { Close, Open, Change }
 
@@ -227,8 +236,17 @@ class SyncedBuffer {
 		return this.document.lineCount;
 	}
 
-	public get languageId(): string {
-		return this.document.languageId;
+	public get language(): BufferLanguage {
+		switch (this.document.languageId) {
+			case languageModeIds.javascript:
+			case languageModeIds.javascriptreact:
+				return BufferLanguage.JavaScript;
+
+			case languageModeIds.typescript:
+			case languageModeIds.typescriptreact:
+			default:
+				return BufferLanguage.TypeScript;
+		}
 	}
 
 	/**
@@ -444,9 +462,8 @@ export default class BufferSyncSupport extends Disposable {
 
 	private readonly client: ITypeScriptServiceClient;
 
-	private _validateJavaScript = true;
-	private _validateTypeScript = true;
-
+	private _validateJavaScript: boolean = true;
+	private _validateTypeScript: boolean = true;
 	private readonly modeIds: Set<string>;
 	private readonly syncedBuffers: SyncedBufferMap;
 	private readonly pendingDiagnostics: PendingDiagnostics;
@@ -738,13 +755,11 @@ export default class BufferSyncSupport extends Disposable {
 			return false;
 		}
 
-		switch (buffer.languageId) {
-			case languageModeIds.javascript:
-			case languageModeIds.javascriptreact:
+		switch (buffer.language) {
+			case BufferLanguage.JavaScript:
 				return this._validateJavaScript;
 
-			case languageModeIds.typescript:
-			case languageModeIds.typescriptreact:
+			case BufferLanguage.TypeScript:
 			default:
 				return this._validateTypeScript;
 		}

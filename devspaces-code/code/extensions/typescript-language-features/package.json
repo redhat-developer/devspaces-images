@@ -1241,17 +1241,14 @@
           "description": "%configuration.suggest.objectLiteralMethodSnippets.enabled%",
           "scope": "resource"
         },
-        "typescript.tsserver.web.projectWideIntellisense.enabled": {
+        "typescript.experimental.tsserver.web.enableProjectWideIntellisense": {
           "type": "boolean",
-          "default": true,
-          "description": "%configuration.tsserver.web.projectWideIntellisense.enabled%",
-          "scope": "window"
-        },
-        "typescript.tsserver.web.projectWideIntellisense.suppressSemanticErrors": {
-          "type": "boolean",
-          "default": true,
-          "description": "%configuration.tsserver.web.projectWideIntellisense.suppressSemanticErrors%",
-          "scope": "window"
+          "default": false,
+          "description": "%typescript.experimental.tsserver.web.enableProjectWideIntellisense%",
+          "scope": "window",
+          "tags": [
+            "experimental"
+          ]
         },
         "typescript.preferGoToSourceDefinition": {
           "type": "boolean",
