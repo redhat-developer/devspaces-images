@@ -206,7 +206,8 @@ RUN \
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
     set -xe; \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq \
+    ansible-pylibssh ansible-runner ansible-lint[lock] paramiko jmespath pyyaml molecule molecule-plugins[podman] kubernetes && \
     # python/pip/flake8/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
@@ -237,6 +238,15 @@ RUN \
     #     "python.linting.enabled": true,
     #     "python.linting.pylintEnabled": false
     # }
+
+RUN \
+    ########################################################################
+    # Ansible
+    ########################################################################
+    mkdir -p ${HOME}/.ansible/roles ${HOME}/.ansible/roles ${HOME}/.ansible/tmp \
+    /usr/share/ansible/roles /etc/ansible/roles && \
+    chown -R 10001:0 ${HOME}/.ansible && \
+    chmod -R g=u ${HOME}/.ansible
 
 RUN \
     ########################################################################
@@ -337,6 +347,11 @@ RUN \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \
     echo "========" && \
+    echo -n "Ansible:  "; ansible --version; \
+    echo -n "Ansible lint:  "; ansible-lint --version; \
+    echo -n "Ansible runner:  "; ansible-runner --version; \
+    echo -n "Molecule:  "; molecule --version; \
+    echo "========"
     echo -n "oc:      "; oc version; \
     echo -n "odo:     "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
