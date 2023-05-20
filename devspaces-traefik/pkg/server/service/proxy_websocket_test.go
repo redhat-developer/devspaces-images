@@ -456,7 +456,7 @@ func TestWebSocketUpgradeFailed(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, req *http.Request) {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 	})
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		mux.ServeHTTP(w, req)
@@ -472,7 +472,7 @@ func TestWebSocketUpgradeFailed(t *testing.T) {
 			req.URL.Path = path
 			f.ServeHTTP(w, req)
 		} else {
-			w.WriteHeader(200)
+			w.WriteHeader(http.StatusOK)
 		}
 	}))
 	defer proxy.Close()
@@ -593,9 +593,11 @@ func TestWebSocketTransferTLSConfig(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "ok", resp)
 
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	// Don't alter default transport to prevent side effects on other tests.
+	defaultTransport := http.DefaultTransport.(*http.Transport).Clone()
+	defaultTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-	forwarderWithTLSConfigFromDefaultTransport, err := buildProxy(Bool(true), nil, http.DefaultTransport, nil)
+	forwarderWithTLSConfigFromDefaultTransport, err := buildProxy(Bool(true), nil, defaultTransport, nil)
 	require.NoError(t, err)
 
 	proxyWithTLSConfigFromDefaultTransport := createProxyWithForwarder(t, forwarderWithTLSConfigFromDefaultTransport, srv.URL)

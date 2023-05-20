@@ -142,7 +142,7 @@ func (s *HTTPSSuite) TestWithTLSOptions(c *check.C) {
 	tr1 := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
-			MaxVersion:         tls.VersionTLS11,
+			MaxVersion:         tls.VersionTLS12,
 			ServerName:         "snitest.com",
 		},
 	}
@@ -194,7 +194,7 @@ func (s *HTTPSSuite) TestWithTLSOptions(c *check.C) {
 	}
 	_, err = client.Do(req)
 	c.Assert(err, checker.NotNil)
-	c.Assert(err.Error(), checker.Contains, "protocol version not supported")
+	c.Assert(err.Error(), checker.Contains, "tls: no supported versions satisfy MinVersion and MaxVersion")
 
 	//	with unknown tls option
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("unknown TLS options: unknown@file"))
@@ -262,7 +262,7 @@ func (s *HTTPSSuite) TestWithConflictingTLSOptions(c *check.C) {
 	}
 	_, err = client.Do(req)
 	c.Assert(err, checker.NotNil)
-	c.Assert(err.Error(), checker.Contains, "protocol version not supported")
+	c.Assert(err.Error(), checker.Contains, "tls: no supported versions satisfy MinVersion and MaxVersion")
 
 	// with unknown tls option
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains(fmt.Sprintf("found different TLS options for routers on the same host %v, so using the default TLS options instead", tr4.TLSClientConfig.ServerName)))
@@ -325,7 +325,7 @@ func (s *HTTPSSuite) TestWithDefaultCertificate(c *check.C) {
 
 	cs := conn.ConnectionState()
 	err = cs.PeerCertificates[0].VerifyHostname("snitest.com")
-	c.Assert(err, checker.IsNil, check.Commentf("certificate did not serve correct default certificate"))
+	c.Assert(err, checker.IsNil, check.Commentf("server did not serve correct default certificate"))
 
 	proto := cs.NegotiatedProtocol
 	c.Assert(proto, checker.Equals, "h2")
@@ -360,7 +360,7 @@ func (s *HTTPSSuite) TestWithDefaultCertificateNoSNI(c *check.C) {
 
 	cs := conn.ConnectionState()
 	err = cs.PeerCertificates[0].VerifyHostname("snitest.com")
-	c.Assert(err, checker.IsNil, check.Commentf("certificate did not serve correct default certificate"))
+	c.Assert(err, checker.IsNil, check.Commentf("server did not serve correct default certificate"))
 
 	proto := cs.NegotiatedProtocol
 	c.Assert(proto, checker.Equals, "h2")
@@ -397,7 +397,7 @@ func (s *HTTPSSuite) TestWithOverlappingStaticCertificate(c *check.C) {
 
 	cs := conn.ConnectionState()
 	err = cs.PeerCertificates[0].VerifyHostname("www.snitest.com")
-	c.Assert(err, checker.IsNil, check.Commentf("certificate did not serve correct default certificate"))
+	c.Assert(err, checker.IsNil, check.Commentf("server did not serve correct default certificate"))
 
 	proto := cs.NegotiatedProtocol
 	c.Assert(proto, checker.Equals, "h2")
@@ -434,7 +434,7 @@ func (s *HTTPSSuite) TestWithOverlappingDynamicCertificate(c *check.C) {
 
 	cs := conn.ConnectionState()
 	err = cs.PeerCertificates[0].VerifyHostname("www.snitest.com")
-	c.Assert(err, checker.IsNil, check.Commentf("certificate did not serve correct default certificate"))
+	c.Assert(err, checker.IsNil, check.Commentf("server did not serve correct default certificate"))
 
 	proto := cs.NegotiatedProtocol
 	c.Assert(proto, checker.Equals, "h2")
@@ -1224,5 +1224,55 @@ func (s *HTTPSSuite) TestWithDomainFronting(c *check.C) {
 
 		err = try.RequestWithTransport(req, 500*time.Millisecond, &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true, ServerName: test.serverName}}, try.StatusCodeIs(test.expectedStatusCode), try.BodyContains(test.expectedContent))
 		c.Assert(err, checker.IsNil)
+	}
+}
+
+// TestWithInvalidTLSOption verifies the behavior when using an invalid tlsOption configuration.
+func (s *HTTPSSuite) TestWithInvalidTLSOption(c *check.C) {
+	backend := startTestServer("9010", http.StatusOK, "server1")
+	defer backend.Close()
+
+	file := s.adaptFile(c, "fixtures/https/https_invalid_tls_options.toml", struct{}{})
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
+
+	// wait for Traefik
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 500*time.Millisecond, try.BodyContains("Host(`snitest.com`)"))
+	c.Assert(err, checker.IsNil)
+
+	testCases := []struct {
+		desc       string
+		serverName string
+	}{
+		{
+			desc:       "With invalid TLS Options specified",
+			serverName: "snitest.com",
+		},
+		{
+			desc:       "With invalid Default TLS Options",
+			serverName: "snitest.org",
+		},
+		{
+			desc: "With TLS Options without servername (fallback to default)",
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		if test.serverName != "" {
+			tlsConfig.ServerName = test.serverName
+		}
+
+		conn, err := tls.Dial("tcp", "127.0.0.1:4443", tlsConfig)
+		c.Assert(err, checker.NotNil, check.Commentf("connected to server successfully"))
+		c.Assert(conn, checker.IsNil)
 	}
 }

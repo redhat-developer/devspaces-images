@@ -201,7 +201,7 @@ providers:
 _Optional, Default: []_
 
 Array of namespaces to watch.
-If left empty, watches all namespaces if the value of `namespaces`.
+If left empty, Traefik watches all namespaces.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -374,7 +374,7 @@ providers:
 
 _Optional, Default: ""_
 
-IP used for Kubernetes Ingress endpoints.
+This IP will get copied to Ingress `status.loadbalancer.ip`, and currently only supports one IP value (IPv4 or IPv6).
 
 ```yaml tab="File (YAML)"
 providers:
@@ -398,7 +398,9 @@ providers:
 
 _Optional, Default: ""_
 
-Published Kubernetes Service to copy status from.
+The Kubernetes service to copy status from.
+When using third parties tools like External-DNS, this option can be used to copy the service `loadbalancer.status` (containing the service's endpoints IPs) to the ingresses.
+
 Format: `namespace/servicename`.
 
 ```yaml tab="File (YAML)"
@@ -500,19 +502,6 @@ providers:
 ### Further
 
 To learn more about the various aspects of the Ingress specification that Traefik supports,
-many examples of Ingresses definitions are located in the test [examples](https://github.com/traefik/traefik/tree/v2.8/pkg/provider/kubernetes/ingress/fixtures) of the Traefik repository.
+many examples of Ingresses definitions are located in the test [examples](https://github.com/traefik/traefik/tree/v2.9/pkg/provider/kubernetes/ingress/fixtures) of the Traefik repository.
 
-!!! question "Using Traefik for Business Applications?"
-
-    If you are using Traefik for commercial applications,
-    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
-    You can use it as your:
-
-    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
-    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
-    - [API Gateway](https://traefik.io/solutions/api-gateway/)
-
-    Traefik Enterprise enables centralized access management,
-    distributed Let's Encrypt,
-    and other advanced capabilities.
-    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).
+{!traefik-for-business-applications.md!}

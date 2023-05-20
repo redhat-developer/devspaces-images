@@ -49,7 +49,7 @@ var _ provider.Provider = (*Provider)(nil)
 // Provider holds configurations of the provider.
 type Provider struct {
 	Constraints             string           `description:"Constraints is an expression that Traefik matches against the container's labels to determine whether to create any route for that container." json:"constraints,omitempty" toml:"constraints,omitempty" yaml:"constraints,omitempty" export:"true"`
-	Watch                   bool             `description:"Watch Docker Swarm events." json:"watch,omitempty" toml:"watch,omitempty" yaml:"watch,omitempty" export:"true"`
+	Watch                   bool             `description:"Watch Docker events." json:"watch,omitempty" toml:"watch,omitempty" yaml:"watch,omitempty" export:"true"`
 	Endpoint                string           `description:"Docker server endpoint. Can be a tcp or a unix socket endpoint." json:"endpoint,omitempty" toml:"endpoint,omitempty" yaml:"endpoint,omitempty"`
 	DefaultRule             string           `description:"Default rule." json:"defaultRule,omitempty" toml:"defaultRule,omitempty" yaml:"defaultRule,omitempty"`
 	TLS                     *types.ClientTLS `description:"Enable Docker TLS support." json:"tls,omitempty" toml:"tls,omitempty" yaml:"tls,omitempty" export:"true"`
@@ -59,6 +59,7 @@ type Provider struct {
 	Network                 string           `description:"Default Docker network used." json:"network,omitempty" toml:"network,omitempty" yaml:"network,omitempty" export:"true"`
 	SwarmModeRefreshSeconds ptypes.Duration  `description:"Polling interval for swarm mode." json:"swarmModeRefreshSeconds,omitempty" toml:"swarmModeRefreshSeconds,omitempty" yaml:"swarmModeRefreshSeconds,omitempty" export:"true"`
 	HTTPClientTimeout       ptypes.Duration  `description:"Client timeout for HTTP connections." json:"httpClientTimeout,omitempty" toml:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty" export:"true"`
+	AllowEmptyServices      bool             `description:"Disregards the Docker containers health checks with respect to the creation or removal of the corresponding services." json:"allowEmptyServices,omitempty" toml:"allowEmptyServices,omitempty" yaml:"allowEmptyServices,omitempty" export:"true"`
 	defaultRuleTpl          *template.Template
 }
 
@@ -205,6 +206,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 				logger.Errorf("Failed to create a client for docker, error: %s", err)
 				return err
 			}
+			defer dockerClient.Close()
 
 			serverVersion, err := dockerClient.ServerVersion(ctx)
 			if err != nil {
@@ -249,7 +251,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 							case <-ticker.C:
 								services, err := p.listServices(ctx, dockerClient)
 								if err != nil {
-									logger.Errorf("Failed to list services for docker, error %s", err)
+									logger.Errorf("Failed to list services for docker swarm mode, error %s", err)
 									errChan <- err
 									return
 								}
@@ -409,10 +411,15 @@ func parseContainer(container dockertypes.ContainerJSON) dockerData {
 		if container.NetworkSettings.Networks != nil {
 			dData.NetworkSettings.Networks = make(map[string]*networkData)
 			for name, containerNetwork := range container.NetworkSettings.Networks {
+				addr := containerNetwork.IPAddress
+				if addr == "" {
+					addr = containerNetwork.GlobalIPv6Address
+				}
+
 				dData.NetworkSettings.Networks[name] = &networkData{
 					ID:   containerNetwork.NetworkID,
 					Name: name,
-					Addr: containerNetwork.IPAddress,
+					Addr: addr,
 				}
 			}
 		}

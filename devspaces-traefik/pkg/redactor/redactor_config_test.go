@@ -442,8 +442,7 @@ func init() {
 					CAFiles:        []traefiktls.FileOrContent{"ca.pem"},
 					ClientAuthType: "RequireAndVerifyClientCert",
 				},
-				SniStrict:                true,
-				PreferServerCipherSuites: true,
+				SniStrict: true,
 			},
 		},
 		Certificates: []*traefiktls.CertAndStores{
@@ -722,6 +721,7 @@ func TestDo_staticConfiguration(t *testing.T) {
 		DefaultRule:          "PathPrefix(`/`)",
 		Clusters:             []string{"Cluster1", "Cluster2"},
 		AutoDiscoverClusters: true,
+		ECSAnywhere:          true,
 		Region:               "Awsregion",
 		AccessKeyID:          "AwsAccessKeyID",
 		SecretAccessKey:      "AwsSecretAccessKey",
@@ -731,15 +731,14 @@ func TestDo_staticConfiguration(t *testing.T) {
 		Provider: kv.Provider{
 			RootKey:   "RootKey",
 			Endpoints: nil,
-			Username:  "username",
-			Password:  "password",
-			TLS: &types.ClientTLS{
-				CA:                 "myCa",
-				CAOptional:         true,
-				Cert:               "mycert.pem",
-				Key:                "mycert.key",
-				InsecureSkipVerify: true,
-			},
+		},
+		Token: "secret",
+		TLS: &types.ClientTLS{
+			CA:                 "myCa",
+			CAOptional:         true,
+			Cert:               "mycert.pem",
+			Key:                "mycert.key",
+			InsecureSkipVerify: true,
 		},
 		Namespace:  "ns",
 		Namespaces: []string{"ns1", "ns2"},
@@ -749,15 +748,15 @@ func TestDo_staticConfiguration(t *testing.T) {
 		Provider: kv.Provider{
 			RootKey:   "RootKey",
 			Endpoints: nil,
-			Username:  "username",
-			Password:  "password",
-			TLS: &types.ClientTLS{
-				CA:                 "myCa",
-				CAOptional:         true,
-				Cert:               "mycert.pem",
-				Key:                "mycert.key",
-				InsecureSkipVerify: true,
-			},
+		},
+		Username: "username",
+		Password: "password",
+		TLS: &types.ClientTLS{
+			CA:                 "myCa",
+			CAOptional:         true,
+			Cert:               "mycert.pem",
+			Key:                "mycert.key",
+			InsecureSkipVerify: true,
 		},
 	}
 
@@ -765,31 +764,24 @@ func TestDo_staticConfiguration(t *testing.T) {
 		Provider: kv.Provider{
 			RootKey:   "RootKey",
 			Endpoints: nil,
-			Username:  "username",
-			Password:  "password",
-			TLS: &types.ClientTLS{
-				CA:                 "myCa",
-				CAOptional:         true,
-				Cert:               "mycert.pem",
-				Key:                "mycert.key",
-				InsecureSkipVerify: true,
-			},
 		},
+		Username: "username",
+		Password: "password",
 	}
 
 	config.Providers.Redis = &redis.Provider{
 		Provider: kv.Provider{
 			RootKey:   "RootKey",
 			Endpoints: nil,
-			Username:  "username",
-			Password:  "password",
-			TLS: &types.ClientTLS{
-				CA:                 "myCa",
-				CAOptional:         true,
-				Cert:               "mycert.pem",
-				Key:                "mycert.key",
-				InsecureSkipVerify: true,
-			},
+		},
+		Username: "username",
+		Password: "password",
+		TLS: &types.ClientTLS{
+			CA:                 "myCa",
+			CAOptional:         true,
+			Cert:               "mycert.pem",
+			Key:                "mycert.key",
+			InsecureSkipVerify: true,
 		},
 	}
 
@@ -963,10 +955,6 @@ func TestDo_staticConfiguration(t *testing.T) {
 				TLSChallenge: &acme.TLSChallenge{},
 			},
 		},
-	}
-
-	config.Pilot = &static.Pilot{
-		Token: "token",
 	}
 
 	config.Experimental = &static.Experimental{

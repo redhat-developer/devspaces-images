@@ -47,7 +47,8 @@ Traefik needs the following policy to read ECS information:
                 "ecs:DescribeTasks",
                 "ecs:DescribeContainerInstances",
                 "ecs:DescribeTaskDefinition",
-                "ec2:DescribeInstances"
+                "ec2:DescribeInstances",
+                "ssm:DescribeInstanceInformation"
             ],
             "Resource": [
                 "*"
@@ -57,6 +58,10 @@ Traefik needs the following policy to read ECS information:
 }
 ```
 
+!!! info "ECS Anywhere"
+
+    Please note that the `ssm:DescribeInstanceInformation` action is required for ECS anywhere instances discovery.
+
 ## Provider Configuration
 
 ### `autoDiscoverClusters`
@@ -65,7 +70,7 @@ _Optional, Default=false_
 
 Search for services in cluster list.
 
-- If set to `true` service discovery is disabled on configured clusters, but enabled for all other clusters.
+- If set to `true` service discovery is enabled for all clusters.
 - If set to `false` service discovery is enabled on configured clusters only.
 
 ```yaml tab="File (YAML)"
@@ -86,11 +91,39 @@ providers:
 # ...
 ```
 
+### `ecsAnywhere`
+
+_Optional, Default=false_
+
+Enable ECS Anywhere support.
+
+- If set to `true` service discovery is enabled for ECS Anywhere instances.
+- If set to `false` service discovery is disabled for ECS Anywhere instances.
+
+```yaml tab="File (YAML)"
+providers:
+  ecs:
+    ecsAnywhere: true
+    # ...
+```
+
+```toml tab="File (TOML)"
+[providers.ecs]
+  ecsAnywhere = true
+  # ...
+```
+
+```bash tab="CLI"
+--providers.ecs.ecsAnywhere=true
+# ...
+```
+
 ### `clusters`
 
 _Optional, Default=["default"]_
 
 Search for services in cluster list.
+This option is ignored if `autoDiscoverClusters` is set to `true`.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -134,6 +167,70 @@ providers:
 
 ```bash tab="CLI"
 --providers.ecs.exposedByDefault=false
+# ...
+```
+
+### `constraints`
+
+_Optional, Default=""_
+
+The `constraints` option can be set to an expression that Traefik matches against the container labels (task),
+to determine whether to create any route for that container. 
+If none of the container labels match the expression, no route for that container is created. 
+If the expression is empty, all detected containers are included.
+
+The expression syntax is based on the `Label("key", "value")`, and `LabelRegex("key", "value")` functions,
+as well as the usual boolean logic, as shown in examples below.
+
+??? example "Constraints Expression Examples"
+
+    ```toml
+    # Includes only containers having a label with key `a.label.name` and value `foo`
+    constraints = "Label(`a.label.name`, `foo`)"
+    ```
+
+    ```toml
+    # Excludes containers having any label with key `a.label.name` and value `foo`
+    constraints = "!Label(`a.label.name`, `value`)"
+    ```
+
+    ```toml
+    # With logical AND.
+    constraints = "Label(`a.label.name`, `valueA`) && Label(`another.label.name`, `valueB`)"
+    ```
+
+    ```toml
+    # With logical OR.
+    constraints = "Label(`a.label.name`, `valueA`) || Label(`another.label.name`, `valueB`)"
+    ```
+
+    ```toml
+    # With logical AND and OR, with precedence set by parentheses.
+    constraints = "Label(`a.label.name`, `valueA`) && (Label(`another.label.name`, `valueB`) || Label(`yet.another.label.name`, `valueC`))"
+    ```
+
+    ```toml
+    # Includes only containers having a label with key `a.label.name` and a value matching the `a.+` regular expression.
+    constraints = "LabelRegex(`a.label.name`, `a.+`)"
+    ```
+
+For additional information, refer to [Restrict the Scope of Service Discovery](./overview.md#restrict-the-scope-of-service-discovery).
+
+```yaml tab="File (YAML)"
+providers:
+  ecs:
+    constraints: "Label(`a.label.name`,`foo`)"
+    # ...
+```
+
+```toml tab="File (TOML)"
+[providers.ecs]
+  constraints = "Label(`a.label.name`,`foo`)"
+  # ...
+```
+
+```bash tab="CLI"
+--providers.ecs.constraints=Label(`a.label.name`,`foo`)
 # ...
 ```
 

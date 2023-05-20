@@ -666,8 +666,7 @@ func TestLoadIngressRouteTCPs(t *testing.T) {
 								},
 								ClientAuthType: "VerifyClientCertIfGiven",
 							},
-							SniStrict:                true,
-							PreferServerCipherSuites: true,
+							SniStrict: true,
 							ALPNProtocols: []string{
 								"h2",
 								"http/1.1",
@@ -2748,8 +2747,7 @@ func TestLoadIngressRoutes(t *testing.T) {
 								},
 								ClientAuthType: "VerifyClientCertIfGiven",
 							},
-							SniStrict:                true,
-							PreferServerCipherSuites: true,
+							SniStrict: true,
 							ALPNProtocols: []string{
 								"h2",
 								"http/1.1",
@@ -2862,8 +2860,7 @@ func TestLoadIngressRoutes(t *testing.T) {
 								},
 								ClientAuthType: "VerifyClientCertIfGiven",
 							},
-							SniStrict:                true,
-							PreferServerCipherSuites: true,
+							SniStrict: true,
 							ALPNProtocols: []string{
 								"h2",
 								"http/1.1",
@@ -3334,6 +3331,166 @@ func TestLoadIngressRoutes(t *testing.T) {
 							},
 						},
 					},
+					Services:          map[string]*dynamic.Service{},
+					ServersTransports: map[string]*dynamic.ServersTransport{},
+				},
+			},
+		},
+		{
+			desc:  "Simple Ingress Route, with test middleware read config from secret",
+			paths: []string{"services.yml", "with_plugin_read_secret.yml"},
+			expected: &dynamic.Configuration{
+				UDP: &dynamic.UDPConfiguration{
+					Routers:  map[string]*dynamic.UDPRouter{},
+					Services: map[string]*dynamic.UDPService{},
+				},
+				TLS: &dynamic.TLSConfiguration{},
+				TCP: &dynamic.TCPConfiguration{
+					Routers:     map[string]*dynamic.TCPRouter{},
+					Middlewares: map[string]*dynamic.TCPMiddleware{},
+					Services:    map[string]*dynamic.TCPService{},
+				},
+				HTTP: &dynamic.HTTPConfiguration{
+					Routers: map[string]*dynamic.Router{},
+					Middlewares: map[string]*dynamic.Middleware{
+						"default-test-secret": {
+							Plugin: map[string]dynamic.PluginConf{
+								"test-secret": map[string]interface{}{
+									"user":   "admin",
+									"secret": "this_is_the_secret",
+								},
+							},
+						},
+					},
+					Services:          map[string]*dynamic.Service{},
+					ServersTransports: map[string]*dynamic.ServersTransport{},
+				},
+			},
+		},
+		{
+			desc:  "Simple Ingress Route, with test middleware read config from deep secret",
+			paths: []string{"services.yml", "with_plugin_deep_read_secret.yml"},
+			expected: &dynamic.Configuration{
+				UDP: &dynamic.UDPConfiguration{
+					Routers:  map[string]*dynamic.UDPRouter{},
+					Services: map[string]*dynamic.UDPService{},
+				},
+				TLS: &dynamic.TLSConfiguration{},
+				TCP: &dynamic.TCPConfiguration{
+					Routers:     map[string]*dynamic.TCPRouter{},
+					Middlewares: map[string]*dynamic.TCPMiddleware{},
+					Services:    map[string]*dynamic.TCPService{},
+				},
+				HTTP: &dynamic.HTTPConfiguration{
+					Routers: map[string]*dynamic.Router{},
+					Middlewares: map[string]*dynamic.Middleware{
+						"default-test-secret": {
+							Plugin: map[string]dynamic.PluginConf{
+								"test-secret": map[string]interface{}{
+									"secret_0": map[string]interface{}{
+										"secret_1": map[string]interface{}{
+											"secret_2": map[string]interface{}{
+												"user":   "admin",
+												"secret": "this_is_the_very_deep_secret",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					Services:          map[string]*dynamic.Service{},
+					ServersTransports: map[string]*dynamic.ServersTransport{},
+				},
+			},
+		},
+		{
+			desc:  "Simple Ingress Route, with test middleware read config from an array of secret",
+			paths: []string{"services.yml", "with_plugin_read_array_of_secret.yml"},
+			expected: &dynamic.Configuration{
+				UDP: &dynamic.UDPConfiguration{
+					Routers:  map[string]*dynamic.UDPRouter{},
+					Services: map[string]*dynamic.UDPService{},
+				},
+				TLS: &dynamic.TLSConfiguration{},
+				TCP: &dynamic.TCPConfiguration{
+					Routers:     map[string]*dynamic.TCPRouter{},
+					Middlewares: map[string]*dynamic.TCPMiddleware{},
+					Services:    map[string]*dynamic.TCPService{},
+				},
+				HTTP: &dynamic.HTTPConfiguration{
+					Routers: map[string]*dynamic.Router{},
+					Middlewares: map[string]*dynamic.Middleware{
+						"default-test-secret": {
+							Plugin: map[string]dynamic.PluginConf{
+								"test-secret": map[string]interface{}{
+									"secret": []interface{}{"secret_data1", "secret_data2"},
+								},
+							},
+						},
+					},
+					Services:          map[string]*dynamic.Service{},
+					ServersTransports: map[string]*dynamic.ServersTransport{},
+				},
+			},
+		},
+		{
+			desc:  "Simple Ingress Route, with test middleware read config from an array of secret",
+			paths: []string{"services.yml", "with_plugin_read_array_of_map_contain_secret.yml"},
+			expected: &dynamic.Configuration{
+				UDP: &dynamic.UDPConfiguration{
+					Routers:  map[string]*dynamic.UDPRouter{},
+					Services: map[string]*dynamic.UDPService{},
+				},
+				TLS: &dynamic.TLSConfiguration{},
+				TCP: &dynamic.TCPConfiguration{
+					Routers:     map[string]*dynamic.TCPRouter{},
+					Middlewares: map[string]*dynamic.TCPMiddleware{},
+					Services:    map[string]*dynamic.TCPService{},
+				},
+				HTTP: &dynamic.HTTPConfiguration{
+					Routers: map[string]*dynamic.Router{},
+					Middlewares: map[string]*dynamic.Middleware{
+						"default-test-secret": {
+							Plugin: map[string]dynamic.PluginConf{
+								"test-secret": map[string]interface{}{
+									"users": []interface{}{
+										map[string]interface{}{
+											"name":   "admin",
+											"secret": "admin_password",
+										},
+										map[string]interface{}{
+											"name":   "user",
+											"secret": "user_password",
+										},
+									},
+								},
+							},
+						},
+					},
+					Services:          map[string]*dynamic.Service{},
+					ServersTransports: map[string]*dynamic.ServersTransport{},
+				},
+			},
+		},
+		{
+			desc:                "Simple Ingress Route, with test middleware read config from secret that not found",
+			paths:               []string{"services.yml", "with_plugin_read_not_exist_secret.yml"},
+			allowCrossNamespace: true,
+			expected: &dynamic.Configuration{
+				UDP: &dynamic.UDPConfiguration{
+					Routers:  map[string]*dynamic.UDPRouter{},
+					Services: map[string]*dynamic.UDPService{},
+				},
+				TLS: &dynamic.TLSConfiguration{},
+				TCP: &dynamic.TCPConfiguration{
+					Routers:     map[string]*dynamic.TCPRouter{},
+					Middlewares: map[string]*dynamic.TCPMiddleware{},
+					Services:    map[string]*dynamic.TCPService{},
+				},
+				HTTP: &dynamic.HTTPConfiguration{
+					Routers:           map[string]*dynamic.Router{},
+					Middlewares:       map[string]*dynamic.Middleware{},
 					Services:          map[string]*dynamic.Service{},
 					ServersTransports: map[string]*dynamic.ServersTransport{},
 				},
@@ -3870,6 +4027,91 @@ func TestLoadIngressRoutes(t *testing.T) {
 					Middlewares: map[string]*dynamic.Middleware{},
 					Services: map[string]*dynamic.Service{
 						"default-test-route-6b204d94623b3df4370c": {
+							LoadBalancer: &dynamic.ServersLoadBalancer{
+								PassHostHeader: Bool(true),
+							},
+						},
+					},
+					ServersTransports: map[string]*dynamic.ServersTransport{},
+				},
+				TLS: &dynamic.TLSConfiguration{},
+			},
+		},
+		{
+			desc:               "TraefikService, empty service allowed",
+			allowEmptyServices: true,
+			paths:              []string{"services.yml", "with_empty_services_ts.yml"},
+			expected: &dynamic.Configuration{
+				UDP: &dynamic.UDPConfiguration{
+					Routers:  map[string]*dynamic.UDPRouter{},
+					Services: map[string]*dynamic.UDPService{},
+				},
+				TCP: &dynamic.TCPConfiguration{
+					Routers:     map[string]*dynamic.TCPRouter{},
+					Middlewares: map[string]*dynamic.TCPMiddleware{},
+					Services:    map[string]*dynamic.TCPService{},
+				},
+				HTTP: &dynamic.HTTPConfiguration{
+					Routers: map[string]*dynamic.Router{
+						"default-test-route-6b204d94623b3df4370c": {
+							EntryPoints: []string{"foo"},
+							Middlewares: []string{"default-test-errorpage"},
+							Service:     "default-test-route-6b204d94623b3df4370c",
+							Rule:        "Host(`foo.com`) && PathPrefix(`/bar`)",
+							Priority:    12,
+						},
+					},
+					Middlewares: map[string]*dynamic.Middleware{
+						"default-test-errorpage": {
+							Errors: &dynamic.ErrorPage{
+								Service: "default-test-errorpage-errorpage-service",
+							},
+						},
+					},
+					Services: map[string]*dynamic.Service{
+						"default-test-route-6b204d94623b3df4370c": {
+							Weighted: &dynamic.WeightedRoundRobin{
+								Services: []dynamic.WRRService{
+									{
+										Name:   "default-test-weighted",
+										Weight: func(i int) *int { return &i }(1),
+									},
+									{
+										Name:   "default-test-mirror",
+										Weight: func(i int) *int { return &i }(1),
+									},
+								},
+							},
+						},
+						"default-test-errorpage-errorpage-service": {
+							LoadBalancer: &dynamic.ServersLoadBalancer{
+								PassHostHeader: Bool(true),
+							},
+						},
+						"default-test-weighted": {
+							Weighted: &dynamic.WeightedRoundRobin{
+								Services: []dynamic.WRRService{
+									{
+										Name:   "default-whoami-without-endpoints-subsets-80",
+										Weight: func(i int) *int { return &i }(1),
+									},
+								},
+							},
+						},
+						"default-test-mirror": {
+							Mirroring: &dynamic.Mirroring{
+								Service: "default-whoami-without-endpoints-subsets-80",
+								Mirrors: []dynamic.MirrorService{
+									{
+										Name: "default-whoami-without-endpoints-subsets-80",
+									},
+									{
+										Name: "default-test-weighted",
+									},
+								},
+							},
+						},
+						"default-whoami-without-endpoints-subsets-80": {
 							LoadBalancer: &dynamic.ServersLoadBalancer{
 								PassHostHeader: Bool(true),
 							},

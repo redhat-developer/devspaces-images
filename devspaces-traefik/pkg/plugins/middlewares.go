@@ -84,9 +84,12 @@ func (p middlewareBuilder) createConfig(config map[string]interface{}) (reflect.
 	}
 
 	vConfig := results[0]
+	if len(config) == 0 {
+		return vConfig, nil
+	}
 
 	cfg := &mapstructure.DecoderConfig{
-		DecodeHook:       stringToSliceHookFunc,
+		DecodeHook:       mapstructure.StringToSliceHookFunc(","),
 		WeaklyTypedInput: true,
 		Result:           vConfig.Interface(),
 	}

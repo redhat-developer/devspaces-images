@@ -55,9 +55,9 @@ markdown_extensions:
   - pymdownx.tasklist
   - pymdownx.snippets:
       check_paths: true
-#  - markdown_include.include:
-#      base_path: content/includes/
-#      encoding: utf-8
+  - markdown_include.include:
+      base_path: content/includes/
+      encoding: utf-8
   - toc:
       permalink: true
 
@@ -66,7 +66,9 @@ nav:
   - 'Welcome': 'index.md'
   - 'Getting Started':
       - 'Concepts' : 'getting-started/concepts.md'
-      - 'Quick Start': 'getting-started/quick-start.md'
+      - 'Quick Start':
+          - 'Docker': 'getting-started/quick-start.md'
+          - 'Kubernetes': 'getting-started/quick-start-with-kubernetes.md'
       - 'Configuration Introduction': 'getting-started/configuration-overview.md'
       - 'Install Traefik': 'getting-started/install-traefik.md'
       - 'Frequently Asked Questions': 'getting-started/faq.md'
@@ -138,7 +140,7 @@ nav:
         - 'InFlightConn': 'middlewares/tcp/inflightconn.md'
         - 'IpWhitelist': 'middlewares/tcp/ipwhitelist.md'
   - 'Traefik Hub': 'traefik-hub/index.md'
-  - 'Plugins & Traefik Pilot': 'plugins/index.md'
+  - 'Plugins & Plugin Catalog': 'plugins/index.md'
   - 'Operations':
       - 'CLI': 'operations/cli.md'
       - 'Dashboard' : 'operations/dashboard.md'

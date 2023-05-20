@@ -185,6 +185,14 @@ you'd add the tag `traefik.http.services.{name-of-your-choice}.loadbalancer.pass
     traefik.http.services.myservice.loadbalancer.healthcheck.path=/foo
     ```
 
+??? info "`traefik.http.services.<service_name>.loadbalancer.healthcheck.method`"
+    
+    See [health check](../services/index.md#health-check) for more information.
+    
+    ```yaml
+    traefik.http.services.myservice.loadbalancer.healthcheck.method=foobar
+    ```
+
 ??? info "`traefik.http.services.<service_name>.loadbalancer.healthcheck.port`"
     
     See [health check](../services/index.md#health-check) for more information.
@@ -469,6 +477,20 @@ traefik.consulcatalog.connect=true
 You can tell Traefik to consider (or not) the service as a Connect capable one by setting `traefik.consulcatalog.connect` to true or false.
 
 This option overrides the value of `connectByDefault`.
+
+#### `traefik.consulcatalog.canary`
+
+```yaml
+traefik.consulcatalog.canary=true
+```
+
+When ConsulCatalog, in the context of a Nomad orchestrator,
+is a provider (of service registration) for Traefik,
+one might have the need to distinguish within Traefik between a [Canary](https://learn.hashicorp.com/tutorials/nomad/job-blue-green-and-canary-deployments#deploy-with-canaries) instance of a service, or a production one.
+For example if one does not want them to be part of the same load-balancer.
+
+Therefore, this option, which is meant to be provided as one of the values of the `canary_tags` field in the Nomad [service stanza](https://www.nomadproject.io/docs/job-specification/service#canary_tags),
+allows Traefik to identify that the associated instance is a canary one.
 
 #### Port Lookup
 

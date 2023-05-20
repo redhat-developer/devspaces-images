@@ -32,27 +32,33 @@ const (
 	tlsCertsNotAfterTimestamp = metricsTLSPrefix + "certs_not_after"
 
 	// entry point.
-	metricEntryPointPrefix     = MetricNamePrefix + "entrypoint_"
-	entryPointReqsTotalName    = metricEntryPointPrefix + "requests_total"
-	entryPointReqsTLSTotalName = metricEntryPointPrefix + "requests_tls_total"
-	entryPointReqDurationName  = metricEntryPointPrefix + "request_duration_seconds"
-	entryPointOpenConnsName    = metricEntryPointPrefix + "open_connections"
+	metricEntryPointPrefix        = MetricNamePrefix + "entrypoint_"
+	entryPointReqsTotalName       = metricEntryPointPrefix + "requests_total"
+	entryPointReqsTLSTotalName    = metricEntryPointPrefix + "requests_tls_total"
+	entryPointReqDurationName     = metricEntryPointPrefix + "request_duration_seconds"
+	entryPointOpenConnsName       = metricEntryPointPrefix + "open_connections"
+	entryPointReqsBytesTotalName  = metricEntryPointPrefix + "requests_bytes_total"
+	entryPointRespsBytesTotalName = metricEntryPointPrefix + "responses_bytes_total"
 
 	// router level.
-	metricRouterPrefix     = MetricNamePrefix + "router_"
-	routerReqsTotalName    = metricRouterPrefix + "requests_total"
-	routerReqsTLSTotalName = metricRouterPrefix + "requests_tls_total"
-	routerReqDurationName  = metricRouterPrefix + "request_duration_seconds"
-	routerOpenConnsName    = metricRouterPrefix + "open_connections"
+	metricRouterPrefix        = MetricNamePrefix + "router_"
+	routerReqsTotalName       = metricRouterPrefix + "requests_total"
+	routerReqsTLSTotalName    = metricRouterPrefix + "requests_tls_total"
+	routerReqDurationName     = metricRouterPrefix + "request_duration_seconds"
+	routerOpenConnsName       = metricRouterPrefix + "open_connections"
+	routerReqsBytesTotalName  = metricRouterPrefix + "requests_bytes_total"
+	routerRespsBytesTotalName = metricRouterPrefix + "responses_bytes_total"
 
 	// service level.
-	metricServicePrefix     = MetricNamePrefix + "service_"
-	serviceReqsTotalName    = metricServicePrefix + "requests_total"
-	serviceReqsTLSTotalName = metricServicePrefix + "requests_tls_total"
-	serviceReqDurationName  = metricServicePrefix + "request_duration_seconds"
-	serviceOpenConnsName    = metricServicePrefix + "open_connections"
-	serviceRetriesTotalName = metricServicePrefix + "retries_total"
-	serviceServerUpName     = metricServicePrefix + "server_up"
+	metricServicePrefix        = MetricNamePrefix + "service_"
+	serviceReqsTotalName       = metricServicePrefix + "requests_total"
+	serviceReqsTLSTotalName    = metricServicePrefix + "requests_tls_total"
+	serviceReqDurationName     = metricServicePrefix + "request_duration_seconds"
+	serviceOpenConnsName       = metricServicePrefix + "open_connections"
+	serviceRetriesTotalName    = metricServicePrefix + "retries_total"
+	serviceServerUpName        = metricServicePrefix + "server_up"
+	serviceReqsBytesTotalName  = metricServicePrefix + "requests_bytes_total"
+	serviceRespsBytesTotalName = metricServicePrefix + "responses_bytes_total"
 )
 
 // promState holds all metric state internally and acts as the only Collector we register for Prometheus.
@@ -166,18 +172,30 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 			Name: entryPointOpenConnsName,
 			Help: "How many open connections exist on an entrypoint, partitioned by method and protocol.",
 		}, []string{"method", "protocol", "entrypoint"})
+		entryPointReqsBytesTotal := newCounterFrom(stdprometheus.CounterOpts{
+			Name: entryPointReqsBytesTotalName,
+			Help: "The total size of requests in bytes handled by an entrypoint, partitioned by status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "entrypoint"})
+		entryPointRespsBytesTotal := newCounterFrom(stdprometheus.CounterOpts{
+			Name: entryPointRespsBytesTotalName,
+			Help: "The total size of responses in bytes handled by an entrypoint, partitioned by status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "entrypoint"})
 
 		promState.vectors = append(promState.vectors,
 			entryPointReqs.cv,
 			entryPointReqsTLS.cv,
 			entryPointReqDurations.hv,
 			entryPointOpenConns.gv,
+			entryPointReqsBytesTotal.cv,
+			entryPointRespsBytesTotal.cv,
 		)
 
 		reg.entryPointReqsCounter = entryPointReqs
 		reg.entryPointReqsTLSCounter = entryPointReqsTLS
 		reg.entryPointReqDurationHistogram, _ = NewHistogramWithScale(entryPointReqDurations, time.Second)
 		reg.entryPointOpenConnsGauge = entryPointOpenConns
+		reg.entryPointReqsBytesCounter = entryPointReqsBytesTotal
+		reg.entryPointRespsBytesCounter = entryPointRespsBytesTotal
 	}
 
 	if config.AddRoutersLabels {
@@ -198,17 +216,29 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 			Name: routerOpenConnsName,
 			Help: "How many open connections exist on a router, partitioned by service, method, and protocol.",
 		}, []string{"method", "protocol", "router", "service"})
+		routerReqsBytesTotal := newCounterFrom(stdprometheus.CounterOpts{
+			Name: routerReqsBytesTotalName,
+			Help: "The total size of requests in bytes handled by a router, partitioned by service, status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "router", "service"})
+		routerRespsBytesTotal := newCounterFrom(stdprometheus.CounterOpts{
+			Name: routerRespsBytesTotalName,
+			Help: "The total size of responses in bytes handled by a router, partitioned by service, status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "router", "service"})
 
 		promState.vectors = append(promState.vectors,
 			routerReqs.cv,
 			routerReqsTLS.cv,
 			routerReqDurations.hv,
 			routerOpenConns.gv,
+			routerReqsBytesTotal.cv,
+			routerRespsBytesTotal.cv,
 		)
 		reg.routerReqsCounter = routerReqs
 		reg.routerReqsTLSCounter = routerReqsTLS
 		reg.routerReqDurationHistogram, _ = NewHistogramWithScale(routerReqDurations, time.Second)
 		reg.routerOpenConnsGauge = routerOpenConns
+		reg.routerReqsBytesCounter = routerReqsBytesTotal
+		reg.routerRespsBytesCounter = routerRespsBytesTotal
 	}
 
 	if config.AddServicesLabels {
@@ -237,6 +267,14 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 			Name: serviceServerUpName,
 			Help: "service server is up, described by gauge value of 0 or 1.",
 		}, []string{"service", "url"})
+		serviceReqsBytesTotal := newCounterFrom(stdprometheus.CounterOpts{
+			Name: serviceReqsBytesTotalName,
+			Help: "The total size of requests in bytes received by a service, partitioned by status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "service"})
+		serviceRespsBytesTotal := newCounterFrom(stdprometheus.CounterOpts{
+			Name: serviceRespsBytesTotalName,
+			Help: "The total size of responses in bytes returned by a service, partitioned by status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "service"})
 
 		promState.vectors = append(promState.vectors,
 			serviceReqs.cv,
@@ -245,6 +283,8 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 			serviceOpenConns.gv,
 			serviceRetries.cv,
 			serviceServerUp.gv,
+			serviceReqsBytesTotal.cv,
+			serviceRespsBytesTotal.cv,
 		)
 
 		reg.serviceReqsCounter = serviceReqs
@@ -253,6 +293,8 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 		reg.serviceOpenConnsGauge = serviceOpenConns
 		reg.serviceRetriesCounter = serviceRetries
 		reg.serviceServerUpGauge = serviceServerUp
+		reg.serviceReqsBytesCounter = serviceReqsBytesTotal
+		reg.serviceRespsBytesCounter = serviceRespsBytesTotal
 	}
 
 	return reg
@@ -310,7 +352,7 @@ func OnConfigurationUpdate(conf dynamic.Configuration, entryPoints []string) {
 func newPrometheusState() *prometheusState {
 	return &prometheusState{
 		dynamicConfig: newDynamicConfig(),
-		deletedURLs:   make(map[string]string),
+		deletedURLs:   make(map[string][]string),
 	}
 }
 
@@ -327,7 +369,7 @@ type prometheusState struct {
 	deletedEP       []string
 	deletedRouters  []string
 	deletedServices []string
-	deletedURLs     map[string]string
+	deletedURLs     map[string][]string
 }
 
 func (ps *prometheusState) SetDynamicConfig(dynamicConfig *dynamicConfig) {
@@ -350,11 +392,10 @@ func (ps *prometheusState) SetDynamicConfig(dynamicConfig *dynamicConfig) {
 		actualService, ok := dynamicConfig.services[service]
 		if !ok {
 			ps.deletedServices = append(ps.deletedServices, service)
-			continue
 		}
 		for url := range serV {
 			if _, ok := actualService[url]; !ok {
-				ps.deletedURLs[service] = url
+				ps.deletedURLs[service] = append(ps.deletedURLs[service], url)
 			}
 		}
 	}
@@ -401,16 +442,18 @@ func (ps *prometheusState) Collect(ch chan<- stdprometheus.Metric) {
 		}
 	}
 
-	for service, url := range ps.deletedURLs {
-		if !ps.dynamicConfig.hasServerURL(service, url) {
-			ps.DeletePartialMatch(map[string]string{"service": service, "url": url})
+	for service, urls := range ps.deletedURLs {
+		for _, url := range urls {
+			if !ps.dynamicConfig.hasServerURL(service, url) {
+				ps.DeletePartialMatch(map[string]string{"service": service, "url": url})
+			}
 		}
 	}
 
 	ps.deletedEP = nil
 	ps.deletedRouters = nil
 	ps.deletedServices = nil
-	ps.deletedURLs = make(map[string]string)
+	ps.deletedURLs = make(map[string][]string)
 }
 
 // DeletePartialMatch deletes all metrics where the variable labels contain all of those passed in as labels.
@@ -468,9 +511,8 @@ func (d *dynamicConfig) hasServerURL(serviceName, serverURL string) bool {
 func newCounterFrom(opts stdprometheus.CounterOpts, labelNames []string) *counter {
 	cv := stdprometheus.NewCounterVec(opts, labelNames)
 	c := &counter{
-		name:             opts.Name,
-		cv:               cv,
-		labelNamesValues: make([]string, 0, 16),
+		name: opts.Name,
+		cv:   cv,
 	}
 	if len(labelNames) == 0 {
 		c.collector = cv.WithLabelValues()
@@ -507,9 +549,8 @@ func (c *counter) Describe(ch chan<- *stdprometheus.Desc) {
 func newGaugeFrom(opts stdprometheus.GaugeOpts, labelNames []string) *gauge {
 	gv := stdprometheus.NewGaugeVec(opts, labelNames)
 	g := &gauge{
-		name:             opts.Name,
-		gv:               gv,
-		labelNamesValues: make([]string, 0, 16),
+		name: opts.Name,
+		gv:   gv,
 	}
 
 	if len(labelNames) == 0 {
@@ -551,9 +592,8 @@ func (g *gauge) Describe(ch chan<- *stdprometheus.Desc) {
 func newHistogramFrom(opts stdprometheus.HistogramOpts, labelNames []string) *histogram {
 	hv := stdprometheus.NewHistogramVec(opts, labelNames)
 	return &histogram{
-		name:             opts.Name,
-		hv:               hv,
-		labelNamesValues: make([]string, 0, 16),
+		name: opts.Name,
+		hv:   hv,
 	}
 }
 
@@ -592,7 +632,12 @@ func (lvs labelNamesValues) With(labelValues ...string) labelNamesValues {
 	if len(labelValues)%2 != 0 {
 		labelValues = append(labelValues, "unknown")
 	}
-	return append(lvs, labelValues...)
+
+	labels := make([]string, len(lvs)+len(labelValues))
+	n := copy(labels, lvs)
+	copy(labels[n:], labelValues)
+
+	return labels
 }
 
 // ToLabels is a convenience method to convert a labelNamesValues
