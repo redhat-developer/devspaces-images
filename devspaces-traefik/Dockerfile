@@ -1,5 +1,5 @@
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.7-1107 as builder
+FROM ubi8-minimal:8.8-860 as builder
 USER 0
 
 # cachito
@@ -34,7 +34,7 @@ RUN go generate && \
     go build ./cmd/traefik
 
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.7-1107 
+FROM ubi8-minimal:8.8-860 
 
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/traefik /traefik
@@ -60,7 +60,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="3.7" \
+      version="3.8" \
       license="EPLv2" \
       maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
