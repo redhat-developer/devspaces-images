@@ -46,7 +46,7 @@ type itemData struct {
 
 // ProviderBuilder is responsible for constructing namespaced instances of the Consul Catalog provider.
 type ProviderBuilder struct {
-	Configuration `export:"true"`
+	Configuration `yaml:",inline" export:"true"`
 
 	// Deprecated: use Namespaces option instead.
 	Namespace  string   `description:"Sets the namespace used to discover services (Consul Enterprise only)." json:"namespace,omitempty" toml:"namespace,omitempty" yaml:"namespace,omitempty"`
@@ -283,13 +283,13 @@ func (p *Provider) getConsulServicesData(ctx context.Context) ([]itemData, error
 	for name, tags := range serviceNames {
 		logger := log.FromContext(log.With(ctx, log.Str("serviceName", name)))
 
-		svcCfg, err := p.getConfiguration(tagsToNeutralLabels(tags, p.Prefix))
+		extraConf, err := p.getExtraConf(tagsToNeutralLabels(tags, p.Prefix))
 		if err != nil {
 			logger.Errorf("Skip service: %v", err)
 			continue
 		}
 
-		if !svcCfg.Enable {
+		if !extraConf.Enable {
 			logger.Debug("Filtering disabled item")
 			continue
 		}
@@ -305,46 +305,46 @@ func (p *Provider) getConsulServicesData(ctx context.Context) ([]itemData, error
 			continue
 		}
 
-		if !p.ConnectAware && svcCfg.ConsulCatalog.Connect {
+		if !p.ConnectAware && extraConf.ConsulCatalog.Connect {
 			logger.Debugf("Filtering out Connect aware item, Connect support is not enabled")
 			continue
 		}
 
-		consulServices, statuses, err := p.fetchService(ctx, name, svcCfg.ConsulCatalog.Connect)
+		consulServices, statuses, err := p.fetchService(ctx, name, extraConf.ConsulCatalog.Connect)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, consulService := range consulServices {
-			address := consulService.ServiceAddress
+			address := consulService.Service.Address
 			if address == "" {
-				address = consulService.Address
+				address = consulService.Node.Address
 			}
 
-			namespace := consulService.Namespace
+			namespace := consulService.Service.Namespace
 			if namespace == "" {
 				namespace = "default"
 			}
 
-			status, exists := statuses[consulService.ID+consulService.ServiceID]
+			status, exists := statuses[consulService.Node.ID+consulService.Service.ID]
 			if !exists {
 				status = api.HealthAny
 			}
 
 			item := itemData{
-				ID:         consulService.ServiceID,
-				Node:       consulService.Node,
-				Datacenter: consulService.Datacenter,
+				ID:         consulService.Service.ID,
+				Node:       consulService.Node.Node,
+				Datacenter: consulService.Node.Datacenter,
 				Namespace:  namespace,
 				Name:       name,
 				Address:    address,
-				Port:       strconv.Itoa(consulService.ServicePort),
-				Labels:     tagsToNeutralLabels(consulService.ServiceTags, p.Prefix),
-				Tags:       consulService.ServiceTags,
+				Port:       strconv.Itoa(consulService.Service.Port),
+				Labels:     tagsToNeutralLabels(consulService.Service.Tags, p.Prefix),
+				Tags:       consulService.Service.Tags,
 				Status:     status,
 			}
 
-			extraConf, err := p.getConfiguration(item.Labels)
+			extraConf, err := p.getExtraConf(item.Labels)
 			if err != nil {
 				log.FromContext(ctx).Errorf("Skip item %s: %v", item.Name, err)
 				continue
@@ -358,7 +358,7 @@ func (p *Provider) getConsulServicesData(ctx context.Context) ([]itemData, error
 	return data, nil
 }
 
-func (p *Provider) fetchService(ctx context.Context, name string, connectEnabled bool) ([]*api.CatalogService, map[string]string, error) {
+func (p *Provider) fetchService(ctx context.Context, name string, connectEnabled bool) ([]*api.ServiceEntry, map[string]string, error) {
 	var tagFilter string
 	if !p.ExposedByDefault {
 		tagFilter = p.Prefix + ".enable=true"
@@ -367,19 +367,12 @@ func (p *Provider) fetchService(ctx context.Context, name string, connectEnabled
 	opts := &api.QueryOptions{AllowStale: p.Stale, RequireConsistent: p.RequireConsistent, UseCache: p.Cache}
 	opts = opts.WithContext(ctx)
 
-	catalogFunc := p.client.Catalog().Service
 	healthFunc := p.client.Health().Service
 	if connectEnabled {
-		catalogFunc = p.client.Catalog().Connect
 		healthFunc = p.client.Health().Connect
 	}
 
-	consulServices, _, err := catalogFunc(name, tagFilter, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	healthServices, _, err := healthFunc(name, tagFilter, false, opts)
+	consulServices, _, err := healthFunc(name, tagFilter, false, opts)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -387,7 +380,7 @@ func (p *Provider) fetchService(ctx context.Context, name string, connectEnabled
 	// Index status by service and node so it can be retrieved from a CatalogService even if the health and services
 	// are not in sync.
 	statuses := make(map[string]string)
-	for _, health := range healthServices {
+	for _, health := range consulServices {
 		if health.Service == nil || health.Node == nil {
 			continue
 		}

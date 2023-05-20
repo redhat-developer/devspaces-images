@@ -47,12 +47,6 @@ func nodeIP(ip string) func(*docker.ContainerJSON) {
 	}
 }
 
-func labels(labels map[string]string) func(*docker.ContainerJSON) {
-	return func(c *docker.ContainerJSON) {
-		c.Config.Labels = labels
-	}
-}
-
 func ports(portMap nat.PortMap) func(*docker.ContainerJSON) {
 	return func(c *docker.ContainerJSON) {
 		c.NetworkSettings.NetworkSettingsBase.Ports = portMap
@@ -74,6 +68,12 @@ func withNetwork(name string, ops ...func(*network.EndpointSettings)) func(*dock
 func ipv4(ip string) func(*network.EndpointSettings) {
 	return func(s *network.EndpointSettings) {
 		s.IPAddress = ip
+	}
+}
+
+func ipv6(ip string) func(*network.EndpointSettings) {
+	return func(s *network.EndpointSettings) {
+		s.GlobalIPv6Address = ip
 	}
 }
 

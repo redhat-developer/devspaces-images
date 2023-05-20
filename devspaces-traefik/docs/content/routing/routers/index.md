@@ -233,18 +233,18 @@ If the rule is verified, the router becomes active, calls middlewares, and then 
 
 The table below lists all the available matchers:
 
-| Rule                                                                   | Description                                                                                                    |
-|------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| ```Headers(`key`, `value`)```                                          | Check if there is a key `key`defined in the headers, with the value `value`                                    |
-| ```HeadersRegexp(`key`, `regexp`)```                                   | Check if there is a key `key`defined in the headers, with a value that matches the regular expression `regexp` |
-| ```Host(`example.com`, ...)```                                         | Check if the request domain (host header value) targets one of the given `domains`.                            |
-| ```HostHeader(`example.com`, ...)```                                   | Same as `Host`, only exists for historical reasons.                                                            |
-| ```HostRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``` | Match the request domain. See "Regexp Syntax" below.                                                           |
-| ```Method(`GET`, ...)```                                               | Check if the request method is one of the given `methods` (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`)    |
-| ```Path(`/path`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`, ...)```         | Match exact request path. See "Regexp Syntax" below.                                                           |
-| ```PathPrefix(`/products/`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`)```   | Match request prefix path. See "Regexp Syntax" below.                                                          |
-| ```Query(`foo=bar`, `bar=baz`)```                                      | Match Query String parameters. It accepts a sequence of key=value pairs.                                       |
-| ```ClientIP(`10.0.0.0/16`, `::1`)```                                   | Match if the request client IP is one of the given IP/CIDR. It accepts IPv4, IPv6 and CIDR formats.            |
+| Rule                                                                                       | Description                                                                                                    |
+|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| ```Headers(`key`, `value`)```                                                              | Check if there is a key `key`defined in the headers, with the value `value`                                    |
+| ```HeadersRegexp(`key`, `regexp`)```                                                       | Check if there is a key `key`defined in the headers, with a value that matches the regular expression `regexp` |
+| ```Host(`example.com`, ...)```                                                             | Check if the request domain (host header value) targets one of the given `domains`.                            |
+| ```HostHeader(`example.com`, ...)```                                                       | Same as `Host`, only exists for historical reasons.                                                            |
+| ```HostRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)```                     | Match the request domain. See "Regexp Syntax" below.                                                           |
+| ```Method(`GET`, ...)```                                                                   | Check if the request method is one of the given `methods` (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`)    |
+| ```Path(`/path`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`, ...)```                             | Match exact request path. See "Regexp Syntax" below.                                                           |
+| ```PathPrefix(`/products/`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`)```                       | Match request prefix path. See "Regexp Syntax" below.                                                          |
+| ```Query(`foo=bar`, `bar=baz`)```                                                          | Match Query String parameters. It accepts a sequence of key=value pairs.                                       |
+| ```ClientIP(`10.0.0.0/16`, `::1`)```                                                       | Match if the request client IP is one of the given IP/CIDR. It accepts IPv4, IPv6 and CIDR formats.            |
 
 !!! important "Non-ASCII Domain Names"
 
@@ -259,6 +259,7 @@ The table below lists all the available matchers:
     The regexp name (`name` in the above example) is an arbitrary value, that exists only for historical reasons.
 
     Any `regexp` supported by [Go's regexp package](https://golang.org/pkg/regexp/) may be used.
+    For example, here is a case insensitive path matcher syntax: ```Path(`/{path:(?i:Products)}`)```.
 
 !!! info "Combining Matchers Using Operators and Parenthesis"
 
@@ -275,10 +276,11 @@ The table below lists all the available matchers:
 
 !!! info "Path Vs PathPrefix"
 
-    Use `Path` if your service listens on the exact path only. For instance, `Path: /products` would match `/products` but not `/products/shoes`.
+    Use `Path` if your service listens on the exact path only. For instance, ```Path(`/products`)``` would match `/products` but not `/products/shoes`.
 
     Use a `*Prefix*` matcher if your service listens on a particular base path but also serves requests on sub-paths.
-    For instance, `PathPrefix: /products` would match `/products` but also `/products/shoes` and `/products/shirts`.
+    For instance, ```PathPrefix(`/products`)``` would match `/products` and `/products/shoes`,
+    as well as `/productsforsale`, and `/productsforsale/shoes`.
     Since the path is forwarded as-is, your service is expected to listen on `/products`.
 
 !!! info "ClientIP matcher"
@@ -839,11 +841,12 @@ If the rule is verified, the router becomes active, calls middlewares, and then 
 
 The table below lists all the available matchers:
 
-| Rule                                                                      | Description                                                                                               |
-|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| ```HostSNI(`domain-1`, ...)```                                            | Check if the Server Name Indication corresponds to the given `domains`.                                   |
-| ```HostSNIRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``` | Check if the Server Name Indication matches the given regular expressions. See "Regexp Syntax" below. |
-| ```ClientIP(`10.0.0.0/16`, `::1`)```                                      | Check if the request client IP is one of the given IP/CIDR. It accepts IPv4, IPv6 and CIDR formats.       |
+| Rule                                                                      | Description                                                                                             |
+|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| ```HostSNI(`domain-1`, ...)```                                            | Checks if the Server Name Indication corresponds to the given `domains`.                                |
+| ```HostSNIRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``` | Checks if the Server Name Indication matches the given regular expressions. See "Regexp Syntax" below.  |
+| ```ClientIP(`10.0.0.0/16`, `::1`)```                                      | Checks if the connection client IP is one of the given IP/CIDR. It accepts IPv4, IPv6 and CIDR formats. |
+| ```ALPN(`mqtt`, `h2c`)```                                                 | Checks if any of the connection ALPN protocols is one of the given protocols.                           |
 
 !!! important "Non-ASCII Domain Names"
 
@@ -878,6 +881,13 @@ The table below lists all the available matchers:
 !!! important "Rule, Middleware, and Services"
 
     The rule is evaluated "before" any middleware has the opportunity to work, and "before" the request is forwarded to the service.
+
+!!! important "ALPN ACME-TLS/1"
+
+    It would be a security issue to let a user-defined router catch the response to
+    an ACME TLS challenge previously initiated by Traefik.
+    For this reason, the `ALPN` matcher is not allowed to match the `ACME-TLS/1`
+    protocol, and Traefik returns an error if this is attempted.
 
 ### Priority
 
@@ -1322,17 +1332,4 @@ Services are the target for the router.
 
 !!! important "UDP routers can only target UDP services (and not HTTP or TCP services)."
 
-!!! question "Using Traefik for Business Applications?"
-
-    If you are using Traefik for commercial applications,
-    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
-    You can use it as your:
-
-    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
-    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
-    - [API Gateway](https://traefik.io/solutions/api-gateway/)
-
-    Traefik Enterprise enables centralized access management,
-    distributed Let's Encrypt,
-    and other advanced capabilities.
-    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).
+{!traefik-for-business-applications.md!}

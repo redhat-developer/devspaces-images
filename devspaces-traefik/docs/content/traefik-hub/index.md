@@ -1,4 +1,4 @@
-# Traefik Hub (Experimental)
+# Traefik Hub
 
 ## Overview
 
@@ -28,6 +28,12 @@ This agent can:
     * Traefik Hub is compatible with Traefik Proxy 2.7 or later.
     * The Traefik Hub Agent must be installed to connect to the Traefik Hub platform.
     * Activate this feature in the experimental section of the static configuration.
+
+!!! information "Configuration Discovery"
+
+    According to installation options, the Traefik Hub Agent listens to the Docker or Kubernetes API to discover containers/services.
+
+    It doesn't support the routers discovered by Traefik Proxy using other providers, e.g., using the File provider.
 
 !!! example "Minimal Static Configuration to Activate Traefik Hub for Docker"
 

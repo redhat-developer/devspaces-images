@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -94,7 +95,6 @@ func (h *httpForwarder) Accept() (net.Conn, error) {
 //
 // - TCP-TLS HostSNI(`foobar`) and HTTPS PathPrefix(`/`)
 //   - On v2.6 and v2.7, the TCP-TLS one takes precedence.
-//
 func Test_Routing(t *testing.T) {
 	// This listener simulates the backend service.
 	// It is capable of switching into server first communication mode,
@@ -110,8 +110,13 @@ func Test_Routing(t *testing.T) {
 		for {
 			conn, err := tcpBackendListener.Accept()
 			if err != nil {
-				var netErr net.Error
-				if errors.As(err, &netErr) && netErr.Temporary() {
+				var opErr *net.OpError
+				if errors.As(err, &opErr) && opErr.Temporary() {
+					continue
+				}
+
+				var urlErr *url.Error
+				if errors.As(err, &urlErr) && urlErr.Temporary() {
 					continue
 				}
 

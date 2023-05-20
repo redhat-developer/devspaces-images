@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"net"
+	"sort"
+	"strings"
 
 	"github.com/hashicorp/consul/api"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
@@ -37,8 +40,7 @@ func (p *Provider) buildConfiguration(ctx context.Context, items []itemData, cer
 		if len(confFromLabel.TCP.Routers) > 0 || len(confFromLabel.TCP.Services) > 0 {
 			tcpOrUDP = true
 
-			err := p.buildTCPServiceConfiguration(ctxSvc, item, confFromLabel.TCP)
-			if err != nil {
+			if err := p.buildTCPServiceConfiguration(item, confFromLabel.TCP); err != nil {
 				logger.Error(err)
 				continue
 			}
@@ -49,8 +51,7 @@ func (p *Provider) buildConfiguration(ctx context.Context, items []itemData, cer
 		if len(confFromLabel.UDP.Routers) > 0 || len(confFromLabel.UDP.Services) > 0 {
 			tcpOrUDP = true
 
-			err := p.buildUDPServiceConfiguration(ctxSvc, item, confFromLabel.UDP)
-			if err != nil {
+			if err := p.buildUDPServiceConfiguration(item, confFromLabel.UDP); err != nil {
 				logger.Error(err)
 				continue
 			}
@@ -75,8 +76,7 @@ func (p *Provider) buildConfiguration(ctx context.Context, items []itemData, cer
 			}
 		}
 
-		err = p.buildServiceConfiguration(ctxSvc, item, confFromLabel.HTTP)
-		if err != nil {
+		if err = p.buildServiceConfiguration(item, confFromLabel.HTTP); err != nil {
 			logger.Error(err)
 			continue
 		}
@@ -89,7 +89,7 @@ func (p *Provider) buildConfiguration(ctx context.Context, items []itemData, cer
 			Labels: item.Labels,
 		}
 
-		provider.BuildRouterConfiguration(ctx, confFromLabel.HTTP, provider.Normalize(item.Name), p.defaultRuleTpl, model)
+		provider.BuildRouterConfiguration(ctx, confFromLabel.HTTP, getName(item), p.defaultRuleTpl, model)
 
 		configurations[svcName] = confFromLabel
 	}
@@ -128,106 +128,98 @@ func (p *Provider) keepContainer(ctx context.Context, item itemData) bool {
 	return true
 }
 
-func (p *Provider) buildTCPServiceConfiguration(ctx context.Context, item itemData, configuration *dynamic.TCPConfiguration) error {
+func (p *Provider) buildTCPServiceConfiguration(item itemData, configuration *dynamic.TCPConfiguration) error {
 	if len(configuration.Services) == 0 {
 		configuration.Services = make(map[string]*dynamic.TCPService)
 
 		lb := &dynamic.TCPServersLoadBalancer{}
 		lb.SetDefaults()
 
-		configuration.Services[provider.Normalize(item.Name)] = &dynamic.TCPService{
+		configuration.Services[getName(item)] = &dynamic.TCPService{
 			LoadBalancer: lb,
 		}
 	}
 
 	for name, service := range configuration.Services {
-		ctxSvc := log.With(ctx, log.Str(log.ServiceName, name))
-		err := p.addServerTCP(ctxSvc, item, service.LoadBalancer)
-		if err != nil {
-			return err
+		if err := p.addServerTCP(item, service.LoadBalancer); err != nil {
+			return fmt.Errorf("%s: %w", name, err)
 		}
 	}
 
 	return nil
 }
 
-func (p *Provider) buildUDPServiceConfiguration(ctx context.Context, item itemData, configuration *dynamic.UDPConfiguration) error {
+func (p *Provider) buildUDPServiceConfiguration(item itemData, configuration *dynamic.UDPConfiguration) error {
 	if len(configuration.Services) == 0 {
 		configuration.Services = make(map[string]*dynamic.UDPService)
 
 		lb := &dynamic.UDPServersLoadBalancer{}
 
-		configuration.Services[provider.Normalize(item.Name)] = &dynamic.UDPService{
+		configuration.Services[getName(item)] = &dynamic.UDPService{
 			LoadBalancer: lb,
 		}
 	}
 
 	for name, service := range configuration.Services {
-		ctxSvc := log.With(ctx, log.Str(log.ServiceName, name))
-		err := p.addServerUDP(ctxSvc, item, service.LoadBalancer)
-		if err != nil {
-			return err
+		if err := p.addServerUDP(item, service.LoadBalancer); err != nil {
+			return fmt.Errorf("%s: %w", name, err)
 		}
 	}
 
 	return nil
 }
 
-func (p *Provider) buildServiceConfiguration(ctx context.Context, item itemData, configuration *dynamic.HTTPConfiguration) error {
+func (p *Provider) buildServiceConfiguration(item itemData, configuration *dynamic.HTTPConfiguration) error {
 	if len(configuration.Services) == 0 {
 		configuration.Services = make(map[string]*dynamic.Service)
 
 		lb := &dynamic.ServersLoadBalancer{}
 		lb.SetDefaults()
 
-		configuration.Services[provider.Normalize(item.Name)] = &dynamic.Service{
+		configuration.Services[getName(item)] = &dynamic.Service{
 			LoadBalancer: lb,
 		}
 	}
 
 	for name, service := range configuration.Services {
-		ctxSvc := log.With(ctx, log.Str(log.ServiceName, name))
-		err := p.addServer(ctxSvc, item, service.LoadBalancer)
-		if err != nil {
-			return err
+		if err := p.addServer(item, service.LoadBalancer); err != nil {
+			return fmt.Errorf("%s: %w", name, err)
 		}
 	}
 
 	return nil
 }
 
-func (p *Provider) addServerTCP(ctx context.Context, item itemData, loadBalancer *dynamic.TCPServersLoadBalancer) error {
+func (p *Provider) addServerTCP(item itemData, loadBalancer *dynamic.TCPServersLoadBalancer) error {
 	if loadBalancer == nil {
 		return errors.New("load-balancer is not defined")
-	}
-
-	var port string
-	if len(loadBalancer.Servers) > 0 {
-		port = loadBalancer.Servers[0].Port
 	}
 
 	if len(loadBalancer.Servers) == 0 {
 		loadBalancer.Servers = []dynamic.TCPServer{{}}
 	}
 
-	if item.Port != "" && port == "" {
+	if item.Address == "" {
+		return errors.New("address is missing")
+	}
+
+	port := loadBalancer.Servers[0].Port
+	loadBalancer.Servers[0].Port = ""
+
+	if port == "" {
 		port = item.Port
 	}
-	loadBalancer.Servers[0].Port = ""
 
 	if port == "" {
 		return errors.New("port is missing")
 	}
 
-	if item.Address == "" {
-		return errors.New("address is missing")
-	}
-
 	loadBalancer.Servers[0].Address = net.JoinHostPort(item.Address, port)
+
 	return nil
 }
 
-func (p *Provider) addServerUDP(ctx context.Context, item itemData, loadBalancer *dynamic.UDPServersLoadBalancer) error {
+func (p *Provider) addServerUDP(item itemData, loadBalancer *dynamic.UDPServersLoadBalancer) error {
 	if loadBalancer == nil {
 		return errors.New("load-balancer is not defined")
 	}
@@ -236,32 +228,29 @@ func (p *Provider) addServerUDP(ctx context.Context, item itemData, loadBalancer
 		loadBalancer.Servers = []dynamic.UDPServer{{}}
 	}
 
-	var port string
-	if item.Port != "" {
+	if item.Address == "" {
+		return errors.New("address is missing")
+	}
+
+	port := loadBalancer.Servers[0].Port
+	loadBalancer.Servers[0].Port = ""
+
+	if port == "" {
 		port = item.Port
-		loadBalancer.Servers[0].Port = ""
 	}
 
 	if port == "" {
 		return errors.New("port is missing")
 	}
 
-	if item.Address == "" {
-		return errors.New("address is missing")
-	}
-
 	loadBalancer.Servers[0].Address = net.JoinHostPort(item.Address, port)
+
 	return nil
 }
 
-func (p *Provider) addServer(ctx context.Context, item itemData, loadBalancer *dynamic.ServersLoadBalancer) error {
+func (p *Provider) addServer(item itemData, loadBalancer *dynamic.ServersLoadBalancer) error {
 	if loadBalancer == nil {
 		return errors.New("load-balancer is not defined")
-	}
-
-	var port string
-	if len(loadBalancer.Servers) > 0 {
-		port = loadBalancer.Servers[0].Port
 	}
 
 	if len(loadBalancer.Servers) == 0 {
@@ -271,17 +260,19 @@ func (p *Provider) addServer(ctx context.Context, item itemData, loadBalancer *d
 		loadBalancer.Servers = []dynamic.Server{server}
 	}
 
-	if item.Port != "" && port == "" {
-		port = item.Port
+	if item.Address == "" {
+		return errors.New("address is missing")
 	}
+
+	port := loadBalancer.Servers[0].Port
 	loadBalancer.Servers[0].Port = ""
 
 	if port == "" {
-		return errors.New("port is missing")
+		port = item.Port
 	}
 
-	if item.Address == "" {
-		return errors.New("address is missing")
+	if port == "" {
+		return errors.New("port is missing")
 	}
 
 	scheme := loadBalancer.Servers[0].Scheme
@@ -299,4 +290,19 @@ func (p *Provider) addServer(ctx context.Context, item itemData, loadBalancer *d
 
 func itemServersTransportKey(item itemData) string {
 	return provider.Normalize("tls-" + item.Namespace + "-" + item.Datacenter + "-" + item.Name)
+}
+
+func getName(i itemData) string {
+	if !i.ExtraConf.ConsulCatalog.Canary {
+		return provider.Normalize(i.Name)
+	}
+
+	tags := make([]string, len(i.Tags))
+	copy(tags, i.Tags)
+
+	sort.Strings(tags)
+
+	hasher := fnv.New64()
+	hasher.Write([]byte(strings.Join(tags, "")))
+	return provider.Normalize(fmt.Sprintf("%s-%d", i.Name, hasher.Sum64()))
 }

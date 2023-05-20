@@ -133,11 +133,19 @@ the IP address of the host is resolved as follows:
 
 <!-- TODO: verify and document the swarm mode case with container.Node.IPAddress coming from the API -->
 - try a lookup of `host.docker.internal`
-- if the lookup was unsuccessful, fall back to `127.0.0.1`
+- if the lookup was unsuccessful, try a lookup of `host.containers.internal`, ([Podman](https://docs.podman.io/en/latest/) equivalent of `host.docker.internal`)
+- if that lookup was also unsuccessful, fall back to `127.0.0.1`
 
 On Linux, for versions of Docker older than 20.10.0, for `host.docker.internal` to be defined, it should be provided
 as an `extra_host` to the Traefik container, using the `--add-host` flag. For example, to set it to the IP address of
 the bridge interface (`docker0` by default): `--add-host=host.docker.internal:172.17.0.1`
+
+### IPv4 && IPv6
+
+When using a docker stack that uses IPv6,
+Traefik will use the IPv4 container IP before its IPv6 counterpart.
+Therefore, on an IPv6 Docker stack,
+Traefik will use the IPv6 container IP.
 
 ### Docker API Access
 
@@ -257,7 +265,7 @@ See the sections [Docker API Access](#docker-api-access) and [Docker Swarm API A
 
     services:
       traefik:
-         image: traefik:v2.8 # The official v2 Traefik docker image
+         image: traefik:v2.9 # The official v2 Traefik docker image
          ports:
            - "80:80"
          volumes:
@@ -531,7 +539,7 @@ providers:
 
 _Optional, Default=true_
 
-Watch Docker Swarm events.
+Watch Docker events.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -715,17 +723,31 @@ providers:
 --providers.docker.tls.insecureSkipVerify=true
 ```
 
-!!! question "Using Traefik for Business Applications?"
+### `allowEmptyServices`
 
-    If you are using Traefik for commercial applications,
-    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
-    You can use it as your:
+_Optional, Default=false_
 
-    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
-    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
-    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+If the parameter is set to `true`,
+any [servers load balancer](../routing/services/index.md#servers-load-balancer) defined for Docker containers is created 
+regardless of the [healthiness](https://docs.docker.com/engine/reference/builder/#healthcheck) of the corresponding containers.
+It also then stays alive and responsive even at times when it becomes empty,
+i.e. when all its children containers become unhealthy.
+This results in `503` HTTP responses instead of `404` ones,
+in the above cases.
 
-    Traefik Enterprise enables centralized access management,
-    distributed Let's Encrypt,
-    and other advanced capabilities.
-    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).
+```yaml tab="File (YAML)"
+providers:
+  docker:
+    allowEmptyServices: true
+```
+
+```toml tab="File (TOML)"
+[providers.docker]
+  allowEmptyServices = true
+```
+
+```bash tab="CLI"
+--providers.docker.allowEmptyServices=true
+```
+
+{!traefik-for-business-applications.md!}

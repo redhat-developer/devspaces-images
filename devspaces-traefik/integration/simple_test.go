@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
 	"strings"
 	"sync/atomic"
 	"syscall"
@@ -308,7 +309,7 @@ func (s *SimpleSuite) TestMetricsPrometheusDefaultEntryPoint(c *check.C) {
 	c.Assert(err, checker.IsNil)
 	defer s.killCmd(cmd)
 
-	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("PathPrefix"))
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("PathPrefix(`/whoami`)"))
 	c.Assert(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami", 1*time.Second, try.StatusCodeIs(http.StatusOK))
@@ -367,6 +368,84 @@ func (s *SimpleSuite) TestMetricsPrometheusTwoRoutersOneService(c *check.C) {
 		// Reqs count of 2 for service behind both routers
 		c.Assert(string(body), checker.Contains, "traefik_service_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"whoami1-traefik-integration-test-base@docker\"} 2")
 	}
+}
+
+// TestMetricsWithBufferingMiddleware checks that the buffering middleware
+// (which introduces its own response writer in the chain), does not interfere with
+// the capture middleware on which the metrics mechanism relies.
+func (s *SimpleSuite) TestMetricsWithBufferingMiddleware(c *check.C) {
+	s.createComposeProject(c, "base")
+
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("MORE THAN TEN BYTES IN RESPONSE"))
+	}))
+
+	server.Start()
+	defer server.Close()
+
+	file := s.adaptFile(c, "fixtures/simple_metrics_with_buffer_middleware.toml", struct{ IP string }{IP: strings.TrimPrefix(server.URL, "http://")})
+	defer os.Remove(file)
+
+	cmd, output := s.traefikCmd(withConfigFile(file))
+	defer output(c)
+
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
+
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("PathPrefix(`/without`)"))
+	c.Assert(err, checker.IsNil)
+
+	err = try.GetRequest("http://127.0.0.1:8001/without", 1*time.Second, try.StatusCodeIs(http.StatusOK))
+	c.Assert(err, checker.IsNil)
+
+	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8002/with-req", strings.NewReader("MORE THAN TEN BYTES IN REQUEST"))
+	c.Assert(err, checker.IsNil)
+
+	// The request should fail because the body is too large.
+	err = try.Request(req, 1*time.Second, try.StatusCodeIs(http.StatusRequestEntityTooLarge))
+	c.Assert(err, checker.IsNil)
+
+	// The request should fail because the response exceeds the configured limit.
+	err = try.GetRequest("http://127.0.0.1:8003/with-resp", 1*time.Second, try.StatusCodeIs(http.StatusInternalServerError))
+	c.Assert(err, checker.IsNil)
+
+	request, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8080/metrics", nil)
+	c.Assert(err, checker.IsNil)
+
+	response, err := http.DefaultClient.Do(request)
+	c.Assert(err, checker.IsNil)
+	c.Assert(response.StatusCode, checker.Equals, http.StatusOK)
+
+	body, err := io.ReadAll(response.Body)
+	c.Assert(err, checker.IsNil)
+
+	// For allowed requests and responses, the entrypoint and service metrics have the same status code.
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_requests_total{code=\"200\",entrypoint=\"webA\",method=\"GET\",protocol=\"http\"} 1")
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_requests_bytes_total{code=\"200\",entrypoint=\"webA\",method=\"GET\",protocol=\"http\"} 0")
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_responses_bytes_total{code=\"200\",entrypoint=\"webA\",method=\"GET\",protocol=\"http\"} 31")
+
+	c.Assert(string(body), checker.Contains, "traefik_service_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"service-without@file\"} 1")
+	c.Assert(string(body), checker.Contains, "traefik_service_requests_bytes_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"service-without@file\"} 0")
+	c.Assert(string(body), checker.Contains, "traefik_service_responses_bytes_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"service-without@file\"} 31")
+
+	// For forbidden requests, the entrypoints have metrics, the services don't.
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_requests_total{code=\"413\",entrypoint=\"webB\",method=\"GET\",protocol=\"http\"} 1")
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_requests_bytes_total{code=\"413\",entrypoint=\"webB\",method=\"GET\",protocol=\"http\"} 0")
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_responses_bytes_total{code=\"413\",entrypoint=\"webB\",method=\"GET\",protocol=\"http\"} 24")
+
+	// For disallowed responses, the entrypoint and service metrics don't have the same status code.
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_requests_bytes_total{code=\"500\",entrypoint=\"webC\",method=\"GET\",protocol=\"http\"} 0")
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_requests_total{code=\"500\",entrypoint=\"webC\",method=\"GET\",protocol=\"http\"} 1")
+	c.Assert(string(body), checker.Contains, "traefik_entrypoint_responses_bytes_total{code=\"500\",entrypoint=\"webC\",method=\"GET\",protocol=\"http\"} 21")
+
+	c.Assert(string(body), checker.Contains, "traefik_service_requests_bytes_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"service-resp@file\"} 0")
+	c.Assert(string(body), checker.Contains, "traefik_service_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"service-resp@file\"} 1")
+	c.Assert(string(body), checker.Contains, "traefik_service_responses_bytes_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"service-resp@file\"} 31")
 }
 
 func (s *SimpleSuite) TestMultipleProviderSameBackendName(c *check.C) {
@@ -1298,5 +1377,38 @@ func (s *SimpleSuite) TestMuxer(c *check.C) {
 			c.Assert(err, checker.IsNil)
 			c.Assert(string(body), checker.Contains, test.body)
 		}
+	}
+}
+
+func (s *SimpleSuite) TestDebugLog(c *check.C) {
+	s.createComposeProject(c, "base")
+
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	file := s.adaptFile(c, "fixtures/simple_debug_log.toml", struct{}{})
+	defer os.Remove(file)
+
+	cmd, output := s.cmdTraefik(withConfigFile(file))
+
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
+
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("PathPrefix(`/whoami`)"))
+	c.Assert(err, checker.IsNil)
+
+	req, err := http.NewRequest(http.MethodGet, "http://localhost:8000/whoami", http.NoBody)
+	c.Assert(err, checker.IsNil)
+	req.Header.Set("Autorization", "Bearer ThisIsABearerToken")
+
+	response, err := http.DefaultClient.Do(req)
+	c.Assert(err, checker.IsNil)
+	c.Assert(response.StatusCode, checker.Equals, http.StatusOK)
+
+	if regexp.MustCompile("ThisIsABearerToken").MatchReader(output) {
+		c.Logf("Traefik Logs: %s", output.String())
+		c.Log("Found Authorization Header in Traefik DEBUG logs")
+		c.Fail()
 	}
 }
