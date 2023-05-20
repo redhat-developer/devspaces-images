@@ -354,7 +354,7 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
             }
         } // if 
 
-        // TODO when theia is dead, enable util.commentOnPullRequestBuildDescription block here
+        // TODO when 3.6 is live (and theia is gone), enable util.commentOnPullRequestBuildDescription block here (?)
         // comment on the PR with this job's build description
         // if (util.globalVar({comments_url})?.trim()) {
         //     println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
@@ -373,71 +373,3 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
     )
   } // stage
 } //node
-
-// https://issues.redhat.com/browse/CRW-1011 trigger theia-akamai job 
-if (CONTAINERS.trim().contains("theia-endpoint")) {
-    node(nodeLabel){ 
-        stage ("Enable Akamai CDN support for DS Theia image") {
-            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-                def util = load "${WORKSPACE}/util2.groovy"
-                echo "currentBuild.result = " + currentBuild.result
-                if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-                    // if CONTAINERS contains theia-endpoint
-                    // println "Containers: " + CONTAINERS.trim()
-                    DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-                    println "DS_VERSION = '" + DS_VERSION + "'"
-                    println "Scheduling theia-akamai"
-                    JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                    jobPath='/job/DS_CI/job/theia-akamai_' + JOB_BRANCH
-                    final jobResult = build(
-                        job: jobPath.replaceAll("/job/","/"),
-                        wait: false,
-                        propagate: false,
-                        quietPeriod: 0,
-                        parameters: [
-                            [
-                                $class: 'StringParameterValue',
-                                name: 'comments_url',
-                                value: util.globalVar({comments_url})
-                            ],
-                            [
-                                $class: 'StringParameterValue',
-                                name: 'token',
-                                value: "CI_BUILD"
-                            ],
-                            [
-                                $class: 'StringParameterValue',
-                                name: 'cause',
-                                value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
-                            ],
-                            [
-                                $class: 'BooleanParameterValue',
-                                name: 'CLEAN_ON_FAILURE',
-                                value: CLEAN_ON_FAILURE
-                            ]
-                        ]
-                    )
-                    println("triggered build(" + jobPath + ") [no wait]")
-                    println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-                    currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
-                } // if
-
-                // comment on the PR with this job's build description
-                if (util.globalVar({comments_url})?.trim()) {
-                    println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-                }
-            }
-            cleanWs(
-                cleanWhenSuccess: true,
-                cleanWhenUnstable: true,
-                cleanWhenNotBuilt: false,
-                cleanWhenFailure: CLEAN_ON_FAILURE,
-                cleanWhenAborted: true,
-                deleteDirs: true,
-                disableDeferredWipeout: true,
-                notFailBuild: true
-            )
-        } // stage
-    } //node
-}

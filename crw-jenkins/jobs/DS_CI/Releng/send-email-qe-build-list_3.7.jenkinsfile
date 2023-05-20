@@ -217,7 +217,7 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
                                         println("Filtering and copying images to quay. This may take ~3 mins per OCP version per arch.")
                                         def IIBsToQuay = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
-./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''" --extra-tags "''' + mailSubject.split(" ")[1] + '''"
+./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''" --force --extra-tags "''' + mailSubject.split(" ")[1] + '''"
 ''', returnStdout: true)
 
                                         // in console, echo all errors and warnings
