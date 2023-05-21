@@ -15,8 +15,12 @@ import devfileApi from '../../devfileApi';
 import { api } from '@eclipse-che/common';
 import { createHash } from 'crypto';
 import { injectable } from 'inversify';
-import { V1alpha2DevWorkspaceSpecTemplateComponents } from '@devfile/api';
+import {
+  V1alpha2DevWorkspaceSpecContributions,
+  V1alpha2DevWorkspaceSpecTemplateComponents,
+} from '@devfile/api';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
+import { DevWorkspacePlugin } from '../../devfileApi/devWorkspace';
 
 const DEFAULT_PLUGIN_ATTRIBUTE = 'che.eclipse.org/default-plugin';
 
@@ -31,9 +35,13 @@ export class DevWorkspaceDefaultPluginsHandler {
     editorId: string,
     defaultPlugins: WorkspacesDefaultPlugins,
   ): Promise<void> {
-    const componentsUpdated = this.handleUriPlugins(workspace, defaultPlugins[editorId]);
+    const componentsUpdated = this.removeDefaultUriPluginsComponents(workspace);
+    const contributionsUpdated = this.handleUriPlugins(workspace, defaultPlugins[editorId]);
     if (componentsUpdated) {
       await this.patchWorkspaceComponents(workspace);
+    }
+    if (contributionsUpdated) {
+      await this.patchWorkspaceContributions(workspace);
     }
   }
 
@@ -41,7 +49,7 @@ export class DevWorkspaceDefaultPluginsHandler {
    * Manages the default uri plugins from the devworkspace's spec.template.components
    * @param workspace A devworkspace to manage default plugins for
    * @param defaultPlugins The set of current default plugins uris
-   * @returns true if the devworkspace's spec.template.components has been updated
+   * @returns true if the devworkspace's spec.contributions has been updated
    */
   private handleUriPlugins(
     workspace: devfileApi.DevWorkspace,
@@ -57,14 +65,15 @@ export class DevWorkspaceDefaultPluginsHandler {
       }),
     );
 
-    let componentsUpdated = this.removeDefaultUriPlugins(workspace, defaultUriPlugins);
+    let contributionsUpdated = this.removeDefaultUriPlugins(workspace, defaultUriPlugins);
+
     defaultUriPlugins.forEach(plugin => {
       const hash = createHash('MD5').update(plugin).digest('hex').substring(0, 20).toLowerCase();
       const added = this.addDefaultPluginByUri(workspace, 'default-' + hash, plugin);
-      componentsUpdated = added || componentsUpdated;
+      contributionsUpdated = added || contributionsUpdated;
     });
 
-    return componentsUpdated;
+    return contributionsUpdated;
   }
 
   private isUri(str: string): boolean {
@@ -74,6 +83,25 @@ export class DevWorkspaceDefaultPluginsHandler {
     } catch (err) {
       return false;
     }
+  }
+
+  /**
+   * Removes all default uri plugins in spec.template.components since they should now
+   * be defined in spec.contributions
+   * @param workspace workspace to remove old default plugins for
+   * @returns true if a default plugin has been removed, false otherwise
+   */
+  private removeDefaultUriPluginsComponents(workspace: devfileApi.DevWorkspace): boolean {
+    if (!workspace.spec.template.components) {
+      return false;
+    }
+    const components = workspace.spec.template.components.filter(component => {
+      const isNotUrlPlugin = !component.plugin?.uri;
+      return !this.isDefaultPluginComponent(component) || isNotUrlPlugin;
+    });
+    const removed = workspace.spec.template.components.length !== components.length;
+    workspace.spec.template.components = components;
+    return removed;
   }
 
   /**
@@ -87,20 +115,20 @@ export class DevWorkspaceDefaultPluginsHandler {
     workspace: devfileApi.DevWorkspace,
     allowlist: Set<string> = new Set(),
   ): boolean {
-    if (!workspace.spec.template.components) {
+    if (!workspace.spec.contributions) {
       return false;
     }
 
-    const components = workspace.spec.template.components.filter(component => {
-      if (!this.isDefaultPluginComponent(component) || !component.plugin?.uri) {
+    const contributions = workspace.spec.contributions?.filter(contribution => {
+      if (!this.isDefaultPluginContribution(contribution) || !contribution.uri) {
         // component is not a default uri plugin, keep component.
         return true;
       }
-      return allowlist.has(component.plugin.uri);
-    });
+      return allowlist.has(contribution.uri);
+    }) as DevWorkspacePlugin[];
 
-    const removed = workspace.spec.template.components.length !== components.length;
-    workspace.spec.template.components = components;
+    const removed = workspace.spec.contributions.length !== contributions.length;
+    workspace.spec.contributions = contributions;
     return removed;
   }
 
@@ -112,6 +140,19 @@ export class DevWorkspaceDefaultPluginsHandler {
   private isDefaultPluginComponent(component: V1alpha2DevWorkspaceSpecTemplateComponents): boolean {
     return component.attributes && component.attributes[DEFAULT_PLUGIN_ATTRIBUTE]
       ? component.attributes[DEFAULT_PLUGIN_ATTRIBUTE].toString() === 'true'
+      : false;
+  }
+
+  /**
+   * Returns true if provided contribution is a default plugin managed by this class
+   * @param contribution The contribution to check
+   * @returns true if contribution is a default plugin managed by this class
+   */
+  private isDefaultPluginContribution(
+    contribution: V1alpha2DevWorkspaceSpecContributions,
+  ): boolean {
+    return contribution.attributes && contribution.attributes[DEFAULT_PLUGIN_ATTRIBUTE]
+      ? contribution.attributes[DEFAULT_PLUGIN_ATTRIBUTE].toString() === 'true'
       : false;
   }
 
@@ -132,7 +173,11 @@ export class DevWorkspaceDefaultPluginsHandler {
       workspace.spec.contributions = [];
     }
 
-    if (workspace.spec.contributions.find(component => component.name === pluginName)) {
+    if (
+      workspace.spec.contributions.find(contribution => {
+        return this.isDefaultPluginContribution(contribution) && contribution.uri === pluginUri;
+      })
+    ) {
       // plugin already exists
       return false;
     }
@@ -151,6 +196,17 @@ export class DevWorkspaceDefaultPluginsHandler {
         op: 'replace',
         path: '/spec/template/components',
         value: workspace.spec.template.components,
+      },
+    ];
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+  }
+
+  private async patchWorkspaceContributions(workspace: devfileApi.DevWorkspace) {
+    const patch: api.IPatch[] = [
+      {
+        op: 'replace',
+        path: '/spec/contributions',
+        value: workspace.spec.contributions,
       },
     ];
     return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);

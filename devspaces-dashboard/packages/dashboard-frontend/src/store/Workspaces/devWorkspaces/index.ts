@@ -505,7 +505,7 @@ export const actionCreators: ActionCreators = {
       const openVSXUrl = selectOpenVSXUrl(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
       try {
-        const cheEditor = editorId ? editorId : devWorkspaceTemplateResource.metadata.name;
+        const cheEditor = editorId ? editorId : state.dwPlugins.defaultEditorName;
         const pluginRegistryUrl =
           state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
         const pluginRegistryInternalUrl =
