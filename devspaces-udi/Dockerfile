@@ -245,8 +245,8 @@ RUN \
     ########################################################################
     mkdir -p ${HOME}/.ansible/roles ${HOME}/.ansible/tmp \
     /usr/share/ansible/roles /etc/ansible/roles && \
-    chown -R 10001:0 ${HOME}/.ansible && \
-    chmod -R g=u ${HOME}/.ansible
+    chgrp -R 0 ${HOME}/.ansible && \
+    chmod -R g+rwX ${HOME}/.ansible
 
 RUN \
     ########################################################################
