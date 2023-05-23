@@ -275,11 +275,13 @@ ruamel-yaml==0.17.26
     # via ansible-lint
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
-setuptools-scm==7.0.5
+setuptools-scm[toml]==7.0.5
     # via
     #   -r requirements-build.in
     #   flit-scm
     #   hatch-vcs
+setuptools-scm-git-archive==1.4
+    # via -r requirements-build.in
 six==1.16.0
     # via
     #   -r requirements-build.in
