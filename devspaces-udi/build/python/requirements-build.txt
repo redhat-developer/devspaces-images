@@ -76,7 +76,9 @@ distlib==0.3.6
 docutils==0.20.1
     # via python-daemon
 editables==0.3
-    # via hatchling
+    # via
+    #   -r requirements-build.in
+    #   hatchling
 enrich==1.2.7
     # via molecule
 exceptiongroup==1.0.1
@@ -161,7 +163,7 @@ mypy-extensions==1.0.0
     #   black
 oauthlib==3.2.2
     # via requests-oauthlib
-packaging==22.0
+packaging==23.1
     # via
     #   -r requirements-build.in
     #   ansible-compat
@@ -177,6 +179,7 @@ paramiko==3.1.0
     # via -r requirements-build.in
 pathspec==0.11.1
     # via
+    #   -r requirements-build.in
     #   ansible-lint
     #   black
     #   hatchling
