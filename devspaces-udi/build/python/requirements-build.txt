@@ -40,6 +40,8 @@ bracex==2.3.post1
     #   wcmatch
 cachetools==5.3.0
     # via google-auth
+calver==2022.6.26
+    # via -r requirements-build.in
 certifi==2023.5.7
     # via
     #   kubernetes
