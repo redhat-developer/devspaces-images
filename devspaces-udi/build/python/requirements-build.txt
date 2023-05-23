@@ -188,6 +188,8 @@ pathspec==0.11.1
     #   black
     #   hatchling
     #   yamllint
+pbr==5.11.1
+    # via -r requirements-build.in
 pexpect==4.8.0
     # via ansible-runner
 platformdirs==3.5.1
