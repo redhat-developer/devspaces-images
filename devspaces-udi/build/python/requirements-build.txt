@@ -87,6 +87,8 @@ exceptiongroup==1.0.1
     # via
     #   -r requirements-build.in
     #   pytest
+expandvars==0.9.0
+    # via -r requirements-build.in
 filelock==3.12.0
     # via
     #   ansible-lint
