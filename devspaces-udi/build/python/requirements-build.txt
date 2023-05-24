@@ -56,6 +56,8 @@ distlib==0.3.6
     # via virtualenv
 docutils==0.20.1
     # via python-daemon
+editables==0.3
+    # via hatchling
 enrich==1.2.7
     # via molecule
 exceptiongroup==1.0.1
@@ -76,6 +78,8 @@ flit-scm==1.7.0
     # via -r requirements-build.in
 google-auth==2.18.1
     # via kubernetes
+hatchling==1.17.0
+    # via -r requirements-build.in
 idna==3.4
     # via requests
 importlib-resources==5.0.7
@@ -124,9 +128,12 @@ packaging==21.3
     #   ansible-compat
     #   ansible-core
     #   ansible-runner
+    #   hatchling
     #   molecule
     #   pytest
     #   setuptools-scm
+pathspec==0.11.1
+    # via hatchling
 pbr==5.11.1
     # via -r requirements-build.in
 pexpect==4.8.0
@@ -136,6 +143,7 @@ platformdirs==2.6.2
 pluggy==1.0.0
     # via
     #   -r requirements-build.in
+    #   hatchling
     #   molecule
     #   pytest
 ptyprocess==0.7.0
@@ -224,8 +232,11 @@ tomli==2.0.1
     # via
     #   -r requirements-build.in
     #   flit-scm
+    #   hatchling
     #   pytest
     #   setuptools-scm
+trove-classifiers==2023.5.24
+    # via hatchling
 typing-extensions==4.4.0
     # via
     #   -r requirements-build.in
