@@ -49,6 +49,7 @@ pbr==5.11.1
 hatch-fancy-pypi-readme==23.1.0
 setuptools-rust>=0.11.4
 ansible-lint[lock]==6.16.1
+cryptography==40.0.2
 molecule==5.0.1
 molecule-plugins[podman]==23.4.1
 paramiko==3.1.0
