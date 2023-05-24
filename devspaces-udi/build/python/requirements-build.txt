@@ -282,6 +282,10 @@ ruamel-yaml==0.17.26
     # via ansible-lint
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
+semantic-version==2.10.0
+    # via setuptools-rust
+setuptools-rust==1.6.0
+    # via -r requirements-build.in
 setuptools-scm[toml]==7.0.5
     # via
     #   -r requirements-build.in
@@ -323,6 +327,7 @@ typing-extensions==4.5.0
     #   -r requirements-build.in
     #   ansible-lint
     #   black
+    #   setuptools-rust
     #   setuptools-scm
 urllib3==1.26.16
     # via
@@ -354,4 +359,5 @@ setuptools==67.8.0
     #   -r requirements-build.in
     #   kubernetes
     #   python-daemon
+    #   setuptools-rust
     #   setuptools-scm
