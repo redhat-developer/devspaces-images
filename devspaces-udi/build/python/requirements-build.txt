@@ -40,8 +40,6 @@ bracex==2.3.post1
     #   wcmatch
 cachetools==5.3.0
     # via google-auth
-calver==2022.6.26
-    # via -r requirements-build.in
 certifi==2023.5.7
     # via
     #   kubernetes
@@ -68,7 +66,6 @@ cookiecutter==2.1.1
     # via molecule
 cryptography==40.0.2
     # via
-    #   -r requirements-build.in
     #   ansible-core
     #   ansible-lint
     #   paramiko
@@ -79,17 +76,13 @@ distlib==0.3.6
 docutils==0.20.1
     # via python-daemon
 editables==0.3
-    # via
-    #   -r requirements-build.in
-    #   hatchling
+    # via hatchling
 enrich==1.2.7
     # via molecule
 exceptiongroup==1.0.1
     # via
     #   -r requirements-build.in
     #   pytest
-expandvars==0.9.0
-    # via -r requirements-build.in
 filelock==3.12.0
     # via
     #   ansible-lint
@@ -104,14 +97,11 @@ flit-scm==1.7.0
     # via -r requirements-build.in
 google-auth==2.18.1
     # via kubernetes
-hatch-fancy-pypi-readme==23.1.0
-    # via -r requirements-build.in
 hatch-vcs==0.3.0
     # via -r requirements-build.in
 hatchling==1.17.0
     # via
     #   -r requirements-build.in
-    #   hatch-fancy-pypi-readme
     #   hatch-vcs
 idna==3.4
     # via requests
@@ -171,7 +161,7 @@ mypy-extensions==1.0.0
     #   black
 oauthlib==3.2.2
     # via requests-oauthlib
-packaging==23.1
+packaging==22.0
     # via
     #   -r requirements-build.in
     #   ansible-compat
@@ -187,13 +177,10 @@ paramiko==3.1.0
     # via -r requirements-build.in
 pathspec==0.11.1
     # via
-    #   -r requirements-build.in
     #   ansible-lint
     #   black
     #   hatchling
     #   yamllint
-pbr==5.11.1
-    # via -r requirements-build.in
 pexpect==4.8.0
     # via ansible-runner
 platformdirs==3.5.1
@@ -207,8 +194,6 @@ pluggy==1.0.0
     #   hatchling
     #   molecule
     #   pytest
-poetry-core==1.6.0
-    # via -r requirements-build.in
 ptyprocess==0.7.0
     # via pexpect
 pyasn1==0.5.0
@@ -283,17 +268,11 @@ ruamel-yaml==0.17.26
     # via ansible-lint
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
-semantic-version==2.10.0
-    # via setuptools-rust
-setuptools-rust==1.6.0
-    # via -r requirements-build.in
-setuptools-scm[toml]==7.0.5
+setuptools-scm==7.0.5
     # via
     #   -r requirements-build.in
     #   flit-scm
     #   hatch-vcs
-setuptools-scm-git-archive==1.4
-    # via -r requirements-build.in
 six==1.16.0
     # via
     #   -r requirements-build.in
@@ -317,7 +296,6 @@ tomli==2.0.1
     #   ansible-lint
     #   black
     #   flit-scm
-    #   hatch-fancy-pypi-readme
     #   hatchling
     #   pytest
     #   setuptools-scm
@@ -328,7 +306,6 @@ typing-extensions==4.5.0
     #   -r requirements-build.in
     #   ansible-lint
     #   black
-    #   setuptools-rust
     #   setuptools-scm
 urllib3==1.26.16
     # via
@@ -360,5 +337,4 @@ setuptools==67.8.0
     #   -r requirements-build.in
     #   kubernetes
     #   python-daemon
-    #   setuptools-rust
     #   setuptools-scm
