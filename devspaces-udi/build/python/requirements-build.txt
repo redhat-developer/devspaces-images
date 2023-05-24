@@ -9,10 +9,7 @@ ansible-compat==3.0.2
 ansible-core==2.15.0
     # via
     #   ansible-compat
-    #   ansible-lint
     #   molecule
-ansible-lint[lock]==6.16.1
-    # via -r requirements-build.in
 ansible-pylibssh==1.1.0
     # via -r requirements-build.in
 ansible-runner==2.3.2
@@ -23,21 +20,15 @@ argcomplete==2.0.0
     #   yq
 arrow==1.2.3
     # via jinja2-time
-attrs==23.1.0
+attrs==22.1.0
     # via
     #   -r requirements-build.in
-    #   ansible-lint
     #   jsonschema
+    #   pytest
 bcrypt==4.0.1
     # via paramiko
 binaryornot==0.4.4
     # via cookiecutter
-black==23.3.0
-    # via ansible-lint
-bracex==2.3.post1
-    # via
-    #   ansible-lint
-    #   wcmatch
 cachetools==5.3.0
     # via google-auth
 certifi==2023.5.7
@@ -46,7 +37,6 @@ certifi==2023.5.7
     #   requests
 cffi==1.15.1
     # via
-    #   ansible-lint
     #   cryptography
     #   pynacl
 chardet==5.1.0
@@ -55,8 +45,6 @@ charset-normalizer==3.1.0
     # via requests
 click==8.1.3
     # via
-    #   ansible-lint
-    #   black
     #   click-help-colors
     #   cookiecutter
     #   molecule
@@ -67,7 +55,6 @@ cookiecutter==2.1.1
 cryptography==40.0.2
     # via
     #   ansible-core
-    #   ansible-lint
     #   paramiko
 cython==0.29.32
     # via -r requirements-build.in
@@ -84,9 +71,7 @@ exceptiongroup==1.0.1
     #   -r requirements-build.in
     #   pytest
 filelock==3.12.0
-    # via
-    #   ansible-lint
-    #   virtualenv
+    # via virtualenv
 flake8==6.0.0
     # via -r requirements-build.in
 flit-core==3.8.0
@@ -106,9 +91,7 @@ hatchling==1.17.0
 idna==3.4
     # via requests
 importlib-resources==5.0.7
-    # via
-    #   ansible-core
-    #   ansible-lint
+    # via ansible-core
 iniconfig==1.1.1
     # via
     #   -r requirements-build.in
@@ -116,7 +99,6 @@ iniconfig==1.1.1
 jinja2==3.1.2
     # via
     #   ansible-core
-    #   ansible-lint
     #   cookiecutter
     #   jinja2-time
     #   molecule
@@ -127,48 +109,35 @@ jmespath==1.0.1
 jsonschema==4.17.3
     # via
     #   ansible-compat
-    #   ansible-lint
     #   molecule
 kubernetes==26.1.0
     # via -r requirements-build.in
 lockfile==0.12.2
     # via python-daemon
 markdown-it-py==2.2.0
-    # via
-    #   ansible-lint
-    #   rich
+    # via rich
 markupsafe==2.1.2
-    # via
-    #   ansible-lint
-    #   jinja2
+    # via jinja2
 mccabe==0.7.0
     # via
     #   -r requirements-build.in
     #   flake8
 mdurl==0.1.2
-    # via
-    #   ansible-lint
-    #   markdown-it-py
+    # via markdown-it-py
 molecule==5.0.1
     # via
     #   -r requirements-build.in
     #   molecule-plugins
 molecule-plugins[podman]==23.4.1
     # via -r requirements-build.in
-mypy-extensions==1.0.0
-    # via
-    #   ansible-lint
-    #   black
 oauthlib==3.2.2
     # via requests-oauthlib
-packaging==22.0
+packaging==21.3
     # via
     #   -r requirements-build.in
     #   ansible-compat
     #   ansible-core
-    #   ansible-lint
     #   ansible-runner
-    #   black
     #   hatchling
     #   molecule
     #   pytest
@@ -176,18 +145,11 @@ packaging==22.0
 paramiko==3.1.0
     # via -r requirements-build.in
 pathspec==0.11.1
-    # via
-    #   ansible-lint
-    #   black
-    #   hatchling
-    #   yamllint
+    # via hatchling
 pexpect==4.8.0
     # via ansible-runner
 platformdirs==3.5.1
-    # via
-    #   ansible-lint
-    #   black
-    #   virtualenv
+    # via virtualenv
 pluggy==1.0.0
     # via
     #   -r requirements-build.in
@@ -207,26 +169,22 @@ pycodestyle==2.10.0
     #   -r requirements-build.in
     #   flake8
 pycparser==2.21
-    # via
-    #   ansible-lint
-    #   cffi
+    # via cffi
 pyflakes==3.0.1
     # via
     #   -r requirements-build.in
     #   flake8
 pygments==2.15.1
-    # via
-    #   ansible-lint
-    #   rich
+    # via rich
 pynacl==1.5.0
     # via paramiko
 pyparsing==3.0.9
-    # via -r requirements-build.in
-pyrsistent==0.19.3
     # via
-    #   ansible-lint
-    #   jsonschema
-pytest==7.3.1
+    #   -r requirements-build.in
+    #   packaging
+pyrsistent==0.19.3
+    # via jsonschema
+pytest==7.2.0
     # via -r requirements-build.in
 python-daemon==3.0.1
     # via ansible-runner
@@ -241,12 +199,10 @@ pyyaml==6.0
     #   -r requirements-build.in
     #   ansible-compat
     #   ansible-core
-    #   ansible-lint
     #   ansible-runner
     #   cookiecutter
     #   kubernetes
     #   molecule
-    #   yamllint
     #   yq
 requests==2.31.0
     # via
@@ -259,15 +215,10 @@ resolvelib==1.0.1
     # via ansible-core
 rich==13.3.5
     # via
-    #   ansible-lint
     #   enrich
     #   molecule
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.26
-    # via ansible-lint
-ruamel-yaml-clib==0.2.7
-    # via ruamel-yaml
 setuptools-scm==7.0.5
     # via
     #   -r requirements-build.in
@@ -281,9 +232,7 @@ six==1.16.0
     #   kubernetes
     #   python-dateutil
 subprocess-tee==0.4.1
-    # via
-    #   ansible-compat
-    #   ansible-lint
+    # via ansible-compat
 text-unidecode==1.3
     # via python-slugify
 toml==0.10.2
@@ -293,19 +242,15 @@ toml==0.10.2
 tomli==2.0.1
     # via
     #   -r requirements-build.in
-    #   ansible-lint
-    #   black
     #   flit-scm
     #   hatchling
     #   pytest
     #   setuptools-scm
 trove-classifiers==2023.5.22
     # via hatchling
-typing-extensions==4.5.0
+typing-extensions==4.4.0
     # via
     #   -r requirements-build.in
-    #   ansible-lint
-    #   black
     #   setuptools-scm
 urllib3==1.26.16
     # via
@@ -314,8 +259,6 @@ urllib3==1.26.16
     #   requests
 virtualenv==20.23.0
     # via -r requirements-build.in
-wcmatch==8.4.1
-    # via ansible-lint
 websocket-client==1.5.2
     # via kubernetes
 wheel==0.40.0
@@ -324,8 +267,6 @@ xmltodict==0.13.0
     # via
     #   -r requirements-build.in
     #   yq
-yamllint==1.32.0
-    # via ansible-lint
 yq==3.1.0
     # via -r requirements-build.in
 
