@@ -31,7 +31,7 @@ calver==2022.6.26
 expandvars==0.9.0
 editables==0.3
 xmltodict==0.13.0
-wheel
+wheel==0.40.0
 yq==3.1.0
 
 # instead of pylint, try using flake8 as it has fewer dependencies and might not collide with setuptools requirement?
@@ -51,4 +51,3 @@ molecule-plugins[podman]==23.4.1
 paramiko==3.1.0
 jmespath==1.0.1
 kubernetes==26.1.0
-wheel==0.40.0
