@@ -42,5 +42,3 @@ molecule-plugins[podman]==23.4.1
 # paramiko==3.1.0
 # jmespath==1.0.1
 # kubernetes==26.1.0
-hatch-vcs>=0.3
-hatchling>=1.14
