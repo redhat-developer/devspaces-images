@@ -103,11 +103,14 @@ flit-scm==1.7.0
     # via -r requirements-build.in
 google-auth==2.18.1
     # via kubernetes
+hatch-fancy-pypi-readme==23.1.0
+    # via -r requirements-build.in
 hatch-vcs==0.3.0
     # via -r requirements-build.in
 hatchling==1.17.0
     # via
     #   -r requirements-build.in
+    #   hatch-fancy-pypi-readme
     #   hatch-vcs
 idna==3.4
     # via requests
@@ -309,6 +312,7 @@ tomli==2.0.1
     #   ansible-lint
     #   black
     #   flit-scm
+    #   hatch-fancy-pypi-readme
     #   hatchling
     #   pytest
     #   setuptools-scm
