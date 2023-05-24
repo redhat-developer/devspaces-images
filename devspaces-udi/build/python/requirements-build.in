@@ -41,7 +41,7 @@ molecule==5.0.1
 molecule-plugins[podman]==23.4.1
 # paramiko==3.1.0
 # jmespath==1.0.1
-# kubernetes==26.1.0
+kubernetes==26.1.0
 expandvars
 setuptools_scm_git_archive
 pbr
