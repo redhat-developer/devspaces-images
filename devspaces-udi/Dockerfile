@@ -207,7 +207,7 @@ RUN \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
     set -xe; \
     python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq \
-    ansible-pylibssh ansible-runner ansible-lint[lock] paramiko jmespath pyyaml molecule molecule-plugins[podman] kubernetes && \
+    ansible-pylibssh ansible-runner kubernetes && \
     # python/pip/flake8/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
