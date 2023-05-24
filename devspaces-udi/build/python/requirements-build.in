@@ -46,3 +46,4 @@ expandvars
 setuptools_scm_git_archive
 pbr
 hatchling
+hatch-vcs

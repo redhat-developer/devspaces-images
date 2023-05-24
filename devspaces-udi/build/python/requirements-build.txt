@@ -78,8 +78,12 @@ flit-scm==1.7.0
     # via -r requirements-build.in
 google-auth==2.18.1
     # via kubernetes
-hatchling==1.17.0
+hatch-vcs==0.3.0
     # via -r requirements-build.in
+hatchling==1.17.0
+    # via
+    #   -r requirements-build.in
+    #   hatch-vcs
 idna==3.4
     # via requests
 importlib-resources==5.0.7
@@ -211,6 +215,7 @@ setuptools-scm==7.0.5
     # via
     #   -r requirements-build.in
     #   flit-scm
+    #   hatch-vcs
 setuptools-scm-git-archive==1.4
     # via -r requirements-build.in
 six==1.16.0
