@@ -44,3 +44,4 @@ molecule-plugins[podman]==23.4.1
 # kubernetes==26.1.0
 expandvars
 setuptools_scm_git_archive
+pbr
