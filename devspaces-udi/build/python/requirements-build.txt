@@ -152,6 +152,8 @@ pluggy==1.0.0
     #   hatchling
     #   molecule
     #   pytest
+poetry-core==1.6.0
+    # via -r requirements-build.in
 ptyprocess==0.7.0
     # via pexpect
 pyasn1==0.5.0
