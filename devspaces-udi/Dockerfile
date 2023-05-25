@@ -208,7 +208,7 @@ RUN \
     set -xe; \
     python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq \
     ansible-pylibssh ansible-runner kubernetes && \
-    # python/pip/flake8/yq symlinks
+    # python/pip/flake8/yq/ansible/ansible-runner/molecule symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip${PYTHON_VERSION} && \
@@ -217,18 +217,27 @@ RUN \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m yq \$*" | sed -r -e "s@#@#\!@" > /usr/bin/yq && \
-    chmod +x /usr/bin/pip* /usr/bin/py* /usr/bin/yq && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m ansible \$*" | sed -r -e "s@#@#\!@" > /usr/bin/ansible && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m ansible-runner \$*" | sed -r -e "s@#@#\!@" > /usr/bin/ansible-runner && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m molecule \$*" | sed -r -e "s@#@#\!@" > /usr/bin/molecule && \
+    chmod +x /usr/bin/pip* /usr/bin/py* /usr/bin/yq /usr/bin/ansible /usr/bin/ansible-runner /usr/bin/molecule && \
     SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/flake8; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/flake8${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pytest; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pytest${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/ansible; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/ansible ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/ansible-runner; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/ansible-runner ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/molecule; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/molecule ${SL}; else ls -la ${SL}; fi && \
     chmod +x /usr/local/bin/* && \
     echo -n "/usr/local/bin/python: "; /usr/local/bin/python -V && \
     echo -n "/usr/local/bin/pip: ";    /usr/local/bin/pip -V && \
     echo -n "/usr/local/bin/flake8: "; /usr/local/bin/flake8 --version && \
     echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
+    echo -n "/usr/local/bin/ansible:     "; /usr/local/bin/ansible --version && \
+    echo -n "/usr/local/bin/ansible-runner:     "; /usr/local/bin/ansible-runner --version && \
+    echo -n "/usr/local/bin/molecule:     "; /usr/local/bin/molecule --version && \
     # set up ~/.venv
     mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
@@ -347,11 +356,6 @@ RUN \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; yq --version; \
     echo "========" && \
-    echo -n "Ansible:  "; ansible --version; \
-    echo -n "Ansible lint:  "; ansible-lint --version; \
-    echo -n "Ansible runner:  "; ansible-runner --version; \
-    echo -n "Molecule:  "; molecule --version; \
-    echo "========"
     echo -n "oc:      "; oc version; \
     echo -n "odo:     "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
