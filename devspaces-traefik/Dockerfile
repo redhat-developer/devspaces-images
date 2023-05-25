@@ -24,7 +24,7 @@ RUN yarn config set unsafe-perm true && \
     npm run build:nc
 
 #GO BUILD
-ARG TRAEFIK_SHA="c9520"
+ARG TRAEFIK_SHA="d97d3"
 ENV TRAEFIK_SHA="${TRAEFIK_SHA}"
 
 RUN cp $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
@@ -49,8 +49,7 @@ ENTRYPOINT ["/traefik"]
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces traefik container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces traefik container" \
-    TRAEFIK_VERSION="v2.8.1" \
-    GOLANG_VERSION="1.16.2" \
+    TRAEFIK_VERSION="v2.9.6" \
     PRODNAME="devspaces" \
     COMPNAME="traefik-rhel8"
 LABEL summary="$SUMMARY" \
@@ -62,6 +61,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.8" \
       license="EPLv2" \
-      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Samantha Dawley <sdawley@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
