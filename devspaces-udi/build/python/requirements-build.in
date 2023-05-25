@@ -49,3 +49,4 @@ hatchling==1.11.1
 hatch-vcs
 filelock==3.8.2
 poetry-core>=1.0.0
+hatch-fancy-pypi-readme==23.1.0
