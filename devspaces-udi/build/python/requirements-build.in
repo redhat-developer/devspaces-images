@@ -47,3 +47,4 @@ setuptools_scm_git_archive
 pbr
 hatchling==1.11.1
 hatch-vcs
+filelock==3.8.2
