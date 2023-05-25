@@ -17,8 +17,7 @@ set -e
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 3.y
-TRAEFIK_VERSION="v2.8.1"
-GOLANG_VERSION="1.16.2"
+TRAEFIK_VERSION="" # read this from job-config.json
 UPSTM_NAME="traefik"
 MIDSTM_NAME="traefik"
 
@@ -39,7 +38,6 @@ while [[ "$#" -gt 0 ]]; do
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     # special params for this sync
     '--traefik-version') TRAEFIK_VERSION="$2"; shift 1;;
-    '--golang-version') GOLANG_VERSION="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -85,6 +83,15 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
+# get job-config.json
+SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
+configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
+
+if [[ ! $TRAEFIK_VERSION ]]; then
+  TRAEFIK_VERSION=$(echo "${configjson}" | jq -r --arg DS_VERSION "${DS_VERSION}" '.Jobs.traefik[$DS_VERSION].upstream_branch[1]');
+fi
+
 SOURCE_SHA=$(cd "${SOURCEDIR}"; git checkout "${TRAEFIK_VERSION}"; git rev-parse --short=4 HEAD || true)
 sed -r \
   `# Use the current SHA to build` \
@@ -98,7 +105,6 @@ cat << EOT >> "${TARGETDIR}"/Dockerfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     TRAEFIK_VERSION="${TRAEFIK_VERSION}" \\
-    GOLANG_VERSION="${GOLANG_VERSION}" \\
     PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
@@ -110,7 +116,7 @@ LABEL summary="\$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${DS_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
+      maintainer="Samantha Dawley <sdawley@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
