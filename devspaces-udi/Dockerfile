@@ -206,6 +206,7 @@ RUN \
     # update pip & other dependencies from cachito
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
+    export CARGO_NET_OFFLINE=true && \
     set -xe; \
     python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq \
     ansible-pylibssh ansible-runner molecule kubernetes && \

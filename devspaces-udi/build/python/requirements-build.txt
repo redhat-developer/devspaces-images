@@ -49,7 +49,9 @@ click-help-colors==0.9.1
 cookiecutter==2.1.1
     # via molecule
 cryptography==40.0.2
-    # via ansible-core
+    # via
+    #   ansible-core
+    #   pyopenssl
 cython==0.29.32
     # via -r requirements-build.in
 distlib==0.3.6
@@ -78,7 +80,7 @@ flit-core==3.8.0
     #   flit-scm
 flit-scm==1.7.0
     # via -r requirements-build.in
-google-auth==2.18.1
+google-auth==2.19.0
     # via kubernetes
 hatch-fancy-pypi-readme==23.1.0
     # via -r requirements-build.in
@@ -177,6 +179,8 @@ pyflakes==3.0.1
     #   flake8
 pygments==2.15.1
     # via rich
+pyopenssl==23.1.1
+    # via -r requirements-build.in
 pyparsing==3.0.9
     # via
     #   -r requirements-build.in
