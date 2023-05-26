@@ -52,3 +52,4 @@ poetry-core>=1.0.0
 hatch-fancy-pypi-readme==23.1.0
 setuptools-rust==0.11.4
 pyopenssl==23.1.1
+asn1

@@ -20,6 +20,8 @@ argcomplete==2.0.0
     #   yq
 arrow==1.2.3
     # via jinja2-time
+asn1==2.7.0
+    # via -r requirements-build.in
 attrs==22.1.0
     # via
     #   -r requirements-build.in
@@ -62,6 +64,8 @@ editables==0.3
     # via hatchling
 enrich==1.2.7
     # via molecule
+enum-compat==0.0.3
+    # via asn1
 exceptiongroup==1.0.1
     # via
     #   -r requirements-build.in
