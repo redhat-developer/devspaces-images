@@ -1,5 +1,5 @@
 pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
-    disabled(false)
+    disabled(true)
     description('''Sync job between github issues and jira for docs team''')
 
     properties {
