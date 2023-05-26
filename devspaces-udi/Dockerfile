@@ -116,7 +116,8 @@ RUN \
         make cmake gcc gcc-c++ \
             llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb \
         php php-cli php-fpm php-opcache php-devel php-pear php-gd php-intl php-mysqli php-zlib php-curl \
-        python39 python39-devel python39-setuptools python39-pip python39-wheel libssh-devel libffi-devel cargo jq \
+        python39 python39-devel python39-setuptools python39-pip python39-wheel \
+        libssh-devel libffi-devel redhat-rpm-config cargo openssl-devel pkg-config jq \
         podman buildah skopeo fuse-overlayfs \
         e2fsprogs libatomic_ops git openssl-devel ca-certificates \
         bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree \
