@@ -37,7 +37,7 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 
 def errorOccurred = ""
 
-def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
+def String nodeLabel = '(x86_64-rhel8||ppc64le-rhel8)'
 timeout(90) {
     // trigger update_digests job if we have pushed new images that appear in the registry or metadata
     node(nodeLabel) {
