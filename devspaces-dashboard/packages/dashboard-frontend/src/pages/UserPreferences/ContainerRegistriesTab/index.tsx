@@ -47,7 +47,7 @@ type State = {
   isEditModalOpen: boolean;
 };
 
-export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
+export class ContainerRegistries extends React.PureComponent<Props, State> {
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
 
@@ -366,4 +366,4 @@ const mapStateToProps = (state: AppState) => ({
 const connector = connect(mapStateToProps, DockerConfigStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
-export default connector(ContainerRegistriesTab);
+export default connector(ContainerRegistries);

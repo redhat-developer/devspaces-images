@@ -22,6 +22,28 @@ export type GitOauthProvider =
   | 'bitbucket'
   | 'azure-devops';
 
+export type GitProvider =
+  | 'github'
+  | 'gitlab'
+  | 'bitbucket-server'
+  | 'azure-devops';
+
+export type PersonalAccessToken = {
+  cheUserId: string;
+  tokenName: string;
+  tokenData: string; // base64 encoded
+  gitProviderEndpoint: string;
+  gitProviderUsername: string;
+} & (
+  | {
+      gitProvider: Exclude<GitProvider, 'azure-devops'>;
+    }
+  | {
+      gitProvider: Extract<GitProvider, 'azure-devops'>;
+      gitProviderOrganization: string;
+    }
+);
+
 export interface IPatch {
   op: string;
   path: string;
@@ -38,6 +60,10 @@ export interface IWorkspacesDefaultPlugins {
   plugins: string[];
 }
 
+export interface IExternalDevfileRegistry {
+  url: string;
+}
+
 export interface IServerConfig {
   containerBuild: {
     containerBuildConfiguration?: {
@@ -51,6 +77,10 @@ export interface IServerConfig {
     plugins: IWorkspacesDefaultPlugins[];
     pvcStrategy: string | undefined;
   };
+  devfileRegistry: {
+    disableInternalRegistry: boolean;
+    externalDevfileRegistries: IExternalDevfileRegistry[];
+  };
   pluginRegistry: {
     openVSXURL: string;
   };
@@ -60,6 +90,10 @@ export interface IServerConfig {
     startTimeout: number;
   };
   cheNamespace: string;
+  pluginRegistryURL: string;
+  pluginRegistryInternalURL: string;
+  devfileRegistryURL: string;
+  devfileRegistryInternalURL: string;
 }
 
 export interface IUserProfile {

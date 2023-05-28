@@ -35,7 +35,6 @@ import {
   EMPTY_WORKSPACE_TAG,
   selectMetadataFiltered,
 } from '../../../store/DevfileRegistries/selectors';
-import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
 import { selectDefaultEditor } from '../../../store/Plugins/devWorkspacePlugins/selectors';
 import { selectEditors } from '../../../store/Plugins/chePlugins/selectors';
@@ -61,7 +60,7 @@ type State = {
   alerts: AlertItem[];
 };
 
-export const VISIBLE_TAGS = ['Community', 'Tech-Preview'];
+export const VISIBLE_TAGS = ['Community', 'Tech-Preview', 'Devfile.io'];
 
 const EXCLUDED_TARGET_EDITOR_NAMES = ['dirigible', 'jupyter', 'eclipseide', 'code-server'];
 
@@ -247,7 +246,6 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   metadataFiltered: selectMetadataFiltered(state),
-  workspacesSettings: selectWorkspacesSettings(state),
   factoryResolver: state.factoryResolver,
   editors: selectEditors(state),
   defaultEditor: selectDefaultEditor(state),

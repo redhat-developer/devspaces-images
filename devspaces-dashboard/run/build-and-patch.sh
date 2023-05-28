@@ -17,11 +17,11 @@ CHE_DASHBOARD_IMAGE="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-dash
 
 echo "Build a new image '${CHE_DASHBOARD_IMAGE}'..."
 
-docker build . -f build/dockerfiles/Dockerfile -t $CHE_DASHBOARD_IMAGE
+podman build . -f build/dockerfiles/Dockerfile -t $CHE_DASHBOARD_IMAGE
 
 echo "Push the image '${CHE_DASHBOARD_IMAGE}'..."
 
-docker push $CHE_DASHBOARD_IMAGE
+podman push $CHE_DASHBOARD_IMAGE
 
 echo "Patching checluster with the new dashboard image '${CHE_DASHBOARD_IMAGE}'..."
 

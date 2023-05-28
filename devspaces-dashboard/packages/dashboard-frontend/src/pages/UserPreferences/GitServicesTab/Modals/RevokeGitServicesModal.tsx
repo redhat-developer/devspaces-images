@@ -10,18 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
+import { api } from '@eclipse-che/common';
 import {
   Button,
   ButtonVariant,
-  ModalVariant,
-  Modal,
-  TextContent,
-  Text,
   Checkbox,
+  Modal,
+  ModalVariant,
+  Text,
+  TextContent,
 } from '@patternfly/react-core';
-import { api } from '@eclipse-che/common';
-import { providersMap } from '../index';
+import React from 'react';
+import { GIT_OAUTH_PROVIDERS } from '../../const';
 
 type Props = {
   gitOauth?: api.GitOauthProvider;
@@ -55,10 +55,10 @@ export default class RevokeGitServicesModal extends React.PureComponent<Props, S
     let text = 'Would you like to revoke ';
 
     if (gitOauth) {
-      text += `git service '${providersMap[gitOauth]}'`;
+      text += `git service '${GIT_OAUTH_PROVIDERS[gitOauth]}'`;
     } else {
       if (selectedItems.length === 1) {
-        text += `git service '${providersMap[selectedItems[0]]}'`;
+        text += `git service '${GIT_OAUTH_PROVIDERS[selectedItems[0]]}'`;
       } else {
         text += `${selectedItems.length} git services`;
       }

@@ -24,9 +24,14 @@ import {
   IDevWorkspaceApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
+  IEventApi,
   IKubeConfigApi,
+  ILogsApi,
   INamespaceApi,
+  IPersonalAccessTokenApi,
+  IPodApi,
   IServerConfigApi,
+  IUserProfileApi,
 } from '../../../../devworkspaceClient';
 import { getDevWorkspaceClient as helper } from '../getDevWorkspaceClient';
 
@@ -44,6 +49,10 @@ export const stubAllWorkspacesLimit = 1;
 export const stubWorkspaceInactivityTimeout = 0;
 export const stubWorkspaceRunTimeout = 0;
 export const stubWorkspaceStartupTimeout = 0;
+export const defaultDevfileRegistryUrl = 'http://devfile-registry.eclipse-che.svc';
+export const defaultPluginRegistryUrl = 'http://plugin-registry.eclipse-che.svc/v3';
+export const internalRegistryDisableStatus = true;
+export const externalDevfileRegistries = [{ url: 'https://devfile.registry.test.org/' }];
 
 export const stubDevWorkspacesList: api.IDevWorkspaceList = {
   apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -79,6 +88,26 @@ export const stubUserProfile: api.IUserProfile = {
   username: 'user1',
 };
 
+export const stubEventsList: api.IEventList = {
+  apiVersion: 'workspace.devfile.io/v1alpha2',
+  kind: 'EventList',
+  metadata: {
+    resourceVersion: '123456789',
+  },
+  items: [],
+};
+
+export const stubPodsList: api.IPodList = {
+  apiVersion: 'workspace.devfile.io/v1alpha2',
+  kind: 'PodList',
+  metadata: {
+    resourceVersion: '123456789',
+  },
+  items: [],
+};
+
+export const stubPersonalAccessTokenList: api.PersonalAccessToken[] = [];
+
 export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnType<typeof helper> {
   return {
     serverConfigApi: {
@@ -95,6 +124,10 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       getWorkspaceInactivityTimeout: _cheCustomResource => stubWorkspaceInactivityTimeout,
       getWorkspaceRunTimeout: _cheCustomResource => stubWorkspaceRunTimeout,
       getWorkspaceStartTimeout: _cheCustomResource => stubWorkspaceStartupTimeout,
+      getDefaultDevfileRegistryUrl: _cheCustomResource => defaultDevfileRegistryUrl,
+      getDefaultPluginRegistryUrl: _cheCustomResource => defaultPluginRegistryUrl,
+      getExternalDevfileRegistries: _cheCustomResource => externalDevfileRegistries,
+      getInternalRegistryDisableStatus: _cheCustomResource => internalRegistryDisableStatus,
     } as IServerConfigApi,
     devworkspaceApi: {
       create: (_devworkspace, _namespace) =>
@@ -122,6 +155,26 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
     } as IDevWorkspaceTemplateApi,
     userProfileApi: {
       getUserProfile: _namespace => Promise.resolve(stubUserProfile),
-    },
+    } as IUserProfileApi,
+    eventApi: {
+      listInNamespace: _namespace => Promise.resolve(stubEventsList),
+      watchInNamespace: _namespace => Promise.resolve(),
+      stopWatching: () => undefined,
+    } as IEventApi,
+    podApi: {
+      listInNamespace: _namespace => Promise.resolve(stubPodsList),
+      stopWatching: () => undefined,
+      watchInNamespace: _namespace => Promise.resolve(),
+    } as IPodApi,
+    logsApi: {
+      stopWatching: () => undefined,
+      watchInNamespace: (_namespace, _name) => Promise.resolve(),
+    } as ILogsApi,
+    personalAccessTokenApi: {
+      create: (_namespace, _token) => Promise.resolve({} as api.PersonalAccessToken),
+      delete: (_namespace, _tokenName) => Promise.resolve(),
+      listInNamespace: _namespace => Promise.resolve(stubPersonalAccessTokenList),
+      replace: (_namespace, _token) => Promise.resolve({} as api.PersonalAccessToken),
+    } as IPersonalAccessTokenApi,
   } as DevWorkspaceClient;
 }

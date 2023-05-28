@@ -16,22 +16,23 @@ import * as BannerAlertStore from './BannerAlert';
 import * as BrandingStore from './Branding';
 import * as ClusterConfig from './ClusterConfig';
 import * as ClusterInfo from './ClusterInfo';
+import * as DevWorkspacesStore from './Workspaces/devWorkspaces';
 import * as DevfileRegistriesStore from './DevfileRegistries';
 import * as DockerConfigStore from './DockerConfig';
-import * as FactoryResolverStore from './FactoryResolver';
-import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
-import * as PluginsStore from './Plugins/chePlugins';
-import * as SanityCheckStore from './SanityCheck';
 import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
 import * as DwServerConfigStore from './ServerConfig';
-import * as UserProfileStore from './UserProfile';
-import * as WorkspacesStore from './Workspaces';
-import * as DevWorkspacesStore from './Workspaces/devWorkspaces';
-import * as WorkspacesSettingsStore from './Workspaces/Settings';
-import * as GitOauthConfigStore from './GitOauthConfig';
 import * as EventsStore from './Events';
-import * as PodsStore from './Pods';
+import * as FactoryResolverStore from './FactoryResolver';
+import * as GitOauthConfigStore from './GitOauthConfig';
+import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
 import * as LogsStore from './Pods/Logs';
+import * as PersonalAccessToken from './PersonalAccessToken';
+import * as PluginsStore from './Plugins/chePlugins';
+import * as PodsStore from './Pods';
+import * as SanityCheckStore from './SanityCheck';
+import * as UserIdStore from './User/Id';
+import * as UserProfileStore from './User/Profile';
+import * as WorkspacesStore from './Workspaces';
 
 // the top-level state object
 export interface AppState {
@@ -41,20 +42,21 @@ export interface AppState {
   clusterInfo: ClusterInfo.State;
   devWorkspaces: DevWorkspacesStore.State;
   devfileRegistries: DevfileRegistriesStore.State;
-  gitOauthConfig: GitOauthConfigStore.State;
   dockerConfig: DockerConfigStore.State;
   dwPlugins: DwPluginsStore.State;
   dwServerConfig: DwServerConfigStore.State;
+  events: EventsStore.State;
   factoryResolver: FactoryResolverStore.State;
+  gitOauthConfig: GitOauthConfigStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
+  logs: LogsStore.State;
+  personalAccessToken: PersonalAccessToken.State;
   plugins: PluginsStore.State;
+  pods: PodsStore.State;
   sanityCheck: SanityCheckStore.State;
+  userId: UserIdStore.State;
   userProfile: UserProfileStore.State;
   workspaces: WorkspacesStore.State;
-  workspacesSettings: WorkspacesSettingsStore.State;
-  events: EventsStore.State;
-  pods: PodsStore.State;
-  logs: LogsStore.State;
 }
 
 export const reducers = {
@@ -64,20 +66,21 @@ export const reducers = {
   clusterInfo: ClusterInfo.reducer,
   devWorkspaces: DevWorkspacesStore.reducer,
   devfileRegistries: DevfileRegistriesStore.reducer,
-  gitOauthConfig: GitOauthConfigStore.reducer,
   dockerConfig: DockerConfigStore.reducer,
   dwPlugins: DwPluginsStore.reducer,
   dwServerConfig: DwServerConfigStore.reducer,
+  events: EventsStore.reducer,
   factoryResolver: FactoryResolverStore.reducer,
+  gitOauthConfig: GitOauthConfigStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
+  logs: LogsStore.reducer,
+  personalAccessToken: PersonalAccessToken.reducer,
   plugins: PluginsStore.reducer,
+  pods: PodsStore.reducer,
   sanityCheck: SanityCheckStore.reducer,
+  userId: UserIdStore.reducer,
   userProfile: UserProfileStore.reducer,
   workspaces: WorkspacesStore.reducer,
-  workspacesSettings: WorkspacesSettingsStore.reducer,
-  events: EventsStore.reducer,
-  pods: PodsStore.reducer,
-  logs: LogsStore.reducer,
 };
 
 export type AppThunk<ActionType extends Action, ReturnType = void> = ThunkAction<

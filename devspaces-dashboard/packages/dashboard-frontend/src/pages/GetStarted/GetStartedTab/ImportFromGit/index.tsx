@@ -17,7 +17,6 @@ import { AppState } from '../../../../store';
 import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
 import * as FactoryResolverStore from '../../../../store/FactoryResolver';
 import { GitRepoLocationInput } from './GitRepoLocationInput';
-import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { FactoryLocationAdapter } from '../../../../services/factory-location-adapter';
 
 type Props = MappedProps & {
@@ -88,7 +87,6 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
-  workspacesSettings: selectWorkspacesSettings(state),
 });
 
 const connector = connect(mapStateToProps, {

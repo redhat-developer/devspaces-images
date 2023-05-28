@@ -80,6 +80,10 @@ const unloadedState: State = {
       plugins: [],
       pvcStrategy: '',
     },
+    devfileRegistry: {
+      disableInternalRegistry: false,
+      externalDevfileRegistries: [],
+    },
     pluginRegistry: {
       openVSXURL: '',
     },
@@ -89,6 +93,10 @@ const unloadedState: State = {
       startTimeout: 300,
     },
     cheNamespace: '',
+    devfileRegistryURL: '',
+    devfileRegistryInternalURL: '',
+    pluginRegistryURL: '',
+    pluginRegistryInternalURL: '',
   },
   error: undefined,
 };

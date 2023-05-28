@@ -15,7 +15,6 @@ import { Provider } from 'react-redux';
 import { RenderResult, render, screen } from '@testing-library/react';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { SamplesListTab } from '..';
-import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
 import { api } from '@eclipse-che/common';
@@ -83,7 +82,6 @@ describe('Samples list tab', () => {
       <Provider store={store}>
         <SamplesListTab
           onDevfile={onDevfileMock}
-          workspacesSettings={selectWorkspacesSettings(state)}
           preferredStorageType={selectPvcStrategy(state)}
           dispatch={jest.fn()}
         />

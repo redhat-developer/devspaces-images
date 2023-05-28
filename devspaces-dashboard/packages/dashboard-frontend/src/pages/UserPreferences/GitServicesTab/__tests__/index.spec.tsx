@@ -16,7 +16,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import { Store } from 'redux';
-import { GitServicesTab } from '..';
+import { GitServices } from '..';
 import { FakeGitOauthBuilder } from './__mocks__/gitOauthRowBuilder';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { selectIsLoading, selectGitOauth } from '../../../../store/GitOauthConfig/selectors';
@@ -40,7 +40,7 @@ describe('GitServices', () => {
     const isLoading = selectIsLoading(state);
     return (
       <Provider store={store}>
-        <GitServicesTab
+        <GitServices
           gitOauth={gitOauth}
           isLoading={isLoading}
           revokeOauth={mockRevokeOauth}

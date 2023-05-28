@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TokenName snapshot w/o token name 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="token-name-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Token Name
+        </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        aria-describedby="token-name-label"
+        aria-invalid={false}
+        aria-label="Token Name"
+        className="pf-c-form-control"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Enter a Token Name"
+        readOnly={false}
+        required={true}
+        type="text"
+        value=""
+      />
+      <div
+        aria-live="polite"
+        className="pf-c-form__helper-text"
+        id="token-name-label-helper"
+      >
+        Alphanumeric characters, "-" or ".", starting and ending with an alphanumeric character.
+      </div>
+    </div>
+  </div>
+</form>
+`;
+
+exports[`TokenName snapshot with token name 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="token-name-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Token Name
+        </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        aria-describedby="token-name-label"
+        aria-invalid={false}
+        aria-label="Token Name"
+        className="pf-c-form-control"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Enter a Token Name"
+        readOnly={true}
+        required={true}
+        type="text"
+        value="github-token"
+      />
+      
+    </div>
+  </div>
+</form>
+`;

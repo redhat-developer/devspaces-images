@@ -191,7 +191,7 @@
 | [`@types/graceful-fs@4.1.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/history@4.7.11`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/html-minifier-terser@6.1.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/http-proxy@1.17.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/http-proxy@1.17.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8414 |
 | [`@types/istanbul-lib-coverage@2.0.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/istanbul-lib-report@3.0.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/istanbul-reports@3.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |

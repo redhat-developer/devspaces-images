@@ -21,9 +21,24 @@ export const selectDefaultComponents = createSelector(
   state => state.config.defaults?.components || [],
 );
 
+export const selectDefaultEditor = createSelector(
+  selectState,
+  state => state.config.defaults?.editor || 'che-incubator/che-code/latest',
+);
+
 export const selectDefaultPlugins = createSelector(
   selectState,
   state => state.config.defaults?.plugins || [],
+);
+
+export const selectPluginRegistryUrl = createSelector(
+  selectState,
+  state => state.config.pluginRegistryURL,
+);
+
+export const selectPluginRegistryInternalUrl = createSelector(
+  selectState,
+  state => state.config.pluginRegistryInternalURL,
 );
 
 export const selectOpenVSXUrl = createSelector(

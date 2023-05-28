@@ -17,7 +17,6 @@ import { AppState } from '../../../store';
 import { SamplesListHeader } from './SamplesListHeader';
 import SamplesListToolbar from './SamplesListToolbar';
 import SamplesListGallery from './SamplesListGallery';
-import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
 import stringify from '../../../services/helpers/editor';
 import ImportFromGit from './ImportFromGit';
@@ -47,9 +46,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     super(props);
 
     const persistVolumesDefault =
-      this.props.preferredStorageType === 'ephemeral'
-        ? 'false'
-        : this.props.workspacesSettings['che.workspace.persist_volumes.default'];
+      this.props.preferredStorageType === 'ephemeral' ? 'false' : 'true';
 
     this.state = {
       persistVolumesDefault,
@@ -150,7 +147,6 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  workspacesSettings: selectWorkspacesSettings(state),
   preferredStorageType: selectPvcStrategy(state),
 });
 

@@ -20,6 +20,7 @@ import * as dwPluginsStore from '..';
 import { AppState } from '../../..';
 import axios from 'axios';
 import { AUTHORIZED } from '../../../sanityCheckMiddleware';
+import { api } from '@eclipse-che/common';
 
 // mute the outputs
 console.error = jest.fn();
@@ -109,16 +110,19 @@ describe('dwPlugins store', () => {
         data: JSON.stringify(plugin),
       });
 
-      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
+      const store = new FakeStoreBuilder()
+        .withDwServerConfig({
+          defaults: {
+            editor: 'default-editor',
+          },
+          pluginRegistryURL: 'plugin-registry-location',
+        } as api.IServerConfig)
+        .build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
-      const settings = {
-        cheWorkspacePluginRegistryUrl: 'plugin-registry-location',
-        'che.factory.default_editor': 'default-editor',
-      } as che.WorkspaceSettings;
-      await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor(settings));
+      await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor());
       const actions = store.getActions();
 
       const expectedActions: dwPluginsStore.KnownAction[] = [
@@ -156,17 +160,20 @@ describe('dwPlugins store', () => {
         data: JSON.stringify(plugin),
       });
 
-      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
+      const store = new FakeStoreBuilder()
+        .withDwServerConfig({
+          defaults: {
+            editor: 'default-editor',
+          },
+        } as api.IServerConfig)
+        .build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
       // no plugin url as it should fetch from the editor directly
-      const settings = {
-        'che.factory.default_editor': 'default-editor',
-      } as che.WorkspaceSettings;
       const editorLink = 'https://my-fake-editor.yaml';
-      await store.dispatch(dwPluginsStore.actionCreators.requestDwEditor(settings, editorLink));
+      await store.dispatch(dwPluginsStore.actionCreators.requestDwEditor(editorLink));
       const actions = store.getActions();
 
       const expectedActions: dwPluginsStore.KnownAction[] = [
@@ -197,21 +204,22 @@ describe('dwPlugins store', () => {
       } as AxiosError);
 
       // no plugin url as it should fetch from the editor directly
-      const settings = {
-        'che.factory.default_editor': 'default-editor',
-      } as che.WorkspaceSettings;
       const editorLink = 'https://my-fake-editor.yaml';
 
-      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
+      const store = new FakeStoreBuilder()
+        .withDwServerConfig({
+          defaults: {
+            editor: 'default-editor',
+          },
+        } as api.IServerConfig)
+        .build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
-      await store
-        .dispatch(dwPluginsStore.actionCreators.requestDwEditor(settings, editorLink))
-        .catch(() => {
-          // noop
-        });
+      await store.dispatch(dwPluginsStore.actionCreators.requestDwEditor(editorLink)).catch(() => {
+        // noop
+      });
 
       const actions = store.getActions();
 
@@ -245,9 +253,8 @@ describe('dwPlugins store', () => {
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
-      const settings = {} as che.WorkspaceSettings;
       try {
-        await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor(settings));
+        await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor());
       } catch (e) {
         // noop
       }
@@ -276,16 +283,19 @@ describe('dwPlugins store', () => {
         message: 'unexpected error',
       } as AxiosError);
 
-      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
+      const store = new FakeStoreBuilder()
+        .withDwServerConfig({
+          defaults: {
+            editor: 'default-editor',
+          },
+        } as api.IServerConfig)
+        .build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
-      const settings = {
-        'che.factory.default_editor': 'default-editor',
-      } as che.WorkspaceSettings;
       try {
-        await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor(settings));
+        await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor());
       } catch (e) {
         // noop
       }
@@ -337,6 +347,14 @@ describe('dwPlugins store', () => {
             startTimeout: 300,
           },
           cheNamespace: 'eclipse-che',
+          devfileRegistry: {
+            disableInternalRegistry: false,
+            externalDevfileRegistries: [],
+          },
+          devfileRegistryURL: '',
+          devfileRegistryInternalURL: '',
+          pluginRegistryURL: '',
+          pluginRegistryInternalURL: '',
         })
         .build() as MockStoreEnhanced<
         AppState,

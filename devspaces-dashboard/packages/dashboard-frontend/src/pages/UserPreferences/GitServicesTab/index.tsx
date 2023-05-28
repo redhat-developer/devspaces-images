@@ -10,27 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import { PageSection } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import ProgressIndicator from '../../../components/Progress';
 import { AppState } from '../../../store';
-import { selectIsLoading, selectGitOauth } from '../../../store/GitOauthConfig/selectors';
-import EmptyState from './EmptyState';
-import { api } from '@eclipse-che/common';
 import * as GitOauthConfig from '../../../store/GitOauthConfig';
+import { selectGitOauth, selectIsLoading } from '../../../store/GitOauthConfig/selectors';
+import { GIT_OAUTH_PROVIDERS } from '../const';
+import EmptyState from './EmptyState';
 import GitServicesToolbar, { GitServicesToolbar as Toolbar } from './GitServicesToolbar';
 import ProviderWarning from './ProviderWarning';
 
 export const enabledProviders: api.GitOauthProvider[] = ['github'];
-
-export const providersMap = {
-  github: 'GitHub',
-  gitlab: 'GitLab',
-  bitbucket: 'Bitbucket',
-  'azure-devops': 'Microsoft Azure DevOps',
-};
 
 type Props = MappedProps;
 
@@ -38,7 +32,7 @@ type State = {
   selectedItems: api.GitOauthProvider[];
 };
 
-export class GitServicesTab extends React.PureComponent<Props, State> {
+export class GitServices extends React.PureComponent<Props, State> {
   private readonly gitServicesToolbarRef: React.RefObject<Toolbar>;
   private readonly callbacks: {
     onChangeSelection?: (selectedItems: api.GitOauthProvider[]) => void;
@@ -84,7 +78,7 @@ export class GitServicesTab extends React.PureComponent<Props, State> {
 
     oauthRow.push(
       <span key={gitOauth}>
-        {providersMap[gitOauth]}
+        {GIT_OAUTH_PROVIDERS[gitOauth]}
         {isDisabled && (
           <ProviderWarning
             warning={
@@ -190,4 +184,4 @@ const mapStateToProps = (state: AppState) => ({
 const connector = connect(mapStateToProps, GitOauthConfig.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
-export default connector(GitServicesTab);
+export default connector(GitServices);

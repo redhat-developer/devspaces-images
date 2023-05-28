@@ -20,15 +20,19 @@ import { ROUTE } from '../../Routes/routes';
 import { AppState } from '../../store';
 import { selectIsLoading } from '../../store/GitOauthConfig/selectors';
 import { actionCreators } from '../../store/GitOauthConfig';
+import ContainerRegistries from './ContainerRegistriesTab';
+import GitServicesTab from './GitServicesTab';
+import PersonalAccessTokens from './PersonalAccessTokens';
 
-const ContainerRegistryList = React.lazy(() => import('./ContainerRegistriesTab'));
-const GitServicesTab = React.lazy(() => import('./GitServicesTab'));
+const CONTAINER_REGISTRIES_TAB: UserPreferencesTab = 'container-registries';
+const GIT_SERVICES_TAB: UserPreferencesTab = 'git-services';
+const PERSONAL_ACCESS_TOKENS_TAB: UserPreferencesTab = 'personal-access-tokens';
 
-type Props = {
+export type Props = {
   history: History;
 } & MappedProps;
 
-type State = {
+export type State = {
   activeTabKey: UserPreferencesTab;
 };
 
@@ -47,17 +51,23 @@ export class UserPreferences extends React.PureComponent<Props, State> {
     const { pathname, search } = this.props.history.location;
 
     if (search) {
-      const searchParam = new URLSearchParams(search.substring(1));
-      if (pathname === ROUTE.USER_PREFERENCES && (searchParam.get('tab') as UserPreferencesTab)) {
+      const searchParam = new URLSearchParams(search);
+      const tab = searchParam.get('tab');
+      if (
+        pathname === ROUTE.USER_PREFERENCES &&
+        (tab === CONTAINER_REGISTRIES_TAB ||
+          tab === GIT_SERVICES_TAB ||
+          tab === PERSONAL_ACCESS_TOKENS_TAB)
+      ) {
         return searchParam.get('tab') as UserPreferencesTab;
       }
     }
 
-    return 'container-registries';
+    return CONTAINER_REGISTRIES_TAB;
   }
 
   private handleTabClick(
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    _event: React.MouseEvent<HTMLElement, MouseEvent>,
     activeTabKey: React.ReactText,
   ): void {
     this.props.history.push(`${ROUTE.USER_PREFERENCES}?tab=${activeTabKey}`);
@@ -65,12 +75,6 @@ export class UserPreferences extends React.PureComponent<Props, State> {
     this.setState({
       activeTabKey: activeTabKey as UserPreferencesTab,
     });
-
-    if (activeTabKey === 'git-services') {
-      if (!this.props.isLoading) {
-        this.props.requestGitOauthConfig();
-      }
-    }
   }
 
   render(): React.ReactNode {
@@ -87,16 +91,17 @@ export class UserPreferences extends React.PureComponent<Props, State> {
           style={{ backgroundColor: 'var(--pf-global--BackgroundColor--100)' }}
           activeKey={activeTabKey}
           onSelect={(event, tabKey) => this.handleTabClick(event, tabKey)}
+          mountOnEnter={true}
+          unmountOnExit={true}
         >
-          <Tab
-            id="container-registries-tab"
-            eventKey="container-registries"
-            title="Container Registries"
-          >
-            <ContainerRegistryList />
+          <Tab eventKey={CONTAINER_REGISTRIES_TAB} title="Container Registries">
+            <ContainerRegistries />
           </Tab>
-          <Tab id="git-services-tab" eventKey="git-services" title="Git Services">
+          <Tab eventKey={GIT_SERVICES_TAB} title="Git Services">
             <GitServicesTab />
+          </Tab>
+          <Tab eventKey={PERSONAL_ACCESS_TOKENS_TAB} title="Personal Access Tokens">
+            <PersonalAccessTokens />
           </Tab>
         </Tabs>
       </React.Fragment>

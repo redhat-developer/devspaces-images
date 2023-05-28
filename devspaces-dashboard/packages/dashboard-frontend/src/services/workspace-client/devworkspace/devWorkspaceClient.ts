@@ -164,14 +164,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       devWorkspaceResource.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
     }
 
-    // temporarily remove components as they are not created yet
-    const components = devWorkspaceResource.spec.template.components;
-    devWorkspaceResource.spec.template.components = [];
-
     const { headers, devWorkspace } = await DwApi.createWorkspace(devWorkspaceResource);
-
-    // restore components
-    devWorkspace.spec.template.components = components;
 
     return { headers, devWorkspace };
   }
@@ -285,6 +278,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
           value: pluginRegistryUrl,
         });
       }
+
       if (pluginRegistryInternalUrl !== undefined) {
         envs.push({
           name: this.pluginRegistryInternalUrlEnvName,

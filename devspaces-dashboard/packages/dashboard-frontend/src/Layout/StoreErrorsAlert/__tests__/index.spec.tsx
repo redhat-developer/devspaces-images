@@ -59,7 +59,6 @@ describe('StoreErrorAlert component', () => {
         },
         'expected error 6',
       )
-      .withWorkspacesSettings({} as che.WorkspaceSettings, false, 'expected error 7')
       .build();
     renderComponent(store);
 
@@ -85,9 +84,6 @@ describe('StoreErrorAlert component', () => {
 
     const userProfileAlert = screen.queryByRole('heading', { name: /expected error 6/i });
     expect(userProfileAlert).toBeTruthy();
-
-    const workspacesSettingsAlert = screen.queryByRole('heading', { name: /expected error 7/i });
-    expect(workspacesSettingsAlert).toBeTruthy();
   });
 
   it('should show sanity check error and hide other errors', () => {
@@ -113,7 +109,6 @@ describe('StoreErrorAlert component', () => {
         },
         'expected error 6',
       )
-      .withWorkspacesSettings({} as che.WorkspaceSettings, false, 'expected error 7')
       .build();
     renderComponent(store);
 

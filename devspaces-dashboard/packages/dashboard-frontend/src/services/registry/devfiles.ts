@@ -10,7 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { isDevfileMetaData } from './types';
+
+const EXPIRATION_TIME_FOR_STORED_METADATA = 60 * 60 * 1000; // expiration time in milliseconds
+
 import { fetchData } from './fetchData';
+import SessionStorageService, { SessionStorageKey } from '../session-storage';
 
 function createURL(url: string, baseUrl: string): URL {
   // Remove it after fixing all source links https://github.com/eclipse/che/issues/19140
@@ -29,7 +34,37 @@ function resolveIconUrl(metadata: che.DevfileMetaData, baseUrl: string): string 
   return createURL(metadata.icon, baseUrl).href;
 }
 
-export function resolveLinks(metadata: che.DevfileMetaData, baseUrl: string): any {
+export function resolveTags(
+  metadata: che.DevfileMetaData,
+  baseUrl: string,
+  isExternal: boolean,
+): string[] {
+  const resolvedTags: string[] = [...metadata.tags];
+  if (isExternal) {
+    const resourceTag = new URL(baseUrl).host
+      .replace(/^registry\./, '')
+      .replace(/^\w/, char => char.toUpperCase());
+    resolvedTags.push(resourceTag);
+  }
+  return resolvedTags;
+}
+
+export function resolveLinks(
+  metadata: che.DevfileMetaData,
+  baseUrl: string,
+  isExternal: boolean,
+): any {
+  if (isExternal) {
+    const self = metadata.links?.self;
+    if (self && !metadata.links.v2) {
+      const devfileCatalog = new URL('devfiles', baseUrl).toString();
+      const v2 = self.startsWith('devfile-catalog')
+        ? self.replace(':', '/').replace('devfile-catalog', devfileCatalog)
+        : self;
+      metadata.links.v2 = v2;
+      delete metadata.links.self;
+    }
+  }
   const resolvedLinks = {};
   const linkNames = Object.keys(metadata.links);
   linkNames.map(linkName => {
@@ -51,23 +86,109 @@ export function updateObjectLinks(object: any, baseUrl): any {
   return object;
 }
 
-export async function fetchRegistryMetadata(registryUrl: string): Promise<che.DevfileMetaData[]> {
+export async function fetchRegistryMetadata(
+  registryUrl: string,
+  isExternal: boolean,
+): Promise<che.DevfileMetaData[]> {
   registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
 
   try {
-    const registryIndexUrl = new URL('devfiles/index.json', registryUrl);
-    const devfileMetaData = await fetchData<che.DevfileMetaData[]>(registryIndexUrl.href);
+    const registryIndexUrl = isExternal
+      ? new URL('/index', registryUrl)
+      : new URL('devfiles/index.json', registryUrl);
+    if (isExternal) {
+      const devfileMetaDataArr = getExternalRegistryMetadataFromStorage(registryIndexUrl.href);
+      if (devfileMetaDataArr !== undefined) {
+        return devfileMetaDataArr;
+      }
+    }
+    const data = await fetchData(registryIndexUrl.href);
+    const devfileMetaDataArr: che.DevfileMetaData[] = isExternal
+      ? []
+      : (data as che.DevfileMetaData[]);
 
-    return devfileMetaData.map(meta => {
+    if (isExternal) {
+      if (!Array.isArray(data)) {
+        throw new Error('Returns type is not array.');
+      }
+      data.forEach(val => {
+        if (isDevfileMetaData(val)) {
+          devfileMetaDataArr.push(val);
+        } else {
+          console.warn(
+            `Returns type from registry URL: ${registryUrl} is not DevfileMetaData.`,
+            val,
+          );
+        }
+      });
+    }
+
+    const val = devfileMetaDataArr.map(meta => {
       meta.icon = resolveIconUrl(meta, registryUrl);
-      meta.links = resolveLinks(meta, registryUrl);
+      meta.links = resolveLinks(meta, registryUrl, isExternal);
+      meta.tags = resolveTags(meta, registryUrl, isExternal);
       return meta;
     });
+    if (isExternal) {
+      setExternalRegistryMetadataToStorage(registryIndexUrl.href, val);
+    }
+    return val;
   } catch (error) {
     const errorMessage =
       `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + error;
     console.error(errorMessage);
     throw errorMessage;
+  }
+}
+
+function getExternalRegistryMetadataFromStorage(url: string): che.DevfileMetaData[] | undefined {
+  const externalRegistries = SessionStorageService.get(SessionStorageKey.EXTERNAL_REGISTRIES);
+  if (typeof externalRegistries !== 'string') {
+    return undefined;
+  }
+  try {
+    const externalRegistriesObj = JSON.parse(externalRegistries);
+    if (!externalRegistriesObj[url]?.lastFetched || !externalRegistriesObj[url]?.metadata) {
+      return undefined;
+    }
+    const timeElapsed = Date.now() - externalRegistriesObj[url]?.lastFetched;
+    if (timeElapsed > EXPIRATION_TIME_FOR_STORED_METADATA) {
+      return undefined;
+    }
+    return externalRegistriesObj[url]?.metadata;
+  } catch (e) {
+    return undefined;
+  }
+}
+
+function setExternalRegistryMetadataToStorage(url: string, metadata: che.DevfileMetaData[]): void {
+  const externalRegistries = SessionStorageService.get(SessionStorageKey.EXTERNAL_REGISTRIES);
+  let externalRegistriesObj: {
+    [url: string]: {
+      metadata: che.DevfileMetaData[];
+      lastFetched: number;
+    };
+  };
+  if (typeof externalRegistries === 'string') {
+    try {
+      externalRegistriesObj = JSON.parse(externalRegistries);
+    } catch (e) {
+      externalRegistriesObj = {};
+    }
+  } else {
+    externalRegistriesObj = {};
+  }
+  externalRegistriesObj[url] = {
+    metadata,
+    lastFetched: Date.now(),
+  };
+  try {
+    SessionStorageService.update(
+      SessionStorageKey.EXTERNAL_REGISTRIES,
+      JSON.stringify(externalRegistriesObj),
+    );
+  } catch (e) {
+    // noop
   }
 }
 

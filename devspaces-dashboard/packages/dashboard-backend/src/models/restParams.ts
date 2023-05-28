@@ -58,3 +58,8 @@ export interface INamespacedContainerParams extends INamespacedParams {
   namespace: string;
   podName: string;
 }
+
+export interface PersonalAccessTokenNamespacedParams extends INamespacedParams {
+  namespace: string;
+  tokenName: string;
+}

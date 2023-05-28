@@ -18,7 +18,6 @@ import { CoreV1Api, HttpError, V1Pod, V1Status } from '@kubernetes/client-node';
 import * as request from 'request';
 import { Writable } from 'stream';
 import { LogsApiService } from '../';
-import { RETRY_DELAY_SECONDS, RETRY_NUMBER } from '../const';
 
 jest.mock('../const', () => ({
   RETRY_DELAY_SECONDS: 0.1,

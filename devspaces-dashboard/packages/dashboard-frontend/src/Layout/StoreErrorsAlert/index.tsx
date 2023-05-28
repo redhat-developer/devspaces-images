@@ -20,8 +20,7 @@ import {
 import { selectPluginsError } from '../../store/Plugins/chePlugins/selectors';
 import { selectDwDefaultEditorError } from '../../store/Plugins/devWorkspacePlugins/selectors';
 import { selectInfrastructureNamespacesError } from '../../store/InfrastructureNamespaces/selectors';
-import { selectUserProfileError } from '../../store/UserProfile/selectors';
-import { selectWorkspacesSettingsError } from '../../store/Workspaces/Settings/selectors';
+import { selectUserProfileError } from '../../store/User/Profile/selectors';
 import { selectWorkspacesError } from '../../store/Workspaces/selectors';
 import { selectSanityCheckError } from '../../store/SanityCheck/selectors';
 import { AlertVariant } from '@patternfly/react-core';
@@ -119,14 +118,6 @@ export class StoreErrorsAlert extends React.PureComponent<Props> {
         variant: AlertVariant.danger,
       });
     }
-    // workspaces settings error
-    if (this.props.workspacesSettingsError) {
-      this.appAlerts.showAlert({
-        key: 'workspace-settings-error',
-        title: this.props.workspacesSettingsError,
-        variant: AlertVariant.danger,
-      });
-    }
   }
 
   render() {
@@ -142,7 +133,6 @@ const mapStateToProps = (state: AppState) => ({
   infrastructureNamespacesError: selectInfrastructureNamespacesError(state),
   devfileSchemaError: selectDevfileSchemaError(state),
   userProfileError: selectUserProfileError(state),
-  workspacesSettingsError: selectWorkspacesSettingsError(state),
   workspacesError: selectWorkspacesError(state),
 });
 

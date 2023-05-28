@@ -119,12 +119,9 @@ export type KnownAction =
 
 export type ActionCreators = {
   requestDwDevfile: (url: string) => AppThunk<KnownAction, Promise<void>>;
-  requestDwDefaultEditor: (settings: che.WorkspaceSettings) => AppThunk<KnownAction, Promise<void>>;
+  requestDwDefaultEditor: () => AppThunk<KnownAction, Promise<void>>;
   requestDwDefaultPlugins: () => AppThunk<KnownAction, Promise<void>>;
-  requestDwEditor: (
-    settings: che.WorkspaceSettings,
-    editorName: string,
-  ) => AppThunk<KnownAction, Promise<void>>;
+  requestDwEditor: (editorName: string) => AppThunk<KnownAction, Promise<void>>;
 };
 export const actionCreators: ActionCreators = {
   requestDwDevfile:
@@ -156,15 +153,15 @@ export const actionCreators: ActionCreators = {
     },
 
   requestDwEditor:
-    (settings: che.WorkspaceSettings, editorName: string): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
+    (editorName: string): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
       let editorUrl;
       // check if the editor is an id or a path to a given editor
       if (editorName.startsWith('https://')) {
         editorUrl = editorName;
       } else {
-        const pluginRegistryUrl = settings.cheWorkspacePluginRegistryUrl;
-        editorUrl = `${settings.cheWorkspacePluginRegistryUrl}/plugins/${editorName}/devfile.yaml`;
+        const pluginRegistryUrl = getState().dwServerConfig.config.pluginRegistryURL;
+        editorUrl = `${pluginRegistryUrl}/plugins/${editorName}/devfile.yaml`;
 
         if (!pluginRegistryUrl) {
           const errorMessage =
@@ -207,12 +204,10 @@ export const actionCreators: ActionCreators = {
     },
 
   requestDwDefaultEditor:
-    (settings: che.WorkspaceSettings): AppThunk<KnownAction, Promise<void>> =>
+    (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const config = getState().dwServerConfig.config;
-      const defaultEditor = config.defaults.editor
-        ? config.defaults.editor
-        : settings['che.factory.default_editor'];
+      const defaultEditor = config.defaults.editor;
       await dispatch({
         type: 'REQUEST_DW_DEFAULT_EDITOR',
         check: AUTHORIZED,
@@ -230,10 +225,10 @@ export const actionCreators: ActionCreators = {
 
       const defaultEditorUrl = defaultEditor.startsWith('https://')
         ? defaultEditor
-        : `${settings.cheWorkspacePluginRegistryUrl}/plugins/${defaultEditor}/devfile.yaml`;
+        : `${config.pluginRegistryURL}/plugins/${defaultEditor}/devfile.yaml`;
 
       // request default editor
-      await dispatch(actionCreators.requestDwEditor(settings, defaultEditor));
+      await dispatch(actionCreators.requestDwEditor(defaultEditor));
 
       dispatch({
         type: 'RECEIVE_DW_DEFAULT_EDITOR',

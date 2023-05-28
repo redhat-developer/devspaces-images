@@ -98,6 +98,14 @@ export class ServerConfigApiService implements IServerConfigApi {
     return cheCustomResource.spec.devEnvironments?.defaultPlugins || [];
   }
 
+  getDefaultDevfileRegistryUrl(cheCustomResource: CustomResourceDefinition): string {
+    return cheCustomResource.status?.devfileRegistryURL || '';
+  }
+
+  getDefaultPluginRegistryUrl(cheCustomResource: CustomResourceDefinition): string {
+    return cheCustomResource.status?.pluginRegistryURL || '';
+  }
+
   getDefaultEditor(cheCustomResource: CustomResourceDefinition): string | undefined {
     return (
       cheCustomResource.spec.devEnvironments?.defaultEditor ||
@@ -136,6 +144,16 @@ export class ServerConfigApiService implements IServerConfigApi {
 
   getPvcStrategy(cheCustomResource: CustomResourceDefinition): string | undefined {
     return cheCustomResource.spec.devEnvironments?.storage?.pvcStrategy;
+  }
+
+  getInternalRegistryDisableStatus(cheCustomResource: CustomResourceDefinition): boolean {
+    return cheCustomResource.spec.components?.devfileRegistry?.disableInternalRegistry || false;
+  }
+
+  getExternalDevfileRegistries(
+    cheCustomResource: CustomResourceDefinition,
+  ): api.IExternalDevfileRegistry[] {
+    return cheCustomResource.spec.components?.devfileRegistry?.externalDevfileRegistries || [];
   }
 
   getDashboardWarning(cheCustomResource: CustomResourceDefinition): string | undefined {

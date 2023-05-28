@@ -152,7 +152,10 @@ export type KnownAction =
   | ClearFilterValue;
 
 export type ActionCreators = {
-  requestRegistriesMetadata: (location: string) => AppThunk<KnownAction, Promise<void>>;
+  requestRegistriesMetadata: (
+    location: string,
+    isExternal: boolean,
+  ) => AppThunk<KnownAction, Promise<void>>;
   requestDevfile: (location: string) => AppThunk<KnownAction, Promise<string>>;
   requestResources: (resourceUrl: string) => AppThunk<KnownAction, Promise<void>>;
   requestJsonSchema: () => AppThunk<KnownAction, any>;
@@ -166,21 +169,14 @@ export const actionCreators: ActionCreators = {
    * Request devfile metadata from available registries. `registryUrls` is space-separated list of urls.
    */
   requestRegistriesMetadata:
-    (registryUrls: string): AppThunk<KnownAction, Promise<void>> =>
+    (registryUrls: string, isExternal: boolean): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       await dispatch({ type: Type.REQUEST_REGISTRY_METADATA, check: AUTHORIZED });
 
       const registries: string[] = registryUrls.split(' ');
-      if (DEFAULT_REGISTRY) {
-        if (DEFAULT_REGISTRY.startsWith('http')) {
-          registries.push(DEFAULT_REGISTRY);
-        } else {
-          registries.push(new URL(DEFAULT_REGISTRY, window.location.origin).href);
-        }
-      }
       const promises = registries.map(async url => {
         try {
-          const metadata = await fetchRegistryMetadata(url);
+          const metadata: che.DevfileMetaData[] = await fetchRegistryMetadata(url, isExternal);
           if (!Array.isArray(metadata) || metadata.length === 0) {
             return;
           }
@@ -325,7 +321,6 @@ export const reducer: Reducer<State> = (
     case Type.REQUEST_REGISTRY_METADATA:
       return createObject(state, {
         isLoading: true,
-        registries: {},
       });
     case Type.REQUEST_SCHEMA:
       return createObject(state, {

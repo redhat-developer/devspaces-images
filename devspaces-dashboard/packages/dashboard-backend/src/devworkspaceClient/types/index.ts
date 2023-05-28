@@ -114,6 +114,10 @@ export type CustomResourceDefinition = k8s.V1CustomResourceDefinition & {
     devEnvironments?: CustomResourceDefinitionSpecDevEnvironments;
     components?: CustomResourceDefinitionSpecComponents;
   };
+  status: {
+    devfileRegistryURL: string;
+    pluginRegistryURL: string;
+  };
 };
 
 export type CustomResourceDefinitionSpecDevEnvironments = {
@@ -147,6 +151,10 @@ export type CustomResourceDefinitionSpecComponents = {
   pluginRegistry?: {
     openVSXURL?: string;
   };
+  devfileRegistry: {
+    disableInternalRegistry?: boolean;
+    externalDevfileRegistries?: api.IExternalDevfileRegistry[];
+  };
 };
 
 export interface IServerConfigApi {
@@ -168,6 +176,14 @@ export interface IServerConfigApi {
    */
   getDefaultPlugins(cheCustomResource: CustomResourceDefinition): api.IWorkspacesDefaultPlugins[];
   /**
+   * Returns the default devfile registry URL.
+   */
+  getDefaultDevfileRegistryUrl(cheCustomResource: CustomResourceDefinition): string;
+  /**
+   * Returns the plugin registry URL.
+   */
+  getDefaultPluginRegistryUrl(cheCustomResource: CustomResourceDefinition): string;
+  /**
    * Returns the default editor to workspace create with. It could be a plugin ID or a URI.
    */
   getDefaultEditor(cheCustomResource: CustomResourceDefinition): string | undefined;
@@ -180,6 +196,16 @@ export interface IServerConfigApi {
    * Returns the openVSX URL.
    */
   getOpenVSXURL(cheCustomResource: CustomResourceDefinition): string;
+  /**
+   * Returns the internal registry disable status.
+   */
+  getInternalRegistryDisableStatus(cheCustomResource: CustomResourceDefinition): boolean;
+  /**
+   * Returns the external devfile registries.
+   */
+  getExternalDevfileRegistries(
+    cheCustomResource: CustomResourceDefinition,
+  ): api.IExternalDevfileRegistry[];
   /**
    * Returns the PVC strategy if it is defined.
    */
@@ -236,14 +262,45 @@ export interface IUserProfileApi {
   getUserProfile(namespace: string): Promise<api.IUserProfile | undefined>;
 }
 
+export interface IPersonalAccessTokenApi {
+  /**
+   * Reads all the PAT secrets from the specified namespace.
+   */
+  listInNamespace(namespace: string): Promise<Array<api.PersonalAccessToken>>;
+
+  /**
+   * Creates a PAT secret.
+   */
+  create(
+    namespace: string,
+    personalAccessToken: api.PersonalAccessToken,
+  ): Promise<api.PersonalAccessToken>;
+
+  /**
+   * "Updates" an existing PAT secret.
+   */
+  replace(
+    namespace: string,
+    personalAccessToken: api.PersonalAccessToken,
+  ): Promise<api.PersonalAccessToken>;
+
+  /**
+   * Deletes a PAT secret.
+   */
+  delete(namespace: string, name: string): Promise<void>;
+}
+
 export interface IDevWorkspaceClient {
-  eventApi: IEventApi;
-  devworkspaceApi: IDevWorkspaceApi;
   devWorkspaceTemplateApi: IDevWorkspaceTemplateApi;
+  devworkspaceApi: IDevWorkspaceApi;
   dockerConfigApi: IDockerConfigApi;
-  serverConfigApi: IServerConfigApi;
+  eventApi: IEventApi;
   kubeConfigApi: IKubeConfigApi;
+  logsApi: ILogsApi;
   namespaceApi: INamespaceApi;
+  personalAccessTokenApi: IPersonalAccessTokenApi;
+  podApi: IPodApi;
+  serverConfigApi: IServerConfigApi;
   userProfileApi: IUserProfileApi;
 }
 

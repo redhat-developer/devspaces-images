@@ -15,31 +15,37 @@ import { retryableExec } from './retryableExec';
 
 export type CoreV1API = Pick<
   k8s.CoreV1Api,
+  | 'createNamespacedSecret'
   | 'listNamespace'
+  | 'listNamespacedEvent'
   | 'listNamespacedPod'
+  | 'listNamespacedSecret'
   | 'readNamespacedPod'
   | 'readNamespacedSecret'
   | 'replaceNamespacedSecret'
-  | 'createNamespacedSecret'
-  | 'listNamespacedEvent'
+  | 'deleteNamespacedSecret'
 >;
 
 export function prepareCoreV1API(kc: k8s.KubeConfig): CoreV1API {
   const coreV1API = kc.makeApiClient(k8s.CoreV1Api);
   return {
+    createNamespacedSecret: (...args: Parameters<typeof coreV1API.createNamespacedSecret>) =>
+      retryableExec(() => coreV1API.createNamespacedSecret(...args)),
     listNamespace: (...args: Parameters<typeof coreV1API.listNamespace>) =>
       retryableExec(() => coreV1API.listNamespace(...args)),
+    listNamespacedEvent: (...args: Parameters<typeof coreV1API.listNamespacedEvent>) =>
+      retryableExec(() => coreV1API.listNamespacedEvent(...args)),
     listNamespacedPod: (...args: Parameters<typeof coreV1API.listNamespacedPod>) =>
       retryableExec(() => coreV1API.listNamespacedPod(...args)),
+    listNamespacedSecret: (...args: Parameters<typeof coreV1API.listNamespacedSecret>) =>
+      retryableExec(() => coreV1API.listNamespacedSecret(...args)),
     readNamespacedPod: (...args: Parameters<typeof coreV1API.readNamespacedPod>) =>
       retryableExec(() => coreV1API.readNamespacedPod(...args)),
     readNamespacedSecret: (...args: Parameters<typeof coreV1API.readNamespacedSecret>) =>
       retryableExec(() => coreV1API.readNamespacedSecret(...args)),
     replaceNamespacedSecret: (...args: Parameters<typeof coreV1API.replaceNamespacedSecret>) =>
       retryableExec(() => coreV1API.replaceNamespacedSecret(...args)),
-    createNamespacedSecret: (...args: Parameters<typeof coreV1API.createNamespacedSecret>) =>
-      retryableExec(() => coreV1API.createNamespacedSecret(...args)),
-    listNamespacedEvent: (...args: Parameters<typeof coreV1API.listNamespacedEvent>) =>
-      retryableExec(() => coreV1API.listNamespacedEvent(...args)),
+    deleteNamespacedSecret: (...args: Parameters<typeof coreV1API.deleteNamespacedSecret>) =>
+      retryableExec(() => coreV1API.deleteNamespacedSecret(...args)),
   };
 }

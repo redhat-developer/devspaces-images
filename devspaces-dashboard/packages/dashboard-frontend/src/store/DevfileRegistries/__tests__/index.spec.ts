@@ -52,7 +52,7 @@ describe('Devfile registries', () => {
       const location3 = 'http://example.com/location3';
       const locations = `${location1} ${location2} ${location3}`;
       await store.dispatch(
-        devfileRegistriesStore.actionCreators.requestRegistriesMetadata(locations),
+        devfileRegistriesStore.actionCreators.requestRegistriesMetadata(locations, false),
       );
 
       const actions = store.getActions();
@@ -106,7 +106,9 @@ describe('Devfile registries', () => {
       const locations = `${location1} ${location2} ${location3}`;
 
       await expect(
-        store.dispatch(devfileRegistriesStore.actionCreators.requestRegistriesMetadata(locations)),
+        store.dispatch(
+          devfileRegistriesStore.actionCreators.requestRegistriesMetadata(locations, false),
+        ),
       ).rejects.toMatch('Failed to fetch devfiles metadata from registry');
 
       const actions = store.getActions();

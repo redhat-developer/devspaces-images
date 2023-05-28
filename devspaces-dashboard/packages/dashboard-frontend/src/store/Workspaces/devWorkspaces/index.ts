@@ -38,7 +38,11 @@ import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors
 import { getCustomEditor } from '../../../services/workspace-client/helpers';
 import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 import * as DwServerConfigStore from '../../ServerConfig';
-import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
+import {
+  selectOpenVSXUrl,
+  selectPluginRegistryInternalUrl,
+  selectPluginRegistryUrl,
+} from '../../ServerConfig/selectors';
 import { fetchResources } from '../../../services/dashboard-backend-client/devworkspaceResourcesApi';
 import { dump } from 'js-yaml';
 import { loadResourcesContent } from '../../../services/registry/resources';
@@ -48,7 +52,6 @@ import OAuthService from '../../../services/oauth';
 import { FactoryParams } from '../../../containers/Loader/buildFactoryParams';
 import { getEditor } from '../../DevfileRegistries/getEditor';
 import { selectApplications } from '../../ClusterInfo/selectors';
-import { cloneDeep } from 'lodash';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -221,7 +224,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
     },
 
@@ -253,7 +256,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
     },
 
@@ -414,7 +417,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
     },
 
@@ -440,7 +443,7 @@ export const actionCreators: ActionCreators = {
           error: resMessage,
         });
 
-        throw resMessage;
+        throw e;
       }
     },
 
@@ -463,7 +466,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
     },
 
@@ -486,7 +489,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
     },
 
@@ -503,16 +506,12 @@ export const actionCreators: ActionCreators = {
 
       const defaultKubernetesNamespace = selectDefaultNamespace(state);
       const openVSXUrl = selectOpenVSXUrl(state);
+      const pluginRegistryUrl = selectPluginRegistryUrl(state);
+      const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
+      const cheEditor = editorId ? editorId : state.dwPlugins.defaultEditorName;
       const defaultNamespace = defaultKubernetesNamespace.name;
       try {
-        const cheEditor = editorId ? editorId : state.dwPlugins.defaultEditorName;
-        const pluginRegistryUrl =
-          state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
-        const pluginRegistryInternalUrl =
-          state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
-
-        /* create a new DevWorkspace (without components) */
-
+        /* create a new DevWorkspace */
         const createResp = await getDevWorkspaceClient().createDevWorkspace(
           defaultNamespace,
           devWorkspaceResource,
@@ -545,7 +544,7 @@ export const actionCreators: ActionCreators = {
           clusterConsole,
         );
 
-        /* update the DevWorkspace with components */
+        /* update the DevWorkspace */
 
         const updateResp = await getDevWorkspaceClient().updateDevWorkspace(
           createResp.devWorkspace,
@@ -574,7 +573,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
     },
 
@@ -591,7 +590,7 @@ export const actionCreators: ActionCreators = {
 
       await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
 
-      const pluginRegistryUrl = state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
+      const pluginRegistryUrl = state.dwServerConfig.config.pluginRegistryURL;
       let devWorkspaceResource: devfileApi.DevWorkspace;
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
       let editorContent: string | undefined;
@@ -659,7 +658,7 @@ export const actionCreators: ActionCreators = {
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw e;
       }
 
       await dispatch(

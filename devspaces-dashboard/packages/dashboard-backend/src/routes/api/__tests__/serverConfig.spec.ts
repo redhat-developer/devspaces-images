@@ -18,18 +18,27 @@ jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');
 jest.mock('../helpers/getServiceAccountToken.ts');
 
+// mute the outputs
+console.log = jest.fn();
+
 describe('Server Config Route', () => {
   let app: FastifyInstance;
+  const pluginRegistryInternalURL = 'http://plugin-registry.internal';
+  const devfileRegistryInternalURL = 'http://devfile-registry.internal';
 
   beforeAll(async () => {
-    app = await setup();
+    const env = {
+      CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL: pluginRegistryInternalURL,
+      CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL: devfileRegistryInternalURL,
+    };
+    app = await setup({ env });
   });
 
   afterAll(() => {
     teardown(app);
   });
 
-  test('GET ${baseApiPath}/server-config', async () => {
+  test(`GET ${baseApiPath}/server-config`, async () => {
     const res = await app.inject().get(`${baseApiPath}/server-config`);
 
     expect(res.statusCode).toEqual(200);
@@ -40,6 +49,18 @@ describe('Server Config Route', () => {
       defaults: { components: [], plugins: [], pvcStrategy: '' },
       pluginRegistry: { openVSXURL: 'openvsx-url' },
       timeouts: { inactivityTimeout: 0, runTimeout: 0, startTimeout: 0 },
+      devfileRegistryInternalURL: 'http://devfile-registry.internal',
+      devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc',
+      pluginRegistryInternalURL: 'http://plugin-registry.internal',
+      pluginRegistryURL: 'http://plugin-registry.eclipse-che.svc/v3',
+      devfileRegistry: {
+        disableInternalRegistry: true,
+        externalDevfileRegistries: [
+          {
+            url: 'https://devfile.registry.test.org/',
+          },
+        ],
+      },
     });
   });
 });

@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TokenData snapshot w/o token data 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="token-data-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Token
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <textarea
+        aria-describedby="token-data-label"
+        aria-invalid={false}
+        aria-label="Token"
+        className="pf-c-form-control"
+        onChange={[Function]}
+        placeholder="Enter a Token"
+        required={false}
+        type="text"
+        value=""
+      />
+      
+    </div>
+  </div>
+</form>
+`;
+
+exports[`TokenData snapshot with token data 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="token-data-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Token
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <textarea
+        aria-describedby="token-data-label"
+        aria-invalid={false}
+        aria-label="Token"
+        className="pf-c-form-control"
+        onChange={[Function]}
+        placeholder="Replace Token"
+        required={false}
+        type="text"
+        value=""
+      />
+      
+    </div>
+  </div>
+</form>
+`;

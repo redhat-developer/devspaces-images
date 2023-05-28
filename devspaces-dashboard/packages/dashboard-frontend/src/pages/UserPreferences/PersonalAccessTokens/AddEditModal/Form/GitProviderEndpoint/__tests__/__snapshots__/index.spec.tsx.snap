@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitProviderEndpoint snapshot w/o endpoint 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="git-provider-endpoint-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Git Provider Endpoint
+        </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        aria-describedby="git-provider-endpoint-label"
+        aria-invalid={false}
+        aria-label="Git Provider Endpoint"
+        className="pf-c-form-control"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Enter a Git Provider Endpoint"
+        readOnly={false}
+        required={false}
+        type="url"
+        value="https://github.com"
+      />
+      
+    </div>
+  </div>
+</form>
+`;
+
+exports[`GitProviderEndpoint snapshot with endpoint 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="git-provider-endpoint-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Git Provider Endpoint
+        </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        aria-describedby="git-provider-endpoint-label"
+        aria-invalid={false}
+        aria-label="Git Provider Endpoint"
+        className="pf-c-form-control"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Enter a Git Provider Endpoint"
+        readOnly={false}
+        required={false}
+        type="url"
+        value="https://provider/endpoint"
+      />
+      
+    </div>
+  </div>
+</form>
+`;

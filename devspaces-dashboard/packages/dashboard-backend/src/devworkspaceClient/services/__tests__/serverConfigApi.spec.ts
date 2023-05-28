@@ -108,6 +108,34 @@ describe('Server Config API Service', () => {
     const res = serverConfigService.getWorkspaceRunTimeout(buildCustomResource());
     expect(res).toEqual(-1);
   });
+
+  test('getting internal registry disable status', () => {
+    const customResource = buildCustomResource();
+    let res = serverConfigService.getInternalRegistryDisableStatus(customResource);
+    expect(res).toBeFalsy();
+
+    if (customResource.spec.components?.devfileRegistry) {
+      customResource.spec.components.devfileRegistry.disableInternalRegistry = true;
+    }
+    res = serverConfigService.getInternalRegistryDisableStatus(customResource);
+    expect(res).toBeTruthy();
+  });
+
+  test('getting external devfile registries', () => {
+    const res = serverConfigService.getExternalDevfileRegistries(buildCustomResource());
+    expect(res.length).toEqual(1);
+    expect(res[0]?.url).toEqual('https://devfile.registry.test.org/');
+  });
+
+  test('getting default plugin registry URL', () => {
+    const res = serverConfigService.getDefaultPluginRegistryUrl(buildCustomResource());
+    expect(res).toEqual('http://plugin-registry.eclipse-che.svc/v3');
+  });
+
+  test('getting default devfile registry URL', () => {
+    const res = serverConfigService.getDefaultDevfileRegistryUrl(buildCustomResource());
+    expect(res).toEqual('http://devfile-registry.eclipse-che.svc');
+  });
 });
 
 function buildCustomResourceList(): { body: CustomResourceDefinitionList } {
@@ -138,6 +166,13 @@ function buildCustomResource(): CustomResourceDefinition {
         },
         devWorkspace: {},
         pluginRegistry: { openVSXURL: 'https://open-vsx.org' },
+        devfileRegistry: {
+          externalDevfileRegistries: [
+            {
+              url: 'https://devfile.registry.test.org/',
+            },
+          ],
+        },
       },
       devEnvironments: {
         disableContainerBuildCapabilities: false,
@@ -157,6 +192,10 @@ function buildCustomResource(): CustomResourceDefinition {
         secondsOfRunBeforeIdling: -1,
         storage: { pvcStrategy: 'per-user' },
       },
+    },
+    status: {
+      devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc',
+      pluginRegistryURL: 'http://plugin-registry.eclipse-che.svc/v3',
     },
   } as CustomResourceDefinition;
 }

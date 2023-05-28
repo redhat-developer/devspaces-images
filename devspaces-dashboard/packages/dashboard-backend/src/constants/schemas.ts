@@ -237,3 +237,51 @@ export const templateStartedSchema: JSONSchema7 = {
     },
   },
 };
+
+export const personalAccessTokenBodySchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    cheUserId: {
+      type: 'string',
+    },
+    tokenName: {
+      type: 'string',
+    },
+    tokenData: {
+      type: 'string',
+    },
+    gitProviderEndpoint: {
+      type: 'string',
+    },
+    gitProviderUsername: {
+      type: 'string',
+    },
+    gitProvider: {
+      type: 'string',
+    },
+    gitProviderOrganization: {
+      type: 'string',
+    },
+  },
+  required: [
+    'cheUserId',
+    'tokenName',
+    'tokenData',
+    'gitProviderEndpoint',
+    'gitProviderUsername',
+    'gitProvider',
+  ],
+};
+
+export const personalAccessTokenParamsSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    tokenName: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'tokenName'],
+};

@@ -12,7 +12,7 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
-import ProviderWarning from '../';
+import ProviderWarning from '..';
 
 jest.mock('@patternfly/react-core', () => {
   return {

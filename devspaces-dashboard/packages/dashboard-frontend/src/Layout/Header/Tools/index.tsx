@@ -22,7 +22,7 @@ import {
 import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../../store';
 import { selectBranding } from '../../../store/Branding/selectors';
-import { selectUserProfile } from '../../../store/UserProfile/selectors';
+import { selectUserProfile } from '../../../store/User/Profile/selectors';
 import { AboutMenu } from './AboutMenu';
 import UserMenu from './UserMenu';
 import { ApplicationsMenu } from './ApplicationsMenu';

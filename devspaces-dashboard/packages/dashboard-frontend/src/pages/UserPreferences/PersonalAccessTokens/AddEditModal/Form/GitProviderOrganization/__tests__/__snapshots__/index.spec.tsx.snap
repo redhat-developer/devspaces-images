@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitProviderOrganization snapshot w/o organization 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="git-provider-organization-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Git Provider Organization
+        </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        aria-describedby="git-provider-organization-label"
+        aria-invalid={false}
+        aria-label="Git Provider Organization"
+        className="pf-c-form-control"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Enter a Git Provider Organization"
+        readOnly={false}
+        required={false}
+        type="text"
+        value=""
+      />
+      
+    </div>
+  </div>
+</form>
+`;
+
+exports[`GitProviderOrganization snapshot with organization 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="git-provider-organization-label"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Git Provider Organization
+        </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        aria-describedby="git-provider-organization-label"
+        aria-invalid={false}
+        aria-label="Git Provider Organization"
+        className="pf-c-form-control"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Enter a Git Provider Organization"
+        readOnly={false}
+        required={false}
+        type="text"
+        value="user-organization"
+      />
+      
+    </div>
+  </div>
+</form>
+`;

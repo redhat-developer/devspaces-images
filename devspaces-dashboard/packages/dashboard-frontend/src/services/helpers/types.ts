@@ -104,4 +104,4 @@ export enum WorkspaceAction {
   EDIT_WORKSPACE = 'Edit Workspace',
 }
 
-export type UserPreferencesTab = 'container-registries' | 'git-services';
+export type UserPreferencesTab = 'container-registries' | 'git-services' | 'personal-access-tokens';

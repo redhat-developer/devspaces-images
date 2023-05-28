@@ -362,7 +362,7 @@ Array [
             data-label="Name"
             onMouseEnter={[Function]}
           >
-            Bitbucket
+            Bitbucket Server
             <span>
               Provided API does not support the automatic token revocation. You can revoke it manually on  
               <a

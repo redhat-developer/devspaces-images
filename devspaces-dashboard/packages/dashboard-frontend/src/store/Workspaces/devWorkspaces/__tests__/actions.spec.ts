@@ -100,7 +100,12 @@ describe('DevWorkspace store, actions', () => {
           editor: 'che-incubator/che-code/latest',
         },
       } as api.IServerConfig)
-      .withWorkspacesSettings({ cheWorkspacePluginRegistryUrl: 'https://dummy.registry' })
+      .withDwServerConfig({
+        defaults: {
+          editor: 'che-incubator/che-code/latest',
+        },
+        pluginRegistryURL: 'https://dummy.registry',
+      } as api.IServerConfig)
       .withDevfileRegistries({
         devfiles: {
           ['https://dummy.registry/plugins/che-incubator/che-code/latest/devfile.yaml']: {

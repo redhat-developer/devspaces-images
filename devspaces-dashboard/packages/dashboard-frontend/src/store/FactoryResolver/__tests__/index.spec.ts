@@ -78,11 +78,7 @@ describe('FactoryResolver store', () => {
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({
-          'che.workspace.storage.preferred_type': 'ephemeral',
-        })
-        .build() as MockStoreEnhanced<
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, factoryResolverStore.KnownAction>
       >;

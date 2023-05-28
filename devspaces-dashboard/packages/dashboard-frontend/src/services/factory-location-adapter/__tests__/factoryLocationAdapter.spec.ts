@@ -11,7 +11,7 @@
  */
 
 import { FactoryLocation, FactoryLocationAdapter } from '../';
-import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
+import common from '@eclipse-che/common';
 
 describe('FactoryLocationAdapter Service', () => {
   let factoryLocation: FactoryLocation;
@@ -40,7 +40,7 @@ describe('FactoryLocationAdapter Service', () => {
       try {
         factoryLocation = new FactoryLocationAdapter(location);
       } catch (err) {
-        errorMessage = getMessage(err);
+        errorMessage = common.helpers.errors.getMessage(err);
       }
 
       expect(errorMessage).toEqual('Unsupported factory location: "dummy.git"');
