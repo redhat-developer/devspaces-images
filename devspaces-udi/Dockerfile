@@ -207,8 +207,7 @@ RUN \
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
     set -xe; \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq \
-    ansible-pylibssh ansible-runner molecule kubernetes && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest flake8 virtualenv yq && \
     # python/pip/flake8/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
@@ -244,6 +243,7 @@ RUN \
     ########################################################################
     # Ansible
     ########################################################################
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade ansible-pylibssh ansible-runner molecule kubernetes  && \
     mkdir -p ${HOME}/.ansible/roles ${HOME}/.ansible/tmp \
     /usr/share/ansible/roles /etc/ansible/roles && \
     chgrp -R 0 ${HOME}/.ansible && \
