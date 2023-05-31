@@ -241,19 +241,6 @@ RUN \
 
 RUN \
     ########################################################################
-    # Ansible
-    ########################################################################
-    cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
-    source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    set -xe; \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade ansible-pylibssh ansible-runner molecule kubernetes  && \
-    mkdir -p ${HOME}/.ansible/roles ${HOME}/.ansible/tmp \
-    /usr/share/ansible/roles /etc/ansible/roles && \
-    chgrp -R 0 ${HOME}/.ansible && \
-    chmod -R g+rwX ${HOME}/.ansible
-
-RUN \
-    ########################################################################
     # C/C++ (Tech Preview)
     ########################################################################
     # to see what requires kernel-headers, use: dnf install --exclude=kernel*
