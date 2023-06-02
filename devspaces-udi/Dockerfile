@@ -246,7 +246,8 @@ RUN \
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
     set -xe; \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade ansible-pylibssh ansible-runner molecule kubernetes  && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade ansible ansible-pylibssh ansible-runner \
+        ansible-lint[lock] molecule molecule-plugins[podman] kubernetes  && \
     mkdir -p ${HOME}/.ansible/roles ${HOME}/.ansible/tmp \
     /usr/share/ansible/roles /etc/ansible/roles && \
     chgrp -R 0 ${HOME}/.ansible && \
