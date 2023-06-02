@@ -38,6 +38,8 @@ bracex==2.3.post1
     # via wcmatch
 cachetools==5.3.1
     # via google-auth
+calver==2022.6.26
+    # via -r requirements-build.in
 certifi==2023.5.7
     # via
     #   kubernetes
@@ -90,13 +92,13 @@ flit-core==3.8.0
     #   flit-scm
 flit-scm==1.7.0
     # via -r requirements-build.in
-google-auth==2.19.0
+google-auth==2.19.1
     # via kubernetes
 hatch-fancy-pypi-readme==23.1.0
     # via -r requirements-build.in
 hatch-vcs==0.3.0
     # via -r requirements-build.in
-hatchling==1.17.0
+hatchling==1.11.1
     # via
     #   -r requirements-build.in
     #   hatch-fancy-pypi-readme
@@ -163,7 +165,7 @@ pbr==5.11.1
     # via -r requirements-build.in
 pexpect==4.8.0
     # via ansible-runner
-platformdirs==3.5.1
+platformdirs==2.6.2
     # via virtualenv
 pluggy==1.0.0
     # via
@@ -275,8 +277,6 @@ tomli==2.0.1
     #   hatchling
     #   pytest
     #   setuptools-scm
-trove-classifiers==2023.5.24
-    # via hatchling
 typing-extensions==4.4.0
     # via
     #   -r requirements-build.in
@@ -286,7 +286,7 @@ urllib3==1.26.16
     #   google-auth
     #   kubernetes
     #   requests
-virtualenv==20.23.0
+virtualenv==20.17.1
     # via -r requirements-build.in
 wcmatch==8.4.1
     # via ansible-lint
