@@ -53,3 +53,4 @@ pbr
 calver
 poetry-core>=1.0.0
 hatch-fancy-pypi-readme==23.1.0
+filelock==3.8.2
