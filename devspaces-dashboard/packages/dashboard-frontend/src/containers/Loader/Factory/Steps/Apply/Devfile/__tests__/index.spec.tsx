@@ -486,6 +486,103 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
     });
   });
 
+  describe('handle an invalid devfile in the git repository', () => {
+    test('apply the default devfile', async () => {
+      const registryUrl = 'https://registry-url';
+      const sampleResourceUrl = 'https://resources-url';
+      const registryMetadata = {
+        displayName: 'Empty Workspace',
+        description: 'Start an empty remote development environment',
+        tags: ['Empty'],
+        icon: '/images/empty.svg',
+        links: {
+          v2: sampleResourceUrl,
+        },
+      } as che.DevfileMetaData;
+      const sampleContent = dump({
+        schemaVersion: '2.1.0',
+        metadata: {
+          generateName: 'empty',
+        },
+      } as devfileApi.Devfile);
+      const defaultComponents = [
+        {
+          name: 'universal-developer-image',
+          container: {
+            image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+          },
+        },
+      ];
+
+      const store = getStoreBuilder()
+        .withFactoryResolver({ resolver: undefined, converted: undefined })
+        .withDevfileRegistries({
+          registries: {
+            [registryUrl]: {
+              metadata: [registryMetadata],
+            },
+          },
+          devfiles: {
+            [sampleResourceUrl]: {
+              content: sampleContent,
+            },
+          },
+        })
+        .withDwServerConfig({
+          defaults: {
+            components: defaultComponents,
+          },
+        } as api.IServerConfig)
+        .build();
+
+      renderComponent(store, loaderSteps, searchParams);
+      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+      const expectedDevfile = {
+        schemaVersion: '2.1.0',
+        metadata: {
+          generateName: 'factory-url',
+          name: 'factory-url',
+        },
+        components: [
+          {
+            container: {
+              image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+            },
+            name: 'universal-developer-image',
+          },
+        ],
+        projects: [
+          {
+            git: {
+              remotes: {
+                origin: `${factoryUrl}/.git`,
+              },
+            },
+            name: 'factory-url',
+          },
+        ],
+      };
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(
+          expectedDevfile,
+          `url=${factoryUrl}`,
+          undefined,
+          false,
+        ),
+      );
+
+      await waitFor(() =>
+        expect(mockCreateWorkspaceFromDevfile).toHaveBeenCalledWith(
+          expectedDevfile,
+          buildFactoryParams(new window.URLSearchParams(`url=${factoryUrl}`)),
+          {},
+        ),
+      );
+    });
+  });
+
   describe('handle name conflicts', () => {
     test('name conflict', async () => {
       const store = getStoreBuilder()
@@ -504,7 +601,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, true),
       );
     });
 
@@ -528,7 +625,7 @@ describe('Factory Loader container, step CREATE_WORKSPACE__APPLYING_DEVFILE', ()
       jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, false),
+        expect(prepareDevfile).toHaveBeenCalledWith(devfile, factoryId, undefined, true),
       );
     });
 

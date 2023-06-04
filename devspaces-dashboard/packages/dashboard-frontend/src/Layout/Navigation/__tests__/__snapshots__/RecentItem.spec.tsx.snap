@@ -120,7 +120,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
             tabIndex={-1}
           >
             <div>
-              Edit Workspace
+              Workspace Details
             </div>
           </a>
         </li>
@@ -250,7 +250,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
             tabIndex={-1}
           >
             <div>
-              Edit Workspace
+              Workspace Details
             </div>
           </a>
         </li>
@@ -380,7 +380,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
             tabIndex={-1}
           >
             <div>
-              Edit Workspace
+              Workspace Details
             </div>
           </a>
         </li>
@@ -510,7 +510,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             tabIndex={-1}
           >
             <div>
-              Edit Workspace
+              Workspace Details
             </div>
           </a>
         </li>
@@ -602,7 +602,7 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
             tabIndex={-1}
           >
             <div>
-              Edit Workspace
+              Workspace Details
             </div>
           </a>
         </li>

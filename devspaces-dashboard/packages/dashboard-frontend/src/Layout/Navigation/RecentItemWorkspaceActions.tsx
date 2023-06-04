@@ -107,7 +107,7 @@ class NavigationItemWorkspaceActions extends React.PureComponent<Props, State> {
     ) {
       dropdownItems.push(createAction(WorkspaceAction.RESTART_WORKSPACE));
     }
-    dropdownItems.push(createAction(WorkspaceAction.EDIT_WORKSPACE));
+    dropdownItems.push(createAction(WorkspaceAction.WORKSPACE_DETAILS));
 
     return dropdownItems;
   }

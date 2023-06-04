@@ -6,7 +6,10 @@ components:
   - name: tools
     container:
       image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
-      memoryLimit: 6G
+      memoryLimit: 10G
+      memoryRequest: 512Mi
+      cpuRequest: 1000m
+      cpuLimit: 5000m
       mountSources: true
       endpoints:
         - exposure: public
