@@ -9,7 +9,7 @@ exceptiongroup==1.0.1
 flit_scm==1.7.0
 flit_core==3.8.0
 hatch-vcs>=0.2
-hatchling==1.11.1
+hatchling>=1.11.1
 iniconfig==1.1.1
 packaging==21.3
 pip==23.0.1
@@ -23,7 +23,7 @@ six==1.16.0
 toml==0.10.2
 tomli==2.0.1
 typing_extensions==4.4.0
-virtualenv==20.17.1
+virtualenv
 xmltodict==0.13.0
 wheel
 yq==3.1.0
@@ -34,23 +34,3 @@ flake8>=6.0.0
 mccabe>=0.7.0
 pycodestyle>=2.10.0
 pyflakes>=3.0.1
-
-# for Ansible
-# use ansible, ansible-runner, ansible-lint with the versions that depend on cryptography==3.3.2
-# currently it's not possible to install more recent version of cryptography than 3.3.2 on brew
-# see https://issues.redhat.com/browse/STONEBLD-588
-ansible-pylibssh==1.1.0
-ansible-runner~=2.0.2
-ansible~=2.9.15
-ansible-lint[lock]~=6.4.0
-molecule~=5.0.1
-molecule-plugins[podman]==23.4.1
-kubernetes==26.1.0
-cryptography==3.3.2
-expandvars
-setuptools_scm_git_archive
-pbr
-calver
-poetry-core>=1.0.0
-hatch-fancy-pypi-readme==23.1.0
-filelock==3.8.2
