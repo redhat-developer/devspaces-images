@@ -340,4 +340,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	done
 done
 
+# CRW-4070, CRW-4504 make sure upstream org.eclipse.che_checlusters.yaml content is copied downstream
+# NOTE: don't use config/crd/bases/org.eclipse.che_checlusters.yaml unless we're using generators (olm, kustomize) downstream
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
+
 popd >/dev/null || exit
