@@ -59,7 +59,7 @@ ENV \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/user/.java/current" \
-    PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
