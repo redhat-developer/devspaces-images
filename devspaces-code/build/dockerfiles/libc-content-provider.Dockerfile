@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM registry.access.redhat.com/ubi8/nodejs-16:1-105 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-16:1-105.1684740145 as builder
 
 USER root
 
