@@ -206,7 +206,46 @@ describe('Workspace Loader, step OPEN_WORKSPACE', () => {
         await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
       });
 
-      test('workspace is FAILING', async () => {
+      test('workspace is FAILED wit a message', async () => {
+        const store = new FakeStoreBuilder()
+          .withDevWorkspaces({
+            workspaces: [
+              new DevWorkspaceBuilder()
+                .withName(workspaceName)
+                .withNamespace(namespace)
+                .withStatus({
+                  phase: 'FAILED',
+                  message:
+                    "DevWorkspace failed to progress past step 'Waiting for workspace deployment' for longer than timeout (300s)",
+                })
+                .build(),
+            ],
+          })
+          .build();
+
+        renderComponent(store, loaderSteps);
+
+        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+        const currentStepId = screen.getByTestId('current-step-id');
+        await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+        const currentStep = screen.getByTestId(stepId);
+
+        // should report the error
+        const hasError = within(currentStep).getByTestId('hasError');
+        expect(hasError.textContent).toEqual('true');
+
+        const alertTitle = screen.getByTestId('alert-title');
+        expect(alertTitle.textContent).toEqual('Failed to open the workspace');
+
+        const alertBody = screen.getByTestId('alert-body');
+        expect(alertBody.textContent).toEqual(
+          "DevWorkspace failed to progress past step 'Waiting for workspace deployment' for longer than timeout (300s)",
+        );
+      });
+
+      test('workspace is FAILING without a message', async () => {
         const store = new FakeStoreBuilder()
           .withDevWorkspaces({
             workspaces: [

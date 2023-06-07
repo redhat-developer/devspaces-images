@@ -604,7 +604,10 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
           new DevWorkspaceBuilder()
             .withName(workspaceName)
             .withNamespace(namespace)
-            .withStatus({ phase: 'FAILED' })
+            .withStatus({
+              phase: 'FAILED',
+              message: 'Some error message...',
+            })
             .build(),
         ],
       })
@@ -620,7 +623,7 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
     expect(alertTitle.textContent).toEqual('Failed to open the workspace');
 
     const alertBody = screen.getByTestId('alert-body');
-    expect(alertBody.textContent).toEqual('The workspace status changed unexpectedly to "Failed".');
+    expect(alertBody.textContent).toEqual('Some error message...');
 
     // should not start the workspace
     jest.runAllTimers();

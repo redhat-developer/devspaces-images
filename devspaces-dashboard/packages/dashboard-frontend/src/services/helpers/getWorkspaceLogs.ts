@@ -32,7 +32,7 @@ export default function getWorkspaceLogs(workspace: devfileApi.DevWorkspace): st
  * Filters the workspace logs for errors.
  */
 export function getWorkspaceErrors(workspace: devfileApi.DevWorkspace): string[] {
-  const errorRe = /^[1-9]{0,5} error occurred:/i;
+  const errorRe = /^Error /i;
   const logs = getWorkspaceLogs(workspace);
 
   return logs.filter(log => errorRe.test(log)).map(log => log.replace(errorRe, ''));

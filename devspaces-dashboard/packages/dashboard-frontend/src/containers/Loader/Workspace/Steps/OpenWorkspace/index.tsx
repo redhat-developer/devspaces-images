@@ -98,7 +98,11 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
     }
 
     if (!workspace.isRunning) {
-      throw new Error(`The workspace status changed unexpectedly to "${workspace.status}".`);
+      if (workspace.hasError && workspace.ref.status?.message) {
+        throw new Error(`${workspace.ref.status.message}`);
+      } else {
+        throw new Error(`The workspace status changed unexpectedly to "${workspace.status}".`);
+      }
     }
     if (!workspace.ideUrl) {
       // wait for the IDE url to be set

@@ -130,6 +130,9 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
       (this.state.shouldStart === false &&
         workspaceStatusIs(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED))
     ) {
+      if (workspace.hasError && workspace.ref.status?.message) {
+        throw new Error(`${workspace.ref.status.message}`);
+      }
       const errorLogs = workspace.errorLogs.join('');
       throw new Error(
         errorLogs || `The workspace status changed unexpectedly to "${workspace.status}".`,

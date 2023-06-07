@@ -111,7 +111,7 @@ export CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL=$(kubectl exec $DASHBOARD_
 
 # consider renaming it to CHE_API_URL since it's not just host
 export CHE_HOST=http://localhost:8080
-export CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE $CHECLUSTER_CR_NAME -o=json | jq -r '.status.cheURL')
+export CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE $CHECLUSTER_CR_NAME -o=json | jq -r '.items[0].status.cheURL')
 
 # do nothing
 PRERUN_COMMAND="echo"
