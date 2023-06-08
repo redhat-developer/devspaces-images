@@ -2,23 +2,19 @@
 FROM registry.access.redhat.com/ubi8-minimal:8.8-860 as builder
 USER 0
 
-# cachito
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-traefik/cachito.env
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
-
-# cachito:yarn step 2: workaround for yarn not being installed in an executable path
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn 
-
 # CRW-3531 note: build fails when run with python39 and nodejs:16; so stick with python2 and nodejs:12
-ENV NODEJS_VERSION="12:8020020200326104117/development"
+ENV NODEJS_VERSION="12"
 RUN microdnf -y install dnf && \
     dnf -y -q install python2 golang make gcc-c++ openssl-devel && \
     dnf -y -q module install nodejs:$NODEJS_VERSION && \
+    npm -g i yarn && \
     yarn config set nodedir /usr
 
 #WEBUI
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/webui
+RUN mkdir /src
+COPY ./ /src/
+
+WORKDIR /src/webui
 RUN yarn config set unsafe-perm true && \
     yarn install && \
     npm run build:nc
@@ -27,17 +23,19 @@ RUN yarn config set unsafe-perm true && \
 ARG TRAEFIK_SHA="c9520"
 ENV TRAEFIK_SHA="${TRAEFIK_SHA}"
 
-RUN cp $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
+RUN cp /src/script/ca-certificates.crt /etc/ssl/certs/
 
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
-RUN go generate && \
+WORKDIR /src
+
+RUN go mod download && \
+    go generate && \
     go build ./cmd/traefik
 
 # https://registry.access.redhat.com/ubi8-minimal 
 FROM registry.access.redhat.com/ubi8-minimal:8.8-860 
 
-COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/traefik /traefik
+COPY --from=builder /src/script/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /src/traefik /traefik
 
 RUN chmod 755 /traefik && \
     microdnf -y update || true && \ 
