@@ -12,11 +12,31 @@
 
 const merge = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
+const path = require('path');
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+
+const smp = new SpeedMeasurePlugin();
 
 const common = require('./webpack.config.common');
-module.exports = () => {
-  return merge(common(), {
+
+const config = {
     mode: 'development',
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          enforce: 'pre',
+          include: path.join(__dirname, 'src'),
+          exclude: /node_modules/,
+          use: [{
+            loader: 'eslint-loader',
+            options: {
+              cache: true,
+            }
+          }],
+        },
+      ]
+    },
     devtool: 'eval-source-map',
     watchOptions: {
       ignored: /node_modules/,
@@ -25,5 +45,14 @@ module.exports = () => {
     externals: [
       nodeExternals(),
     ],
-  });
+};
+
+module.exports = (env = {
+  speedMeasure: undefined,
+}) => {
+  const _config = merge(common(), config)
+  if(env.speedMeasure === 'true') {
+    return smp.wrap(merge(_config, { stats: 'errors-only' }));
+  }
+  return _config;
 };

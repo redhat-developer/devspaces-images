@@ -17,6 +17,11 @@ components:
           protocol: http
           targetPort: 8080
           path: /
+        - exposure: public
+          name: bundle-analyzer
+          path: /
+          protocol: http
+          targetPort: 8888
 commands:
   - id: installdependencies
     exec:

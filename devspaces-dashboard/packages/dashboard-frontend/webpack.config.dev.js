@@ -16,81 +16,103 @@ const path = require('path');
 const webpack = require('webpack');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+
+const smp = new SpeedMeasurePlugin();
 
 const common = require('./webpack.config.common');
 
-module.exports = (env = {}) => {
-  return merge(common(env), {
-    mode: 'development',
-    module: {
-      rules: [
-        {
-          enforce: 'pre',
-          test: /\.(tsx|ts|jsx|js)$/,
-          use: [{
-            loader: 'source-map-loader'
-          }],
-          include: [
-            path.resolve(__dirname, '../common'),
-            path.resolve(__dirname, 'src'),
-          ],
-        },
-        {
-          test: /\.css$/,
-          use: [
-            'style-loader',
-            {
-              loader: 'css-loader',
-              options: {
-                modules: {
-                  auto: true,
-                  localIdentName: '[path][name]__[local]',
-                  getLocalIdent: (context, localIdentName, localName, options) => {
-                    if (localName.startsWith('pf-')) {
-                      // preserve PatternFly class names
-                      return localName;
-                    }
-                    return loaderUtils
-                      .interpolateName(context, localIdentName, options)
-                      .replace(/[<>:"/\\|?*.]/g, '-')
-                      .replace('[local]', localName);
-                  },
-                  context: path.resolve(__dirname),
+const config = {
+  mode: 'development',
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        enforce: 'pre',
+        include: path.join(__dirname, 'src'),
+        exclude: /node_modules/,
+        use: [{
+          loader: 'eslint-loader',
+          options: {
+            cache: true,
+          }
+        }],
+      },
+      {
+        enforce: 'pre',
+        test: /\.(tsx|ts|jsx|js)$/,
+        use: [{
+          loader: 'source-map-loader'
+        }],
+        include: [
+          path.resolve(__dirname, '../common'),
+          path.resolve(__dirname, 'src'),
+        ],
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                auto: true,
+                localIdentName: '[path][name]__[local]',
+                getLocalIdent: (context, localIdentName, localName, options) => {
+                  if (localName.startsWith('pf-')) {
+                    // preserve PatternFly class names
+                    return localName;
+                  }
+                  return loaderUtils
+                    .interpolateName(context, localIdentName, options)
+                    .replace(/[<>:"/\\|?*.]/g, '-')
+                    .replace('[local]', localName);
                 },
+                context: path.resolve(__dirname),
               },
             },
-          ],
-        },
-      ]
-    },
-    plugins: [
-      new webpack.DefinePlugin({
-        __isBrowser__: "true",
-        'process.env.ENVIRONMENT': JSON.stringify('development'),
-        'process.env.SERVER': JSON.stringify(env.server),
-      }),
-      new webpack.HotModuleReplacementPlugin(),
-      new CleanTerminalPlugin(),
-      new StylelintPlugin({
-        context: path.join(__dirname, 'src'),
-        emitWarning: true,
-        files: '**/*.css',
-        lintDirtyModulesOnly: true,
-      }),
-    ],
-    output: {
-      chunkFilename: undefined,
-    },
-    optimization: {
-      minimize: false,
-      removeAvailableModules: false,
-      removeEmptyChunks: false,
-      splitChunks: false,
-    },
-    devtool: 'eval-cheap-module-source-map',
-    watchOptions: {
-      aggregateTimeout: 1000,
-      ignored: /node_modules/,
-    },
-  });
+          },
+        ],
+      },
+    ]
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      __isBrowser__: "true",
+      'process.env.ENVIRONMENT': JSON.stringify('development'),
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+    new CleanTerminalPlugin(),
+    new StylelintPlugin({
+      context: path.join(__dirname, 'src'),
+      emitWarning: true,
+      files: '**/*.css',
+      lintDirtyModulesOnly: true,
+    }),
+  ],
+  output: {
+    chunkFilename: undefined,
+  },
+  optimization: {
+    minimize: false,
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    splitChunks: false,
+  },
+  devtool: 'eval-cheap-module-source-map',
+  watchOptions: {
+    aggregateTimeout: 1000,
+    ignored: /node_modules/,
+  }
+};
+
+module.exports = (env = {
+  speedMeasure: undefined,
+}) => {
+  const _config = merge(common(env), config);
+  if(env.speedMeasure === 'true') {
+    return smp.wrap(merge(_config, { stats: 'errors-only' }));
+  }
+  return _config;
 };

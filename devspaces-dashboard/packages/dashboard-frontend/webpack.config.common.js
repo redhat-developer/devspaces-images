@@ -72,18 +72,6 @@ const config = {
     rules: [
       {
         test: /\.tsx?$/,
-        enforce: 'pre',
-        include: path.join(__dirname, 'src'),
-        exclude: /node_modules/,
-        use: [{
-          loader: 'eslint-loader',
-          options: {
-            cache: true,
-          }
-        }],
-      },
-      {
-        test: /\.tsx?$/,
         include: path.join(__dirname, 'src'),
         use: ['ts-loader'],
         exclude: /node_modules/,

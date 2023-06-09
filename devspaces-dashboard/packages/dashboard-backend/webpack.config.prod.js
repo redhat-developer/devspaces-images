@@ -11,10 +11,26 @@
  */
 
 const merge = require('webpack-merge');
-
 const common = require('./webpack.config.common');
-module.exports = () => {
-  return merge(common(), {
-    mode: 'production',
-  });
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+const config = {
+  mode: 'production',
+};
+
+module.exports = (env = {
+  bundleAnalyzer: undefined,
+}) => {
+  const _config = merge(common(), config)
+  if(env.bundleAnalyzer === 'true') {
+    return merge(_config, {
+      plugins: [
+        new BundleAnalyzerPlugin({
+          analyzerHost: '0.0.0.0',
+          analyzerPort: 8888,
+        }),
+      ],
+    });
+  }
+  return _config;
 };

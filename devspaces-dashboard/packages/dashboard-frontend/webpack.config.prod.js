@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const StylelintPlugin = require('stylelint-webpack-plugin');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
 const merge = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 const loaderUtils = require('loader-utils');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const common = require('./webpack.config.common.js');
 
@@ -60,15 +60,23 @@ const config = {
       'process.env.ENVIRONMENT': JSON.stringify('production'),
     }),
     new webpack.ProgressPlugin(),
-    new StylelintPlugin({
-      context: path.join(__dirname, 'src'),
-      files: '**/*.css',
-      fix: true,
-    }),
     new CleanTerminalPlugin(),
   ],
 };
 
-module.exports = (env = {}) => {
-  return merge(common(env), config);
+module.exports = (env = {
+  bundleAnalyzer: undefined,
+}) => {
+  const _config = merge(common(env), config)
+  if(env.bundleAnalyzer === 'true') {
+    return merge(_config, {
+      plugins: [
+        new BundleAnalyzerPlugin({
+          analyzerHost: '0.0.0.0',
+          analyzerPort: 8888,
+        }),
+      ],
+    });
+  }
+  return _config;
 };

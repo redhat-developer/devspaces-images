@@ -30,9 +30,6 @@ export function getEnvironment(): Environment {
         ? 'development'
         : 'production',
   };
-  if (env.type === 'development') {
-    env.server = process.env.SERVER;
-  }
   return env;
 }
 export function isDevEnvironment(env: Environment): env is DevEnvironment {

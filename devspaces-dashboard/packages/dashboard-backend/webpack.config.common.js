@@ -25,21 +25,9 @@ module.exports = () => {
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
-          enforce: 'pre',
-          include: path.join(__dirname, 'src'),
-          exclude: /node_modules/,
-          use: [{
-            loader: 'eslint-loader',
-            options: {
-              cache: true,
-            }
-          }],
-        },
-        {
           enforce: 'pre',
           test: /\.(ts|js)$/,
-          use: ["source-map-loader"],
+          use: ['source-map-loader'],
           include: [
             path.resolve(__dirname, '../common'),
             path.resolve(__dirname, 'src'),
