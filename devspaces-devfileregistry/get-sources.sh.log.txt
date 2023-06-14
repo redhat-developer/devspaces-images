@@ -1,0 +1,526 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-127.1684740820 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-127.1684740820 AS builder
+STEP 2/23: USER 0
+--> 52efae0aebf
+STEP 3/23: ARG BOOTSTRAP=true
+--> 9180c35ad3d
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> b7cde1dd7b4
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> a4cde80e62a
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 81bd8f602de
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 3cbbb41acc6
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 1ad37e98af6
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 034af2ad99c
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 6551564daea
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.x86_64                 
+  criu-3.15-3.module+el8.8.0+18060+3f21f2cc.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/f7/00/144b1dbfcd62c50475b4c6fb09d832ac553e3a0fd969d31bdc608852084b/yq-3.2.2-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/4f/ef/8b604222ba5e5190e25851aa3a5b754f2002361dc62a258a8e9f13e866f4/argcomplete-3.1.1-py3-none-any.whl (41kB)
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting tomlkit>=0.11.6
+  Downloading https://files.pythonhosted.org/packages/ef/a8/b1c193be753c02e2a94af6e37ee45d3378a74d44fe778c2434a63af92731/tomlkit-0.11.8-py3-none-any.whl
+Installing collected packages: PyYAML, argcomplete, xmltodict, tomlkit, yq
+Successfully installed PyYAML-6.0 argcomplete-3.1.1 tomlkit-0.11.8 xmltodict-0.13.0 yq-3.2.2
+python: Python 3.8.16
+yq: yq 3.2.2
+jq: jq-1.6
+--> c6ec4098526
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 258e0348539
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 80d12641174
+STEP 14/23: COPY ./VERSION /
+--> e35d2f6b772
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 771ad558c29
+STEP 16/23: WORKDIR /build/
+--> 0b59fb19d4c
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-638fadc
+added 119 packages from 183 contributors and audited 119 packages in 7.831s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 2 vulnerabilities (1 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 5145274d55e
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> aeb119eada7
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee:3.7 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.7 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.7 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.7 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ + quay.io/devspaces/ansible-creator-ee:3.7 PASS - 3.7 allowed
+ + registry.redhat.io/devspaces/code-rhel8:3.7 PASS - 3.7 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.7 PASS - 3.7 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.7 PASS - 3.7 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> cefb9961c1e
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 4de7c38f786
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 92d8ffb298c
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 0db083838ec
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> a9df643e1ee
+Successfully tagged localhost/devfileregistry:tmp
+a9df643e1ee4e70c34f7020137504fd5adab1c3a550d3e98a18e80e98d77cb72
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.UhW4dJ1eT8/bin/activate-global-python-argcomplete /tmp/tmp.orFdpKs0oL/bin/activate-global-python-argcomplete
+--- /tmp/tmp.UhW4dJ1eT8/bin/activate-global-python-argcomplete	2023-05-19 18:09:25.000000000 -0400
++++ /tmp/tmp.orFdpKs0oL/bin/activate-global-python-argcomplete	2023-06-14 11:26:28.084320723 -0400
+@@ -11,10 +11,23 @@
+ import argparse
+ import os
+ import shutil
++import site
+ import sys
+ 
+ import argcomplete
+ 
++zsh_shellcode = """
++# Begin added by argcomplete
++fpath=( {zsh_fpath} "${{fpath[@]}}" )
++# End added by argcomplete
++"""
++
++bash_shellcode = """
++# Begin added by argcomplete
++source "{activator}"
++# End added by argcomplete
++"""
++
+ 
+ def get_zsh_system_dir():
+     return "/usr/local/share/zsh/site-functions"
+@@ -23,14 +36,22 @@
+ def get_bash_system_dir():
+     if "BASH_COMPLETION_COMPAT_DIR" in os.environ:
+         return os.environ["BASH_COMPLETION_COMPAT_DIR"]
+-    elif os.path.exists("/etc/bash_completion.d"):
+-        return "/etc/bash_completion.d"
++    elif sys.platform == "darwin":
++        return "/usr/local/etc/bash_completion.d"  # created by homebrew
+     else:
+-        return "/usr/local/etc/bash_completion.d"
++        return "/etc/bash_completion.d"  # created by bash-completion
++
++
++def get_activator_dir():
++    return os.path.join(os.path.abspath(os.path.dirname(argcomplete.__file__)), "bash_completion.d")
++
++
++def get_activator_path():
++    return os.path.join(get_activator_dir(), "_python-argcomplete")
+ 
+ 
+ def install_to_destination(dest):
+-    activator = os.path.join(os.path.dirname(argcomplete.__file__), "bash_completion.d", "python-argcomplete")
++    activator = get_activator_path()
+     if dest == "-":
+         with open(activator) as fh:
+             sys.stdout.write(fh.read())
+@@ -51,6 +72,38 @@
+         )
+ 
+ 
++def get_consent():
++    while True:
++        res = input("OK to proceed? [y/n] ")
++        if res.lower() not in {"y", "n", "yes", "no"}:
++            print('Please answer "yes" or "no".', file=sys.stderr)
++        elif res.lower() in {"y", "yes"}:
++            return True
++        else:
++            return False
++
++
++def append_to_config_file(path, shellcode):
++    if os.path.exists(path):
++        print(f"argcomplete needs to append to the file {path}. The following code will be appended:", file=sys.stderr)
++        for line in shellcode.splitlines():
++            print(">", line, file=sys.stderr)
++        get_consent()
++    print(f"Adding shellcode to {path}...", file=sys.stderr)
++    with open(path, "a") as fh:
++        fh.write(shellcode)
++    print("Added.", file=sys.stderr)
++
++
++def link_user_rcfiles():
++    # TODO: warn if running as superuser
++    zsh_rcfile = os.path.join(os.path.expanduser(os.environ.get("ZDOTDIR", "~")), ".zshenv")
++    append_to_config_file(zsh_rcfile, zsh_shellcode.format(zsh_fpath=get_activator_dir()))
++
++    bash_completion_user_file = os.path.expanduser("~/.bash_completion")
++    append_to_config_file(bash_completion_user_file, bash_shellcode.format(activator=get_activator_path()))
++
++
+ parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+ parser.add_argument("--dest", help='Specify the shell completion modules directory to install into, or "-" for stdout')
+ parser.add_argument("--user", help="Install into user directory", action="store_true")
+@@ -62,21 +115,19 @@
+     if args.dest != "-" and not os.path.exists(args.dest):
+         parser.error(f"directory {args.dest} was specified via --dest, but it does not exist")
+     destinations.append(args.dest)
+-elif args.user:
++elif site.ENABLE_USER_SITE and site.USER_SITE in argcomplete.__file__:
+     print(
+-        'WARNING: zsh has no standard user completions directory. To use global completion with zsh, please run this '
+-        'command using sudo, or run "echo $fpath" and install the completion module into one of the listed directories'
+-        ' using "activate-global-python-argcomplete --dest=- > completions-dir/_python-argcomplete".',
+-        file=sys.stderr,
++        "Argcomplete was installed in the user site local directory. Defaulting to user installation.",
++        file=sys.stderr
+     )
+-    user_destination = os.path.expanduser("~/.bash_completion")
+-    if os.path.exists(user_destination):
+-        parser.error(
+-            f'Bash user completion configuration file {user_destination} already exists. Please remove it and try '
+-            f'again, or use "activate-global-python-argcomplete --dest=- >> {user_destination}".'
+-        )
+-    destinations.append(os.path.expanduser("~/.bash_completion"))
++    link_user_rcfiles()
++elif sys.prefix != sys.base_prefix:
++    print("Argcomplete was installed in a virtual environment. Defaulting to user installation.", file=sys.stderr)
++    link_user_rcfiles()
++elif args.user:
++    link_user_rcfiles()
+ else:
++    print("Defaulting to system-wide installation.", file=sys.stderr)
+     destinations.append(f"{get_zsh_system_dir()}/_python-argcomplete")
+     destinations.append(f"{get_bash_system_dir()}/python-argcomplete")
+ 
+Only in /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/bash_completion.d: _python-argcomplete
+Only in /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/bash_completion.d: python-argcomplete
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/_check_console_script.py /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/_check_console_script.py
+--- /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/_check_console_script.py	2023-05-19 18:09:25.000000000 -0400
++++ /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/_check_console_script.py	2023-06-14 11:26:28.089320723 -0400
+@@ -16,10 +16,15 @@
+ 
+ try:
+     from importlib.metadata import entry_points as importlib_entry_points
++    from importlib.metadata import EntryPoint
++    use_entry_points_backport = False
+ except ImportError:
+     from importlib_metadata import entry_points as importlib_entry_points  # type:ignore
++    from importlib_metadata import EntryPoint # type:ignore
++    use_entry_points_backport = True
+ 
+ from ._check_module import ArgcompleteMarkerNotFound, find
++from typing import Iterable
+ 
+ 
+ def main():
+@@ -29,7 +34,17 @@
+     # Find the module and function names that correspond to this
+     # assuming it is actually a console script.
+     name = os.path.basename(script_path)
+-    entry_points = [ep for ep in importlib_entry_points()["console_scripts"] if ep.name == name]
++
++    entry_points : Iterable[EntryPoint] = importlib_entry_points() # type:ignore
++
++    # The importlib_metadata backport returns a tuple of entry point objects
++    # whereas the official library returns a SelectableGroups object
++    if not use_entry_points_backport:
++        entry_points = entry_points["console_scripts"] # type:ignore
++
++    entry_points = [ep for ep in entry_points \
++            if ep.name == name and ep.group == "console_scripts" ] # type:ignore
++
+     if not entry_points:
+         raise ArgcompleteMarkerNotFound("no entry point found matching script")
+     entry_point = entry_points[0]
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/finders.py /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/finders.py
+--- /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/finders.py	2023-05-19 18:09:25.000000000 -0400
++++ /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/finders.py	2023-06-14 11:26:28.090320723 -0400
+@@ -519,8 +519,14 @@
+             special_chars = ""
+             completions = [c.replace("'", r"'\''") for c in completions]
+ 
++        # PowerShell uses ` as escape character.
++        if os.environ.get("_ARGCOMPLETE_SHELL") == "powershell":
++            escape_char = '`'
++            special_chars = special_chars.replace('`', '')
++        else:
++            escape_char = "\\"
+         for char in special_chars:
+-            completions = [c.replace(char, "\\" + char) for c in completions]
++            completions = [c.replace(char, escape_char + char) for c in completions]
+ 
+         if self.append_space:
+             # Similar functionality in bash was previously turned off by supplying the "-o nospace" option to complete.
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/shell_integration.py /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/shell_integration.py
+--- /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-05-19 18:09:25.000000000 -0400
++++ /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages/argcomplete/shell_integration.py	2023-06-14 11:26:28.090320723 -0400
+@@ -105,13 +105,14 @@
+     $env:_ARGCOMPLETE = 1
+     $env:_ARGCOMPLETE_SUPPRESS_SPACE = 0
+     $env:_ARGCOMPLETE_IFS = "`n"
++    $env:_ARGCOMPLETE_SHELL = "powershell"
+     %(argcomplete_script)s 2>&1 | Out-Null
+ 
+     Get-Content $completion_file | ForEach-Object {
+         [System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)
+     }
+     rm $completion_file
+-    Remove-Item Env:\_ARGCOMPLETE_STDOUT_FILENAME, Env:\ARGCOMPLETE_USE_TEMPFILES, Env:\COMP_LINE, Env:\COMP_POINT, Env:\_ARGCOMPLETE, Env:\_ARGCOMPLETE_SUPPRESS_SPACE, Env:\_ARGCOMPLETE_IFS
++    Remove-Item Env:\_ARGCOMPLETE_STDOUT_FILENAME, Env:\ARGCOMPLETE_USE_TEMPFILES, Env:\COMP_LINE, Env:\COMP_POINT, Env:\_ARGCOMPLETE, Env:\_ARGCOMPLETE_SUPPRESS_SPACE, Env:\_ARGCOMPLETE_IFS, Env:\_ARGCOMPLETE_SHELL
+ }
+ """  # noqa: E501
+ 
+Only in /tmp/tmp.UhW4dJ1eT8/lib/python3.8/site-packages: argcomplete-3.0.8.dist-info
+Only in /tmp/tmp.orFdpKs0oL/lib/python3.8/site-packages: argcomplete-3.1.1.dist-info
+***** END DIFF
+DIFF START *****
+Only in /tmp/tmp.2NvIa5fiBx/devfiles: ansible__ansible-demo
+diff --suppress-common-lines -u -r /tmp/tmp.J10FthgIsf/devfiles/external_images_by_devfile.txt /tmp/tmp.2NvIa5fiBx/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.J10FthgIsf/devfiles/external_images_by_devfile.txt	2023-05-19 18:09:26.000000000 -0400
++++ /tmp/tmp.2NvIa5fiBx/devfiles/external_images_by_devfile.txt	2023-06-14 11:26:28.904320723 -0400
+@@ -1,3 +1,8 @@
++quay.io/devspaces/ansible-creator-ee:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++quay.io/devspaces/ansible-creator-ee:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++quay.io/devspaces/ansible-creator-ee:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+@@ -16,6 +21,7 @@
+ registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+@@ -25,6 +31,9 @@
+ registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/idea-rhel8:3.7	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.7	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.7-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.J10FthgIsf/devfiles/external_images.txt /tmp/tmp.2NvIa5fiBx/devfiles/external_images.txt
+--- /tmp/tmp.J10FthgIsf/devfiles/external_images.txt	2023-05-19 18:09:26.000000000 -0400
++++ /tmp/tmp.2NvIa5fiBx/devfiles/external_images.txt	2023-06-14 11:26:28.904320723 -0400
+@@ -1,3 +1,4 @@
++quay.io/devspaces/ansible-creator-ee:3.7
+ registry.redhat.io/devspaces/code-rhel8:3.7
+ registry.redhat.io/devspaces/idea-rhel8:3.7
+ registry.redhat.io/devspaces/udi-rhel8:3.7
+diff --suppress-common-lines -u -r /tmp/tmp.J10FthgIsf/devfiles/index.json /tmp/tmp.2NvIa5fiBx/devfiles/index.json
+--- /tmp/tmp.J10FthgIsf/devfiles/index.json	2023-05-19 18:09:26.000000000 -0400
++++ /tmp/tmp.2NvIa5fiBx/devfiles/index.json	2023-06-14 11:26:28.904320723 -0400
+@@ -1,5 +1,23 @@
+ [
+   {
++    "displayName": "Ansible",
++    "description": "Development environment for Ansible playbook creation, testing with Molecule, and ansible-lint checks",
++    "tags": [
++      "Community",
++      "Ansible",
++      "Molecule"
++    ],
++    "icon": "/images/type-ansible.svg",
++    "links": {
++      "v2": "https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.7-rhel-8",
++      "devWorkspaces": {
++        "che-incubator/che-idea/latest": "/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml",
++        "che-incubator/che-code/insiders": "/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml",
++        "che-incubator/che-code/latest": "/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml"
++      }
++    }
++  },
++  {
+     "displayName": "Java 11 with Lombok",
+     "description": "Java stack with OpenJDK 11, Maven 3.6 and Lombok 1.18",
+     "tags": [
+Only in /tmp/tmp.2NvIa5fiBx/resources/v2: ansible-devspaces-demo.zip
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: a9df643e1ee4e70c34f7020137504fd5adab1c3a550d3e98a18e80e98d77cb72
+Deleted: 0db083838ec50891e432aeec104f504069f38f3b0944f44cd3c71f0165f846b1
+Deleted: 92d8ffb298c4077177c7306c93404344963853aa02f28d1a59cdf4eb1e851e08
+Deleted: 4de7c38f786e8894ca8bbc9a12f57c371b6a06d9dfdbc8d02a4ee675cf9f8553
+Deleted: cefb9961c1ec1406859e397006db3a0e89a00da9453a50cee07dc6c1ab07b146
+Deleted: aeb119eada7ee43f9ff4cc8fae85766e6b1f130e273f55786212967cfa1cebaa
+Deleted: 5145274d55eb06a7f84ecc21fb65a008d0c4b82d43255580302ec72071058b16
+Deleted: 0b59fb19d4c2bb8ecf8bb410ec7de1b7acb18953ab6c71834de4db6f92eabb09
+Deleted: 771ad558c2954cbe084b104f88056f627736b761a1656b9fa6a8978614a68384
+Deleted: e35d2f6b772ab755a73423a7884f001fe4647ca859591a2e6c7b96265f060d58
+Deleted: 80d12641174f55c7129d986dc25923e77c04e6443810893b726e64a17e9e7c62
+Deleted: 258e034853933156e0ef2e3b2d96219f44ca32b8cd7b108182057d27206f6320
+Deleted: c6ec40985264fef6860c5b48bd1df8e9591ae5663b1ad4eaab51dd604ae16c50
+Deleted: 6551564daea1cb62681254d4a30b8d0ceefe3f2c79a41ef12292508aab184ba6
+Deleted: 034af2ad99cdfdbff4c98e92b744cda1d538cb75b68009b54aac8167074b42e8
+Deleted: 1ad37e98af62fdbab653de7898b754ec1ab2b245090c067b6ad35fba320539ee
+Deleted: 3cbbb41acc63ff98345c44d5efd93974d037ddde23fa3a55859d78b80a7ae240
+Deleted: 81bd8f602de80db5ebd5c50dc27797522e1a75f5e81172ffdfd1a9a771af6dc3
+Deleted: a4cde80e62a13d70034de03cbacb1757216a359cc303862de1f7abdce2a7894c
+Deleted: b7cde1dd7b4e346ac8b17a09f534bacb1f6e6befc164bfd5b272a8d713f05433
+Deleted: 9180c35ad3d35c4cc9c9b6174ecf43fb7295960f2d22b0b865e94d648c82a849
+Deleted: 52efae0aebf40f87eb38e166bfb37c136ae4c82aad6d2bb67904ce117545d512
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
