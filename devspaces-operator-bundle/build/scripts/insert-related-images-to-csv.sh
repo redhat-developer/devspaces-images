@@ -124,6 +124,7 @@ updateRelatedImageName() {
     if [ "$matchesExcluded" = true ]
     then
         # Do not update the image name if it is in the excluded list
+        # And don't include the image into the CSV file
         continue
     fi
    
