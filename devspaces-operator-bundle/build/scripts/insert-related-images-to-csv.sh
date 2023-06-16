@@ -105,7 +105,30 @@ updateRelatedImageName() {
   imageType="$1"
   shift
   CONTAINERS=("$@")
+
+  # An array of image patterns to exclude from updating
+  excludedImagePatterns=("*/devspaces/ansible-creator-ee:*" )
   for updateVal in "${CONTAINERS[@]}"; do
+    
+    matchesExcluded=false
+
+    for excluded in "${excludedImagePatterns[@]}"
+    do
+        # Check if the updateVal matches the excluded image pattern
+        # shellcheck disable=SC2254
+        case "$updateVal" in 
+            $excluded) matchesExcluded=true; break ;;
+        esac
+    done
+
+    if [ "$matchesExcluded" = true ]
+    then
+        # Do not update the image name if it is in the excluded list
+        # And don't include the image into the CSV file
+        continue
+    fi
+   
+    # Update the image name
     tagOrDigest=""
     if [[ ${updateVal} == *"@"* ]]; then
       tagOrDigest="@${updateVal#*@}"
