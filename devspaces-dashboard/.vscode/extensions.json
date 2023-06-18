@@ -3,6 +3,7 @@
     // for the documentation about the extensions.json format
     "recommendations": [
       "dbaeumer.vscode-eslint",
-      "github.vscode-pull-request-github"
+      "github.vscode-pull-request-github",
+      "wix.vscode-import-cost"
     ]
 }
