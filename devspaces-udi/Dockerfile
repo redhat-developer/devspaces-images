@@ -361,6 +361,9 @@ RUN \
     echo -n "php:    "; php -v; \
     echo "========"
 
+# A last pass to make sure that an arbitrary user can write in $HOME
+RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /home
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null
