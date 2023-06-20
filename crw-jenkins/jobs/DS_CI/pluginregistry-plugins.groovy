@@ -25,8 +25,13 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="redhat-developer/" + UPSTM_NAME
             SOURCE_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
+            //get list of plugins for description
+            pluginCMD = ("https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/" + SOURCE_BRANCH + "/plugin-config.json").toURL().text
+            def plugins = jsonSlurper.parseText(pluginCMD);
+            PLUGIN_LIST = plugins.Plugins.keySet()
+            
             //DS_VERSION = util.getDsVersion(SOURCE_BRANCH)
-            def DS_VERSION = ("https://raw.githubusercontent.com/redhat-developer/devspaces/" + SOURCE_BRANCH + "/dependencies/VERSION").toURL().text
+            DS_VERSION = ("https://raw.githubusercontent.com/redhat-developer/devspaces/" + SOURCE_BRANCH + "/dependencies/VERSION").toURL().text
             DOWNLOAD_DIR="rcm-guest/staging/devspaces/build-requirements/devspaces-" + DS_VERSION + "-pluginregistry"
 
             description('''
@@ -38,6 +43,10 @@ Builds Visual Studio plugins used in the Dev Spaces plugin registry build and pu
 <ul>
 <li>Download Location: <a href=https://download.devel.redhat.com/''' + DOWNLOAD_DIR + '''>''' + DOWNLOAD_DIR + '''</a></li>
 </ul>
+
+Currently builds:
+''' + PLUGIN_LIST + '''
+
             ''')
 
             properties {
@@ -60,7 +69,8 @@ Builds Visual Studio plugins used in the Dev Spaces plugin registry build and pu
             parameters{
                 stringParam("SOURCE_REPO", SOURCE_REPO)
                 stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
-                booleanParam("FORCE_BUILD_ALL", false, "If false, only build plugins with new commits; if true, rebuild everything. This is handy when adding new plugins, reverting commits, or if download.devel cache needs to be recreated.")
+                booleanParam("BUILD_ALL", false, "If false, only build plugins with new commits; if true, rebuild everything. This is handy when adding new plugins, reverting commits, or if download.devel cache needs to be recreated.")
+                stringParam("BUILD_SOME", "", "List of specific plugins to build. Will be overwritten by BUILD_ALL if that is checked. See build description for possible plugins.")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 

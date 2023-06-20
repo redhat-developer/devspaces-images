@@ -4,7 +4,8 @@ import groovy.json.JsonSlurper
 // PARAMETERS for this pipeline:
 //   SOURCE_REPO
 //   SOURCE_BRANCH
-//   FORCE_BUILD_ALL
+//   BUILD_ALL
+//   BUILD_SOME
 //   CLEAN_ON_FAILURE = "true"
 
 // run on x64 to avoid P&Z-specific build node issues
@@ -35,19 +36,28 @@ cat plugin-config.json | jq -r '.Plugins | keys[]' > PLUGINS
           ''')
           def PLUGINS = readFile SOURCE_DIR + '/PLUGINS'
 
-          if (FORCE_BUILD_ALL == false || FORCE_BUILD_ALL.toString().equals("false")){
-            //check for updates
-            sh('''#!/bin/bash -e
+          println "BUILD_ALL: " + BUILD_ALL
+          println "BUILD_SOME: " + BUILD_SOME
+
+          if (BUILD_ALL == false || BUILD_ALL.toString().equals("false")){
+            if (BUILD_SOME.equals("")) {
+              //check for updates if no plugin was specified
+              sh('''#!/bin/bash -e
 cd ''' + SOURCE_DIR + '''
 ./build/update.sh > updates.txt
 git add plugin-config.json
             ''')
-            PLUGINS = readFile SOURCE_DIR + '/updates.txt'
+              PLUGINS = readFile SOURCE_DIR + '/updates.txt'
+            }
+            else {
+              PLUGINS = BUILD_SOME
+            }
+            
           }
 
           println "Plugins: " + PLUGINS
           //build and track failures
-          def FAILURES = ""
+          def FAILURES = ""         
           for (PLUGIN in PLUGINS.split('\n')) {
             try {
               sh('''#!/bin/bash -e
