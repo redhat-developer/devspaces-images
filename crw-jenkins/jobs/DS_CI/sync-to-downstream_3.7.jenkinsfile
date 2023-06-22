@@ -262,7 +262,8 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
 
               // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
               // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
-              util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+              // CRW-4359 Do not update base images while python-38 is broken
+              //util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
               // CRW-3292 get FULL LENGTH SHA for use in container.yaml
               SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources",40)
               println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA

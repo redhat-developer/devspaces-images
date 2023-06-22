@@ -60,6 +60,8 @@ cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
             OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
             println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
 
+            // CRW-4359 Do not update base images while python-38 is broken
+            /*
             if (!util.globalVar({SOURCE_TAG})?.trim()) { 
               if(SOURCE_REPO.contains("devspaces")) {
                 util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS})) // push updated base image change to upstream
@@ -67,6 +69,7 @@ cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
                 util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
               }
             }
+            */
 
             println "########################################################################################################"
             println "##  Sync ${SYNC_REPO} to devspaces-images"
@@ -95,7 +98,8 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
             )
 
             // push changes to devspaces-images
-            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit -maxdepth 3 -f \"*ockerfile\"" + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            // CRW-4359 Do not update base images while python-38 is broken
+            //util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit -maxdepth 3 -f \"*ockerfile\"" + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
             sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getDSLongName(SYNC_REPO) + '''
