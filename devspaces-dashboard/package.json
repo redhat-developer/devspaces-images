@@ -12,7 +12,7 @@
   "homepage": "https://github.com/eclipse-che/che-dashboard",
   "engines": {
     "yarn": ">=1.20.0",
-    "node": ">=14"
+    "node": ">=16"
   },
   "license": "EPL-2.0",
   "scripts": {

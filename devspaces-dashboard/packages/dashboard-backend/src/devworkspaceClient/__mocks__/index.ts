@@ -18,7 +18,6 @@ import {
   IEventApi,
   IKubeConfigApi,
   ILogsApi,
-  INamespaceApi,
   IPersonalAccessTokenApi,
   IPodApi,
   IServerConfigApi,
@@ -42,9 +41,6 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
     throw new Error('Method not implemented.');
   }
   get kubeConfigApi(): IKubeConfigApi {
-    throw new Error('Method not implemented.');
-  }
-  get namespaceApi(): INamespaceApi {
     throw new Error('Method not implemented.');
   }
   get userProfileApi(): IUserProfileApi {

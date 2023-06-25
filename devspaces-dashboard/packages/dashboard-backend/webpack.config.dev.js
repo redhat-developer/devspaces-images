@@ -12,8 +12,8 @@
 
 const merge = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
-const path = require('path');
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+const ESLintPlugin = require('eslint-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 const smp = new SpeedMeasurePlugin();
 
@@ -21,22 +21,6 @@ const common = require('./webpack.config.common');
 
 const config = {
     mode: 'development',
-    module: {
-      rules: [
-        {
-          test: /\.tsx?$/,
-          enforce: 'pre',
-          include: path.join(__dirname, 'src'),
-          exclude: /node_modules/,
-          use: [{
-            loader: 'eslint-loader',
-            options: {
-              cache: true,
-            }
-          }],
-        },
-      ]
-    },
     devtool: 'eval-source-map',
     watchOptions: {
       ignored: /node_modules/,
@@ -44,6 +28,11 @@ const config = {
     },
     externals: [
       nodeExternals(),
+    ],
+    plugins: [
+      new ESLintPlugin({
+        cache: true,
+      }),
     ],
 };
 

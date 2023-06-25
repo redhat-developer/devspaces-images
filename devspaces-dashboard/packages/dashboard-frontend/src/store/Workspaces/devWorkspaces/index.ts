@@ -11,11 +11,16 @@
  */
 
 import common, { api, ApplicationId } from '@eclipse-che/common';
+import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
-import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
-import { podmanLogin } from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import { FactoryParams } from '../../../services/helpers/factoryFlow/buildFactoryParams';
+import {
+  injectKubeConfig,
+  podmanLogin,
+} from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import { fetchResources } from '../../../services/dashboard-backend-client/devworkspaceResourcesApi';
 import { WebsocketClient } from '../../../services/dashboard-backend-client/websocketClient';
 import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
@@ -28,14 +33,18 @@ import { delay } from '../../../services/helpers/delay';
 import { DisposableCollection } from '../../../services/helpers/disposable';
 import { getNewerResourceVersion } from '../../../services/helpers/resourceVersion';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
+import OAuthService from '../../../services/oauth';
+import { loadResourcesContent } from '../../../services/registry/resources';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
+import { getCustomEditor } from '../../../services/workspace-client/helpers';
+import { selectApplications } from '../../ClusterInfo/selectors';
+import { getEditor } from '../../DevfileRegistries/getEditor';
 import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
-import { getCustomEditor } from '../../../services/workspace-client/helpers';
 import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
 import * as DwServerConfigStore from '../../ServerConfig';
 import {
@@ -43,15 +52,8 @@ import {
   selectPluginRegistryInternalUrl,
   selectPluginRegistryUrl,
 } from '../../ServerConfig/selectors';
-import { fetchResources } from '../../../services/dashboard-backend-client/devworkspaceResourcesApi';
-import { dump } from 'js-yaml';
-import { loadResourcesContent } from '../../../services/registry/resources';
 import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
 import { selectDevWorkspacesResourceVersion } from './selectors';
-import OAuthService from '../../../services/oauth';
-import { FactoryParams } from '../../../containers/Loader/buildFactoryParams';
-import { getEditor } from '../../DevfileRegistries/getEditor';
-import { selectApplications } from '../../ClusterInfo/selectors';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -605,12 +607,19 @@ export const actionCreators: ActionCreators = {
         }
       } else {
         // do we have the custom editor in `.che/che-editor.yaml` ?
-        editorContent = await getCustomEditor(
-          pluginRegistryUrl,
-          optionalFilesContent,
-          dispatch,
-          getState,
-        );
+        try {
+          editorContent = await getCustomEditor(
+            pluginRegistryUrl,
+            optionalFilesContent,
+            dispatch,
+            getState,
+          );
+          if (!editorContent) {
+            console.warn('No custom editor found');
+          }
+        } catch (e) {
+          console.warn('Failed to get custom editor', e);
+        }
         if (!editorContent) {
           const defaultsEditor = state.dwServerConfig.config.defaults.editor;
           if (!defaultsEditor) {

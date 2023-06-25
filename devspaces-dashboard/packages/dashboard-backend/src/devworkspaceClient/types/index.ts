@@ -36,13 +36,6 @@ export interface IDockerConfigApi {
   update(namespace: string, dockerCfg: api.IDockerConfig): Promise<api.IDockerConfig>;
 }
 
-export interface INamespaceApi {
-  /**
-   * Returns user namespaces
-   */
-  getNamespaces(token: string): Promise<Array<string>>;
-}
-
 export interface IDevWorkspaceApi extends IWatcherService<api.webSocket.SubscribeParams> {
   /**
    * Get the DevWorkspace with given namespace in the specified namespace
@@ -297,7 +290,6 @@ export interface IDevWorkspaceClient {
   eventApi: IEventApi;
   kubeConfigApi: IKubeConfigApi;
   logsApi: ILogsApi;
-  namespaceApi: INamespaceApi;
   personalAccessTokenApi: IPersonalAccessTokenApi;
   podApi: IPodApi;
   serverConfigApi: IServerConfigApi;

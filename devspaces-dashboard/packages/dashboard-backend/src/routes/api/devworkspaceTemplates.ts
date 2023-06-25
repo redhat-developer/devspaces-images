@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, FastifyRequest } from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../../constants/config';
 import {
   namespacedSchema,
@@ -22,6 +22,7 @@ import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
 import { getToken } from './helpers/getToken';
 import { getSchema } from '../../services/helpers';
 import { restParams } from '../../models';
+import { isLocalRun } from '../../localRun';
 
 const tags = ['Devworkspace Template'];
 
@@ -71,4 +72,28 @@ export function registerDevWorkspaceTemplates(server: FastifyInstance) {
       return templateApi.patch(namespace, templateName, patch);
     },
   );
+
+  if (isLocalRun()) {
+    server.delete(
+      `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+      getSchema({
+        tags,
+        params: namespacedTemplateSchema,
+        response: {
+          204: {
+            description: 'The DevWorkspaceTemplate successfully deleted',
+            type: 'null',
+          },
+        },
+      }),
+      async function (request: FastifyRequest, reply: FastifyReply) {
+        const { namespace, templateName } = request.params as restParams.INamespacedTemplateParams;
+        const token = getToken(request);
+        const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
+        await templateApi.delete(namespace, templateName);
+        reply.code(204);
+        return reply.send();
+      },
+    );
+  }
 }

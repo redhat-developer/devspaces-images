@@ -10,19 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V221DevfileComponents } from '@devfile/api';
 import { dump } from 'js-yaml';
 import { cloneDeep } from 'lodash';
-import { V221DevfileComponents } from '@devfile/api';
-import { FactoryResolver, DevfileV2ProjectSource } from '../../services/helpers/types';
+import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
+import { DevfileAdapter } from '../../services/devfile/adapter';
 import devfileApi from '../../services/devfileApi';
+import { generateWorkspaceName } from '../../services/helpers/generateName';
 import { getProjectName } from '../../services/helpers/getProjectName';
+import { DevfileV2ProjectSource, FactoryResolver } from '../../services/helpers/types';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { generateWorkspaceName } from '../../services/helpers/generateName';
-import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
-import { DevfileAdapter } from '../../services/devfile/adapter';
 
 /**
  * Returns a devfile from the FactoryResolver object.

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Loader page component snapshot: creating a workspace 1`] = `
+exports[`Loader page snapshot, creating workspace flow 1`] = `
 Array [
   <section
     className="pf-c-page__main-section pf-m-light"
@@ -177,12 +177,12 @@ Array [
           className="pf-c-tabs__item pf-m-current"
         >
           <button
-            aria-controls="pf-tab-section-0-loader-progress-tab"
+            aria-controls="pf-tab-section-Progress-loader-progress-tab"
             className="pf-c-tabs__link"
             data-ouia-component-type="PF4/TabButton"
             data-ouia-safe={true}
             data-testid="loader-progress-tab"
-            id="pf-tab-0-loader-progress-tab"
+            id="pf-tab-Progress-loader-progress-tab"
             onClick={[Function]}
           >
             Progress
@@ -192,12 +192,12 @@ Array [
           className="pf-c-tabs__item"
         >
           <button
-            aria-controls="pf-tab-section-1-loader-logs-tab"
+            aria-controls="pf-tab-section-Logs-loader-logs-tab"
             className="pf-c-tabs__link"
             data-ouia-component-type="PF4/TabButton"
             data-ouia-safe={true}
             data-testid="loader-logs-tab"
-            id="pf-tab-1-loader-logs-tab"
+            id="pf-tab-Logs-loader-logs-tab"
             onClick={[Function]}
           >
             Logs
@@ -207,12 +207,12 @@ Array [
           className="pf-c-tabs__item"
         >
           <button
-            aria-controls="pf-tab-section-2-loader-events-tab"
+            aria-controls="pf-tab-section-Events-loader-events-tab"
             className="pf-c-tabs__link"
             data-ouia-component-type="PF4/TabButton"
             data-ouia-safe={true}
             data-testid="loader-events-tab"
-            id="pf-tab-2-loader-events-tab"
+            id="pf-tab-Events-loader-events-tab"
             onClick={[Function]}
           >
             Events
@@ -247,32 +247,30 @@ Array [
       </button>
     </div>
     <section
-      aria-labelledby="pf-tab-0-loader-progress-tab"
+      aria-labelledby="pf-tab-Progress-loader-progress-tab"
       className="pf-c-tab-content"
       data-ouia-component-type="PF4/TabContent"
       data-ouia-safe={true}
       hidden={false}
-      id="pf-tab-section-0-loader-progress-tab"
+      id="pf-tab-section-Progress-loader-progress-tab"
       role="tabpanel"
       tabIndex={0}
     >
       <section
-        className="pf-c-page__main-section"
+        className="pf-c-page__main-section pf-m-fill"
       >
-        <div
-          data-testid="ide-loader-progress"
-        >
-          Dummy loading progress
+        <div>
+          Progress
         </div>
       </section>
     </section>
     <section
-      aria-labelledby="pf-tab-1-loader-logs-tab"
+      aria-labelledby="pf-tab-Logs-loader-logs-tab"
       className="pf-c-tab-content"
       data-ouia-component-type="PF4/TabContent"
       data-ouia-safe={true}
       hidden={true}
-      id="pf-tab-section-1-loader-logs-tab"
+      id="pf-tab-section-Logs-loader-logs-tab"
       role="tabpanel"
       tabIndex={0}
     >
@@ -281,12 +279,12 @@ Array [
       </div>
     </section>
     <section
-      aria-labelledby="pf-tab-2-loader-events-tab"
+      aria-labelledby="pf-tab-Events-loader-events-tab"
       className="pf-c-tab-content"
       data-ouia-component-type="PF4/TabContent"
       data-ouia-safe={true}
       hidden={true}
-      id="pf-tab-section-2-loader-events-tab"
+      id="pf-tab-section-Events-loader-events-tab"
       role="tabpanel"
       tabIndex={0}
     >
@@ -298,7 +296,7 @@ Array [
 ]
 `;
 
-exports[`Loader page component snapshot: starting a workspace 1`] = `
+exports[`Loader page snapshot, starting workspace flow 1`] = `
 Array [
   <section
     className="pf-c-page__main-section pf-m-light"
@@ -470,12 +468,12 @@ Array [
           className="pf-c-tabs__item pf-m-current"
         >
           <button
-            aria-controls="pf-tab-section-0-loader-progress-tab"
+            aria-controls="pf-tab-section-Progress-loader-progress-tab"
             className="pf-c-tabs__link"
             data-ouia-component-type="PF4/TabButton"
             data-ouia-safe={true}
             data-testid="loader-progress-tab"
-            id="pf-tab-0-loader-progress-tab"
+            id="pf-tab-Progress-loader-progress-tab"
             onClick={[Function]}
           >
             Progress
@@ -485,12 +483,12 @@ Array [
           className="pf-c-tabs__item"
         >
           <button
-            aria-controls="pf-tab-section-1-loader-logs-tab"
+            aria-controls="pf-tab-section-Logs-loader-logs-tab"
             className="pf-c-tabs__link"
             data-ouia-component-type="PF4/TabButton"
             data-ouia-safe={true}
             data-testid="loader-logs-tab"
-            id="pf-tab-1-loader-logs-tab"
+            id="pf-tab-Logs-loader-logs-tab"
             onClick={[Function]}
           >
             Logs
@@ -500,12 +498,12 @@ Array [
           className="pf-c-tabs__item"
         >
           <button
-            aria-controls="pf-tab-section-2-loader-events-tab"
+            aria-controls="pf-tab-section-Events-loader-events-tab"
             className="pf-c-tabs__link"
             data-ouia-component-type="PF4/TabButton"
             data-ouia-safe={true}
             data-testid="loader-events-tab"
-            id="pf-tab-2-loader-events-tab"
+            id="pf-tab-Events-loader-events-tab"
             onClick={[Function]}
           >
             Events
@@ -540,32 +538,30 @@ Array [
       </button>
     </div>
     <section
-      aria-labelledby="pf-tab-0-loader-progress-tab"
+      aria-labelledby="pf-tab-Progress-loader-progress-tab"
       className="pf-c-tab-content"
       data-ouia-component-type="PF4/TabContent"
       data-ouia-safe={true}
       hidden={false}
-      id="pf-tab-section-0-loader-progress-tab"
+      id="pf-tab-section-Progress-loader-progress-tab"
       role="tabpanel"
       tabIndex={0}
     >
       <section
-        className="pf-c-page__main-section"
+        className="pf-c-page__main-section pf-m-fill"
       >
-        <div
-          data-testid="ide-loader-progress"
-        >
-          Dummy loading progress
+        <div>
+          Progress
         </div>
       </section>
     </section>
     <section
-      aria-labelledby="pf-tab-1-loader-logs-tab"
+      aria-labelledby="pf-tab-Logs-loader-logs-tab"
       className="pf-c-tab-content"
       data-ouia-component-type="PF4/TabContent"
       data-ouia-safe={true}
       hidden={true}
-      id="pf-tab-section-1-loader-logs-tab"
+      id="pf-tab-section-Logs-loader-logs-tab"
       role="tabpanel"
       tabIndex={0}
     >
@@ -574,12 +570,12 @@ Array [
       </div>
     </section>
     <section
-      aria-labelledby="pf-tab-2-loader-events-tab"
+      aria-labelledby="pf-tab-Events-loader-events-tab"
       className="pf-c-tab-content"
       data-ouia-component-type="PF4/TabContent"
       data-ouia-safe={true}
       hidden={true}
-      id="pf-tab-section-2-loader-events-tab"
+      id="pf-tab-section-Events-loader-events-tab"
       role="tabpanel"
       tabIndex={0}
     >

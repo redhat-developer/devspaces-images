@@ -4,4 +4,5 @@
     "**/lib": true,
     "**/coverage": true
   },
+  "jest.jestCommandLine": "yarn test",
 }

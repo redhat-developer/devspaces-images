@@ -11,26 +11,23 @@
  */
 
 import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
+import { History } from 'history';
 import React from 'react';
 import Head from '../../components/Head';
 import Header from '../../components/Header';
-import { LoaderAlert } from '../../components/Loader/Alert';
-import { LoaderProgress } from '../../components/Loader/Progress';
-import { LoaderStep } from '../../components/Loader/Step';
 import WorkspaceEvents from '../../components/WorkspaceEvents';
 import WorkspaceLogs from '../../components/WorkspaceLogs';
-import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../services/helpers/types';
+import { DevWorkspaceStatus, LoaderTab } from '../../services/helpers/types';
 import { Workspace } from '../../services/workspace-adapter';
-
 import styles from './index.module.css';
+import WorkspaceProgress from '../../components/WorkspaceProgress';
 
 export type Props = {
-  alertItem: AlertItem | undefined;
-  currentStepId: number;
-  steps: LoaderStep[];
+  history: History;
   tabParam: string | undefined;
+  searchParams: URLSearchParams;
   workspace: Workspace | undefined;
-  onTabChange: (tabName: string) => void;
+  onTabChange: (tab: LoaderTab) => void;
 };
 
 export type State = {
@@ -55,18 +52,17 @@ export class LoaderPage extends React.PureComponent<Props, State> {
     this.setState({
       activeTabKey: tabKey,
     });
-    const tabName = LoaderTab[tabKey];
-    this.props.onTabChange(tabName);
+    const tab = LoaderTab[tabKey];
+    this.props.onTabChange(tab);
   }
 
   render(): React.ReactNode {
-    const { alertItem, currentStepId, steps, workspace } = this.props;
+    const { history, searchParams, workspace } = this.props;
     const { activeTabKey } = this.state;
 
     const pageTitle = workspace ? `Starting workspace ${workspace.name}` : 'Creating a workspace';
     const workspaceStatus = workspace?.status || DevWorkspaceStatus.STOPPED;
-    const isToastAlert = activeTabKey === LoaderTab.Logs;
-    const wizardSteps = LoaderStep.toWizardSteps(currentStepId, steps);
+    const showToastAlert = activeTabKey !== LoaderTab.Progress;
 
     return (
       <React.Fragment>
@@ -85,18 +81,22 @@ export class LoaderPage extends React.PureComponent<Props, State> {
           >
             <Tab
               eventKey={LoaderTab.Progress}
-              title={LoaderTab[LoaderTab.Progress]}
+              title={LoaderTab.Progress}
               data-testid="loader-progress-tab"
               id="loader-progress-tab"
             >
-              <PageSection>
-                <LoaderAlert isToast={isToastAlert} alertItem={alertItem} />
-                <LoaderProgress steps={wizardSteps} currentStepId={currentStepId} />
+              <PageSection isFilled={true}>
+                <WorkspaceProgress
+                  history={history}
+                  searchParams={searchParams}
+                  showToastAlert={showToastAlert}
+                  onTabChange={tab => this.handleTabClick(tab)}
+                />
               </PageSection>
             </Tab>
             <Tab
               eventKey={LoaderTab.Logs}
-              title={LoaderTab[LoaderTab.Logs]}
+              title={LoaderTab.Logs}
               data-testid="loader-logs-tab"
               id="loader-logs-tab"
             >
@@ -104,7 +104,7 @@ export class LoaderPage extends React.PureComponent<Props, State> {
             </Tab>
             <Tab
               eventKey={LoaderTab.Events}
-              title={LoaderTab[LoaderTab.Events]}
+              title={LoaderTab.Events}
               data-testid="loader-events-tab"
               id="loader-events-tab"
             >

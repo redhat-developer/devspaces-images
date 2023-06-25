@@ -356,20 +356,20 @@ export const reducer: Reducer<State> = (
     case Type.RECEIVE_DEVFILE:
       return createObject(state, {
         isLoading: false,
-        devfiles: {
+        devfiles: createObject(state.devfiles, {
           [action.url]: {
             content: action.devfile,
           },
-        },
+        }),
       });
     case Type.RECEIVE_RESOURCES:
       return createObject(state, {
         isLoading: false,
-        devWorkspaceResources: {
+        devWorkspaceResources: createObject(state.devWorkspaceResources, {
           [action.url]: {
             resources: [action.devWorkspace, action.devWorkspaceTemplate],
           },
-        },
+        }),
       });
     case Type.RECEIVE_RESOURCES_ERROR:
       return createObject(state, {

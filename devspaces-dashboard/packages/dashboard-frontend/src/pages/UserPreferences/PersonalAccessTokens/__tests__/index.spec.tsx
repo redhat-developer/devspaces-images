@@ -316,7 +316,7 @@ describe('PersonalAccessTokens', () => {
       await waitFor(() => expect(mockShowAlert).toHaveBeenCalledTimes(2));
       expect(mockShowAlert).toHaveBeenNthCalledWith(1, {
         key: 'delete-tokens-success',
-        title: '1 of 2 token deleted successfully',
+        title: '1 of 2 tokens deleted successfully',
         variant: 'success',
       } as AlertItem);
       expect(mockShowAlert).toHaveBeenNthCalledWith(2, {

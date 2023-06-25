@@ -18,15 +18,11 @@ import { TextEncoder } from 'util';
 (global as any).TextEncoder = TextEncoder;
 import fastifyHttpProxy from '@fastify/http-proxy';
 
-export function registerCheApiProxy(
-  server: FastifyInstance,
-  cheApiProxyUpstream: string,
-  origin: string,
-) {
-  console.log(`Dashboard proxies requests to Che Server API on ${cheApiProxyUpstream}/api.`);
+export function registerCheApiProxy(server: FastifyInstance, upstream: string, origin: string) {
+  console.log(`Dashboard proxies requests to Che Server API on ${upstream}/api.`);
   // server api
   server.register(fastifyHttpProxy, {
-    upstream: cheApiProxyUpstream ? cheApiProxyUpstream : origin,
+    upstream,
     prefix: '/api/',
     rewritePrefix: '/api/',
     disableCache: true,

@@ -52,9 +52,7 @@ export class FactoryLocationAdapter implements FactoryLocation {
   }
 
   public static isFullPathUrl(href: string): boolean {
-    return /^(https?:\/\/.)[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)$/.test(
-      href,
-    );
+    return /^(https?:\/\/.)[-a-zA-Z0-9@:%._+~#=]{2,}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)$/.test(href);
   }
 
   public static isSshLocation(href: string): boolean {

@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "dashboard-frontend",
+			"path": "packages/dashboard-frontend"
+		},
+		{
+			"name": "dashboard-backend",
+			"path": "packages/dashboard-backend"
+		},
+		{
+			"name": "common",
+			"path": "packages/common"
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "node_modules/typescript/lib",
+		"jest.disabledWorkspaceFolders": [
+			"che-dashboard",
+		]
+	}
+}

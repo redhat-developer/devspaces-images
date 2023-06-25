@@ -27,7 +27,6 @@ import {
   IEventApi,
   IKubeConfigApi,
   ILogsApi,
-  INamespaceApi,
   IPersonalAccessTokenApi,
   IPodApi,
   IServerConfigApi,
@@ -80,8 +79,6 @@ export const stubDevWorkspaceTemplate: V1alpha2DevWorkspaceTemplate = {
 };
 
 export const stubDockerConfig = {};
-
-export const stubNamespaces = ['user-che'];
 
 export const stubUserProfile: api.IUserProfile = {
   email: 'user1@che',
@@ -145,13 +142,11 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
     kubeConfigApi: {
       injectKubeConfig: (_namespace, _devworkspaceId) => Promise.resolve(undefined),
     } as IKubeConfigApi,
-    namespaceApi: {
-      getNamespaces: _token => Promise.resolve(stubNamespaces),
-    } as INamespaceApi,
     devWorkspaceTemplateApi: {
       create: _template => Promise.resolve(stubDevWorkspaceTemplate),
       listInNamespace: _namespace => Promise.resolve(stubDevWorkspaceTemplatesList),
       patch: (_namespace, _name, _patches) => Promise.resolve(stubDevWorkspaceTemplate),
+      delete: (_namespace, _name) => Promise.resolve(undefined),
     } as IDevWorkspaceTemplateApi,
     userProfileApi: {
       getUserProfile: _namespace => Promise.resolve(stubUserProfile),

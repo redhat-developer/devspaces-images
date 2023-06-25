@@ -14,12 +14,14 @@
 
 import { api } from '@eclipse-che/common';
 import { V1Status } from '@kubernetes/client-node';
+import { dump } from 'js-yaml';
 import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
 import * as testStore from '..';
 import { AppState } from '../../..';
 import { container } from '../../../../inversify.config';
+import { FactoryParams } from '../../../../services/helpers/factoryFlow/buildFactoryParams';
 import { fetchServerConfig } from '../../../../services/dashboard-backend-client/serverConfigApi';
 import { WebsocketClient } from '../../../../services/dashboard-backend-client/websocketClient';
 import devfileApi from '../../../../services/devfileApi';
@@ -29,8 +31,6 @@ import * as ServerConfigStore from '../../../ServerConfig';
 import { DevWorkspaceBuilder } from '../../../__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import { checkRunningWorkspacesLimit } from '../checkRunningWorkspacesLimit';
-import { dump } from 'js-yaml';
-import { FactoryParams } from '../../../../containers/Loader/buildFactoryParams';
 
 jest.mock('../../../../services/dashboard-backend-client/serverConfigApi');
 jest.mock('../../../../services/helpers/delay', () => ({

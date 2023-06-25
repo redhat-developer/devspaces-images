@@ -27,55 +27,94 @@ describe('DevWorkspaceTemplates Routes', () => {
   const clusterConsoleUrl = 'cluster-console-url';
   const namespace = 'user-che';
 
-  beforeAll(async () => {
-    const env = {
-      OPENSHIFT_CONSOLE_URL: clusterConsoleUrl,
-    };
-    app = await setup({ env });
+  describe('General mode', () => {
+    beforeAll(async () => {
+      const env = {
+        OPENSHIFT_CONSOLE_URL: clusterConsoleUrl,
+      };
+      app = await setup({ env });
+    });
+
+    afterAll(() => {
+      teardown(app);
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('GET ${baseApiPath}/namespace/:namespace/devworkspacetemplates', async () => {
+      const res = await app
+        .inject()
+        .get(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.json()).toEqual(stubDevWorkspaceTemplatesList);
+    });
+
+    test('POST ${baseApiPath}/namespace/:namespace/devworkspacetemplates', async () => {
+      const res = await app
+        .inject()
+        .post(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates`)
+        .payload({ template: {} });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.json()).toEqual(stubDevWorkspaceTemplate);
+    });
+
+    test('PATCH ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
+      const templateName = 'tmpl';
+      const patches: IPatch[] = [
+        {
+          op: 'replace',
+          path: '/metadata/annotations',
+          value: {},
+        },
+      ];
+      const res = await app
+        .inject()
+        .patch(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates/${templateName}`)
+        .payload(patches);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.json()).toEqual(stubDevWorkspaceTemplate);
+    });
+
+    test('DELETE ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
+      const templateName = 'tmpl';
+      const res = await app
+        .inject()
+        .delete(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates/${templateName}`);
+
+      expect(res.statusCode).toEqual(404);
+    });
   });
 
-  afterAll(() => {
-    teardown(app);
-  });
+  describe('LocalRun only', () => {
+    beforeAll(async () => {
+      const env = {
+        OPENSHIFT_CONSOLE_URL: clusterConsoleUrl,
+        LOCAL_RUN: 'true',
+        CHE_API_PROXY_UPSTREAM: 'http://127.0.0.1:80',
+      };
+      app = await setup({ env });
+    });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+    afterAll(() => {
+      teardown(app);
+    });
 
-  test('GET ${baseApiPath}/namespace/:namespace/devworkspacetemplates', async () => {
-    const res = await app
-      .inject()
-      .get(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates`);
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
 
-    expect(res.statusCode).toEqual(200);
-    expect(res.json()).toEqual(stubDevWorkspaceTemplatesList);
-  });
+    test('DELETE ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
+      const templateName = 'tmpl';
+      const res = await app
+        .inject()
+        .delete(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates/${templateName}`);
 
-  test('POST ${baseApiPath}/namespace/:namespace/devworkspacetemplates', async () => {
-    const res = await app
-      .inject()
-      .post(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates`)
-      .payload({ template: {} });
-
-    expect(res.statusCode).toEqual(200);
-    expect(res.json()).toEqual(stubDevWorkspaceTemplate);
-  });
-
-  test('PATCH ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
-    const templateName = 'tmpl';
-    const patches: IPatch[] = [
-      {
-        op: 'replace',
-        path: '/metadata/annotations',
-        value: {},
-      },
-    ];
-    const res = await app
-      .inject()
-      .patch(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates/${templateName}`)
-      .payload(patches);
-
-    expect(res.statusCode).toEqual(200);
-    expect(res.json()).toEqual(stubDevWorkspaceTemplate);
+      expect(res.statusCode).toEqual(204);
+    });
   });
 });

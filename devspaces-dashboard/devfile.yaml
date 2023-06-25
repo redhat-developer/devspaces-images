@@ -37,7 +37,7 @@ commands:
       label: "[UD] build"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn build:dev"
+      commandLine: "yarn build"
       group:
         kind: build
   - id: watchfrontend
@@ -56,12 +56,36 @@ commands:
       commandLine: "yarn --cwd packages/dashboard-backend build:watch"
       group:
         kind: build
+  - id: prepare
+    exec:
+      label: "[UD] prepare"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn start:prepare"
+      group:
+        kind: build
+  - id: dogfoodingprepare
+    exec:
+      label: "[UD] dogfooding prepare"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "oc project dogfooding && export CHE_NAMESPACE='dogfooding' && export NAMESPACE='dogfooding' && yarn start:prepare"
+      group:
+        kind: build
+  - id: startcheinche
+    exec:
+      label: "[UD] start che-in-che"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "oc project dogfooding && export CHE_NAMESPACE='dogfooding' && export NAMESPACE='dogfooding' && yarn start -c"
+      group:
+        kind: build
   - id: start
     exec:
       label: "[UD] start"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn start:prepare && yarn start"
+      commandLine: "yarn start"
       group:
         kind: build
   - id: runtests
@@ -72,3 +96,35 @@ commands:
       commandLine: "yarn test"
       group:
         kind: test
+  - id: frontendbuildspeed
+    exec:
+      label: "[UD] frontend build speed"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn --cwd  packages/dashboard-frontend build:dev --env speedMeasure=true"
+      group:
+        kind: build
+  - id: backendbuildspeed
+    exec:
+      label: "[UD] backend build speed"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn --cwd  packages/dashboard-backend build:dev --env speedMeasure=true"
+      group:
+        kind: build
+  - id: frontendbundleanalyzer
+    exec:
+      label: "[UD] frontend bundle analyzer"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn --cwd  packages/dashboard-frontend build --env bundleAnalyzer=true"
+      group:
+        kind: build
+  - id: backendbundleanalyzer
+    exec:
+      label: "[UD] backend bundle analyzer"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn --cwd  packages/dashboard-backend build --env bundleAnalyzer=true"
+      group:
+        kind: build

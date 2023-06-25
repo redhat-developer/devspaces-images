@@ -14,6 +14,7 @@ and have access to Che namespace (use $CHE_NAMESPACE env var to configure it).
 Arguments:
   -f|--force-build : by default packages are compiled only when they were not previously.
                       This option should be used if compiled files must be overridden with fresher version.
+  -c|--che-in-che : This option allows to use checluster internal URLs for developing.
 Env vars:
   KUBECONFIG    : Kubeconfig file location. Default: "$HOME/.kube/config"
   CHE_NAMESPACE : kubernetes namespace where Che Cluster should be looked into. Default: "eclipse-che"
@@ -21,6 +22,7 @@ Env vars:
 Examples:
 $0
 $0 --force-build
+$0 --che-in-che
 EOF
 }
 
@@ -29,6 +31,10 @@ parse_args() {
     case $1 in
     '-f' | '--force-build')
       FORCE_BUILD="true"
+      shift 0
+      ;;
+    '-c' | '--che-in-che')
+      CHE_IN_CHE="true"
       shift 0
       ;;
     '--help')
@@ -46,6 +52,7 @@ parse_args() {
 }
 
 FORCE_BUILD="false"
+CHE_IN_CHE="false"
 # Init Che Namespace with the default value if it's not set
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
 
@@ -87,7 +94,7 @@ export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
 if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
   echo 'Cluster access token not found.'
   export DEX_INGRESS=$(kubectl get ingress dex -n dex -o jsonpath='{.spec.rules[0].host}')
-  if [[ ! -z "$DEX_INGRESS" ]]; then
+  if [[ -n "$DEX_INGRESS" ]]; then
     echo 'Evaluated Dex ingress'
 
     echo 'Looking for staticClientID and  staticClientSecret...'
@@ -97,17 +104,31 @@ if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
   fi
 fi
 
-DASHBOARD_POD_NAME=$(kubectl get pods -n $CHE_NAMESPACE -o=custom-columns=:metadata.name | grep dashboard)
-export SERVICE_ACCOUNT_TOKEN=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- cat /run/secrets/kubernetes.io/serviceaccount/token)
-export CHECLUSTER_CR_NAMESPACE=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAMESPACE)
-export CHECLUSTER_CR_NAME=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAME)
-export CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR)
-export CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS)
-export CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL)
-export CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT)
-export CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES)
-export CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL)
-export CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL)
+DASHBOARD_POD_NAME=$(kubectl get pods -n "$CHE_NAMESPACE" -o=custom-columns=:metadata.name | grep dashboard)
+
+if [ "$CHE_IN_CHE" == "true" ]; then
+  export SERVICE_ACCOUNT_TOKEN=$(cat /run/secrets/kubernetes.io/serviceaccount/token)
+else
+  export SERVICE_ACCOUNT_TOKEN=$(kubectl exec "$DASHBOARD_POD_NAME" -n "$CHE_NAMESPACE" -- cat /run/secrets/kubernetes.io/serviceaccount/token)
+fi
+
+export CHECLUSTER_CR_NAMESPACE=$(grep -o 'CHECLUSTER_CR_NAMESPACE:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHECLUSTER_CR_NAME=$(grep -o 'CHECLUSTER_CR_NAME:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR=$(grep -o 'CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS=$(grep -o 'CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL=$(grep -o 'CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT=$(grep -o 'CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES=$(grep -o 'CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL=$(grep -o 'CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL=$(grep -o 'CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL=$(grep -o 'CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
+
+if [ "$CHE_IN_CHE" == "true" ]; then
+  export CHE_INTERNAL_URL=$(grep -o 'CHE_INTERNAL_URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
+else
+  unset CHE_INTERNAL_URL
+fi
+
 
 # consider renaming it to CHE_API_URL since it's not just host
 export CHE_HOST=http://localhost:8080
@@ -116,15 +137,18 @@ export CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE $CHECLUSTER_CR
 # do nothing
 PRERUN_COMMAND="echo"
 
-GATEWAY=$(kubectl get deployments.apps che-gateway -o=json --ignore-not-found -n $CHE_NAMESPACE)
-if [[ ! -z "$GATEWAY" &&
-  $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
+GATEWAY=$(kubectl get deployments.apps -n $CHE_NAMESPACE che-gateway --ignore-not-found -o=json | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")')
+if [ "$GATEWAY" == "true" ]; then
   echo "Detected gateway and oauth-proxy inside. Running in native auth mode."
   export NATIVE_AUTH="true"
-  # when native auth we go though port forward to avoid dealing with OpenShift OAuth Cookies
-  CHE_FORWARDED_PORT=8081
-  export CHE_API_PROXY_UPSTREAM="http://localhost:${CHE_FORWARDED_PORT}"
-  PRERUN_COMMAND="kubectl port-forward service/che-host ${CHE_FORWARDED_PORT}:8080 -n $CHE_NAMESPACE"
+  if [ "$CHE_IN_CHE" == "false" ]; then
+      # when native auth we go though port forward to avoid dealing with OpenShift OAuth Cookies
+      CHE_FORWARDED_PORT=8081
+      export CHE_API_PROXY_UPSTREAM="http://localhost:${CHE_FORWARDED_PORT}"
+      PRERUN_COMMAND="kubectl port-forward service/che-host ${CHE_FORWARDED_PORT}:8080 -n $CHE_NAMESPACE"
+  else
+    unset CHE_API_PROXY_UPSTREAM
+  fi
 fi
 
 # relative path from backend package

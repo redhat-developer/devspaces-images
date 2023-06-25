@@ -10,10 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { PROPAGATE_FACTORY_ATTRS, REMOTES_ATTR } from '../containers/Loader/const';
-import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
-import { FactoryLocationAdapter, FactoryLocation } from '../services/factory-location-adapter';
+import { FactoryLocation, FactoryLocationAdapter } from '../services/factory-location-adapter';
+import {
+  PROPAGATE_FACTORY_ATTRS,
+  REMOTES_ATTR,
+} from '../services/helpers/factoryFlow/buildFactoryParams';
 import { sanitizeLocation } from '../services/helpers/location';
+import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
 
 (function acceptNewFactoryLink(): void {
   if (window.location.pathname.startsWith('/dashboard/')) {

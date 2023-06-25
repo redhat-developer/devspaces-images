@@ -79,9 +79,9 @@ export function isDevWorkspaceStatus(status: unknown): status is DevWorkspaceSta
 export type CreateWorkspaceTab = 'quick-add' | 'custom-workspace';
 
 export enum LoaderTab {
-  Progress = 0,
-  Logs = 1,
-  Events = 2,
+  Progress = 'Progress',
+  Logs = 'Logs',
+  Events = 'Events',
 }
 
 export enum WorkspaceDetailsTab {

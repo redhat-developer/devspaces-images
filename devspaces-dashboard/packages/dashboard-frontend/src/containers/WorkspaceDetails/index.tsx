@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { History, Location } from 'history';
+import { Location } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
@@ -30,7 +30,8 @@ import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../services/devfileApi/d
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import { isEqual } from 'lodash';
 
-type Props = MappedProps & { history: History } & RouteComponentProps<{
+type Props = MappedProps &
+  RouteComponentProps<{
     namespace: string;
     workspaceName: string;
   }>;

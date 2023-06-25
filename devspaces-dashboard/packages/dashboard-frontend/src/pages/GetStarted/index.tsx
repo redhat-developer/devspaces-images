@@ -37,7 +37,7 @@ import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
 import devfileApi from '../../services/devfileApi';
-import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
+import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 

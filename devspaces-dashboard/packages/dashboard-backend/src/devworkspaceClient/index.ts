@@ -18,7 +18,6 @@ import { EventApiService } from './services/eventApi';
 import { KubeConfigApiService } from './services/kubeConfigApi';
 import { PodmanApiService } from './services/podmanApi';
 import { LogsApiService } from './services/logsApi';
-import { NamespaceApiService } from './services/namespaceApi';
 import { PersonalAccessTokenService } from './services/personalAccessTokenApi';
 import { PodApiService } from './services/podApi';
 import { ServerConfigApiService } from './services/serverConfigApi';
@@ -32,7 +31,6 @@ import {
   IEventApi,
   IKubeConfigApi,
   ILogsApi,
-  INamespaceApi,
   IPersonalAccessTokenApi,
   IPodApi,
   IServerConfigApi,
@@ -78,10 +76,6 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   get podmanApi(): IPodmanApi {
     return new PodmanApiService(this.kubeConfig);
-  }
-
-  get namespaceApi(): INamespaceApi {
-    return new NamespaceApiService(this.kubeConfig);
   }
 
   get userProfileApi(): IUserProfileApi {

@@ -29,7 +29,6 @@ import { registerDockerConfigRoutes } from './routes/api/dockerConfig';
 import { registerEventsRoutes } from './routes/api/events';
 import { registerKubeConfigRoute } from './routes/api/kubeConfig';
 import { registerPodmanLoginRoute } from './routes/api/podmanLogin';
-import { registerNamespacesRoute } from './routes/api/namespaces';
 import { registerPersonalAccessTokenRoutes } from './routes/api/personalAccessToken';
 import { registerPodsRoutes } from './routes/api/pods';
 import { registerServerConfigRoute } from './routes/api/serverConfig';
@@ -81,10 +80,6 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
 
   // swagger and API
   registerSwagger(server);
-
-  if (isLocalRun()) {
-    registerNamespacesRoute(server);
-  }
 
   registerClusterConfigRoute(server);
 

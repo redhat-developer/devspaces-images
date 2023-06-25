@@ -29,8 +29,16 @@ export function registerLocalRun(server: FastifyInstance) {
 
   const isNativeAuth = process.env['NATIVE_AUTH'] === 'true';
   const cheApiProxyUpstream = process.env['CHE_API_PROXY_UPSTREAM'] || '';
-  const cheHostOrigin = process.env.CHE_HOST_ORIGIN || '';
   const dexIngress = process.env.DEX_INGRESS || '';
+  const cheHostOrigin = process.env.CHE_HOST_ORIGIN || '';
+  const cheInternalUrl = process.env.CHE_INTERNAL_URL || '';
+
+  let upstream: string;
+  if (cheInternalUrl) {
+    upstream = new URL(cheInternalUrl).origin;
+  } else {
+    upstream = cheApiProxyUpstream ? cheApiProxyUpstream : cheHostOrigin;
+  }
 
   if (dexIngress) {
     registerDexProxies(server, `https://${dexIngress}`);
@@ -43,5 +51,5 @@ export function registerLocalRun(server: FastifyInstance) {
   if (isNativeAuth) {
     authenticateApiRequestsHook(server);
   }
-  registerCheApiProxy(server, cheApiProxyUpstream, cheHostOrigin);
+  registerCheApiProxy(server, upstream, cheHostOrigin);
 }

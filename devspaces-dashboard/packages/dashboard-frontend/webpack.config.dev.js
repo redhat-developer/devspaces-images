@@ -16,7 +16,8 @@ const path = require('path');
 const webpack = require('webpack');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+const ESLintPlugin = require('eslint-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 const smp = new SpeedMeasurePlugin();
 
@@ -26,18 +27,6 @@ const config = {
   mode: 'development',
   module: {
     rules: [
-      {
-        test: /\.tsx?$/,
-        enforce: 'pre',
-        include: path.join(__dirname, 'src'),
-        exclude: /node_modules/,
-        use: [{
-          loader: 'eslint-loader',
-          options: {
-            cache: true,
-          }
-        }],
-      },
       {
         enforce: 'pre',
         test: /\.(tsx|ts|jsx|js)$/,
@@ -79,8 +68,11 @@ const config = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      __isBrowser__: "true",
+      __isBrowser__: 'true',
       'process.env.ENVIRONMENT': JSON.stringify('development'),
+    }),
+    new ESLintPlugin({
+      cache: true,
     }),
     new webpack.HotModuleReplacementPlugin(),
     new CleanTerminalPlugin(),

@@ -29,7 +29,7 @@ import { DEFAULT_REGISTRY } from '../DevfileRegistries';
 import { isOAuthResponse } from '../../services/oauth';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client';
-import { FactoryParams } from '../../containers/Loader/buildFactoryParams';
+import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 

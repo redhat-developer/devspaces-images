@@ -22,6 +22,9 @@ import {
 import { createError } from './helpers/createError';
 import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
 import { startTimeoutSeconds } from '../../constants/server-config';
+import { isLocalRun } from '../../localRun';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 
@@ -44,6 +47,11 @@ export class ServerConfigApiService implements IServerConfigApi {
   }
 
   async fetchCheCustomResource(): Promise<CustomResourceDefinition> {
+    if (isLocalRun()) {
+      return JSON.parse(
+        readFileSync(path.join(__dirname, '../../../../run/.custom-resources')).toString(),
+      );
+    }
     if (!this.env.NAME || !this.env.NAMESPACE) {
       throw createError(
         undefined,

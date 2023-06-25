@@ -22,13 +22,13 @@ import { State as BrandingState } from '../Branding';
 import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries';
 import { RegistryEntry } from '../DockerConfig/types';
 import { ConvertedState, ResolverState, State as FactoryResolverState } from '../FactoryResolver';
+import { IGitOauth } from '../GitOauthConfig/types';
 import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';
 import { State as PluginsState } from '../Plugins/chePlugins';
+import { State as LogsState } from '../Pods/Logs';
 import { State as UserProfileState } from '../User/Profile';
 import { State as WorkspacesState } from '../Workspaces';
 import mockThunk from './thunk';
-import { IGitOauth } from '../GitOauthConfig/types';
-import { State as LogsState } from '../Pods/Logs';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -168,10 +168,10 @@ export class FakeStoreBuilder {
     }
   }
 
-  public withDwServerConfig(config: api.IServerConfig): FakeStoreBuilder {
+  public withDwServerConfig(config: Partial<api.IServerConfig>): FakeStoreBuilder {
     this.state.dwServerConfig = {
       isLoading: false,
-      config,
+      config: { ...this.state.dwServerConfig.config, ...config },
     };
     return this;
   }

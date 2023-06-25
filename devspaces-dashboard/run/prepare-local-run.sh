@@ -29,24 +29,31 @@ parse_args() {
 
 parse_args "$@"
 
-if [[ ! -z "$(oc whoami -t)" ]]; then
+CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
+DASHBOARD_POD_NAME=$(kubectl get pods -n "$CHE_NAMESPACE" -o=custom-columns=:metadata.name | grep dashboard)
+
+kubectl describe pod "$DASHBOARD_POD_NAME" -n "$CHE_NAMESPACE" > run/.che-dashboard-pod
+
+CHECLUSTER_CR_NAME=$(grep -o 'CHECLUSTER_CR_NAME:.*' run/.che-dashboard-pod | grep -o '\S*$')
+
+kubectl get checluster -n "$CHE_NAMESPACE" "$CHECLUSTER_CR_NAME" -o=json > run/.custom-resources
+
+if [[ -n "$(oc whoami -t)" ]]; then
   echo 'Cluster access token found. Nothing needs to be patched.'
   echo 'Done.'
   exit 0
 fi
 
 CHE_HOST=http://localhost:8080
-CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
-CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+CHE_HOST_ORIGIN=$(kubectl get checluster -n "$CHE_NAMESPACE" eclipse-che -o=json | jq -r '.status.cheURL')
 
 if [[ -z "$CHE_HOST_ORIGIN=" ]]; then
   echo '[ERROR] Cannot find cheURL.'
   exit 1
 fi
 
-GATEWAY=$(kubectl get deployments.apps che-gateway -o=json --ignore-not-found -n $CHE_NAMESPACE)
-if [[ ! -z "$GATEWAY" &&
-  $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
+GATEWAY=$(kubectl get deployments.apps -n "$CHE_NAMESPACE" che-gateway --ignore-not-found -o=json | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")')
+if [ "$GATEWAY" == "true" ]; then
   echo 'Detected gateway and oauth-proxy inside. Running in native auth mode.'
 
   echo 'Cluster access token not found.'
@@ -70,27 +77,27 @@ if [[ ! -z "$GATEWAY" &&
   fi
 
   echo 'Looking for redirect_url for local start'
-  if kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n $CHE_NAMESPACE | yq e ".[\"oauth-proxy.cfg\"]" - | grep $CHE_HOST/oauth/callback; then
+  if kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq e ".[\"oauth-proxy.cfg\"]" - | grep $CHE_HOST/oauth/callback; then
     echo 'Found the redirect_url for localStart'
   else
-    if kubectl get deployment/che-operator -n $CHE_NAMESPACE -o jsonpath="{.spec.replicas}" | grep 1; then
+    if kubectl get deployment/che-operator -n "$CHE_NAMESPACE" -o jsonpath="{.spec.replicas}" | grep 1; then
       echo 'Turn off Che-operator deployment...'
-      kubectl patch deployment/che-operator --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
+      kubectl patch deployment/che-operator --patch "{\"spec\":{\"replicas\":0}}" -n "$CHE_NAMESPACE"
       echo 'Waiting 10 seconds to operator shut down...'
       sleep 10
       echo 'Done.'
     fi
 
     echo 'Patching che-gateway-config-oauth-proxy config map...'
-    CONFIG_YAML=$(kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n $CHE_NAMESPACE | yq e ".[\"oauth-proxy.cfg\"]" - | sed "s/${CHE_HOST_ORIGIN//\//\\/}\/oauth\/callback/${CHE_HOST//\//\\/}\/oauth\/callback/g")
+    CONFIG_YAML=$(kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq e ".[\"oauth-proxy.cfg\"]" - | sed "s/${CHE_HOST_ORIGIN//\//\\/}\/oauth\/callback/${CHE_HOST//\//\\/}\/oauth\/callback/g")
     dq_mid=\\\"
     yaml_esc="${CONFIG_YAML//\"/$dq_mid}"
-    kubectl get configMaps che-gateway-config-oauth-proxy -n $CHE_NAMESPACE -o json | jq ".data[\"oauth-proxy.cfg\"] |= \"${yaml_esc}\"" | kubectl replace -f -
+    kubectl get configMaps che-gateway-config-oauth-proxy -n "$CHE_NAMESPACE" -o json | jq ".data[\"oauth-proxy.cfg\"] |= \"${yaml_esc}\"" | kubectl replace -f -
 
     # rollout che-server deployment
     echo 'Rolling out che-gateway deployment...'
-    kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
-    kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
+    kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n "$CHE_NAMESPACE"
+    kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":1}}" -n "$CHE_NAMESPACE"
     echo 'Done.'
   fi
 fi

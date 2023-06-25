@@ -1,0 +1,37 @@
+/*
+* Copyright (c) 2018-2023 Red Hat, Inc.
+* This program and the accompanying materials are made
+* available under the terms of the Eclipse Public License 2.0
+* which is available at https://www.eclipse.org/legal/epl-2.0/
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Contributors:
+*   Red Hat, Inc. - initial API and implementation
+*/
+
+.progress {
+  height: 700px;
+}
+
+.progress .pf-c-wizard__nav {
+  width: 100%;
+  border: none;
+  pointer-events: none;
+}
+
+.progress .pf-c-wizard__nav-link {
+  margin-left: 8px;
+}
+
+.progress .pf-c-wizard__nav-link > svg {
+  margin-right: 5px;
+}
+
+.progress .pf-c-wizard__toggle {
+  padding-left: 56px;
+}
+
+.progress .pf-c-wizard__toggle .pf-c-wizard__toggle-list-item > svg {
+  margin-right: 5px;
+}

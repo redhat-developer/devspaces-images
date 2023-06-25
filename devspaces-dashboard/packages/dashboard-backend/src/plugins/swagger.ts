@@ -13,7 +13,7 @@
 import { FastifyInstance } from 'fastify';
 import fastifySwagger from '@fastify/swagger';
 
-const ROUTE_PREFIX = 'dashboard/api/swagger';
+const ROUTE_PREFIX = '/dashboard/api/swagger';
 
 type MySchema = {
   headers?: {

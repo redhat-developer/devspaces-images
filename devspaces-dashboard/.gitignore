@@ -12,3 +12,6 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+run/.che-dashboard-pod
+run/.custom-resources

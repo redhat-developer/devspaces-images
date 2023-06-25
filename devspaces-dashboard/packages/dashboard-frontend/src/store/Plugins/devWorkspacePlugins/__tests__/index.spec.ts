@@ -308,7 +308,7 @@ describe('dwPlugins store', () => {
         },
         {
           type: 'RECEIVE_DW_EDITOR_ERROR',
-          url: 'undefined/plugins/default-editor/devfile.yaml',
+          url: '/plugins/default-editor/devfile.yaml',
           editorName: 'default-editor',
           error: expect.stringContaining(' plugin registry URL is not provided'),
         },

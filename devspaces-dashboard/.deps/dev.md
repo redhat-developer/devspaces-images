@@ -184,7 +184,7 @@
 | [`@types/connect@3.4.35`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/enzyme@3.10.11`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/eslint-scope@3.7.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/eslint@8.4.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #2429 |
+| [`@types/eslint@8.40.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8764 |
 | [`@types/estree@0.0.51`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/express-serve-static-core@4.17.28`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #6020 |
 | [`@types/express@4.17.13`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #5760 |
@@ -446,7 +446,6 @@
 | [`escalade@3.1.1`](https://github.com/lukeed/escalade.git) | MIT | clearlydefined |
 | [`escodegen@2.0.0`](http://github.com/estools/escodegen.git) | BSD-2-Clause | clearlydefined |
 | [`eslint-config-prettier@8.5.0`](https://github.com/prettier/eslint-config-prettier.git) | MIT | clearlydefined |
-| [`eslint-loader@4.0.2`](https://github.com/webpack-contrib/eslint-loader.git) | MIT | clearlydefined |
 | [`eslint-plugin-notice@0.9.10`](https://github.com/nickdeis/eslint-plugin-notice) | MIT | clearlydefined |
 | [`eslint-plugin-prettier@4.0.0`](git+https://github.com/prettier/eslint-plugin-prettier.git) | MIT | clearlydefined |
 | [`eslint-plugin-react-hooks@4.3.0`](https://github.com/facebook/react.git) | MIT | clearlydefined |
@@ -454,6 +453,7 @@
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
 | [`eslint-utils@2.1.0`](git+https://github.com/mysticatea/eslint-utils.git) | MIT | #2498 |
 | [`eslint-visitor-keys@2.1.0`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | #2433 |
+| [`eslint-webpack-plugin@4.0.1`](https://github.com/webpack-contrib/eslint-webpack-plugin.git) | MIT | clearlydefined |
 | [`eslint@7.32.0`](https://github.com/eslint/eslint.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint/7.32.0) |
 | [`espree@7.3.1`](https://github.com/eslint/espree.git) | BSD-2-Clause | #903 |
 | [`esquery@1.4.0`](https://github.com/estools/esquery.git) | BSD-3-Clause | #1100 |
@@ -481,7 +481,7 @@
 | [`file-loader@6.2.0`](https://github.com/webpack-contrib/file-loader.git) | MIT | clearlydefined |
 | [`fill-range@7.0.1`](https://github.com/jonschlinkert/fill-range.git) | MIT | clearlydefined |
 | [`finalhandler@1.2.0`](https://github.com/pillarjs/finalhandler.git) | MIT | clearlydefined |
-| [`find-cache-dir@3.3.2`](https://github.com/avajs/find-cache-dir.git) | MIT | clearlydefined |
+| [`find-cache-dir@2.1.0`](https://github.com/avajs/find-cache-dir.git) | MIT | clearlydefined |
 | [`find-root@1.1.0`](git@github.com:js-n/find-root.git) | MIT | clearlydefined |
 | [`find-up@4.1.0`](https://github.com/sindresorhus/find-up.git) | MIT | clearlydefined |
 | [`flat-cache@3.0.4`](https://github.com/royriojas/flat-cache.git) | MIT | clearlydefined |
@@ -532,11 +532,11 @@
 | [`hosted-git-info@4.1.0`](git+https://github.com/npm/hosted-git-info.git) | ISC | clearlydefined |
 | [`hpack.js@2.1.6`](git+ssh://git@github.com/indutny/hpack.js.git) | MIT | clearlydefined |
 | [`html-encoding-sniffer@2.0.1`](https://github.com/jsdom/html-encoding-sniffer.git) | MIT | clearlydefined |
-| [`html-entities@2.3.3`](https://github.com/mdevils/html-entities.git) | MIT | clearlydefined |
+| [`html-entities@2.3.3`](https://github.com/mdevils/html-entities.git) | MIT | #9043 |
 | [`html-escaper@2.0.2`](https://github.com/WebReflection/html-escaper.git) | MIT | clearlydefined |
 | [`html-minifier-terser@6.1.0`](git+https://github.com/terser/html-minifier-terser.git) | MIT | #2968 |
 | [`html-tags@3.3.1`](https://github.com/sindresorhus/html-tags.git) | MIT | clearlydefined |
-| [`html-webpack-plugin@5.5.0`](https://github.com/jantimon/html-webpack-plugin.git) | MIT | clearlydefined |
+| [`html-webpack-plugin@5.5.0`](https://github.com/jantimon/html-webpack-plugin.git) | MIT | #9078 |
 | [`http-cache-semantics@4.1.0`](https://github.com/kornelski/http-cache-semantics.git) | BSD-2-Clause | clearlydefined |
 | [`http-deceiver@1.2.7`](git+ssh://git@github.com/indutny/http-deceiver.git) | MIT | clearlydefined |
 | [`http-errors@2.0.0`](https://github.com/jshttp/http-errors.git) | MIT | clearlydefined |
