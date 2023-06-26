@@ -126,9 +126,18 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	# add to TARGZs list
 	TARGZs="${TARGZs} resources.tgz"
 
+	SCRIPT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+    if [[ $SCRIPT_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
+        SCRIPT_BRANCH="devspaces-3-rhel-8"
+    fi
+    
+    # save current branch name to the temporary file, it will be used in the openvsx-builder.Dockerfile build
+    echo "$SCRIPT_BRANCH" > current_branch
 	# build 2 new tarballs
 	buildTarball "/openvsx-server.tar.gz" "che-openvsx" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
 	buildTarball "opt/app-root/src/ovsx.tar.gz" "che-ovsx" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
+	# remove temporary file
+	rm current_branch 
 fi
 
 # update tarballs - step 4 - commit changes if diff different
