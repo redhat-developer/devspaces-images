@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.7
-    createdAt: "2023-06-22T02:04:45+00:00"
+    createdAt: "2023-06-26T23:02:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -934,6 +934,10 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.7
                       - name: RELATED_IMAGE_devfile_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.7
+                      - name: RELATED_IMAGE_devspaces_ansible_creator_ee@sha256_devfile_registry_image_IBZWQYJSGU3DUNLBMNQTOMZQGE4GMNRYMNSWKNBTHE3WGMRUGA4WENTEMVTDOOBWHBRTKOBWMIYDMMBUGJQWIOLGGVRWGNRRGY3DIMRVGNQTCYJUME3AU___aca73018f68cee4397c2409b6def7868c586b06042ad9f5cc61664253a1a4a6
+                        value: registry.redhat.io/devspaces/ansible-creator-ee@sha256:5aca73018f68cee4397c2409b6def7868c586b06042ad9f5cc61664253a1a4a6
+                      - name: RELATED_IMAGE_devspaces_ansible_creator_ee@sha256_plugin_registry_image_IBZWQYJSGU3DUNLBMNQTOMZQGE4GMNRYMNSWKNBTHE3WGMRUGA4WENTEMVTDOOBWHBRTKOBWMIYDMMBUGJQWIOLGGVRWGNRRGY3DIMRVGNQTCYJUME3AU___aca73018f68cee4397c2409b6def7868c586b06042ad9f5cc61664253a1a4a6
+                        value: registry.redhat.io/devspaces/ansible-creator-ee@sha256:5aca73018f68cee4397c2409b6def7868c586b06042ad9f5cc61664253a1a4a6
                       - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDOCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.7
                       - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDOCQ_
