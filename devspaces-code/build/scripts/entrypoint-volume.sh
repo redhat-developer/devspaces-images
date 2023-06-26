@@ -117,11 +117,49 @@ if [ -n "${WEBVIEW_LOCAL_RESOURCES+x}" ]; then
 fi
 
 
-# Check if we have a custom CA certificate
-if [ -f /tmp/che/secret/ca.crt ]; then
-  echo "Adding custom CA certificate"
-  export NODE_EXTRA_CA_CERTS=/tmp/che/secret/ca.crt
+###################################################################################
+#
+# Prepare /tmp/node-extra-certificates/ca.crt bundle, initilize NODE_EXTRA_CA_CERTS 
+#
+###################################################################################
+EXTRA_CERTS_DIR="/tmp/node-extra-certificates"
+EXTRA_CERTS="$EXTRA_CERTS_DIR/ca.crt"
+
+if [ ! -f "$EXTRA_CERTS" ]; then
+  mkdir -p "$EXTRA_CERTS_DIR"
+
+  # Check if we have a custom Che CA certificate
+  CHE_CUSTOM_CERTIFICATE="/tmp/che/secret/ca.crt"
+  if [ -f "$CHE_CUSTOM_CERTIFICATE" ]; then
+    cat "$CHE_CUSTOM_CERTIFICATE" >> "$EXTRA_CERTS"
+
+    # check if it is needed to add a new line character
+    if [[ $(tail -c1 "$CHE_CUSTOM_CERTIFICATE") != "" ]]; then
+      echo >> "$EXTRA_CERTS"
+    fi
+  fi
+
+  # Check if we have public certificates in /public-certs
+  CUSTOM_PUBLIC_CERTIFICATES="/public-certs"
+  if [[ -d "$CUSTOM_PUBLIC_CERTIFICATES" ]]; then
+    for ENTRY in "$CUSTOM_PUBLIC_CERTIFICATES"/*
+    do
+      if [ -f "$ENTRY" ]; then
+        cat "$ENTRY" >> "$EXTRA_CERTS"
+
+        # check if it is needed to add a new line character
+        if [[ $(tail -c1 "$ENTRY") != "" ]]; then
+          echo >> "$EXTRA_CERTS"
+        fi
+      fi
+    done
+  fi
 fi
+
+if [ -f "$EXTRA_CERTS" ]; then
+  export NODE_EXTRA_CA_CERTS="$EXTRA_CERTS"
+fi
+
 
 if [ -z "$VSCODE_NODEJS_RUNTIME_DIR" ]; then
   VSCODE_NODEJS_RUNTIME_DIR="$(pwd)" 
@@ -129,5 +167,23 @@ fi
 
 echo "Node.js dir for running VS Code: $VSCODE_NODEJS_RUNTIME_DIR"
 
-# Launch che without connection-token, security is managed by Che
-"$VSCODE_NODEJS_RUNTIME_DIR/node" out/server-main.js --host "${CODE_HOST}" --port 3100 --without-connection-token --default-folder ${PROJECT_SOURCE}
+# Set the default workspace if the VSCODE_DEFAULT_WORKSPACE env variable exists
+if [[ -v VSCODE_DEFAULT_WORKSPACE ]]; then
+  if [[ -f "${VSCODE_DEFAULT_WORKSPACE}" ]]; then
+    echo "Found VSCODE_DEFAULT_WORKSPACE environment variable set to: \"${VSCODE_DEFAULT_WORKSPACE}\""
+    FOLDER_OR_WORKSPACE_OPTION="--default-workspace ${VSCODE_DEFAULT_WORKSPACE}"
+  else
+    echo "WARNING: VS Code default workspace file ${VSCODE_DEFAULT_WORKSPACE} doesn't exist."
+    FOLDER_OR_WORKSPACE_OPTION="--default-folder ${PROJECT_SOURCE}"
+  fi
+else
+  FOLDER_OR_WORKSPACE_OPTION="--default-folder ${PROJECT_SOURCE}"
+fi
+
+# Launch VS Code without connection-token, security is managed by Che
+"$VSCODE_NODEJS_RUNTIME_DIR/node" out/server-main.js \
+                --host "${CODE_HOST}" \
+                --port 3100 \
+                --without-connection-token \
+                ${FOLDER_OR_WORKSPACE_OPTION}
+
