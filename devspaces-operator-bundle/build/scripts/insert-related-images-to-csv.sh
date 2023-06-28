@@ -71,8 +71,10 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     fi
 
     # CRW-3177, CRW-3178 sort uniquely; replace quay refs with RHEC refs
+    # remove quay.io/devspaces/ansible-creator-ee from EXTERNAL_IMAGES CRW-4541
     EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | \
-      sed -r -e "s#quay.io/devspaces/#registry.redhat.io/devspaces/#g" | sort -uV)
+      sed -r -e '/^quay\.io\/devspaces\/ansible-creator-ee/d' \
+      -e "s#quay.io/devspaces/#registry.redhat.io/devspaces/#g" | sort -uV)
 
     # CRW-3432 fail if we don't get a list of images
     if [[ ! $EXTERNAL_IMAGES ]]; then exit 4; fi
@@ -106,29 +108,7 @@ updateRelatedImageName() {
   shift
   CONTAINERS=("$@")
 
-  # An array of image patterns to exclude from updating
-  excludedImagePatterns=("*/devspaces/ansible-creator-ee:*" )
   for updateVal in "${CONTAINERS[@]}"; do
-    
-    matchesExcluded=false
-
-    for excluded in "${excludedImagePatterns[@]}"
-    do
-        # Check if the updateVal matches the excluded image pattern
-        # shellcheck disable=SC2254
-        case "$updateVal" in 
-            $excluded) matchesExcluded=true; break ;;
-        esac
-    done
-
-    if [ "$matchesExcluded" = true ]
-    then
-        # Do not update the image name if it is in the excluded list
-        # And don't include the image into the CSV file
-        continue
-    fi
-   
-    # Update the image name
     tagOrDigest=""
     if [[ ${updateVal} == *"@"* ]]; then
       tagOrDigest="@${updateVal#*@}"
