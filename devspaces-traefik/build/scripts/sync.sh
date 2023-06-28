@@ -98,9 +98,9 @@ sed -r \
   -e "s#ARG TRAEFIK_SHA=\".*\"#ARG TRAEFIK_SHA=\"${SOURCE_SHA}\"#g" \
   `# Remove registry so build works in Brew` \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  "${TARGETDIR}"/build/rhel.Dockerfile > "${TARGETDIR}"/Dockerfile
+  "${TARGETDIR}"/build/dockerfiles/rhel.Dockerfile > "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/brew.Dockerfile
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
@@ -120,4 +120,4 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Converted brew.Dockerfile"
