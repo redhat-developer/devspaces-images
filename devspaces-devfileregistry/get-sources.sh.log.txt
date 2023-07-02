@@ -1,0 +1,306 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-129 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-129 AS builder
+STEP 2/23: USER 0
+--> 48593cd9fec
+STEP 3/23: ARG BOOTSTRAP=true
+--> ff78282711d
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 4e09a74ac9f
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 704b313696c
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 74a3d8feba8
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 2a5cb78b961
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> c61d060e853
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> d49c9991b7b
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 9d7867f03a7
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.x86_64                 
+  criu-3.15-4.module+el8.8.0+19044+f9982fd8.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/f7/00/144b1dbfcd62c50475b4c6fb09d832ac553e3a0fd969d31bdc608852084b/yq-3.2.2-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/4f/ef/8b604222ba5e5190e25851aa3a5b754f2002361dc62a258a8e9f13e866f4/argcomplete-3.1.1-py3-none-any.whl (41kB)
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting tomlkit>=0.11.6
+  Downloading https://files.pythonhosted.org/packages/ef/a8/b1c193be753c02e2a94af6e37ee45d3378a74d44fe778c2434a63af92731/tomlkit-0.11.8-py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Installing collected packages: argcomplete, xmltodict, tomlkit, PyYAML, yq
+Successfully installed PyYAML-6.0 argcomplete-3.1.1 tomlkit-0.11.8 xmltodict-0.13.0 yq-3.2.2
+python: Python 3.8.16
+yq: yq 3.2.2
+jq: jq-1.6
+--> 1e67088a554
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 4bcc9b45eab
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> de12f030637
+STEP 14/23: COPY ./VERSION /
+--> 29c0bb6634e
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 147d379ff31
+STEP 16/23: WORKDIR /build/
+--> 49d03345c41
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-638fadc
+added 119 packages from 183 contributors and audited 119 packages in 8.855s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 2 vulnerabilities (1 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> fc4d3cbc51c
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> fcf4e749a4a
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.8 PASS - 3.8 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.8 PASS - 3.8 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.8 PASS - 3.8 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> de5a71cb985
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 9ff12a6d602
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 66432ea32d3
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> cc308860f4c
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> a8ad0873bc8
+Successfully tagged localhost/devfileregistry:tmp
+a8ad0873bc894ea61812b67de7b7fed6c19959e97e68af429a9a699d25c827fa
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.9efeEW6e4V/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml /tmp/tmp.NuR8R37l5t/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.9efeEW6e4V/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-06-22 14:50:47.000000000 -0400
++++ /tmp/tmp.NuR8R37l5t/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-07-02 04:57:09.512731088 -0400
+@@ -92,7 +92,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd
++            quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+diff --suppress-common-lines -u -r /tmp/tmp.9efeEW6e4V/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml /tmp/tmp.NuR8R37l5t/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.9efeEW6e4V/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-06-22 14:50:47.000000000 -0400
++++ /tmp/tmp.NuR8R37l5t/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-07-02 04:57:09.512731088 -0400
+@@ -92,7 +92,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd
++            quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+diff --suppress-common-lines -u -r /tmp/tmp.9efeEW6e4V/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml /tmp/tmp.NuR8R37l5t/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.9efeEW6e4V/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2023-06-22 14:50:47.000000000 -0400
++++ /tmp/tmp.NuR8R37l5t/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2023-07-02 04:57:09.512731088 -0400
+@@ -111,7 +111,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd
++            quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+diff --suppress-common-lines -u -r /tmp/tmp.9efeEW6e4V/devfiles/external_images_by_devfile.txt /tmp/tmp.NuR8R37l5t/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.9efeEW6e4V/devfiles/external_images_by_devfile.txt	2023-06-22 14:50:47.000000000 -0400
++++ /tmp/tmp.NuR8R37l5t/devfiles/external_images_by_devfile.txt	2023-07-02 04:57:09.511731088 -0400
+@@ -1,6 +1,6 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.8	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.8	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.8	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.9efeEW6e4V/devfiles/external_images.txt /tmp/tmp.NuR8R37l5t/devfiles/external_images.txt
+--- /tmp/tmp.9efeEW6e4V/devfiles/external_images.txt	2023-06-22 14:50:47.000000000 -0400
++++ /tmp/tmp.NuR8R37l5t/devfiles/external_images.txt	2023-07-02 04:57:09.511731088 -0400
+@@ -1,4 +1,4 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:0e8f0a78546a97de81f64d677d23fbad0d11c5bd7325c082d7a5e848a1b63fbd
++quay.io/devspaces/ansible-creator-ee@sha256:272a749025d13f1fbe24225bb8f9897d14d7e3ce8acb5633e4173ef429869cc7
+ registry.redhat.io/devspaces/code-rhel8:3.8
+ registry.redhat.io/devspaces/idea-rhel8:3.8
+ registry.redhat.io/devspaces/udi-rhel8:3.8
+Binary files /tmp/tmp.9efeEW6e4V/resources/v2/ansible-devspaces-demo.zip and /tmp/tmp.NuR8R37l5t/resources/v2/ansible-devspaces-demo.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: a8ad0873bc894ea61812b67de7b7fed6c19959e97e68af429a9a699d25c827fa
+Deleted: cc308860f4c3dc51ec18d95c9e3bdb207e46acdeadbc4da5d82f2d3c5aca54a5
+Deleted: 66432ea32d39e19c1e8c4f06c739d352854ebba93c1369176a3a1c366bbf224e
+Deleted: 9ff12a6d6021bdc304afba28480dc0001a079f9383817e37aaac2b68572b165b
+Deleted: de5a71cb985d8494dcc4e3f02462e8f3d78991fa4073b446bce7e6d8c921fa40
+Deleted: fcf4e749a4a44d8455d4a8b0360bd92e93a3be40bdd63a3c2e3e081193238d0d
+Deleted: fc4d3cbc51c3364badf2e45bfcb6bdbd88e1841b00a6a6ddcc70257f11c65090
+Deleted: 49d03345c41678174ecff1dfb8920eb287dccbd078d4ec4a203830dfb599d684
+Deleted: 147d379ff31120dca27a978b1f1640dca9b09e756ac0639550edc8632b59ea6d
+Deleted: 29c0bb6634ec9bcc82f557246f3458f6a2469557640e7aac201d5171b5076566
+Deleted: de12f0306377867d6bdaecac1f0d652d96a6415d35e1f6e94c47add8887ad431
+Deleted: 4bcc9b45eab8ac77a079d424e2172770b92377728f859f3cf547c4e9f1a508d0
+Deleted: 1e67088a55420a2cf26ce83e1f8a146c85bab503fb244a86ec4c0cdd48a6dcdd
+Deleted: 9d7867f03a799e2292fde2eac9f32edecb9cee41a77802cc92d2994859722f80
+Deleted: d49c9991b7b398fb8033c41794b859fb7148060d93d235e69d8b41f0a1a2ba90
+Deleted: c61d060e853d64e4f3f0809cd88f764b21aeb5104aee6fee5642b8fa3db11833
+Deleted: 2a5cb78b961e2abf32934dd86c0b9359bd2a40ee08b0485f514752bdf3f60d2a
+Deleted: 74a3d8feba8bb762da2dd72d9cc8f09b7e1c93681417acaff8fe41ba063daee6
+Deleted: 704b313696c110547582c1a4a86c2f28174b362d8fa0c772aa99332976e9644e
+Deleted: 4e09a74ac9fd8a9460ad3fb0c0ab46be479baa2cc20c15dae0ed0f88b975a323
+Deleted: ff78282711dbed2b72f271b1b3cf015db86f77e9fc0548927d080c5759e37c5f
+Deleted: 48593cd9fec4b514d3a3437b2c3d12fe8634033a5c8ef43d4a9b255b0f1a4250
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
