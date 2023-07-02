@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard",
-  "version": "7.69.0",
+  "version": "7.71.0",
   "description": "Dashboard for Eclipse Che",
   "private": true,
   "workspaces": [
@@ -24,8 +24,8 @@
     "start": "${PWD}/run/local-run.sh $@",
     "start:prepare": "${PWD}/run/prepare-local-run.sh",
     "start:cleanup": "${PWD}/run/revert-local-run.sh",
-    "license:check": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses@sha256:72290f67f297a31b7b9b343d19f42cc0ecc90e1d36cc9f18473c586a70e4b7eb --check",
-    "license:generate": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next",
+    "license:check": "${PWD}/scripts/dash-licenses.sh --check",
+    "license:generate": "${PWD}/scripts/dash-licenses.sh",
     "test": "lerna run test --stream -- --no-cache $@",
     "pretest": "yarn run prebuild",
     "test:coverage": "yarn run test -- --coverage",
