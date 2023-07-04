@@ -17,7 +17,7 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 2.y
-UBI_TAG=8.6
+UBI_TAG=8.8
 OPENSHIFT_TAG="v4.11"
 
 usage () {
