@@ -44,7 +44,12 @@ cat plugin-config.json | jq -r '.Plugins | keys[]' > PLUGINS
               //check for updates if no plugin was specified
               sh('''#!/bin/bash -e
 cd ''' + SOURCE_DIR + '''
-./build/update.sh > updates.txt
+
+# Download openvsx-sync.json and download-vsix.sh
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + SOURCE_BRANCH + '''/dependencies/che-plugin-registry/openvsx-sync.json
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + SOURCE_BRANCH + '''/dependencies/che-plugin-registry/build/scripts/download_vsix.sh
+
+./build/update-from-ovsx.sh
 git add plugin-config.json
             ''')
               PLUGINS = readFile SOURCE_DIR + '/updates.txt'
@@ -55,29 +60,33 @@ git add plugin-config.json
             
           }
 
-          println "Plugins: " + PLUGINS
-          //build and track failures
-          def FAILURES = ""         
-          for (PLUGIN in PLUGINS.split('\n')) {
-            try {
-              sh('''#!/bin/bash -e
+          if (PLUGINS == "") {
+            println "No updates, skipping build"
+          }
+          else {
+            println "Plugins: " + PLUGINS
+            //build and track failures
+            def FAILURES = ""  
+            for (PLUGIN in PLUGINS.split('\n')) {
+              try {
+                sh('''#!/bin/bash -e
 cd ''' + SOURCE_DIR + '''
 # this process also generates plugin-manifest.json
 ./build/build.sh ''' + PLUGIN + '''
-              ''')
+                ''')
+              }
+              catch(err) {
+                println "Plugin " + PLUGIN + " failed to build."
+                FAILURES = FAILURES + PLUGIN + "\n"
+              }
+              //cleanup
+              sh('podman system prune -a -f')
             }
-            catch(err) {
-              println "Plugin " + PLUGIN + " failed to build."
-              FAILURES = FAILURES + PLUGIN + "\n"
-            }
-            //cleanup
-            sh('podman system prune -a -f')
-          }
 
-          println "########################################################################################################"
-          println "##  Commit Updates to plugin-config.json"
-          println "########################################################################################################"
-          sh('''#!/bin/bash -e
+            println "########################################################################################################"
+            println "##  Commit Updates to plugin-config.json"
+            println "########################################################################################################"
+            sh('''#!/bin/bash -e
 cd ''' + SOURCE_DIR + '''
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD plugin-config.json) || \$(git diff-index HEAD plugin-manifest.json) ]]; then # file changed
@@ -86,14 +95,14 @@ if [[ \$(git diff-index HEAD plugin-config.json) || \$(git diff-index HEAD plugi
   git pull origin ''' + SOURCE_BRANCH + ''' || true
   git push origin ''' + SOURCE_BRANCH + ''' || true
 fi
-          ''')
+            ''')
 
-          //push to staging area DS_VERSION folder on spmm-util
-          println "########################################################################################################"
-          println "##  Copy vsix files to spmm-util"
-          println "########################################################################################################"
-          //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
-          sh('''#!/bin/bash -ex
+            //push to staging area DS_VERSION folder on spmm-util
+            println "########################################################################################################"
+            println "##  Copy vsix files to spmm-util"
+            println "########################################################################################################"
+            //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+            sh('''#!/bin/bash -ex
 # TODO CRW-1919 remove this when we no longer need it
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 
@@ -101,27 +110,46 @@ cd ''' + SOURCE_DIR + '''
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + SOURCE_BRANCH + '''/product/copyVSIXToStage.sh
 chmod +x copyVSIXToStage.sh
 ./copyVSIXToStage.sh -b ''' + SOURCE_BRANCH + ''' -v ''' + DS_VERSION + ''' -w ''' + WORKSPACE + '''
-          ''')
+            ''')
 
-          //Report failures and send email
-          if (FAILURES != ""){
-            println "########################################################################################################"
-            println "##  Failures: "
-            println "########################################################################################################"
-            println FAILURES
+            //Report any new plugins
+            def NEW = fileExists SOURCE_DIR + '/new.txt'
+            if (NEW) {
+              def newPlugins = readFile SOURCE_DIR + '/new.txt'
+              def mailSubject = "${JOB_BASE_NAME} - NEW PLUGINS FOUND"
+              def mailBody = """ 
+Build: ${BUILD_URL}
 
-            def mailSubject = "${JOB_BASE_NAME} - PLUGINS FAILED TO BUILD"
-            def mailBody = """ 
+New Plugin(s):
+${newPlugins}
+              """ 
+              emailext(
+                subject: mailSubject,
+                body: mailBody, 
+                to: 'sdawley@redhat.com'
+              )
+            }
+
+            //Report failures and send email
+            if (FAILURES != ""){
+              println "########################################################################################################"
+              println "##  Failures: "
+              println "########################################################################################################"
+              println FAILURES
+
+              def mailSubject = "${JOB_BASE_NAME} - PLUGINS FAILED TO BUILD"
+              def mailBody = """ 
 Build: ${BUILD_URL}
 
 Failing Plugin(s):
 ${FAILURES}
-            """ 
-            emailext(
-              subject: mailSubject,
-              body: mailBody, 
-              to: 'sdawley@redhat.com, nboldt@redhat.com, dnochevn@redhat.com'
-            )
+              """ 
+              emailext(
+                subject: mailSubject,
+                body: mailBody, 
+                to: 'sdawley@redhat.com'
+              )
+            }
           }
         } // withCredentials
       } // wrap
