@@ -69,32 +69,12 @@ export function toSecretName(tokenName: string): TokenName {
 }
 
 export function isPatSecret(secret: k8s.V1Secret): secret is PersonalAccessTokenSecret {
-  const hasName =
-    secret.metadata?.name !== undefined &&
-    secret.metadata.name.startsWith('personal-access-token-');
-
   const hasLabels =
     secret.metadata?.labels !== undefined &&
-    secret.metadata.labels['app.kubernetes.io/component'] === 'scm-personal-access-token';
+    secret.metadata.labels['app.kubernetes.io/component'] === 'scm-personal-access-token' &&
+    secret.metadata.labels['app.kubernetes.io/part-of'] === 'che.eclipse.org';
 
-  const hasAnnotations =
-    secret.metadata?.annotations !== undefined &&
-    secret.metadata.annotations?.['che.eclipse.org/che-userid'] !== undefined &&
-    secret.metadata.annotations?.['che.eclipse.org/scm-personal-access-token-name'] !== undefined &&
-    isGitProvider(
-      secret.metadata.annotations?.['che.eclipse.org/scm-personal-access-token-name'],
-    ) &&
-    secret.metadata.annotations?.['che.eclipse.org/scm-url'] !== undefined &&
-    secret.metadata.annotations?.['che.eclipse.org/scm-username'] !== undefined;
-
-  const hasToken = secret.data?.token !== undefined;
-
-  return hasName && hasLabels && hasAnnotations && hasToken;
-}
-
-function isGitProvider(provider: string): provider is api.GitProvider {
-  const providers: api.GitProvider[] = ['github', 'gitlab', 'bitbucket-server', 'azure-devops'];
-  return providers.includes(provider as api.GitProvider);
+  return hasLabels;
 }
 
 export function toToken(secret: k8s.V1Secret): api.PersonalAccessToken {

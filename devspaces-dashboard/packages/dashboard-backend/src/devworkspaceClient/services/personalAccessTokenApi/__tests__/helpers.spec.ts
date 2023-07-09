@@ -63,25 +63,13 @@ describe('Helpers for Personal Access Token API', () => {
       expect(isPatSecret(secret)).toBeTruthy();
     });
 
-    test('secret with incorrect name', () => {
-      (secret.metadata as k8s.V1ObjectMeta).name = 'wrong-token-name' as TokenName;
-      expect(isPatSecret(secret)).toBeFalsy();
-    });
-
-    test('secret with incorrect label', () => {
+    test('secret with incorrect label "app.kubernetes.io/component"', () => {
       delete (secret.metadata as k8s.V1ObjectMeta).labels?.['app.kubernetes.io/component'];
       expect(isPatSecret(secret)).toBeFalsy();
     });
 
-    test('secret with incorrect annotation', () => {
-      delete (secret.metadata as k8s.V1ObjectMeta).annotations?.[
-        'che.eclipse.org/scm-personal-access-token-name'
-      ];
-      expect(isPatSecret(secret)).toBeFalsy();
-    });
-
-    test('secret without token data', () => {
-      delete (secret as k8s.V1Secret).data?.token;
+    test('secret with incorrect label "app.kubernetes.io/part-of"', () => {
+      delete (secret.metadata as k8s.V1ObjectMeta).labels?.['app.kubernetes.io/part-of'];
       expect(isPatSecret(secret)).toBeFalsy();
     });
   });
