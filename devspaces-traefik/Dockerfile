@@ -30,6 +30,7 @@ ENV TRAEFIK_SHA="${TRAEFIK_SHA}"
 RUN cp $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
 
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
+ENV CGO_ENABLED=1
 RUN go generate && \
     go build ./cmd/traefik
 
