@@ -53,7 +53,7 @@ spec:
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:48c107b85913fdf85ea2c81eef58e08b3f6710df06bf9d4139ec6eb55eec70a0"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:a5a67003870daf10f941b0279a065358dd1ace6d40826462b91bae9868216eff"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -61,7 +61,7 @@ spec:
             - name: CHE_FLAVOR
               value: devspaces
             - name: CHE_VERSION
-              value: 3.7.0
+              value: 3.7.1
             - name: CONSOLE_LINK_DISPLAY_NAME
               value: Eclipse Che
             - name: CONSOLE_LINK_IMAGE
