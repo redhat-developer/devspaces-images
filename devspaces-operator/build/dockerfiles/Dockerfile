@@ -11,7 +11,8 @@
 
 # https://registry.access.redhat.com/ubi8/go-toolset
 FROM registry.access.redhat.com/ubi8/go-toolset:1.19.10-3 as builder
-ENV GOPATH=/go/
+ENV GOPATH=/go/ \
+    CGO_ENABLED=1
 ARG SKIP_TESTS="false"
 USER root
 
@@ -41,9 +42,10 @@ COPY controllers/ controllers/
 COPY pkg/ pkg/
 
 # build operator
+# to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
     if [[ ${SKIP_TESTS} == "false" ]]; then export MOCK_API=true && go test -mod=vendor -v ./...; fi && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
+    GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
 
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.8-1014

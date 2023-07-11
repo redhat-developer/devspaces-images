@@ -83,6 +83,9 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
+# NOTE!!! upstream Dockerfile in the root folder is NOT the same as the one used downstream, with cachito
+# SO when updating upstream ./Dockerfile, must ALSO update downstream ./build/dockerfiles/Dockerfile
+
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
   `# Replace ubi8 with rhel8 version` \
   -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
