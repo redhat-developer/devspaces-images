@@ -12,7 +12,7 @@
 # see also brew.Dockerfile
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.7-1107
+FROM registry.access.redhat.com/ubi8-minimal:8.8-1014
 
 WORKDIR /app
 COPY . ./
