@@ -21,8 +21,8 @@ DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
-UBI_TAG=8.6
-OPENSHIFT_TAG="v4.11"
+UBI_TAG=8.8
+OPENSHIFT_TAG="v4.12"
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
 command -v skopeo >/dev/null 2>&1 || { echo "skopeo is not installed. Aborting."; exit 1; }
