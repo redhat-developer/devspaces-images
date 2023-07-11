@@ -72,7 +72,6 @@ RELEASE.md
 REQUIREMENTS
 get-source*.sh
 tests/basic-test.yaml
-sources
 make-release.sh
 build/scripts/insert-related-images-to-csv.sh
 helmcharts/
