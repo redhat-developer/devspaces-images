@@ -19,7 +19,7 @@ COPY . ./
 
 # to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
 ENV CGO_ENABLED=1
-RUN microdnf -y install shadow-utils golang && \
+RUN microdnf -y install shadow-utils golang openssl openssl-devel && \
     adduser appuser && \
     export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
     go mod download && go mod verify && \
@@ -28,7 +28,7 @@ RUN microdnf -y install shadow-utils golang && \
     cp configbump /usr/local/bin/configbump && \
     chmod 755 /usr/local/bin/configbump && \
     rm -rf $REMOTE_SOURCES_DIR && \
-    microdnf -y remove shadow-utils golang && \
+    microdnf -y remove shadow-utils golang openssl openssl-devel && \
     microdnf -y update || true && \
     microdnf -y clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
