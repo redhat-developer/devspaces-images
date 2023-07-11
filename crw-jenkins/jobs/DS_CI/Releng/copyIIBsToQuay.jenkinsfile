@@ -70,6 +70,11 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
                   if (!currentBuild.description.contains(IIBsToQuay_matches[it][2])) {
                     currentBuild.description+="<br/>&nbsp;&nbsp;* " + IIBsToQuay_matches[it][1] + " = <a href=https://quay.io/repository/devworkspace/devworkspace-operator-bundle?tab=tags>" + IIBsToQuay_matches[it][2] + "</a>"
                   }
+                  // CRW-4505
+                  if (IIBsToQuay_matches[it][2].contains("???")) {
+                    currentBuild.description+="<br/>&nbsp;&nbsp;* Build Failed: Unable to retrieve DWO tag"
+                    error("Unable to retrieve DWO tag")
+                  }
                 }
                 IIBsToQuay_matches = null
 
