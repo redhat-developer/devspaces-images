@@ -43,7 +43,7 @@ RUN microdnf -y install shadow-utils && \
 
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /app/configbump /usr/local/bin/configbump
+COPY --from=builder /usr/local/bin/configbump /usr/local/bin/configbump
 ENTRYPOINT [ "/usr/local/bin/configbump" ]
 
 # append Brew metadata here
