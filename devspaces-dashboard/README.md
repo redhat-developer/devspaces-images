@@ -253,7 +253,6 @@ Currently, Dashboard uses the following che-server API:
 | GET   | /kubernetes/namespace                |
 | POST   | /factory/resolver/                  |
 | POST   | /factory/token/refresh              |
-| GET    | /workspace/settings                 |
 | GET    | /oauth                              |
 | GET    | /oauth/token                        |
 | DELETE | /oauth/token                        |

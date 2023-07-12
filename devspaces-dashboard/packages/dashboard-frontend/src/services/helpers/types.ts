@@ -101,7 +101,7 @@ export enum WorkspaceAction {
   ADD_PROJECT = 'Add Project',
   ADD_CUSTOM_WORKSPACE = 'Add Workspace',
   RESTART_WORKSPACE = 'Restart Workspace',
-  EDIT_WORKSPACE = 'Edit Workspace',
+  EDIT_WORKSPACE = 'Workspace Details',
 }
 
 export type UserPreferencesTab = 'container-registries' | 'git-services';

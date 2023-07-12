@@ -64,11 +64,11 @@ describe('Workspace Loader, step OPEN_WORKSPACE', () => {
     loaderSteps = buildLoaderSteps(loadingSteps);
 
     jest.useFakeTimers();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
     jest.clearAllTimers();
-    jest.clearAllMocks();
   });
 
   test('workspace not found', async () => {
