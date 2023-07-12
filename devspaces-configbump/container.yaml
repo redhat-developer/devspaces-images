@@ -21,7 +21,7 @@ remote_sources:
     repo: https://github.com/redhat-developer/devspaces-images.git
     ref: 47dbb41a7d97598ced9fb3a46d81e1cdf8694fd0
     pkg_managers: [gomod]
-    flags: [gomod-vendor-check,cgo-disable]
+    flags: [gomod-vendor-check]
     packages: 
       gomod: 
         - path: devspaces-configbump
