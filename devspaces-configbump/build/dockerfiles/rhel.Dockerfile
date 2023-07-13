@@ -17,12 +17,14 @@ FROM registry.access.redhat.com/ubi8-minimal:8.8-1014
 WORKDIR /app
 COPY . ./
 
+# to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
+ENV CGO_ENABLED=1
 RUN microdnf -y install shadow-utils golang && \
     adduser appuser && \
     export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
     go mod download && go mod verify && \
     go test -v  ./... && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go && \
+    GOOS=linux GOARCH=${ARCH} go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go && \
     cp configbump /usr/local/bin/configbump && \
     chmod 755 /usr/local/bin/configbump && \
     rm -rf $REMOTE_SOURCES_DIR && \
