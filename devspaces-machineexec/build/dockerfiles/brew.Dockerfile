@@ -11,12 +11,15 @@
 
 # https://registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.19.10-3 as builder
-ENV GOPATH=/go/
+ENV GOPATH=/go/ \
+    CGO_ENABLED=1
+
 USER root
 WORKDIR /che-machine-exec/
 COPY . .
+# to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
 RUN adduser unprivilegeduser && \
-    CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
+    GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
     mkdir -p /rootfs/tmp /rootfs/etc /rootfs/go/bin && \
     # In the `scratch` you can't use Dockerfile#RUN, because there is no shell and no standard commands (mkdir and so on).
     # That's why prepare absent `/tmp` folder for scratch image

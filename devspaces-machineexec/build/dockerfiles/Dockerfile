@@ -31,12 +31,18 @@ RUN addgroup --gid "$GID" "$USER" \
       --uid "$UID" \
       "$USER"
 # initialize CA certificates to propagate them into scratch image
-RUN apk update && apk add --no-cache git && update-ca-certificates
+RUN apk --update --no-cache add \
+    build-base \
+    gcc \
+    git \
+  && rm -rf /tmp/* /var/cache/apk/* && update-ca-certificates
 
 # compile machine exec binary file
 WORKDIR /che-machine-exec/
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o /go/bin/che-machine-exec .
+# to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
+ENV CGO_ENABLED=1
+RUN GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o /go/bin/che-machine-exec .
 
 # NOTE: could not compile with node:18-alpine, so for now stick with node:16-alpine
 FROM docker.io/node:16-alpine as cloud_shell_builder
