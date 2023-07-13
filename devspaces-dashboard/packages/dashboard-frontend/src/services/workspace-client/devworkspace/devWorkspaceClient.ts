@@ -47,8 +47,8 @@ import {
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 import { DevWorkspacePlugin } from '../../devfileApi/devWorkspace';
 
-const COMPONENT_UPDATE_POLICY = 'che.eclipse.org/components-update-policy';
-const REGISTRY_URL = 'che.eclipse.org/plugin-registry-url';
+export const COMPONENT_UPDATE_POLICY = 'che.eclipse.org/components-update-policy';
+export const REGISTRY_URL = 'che.eclipse.org/plugin-registry-url';
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 

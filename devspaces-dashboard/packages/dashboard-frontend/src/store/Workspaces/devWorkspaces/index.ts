@@ -39,6 +39,8 @@ import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
+  COMPONENT_UPDATE_POLICY,
+  REGISTRY_URL,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { getCustomEditor } from '../../../services/workspace-client/helpers';
 import { selectApplications } from '../../ClusterInfo/selectors';
@@ -596,12 +598,14 @@ export const actionCreators: ActionCreators = {
       let devWorkspaceResource: devfileApi.DevWorkspace;
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
       let editorContent: string | undefined;
+      let editorYamlUrl: string | undefined;
       // do we have an optional editor parameter ?
       const editor = attributes.cheEditor;
       if (editor) {
         const response = await getEditor(editor, dispatch, getState, pluginRegistryUrl);
         if (response.content) {
           editorContent = response.content;
+          editorYamlUrl = response.editorYamlUrl;
         } else {
           throw new Error(response.error);
         }
@@ -628,6 +632,7 @@ export const actionCreators: ActionCreators = {
           const response = await getEditor(defaultsEditor, dispatch, getState, pluginRegistryUrl);
           if (response.content) {
             editorContent = response.content;
+            editorYamlUrl = response.editorYamlUrl;
           } else {
             throw new Error(response.error);
           }
@@ -660,6 +665,13 @@ export const actionCreators: ActionCreators = {
         ) as devfileApi.DevWorkspaceTemplate;
         if (devWorkspaceTemplateResource === undefined) {
           throw new Error('Failed to find a DevWorkspaceTemplate in the fetched resources.');
+        }
+        if (editorYamlUrl && devWorkspaceTemplateResource.metadata) {
+          if (!devWorkspaceTemplateResource.metadata.annotations) {
+            devWorkspaceTemplateResource.metadata.annotations = {};
+          }
+          devWorkspaceTemplateResource.metadata.annotations[COMPONENT_UPDATE_POLICY] = 'managed';
+          devWorkspaceTemplateResource.metadata.annotations[REGISTRY_URL] = editorYamlUrl;
         }
       } catch (e) {
         const errorMessage = common.helpers.errors.getMessage(e);

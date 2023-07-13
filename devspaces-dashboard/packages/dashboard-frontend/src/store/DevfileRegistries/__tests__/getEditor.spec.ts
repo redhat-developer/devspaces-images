@@ -129,6 +129,9 @@ describe('Get Devfile by URL', () => {
 
     expect(mockFetch.mock.calls).toEqual([]);
     expect(customEditor.content).toEqual(dump(editor));
+    expect(customEditor.editorYamlUrl).toEqual(
+      'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+    );
   });
 
   it('Should return an existing devfile content by editor path', async () => {
@@ -151,6 +154,9 @@ describe('Get Devfile by URL', () => {
 
     expect(mockFetch.mock.calls).toEqual([]);
     expect(customEditor.content).toEqual(dump(editor));
+    expect(customEditor.editorYamlUrl).toEqual(
+      'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+    );
   });
 });
 
