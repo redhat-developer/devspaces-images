@@ -8,19 +8,19 @@
           "7.67.x",
           "7.66.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -42,15 +42,15 @@
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -72,15 +72,15 @@
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -102,15 +102,15 @@
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -132,15 +132,15 @@
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -158,19 +158,19 @@
           "7.67.x",
           "7.66.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -192,15 +192,15 @@
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -248,7 +248,7 @@
           "devspaces-3.7-rhel-8",
           "devspaces-3.7-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
@@ -278,7 +278,7 @@
           "20221111",
           "20221111"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
@@ -352,7 +352,7 @@
           "devspaces-3.7-rhel-8",
           "devspaces-3.7-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
@@ -385,20 +385,20 @@
           "7.66.x"
         ],
         "node_version": "16.13.2",
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "node_version": "16.13.2",
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "node_version": "16.13.2",
         "disabled": false
@@ -418,19 +418,19 @@
           "7.67.x",
           "7.66.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "upstream_branch": [
-          "7.70.x",
-          "7.69.x"
+          "7.72.x",
+          "7.71.x"
         ],
         "disabled": false
       },
       "3.9": {
         "upstream_branch": [
-          "7.73.x",
-          "7.72.x"
+          "7.75.x",
+          "7.74.x"
         ],
         "disabled": false
       },
@@ -444,7 +444,7 @@
     },
     "get-sources-rhpkg-container-build": {
       "3.7": {
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "disabled": false
@@ -458,7 +458,7 @@
     },
     "push-latest-container-to-quay": {
       "3.7": {
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "disabled": false
@@ -472,7 +472,7 @@
     },
     "sync-to-downstream": {
       "3.7": {
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "disabled": false
@@ -486,7 +486,7 @@
     },
     "update-digests": {
       "3.7": {
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "disabled": false
@@ -500,7 +500,7 @@
     },
     "send-email-qe-build-list": {
       "3.7": {
-        "disabled": true
+        "disabled": false
       },
       "3.8": {
         "disabled": false
@@ -535,7 +535,7 @@
   },
   "Other": {
     "Errata": {
-      "3.7": "114450",
+      "3.7": "117002",
       "3.8": "116894",
       "3.9": "n/a",
       "3.x": "n/a"
@@ -584,7 +584,7 @@
     },
     "@eclipse-che/plugin-registry-generator": {
       "3.7": "7.67.0",
-      "3.8": "7.70.0",
+      "3.8": "7.72.0",
       "3.9": "next",
       "3.x": "next"
     },
@@ -625,10 +625,10 @@
       "3.x": "4.12"
     },
     "OCP_TOOLS_CONTENT_SET_VERSION": {
-      "3.7": "4.11",
-      "3.8": "4.11",
-      "3.9": "4.11",
-      "3.x": "4.11"
+      "3.7": "4.12",
+      "3.8": "4.12",
+      "3.9": "4.12",
+      "3.x": "4.12"
     },
     "GOLANG_VERSION": {
       "3.7": "1.16.2",
