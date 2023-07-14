@@ -128,6 +128,7 @@ declare module 'vscode' {
 
 	export interface InteractiveSessionSlashCommand {
 		command: string;
+		shouldRepopulate?: boolean;
 		kind: CompletionItemKind;
 		detail?: string;
 	}
@@ -181,5 +182,7 @@ declare module 'vscode' {
 		export function sendInteractiveRequestToProvider(providerId: string, message: InteractiveSessionDynamicRequest): void;
 
 		export function registerInteractiveEditorSessionProvider(provider: InteractiveEditorSessionProvider): Disposable;
+
+		export function transferChatSession(session: InteractiveSession, toWorkspace: Uri): void;
 	}
 }

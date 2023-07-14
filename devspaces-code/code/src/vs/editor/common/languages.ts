@@ -584,9 +584,12 @@ export interface CompletionContext {
 export interface CompletionItemProvider {
 
 	/**
+	 * Used to identify completions in the (debug) UI and telemetry. This isn't the extension identifier because extensions
+	 * often contribute multiple completion item providers.
+	 *
 	 * @internal
 	 */
-	_debugDisplayName?: string;
+	_debugDisplayName: string;
 
 	triggerCharacters?: string[];
 	/**
@@ -700,6 +703,8 @@ export interface InlineCompletions<TItem extends InlineCompletion = InlineComple
 	readonly enableForwardStability?: boolean | undefined;
 }
 
+export type InlineCompletionProviderGroupId = string;
+
 export interface InlineCompletionsProvider<T extends InlineCompletions = InlineCompletions> {
 	provideInlineCompletions(model: model.ITextModel, position: Position, context: InlineCompletionContext, token: CancellationToken): ProviderResult<T>;
 
@@ -718,6 +723,20 @@ export interface InlineCompletionsProvider<T extends InlineCompletions = InlineC
 	 * Will be called when a completions list is no longer in use and can be garbage-collected.
 	*/
 	freeInlineCompletions(completions: T): void;
+
+	/**
+	 * Only used for {@link yieldsToGroupIds}.
+	 * Multiple providers can have the same group id.
+	 */
+	groupId?: InlineCompletionProviderGroupId;
+
+	/**
+	 * Returns a list of preferred provider {@link groupId}s.
+	 * The current provider is only requested for completions if no provider with a preferred group id returned a result.
+	 */
+	yieldsToGroupIds?: InlineCompletionProviderGroupId[];
+
+	toString?(): string;
 }
 
 export interface CodeAction {
