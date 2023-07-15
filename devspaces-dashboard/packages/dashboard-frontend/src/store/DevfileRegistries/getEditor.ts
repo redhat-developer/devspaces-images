@@ -19,7 +19,7 @@ export async function getEditor(
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
   getState: () => AppState,
   pluginRegistryUrl?: string,
-): Promise<{ content?: string; error?: string }> {
+): Promise<{ content?: string; editorYamlUrl: string; error?: string }> {
   let editorYamlUrl: string;
 
   if (/^(https?:\/\/)/.test(editorIdOrPath)) {
@@ -32,14 +32,20 @@ export async function getEditor(
   }
 
   const state = getState();
-  if (state.devfileRegistries.devfiles[editorYamlUrl]) {
-    return state.devfileRegistries.devfiles[editorYamlUrl];
+  let devfileObj = state.devfileRegistries.devfiles[editorYamlUrl];
+  if (devfileObj) {
+    const content = devfileObj.content;
+    const error = devfileObj.error;
+    return Object.assign({ content, editorYamlUrl, error });
   }
   await dispatch(actionCreators.requestDevfile(editorYamlUrl));
 
   const nexState = getState();
-  if (nexState.devfileRegistries.devfiles[editorYamlUrl]) {
-    return nexState.devfileRegistries.devfiles[editorYamlUrl];
+  devfileObj = nexState.devfileRegistries.devfiles[editorYamlUrl];
+  if (devfileObj) {
+    const content = devfileObj.content;
+    const error = devfileObj.error;
+    return Object.assign({ content, editorYamlUrl, error });
   }
 
   throw new Error(`Failed to fetch editor yaml by URL: ${editorYamlUrl}.`);

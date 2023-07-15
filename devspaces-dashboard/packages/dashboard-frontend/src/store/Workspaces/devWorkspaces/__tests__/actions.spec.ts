@@ -99,11 +99,6 @@ describe('DevWorkspace store, actions', () => {
         defaults: {
           editor: 'che-incubator/che-code/latest',
         },
-      } as api.IServerConfig)
-      .withDwServerConfig({
-        defaults: {
-          editor: 'che-incubator/che-code/latest',
-        },
         pluginRegistryURL: 'https://dummy.registry',
       } as api.IServerConfig)
       .withDevfileRegistries({
@@ -633,21 +628,39 @@ describe('DevWorkspace store, actions', () => {
   });
 
   describe('createWorkspaceFromDevfile', () => {
-    it('should create REQUEST_DEVWORKSPACE and ADD_DEVWORKSPACE when creating a new workspace from devfile', async () => {
+    it('should create ADD_DEVWORKSPACE when creating a new workspace from devfile', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      const devWorkspaceTemplate: devfileApi.DevWorkspaceTemplate = {
+        apiVersion: 'v1alpha2',
+        kind: 'DevWorkspaceTemplate',
+        metadata: {
+          name: 'template',
+          namespace: 'user-che',
+          annotations: {},
+        },
+      };
+
+      mockCreateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+      mockCreateDevWorkspaceTemplate.mockResolvedValueOnce({ headers: {}, devWorkspaceTemplate });
+      mockUpdateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+      mockOnStart.mockResolvedValueOnce(undefined);
+
       const devfile: devfileApi.Devfile = {
         schemaVersion: '2.1.0',
         metadata: {
-          name: 'test',
-          namespace: 'user-che',
+          name: 'che-dashboard',
+          namespace: 'admin-che',
         },
+        components: [
+          {
+            name: 'tools',
+            container: {
+              image: 'quay.io/devfile/universal-developer-image:ubi8',
+            },
+          },
+        ],
       };
-      const attr: Partial<FactoryParams> = {};
-
-      mockCreateDevWorkspace.mockResolvedValueOnce({ devWorkspace, headers: {} });
-      mockUpdateDevWorkspace.mockResolvedValueOnce({ devWorkspace, headers: {} });
-
-      await store.dispatch(testStore.actionCreators.createWorkspaceFromDevfile(devfile, attr, {}));
+      await store.dispatch(testStore.actionCreators.createWorkspaceFromDevfile(devfile, {}, {}));
 
       const actions = store.getActions();
 
@@ -666,6 +679,35 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
+      expect(mockCreateDevWorkspace.mock.calls).toEqual([
+        expect.arrayContaining([
+          {
+            apiVersion: 'workspace.devfile.io/v1alpha2',
+            kind: 'DevWorkspace',
+            metadata: {
+              annotations: {},
+              name: 'che',
+            },
+          },
+        ]),
+      ]);
+      expect(mockCreateDevWorkspaceTemplate.mock.calls).toEqual([
+        expect.arrayContaining([
+          expect.objectContaining({
+            apiVersion: 'workspace.devfile.io/v1alpha2',
+            kind: 'DevWorkspaceTemplate',
+            metadata: {
+              name: 'che-code',
+              annotations: {
+                'che.eclipse.org/components-update-policy': 'managed',
+                'che.eclipse.org/plugin-registry-url':
+                  'https://dummy.registry/plugins/che-incubator/che-code/latest/devfile.yaml',
+              },
+            },
+          }),
+        ]),
+      ]);
+      expect(mockOnStart.mock.calls).toEqual([]);
       expect(actions).toStrictEqual(expectedActions);
     });
 
