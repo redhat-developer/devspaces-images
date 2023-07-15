@@ -40,6 +40,8 @@ WORKDIR /app
 
 ENV GO111MODULE on
 ENV GOPROXY https://goproxy.io
+# to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
+ENV CGO_ENABLED=1
 COPY go.mod .
 COPY go.sum .
 RUN env $(cat /tmp/.env | xargs) go mod download
