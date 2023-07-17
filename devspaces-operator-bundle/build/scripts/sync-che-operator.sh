@@ -198,9 +198,6 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
 	["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
 
-	# hardcoded to latest DWO release, so that we replace the upstream value... but this isn't actually used downstream
-	["RELATED_IMAGE_devworkspace_controller"]="registry.redhat.io/devworkspace/devworkspace-rhel8-operator" 
-
 	["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
 	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
 
