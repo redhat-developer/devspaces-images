@@ -946,8 +946,6 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.7
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDOCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.7
-                      - name: RELATED_IMAGE_devworkspace_controller
-                        value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
                         value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.12
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
