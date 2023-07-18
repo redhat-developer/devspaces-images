@@ -53,7 +53,7 @@ spec:
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:2b05b2b36f866022ed679c667b529ff556d685c7e1675d59edde3cea1cdc3bbe"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:306208a0f6e6e99570b0ad53e68f6b570b02125ade6697962ba43d29deaa9931"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -121,9 +121,9 @@ spec:
             - name: RELATED_IMAGE_eclipse_broadway_plugin_registry_image_IBZWQYJSGU3DUNJXMM4DEY3EHAYDMYJVGZTDMOLBME4DMNRTMY3DQNBQGVSDANZXHBRDMMRYMEZDSYJWGRTGEMJWHA4DCYRRGFRWKOLGGQ4DIZDEME3Q____
               value: index.docker.io/wsskeleton/eclipse-broadway@sha256:57c82cd806a56f69aa8663f68405d0778b628a29a64fb16881b11ce9f484dda7
             - name: RELATED_IMAGE_gateway_authentication_sidecar
-              value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.13
+              value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.12
             - name: RELATED_IMAGE_gateway_authorization_sidecar
-              value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.13
+              value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.12
             - name: RELATED_IMAGE_plugin_registry
               value: registry.redhat.io/devspaces/pluginregistry-rhel8:3.8
             - name: RELATED_IMAGE_pvc_jobs
