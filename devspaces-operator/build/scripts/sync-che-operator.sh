@@ -18,7 +18,7 @@ set -e
 CSV_VERSION=2.y.0 # csv 2.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 UBI_TAG=8.8
-OPENSHIFT_TAG="v4.13"
+OPENSHIFT_TAG="v4.12"
 
 usage () {
 	echo "Usage:   ${0##*/} -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
