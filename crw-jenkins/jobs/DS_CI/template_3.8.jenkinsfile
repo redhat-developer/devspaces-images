@@ -212,6 +212,10 @@ fi
 
           // comment on the PR with this job's build description
           println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_this))
+
+          if (currentBuild.result == 'UNSTABLE' || currentBuild.result == 'FAILURE') {
+            util.notifyBuildFailed(currentBuild.description)
+          }
         } // with
       } // wrap
       cleanWs(

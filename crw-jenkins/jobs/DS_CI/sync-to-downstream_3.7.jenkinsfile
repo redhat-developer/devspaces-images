@@ -399,7 +399,7 @@ fi
               if (buildLogErrors?.trim()) {
                 currentBuild.description+=" failed:<br/>" + buildLogErrors.trim().replaceAll("\n","<br/>")
                 currentBuild.result = "FAILURE"
-                util.notifyBuildFailed()
+                util.notifyBuildFailed(currentBuild.description)
               } else {
                 currentBuild.description+=" synced; "
               }
@@ -577,7 +577,7 @@ echo "<<<############### df -h end of sync repos #################"
                 currentBuild.result = 'UNSTABLE'
               } // if trigger
             } else {
-              util.notifyBuildFailed()
+              util.notifyBuildFailed(currentBuild.description)
             } // if
             if (comments_url_UDI?.trim()) {
               // special case for UDI because it doesn't use template_3.x job

@@ -166,7 +166,7 @@ Brew NVRs:
         } catch (e) {
             if (!errorOccurred.equals("")) {
                 echo errorOccurred
-                util.notifyBuildFailed()
+                util.notifyBuildFailed(currentBuild.description)
                 return
             }
             throw e

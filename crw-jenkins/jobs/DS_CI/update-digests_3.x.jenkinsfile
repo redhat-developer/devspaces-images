@@ -206,7 +206,7 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
                     if (util.globalVar({comments_url})?.trim()) {
                         println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
                     }
-                    util.notifyBuildFailed()
+                    util.notifyBuildFailed(currentBuild.description)
                 }
                 return
             }

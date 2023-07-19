@@ -80,7 +80,7 @@ set -x
               " <br/> " + BUILD_RESULT
           } catch (e) {
             currentBuild.result = "FAILURE"
-            util.notifyBuildFailed()
+            util.notifyBuildFailed(currentBuild.description)
             throw e
           } // try to build containers
 

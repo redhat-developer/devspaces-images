@@ -81,7 +81,7 @@ set -x
         } catch (e) {
           // If there was an exception thrown, the build failed
           currentBuild.result = "FAILURE"
-          util.notifyBuildFailed()
+          util.notifyBuildFailed(currentBuild.description)
           throw e
         } finally {
           // nothing to do here
