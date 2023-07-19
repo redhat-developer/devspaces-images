@@ -887,11 +887,11 @@ spec:
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDSCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:4a818eaaccf7c9dd259e796f9c5f9bc7358b3174225291202e2375037e72e0f4
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:508ed6497b4083cc3467ecd90f148747b8516394f2ac2a4b9814e6584b298fb9
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:69600e01312b710ca4c32dd9dc6446cfeecaf56a2b1cd65e3fd701c98e0ddac4
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:975f287513039b2244894b9031e590f665d48f9af480dfdc4b85d4f96dd4bc37
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:e6ababb610c8e416a7843ae06a6781b38fc23740e6b8b3013a9857d28132c6c2
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:4bf44a739d8a57951c9ea1f4cfaf3f10e209c88ca73b77da886a5977bb74747d
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:933494c2a08783b8889d5cbc1eaefd66f6582a88a4cae8511a8acbf247baa93a
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:e52fc1de73dc2879516431ff1865e0fb61b1a32f57b6f914bdcddb13c62f84e6
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -901,7 +901,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:0f9059a78bbf8f00f7a1faaebcf708f26aac78455bb227b8c674ed5bb16b79ed
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:e1cfffd54b5ace5805e082be45807f5f633cadc7e2bf6f2c1aff6b8922061ae1
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:8fd6dce58761a1af50348889b666dfb01283b8f2845b8477d90a76b51b8bbde2
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1266,11 +1266,11 @@ spec:
   - name: devspaces_udi_plugin_registry_image_gmxdscq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:4a818eaaccf7c9dd259e796f9c5f9bc7358b3174225291202e2375037e72e0f4
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:508ed6497b4083cc3467ecd90f148747b8516394f2ac2a4b9814e6584b298fb9
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:69600e01312b710ca4c32dd9dc6446cfeecaf56a2b1cd65e3fd701c98e0ddac4
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:975f287513039b2244894b9031e590f665d48f9af480dfdc4b85d4f96dd4bc37
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:e6ababb610c8e416a7843ae06a6781b38fc23740e6b8b3013a9857d28132c6c2
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:4bf44a739d8a57951c9ea1f4cfaf3f10e209c88ca73b77da886a5977bb74747d
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:933494c2a08783b8889d5cbc1eaefd66f6582a88a4cae8511a8acbf247baa93a
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:e52fc1de73dc2879516431ff1865e0fb61b1a32f57b6f914bdcddb13c62f84e6
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
@@ -1280,4 +1280,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:0f9059a78bbf8f00f7a1faaebcf708f26aac78455bb227b8c674ed5bb16b79ed
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:e1cfffd54b5ace5805e082be45807f5f633cadc7e2bf6f2c1aff6b8922061ae1
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:8fd6dce58761a1af50348889b666dfb01283b8f2845b8477d90a76b51b8bbde2
