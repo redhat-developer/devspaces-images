@@ -143,7 +143,7 @@ export const yamlResolverSchema: JSONSchema7 = {
   properties: {
     url: {
       type: 'string',
-      pattern: '^http.*.yaml$',
+      pattern: '^http.*',
     },
   },
   required: ['url'],
