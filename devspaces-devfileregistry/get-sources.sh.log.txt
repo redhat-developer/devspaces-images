@@ -1,0 +1,413 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-129 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-129 AS builder
+STEP 2/23: USER 0
+--> 56fe19e570d
+STEP 3/23: ARG BOOTSTRAP=true
+--> a31d83eae5a
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> e6475a73b73
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 7fc9bab6733
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> c654647dd10
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> b47866a46f2
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 879cd048912
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 243db4d9d66
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> ad80b24a8f6
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.x86_64                 
+  criu-3.15-4.module+el8.8.0+19044+f9982fd8.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  python3.11-3.11.2-2.el8_8.1.x86_64                                            
+  python3.11-devel-3.11.2-2.el8_8.1.x86_64                                      
+  python3.11-libs-3.11.2-2.el8_8.1.x86_64                                       
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.2-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.1-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.5/41.5 kB 2.7 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.2.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 40.5 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 394.7 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.11.8-py3-none-any.whl (35 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.1 pip-23.2.1 tomlkit-0.11.8 xmltodict-0.13.0 yq-3.2.2
+python: Python 3.8.16
+yq: yq 3.2.2
+jq: jq-1.6
+--> 069b0dfb051
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 6b29eacac6a
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 5a9a7cbd32d
+STEP 14/23: COPY ./VERSION /
+--> 1281859bbee
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> b8f6a4c6784
+STEP 16/23: WORKDIR /build/
+--> a0572dc174d
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 119 packages from 183 contributors and audited 119 packages in 8.72s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 0b06faf8f2d
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 07d302006ef
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:5c789a6a1676fab6c753c3abc74f63c9898564711cdda5cc5274e8c2712fb436 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.9 PASS - 3.9 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.9 PASS - 3.9 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.9 PASS - 3.9 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> b896b17864c
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 9f28985a559
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> c400f2676d6
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 6da2b791fd6
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 1dd54c0ca12
+Successfully tagged localhost/devfileregistry:tmp
+1dd54c0ca123c9150e58355e3e69ac4f2c406abb4ae70b074a801def3f2eac7b
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/__init__.py /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/__init__.py
+--- /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/__init__.py	2023-07-17 21:33:03.000000000 -0400
++++ /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/__init__.py	2023-07-23 04:56:01.417733979 -0400
+@@ -1,6 +1,6 @@
+ from typing import List, Optional
+ 
+-__version__ = "23.2"
++__version__ = "23.2.1"
+ 
+ 
+ def main(args: Optional[List[str]] = None) -> int:
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/cli/req_command.py /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/cli/req_command.py
+--- /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/cli/req_command.py	2023-07-17 21:33:03.000000000 -0400
++++ /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/cli/req_command.py	2023-07-23 04:56:01.424733979 -0400
+@@ -287,6 +287,7 @@
+         """
+         temp_build_dir_path = temp_build_dir.path
+         assert temp_build_dir_path is not None
++        legacy_resolver = False
+ 
+         resolver_variant = cls.determine_resolver_variant(options)
+         if resolver_variant == "2020-resolver":
+@@ -300,6 +301,7 @@
+                     "production."
+                 )
+         else:
++            legacy_resolver = True
+             lazy_wheel = False
+             if "fast-deps" in options.features_enabled:
+                 logger.warning(
+@@ -320,6 +322,7 @@
+             use_user_site=use_user_site,
+             lazy_wheel=lazy_wheel,
+             verbosity=verbosity,
++            legacy_resolver=legacy_resolver,
+         )
+ 
+     @classmethod
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/network/session.py /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/network/session.py
+--- /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/network/session.py	2023-07-17 21:33:03.000000000 -0400
++++ /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/network/session.py	2023-07-23 04:56:01.423733979 -0400
+@@ -419,15 +419,17 @@
+                 msg += f" (from {source})"
+             logger.info(msg)
+ 
+-        host_port = parse_netloc(host)
+-        if host_port not in self.pip_trusted_origins:
+-            self.pip_trusted_origins.append(host_port)
++        parsed_host, parsed_port = parse_netloc(host)
++        if parsed_host is None:
++            raise ValueError(f"Trusted host URL must include a host part: {host!r}")
++        if (parsed_host, parsed_port) not in self.pip_trusted_origins:
++            self.pip_trusted_origins.append((parsed_host, parsed_port))
+ 
+         self.mount(
+             build_url_from_netloc(host, scheme="http") + "/", self._trusted_host_adapter
+         )
+         self.mount(build_url_from_netloc(host) + "/", self._trusted_host_adapter)
+-        if not host_port[1]:
++        if not parsed_port:
+             self.mount(
+                 build_url_from_netloc(host, scheme="http") + ":",
+                 self._trusted_host_adapter,
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/operations/prepare.py /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/operations/prepare.py
+--- /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/operations/prepare.py	2023-07-17 21:33:03.000000000 -0400
++++ /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/operations/prepare.py	2023-07-23 04:56:01.425733979 -0400
+@@ -226,6 +226,7 @@
+         use_user_site: bool,
+         lazy_wheel: bool,
+         verbosity: int,
++        legacy_resolver: bool,
+     ) -> None:
+         super().__init__()
+ 
+@@ -259,6 +260,9 @@
+         # How verbose should underlying tooling be?
+         self.verbosity = verbosity
+ 
++        # Are we using the legacy resolver?
++        self.legacy_resolver = legacy_resolver
++
+         # Memoized downloaded files, as mapping of url: path.
+         self._downloaded: Dict[str, str] = {}
+ 
+@@ -365,6 +369,11 @@
+         self,
+         req: InstallRequirement,
+     ) -> Optional[BaseDistribution]:
++        if self.legacy_resolver:
++            logger.debug(
++                "Metadata-only fetching is not used in the legacy resolver",
++            )
++            return None
+         if self.require_hashes:
+             logger.debug(
+                 "Metadata-only fetching is not used as hash checking is required",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/utils/misc.py /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/utils/misc.py
+--- /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages/pip/_internal/utils/misc.py	2023-07-17 21:33:03.000000000 -0400
++++ /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages/pip/_internal/utils/misc.py	2023-07-23 04:56:01.421733979 -0400
+@@ -1,6 +1,3 @@
+-# The following comment should be removed at some point in the future.
+-# mypy: strict-optional=False
+-
+ import contextlib
+ import errno
+ import getpass
+@@ -344,17 +341,18 @@
+ 
+ 
+ class StreamWrapper(StringIO):
+-    orig_stream: TextIO = None
++    orig_stream: TextIO
+ 
+     @classmethod
+     def from_stream(cls, orig_stream: TextIO) -> "StreamWrapper":
+-        cls.orig_stream = orig_stream
+-        return cls()
++        ret = cls()
++        ret.orig_stream = orig_stream
++        return ret
+ 
+     # compileall.compile_dir() needs stdout.encoding to print to stdout
+-    # https://github.com/python/mypy/issues/4125
++    # type ignore is because TextIOBase.encoding is writeable
+     @property
+-    def encoding(self):  # type: ignore
++    def encoding(self) -> str:  # type: ignore
+         return self.orig_stream.encoding
+ 
+ 
+@@ -422,7 +420,7 @@
+     return f"{scheme}://{netloc}"
+ 
+ 
+-def parse_netloc(netloc: str) -> Tuple[str, Optional[int]]:
++def parse_netloc(netloc: str) -> Tuple[Optional[str], Optional[int]]:
+     """
+     Return the host-port pair from a netloc.
+     """
+@@ -510,7 +508,9 @@
+     return (redact_netloc(netloc),)
+ 
+ 
+-def split_auth_netloc_from_url(url: str) -> Tuple[str, str, Tuple[str, str]]:
++def split_auth_netloc_from_url(
++    url: str,
++) -> Tuple[str, str, Tuple[Optional[str], Optional[str]]]:
+     """
+     Parse a url into separate netloc, auth, and url with no auth.
+ 
+Only in /tmp/tmp.Ka17J3hZzW/lib/python3.11/site-packages: pip-23.2.1.dist-info
+Only in /tmp/tmp.XS3dUugIDB/lib/python3.11/site-packages: pip-23.2.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 1dd54c0ca123c9150e58355e3e69ac4f2c406abb4ae70b074a801def3f2eac7b
+Deleted: 6da2b791fd61fdcf0b4ccc03c3b83edabcfde545f6f360b8470671ebbd536c2f
+Deleted: c400f2676d6ea90f8f44989389da926a8904c34039ca3f03be14731cda3b8eda
+Deleted: 9f28985a559ee6ae4f843f7a8fea0d5126680ef64b719d8bee0bba5159104dcf
+Deleted: b896b17864c754e899bc661a8331479d561248ef66897053962e2f295cef0ce1
+Deleted: 07d302006efd1cf9d9d4fe8ac366a31b695d20aa212f549ae122d21c0446a59d
+Deleted: 0b06faf8f2d071e64b4b63136e9281a63c96d529549a3b622aa758d7fe675ad7
+Deleted: a0572dc174daf68ce8cdd3bd7433ef125664df55ff1f5f96ff653987b62e3599
+Deleted: b8f6a4c6784181a6661cbeb1c2ab7903dfaf826e48aa5bc657c8736b82e7d911
+Deleted: 1281859bbeef6228fa1b0bd810b81d4726bf744f428e1df8319eaa03b1dd14b6
+Deleted: 5a9a7cbd32d9059cda54d162483bace08b5c82cc9db5f3f4fb9fb6cf82f2c512
+Deleted: 6b29eacac6a94b447969b7691e5baf1994a88faa6ac46a293061cbbb9428919d
+Deleted: 069b0dfb0518941ff5306b48aa683e220205fab8b35175f3f0dc1e85685525fb
+Deleted: ad80b24a8f64a223b4c2620149ec59cd0491936d7cdde46e5e8ed45b851ed2d3
+Deleted: 243db4d9d6601b2ca776f51bdd38c2afed75c95d461f145089f1fbb6e913a21d
+Deleted: 879cd048912102a9806331ff062460643f5cf23be0f71e4fbfba8650362bd892
+Deleted: b47866a46f29bf9096329cb79489852588315cfccf92d102c1eaf2013df3cafd
+Deleted: c654647dd10e387f3ec31ed9146951df25584477f12671d259ba02877095bca8
+Deleted: 7fc9bab6733dbb8749091b1b720627fd19dca5748adae829c0f9f802d166bce5
+Deleted: e6475a73b73c60d2e71878570e7a5759cab8776959d7e2aab0ffbf9b61da7706
+Deleted: a31d83eae5a22b547b0dbced1286fc7207328d8b5db8a1837776ad55b3ab8e6f
+Deleted: 56fe19e570d06abbd9ef95925effed8e3e90acd7852ac278b6cdac0117ea38b8
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
