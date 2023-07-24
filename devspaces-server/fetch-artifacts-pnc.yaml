@@ -1,11 +1,11 @@
 builds:
-  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/A2FG5TCVO5IAA
+  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/A2FPHZMCG5IAA
   # build id must be string
-  - build_id: 'A2FG5TCVO5IAA'
+  - build_id: 'A2FPHZMCG5IAA'
     artifacts:
-      # https://orch.psi.redhat.com/pnc-web/#/artifacts/10751980
-      # ==> org.eclipse.che:assembly-main:tar.gz:7.72.0.redhat-00001
+      # https://orch.psi.redhat.com/pnc-web/#/artifacts/10754426
+      # ==> org.eclipse.che:assembly-main:tar.gz:7.72.0.redhat-00002
       # artifact id must be string; rename it by setting a different target path/file
-      - id: '10751980'
+      - id: '10754426'
         target: assembly-main.tar.gz
 
