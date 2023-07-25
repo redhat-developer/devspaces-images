@@ -64,6 +64,7 @@ get-source*.sh
 kubernetes/
 make-release.sh
 sources
+sources.spec
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
