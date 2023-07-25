@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Red Hat, Inc.
+# Copyright (c) 2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -7,7 +7,7 @@
 #
 
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8/ubi:8.8 as plugin-builder
+FROM registry.access.redhat.com/ubi8/ubi:8.7-929 as plugin-builder
 
 RUN yum install java-11-openjdk-devel unzip -y --nodocs
 RUN mkdir /plugin && mkdir /plugin-assembly
@@ -24,6 +24,6 @@ RUN ./gradlew build
 RUN find build/distributions -type f -name "che-plugin-*.zip" -exec mv {} "/plugin-assembly/asset-che-plugin-assembly.zip" \;
 
 # https://registry.access.redhat.com/ubi8/ubi-micro
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.8
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-1
 WORKDIR /plugin
 COPY --from=plugin-builder /plugin-assembly/asset-che-plugin-assembly.zip asset-che-plugin-assembly.zip
