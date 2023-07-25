@@ -193,6 +193,10 @@ declare -A operator_replacements=(
 	["CHE_FLAVOR"]="devspaces"
 	["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
+	# CRW-4616 include DW operator and bundle because CVP is dumb and won't pull image refs into its IIB unless they're in THIS operator
+	["RELATED_IMAGE_devworkspace_operator"]="registry.redhat.io/devworkspace/devworkspace-rhel8-operator"
+	["RELATED_IMAGE_devworkspace_operator_bundle"]="registry.redhat.io/devworkspace/devworkspace-operator-bundle"
+
 	["RELATED_IMAGE_che_server"]="${DS_SERVER_IMAGE}"
 	["RELATED_IMAGE_dashboard"]="${DS_DASHBOARD_IMAGE}"
 	["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
@@ -213,18 +217,18 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 	["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
 
-  ["CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL"]=""
-  ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES"]="false"
-  ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR"]="che-incubator/che-code/latest"
-  # CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
-    # TODO also remove theia from factory support
-    # TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
-  ["CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT"]=""
+	["CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL"]=""
+	["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES"]="false"
+	["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR"]="che-incubator/che-code/latest"
+	# CRW-3662, CRW-3663, CRW-3489 theia removed from from dashboard
+	# TODO also remove theia from factory support
+	# TODO also remove theia from docs section #selecting-a-workspace-ide & related tables
+	["CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT"]=""
 
-  # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
-  # https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
-  # https://issues.redhat.com/browse/CRW-4125 exclude freshmaker respins from the CRD
-  ["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS"]="[{\"name\": \"universal-developer-image\", \"container\": {\"image\": \"${UDI_IMAGE}\"}}]"
+	# https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
+	# https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
+	# https://issues.redhat.com/browse/CRW-4125 exclude freshmaker respins from the CRD
+	["CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS"]="[{\"name\": \"universal-developer-image\", \"container\": {\"image\": \"${UDI_IMAGE}\"}}]"
 )
 
 OPERATOR_DEPLOYMENT_YAML="config/manager/manager.yaml"
