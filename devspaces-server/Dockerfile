@@ -14,7 +14,7 @@ FROM ubi8-minimal:8.8-1014
 USER root
 ENV CHE_HOME=/home/user/devspaces
 ENV JAVA_HOME=/usr/lib/jvm/jre
-RUN microdnf install java-11-openjdk-headless tar gzip shadow-utils findutils && \
+RUN microdnf install java-17-openjdk-headless tar gzip shadow-utils findutils && \
     microdnf update -y && \
     microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     adduser -G root user && mkdir -p /home/user/devspaces
@@ -50,8 +50,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
       version="3.8" \
-      pnc_artifact_id="10748972" \
-      pnc_build_id="A2D7N5NYNMAAA" \
+      pnc_artifact_id="10758366" \
+      pnc_build_id="A2GI626QW5IAA" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
