@@ -1,0 +1,747 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-129 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-129 AS builder
+STEP 2/23: USER 0
+--> f034ef8c22a
+STEP 3/23: ARG BOOTSTRAP=true
+--> 3b5a0481a91
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 9c043005a76
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 917e37f7e60
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 0034d881ef7
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> a295aa2df69
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> cdac6ff0cc4
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> fb3a5ffebff
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 07725548d01
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.x86_64                 
+  criu-3.15-4.module+el8.8.0+19044+f9982fd8.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  python3.11-3.11.2-2.el8_8.1.x86_64                                            
+  python3.11-devel-3.11.2-2.el8_8.1.x86_64                                      
+  python3.11-libs-3.11.2-2.el8_8.1.x86_64                                       
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.2-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.1-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.5/41.5 kB 4.2 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.2.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 51.2 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 413.9 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.0-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.1 pip-23.2.1 tomlkit-0.12.0 xmltodict-0.13.0 yq-3.2.2
+python: Python 3.8.16
+yq: yq 3.2.2
+jq: jq-1.6
+--> eb457135a2b
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> f9b6470d901
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 22289b4a1cf
+STEP 14/23: COPY ./VERSION /
+--> f10fc36eb24
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 10ef7c4b49c
+STEP 16/23: WORKDIR /build/
+--> 1c5c2f6845d
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 119 packages from 183 contributors and audited 119 packages in 7.426s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> b311e1af2c4
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 244006fbfb0
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:5c789a6a1676fab6c753c3abc74f63c9898564711cdda5cc5274e8c2712fb436 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.9 PASS - 3.9 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.9 PASS - 3.9 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.9 PASS - 3.9 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 64ec5e9645b
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> a3162828406
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> a5247a77cd3
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> b1eb45ee705
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> e92779b7b0e
+Successfully tagged localhost/devfileregistry:tmp
+e92779b7b0ec76f71a3266ff6f598946b9fbb9da61584682fd13029c3a2ef619
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/api.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/api.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/api.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/api.py	2023-07-27 10:01:22.023823545 -0400
+@@ -1,14 +1,17 @@
+ from __future__ import annotations
+ 
++import contextlib
+ import datetime as _datetime
+ 
+ from collections.abc import Mapping
+ from typing import IO
+ from typing import Iterable
++from typing import TypeVar
+ 
+ from tomlkit._utils import parse_rfc3339
+ from tomlkit.container import Container
+ from tomlkit.exceptions import UnexpectedCharError
++from tomlkit.items import CUSTOM_ENCODERS
+ from tomlkit.items import AoT
+ from tomlkit.items import Array
+ from tomlkit.items import Bool
+@@ -16,6 +19,7 @@
+ from tomlkit.items import Date
+ from tomlkit.items import DateTime
+ from tomlkit.items import DottedKey
++from tomlkit.items import Encoder
+ from tomlkit.items import Float
+ from tomlkit.items import InlineTable
+ from tomlkit.items import Integer
+@@ -284,3 +288,21 @@
+ def comment(string: str) -> Comment:
+     """Create a comment item."""
+     return Comment(Trivia(comment_ws="  ", comment="# " + string))
++
++
++E = TypeVar("E", bound=Encoder)
++
++
++def register_encoder(encoder: E) -> E:
++    """Add a custom encoder, which should be a function that will be called
++    if the value can't otherwise be converted. It should takes a single value
++    and return a TOMLKit item or raise a ``TypeError``.
++    """
++    CUSTOM_ENCODERS.append(encoder)
++    return encoder
++
++
++def unregister_encoder(encoder: Encoder) -> None:
++    """Unregister a custom encoder."""
++    with contextlib.suppress(ValueError):
++        CUSTOM_ENCODERS.remove(encoder)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/container.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/container.py	2023-07-27 10:01:22.023823545 -0400
+@@ -6,6 +6,7 @@
+ from typing import Iterator
+ 
+ from tomlkit._compat import decode
++from tomlkit._types import _CustomDict
+ from tomlkit._utils import merge_dicts
+ from tomlkit.exceptions import KeyAlreadyPresent
+ from tomlkit.exceptions import NonExistentKey
+@@ -19,7 +20,6 @@
+ from tomlkit.items import Table
+ from tomlkit.items import Trivia
+ from tomlkit.items import Whitespace
+-from tomlkit.items import _CustomDict
+ from tomlkit.items import item as _item
+ 
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/__init__.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/__init__.py	2023-07-27 10:01:22.023823545 -0400
+@@ -18,14 +18,16 @@
+ from tomlkit.api import loads
+ from tomlkit.api import nl
+ from tomlkit.api import parse
++from tomlkit.api import register_encoder
+ from tomlkit.api import string
+ from tomlkit.api import table
+ from tomlkit.api import time
++from tomlkit.api import unregister_encoder
+ from tomlkit.api import value
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.11.8"
++__version__ = "0.12.0"
+ __all__ = [
+     "aot",
+     "array",
+@@ -52,4 +54,6 @@
+     "TOMLDocument",
+     "value",
+     "ws",
++    "register_encoder",
++    "unregister_encoder",
+ ]
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/items.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/items.py	2023-07-27 10:01:22.023823545 -0400
+@@ -3,8 +3,10 @@
+ import abc
+ import copy
+ import dataclasses
++import math
+ import re
+ import string
++import sys
+ 
+ from datetime import date
+ from datetime import datetime
+@@ -13,6 +15,7 @@
+ from enum import Enum
+ from typing import TYPE_CHECKING
+ from typing import Any
++from typing import Callable
+ from typing import Collection
+ from typing import Iterable
+ from typing import Iterator
+@@ -23,40 +26,31 @@
+ 
+ from tomlkit._compat import PY38
+ from tomlkit._compat import decode
++from tomlkit._types import _CustomDict
++from tomlkit._types import _CustomFloat
++from tomlkit._types import _CustomInt
++from tomlkit._types import _CustomList
++from tomlkit._types import wrap_method
+ from tomlkit._utils import CONTROL_CHARS
+ from tomlkit._utils import escape_string
+ from tomlkit.exceptions import InvalidStringError
+ 
+ 
+-if TYPE_CHECKING:  # pragma: no cover
+-    # Define _CustomList and _CustomDict as a workaround for:
+-    # https://github.com/python/mypy/issues/11427
+-    #
+-    # According to this issue, the typeshed contains a "lie"
+-    # (it adds MutableSequence to the ancestry of list and MutableMapping to
+-    # the ancestry of dict) which completely messes with the type inference for
+-    # Table, InlineTable, Array and Container.
+-    #
+-    # Importing from builtins is preferred over simple assignment, see issues:
+-    # https://github.com/python/mypy/issues/8715
+-    # https://github.com/python/mypy/issues/10068
+-    from builtins import dict as _CustomDict  # noqa: N812, TC004
+-    from builtins import list as _CustomList  # noqa: N812, TC004
+-
+-    # Allow type annotations but break circular imports
++if TYPE_CHECKING:
+     from tomlkit import container
+-else:
+-    from collections.abc import MutableMapping
+-    from collections.abc import MutableSequence
+ 
+-    class _CustomList(MutableSequence, list):
+-        """Adds MutableSequence mixin while pretending to be a builtin list"""
+ 
+-    class _CustomDict(MutableMapping, dict):
+-        """Adds MutableMapping mixin while pretending to be a builtin dict"""
++ItemT = TypeVar("ItemT", bound="Item")
++Encoder = Callable[[Any], "Item"]
++CUSTOM_ENCODERS: list[Encoder] = []
++AT = TypeVar("AT", bound="AbstractTable")
+ 
+ 
+-ItemT = TypeVar("ItemT", bound="Item")
++class _ConvertError(TypeError, ValueError):
++    """An internal error raised when item() fails to convert a value.
++    It should be a TypeError, but due to historical reasons
++    it needs to subclass ValueError as well.
++    """
+ 
+ 
+ @overload
+@@ -155,7 +149,7 @@
+         val = table_constructor(Container(), Trivia(), False)
+         for k, v in sorted(
+             value.items(),
+-            key=lambda i: (isinstance(i[1], dict), i[0] if _sort_keys else 1),
++            key=lambda i: (isinstance(i[1], dict), i[0]) if _sort_keys else 1,
+         ):
+             val[k] = item(v, _parent=val, _sort_keys=_sort_keys)
+ 
+@@ -218,8 +212,20 @@
+             Trivia(),
+             value.isoformat(),
+         )
++    else:
++        for encoder in CUSTOM_ENCODERS:
++            try:
++                rv = encoder(value)
++            except TypeError:
++                pass
++            else:
++                if not isinstance(rv, Item):
++                    raise _ConvertError(
++                        f"Custom encoder returned {type(rv)}, not a subclass of Item"
++                    )
++                return rv
+ 
+-    raise ValueError(f"Invalid type {type(value)}")
++    raise _ConvertError(f"Invalid type {type(value)}")
+ 
+ 
+ class StringType(Enum):
+@@ -434,7 +440,7 @@
+ class DottedKey(Key):
+     def __init__(
+         self,
+-        keys: Iterable[Key],
++        keys: Iterable[SingleKey],
+         sep: str | None = None,
+         original: str | None = None,
+     ) -> None:
+@@ -584,17 +590,17 @@
+         return f"{self._trivia.indent}{decode(self._trivia.comment)}"
+ 
+ 
+-class Integer(int, Item):
++class Integer(Item, _CustomInt):
+     """
+     An integer literal.
+     """
+ 
+     def __new__(cls, value: int, trivia: Trivia, raw: str) -> Integer:
+-        return super().__new__(cls, value)
++        return int.__new__(cls, value)
+ 
+-    def __init__(self, _: int, trivia: Trivia, raw: str) -> None:
++    def __init__(self, value: int, trivia: Trivia, raw: str) -> None:
+         super().__init__(trivia)
+-
++        self._original = value
+         self._raw = raw
+         self._sign = False
+ 
+@@ -602,7 +608,9 @@
+             self._sign = True
+ 
+     def unwrap(self) -> int:
+-        return int(self)
++        return self._original
++
++    __int__ = unwrap
+ 
+     @property
+     def discriminant(self) -> int:
+@@ -616,30 +624,6 @@
+     def as_string(self) -> str:
+         return self._raw
+ 
+-    def __add__(self, other):
+-        result = super().__add__(other)
+-        if result is NotImplemented:
+-            return result
+-        return self._new(result)
+-
+-    def __radd__(self, other):
+-        result = super().__radd__(other)
+-        if result is NotImplemented:
+-            return result
+-        return self._new(result)
+-
+-    def __sub__(self, other):
+-        result = super().__sub__(other)
+-        if result is NotImplemented:
+-            return result
+-        return self._new(result)
+-
+-    def __rsub__(self, other):
+-        result = super().__rsub__(other)
+-        if result is NotImplemented:
+-            return result
+-        return self._new(result)
+-
+     def _new(self, result):
+         raw = str(result)
+         if self._sign:
+@@ -651,18 +635,53 @@
+     def _getstate(self, protocol=3):
+         return int(self), self._trivia, self._raw
+ 
++    # int methods
++    __abs__ = wrap_method(int.__abs__)
++    __add__ = wrap_method(int.__add__)
++    __and__ = wrap_method(int.__and__)
++    __ceil__ = wrap_method(int.__ceil__)
++    __eq__ = int.__eq__
++    __floor__ = wrap_method(int.__floor__)
++    __floordiv__ = wrap_method(int.__floordiv__)
++    __invert__ = wrap_method(int.__invert__)
++    __le__ = int.__le__
++    __lshift__ = wrap_method(int.__lshift__)
++    __lt__ = int.__lt__
++    __mod__ = wrap_method(int.__mod__)
++    __mul__ = wrap_method(int.__mul__)
++    __neg__ = wrap_method(int.__neg__)
++    __or__ = wrap_method(int.__or__)
++    __pos__ = wrap_method(int.__pos__)
++    __pow__ = wrap_method(int.__pow__)
++    __radd__ = wrap_method(int.__radd__)
++    __rand__ = wrap_method(int.__rand__)
++    __rfloordiv__ = wrap_method(int.__rfloordiv__)
++    __rlshift__ = wrap_method(int.__rlshift__)
++    __rmod__ = wrap_method(int.__rmod__)
++    __rmul__ = wrap_method(int.__rmul__)
++    __ror__ = wrap_method(int.__ror__)
++    __round__ = wrap_method(int.__round__)
++    __rpow__ = wrap_method(int.__rpow__)
++    __rrshift__ = wrap_method(int.__rrshift__)
++    __rshift__ = wrap_method(int.__rshift__)
++    __rtruediv__ = wrap_method(int.__rtruediv__)
++    __rxor__ = wrap_method(int.__rxor__)
++    __truediv__ = wrap_method(int.__truediv__)
++    __trunc__ = wrap_method(int.__trunc__)
++    __xor__ = wrap_method(int.__xor__)
+ 
+-class Float(float, Item):
++
++class Float(Item, _CustomFloat):
+     """
+     A float literal.
+     """
+ 
+-    def __new__(cls, value: float, trivia: Trivia, raw: str) -> Integer:
+-        return super().__new__(cls, value)
++    def __new__(cls, value: float, trivia: Trivia, raw: str) -> Float:
++        return float.__new__(cls, value)
+ 
+-    def __init__(self, _: float, trivia: Trivia, raw: str) -> None:
++    def __init__(self, value: float, trivia: Trivia, raw: str) -> None:
+         super().__init__(trivia)
+-
++        self._original = value
+         self._raw = raw
+         self._sign = False
+ 
+@@ -670,7 +689,9 @@
+             self._sign = True
+ 
+     def unwrap(self) -> float:
+-        return float(self)
++        return self._original
++
++    __float__ = unwrap
+ 
+     @property
+     def discriminant(self) -> int:
+@@ -684,32 +705,6 @@
+     def as_string(self) -> str:
+         return self._raw
+ 
+-    def __add__(self, other):
+-        result = super().__add__(other)
+-
+-        return self._new(result)
+-
+-    def __radd__(self, other):
+-        result = super().__radd__(other)
+-
+-        if isinstance(other, Float):
+-            return self._new(result)
+-
+-        return result
+-
+-    def __sub__(self, other):
+-        result = super().__sub__(other)
+-
+-        return self._new(result)
+-
+-    def __rsub__(self, other):
+-        result = super().__rsub__(other)
+-
+-        if isinstance(other, Float):
+-            return self._new(result)
+-
+-        return result
+-
+     def _new(self, result):
+         raw = str(result)
+ 
+@@ -722,6 +717,35 @@
+     def _getstate(self, protocol=3):
+         return float(self), self._trivia, self._raw
+ 
++    # float methods
++    __abs__ = wrap_method(float.__abs__)
++    __add__ = wrap_method(float.__add__)
++    __eq__ = float.__eq__
++    __floordiv__ = wrap_method(float.__floordiv__)
++    __le__ = float.__le__
++    __lt__ = float.__lt__
++    __mod__ = wrap_method(float.__mod__)
++    __mul__ = wrap_method(float.__mul__)
++    __neg__ = wrap_method(float.__neg__)
++    __pos__ = wrap_method(float.__pos__)
++    __pow__ = wrap_method(float.__pow__)
++    __radd__ = wrap_method(float.__radd__)
++    __rfloordiv__ = wrap_method(float.__rfloordiv__)
++    __rmod__ = wrap_method(float.__rmod__)
++    __rmul__ = wrap_method(float.__rmul__)
++    __round__ = wrap_method(float.__round__)
++    __rpow__ = wrap_method(float.__rpow__)
++    __rtruediv__ = wrap_method(float.__rtruediv__)
++    __truediv__ = wrap_method(float.__truediv__)
++    __trunc__ = float.__trunc__
++
++    if sys.version_info >= (3, 9):
++        __ceil__ = float.__ceil__
++        __floor__ = float.__floor__
++    else:
++        __ceil__ = math.ceil
++        __floor__ = math.floor
++
+ 
+ class Bool(Item):
+     """
+@@ -1388,9 +1412,6 @@
+         return list(self._iter_items()), self._trivia, self._multiline
+ 
+ 
+-AT = TypeVar("AT", bound="AbstractTable")
+-
+-
+ class AbstractTable(Item, _CustomDict):
+     """Common behaviour of both :class:`Table` and :class:`InlineTable`"""
+ 
+@@ -1430,11 +1451,11 @@
+         raise NotImplementedError
+ 
+     @overload
+-    def add(self: AT, value: Comment | Whitespace) -> AT:
++    def add(self: AT, key: Comment | Whitespace) -> AT:
+         ...
+ 
+     @overload
+-    def add(self: AT, key: Key | str, value: Any) -> AT:
++    def add(self: AT, key: Key | str, value: Any = ...) -> AT:
+         ...
+ 
+     def add(self, key, value=None):
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/parser.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/parser.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/parser.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/parser.py	2023-07-27 10:01:22.023823545 -0400
+@@ -60,7 +60,7 @@
+     Parser for TOML documents.
+     """
+ 
+-    def __init__(self, string: str) -> None:
++    def __init__(self, string: str | bytes) -> None:
+         # Input to parse
+         self._src = Source(decode(string))
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/source.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/source.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/source.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/source.py	2023-07-27 10:01:22.023823545 -0400
+@@ -50,7 +50,7 @@
+     def __call__(self, *args, **kwargs):
+         return _State(self._source, *args, **kwargs)
+ 
+-    def __enter__(self) -> None:
++    def __enter__(self) -> _State:
+         state = self()
+         self._states.append(state)
+         return state.__enter__()
+Only in /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit: _types.py
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/_utils.py /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/_utils.py
+--- /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages/tomlkit/_utils.py	2023-07-23 04:56:01.000000000 -0400
++++ /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages/tomlkit/_utils.py	2023-07-27 10:01:22.023823545 -0400
+@@ -133,9 +133,11 @@
+ 
+         return i + inc
+ 
++    found_sequences = {seq for seq in escape_sequences if seq in s}
++
+     i = 0
+     while i < len(s):
+-        for seq in escape_sequences:
++        for seq in found_sequences:
+             seq_len = len(seq)
+             if s[i:].startswith(seq):
+                 start = flush(seq_len)
+Only in /tmp/tmp.BjsgJ1etQ9/lib/python3.11/site-packages: tomlkit-0.11.8.dist-info
+Only in /tmp/tmp.LaNd3u6D4u/lib/python3.11/site-packages: tomlkit-0.12.0.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: e92779b7b0ec76f71a3266ff6f598946b9fbb9da61584682fd13029c3a2ef619
+Deleted: b1eb45ee7051fcb37440b730a83876d9f6ddabe995fa5e3d18d5a4f93491ce12
+Deleted: a5247a77cd35712eb3c5181626cae8941f72db2f731499efd6f31abcf6f51ba3
+Deleted: a3162828406355d730f9dd49f97d08e60a53c5e22f26f05cb33751fa5b7b8bcd
+Deleted: 64ec5e9645b4f6d44aa39706a58ee2264653dfcb25def222bcd0ad7c1253ce47
+Deleted: 244006fbfb03e90adce603e6276d7ab83e8fc15bf0bc92b4a7b2f90121fe4450
+Deleted: b311e1af2c47c5fdbb72beb804065a29994158981d3efafc819e23f25030a511
+Deleted: 1c5c2f6845dcc39cf3c61824d4b9a6dafcf8b44c0b3335146ccd943c5833155c
+Deleted: 10ef7c4b49ca0fe7e6cd89fff8f3ee948770f4c36b476051bfabf0beeb3cbdee
+Deleted: f10fc36eb24c4ffe2e164ab0029a91088f8b67ff7dce677589bc22602b71da2a
+Deleted: 22289b4a1cf9738d4762a6a9703cf8574d43a740d18ff87c6a092fa13f151fdb
+Deleted: f9b6470d901f40d2e07a3e6ec96ab7e609916843245a92cb57eae309e1f9e57a
+Deleted: eb457135a2bd3348350a5044002e61cba68c74c805635d023adf1da493944d82
+Deleted: 07725548d01b8d18fd95f0dc6a62f031f19228f7f19e1643d8f201c59a1a2d77
+Deleted: fb3a5ffebff3085117dc90d1c84c18021933d10911561af0ed7324321ada746a
+Deleted: cdac6ff0cc4e8f19b5fe61394581a5c3c519d019d3ff55e1eba9647b3ccba2cd
+Deleted: a295aa2df693237ceb0a6f69b5ff7831e04b3bbd3026c620e43a712435f27f31
+Deleted: 0034d881ef755734e1fba901fe8e6761490b95b2416845bc21532cd933e06ce4
+Deleted: 917e37f7e602436b43e84fee95e92de7ed53f60f463aa836e96900c5c6a00579
+Deleted: 9c043005a764416c6ff5852e0f9242bcc8eeeda682924288ff6a0850c34b4c68
+Deleted: 3b5a0481a918f4e1eae06a51bf98a5454d113940be3f3c51f8dd9dd6227de9bf
+Deleted: f034ef8c22a98a2f0ed5ca27e2a227954c7f90bca155c3efb498895f483d6cb1
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
