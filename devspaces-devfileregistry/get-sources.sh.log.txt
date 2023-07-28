@@ -1,0 +1,1409 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-129 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-129 AS builder
+STEP 2/23: USER 0
+--> 0de58ecd27d
+STEP 3/23: ARG BOOTSTRAP=true
+--> f82755df84c
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> c7f051bd841
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 33d889d6b5f
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> b03c1c3df00
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 811049dd1b4
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 2719599699d
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 975788ad4e2
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 9831cb97889
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.ppc64le                
+  criu-3.15-4.module+el8.8.0+19044+f9982fd8.ppc64le                             
+  fuse-common-3.3.0-16.el8.ppc64le                                              
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.ppc64le                   
+  fuse3-3.3.0-16.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-16.el8.ppc64le                                               
+  iptables-libs-1.8.4-24.el8.ppc64le                                            
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-6.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-44.0-2.el8.1.ppc64le                                               
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.ppc64le                        
+  mpdecimal-2.5.1-3.el8.ppc64le                                                 
+  nftables-1:0.9.3-26.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  python3.11-3.11.2-2.el8_8.1.ppc64le                                           
+  python3.11-devel-3.11.2-2.el8_8.1.ppc64le                                     
+  python3.11-libs-3.11.2-2.el8_8.1.ppc64le                                      
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.ppc64le                          
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.ppc64le                     
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.ppc64le                     
+
+Collecting yq
+  Downloading yq-3.2.2-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.1-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.5/41.5 kB 4.3 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.2.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 49.4 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1.tar.gz (125 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.2/125.2 kB 218.8 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.1-py3-none-any.whl (37 kB)
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (pyproject.toml): started
+  Building wheel for PyYAML (pyproject.toml): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0.1-cp311-cp311-linux_ppc64le.whl size=45362 sha256=2992d60a2f8bd13430cab9a135ba1f15dcbbf76081a3aa747446b7457c6ed4b5
+  Stored in directory: /tmp/pip-ephem-wheel-cache-z99zwtg8/wheels/9d/b8/03/596afac31be302ab459eb56558a9ee17cc947ffe6f85d67dcf
+Successfully built PyYAML
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.1 pip-23.2.1 tomlkit-0.12.1 xmltodict-0.13.0 yq-3.2.2
+python: Python 3.8.16
+yq: yq 3.2.2
+jq: jq-1.6
+--> 6ed1bd7686a
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> ef7c8cba326
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> df3bfd51edb
+STEP 14/23: COPY ./VERSION /
+--> f3df2950733
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 0494f6e91fd
+STEP 16/23: WORKDIR /build/
+--> 65390084b55
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 119 packages from 183 contributors and audited 119 packages in 8.767s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 79602f09cb8
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 40da22bc7dc
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:3ff5d2d5f17c9c1e4a352d9922e27be09641647ac028a56845aaab6f6e3c7958 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.8 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.8 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.8 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ = quay.io/devspaces/ansible-creator-ee@sha256:3ff5d2d5f17c9c1e4a352d9922e27be09641647ac028a56845aaab6f6e3c7958 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.8 PASS - 3.8 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.8 PASS - 3.8 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.8 PASS - 3.8 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> f81259a60c9
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 83a38ca79ba
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> db25a8a95c3
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 0aa05646a9b
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 216bb4e4806
+Successfully tagged localhost/devfileregistry:tmp
+216bb4e48062c7f3fe8e8b92b9cf0289d6e543b786e2cd076979786ebb6b6f5d
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.7P9sCoMSVc/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.4fsHFG2aIf/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.7P9sCoMSVc/lib/python3.11/site-packages/tomlkit/__init__.py	2023-07-27 13:56:39.000000000 +0000
++++ /tmp/tmp.4fsHFG2aIf/lib/python3.11/site-packages/tomlkit/__init__.py	2023-07-28 13:57:49.479680322 +0000
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.0"
++__version__ = "0.12.1"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.7P9sCoMSVc/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.4fsHFG2aIf/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.7P9sCoMSVc/lib/python3.11/site-packages/tomlkit/items.py	2023-07-27 13:56:39.000000000 +0000
++++ /tmp/tmp.4fsHFG2aIf/lib/python3.11/site-packages/tomlkit/items.py	2023-07-28 13:57:49.479680322 +0000
+@@ -612,6 +612,9 @@
+ 
+     __int__ = unwrap
+ 
++    def __hash__(self) -> int:
++        return hash(self.unwrap())
++
+     @property
+     def discriminant(self) -> int:
+         return 2
+@@ -693,6 +696,9 @@
+ 
+     __float__ = unwrap
+ 
++    def __hash__(self) -> int:
++        return hash(self.unwrap())
++
+     @property
+     def discriminant(self) -> int:
+         return 3
+Only in /tmp/tmp.7P9sCoMSVc/lib/python3.11/site-packages: tomlkit-0.12.0.dist-info
+Only in /tmp/tmp.4fsHFG2aIf/lib/python3.11/site-packages: tomlkit-0.12.1.dist-info
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 3Gi
++            memoryRequest: 2Gi
++            cpuLimit: '4'
++            cpuRequest: '1'
+             endpoints:
+               - exposure: none
+                 name: debug
+@@ -127,6 +130,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 3Gi
++          memoryRequest: 2Gi
++          cpuLimit: '4'
++          cpuRequest: '1'
+           endpoints:
+             - exposure: none
+               name: debug
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.019617034 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 3Gi
++            memoryRequest: 2Gi
++            cpuLimit: '4'
++            cpuRequest: '1'
+             endpoints:
+               - exposure: none
+                 name: debug
+@@ -127,6 +130,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 3Gi
++          memoryRequest: 2Gi
++          cpuLimit: '4'
++          cpuRequest: '1'
+           endpoints:
+             - exposure: none
+               name: debug
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.019617034 +0000
+@@ -113,6 +113,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 3Gi
++            memoryRequest: 2Gi
++            cpuLimit: '4'
++            cpuRequest: '1'
+             endpoints:
+               - exposure: none
+                 name: debug
+@@ -146,6 +149,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 3Gi
++          memoryRequest: 2Gi
++          cpuLimit: '4'
++          cpuRequest: '1'
+           endpoints:
+             - exposure: none
+               name: debug
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -109,7 +109,10 @@
+             volumeMounts:
+               - name: m2
+                 path: /home/user/.m2
+-            memoryLimit: 4G
++            cpuLimit: '4'
++            cpuRequest: '1'
++            memoryLimit: 8G
++            memoryRequest: 4G
+             mountSources: true
+         - name: m2
+           volume:
+@@ -117,6 +120,7 @@
+       commands:
+         - id: 1-package
+           exec:
++            label: 1. Package the application
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+             commandLine: mvn package
+@@ -125,7 +129,7 @@
+               isDefault: true
+         - id: 2-startdev
+           exec:
+-            label: Start Development mode (Hot reload + debug)
++            label: 2. Start Development mode (Hot reload + debug)
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+             commandLine: mvn compile quarkus:dev
+@@ -160,7 +164,10 @@
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-          memoryLimit: 4G
++          cpuLimit: '4'
++          cpuRequest: '1'
++          memoryLimit: 8G
++          memoryRequest: 4G
+           mountSources: true
+       - name: m2
+         volume:
+@@ -168,6 +175,7 @@
+     commands:
+       - id: 1-package
+         exec:
++          label: 1. Package the application
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+           commandLine: mvn package
+@@ -176,7 +184,7 @@
+             isDefault: true
+       - id: 2-startdev
+         exec:
+-          label: Start Development mode (Hot reload + debug)
++          label: 2. Start Development mode (Hot reload + debug)
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+           commandLine: mvn compile quarkus:dev
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -109,7 +109,10 @@
+             volumeMounts:
+               - name: m2
+                 path: /home/user/.m2
+-            memoryLimit: 4G
++            cpuLimit: '4'
++            cpuRequest: '1'
++            memoryLimit: 8G
++            memoryRequest: 4G
+             mountSources: true
+         - name: m2
+           volume:
+@@ -117,6 +120,7 @@
+       commands:
+         - id: 1-package
+           exec:
++            label: 1. Package the application
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+             commandLine: mvn package
+@@ -125,7 +129,7 @@
+               isDefault: true
+         - id: 2-startdev
+           exec:
+-            label: Start Development mode (Hot reload + debug)
++            label: 2. Start Development mode (Hot reload + debug)
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+             commandLine: mvn compile quarkus:dev
+@@ -160,7 +164,10 @@
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-          memoryLimit: 4G
++          cpuLimit: '4'
++          cpuRequest: '1'
++          memoryLimit: 8G
++          memoryRequest: 4G
+           mountSources: true
+       - name: m2
+         volume:
+@@ -168,6 +175,7 @@
+     commands:
+       - id: 1-package
+         exec:
++          label: 1. Package the application
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+           commandLine: mvn package
+@@ -176,7 +184,7 @@
+             isDefault: true
+       - id: 2-startdev
+         exec:
+-          label: Start Development mode (Hot reload + debug)
++          label: 2. Start Development mode (Hot reload + debug)
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+           commandLine: mvn compile quarkus:dev
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -128,7 +128,10 @@
+             volumeMounts:
+               - name: m2
+                 path: /home/user/.m2
+-            memoryLimit: 4G
++            cpuLimit: '4'
++            cpuRequest: '1'
++            memoryLimit: 8G
++            memoryRequest: 4G
+             mountSources: true
+         - name: m2
+           volume:
+@@ -136,6 +139,7 @@
+       commands:
+         - id: 1-package
+           exec:
++            label: 1. Package the application
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+             commandLine: mvn package
+@@ -144,7 +148,7 @@
+               isDefault: true
+         - id: 2-startdev
+           exec:
+-            label: Start Development mode (Hot reload + debug)
++            label: 2. Start Development mode (Hot reload + debug)
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+             commandLine: mvn compile quarkus:dev
+@@ -179,7 +183,10 @@
+           volumeMounts:
+             - name: m2
+               path: /home/user/.m2
+-          memoryLimit: 4G
++          cpuLimit: '4'
++          cpuRequest: '1'
++          memoryLimit: 8G
++          memoryRequest: 4G
+           mountSources: true
+       - name: m2
+         volume:
+@@ -187,6 +194,7 @@
+     commands:
+       - id: 1-package
+         exec:
++          label: 1. Package the application
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+           commandLine: mvn package
+@@ -195,7 +203,7 @@
+             isDefault: true
+       - id: 2-startdev
+         exec:
+-          label: Start Development mode (Hot reload + debug)
++          label: 2. Start Development mode (Hot reload + debug)
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/quarkus-quickstarts/getting-started
+           commandLine: mvn compile quarkus:dev
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -102,7 +102,10 @@
+               - exposure: public
+                 name: nodejs
+                 targetPort: 8080
+-            memoryLimit: 1G
++            memoryLimit: 1Gi
++            memoryRequest: 512Mi
++            cpuLimit: '2'
++            cpuRequest: '1'
+             mountSources: true
+             volumeMounts:
+               - name: npm
+@@ -127,6 +130,9 @@
+                 exposure: internal
+                 targetPort: 27017
+             memoryLimit: 512Mi
++            memoryRequest: 256Mi
++            cpuLimit: '1'
++            cpuRequest: '0.25'
+             mountSources: false
+             volumeMounts:
+               - name: mongo-storage
+@@ -164,7 +170,10 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
+-          memoryLimit: 1G
++          memoryLimit: 1Gi
++          memoryRequest: 512Mi
++          cpuLimit: '2'
++          cpuRequest: '1'
+           mountSources: true
+           volumeMounts:
+             - name: npm
+@@ -189,6 +198,9 @@
+               exposure: internal
+               targetPort: 27017
+           memoryLimit: 512Mi
++          memoryRequest: 256Mi
++          cpuLimit: '1'
++          cpuRequest: '0.25'
+           mountSources: false
+           volumeMounts:
+             - name: mongo-storage
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -102,7 +102,10 @@
+               - exposure: public
+                 name: nodejs
+                 targetPort: 8080
+-            memoryLimit: 1G
++            memoryLimit: 1Gi
++            memoryRequest: 512Mi
++            cpuLimit: '2'
++            cpuRequest: '1'
+             mountSources: true
+             volumeMounts:
+               - name: npm
+@@ -127,6 +130,9 @@
+                 exposure: internal
+                 targetPort: 27017
+             memoryLimit: 512Mi
++            memoryRequest: 256Mi
++            cpuLimit: '1'
++            cpuRequest: '0.25'
+             mountSources: false
+             volumeMounts:
+               - name: mongo-storage
+@@ -164,7 +170,10 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
+-          memoryLimit: 1G
++          memoryLimit: 1Gi
++          memoryRequest: 512Mi
++          cpuLimit: '2'
++          cpuRequest: '1'
+           mountSources: true
+           volumeMounts:
+             - name: npm
+@@ -189,6 +198,9 @@
+               exposure: internal
+               targetPort: 27017
+           memoryLimit: 512Mi
++          memoryRequest: 256Mi
++          cpuLimit: '1'
++          cpuRequest: '0.25'
+           mountSources: false
+           volumeMounts:
+             - name: mongo-storage
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -121,7 +121,10 @@
+               - exposure: public
+                 name: nodejs
+                 targetPort: 8080
+-            memoryLimit: 1G
++            memoryLimit: 1Gi
++            memoryRequest: 512Mi
++            cpuLimit: '2'
++            cpuRequest: '1'
+             mountSources: true
+             volumeMounts:
+               - name: npm
+@@ -146,6 +149,9 @@
+                 exposure: internal
+                 targetPort: 27017
+             memoryLimit: 512Mi
++            memoryRequest: 256Mi
++            cpuLimit: '1'
++            cpuRequest: '0.25'
+             mountSources: false
+             volumeMounts:
+               - name: mongo-storage
+@@ -183,7 +189,10 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
+-          memoryLimit: 1G
++          memoryLimit: 1Gi
++          memoryRequest: 512Mi
++          cpuLimit: '2'
++          cpuRequest: '1'
+           mountSources: true
+           volumeMounts:
+             - name: npm
+@@ -208,6 +217,9 @@
+               exposure: internal
+               targetPort: 27017
+           memoryLimit: 512Mi
++          memoryRequest: 256Mi
++          cpuLimit: '1'
++          cpuRequest: '0.25'
+           mountSources: false
+           volumeMounts:
+             - name: mongo-storage
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -98,7 +98,10 @@
+                 name: nodejs
+                 protocol: http
+                 targetPort: 3000
+-            memoryLimit: 1G
++            memoryLimit: 1Gi
++            memoryRequest: 512Mi
++            cpuLimit: '0.5'
++            cpuRequest: '0.25'
+             mountSources: true
+             volumeMounts:
+               - name: npm
+@@ -167,7 +170,10 @@
+               name: nodejs
+               protocol: http
+               targetPort: 3000
+-          memoryLimit: 1G
++          memoryLimit: 1Gi
++          memoryRequest: 512Mi
++          cpuLimit: '0.5'
++          cpuRequest: '0.25'
+           mountSources: true
+           volumeMounts:
+             - name: npm
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -98,7 +98,10 @@
+                 name: nodejs
+                 protocol: http
+                 targetPort: 3000
+-            memoryLimit: 1G
++            memoryLimit: 1Gi
++            memoryRequest: 512Mi
++            cpuLimit: '0.5'
++            cpuRequest: '0.25'
+             mountSources: true
+             volumeMounts:
+               - name: npm
+@@ -167,7 +170,10 @@
+               name: nodejs
+               protocol: http
+               targetPort: 3000
+-          memoryLimit: 1G
++          memoryLimit: 1Gi
++          memoryRequest: 512Mi
++          cpuLimit: '0.5'
++          cpuRequest: '0.25'
+           mountSources: true
+           volumeMounts:
+             - name: npm
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -117,7 +117,10 @@
+                 name: nodejs
+                 protocol: http
+                 targetPort: 3000
+-            memoryLimit: 1G
++            memoryLimit: 1Gi
++            memoryRequest: 512Mi
++            cpuLimit: '0.5'
++            cpuRequest: '0.25'
+             mountSources: true
+             volumeMounts:
+               - name: npm
+@@ -186,7 +189,10 @@
+               name: nodejs
+               protocol: http
+               targetPort: 3000
+-          memoryLimit: 1G
++          memoryLimit: 1Gi
++          memoryRequest: 512Mi
++          cpuLimit: '0.5'
++          cpuRequest: '0.25'
+           mountSources: true
+           volumeMounts:
+             - name: npm
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.019617034 +0000
+@@ -96,7 +96,10 @@
+             volumeMounts:
+               - name: venv
+                 path: /home/user/.venv
+-            memoryLimit: 2G
++            memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '2'
++            cpuRequest: '1'
+             mountSources: true
+         - name: venv
+           volume:
+@@ -125,7 +128,10 @@
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+-          memoryLimit: 2G
++          memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '2'
++          cpuRequest: '1'
+           mountSources: true
+       - name: venv
+         volume:
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.019617034 +0000
+@@ -96,7 +96,10 @@
+             volumeMounts:
+               - name: venv
+                 path: /home/user/.venv
+-            memoryLimit: 2G
++            memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '2'
++            cpuRequest: '1'
+             mountSources: true
+         - name: venv
+           volume:
+@@ -125,7 +128,10 @@
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+-          memoryLimit: 2G
++          memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '2'
++          cpuRequest: '1'
+           mountSources: true
+       - name: venv
+         volume:
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.019617034 +0000
+@@ -115,7 +115,10 @@
+             volumeMounts:
+               - name: venv
+                 path: /home/user/.venv
+-            memoryLimit: 2G
++            memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '2'
++            cpuRequest: '1'
+             mountSources: true
+         - name: venv
+           volume:
+@@ -144,7 +147,10 @@
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+-          memoryLimit: 2G
++          memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '2'
++          cpuRequest: '1'
+           mountSources: true
+       - name: venv
+         volume:
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+       projects:
+         - name: c-plus-plus
+@@ -108,6 +111,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+     projects:
+       - name: c-plus-plus
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+       projects:
+         - name: c-plus-plus
+@@ -108,6 +111,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+     projects:
+       - name: c-plus-plus
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -113,6 +113,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+       projects:
+         - name: c-plus-plus
+@@ -127,6 +130,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+     projects:
+       - name: c-plus-plus
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+             endpoints:
+               - exposure: public
+@@ -109,6 +112,7 @@
+       commands:
+         - id: 1-update-dependencies
+           exec:
++            label: 1.Update dependencies
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet restore
+@@ -116,6 +120,7 @@
+               kind: build
+         - id: 2-build
+           exec:
++            label: 2.Build
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet build
+@@ -123,6 +128,7 @@
+               kind: build
+         - id: 3-run
+           exec:
++            label: 3.Run
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet run
+@@ -141,6 +147,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+           endpoints:
+             - exposure: public
+@@ -156,6 +165,7 @@
+     commands:
+       - id: 1-update-dependencies
+         exec:
++          label: 1.Update dependencies
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet restore
+@@ -163,6 +173,7 @@
+             kind: build
+       - id: 2-build
+         exec:
++          label: 2.Build
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet build
+@@ -170,6 +181,7 @@
+             kind: build
+       - id: 3-run
+         exec:
++          label: 3.Run
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet run
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+             endpoints:
+               - exposure: public
+@@ -109,6 +112,7 @@
+       commands:
+         - id: 1-update-dependencies
+           exec:
++            label: 1.Update dependencies
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet restore
+@@ -116,6 +120,7 @@
+               kind: build
+         - id: 2-build
+           exec:
++            label: 2.Build
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet build
+@@ -123,6 +128,7 @@
+               kind: build
+         - id: 3-run
+           exec:
++            label: 3.Run
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet run
+@@ -141,6 +147,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+           endpoints:
+             - exposure: public
+@@ -156,6 +165,7 @@
+     commands:
+       - id: 1-update-dependencies
+         exec:
++          label: 1.Update dependencies
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet restore
+@@ -163,6 +173,7 @@
+             kind: build
+       - id: 2-build
+         exec:
++          label: 2.Build
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet build
+@@ -170,6 +181,7 @@
+             kind: build
+       - id: 3-run
+         exec:
++          label: 3.Run
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet run
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -113,6 +113,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+             endpoints:
+               - exposure: public
+@@ -128,6 +131,7 @@
+       commands:
+         - id: 1-update-dependencies
+           exec:
++            label: 1.Update dependencies
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet restore
+@@ -135,6 +139,7 @@
+               kind: build
+         - id: 2-build
+           exec:
++            label: 2.Build
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet build
+@@ -142,6 +147,7 @@
+               kind: build
+         - id: 3-run
+           exec:
++            label: 3.Run
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+             commandLine: dotnet run
+@@ -160,6 +166,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+           endpoints:
+             - exposure: public
+@@ -175,6 +184,7 @@
+     commands:
+       - id: 1-update-dependencies
+         exec:
++          label: 1.Update dependencies
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet restore
+@@ -182,6 +192,7 @@
+             kind: build
+       - id: 2-build
+         exec:
++          label: 2.Build
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet build
+@@ -189,6 +200,7 @@
+             kind: build
+       - id: 3-run
+         exec:
++          label: 3.Run
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+           commandLine: dotnet run
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+             env:
+               - name: GOCACHE
+@@ -106,6 +109,7 @@
+       commands:
+         - id: build
+           exec:
++            label: 1.Build
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/golang-health-check
+             commandLine: go build
+@@ -113,6 +117,7 @@
+               kind: build
+         - id: run
+           exec:
++            label: 2.Run
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/golang-health-check
+             commandLine: ./golang-health-check
+@@ -131,6 +136,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+           env:
+             - name: GOCACHE
+@@ -143,6 +151,7 @@
+     commands:
+       - id: build
+         exec:
++          label: 1.Build
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/golang-health-check
+           commandLine: go build
+@@ -150,6 +159,7 @@
+             kind: build
+       - id: run
+         exec:
++          label: 2.Run
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/golang-health-check
+           commandLine: ./golang-health-check
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -94,6 +94,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+             env:
+               - name: GOCACHE
+@@ -106,6 +109,7 @@
+       commands:
+         - id: build
+           exec:
++            label: 1.Build
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/golang-health-check
+             commandLine: go build
+@@ -113,6 +117,7 @@
+               kind: build
+         - id: run
+           exec:
++            label: 2.Run
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/golang-health-check
+             commandLine: ./golang-health-check
+@@ -131,6 +136,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+           env:
+             - name: GOCACHE
+@@ -143,6 +151,7 @@
+     commands:
+       - id: build
+         exec:
++          label: 1.Build
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/golang-health-check
+           commandLine: go build
+@@ -150,6 +159,7 @@
+             kind: build
+       - id: run
+         exec:
++          label: 2.Run
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/golang-health-check
+           commandLine: ./golang-health-check
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -113,6 +113,9 @@
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+             memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+             mountSources: true
+             env:
+               - name: GOCACHE
+@@ -125,6 +128,7 @@
+       commands:
+         - id: build
+           exec:
++            label: 1.Build
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/golang-health-check
+             commandLine: go build
+@@ -132,6 +136,7 @@
+               kind: build
+         - id: run
+           exec:
++            label: 2.Run
+             component: tools
+             workingDir: ${PROJECTS_ROOT}/golang-health-check
+             commandLine: ./golang-health-check
+@@ -150,6 +155,9 @@
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+           memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+           mountSources: true
+           env:
+             - name: GOCACHE
+@@ -162,6 +170,7 @@
+     commands:
+       - id: build
+         exec:
++          label: 1.Build
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/golang-health-check
+           commandLine: go build
+@@ -169,6 +178,7 @@
+             kind: build
+       - id: run
+         exec:
++          label: 2.Run
+           component: tools
+           workingDir: ${PROJECTS_ROOT}/golang-health-check
+           commandLine: ./golang-health-check
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -93,7 +93,10 @@
+         - name: tools
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+-            memoryLimit: 1Gi
++            memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+       commands:
+         - id: run
+           exec:
+@@ -115,7 +118,10 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+-          memoryLimit: 1Gi
++          memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+     commands:
+       - id: run
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -93,7 +93,10 @@
+         - name: tools
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+-            memoryLimit: 1Gi
++            memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+       commands:
+         - id: run
+           exec:
+@@ -115,7 +118,10 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+-          memoryLimit: 1Gi
++          memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+     commands:
+       - id: run
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.wKckUTZaFU/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml /tmp/tmp.wC2raQvC5m/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.wKckUTZaFU/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml	2023-07-13 20:00:48.000000000 +0000
++++ /tmp/tmp.wC2raQvC5m/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml	2023-07-28 13:57:52.009617283 +0000
+@@ -112,7 +112,10 @@
+         - name: tools
+           container:
+             image: registry.redhat.io/devspaces/udi-rhel8:3.8
+-            memoryLimit: 1Gi
++            memoryLimit: 2Gi
++            memoryRequest: 1Gi
++            cpuLimit: '1'
++            cpuRequest: '0.5'
+       commands:
+         - id: run
+           exec:
+@@ -134,7 +137,10 @@
+       - name: tools
+         container:
+           image: registry.redhat.io/devspaces/udi-rhel8:3.8
+-          memoryLimit: 1Gi
++          memoryLimit: 2Gi
++          memoryRequest: 1Gi
++          cpuLimit: '1'
++          cpuRequest: '0.5'
+     commands:
+       - id: run
+         exec:
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/c-plus-plus.zip and /tmp/tmp.wC2raQvC5m/resources/v2/c-plus-plus.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/dotnet-web-simple.zip and /tmp/tmp.wC2raQvC5m/resources/v2/dotnet-web-simple.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/golang-health-check.zip and /tmp/tmp.wC2raQvC5m/resources/v2/golang-health-check.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/lombok-project-sample.zip and /tmp/tmp.wC2raQvC5m/resources/v2/lombok-project-sample.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/nodejs-mongodb-sample.zip and /tmp/tmp.wC2raQvC5m/resources/v2/nodejs-mongodb-sample.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/php-hello-world.zip and /tmp/tmp.wC2raQvC5m/resources/v2/php-hello-world.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/python-hello-world.zip and /tmp/tmp.wC2raQvC5m/resources/v2/python-hello-world.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/quarkus-quickstarts.zip and /tmp/tmp.wC2raQvC5m/resources/v2/quarkus-quickstarts.zip differ
+Binary files /tmp/tmp.wKckUTZaFU/resources/v2/web-nodejs-sample.zip and /tmp/tmp.wC2raQvC5m/resources/v2/web-nodejs-sample.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 216bb4e48062c7f3fe8e8b92b9cf0289d6e543b786e2cd076979786ebb6b6f5d
+Deleted: 0aa05646a9bc8e7d148dc797bee3eb595d1cbec0074a219394f6a3f7e3fa5c3e
+Deleted: db25a8a95c302830ff7feeb448c662cfcbc0397e8b0ce92c352bbd8617d39165
+Deleted: 83a38ca79ba45f1ae6057416ddbdb34ed724eecc7e14691c74ecf17d1131e15f
+Deleted: f81259a60c977c92f0b7a3c292d2fc82e55a7c702f986b667b1622a05999097b
+Deleted: 40da22bc7dc8e584a93de181b9c5b74dce9219f9dab45cf4e669e0472195cbda
+Deleted: 79602f09cb8ebfc31df277e0a75d2efea5297e146f1895be18d457e66282bf4e
+Deleted: 65390084b55106b96a0c90d473aefdffc302323ddf337085e80b17e1eb248d15
+Deleted: 0494f6e91fdee32ca85bb516dffb89ae0cf1ebb6ba570cb24e04d1b213398bef
+Deleted: f3df2950733c77a6b203c77426914d41239a07b03e0531132f05d7debdd28f22
+Deleted: df3bfd51edb8c92a823b0d33a1e841b39286515e52847ff9c894a161f1d979f1
+Deleted: ef7c8cba3269e560e5b23f86b485034fdf095aa4d1909caa8f9e172eaacca1ae
+Deleted: 6ed1bd7686ad48b0ca248e49ad750d704f5bc37c8adad844435c6e75c5aeaff7
+Deleted: 9831cb978898f294d0374e836b7bbe6708221b53b6cf776a2ed031f8161d9a19
+Deleted: 975788ad4e2865d948ed66539dc283d3042aaf09e23d9d1883ca12420751ff87
+Deleted: 2719599699d00faf33edf646c343ec9e82f19925fa43f34d85a60597a7c603db
+Deleted: 811049dd1b4c1a4db50fb220db423f68432404f1140972a23eb63c060bbb664f
+Deleted: b03c1c3df002486d9f6563b75a4f8ca50781be8c4ae35d51dc2b91aa36e001ff
+Deleted: 33d889d6b5fe515bf609b60c063ba1122e1ca001ce9f2f85471618cdf9875175
+Deleted: c7f051bd841460e40c4f2d25008976e868c115d85f611daff39d5d5b4555bde8
+Deleted: f82755df84c8d92fb87f97468f7079d1dbf569b8e81547af9f2cd66293f28035
+Deleted: 0de58ecd27d4c55ce76c7d22c82e05d851daba34294fedc57bb45936491aacea
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
