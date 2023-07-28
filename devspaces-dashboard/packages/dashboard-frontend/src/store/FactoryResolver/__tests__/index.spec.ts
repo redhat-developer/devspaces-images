@@ -27,6 +27,7 @@ import {
   convertDevfileV1toDevfileV2,
 } from '../../../services/devfile/converters';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
+import * as yamlResolver from '../../../services/dashboard-backend-client/yamlResolverApi';
 
 jest.mock('../normalizeDevfileV1.ts');
 (normalizeDevfileV1 as jest.Mock).mockImplementation(devfile => {
@@ -66,6 +67,7 @@ console.error = jest.fn();
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 
 const getFactoryResolverSpy = jest.spyOn(cheWorkspaceClient.restApiClient, 'getFactoryResolver');
+const getYamlResolverSpy = jest.spyOn(yamlResolver, 'getYamlResolver');
 
 describe('FactoryResolver store', () => {
   describe('requestFactoryResolver action', () => {
@@ -346,6 +348,99 @@ describe('FactoryResolver store', () => {
       };
 
       expect(newState).toEqual(expectedState);
+    });
+  });
+
+  describe('check resolver types', () => {
+    const resolver = {
+      devfile: {
+        schemaVersion: '2.0.0',
+      } as devfileApi.Devfile,
+    } as factoryResolverStore.ResolverState;
+
+    let store: MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, factoryResolverStore.KnownAction>
+    >;
+
+    beforeEach(() => {
+      delete (window as any).location;
+      (window.location as any) = { protocol: 'http:', host: 'localhost:8080' };
+
+      store = new FakeStoreBuilder()
+        .withInfrastructureNamespace([
+          {
+            attributes: { phase: 'Active' },
+            name: 'user-che',
+          },
+        ])
+        .withDwServerConfig({
+          devfileRegistry: {
+            disableInternalRegistry: false,
+            externalDevfileRegistries: [{ url: 'https://registry.devfile.io/' }],
+          },
+          devfileRegistryURL: 'http://localhost:8080/devfile-registry/',
+        })
+        .build();
+
+      getFactoryResolverSpy.mockResolvedValueOnce(resolver);
+      getYamlResolverSpy.mockResolvedValueOnce(resolver);
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call the yaml resolver for a builtin devfile registry', async () => {
+      const location = 'http://localhost:8080/devfile-registry/devfiles/empty.yaml';
+
+      await store.dispatch(
+        factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
+      );
+
+      expect(getYamlResolverSpy).toBeCalledWith('user-che', location);
+      expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
+        error_code: undefined,
+      });
+    });
+
+    it('should call the yaml resolver for an external devfile registry', async () => {
+      const location = 'https://registry.devfile.io/devfiles/nodejs/2.1.1';
+
+      await store.dispatch(
+        factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
+      );
+
+      expect(getYamlResolverSpy).toBeCalledWith('user-che', location);
+      expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
+        error_code: undefined,
+      });
+    });
+
+    it('should call the yaml resolver for the default devfile registry', async () => {
+      const location = 'http://localhost:8080/dashboard/devfile-registry/devfiles/empty.yaml';
+
+      await store.dispatch(
+        factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
+      );
+
+      expect(getYamlResolverSpy).toBeCalledWith('user-che', location);
+      expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
+        error_code: undefined,
+      });
+    });
+
+    it('should call the factory resolver by default', async () => {
+      const location = 'https://github.com/eclipse-che/che-dashboard.git';
+
+      await store.dispatch(
+        factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
+      );
+
+      expect(getYamlResolverSpy).not.toBeCalledWith('user-che', location);
+      expect(getFactoryResolverSpy).toBeCalledWith(location, {
+        error_code: undefined,
+      });
     });
   });
 });

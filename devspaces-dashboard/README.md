@@ -29,7 +29,8 @@ docker build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:
 
 To run Dashboard against Che Cluster you need access to Kubernetes cluster where it lives.
 So, make sure kubeconfig from $KUBECONFIG (or if unset ~/.kube/config) has the target cluster as current.
-If no - you may need to do oc login (if it's OpenShift) or modify it manually if it's Kubernetes.
+If no - you may need to do `oc login` (if it's OpenShift) or modify it manually if it's Kubernetes.
+
 Then you can proceed to the following steps:
 
 ```sh
@@ -193,6 +194,35 @@ $ export IMAGE_REGISTRY_USER_NAME=<IMAGE_REGISTRY_USER_NAME> && \
 To a new image and apply it to the CheCluster, run:
 ```sh
 yarn build-and-patch
+```
+
+### Update dashboard on remote cluster using `skaffold.dev`
+
+To update the dashboard deployment you need access to the Kubernetes cluster (see [Running locally against remote Che Cluster (Node.js v.16)](#running-locally-against-remote-che-cluster-nodejs-v16))
+
+Then proceed with the following steps:
+
+```sh
+# export an environment variable to define a repository you want images to be pushed, e.g.:
+export DEFAULT_REPO="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}"
+```
+
+```sh
+# and log in to the repository:
+podman login quay.io
+```
+
+Now you can build the project and get the dashboard on the remote cluster updated:
+
+```sh
+# build the dashboard:
+yarn build
+
+# update the dashboard deployment once:
+skaffold run --cleanup=false --default-repo=$DEFAULT_REPO
+
+# or, run in development mode to watch for changes:
+skaffold dev --cleanup=false --default-repo=$DEFAULT_REPO
 ```
 
 ## Branding

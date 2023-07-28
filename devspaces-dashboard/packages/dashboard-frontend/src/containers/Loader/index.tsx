@@ -15,7 +15,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { LoaderPage } from '../../pages/Loader';
 import { findTargetWorkspace } from '../../services/helpers/factoryFlow/findTargetWorkspace';
-import { getLoaderMode, LoaderMode } from '../../services/helpers/factoryFlow/getLoaderMode';
+import { getLoaderMode } from '../../services/helpers/factoryFlow/getLoaderMode';
 import { sanitizeLocation } from '../../services/helpers/location';
 import { LoaderTab } from '../../services/helpers/types';
 import { Workspace } from '../../services/workspace-adapter';
@@ -24,7 +24,6 @@ import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 
 export type Props = MappedProps & RouteComponentProps;
 export type State = {
-  loaderMode: LoaderMode;
   searchParams: URLSearchParams;
   tabParam: string | undefined;
 };
@@ -38,31 +37,18 @@ class LoaderContainer extends React.Component<Props, State> {
     const searchParams = new URLSearchParams(search);
     const tabParam = searchParams.get('tab') || undefined;
 
-    const loaderMode = getLoaderMode(props.history.location);
-
     this.state = {
-      loaderMode,
       searchParams,
       tabParam,
     };
   }
 
-  public componentDidUpdate(prevProps: Props): void {
-    // check if the location has changed
-    // if so, update the loader mode
-    if (prevProps.history.location !== this.props.history.location) {
-      const loaderMode = getLoaderMode(this.props.history.location);
-      this.setState({
-        loaderMode,
-      });
-    }
-  }
-
-  private findTargetWorkspace(props: Props, state: State): Workspace | undefined {
-    if (state.loaderMode.mode !== 'workspace') {
+  private findTargetWorkspace(props: Props): Workspace | undefined {
+    const loaderMode = getLoaderMode(props.history.location);
+    if (loaderMode.mode !== 'workspace') {
       return;
     }
-    return findTargetWorkspace(props.allWorkspaces, state.loaderMode.workspaceParams);
+    return findTargetWorkspace(props.allWorkspaces, loaderMode.workspaceParams);
   }
 
   private handleTabChange(tab: LoaderTab): void {
@@ -81,7 +67,7 @@ class LoaderContainer extends React.Component<Props, State> {
     const { history } = this.props;
     const { tabParam, searchParams } = this.state;
 
-    const workspace = this.findTargetWorkspace(this.props, this.state);
+    const workspace = this.findTargetWorkspace(this.props);
 
     return (
       <LoaderPage

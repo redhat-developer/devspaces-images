@@ -72,13 +72,6 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
           onMouseEnter={[Function]}
           scope="col"
         >
-          Username
-        </th>
-        <th
-          className=""
-          onMouseEnter={[Function]}
-          scope="col"
-        >
           Endpoint
         </th>
         <td
@@ -121,12 +114,6 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
           data-label="Provider"
         >
           github
-        </td>
-        <td
-          className=""
-          data-label="Username"
-        >
-          github-user
         </td>
         <td
           className=""
@@ -207,12 +194,6 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
           data-label="Provider"
         >
           azure-devops
-        </td>
-        <td
-          className=""
-          data-label="Username"
-        >
-          dev-azure-user
         </td>
         <td
           className=""

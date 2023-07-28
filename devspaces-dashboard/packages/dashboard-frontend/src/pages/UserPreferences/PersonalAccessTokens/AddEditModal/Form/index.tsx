@@ -18,7 +18,6 @@ import { EditTokenProps } from '../../types';
 import { GitProviderEndpoint } from './GitProviderEndpoint';
 import { GitProviderOrganization } from './GitProviderOrganization';
 import { GitProviderSelector } from './GitProviderSelector';
-import { GitProviderUsername } from './GitProviderUsername';
 import { TokenData } from './TokenData';
 import { TokenName } from './TokenName';
 
@@ -31,8 +30,6 @@ export type State = {
   defaultGitProviderEndpoint: string;
   gitProviderEndpoint: string | undefined;
   gitProviderEndpointIsValid: boolean;
-  gitProviderUsername: string | undefined;
-  gitProviderUsernameIsValid: boolean;
   gitProviderOrganization: string | undefined;
   gitProviderOrganizationIsValid: boolean;
   tokenName: string | undefined;
@@ -45,10 +42,9 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { gitProviderEndpoint, gitProvider, gitProviderUsername, tokenName, tokenData } =
-      props.token || {
-        gitProvider: DEFAULT_GIT_PROVIDER,
-      };
+    const { gitProviderEndpoint, gitProvider, tokenName, tokenData } = props.token || {
+      gitProvider: DEFAULT_GIT_PROVIDER,
+    };
 
     const gitProviderOrganization =
       props.token?.gitProvider === 'azure-devops' ? props.token.gitProviderOrganization : undefined;
@@ -61,8 +57,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
       gitProviderEndpoint,
       // next field is initially valid because a default value should be used instead of an empty string
       gitProviderEndpointIsValid: true,
-      gitProviderUsername,
-      gitProviderUsernameIsValid: isValid,
       gitProviderOrganization,
       gitProviderOrganizationIsValid: isValid,
       tokenName,
@@ -83,8 +77,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
       gitProvider,
       gitProviderOrganization = '',
       gitProviderOrganizationIsValid,
-      gitProviderUsername = '',
-      gitProviderUsernameIsValid,
       tokenName = '',
       tokenNameIsValid,
       tokenData = '',
@@ -95,7 +87,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
       const token: api.PersonalAccessToken = {
         cheUserId,
         gitProviderEndpoint,
-        gitProviderUsername,
         gitProvider,
         gitProviderOrganization,
         tokenName,
@@ -103,7 +94,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
       };
       const isValid =
         gitProviderEndpointIsValid &&
-        gitProviderUsernameIsValid &&
         gitProviderOrganizationIsValid &&
         tokenNameIsValid &&
         tokenDataIsValid;
@@ -112,16 +102,11 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
       const token: api.PersonalAccessToken = {
         cheUserId,
         gitProviderEndpoint,
-        gitProviderUsername,
         gitProvider,
         tokenName,
         tokenData,
       };
-      const isValid =
-        gitProviderEndpointIsValid &&
-        gitProviderUsernameIsValid &&
-        tokenNameIsValid &&
-        tokenDataIsValid;
+      const isValid = gitProviderEndpointIsValid && tokenNameIsValid && tokenDataIsValid;
       this.props.onChange(token, isValid);
     }
   }
@@ -140,16 +125,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
     this.updateChangeToken({
       gitProviderEndpoint,
       gitProviderEndpointIsValid,
-    });
-  }
-
-  private handleChangeGitProviderUsername(
-    gitProviderUsername: string,
-    gitProviderUsernameIsValid: boolean,
-  ): void {
-    this.updateChangeToken({
-      gitProviderUsername,
-      gitProviderUsernameIsValid,
     });
   }
 
@@ -190,7 +165,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
       defaultGitProviderEndpoint,
       gitProviderEndpoint,
       gitProviderOrganization,
-      gitProviderUsername,
       tokenData,
       tokenName,
     } = this.state;
@@ -210,10 +184,6 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
           defaultProviderEndpoint={defaultGitProviderEndpoint}
           providerEndpoint={gitProviderEndpoint}
           onChange={(...args) => this.handleChangeGitProviderEndpoint(...args)}
-        />
-        <GitProviderUsername
-          providerUsername={gitProviderUsername}
-          onChange={(...args) => this.handleChangeGitProviderUsername(...args)}
         />
         {gitProvider === 'azure-devops' && (
           <GitProviderOrganization

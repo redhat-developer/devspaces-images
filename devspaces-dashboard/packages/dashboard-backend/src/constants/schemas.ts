@@ -143,7 +143,7 @@ export const yamlResolverSchema: JSONSchema7 = {
   properties: {
     url: {
       type: 'string',
-      pattern: '^http.*.yaml$',
+      pattern: '^http.*',
     },
   },
   required: ['url'],
@@ -253,9 +253,6 @@ export const personalAccessTokenBodySchema: JSONSchema7 = {
     gitProviderEndpoint: {
       type: 'string',
     },
-    gitProviderUsername: {
-      type: 'string',
-    },
     gitProvider: {
       type: 'string',
     },
@@ -263,14 +260,7 @@ export const personalAccessTokenBodySchema: JSONSchema7 = {
       type: 'string',
     },
   },
-  required: [
-    'cheUserId',
-    'tokenName',
-    'tokenData',
-    'gitProviderEndpoint',
-    'gitProviderUsername',
-    'gitProvider',
-  ],
+  required: ['cheUserId', 'tokenName', 'tokenData', 'gitProviderEndpoint', 'gitProvider'],
 };
 
 export const personalAccessTokenParamsSchema: JSONSchema7 = {

@@ -1,0 +1,16 @@
+{
+  "spec": {
+    "identityProviders": [
+      {
+        "name": "dev-htpasswd",
+        "mappingMethod": "add",
+        "type": "HTPasswd",
+        "htpasswd": {
+          "fileData": {
+            "name": "dev-htpasswd-secret"
+          }
+        }
+      }
+    ]
+  }
+}

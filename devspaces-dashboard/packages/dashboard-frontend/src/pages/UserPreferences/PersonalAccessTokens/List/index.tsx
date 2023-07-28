@@ -32,7 +32,6 @@ const COLUMN_NAMES: Omit<
 > = {
   tokenName: 'Name',
   gitProvider: 'Provider',
-  gitProviderUsername: 'Username',
   gitProviderEndpoint: 'Endpoint',
 };
 
@@ -117,7 +116,6 @@ export class PersonalAccessTokenList extends React.PureComponent<Props, State> {
         />
         <Th>{COLUMN_NAMES.tokenName}</Th>
         <Th>{COLUMN_NAMES.gitProvider}</Th>
-        <Th>{COLUMN_NAMES.gitProviderUsername}</Th>
         <Th>{COLUMN_NAMES.gitProviderEndpoint}</Th>
         <Td />
       </Tr>
@@ -155,7 +153,6 @@ export class PersonalAccessTokenList extends React.PureComponent<Props, State> {
           />
           <Td dataLabel={COLUMN_NAMES.tokenName}>{token.tokenName}</Td>
           <Td dataLabel={COLUMN_NAMES.gitProvider}>{token.gitProvider}</Td>
-          <Td dataLabel={COLUMN_NAMES.gitProviderUsername}>{token.gitProviderUsername}</Td>
           <Td dataLabel={COLUMN_NAMES.gitProviderEndpoint}>{token.gitProviderEndpoint}</Td>
           <Td isActionCell>
             <ActionsColumn isDisabled={isDisabled} items={rowActions} />

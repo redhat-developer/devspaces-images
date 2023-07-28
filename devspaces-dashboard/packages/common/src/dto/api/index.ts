@@ -33,7 +33,6 @@ export type PersonalAccessToken = {
   tokenName: string;
   tokenData: string; // base64 encoded
   gitProviderEndpoint: string;
-  gitProviderUsername: string;
 } & (
   | {
       gitProvider: Exclude<GitProvider, 'azure-devops'>;

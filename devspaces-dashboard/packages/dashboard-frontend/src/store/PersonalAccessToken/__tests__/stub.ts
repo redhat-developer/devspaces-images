@@ -16,7 +16,6 @@ export const token1: api.PersonalAccessToken = {
   cheUserId: 'che-user',
   gitProvider: 'github',
   gitProviderEndpoint: 'https://github.com',
-  gitProviderUsername: 'github-user',
   tokenData: 'token-data-1',
   tokenName: 'token-name-1',
 };
@@ -25,7 +24,6 @@ export const token2: api.PersonalAccessToken = {
   cheUserId: 'che-user',
   gitProvider: 'github',
   gitProviderEndpoint: 'https://github.com',
-  gitProviderUsername: 'github-user',
   tokenData: 'token-data-2',
   tokenName: 'token-name-2',
 };

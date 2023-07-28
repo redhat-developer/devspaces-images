@@ -10,6 +10,8 @@
 
 FROM docker.io/node:16.16.0-alpine3.15 as builder
 
+RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/* 
+
 RUN if ! [ type "yarn" &> /dev/null ]; then \
         apk add yarn --no-cache; \
     fi

@@ -5,7 +5,7 @@ metadata:
 components:
   - name: tools
     container:
-      image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
+      image: quay.io/okurinny/dashboard.dev:skaffold
       memoryLimit: 10G
       memoryRequest: 512Mi
       cpuRequest: 1000m

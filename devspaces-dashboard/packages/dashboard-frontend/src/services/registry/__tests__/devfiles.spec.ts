@@ -60,7 +60,189 @@ describe('fetch registry metadata', () => {
       expect(resolved).toEqual([metadata]);
     });
   });
+
   describe('external registry', () => {
+    const baseUrl = 'https://eclipse-che.github.io/che-devfile-registry/7.71.0/';
+
+    it('should fetch registry metadata', async () => {
+      const metadata = {
+        displayName: 'java-maven',
+        icon: '/icon.png',
+        tags: ['Java'],
+        links: {
+          self: 'devfile-catalog/java-maven:1.2.0',
+        },
+      };
+      mockDateNow.mockReturnValue(1555555555555);
+      mockFetchData.mockResolvedValue([metadata]);
+      mockSessionStorageServiceGet.mockReturnValue(undefined);
+
+      const resolved = await fetchRegistryMetadata(baseUrl, true);
+
+      expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+      );
+      expect(mockFetchData).toBeCalledWith(
+        'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json',
+      );
+      expect(mockSessionStorageServiceUpdate).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+        JSON.stringify({
+          'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json': {
+            metadata: [metadata],
+            lastFetched: 1555555555555,
+          },
+        }),
+      );
+      expect(resolved).toEqual([metadata]);
+    });
+
+    it('should throw an error if fetched data is not array', async () => {
+      mockDateNow.mockReturnValue(1555555555555);
+      mockFetchData.mockResolvedValue('foo');
+      mockSessionStorageServiceGet.mockReturnValue(undefined);
+
+      let errorMessage: string | undefined;
+      try {
+        await fetchRegistryMetadata(baseUrl, true);
+      } catch (err) {
+        errorMessage = common.helpers.errors.getMessage(err);
+      }
+
+      expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+      );
+      expect(mockFetchData).toBeCalledWith(
+        'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json',
+      );
+      expect(mockSessionStorageServiceUpdate).not.toHaveBeenCalled();
+      expect(errorMessage).toEqual(
+        'Failed to fetch devfiles metadata from registry URL: https://eclipse-che.github.io/che-devfile-registry/7.71.0/, reason: Error: Returns type is not array.',
+      );
+      expect(console.error).toBeCalledWith(
+        'Failed to fetch devfiles metadata from registry URL: https://eclipse-che.github.io/che-devfile-registry/7.71.0/, reason: Error: Returns type is not array.',
+      );
+    });
+
+    it('should remove objects from fetched array which are not DevfileMetaData', async () => {
+      const metadata = {
+        displayName: 'java-maven',
+        icon: '/icon.png',
+        tags: ['Java'],
+        links: {
+          self: 'devfile-catalog/java-maven:1.2.0',
+        },
+      };
+      mockDateNow.mockReturnValue(1555555555555);
+      mockFetchData.mockResolvedValue([
+        {
+          name: 'java',
+          links: {
+            self: '/java',
+          },
+        },
+        metadata,
+        'foo',
+      ]);
+      mockSessionStorageServiceGet.mockReturnValue(undefined);
+
+      const resolved = await fetchRegistryMetadata(baseUrl, true);
+
+      expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+      );
+      expect(mockFetchData).toBeCalledWith(
+        'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json',
+      );
+      expect(console.warn).toBeCalledTimes(2);
+      expect(mockSessionStorageServiceUpdate).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+        JSON.stringify({
+          'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json': {
+            metadata: [metadata],
+            lastFetched: 1555555555555,
+          },
+        }),
+      );
+      expect(resolved).toEqual([metadata]);
+    });
+
+    it('should not fetch if registry metadata exist and elapsed time les then 60 minutes', async () => {
+      const metadata = {
+        displayName: 'java-maven',
+        icon: '/icon.png',
+        tags: ['Java'],
+        links: {
+          self: 'devfile-catalog/java-maven:1.2.0',
+        },
+      };
+      const time = 1555555555555;
+      const elapsedTime = 59 * 60 * 1000;
+      mockDateNow.mockReturnValue(time + elapsedTime);
+      mockFetchData.mockResolvedValue([metadata]);
+      mockSessionStorageServiceGet.mockReturnValue(
+        JSON.stringify({
+          'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json': {
+            metadata: [metadata],
+            lastFetched: time,
+          },
+        }),
+      );
+
+      const resolved = await fetchRegistryMetadata(baseUrl, true);
+
+      expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+      );
+      expect(mockFetchData).not.toBeCalled();
+      expect(mockSessionStorageServiceUpdate).not.toBeCalled();
+      expect(resolved).toEqual([metadata]);
+    });
+
+    it('should not fetch if registry metadata exist and elapsed time more then 60 minutes', async () => {
+      const metadata = {
+        displayName: 'java-maven',
+        icon: '/icon.png',
+        tags: ['Java'],
+        links: {
+          self: 'devfile-catalog/java-maven:1.2.0',
+        },
+      };
+      const time = 1555555555555;
+      const elapsedTime = 61 * 60 * 1000;
+      mockDateNow.mockReturnValue(time + elapsedTime);
+      mockFetchData.mockResolvedValue([metadata]);
+      mockSessionStorageServiceGet.mockReturnValue(
+        JSON.stringify({
+          'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json': {
+            metadata: [metadata],
+            lastFetched: time,
+          },
+        }),
+      );
+
+      const resolved = await fetchRegistryMetadata(baseUrl, true);
+
+      expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+      );
+      expect(mockFetchData).toBeCalledWith(
+        'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json',
+      );
+      expect(mockSessionStorageServiceUpdate).toHaveBeenCalledWith(
+        SessionStorageKey.EXTERNAL_REGISTRIES,
+        JSON.stringify({
+          'https://eclipse-che.github.io/che-devfile-registry/7.71.0/devfiles/index.json': {
+            metadata: [metadata],
+            lastFetched: time + elapsedTime,
+          },
+        }),
+      );
+      expect(resolved).toEqual([metadata]);
+    });
+  });
+
+  describe('supporting "registry.devfile.io"', () => {
     const baseUrl = 'https://registry.devfile.io/';
 
     it('should fetch registry metadata', async () => {
