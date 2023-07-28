@@ -85,6 +85,10 @@ type CheClusterDevEnvironments struct {
 	// +optional
 	// +kubebuilder:default:={pvcStrategy: per-user}
 	Storage WorkspaceStorage `json:"storage,omitempty"`
+	// PersistUserHome defines configuration options for persisting the
+	// user home directory in workspaces.
+	// +optional
+	PersistUserHome *PersistentHomeConfig `json:"persistUserHome,omitempty"`
 	// Default plug-ins applied to DevWorkspaces.
 	// +optional
 	DefaultPlugins []WorkspaceDefaultPlugins `json:"defaultPlugins,omitempty"`
@@ -296,6 +300,20 @@ type Dashboard struct {
 	// Dashboard header message.
 	// +optional
 	HeaderMessage *DashboardHeaderMessage `json:"headerMessage,omitempty"`
+	// Dashboard branding resources.
+	// +optional
+	Branding *Branding `json:"branding,omitempty"`
+}
+
+type Branding struct {
+	// Dashboard logo.
+	// +optional
+	Logo *Icon `json:"logo,omitempty"`
+}
+
+type Icon struct {
+	Data      string `json:"base64data"`
+	MediaType string `json:"mediatype"`
 }
 
 // Configuration settings related to the plug-in registry used by the Che installation.
@@ -421,6 +439,14 @@ type WorkspaceStorage struct {
 	// +kubebuilder:default:="per-user"
 	// +kubebuilder:validation:Enum=common;per-user;per-workspace;ephemeral
 	PvcStrategy string `json:"pvcStrategy,omitempty"`
+}
+
+type PersistentHomeConfig struct {
+	// Determines whether the user home directory in workspaces should persist between
+	// workspace shutdown and startup.
+	// Must be used with the 'per-user' or 'per-workspace' PVC strategy in order to take effect.
+	// Disabled by default.
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 type WorkspaceDefaultPlugins struct {
