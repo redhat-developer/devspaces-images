@@ -48,7 +48,6 @@ describe('Helpers for Personal Access Token API', () => {
           annotations: {
             'che.eclipse.org/che-userid': 'che-user',
             'che.eclipse.org/scm-url': 'https://github.com',
-            'che.eclipse.org/scm-username': 'github-user',
             'che.eclipse.org/scm-personal-access-token-name': 'github',
           },
           name: 'personal-access-token-asdf-1234',
@@ -85,7 +84,6 @@ describe('Helpers for Personal Access Token API', () => {
           annotations: {
             'che.eclipse.org/che-userid': 'che-user',
             'che.eclipse.org/scm-url': 'https://github.com',
-            'che.eclipse.org/scm-username': 'github-user',
             'che.eclipse.org/scm-personal-access-token-name': 'github',
           },
           name: 'personal-access-token-asdf-1234',
@@ -103,7 +101,6 @@ describe('Helpers for Personal Access Token API', () => {
         gitProvider: 'github',
         gitProviderEndpoint: 'https://github.com',
         gitProviderOrganization: undefined,
-        gitProviderUsername: 'github-user',
         tokenData: DUMMY_TOKEN_DATA,
       });
     });
@@ -128,7 +125,6 @@ describe('Helpers for Personal Access Token API', () => {
         cheUserId: 'che-user',
         gitProvider: 'github',
         gitProviderEndpoint: 'https://github.com',
-        gitProviderUsername: 'github-user',
         tokenData: 'base64-encoded-token-data',
       };
 
@@ -144,7 +140,6 @@ describe('Helpers for Personal Access Token API', () => {
             'che.eclipse.org/che-userid': 'che-user',
             'che.eclipse.org/scm-personal-access-token-name': 'github',
             'che.eclipse.org/scm-url': 'https://github.com',
-            'che.eclipse.org/scm-username': 'github-user',
           },
           labels: {
             'app.kubernetes.io/component': 'scm-personal-access-token',
@@ -163,7 +158,6 @@ describe('Helpers for Personal Access Token API', () => {
         cheUserId: 'che-user',
         gitProvider: 'azure-devops',
         gitProviderEndpoint: 'https://dev.azure.com',
-        gitProviderUsername: 'azure-user',
         gitProviderOrganization: 'azure-org',
         tokenData: 'base64-encoded-token-data',
       };
@@ -180,7 +174,6 @@ describe('Helpers for Personal Access Token API', () => {
             'che.eclipse.org/che-userid': token.cheUserId,
             'che.eclipse.org/scm-personal-access-token-name': token.gitProvider,
             'che.eclipse.org/scm-url': token.gitProviderEndpoint,
-            'che.eclipse.org/scm-username': token.gitProviderUsername,
             'che.eclipse.org/scm-organization': token.gitProviderOrganization,
           },
           labels: {
@@ -200,7 +193,6 @@ describe('Helpers for Personal Access Token API', () => {
         cheUserId: 'che-user',
         gitProvider: 'github',
         gitProviderEndpoint: 'https://github.com',
-        gitProviderUsername: 'github-user',
         tokenData: DUMMY_TOKEN_DATA,
       };
 

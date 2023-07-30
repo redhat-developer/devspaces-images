@@ -86,6 +86,15 @@ export function updateObjectLinks(object: any, baseUrl): any {
   return object;
 }
 
+export function getRegistryIndexUrl(registryUrl: string, isExternal: boolean): URL {
+  if (isExternal) {
+    if (new URL(registryUrl).host === 'registry.devfile.io') {
+      return new URL('index', registryUrl);
+    }
+  }
+  return new URL('devfiles/index.json', registryUrl);
+}
+
 export async function fetchRegistryMetadata(
   registryUrl: string,
   isExternal: boolean,
@@ -93,9 +102,7 @@ export async function fetchRegistryMetadata(
   registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
 
   try {
-    const registryIndexUrl = isExternal
-      ? new URL('/index', registryUrl)
-      : new URL('devfiles/index.json', registryUrl);
+    const registryIndexUrl = getRegistryIndexUrl(registryUrl, isExternal);
     if (isExternal) {
       const devfileMetaDataArr = getExternalRegistryMetadataFromStorage(registryIndexUrl.href);
       if (devfileMetaDataArr !== undefined) {

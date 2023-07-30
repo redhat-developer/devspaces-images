@@ -114,8 +114,8 @@ export class GitRepoLocationInput extends React.PureComponent<Props, State> {
               <TextContent>
                 <TextInput
                   id={fieldId}
-                  aria-label="Git URL or SSHLocation"
-                  placeholder="Enter Git URL or SSHLocation"
+                  aria-label="HTTPS or SSH URL"
+                  placeholder="Enter HTTPS or SSH URL"
                   validated={validated}
                   onChange={value => this.handleChange(value)}
                   value={location}

@@ -50,7 +50,6 @@ describe('Personal Access Token Route', () => {
         cheUserId: 'test',
         gitProvider: 'github',
         gitProviderEndpoint: 'https://github.com',
-        gitProviderUsername: 'test',
         tokenData: 'test',
       } as api.PersonalAccessToken);
 
@@ -67,7 +66,6 @@ describe('Personal Access Token Route', () => {
         cheUserId: 'test',
         gitProvider: 'github',
         gitProviderEndpoint: 'https://github.com',
-        gitProviderUsername: 'test',
         tokenData: 'test',
       } as api.PersonalAccessToken);
 

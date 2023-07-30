@@ -108,12 +108,12 @@ function provisionOpenShiftOAuthUser() {
   oc rollout status -n openshift-authentication deployment/oauth-openshift
   echo -e "[INFO] Waiting for htpasswd auth to be working up to 5 minutes"
   CURRENT_TIME=$(date +%s)
-  ENDTIME=$(($CURRENT_TIME + 300))
+  ENDTIME=$(($CURRENT_TIME + 900))
   while [ $(date +%s) -lt $ENDTIME ]; do
       if oc login -u happypath-dev -p dev --kubeconfig $TMP_KUBECONFIG; then
           return 0
       fi
-      sleep 10
+      sleep 15
   done
   echo "[ERROR] Che htpasswd changes are not affected after timeout."
   exit 1

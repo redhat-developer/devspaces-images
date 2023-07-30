@@ -1,0 +1,32 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: che-dashboard
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: che-dashboard
+      context: .
+      custom:
+        buildCommand: |
+          scripts/container_tool.sh build  --tag=$IMAGE -f build/dockerfiles/skaffold.Dockerfile . && scripts/container_tool.sh push $IMAGE
+        dependencies:
+          paths:
+            - packages/*/lib/*
+            - packages/devfile-registry
+resourceSelector:
+  allow:
+    - groupKind: 'CheCluster.org.eclipse.che'
+      image: ['.*']
+manifests:
+  rawYaml:
+    - k8s/eclipse-che.yaml
+
+profiles:
+  - name: eclipse-che
+  - name: devspaces
+    patches:
+      - op: replace
+        path: /manifests/rawYaml/0
+        value: k8s/devspaces.yaml

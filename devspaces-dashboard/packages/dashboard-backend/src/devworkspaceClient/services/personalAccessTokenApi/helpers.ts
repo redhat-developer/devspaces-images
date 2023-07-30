@@ -24,7 +24,6 @@ export const SECRET_LABELS = {
 export type TokenName = `personal-access-token-${string}`;
 export type CheUserId = string;
 export type GitProviderEndpoint = string;
-export type GitProviderUsername = string;
 export type GitProviderOrganization = string;
 export interface PersonalAccessTokenSecret extends k8s.V1Secret {
   metadata: k8s.V1ObjectMeta & {
@@ -36,7 +35,6 @@ export interface PersonalAccessTokenSecret extends k8s.V1Secret {
     annotations: {
       'che.eclipse.org/che-userid': CheUserId;
       'che.eclipse.org/scm-url': GitProviderEndpoint;
-      'che.eclipse.org/scm-username': GitProviderUsername;
     } & (
       | {
           'che.eclipse.org/scm-personal-access-token-name': Exclude<
@@ -87,7 +85,6 @@ export function toToken(secret: k8s.V1Secret): api.PersonalAccessToken {
     cheUserId: secret.metadata.annotations['che.eclipse.org/che-userid'],
     gitProvider: secret.metadata.annotations['che.eclipse.org/scm-personal-access-token-name'],
     gitProviderEndpoint: secret.metadata.annotations['che.eclipse.org/scm-url'],
-    gitProviderUsername: secret.metadata.annotations['che.eclipse.org/scm-username'],
     gitProviderOrganization: secret.metadata.annotations['che.eclipse.org/scm-organization'],
     tokenData: DUMMY_TOKEN_DATA,
   };
@@ -107,7 +104,6 @@ export function toSecret(
       'che.eclipse.org/che-userid': token.cheUserId,
       'che.eclipse.org/scm-personal-access-token-name': token.gitProvider,
       'che.eclipse.org/scm-url': token.gitProviderEndpoint,
-      'che.eclipse.org/scm-username': token.gitProviderUsername,
       'che.eclipse.org/scm-organization': token.gitProviderOrganization,
     };
   } else {
@@ -115,7 +111,6 @@ export function toSecret(
       'che.eclipse.org/che-userid': token.cheUserId,
       'che.eclipse.org/scm-personal-access-token-name': token.gitProvider,
       'che.eclipse.org/scm-url': token.gitProviderEndpoint,
-      'che.eclipse.org/scm-username': token.gitProviderUsername,
     };
   }
 

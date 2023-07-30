@@ -31,12 +31,6 @@ import {
   INVALID_GIT_PROVIDER_ORGANIZATION_BUTTON,
 } from '../GitProviderOrganization/__mocks__';
 import {
-  NEW_GIT_PROVIDER_USERNAME,
-  INVALID_GIT_PROVIDER_USERNAME,
-  INVALID_GIT_PROVIDER_USERNAME_BUTTON,
-  NEW_GIT_PROVIDER_USERNAME_BUTTON,
-} from '../GitProviderUsername/__mocks__';
-import {
   INVALID_TOKEN_DATA,
   INVALID_TOKEN_DATA_BUTTON,
   NEW_TOKEN_DATA,
@@ -52,7 +46,6 @@ import {
 jest.mock('../GitProviderEndpoint');
 jest.mock('../GitProviderOrganization');
 jest.mock('../GitProviderSelector');
-jest.mock('../GitProviderUsername');
 jest.mock('../TokenName');
 jest.mock('../TokenData');
 
@@ -65,7 +58,6 @@ const tokenName = 'token-name';
 const tokenData = 'token-data';
 const gitProvider = 'github';
 const gitProviderEndpoint = 'git-provider-endpoint';
-const gitProviderUsername = 'git-provider-username';
 const gitProviderOrganization = 'git-provider-organization';
 
 describe('AddEditModalForm', () => {
@@ -79,7 +71,6 @@ describe('AddEditModalForm', () => {
       tokenData,
       gitProvider,
       gitProviderEndpoint,
-      gitProviderUsername,
     };
     patWithOrganization = {
       ...pat,
@@ -104,9 +95,6 @@ describe('AddEditModalForm', () => {
     // git provider endpoint
     expect(screen.queryByTestId('git-provider-endpoint')).toBeTruthy();
 
-    // git provider username
-    expect(screen.queryByTestId('git-provider-username')).toBeTruthy();
-
     // there should not be the organization field
     expect(screen.queryByTestId('git-provider-organization')).toBeFalsy();
 
@@ -125,9 +113,6 @@ describe('AddEditModalForm', () => {
 
     // git provider endpoint
     expect(screen.queryByTestId('git-provider-endpoint')).toBeTruthy();
-
-    // git provider username
-    expect(screen.queryByTestId('git-provider-username')).toBeTruthy();
 
     // there should not be the organization field
     expect(screen.queryByTestId('git-provider-organization')).toBeTruthy();
@@ -262,10 +247,10 @@ describe('AddEditModalForm', () => {
       renderComponent({ isEdit: false, token: undefined });
 
       // change other field to trigger onChange event
-      const gitProviderUsernameField = screen.getByRole('button', {
-        name: NEW_GIT_PROVIDER_USERNAME_BUTTON,
+      const tokenNameField = screen.getByRole('button', {
+        name: 'Submit Valid Token Name',
       });
-      userEvent.click(gitProviderUsernameField);
+      userEvent.click(tokenNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -285,44 +270,6 @@ describe('AddEditModalForm', () => {
       expect(mockOnChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
           gitProviderEndpoint: 'https://dev.azure.com',
-        }),
-        false,
-      );
-    });
-  });
-
-  describe('Git provider username', () => {
-    it('should handle changing the git provider username to a valid value', () => {
-      renderComponent({ isEdit: true, token: pat });
-
-      // git provider username field
-      const gitProviderUsernameField = screen.getByRole('button', {
-        name: NEW_GIT_PROVIDER_USERNAME_BUTTON,
-      });
-      userEvent.click(gitProviderUsernameField);
-
-      // expect mockOnChange was called
-      expect(mockOnChange).toHaveBeenCalledWith(
-        expect.objectContaining({
-          gitProviderUsername: NEW_GIT_PROVIDER_USERNAME,
-        }),
-        true,
-      );
-    });
-
-    it('should handle changing the git provider username to an invalid value', () => {
-      renderComponent({ isEdit: true, token: pat });
-
-      // git provider username field
-      const gitProviderUsernameField = screen.getByRole('button', {
-        name: INVALID_GIT_PROVIDER_USERNAME_BUTTON,
-      });
-      userEvent.click(gitProviderUsernameField);
-
-      // expect mockOnChange was called
-      expect(mockOnChange).toHaveBeenCalledWith(
-        expect.objectContaining({
-          gitProviderUsername: INVALID_GIT_PROVIDER_USERNAME,
         }),
         false,
       );

@@ -2,7 +2,19 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 
 | Packages | Resolved CQs |
 | --- | --- |
+| `@lerna/create@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/create/5.1.8) |
+| `@lerna/npm-conf@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/npm-conf/5.1.8) |
+| `@nrwl/nx-darwin-arm64@15.9.4` | lerna transitive dependency |
+| `@nrwl/nx-darwin-x64@15.9.4` | lerna transitive dependency |
+| `@nrwl/nx-linux-arm-gnueabihf@15.9.4` | lerna transitive dependency |
+| `@nrwl/nx-linux-arm64-gnu@15.9.4` | lerna transitive dependency |
+| `@nrwl/nx-linux-arm64-musl@15.9.4` | lerna transitive dependency |
+| `@nrwl/nx-win32-arm64-msvc@15.9.4` | lerna transitive dependency |
+| `@nrwl/nx-win32-x64-msvc@15.9.4` | lerna transitive dependency |
+| `@sigstore/bundle@1.0.0` | lerna transitive dependency |
+| `@sigstore/protobuf-specs@0.2.0` | lerna transitive dependency |
 | `@testing-library/dom@7.31.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.2) |
+| `bin-links@4.0.2` | lerna transitive dependency |
 | `css-select@4.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/css-select/4.2.1) |
 | `default-gateway@6.0.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/default-gateway/6.0.3) |
 | `eslint@7.32.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint/7.32.0) |
@@ -20,9 +32,11 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `prettier@2.5.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/prettier/2.5.1) |
 | `readdirp@3.6.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/readdirp/3.6.0) |
 | `resolve-url@0.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/resolve-url/0.2.1) |
+| `sigstore@1.8.0` | lerna transitive dependency |
+| `simple-update-notifier@1.0.7` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/simple-update-notifier/1.0.7) |
 | `sockjs@0.3.24` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/sockjs/0.3.24) |
 | `source-map-url@0.4.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/source-map-url/0.4.1) |
+| `string-width-cjs@4.2.3` | lerna transitive dependency |
+| `strip-ansi-cjs@6.0.1` | lerna transitive dependency |
 | `webpack-merge@4.2.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/webpack-merge/4.2.2) |
-| `@lerna/create@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/create/5.1.8) |
-| `@lerna/npm-conf@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/npm-conf/5.1.8) |
-| `simple-update-notifier@1.0.7` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/simple-update-notifier/1.0.7) |
+| `wrap-ansi-cjs@7.0.0` | lerna transitive dependency |
