@@ -33,6 +33,16 @@ RUN \
     ./gopls version
     # END Gopls
 
+    # BEGIN Kubedock
+    mkdir /home/user/go/bin -p && \
+    cd $REMOTE_SOURCES_DIR/kubedock/app && \
+    # build kubedock application with dependencies resolved by Cachito
+    source $REMOTE_SOURCES_DIR/kubedock/cachito.env && \
+    make build && \
+    chmod +x ./kubedock && \
+    ./kubedock version
+    # END Kubedock
+
     # CRW-3193 disable until we have a camel-k sample again
     # BEGIN Kamel
     # cd $REMOTE_SOURCES_DIR/camelk/app && \
@@ -93,6 +103,7 @@ ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 COPY etc/docker.sh /usr/local/bin/docker
+COPY etc/podman-wrapper.sh /usr/bin/podman.wrapper
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -174,6 +185,9 @@ RUN \
     # TODO switch this to fuse in OCP 4.12?
     mkdir -p "${HOME}"/.config/containers && \
     (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
+    ## Rootless podman install #6: rename podman to allow the execution of 'podman run' using
+    ##                             kubedock but 'podman build' using podman.orig
+    mv /usr/bin/podman /usr/bin/podman.orig
     # set up go/bin folder
     mkdir /home/user/go/bin -p
 
@@ -310,6 +324,8 @@ xdebug.log=\${HOME}/xdebug.log" >> /etc/php.ini && \
 
 # see container.yaml
 COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls $HOME/go/bin/gopls
+COPY --from=go-builder $REMOTE_SOURCES_DIR/kubedock/app/kubedock $HOME/go/bin/kubedock
+
 
     ########################################################################
     # Cleanup and Summaries
