@@ -56,3 +56,11 @@ remote_sources:
 #     pkg_managers:
 #       - gomod
 #     packages: {"gomod": [ "path": "." ]}
+
+# https://github.com/joyrex2001/kubedock/releases/tag/0.11.0 => https://github.com/joyrex2001/kubedock/commit/9d21955b52e4905d916d24e724dcad195aef3515
+- name: kubedock
+  remote_source:
+    repo: https://github.com/joyrex2001/kubedock
+    ref: 9d21955b52e4905d916d24e724dcad195aef3515
+    pkg_managers:
+      - gomod
