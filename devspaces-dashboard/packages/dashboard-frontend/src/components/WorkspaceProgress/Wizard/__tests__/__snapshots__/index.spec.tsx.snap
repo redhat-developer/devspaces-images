@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WorkspaceProgressWizard component snapshot 1`] = `
+<div
+  className="progress pf-c-wizard"
+>
+  <button
+    aria-expanded={true}
+    aria-label="Wizard Toggle"
+    className="pf-c-wizard__toggle pf-m-expanded"
+    onClick={[Function]}
+  >
+    <ol
+      className="pf-c-wizard__toggle-list"
+    >
+      <li
+        className="pf-c-wizard__toggle-list-item"
+      >
+        <span
+          className="pf-c-wizard__toggle-num"
+        />
+         
+      </li>
+    </ol>
+    <span
+      className="pf-c-wizard__toggle-icon"
+    >
+      <svg
+        aria-hidden="true"
+        aria-labelledby={null}
+        fill="currentColor"
+        height="1em"
+        role="img"
+        style={
+          Object {
+            "verticalAlign": "-0.125em",
+          }
+        }
+        viewBox="0 0 320 512"
+        width="1em"
+      >
+        <path
+          d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+        />
+      </svg>
+    </span>
+  </button>
+  <div
+    className="pf-c-wizard__outer-wrap"
+  >
+    <div
+      className="pf-c-wizard__inner-wrap"
+    >
+      <nav
+        aria-label="Workspace Progress Steps"
+        className="pf-c-wizard__nav pf-m-expanded"
+      >
+        <ol
+          className="pf-c-wizard__nav-list"
+        >
+          <li
+            className="pf-c-wizard__nav-item"
+          >
+            <button
+              aria-current={false}
+              aria-disabled={null}
+              className="pf-c-wizard__nav-link"
+              disabled={false}
+              onClick={[Function]}
+            >
+              initialize
+            </button>
+          </li>
+          <li
+            className="pf-c-wizard__nav-item"
+          >
+            <button
+              aria-current="page"
+              aria-disabled={null}
+              className="pf-c-wizard__nav-link pf-m-current"
+              disabled={false}
+              onClick={[Function]}
+            >
+              limit-check
+            </button>
+          </li>
+          <li
+            className="pf-c-wizard__nav-item"
+          >
+            <button
+              aria-current={false}
+              aria-disabled={null}
+              className="pf-c-wizard__nav-link"
+              disabled={false}
+              onClick={[Function]}
+            >
+              create
+            </button>
+            <ol
+              className="pf-c-wizard__nav-list"
+            >
+              <li
+                className="pf-c-wizard__nav-item"
+              >
+                <button
+                  aria-current={false}
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-disabled"
+                  disabled={true}
+                  onClick={[Function]}
+                >
+                  fetch
+                </button>
+              </li>
+              <li
+                className="pf-c-wizard__nav-item"
+              >
+                <button
+                  aria-current={false}
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-disabled"
+                  disabled={true}
+                  onClick={[Function]}
+                >
+                  conflict-check
+                </button>
+              </li>
+              <li
+                className="pf-c-wizard__nav-item"
+              >
+                <button
+                  aria-current={false}
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-disabled"
+                  disabled={true}
+                  onClick={[Function]}
+                >
+                  apply
+                </button>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </nav>
+      <div
+        aria-label={null}
+        aria-labelledby={null}
+        className="pf-c-wizard__main"
+      >
+        <div
+          className="pf-c-wizard__main-body"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -2,12 +2,12 @@
 
 exports[`LoaderProgress workspace creation flow snapshot 1`] = `
 <div
-  className="pf-c-wizard progress"
+  className="progress pf-c-wizard"
 >
   <button
-    aria-expanded={false}
+    aria-expanded={true}
     aria-label="Wizard Toggle"
-    className="pf-c-wizard__toggle"
+    className="pf-c-wizard__toggle pf-m-expanded"
     onClick={[Function]}
   >
     <ol
@@ -18,45 +18,8 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
       >
         <span
           className="pf-c-wizard__toggle-num"
-        >
-          1
-        </span>
+        />
          
-        <div
-          data-testid="progress-step"
-        >
-          <span
-            data-testid="step-distance"
-          >
-            0
-          </span>
-          <span
-            data-testid="step-name"
-          >
-            Creating step: Initialize
-          </span>
-          <input
-            data-testid="onError"
-            name="onError"
-            onClick={[Function]}
-            type="button"
-            value="onError"
-          />
-          <input
-            data-testid="onRestart"
-            name="onRestart"
-            onClick={[Function]}
-            type="button"
-            value="onRestart"
-          />
-          <input
-            data-testid="onNextStep"
-            name=" onNextStep"
-            onClick={[Function]}
-            type="button"
-            value="onNextStep"
-          />
-        </div>
       </li>
     </ol>
     <span
@@ -89,9 +52,8 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
       className="pf-c-wizard__inner-wrap"
     >
       <nav
-        aria-label={null}
-        aria-labelledby={null}
-        className="pf-c-wizard__nav"
+        aria-label="Workspace Progress Steps"
+        className="pf-c-wizard__nav pf-m-expanded"
       >
         <ol
           className="pf-c-wizard__nav-list"
@@ -244,9 +206,9 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
               >
                 <button
                   aria-current={false}
-                  aria-disabled={null}
-                  className="pf-c-wizard__nav-link"
-                  disabled={false}
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-disabled"
+                  disabled={true}
                   onClick={[Function]}
                 >
                   <div
@@ -291,9 +253,9 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
               >
                 <button
                   aria-current={false}
-                  aria-disabled={null}
-                  className="pf-c-wizard__nav-link"
-                  disabled={false}
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-disabled"
+                  disabled={true}
                   onClick={[Function]}
                 >
                   <div
@@ -338,9 +300,9 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
               >
                 <button
                   aria-current={false}
-                  aria-disabled={null}
-                  className="pf-c-wizard__nav-link"
-                  disabled={false}
+                  aria-disabled={true}
+                  className="pf-c-wizard__nav-link pf-m-disabled"
+                  disabled={true}
                   onClick={[Function]}
                 >
                   <div
@@ -494,12 +456,12 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
 
 exports[`LoaderProgress workspace staring flow snapshot 1`] = `
 <div
-  className="pf-c-wizard progress"
+  className="progress pf-c-wizard"
 >
   <button
-    aria-expanded={false}
+    aria-expanded={true}
     aria-label="Wizard Toggle"
-    className="pf-c-wizard__toggle"
+    className="pf-c-wizard__toggle pf-m-expanded"
     onClick={[Function]}
   >
     <ol
@@ -510,45 +472,8 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
       >
         <span
           className="pf-c-wizard__toggle-num"
-        >
-          1
-        </span>
+        />
          
-        <div
-          data-testid="progress-step"
-        >
-          <span
-            data-testid="step-distance"
-          >
-            0
-          </span>
-          <span
-            data-testid="step-name"
-          >
-            Starting step: Initialize
-          </span>
-          <input
-            data-testid="onError"
-            name="onError"
-            onClick={[Function]}
-            type="button"
-            value="onError"
-          />
-          <input
-            data-testid="onRestart"
-            name="onRestart"
-            onClick={[Function]}
-            type="button"
-            value="onRestart"
-          />
-          <input
-            data-testid="onNextStep"
-            name=" onNextStep"
-            onClick={[Function]}
-            type="button"
-            value="onNextStep"
-          />
-        </div>
       </li>
     </ol>
     <span
@@ -581,9 +506,8 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
       className="pf-c-wizard__inner-wrap"
     >
       <nav
-        aria-label={null}
-        aria-labelledby={null}
-        className="pf-c-wizard__nav"
+        aria-label="Workspace Progress Steps"
+        className="pf-c-wizard__nav pf-m-expanded"
       >
         <ol
           className="pf-c-wizard__nav-list"
