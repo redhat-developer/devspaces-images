@@ -74,7 +74,7 @@ fi
 # If KUBEDOCK_ENABLED="true" then link podman to /usr/bin/podman.wrapper
 # else link podman to /usr/bin/podman.orig
 #############################################################################
-if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
+if [[ "${KUBEDOCK_ENABLED:-false}" == "true" ]]; then
     echo
     echo "Kubedock is enabled (env variable KUBEDOCK_ENABLED is set to true)."
 
