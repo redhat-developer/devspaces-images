@@ -71,7 +71,7 @@ if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
 fi
 
 #############################################################################
-# If KUBEDOCK_ENABLED="true" then link podman to /usr/bin/podman.wrapper
+# If KUBEDOCK_ENABLED="true" then link podman to /usr/bin/podman-wrapper.sh
 # else link podman to /usr/bin/podman.orig
 #############################################################################
 if [[ "${KUBEDOCK_ENABLED:-false}" == "true" ]]; then
