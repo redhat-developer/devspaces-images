@@ -9,9 +9,12 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM ubi8/nodejs-16:1-111.1689167503 as builder
+FROM ubi8/nodejs-16:1-111.1690901930 as builder
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
+# https://docs.engineering.redhat.com/pages/viewpage.action?pageId=228017926#UpstreamSources%28Cachito,ContainerFirst%29-CachitoIntegrationforyarn
+# CRW-4644 Use RedHat nodejs headers to prevent node-gyp from trying to download them
+RUN dnf module install -y nodejs:16/development
 
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
@@ -36,7 +39,7 @@ RUN yarn build
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM ubi8/nodejs-16:1-111.1689167503
+FROM ubi8/nodejs-16:1-111.1690901930
 USER 0
 
 RUN \
