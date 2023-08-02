@@ -10,18 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
+import k8s from '@kubernetes/client-node';
 import {
   buildLabelSelector,
+  DUMMY_TOKEN_DATA,
+  isPatSecret,
+  PersonalAccessTokenSecret,
   toSecret,
   toSecretName,
   toToken,
-  isPatSecret,
-  PersonalAccessTokenSecret,
-  TokenName,
-  DUMMY_TOKEN_DATA,
 } from '../helpers';
-import k8s from '@kubernetes/client-node';
-import { api } from '@eclipse-che/common';
 
 describe('Helpers for Personal Access Token API', () => {
   test('buildLabelSelector', () => {

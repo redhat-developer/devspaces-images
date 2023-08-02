@@ -238,7 +238,7 @@ describe('LoaderProgress', () => {
           const localState: Partial<State> = {
             alertItems: [],
             // active step is "check running workspaces limit"
-            activeStep: Step.LIMIT_CHECK,
+            activeStepId: Step.LIMIT_CHECK,
             // step "initialize" is done
             doneSteps: [Step.INITIALIZE],
             factoryParams,
@@ -286,7 +286,7 @@ describe('LoaderProgress', () => {
           const localState: Partial<State> = {
             alertItems: [],
             // active step is "check running workspaces limit"
-            activeStep: Step.OPEN, // <-- 8th step, active
+            activeStepId: Step.OPEN, // <-- 8th step, active
             doneSteps: [
               Step.INITIALIZE,
               Step.LIMIT_CHECK,
@@ -332,7 +332,7 @@ describe('LoaderProgress', () => {
           const localState: Partial<State> = {
             alertItems: [],
             // active step is "check running workspaces limit"
-            activeStep: Step.LIMIT_CHECK,
+            activeStepId: Step.LIMIT_CHECK,
             // step "initialize" is done
             doneSteps: [Step.INITIALIZE],
             factoryParams,
@@ -449,7 +449,6 @@ describe('LoaderProgress', () => {
 
 function getSteps() {
   const steps = screen.getAllByTestId('progress-step');
-  steps.shift(); // remove the first element which is the wizard toggle
   return steps;
 }
 

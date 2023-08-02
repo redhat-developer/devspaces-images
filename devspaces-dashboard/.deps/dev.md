@@ -648,6 +648,7 @@
 | [`lodash.truncate@4.4.2`](https://github.com/lodash/lodash.git) | MIT | clearlydefined |
 | [`log-symbols@4.1.0`](https://github.com/sindresorhus/log-symbols.git) | MIT | clearlydefined |
 | [`lower-case@2.0.2`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
+| [`lru-cache@7.13.1`](git://github.com/isaacs/node-lru-cache.git) | ISC | #3076 |
 | [`lz-string@1.4.4`](https://github.com/pieroxy/lz-string.git) | WTFPL | #1378 |
 | [`make-dir@3.1.0`](https://github.com/sindresorhus/make-dir.git) | MIT | clearlydefined |
 | [`make-error@1.3.6`](git://github.com/JsCommunity/make-error.git) | ISC | clearlydefined |
@@ -980,7 +981,7 @@
 | [`which-module@2.0.0`](git+https://github.com/nexdrew/which-module.git) | ISC | #8224 |
 | [`wide-align@1.1.5`](https://github.com/iarna/wide-align) | ISC | clearlydefined |
 | [`wildcard@2.0.0`](git://github.com/DamonOehlman/wildcard.git) | MIT | #8274 |
-| [`word-wrap@1.2.3`](https://github.com/jonschlinkert/word-wrap.git) | MIT | clearlydefined |
+| [`word-wrap@1.2.4`](https://github.com/jonschlinkert/word-wrap.git) | MIT | clearlydefined |
 | [`wordwrap@1.0.0`](git://github.com/substack/node-wordwrap.git) | MIT | clearlydefined |
 | [`wrap-ansi-cjs@7.0.0`](https://github.com/chalk/wrap-ansi.git) | MIT | lerna transitive dependency |
 | [`wrap-ansi@7.0.0`](https://github.com/chalk/wrap-ansi.git) | MIT | clearlydefined |

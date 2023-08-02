@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.72.0",
+  "version": "7.73.0",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {

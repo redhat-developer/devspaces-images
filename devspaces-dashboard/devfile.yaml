@@ -37,7 +37,7 @@ commands:
       label: "[UD] build"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn build"
+      commandLine: "yarn install --non-interactive && yarn build"
       group:
         kind: build
   - id: watchfrontend
@@ -66,10 +66,10 @@ commands:
         kind: build
   - id: dogfoodingprepare
     exec:
-      label: "[UD] dogfooding prepare"
+      label: "[UD] dogfooding start"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "oc project dogfooding && export CHE_NAMESPACE='dogfooding' && export NAMESPACE='dogfooding' && yarn start:prepare"
+      commandLine: "oc project dogfooding && export CHE_NAMESPACE='dogfooding' && export NAMESPACE='dogfooding' && yarn start:prepare && yarn start -c"
       group:
         kind: build
   - id: startcheinche
@@ -77,7 +77,7 @@ commands:
       label: "[UD] start che-in-che"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "oc project dogfooding && export CHE_NAMESPACE='dogfooding' && export NAMESPACE='dogfooding' && yarn start -c"
+      commandLine: "yarn start:prepare && yarn start -c"
       group:
         kind: build
   - id: start
@@ -85,7 +85,7 @@ commands:
       label: "[UD] start"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn start"
+      commandLine: "yarn start:prepare && yarn start"
       group:
         kind: build
   - id: runtests

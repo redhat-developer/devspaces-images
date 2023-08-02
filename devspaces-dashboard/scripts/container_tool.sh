@@ -14,10 +14,10 @@ container_tool() {
     local command=$1
     shift
 
-    if check_command "docker"; then
-        CONTAINER_TOOL="docker"
-    elif check_command "podman"; then
+    if check_command "podman"; then
         CONTAINER_TOOL="podman"
+    elif check_command "docker"; then
+        CONTAINER_TOOL="docker"
     else
         echo "Error: Docker or Podman not found on the system."
         exit 1

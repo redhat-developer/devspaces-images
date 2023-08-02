@@ -30,13 +30,6 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
   @lazyInject(AppAlerts)
   private appAlerts: AppAlerts;
 
-  public componentDidMount(): void {
-    const { isLoading, requestWorkspaces } = this.props;
-    if (!isLoading) {
-      requestWorkspaces();
-    }
-  }
-
   render() {
     const { branding, history, allWorkspaces, isLoading } = this.props;
 
