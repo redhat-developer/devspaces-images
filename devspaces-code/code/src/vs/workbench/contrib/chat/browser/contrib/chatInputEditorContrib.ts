@@ -23,6 +23,7 @@ import { LifecyclePhase } from 'vs/workbench/services/lifecycle/common/lifecycle
 import { ChatInputPart } from 'vs/workbench/contrib/chat/browser/chatInputPart';
 import { IChatService } from 'vs/workbench/contrib/chat/common/chatService';
 import { SlashCommandContentWidget } from 'vs/workbench/contrib/chat/browser/chatSlashCommandContentWidget';
+import { SubmitAction } from 'vs/workbench/contrib/chat/browser/actions/chatExecuteActions';
 
 const decorationDescription = 'chat';
 const slashCommandPlaceholderDecorationType = 'chat-session-detail';
@@ -118,14 +119,14 @@ class InputEditorDecorations extends Disposable {
 					range: {
 						startLineNumber: 1,
 						endLineNumber: 1,
-						startColumn: command && typeof command !== 'string' ? (command?.command.length + 2) : 1,
+						startColumn: command ? command.command.length : 1,
 						endColumn: 1000
 					},
 					renderOptions: {
 						after: {
 							contentText: shouldRenderFollowupPlaceholder ? command.followupPlaceholder : command.detail,
 							color: this.getPlaceholderColor(),
-							padding: '0 0 0 5px'
+							padding: '0 0 0 3px'
 						}
 					}
 				}];
@@ -165,7 +166,7 @@ class InputEditorDecorations extends Disposable {
 	}
 }
 
-class InputEditorSlashCommandFollowups extends Disposable {
+class InputEditorSlashCommandMode extends Disposable {
 	constructor(
 		private readonly widget: IChatWidget,
 		@IChatService private readonly chatService: IChatService
@@ -194,7 +195,7 @@ class InputEditorSlashCommandFollowups extends Disposable {
 	}
 }
 
-ChatWidget.CONTRIBS.push(InputEditorDecorations, InputEditorSlashCommandFollowups);
+ChatWidget.CONTRIBS.push(InputEditorDecorations, InputEditorSlashCommandMode);
 
 class SlashCommandCompletions extends Disposable {
 	constructor(
@@ -226,11 +227,12 @@ class SlashCommandCompletions extends Disposable {
 						const withSlash = `/${c.command}`;
 						return <CompletionItem>{
 							label: withSlash,
-							insertText: `${withSlash} `,
+							insertText: c.executeImmediately ? '' : `${withSlash} `,
 							detail: c.detail,
 							range: new Range(1, 1, 1, 1),
 							sortText: c.sortText ?? c.command,
-							kind: CompletionItemKind.Text // The icons are disabled here anyway
+							kind: CompletionItemKind.Text, // The icons are disabled here anyway,
+							command: c.executeImmediately ? { id: SubmitAction.ID, title: withSlash, arguments: [{ widget, inputValue: `${withSlash} ` }] } : undefined,
 						};
 					})
 				};

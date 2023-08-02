@@ -43,7 +43,7 @@ export interface IChatResponse {
 }
 
 export type IChatProgress =
-	{ content: string } | { requestId: string };
+	{ content: string } | { requestId: string } | { placeholder: string; resolvedContent: Promise<string> };
 
 export interface IPersistedChatState { }
 export interface IChatProvider {
@@ -67,10 +67,26 @@ export interface ISlashCommandProvider {
 
 export interface ISlashCommand {
 	command: string;
-	shouldRepopulate?: boolean;
 	provider?: ISlashCommandProvider;
 	sortText?: string;
 	detail?: string;
+
+	/**
+	 * Whether the command should execute as soon
+	 * as it is entered. Defaults to `false`.
+	 */
+	executeImmediately?: boolean;
+	/**
+	 * Whether executing the command puts the
+	 * chat into a persistent mode, where the
+	 * slash command is prepended to the chat input.
+	 */
+	shouldRepopulate?: boolean;
+	/**
+	 * Placeholder text to render in the chat input
+	 * when the slash command has been repopulated.
+	 * Has no effect if `shouldRepopulate` is `false`.
+	 */
 	followupPlaceholder?: string;
 }
 
@@ -173,11 +189,16 @@ export interface IChatProviderInfo {
 	displayName: string;
 }
 
+export interface IChatTransferredSessionData {
+	sessionId: string;
+	inputValue: string;
+}
+
 export const IChatService = createDecorator<IChatService>('IChatService');
 
 export interface IChatService {
 	_serviceBrand: undefined;
-	transferredSessionId: string | undefined;
+	transferredSessionData: IChatTransferredSessionData | undefined;
 
 	onDidSubmitSlashCommand: Event<{ slashCommand: string; sessionId: string }>;
 	registerProvider(provider: IChatProvider): IDisposable;
@@ -185,6 +206,7 @@ export interface IChatService {
 	getProviderInfos(): IChatProviderInfo[];
 	startSession(providerId: string, token: CancellationToken): ChatModel | undefined;
 	getSession(sessionId: string): IChatModel | undefined;
+	getSessionId(sessionProviderId: number): string | undefined;
 	getOrRestoreSession(sessionId: string): IChatModel | undefined;
 	loadSessionFromContent(data: ISerializableChatData): IChatModel | undefined;
 
@@ -205,5 +227,5 @@ export interface IChatService {
 	onDidPerformUserAction: Event<IChatUserActionEvent>;
 	notifyUserAction(event: IChatUserActionEvent): void;
 
-	transferChatSession(sessionProviderId: number, toWorkspace: URI): void;
+	transferChatSession(transferredSessionData: IChatTransferredSessionData, toWorkspace: URI): void;
 }
