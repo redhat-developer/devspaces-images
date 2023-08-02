@@ -100,7 +100,7 @@ if [[ "${KUBEDOCK_ENABLED:-false}" == "true" ]]; then
     echo "Replacing podman with podman-wrapper.sh..."
 
     mkdir -p /home/user/.local/bin/
-    ln -f -s /usr/bin/podman.wrapper /home/user/.local/bin/podman
+    ln -f -s /usr/bin/podman-wrapper.sh /home/user/.local/bin/podman
 
     export TESTCONTAINERS_RYUK_DISABLED="true"
     export TESTCONTAINERS_CHECKS_DISABLE="true"
