@@ -42,7 +42,6 @@ RUN microdnf -y install shadow-utils && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 USER appuser
-COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /usr/local/bin/configbump /usr/local/bin/configbump
 ENTRYPOINT [ "/usr/local/bin/configbump" ]
 
