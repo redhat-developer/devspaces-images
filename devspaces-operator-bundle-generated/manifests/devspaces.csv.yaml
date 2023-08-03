@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:30bddd75f6e2e43153646a9ce85710fcc5b2e7158097a34098fa4d5217e8ac4b
-    createdAt: "2023-07-30T10:17:23+00:00"
+    createdAt: "2023-08-03T18:49:55+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1241,7 +1241,7 @@ spec:
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
-  replaces: devspacesoperator.v3.7.0
+  replaces: devspacesoperator.v3.7.1
   relatedImages:
   - name: devspaces-rhel8-operator-30bddd75f6e2e43153646a9ce85710fcc5b2e7158097a34098fa4d5217e8ac4b-annotation
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:30bddd75f6e2e43153646a9ce85710fcc5b2e7158097a34098fa4d5217e8ac4b
