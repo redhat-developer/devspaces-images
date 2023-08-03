@@ -17,15 +17,13 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { WorkspaceParams } from '../../../../Routes/routes';
 import { isAvailableEndpoint } from '../../../../services/helpers/api-ping';
-import { delay } from '../../../../services/helpers/delay';
-import { DisposableCollection } from '../../../../services/helpers/disposable';
 import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, LoaderTab } from '../../../../services/helpers/types';
 import { Workspace } from '../../../../services/workspace-adapter';
 import { AppState } from '../../../../store';
 import * as WorkspaceStore from '../../../../store/Workspaces';
 import { selectAllWorkspaces } from '../../../../store/Workspaces/selectors';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../const';
+import { TIMEOUT_TO_GET_URL_SEC } from '../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
 import { ProgressStepTitle } from '../../StepTitle';
 import { TimeLimit } from '../../TimeLimit';
@@ -38,7 +36,6 @@ export type State = ProgressStepState;
 
 class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
   protected readonly name = 'Open IDE';
-  protected readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
     super(props);
@@ -65,9 +62,11 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
   }
 
   public async componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
+  }
+
+  public componentWillUnmount(): void {
+    this.toDispose.dispose();
   }
 
   public shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -94,10 +93,6 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
     return false;
   }
 
-  public componentWillUnmount(): void {
-    this.toDispose.dispose();
-  }
-
   protected handleRestart(alertKey: string, tab: LoaderTab): void {
     this.props.onHideError(alertKey);
 
@@ -113,8 +108,6 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
   }
 
   protected async runStep(): Promise<boolean> {
-    await delay(MIN_STEP_DURATION_MS);
-
     const { matchParams } = this.props;
     const workspace = this.findTargetWorkspace(this.props);
 

@@ -17,7 +17,6 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { WorkspaceParams } from '../../../../Routes/routes';
 import { delay } from '../../../../services/helpers/delay';
-import { DisposableCollection } from '../../../../services/helpers/disposable';
 import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../services/helpers/types';
 import { Workspace } from '../../../../services/workspace-adapter';
@@ -37,7 +36,6 @@ export type State = ProgressStepState;
 
 class StartingStepInitialize extends ProgressStep<Props, State> {
   protected readonly name = 'Initializing';
-  protected readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
     super(props);
@@ -60,8 +58,6 @@ class StartingStepInitialize extends ProgressStep<Props, State> {
   }
 
   public async componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
   }
 
@@ -117,6 +113,12 @@ class StartingStepInitialize extends ProgressStep<Props, State> {
 
     const { matchParams } = this.props;
     const workspace = this.findTargetWorkspace(this.props);
+
+    // if the current step error
+    if (this.state.lastError !== undefined) {
+      // wait, do not switch to the next step
+      return false;
+    }
 
     if (matchParams === undefined) {
       throw new Error('Cannot determine the workspace to start.');

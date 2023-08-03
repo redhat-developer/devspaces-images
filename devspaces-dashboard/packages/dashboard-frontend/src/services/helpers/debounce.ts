@@ -10,24 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { injectable } from 'inversify';
-
-type DebounceEventHandler = (onStart: boolean) => void;
+type DebounceEventHandler = () => void;
 
 /**
  * This class is handling debounce time service
  * @author Oleksii Orel
  */
-@injectable()
 export class Debounce {
-  private isWaiting = false;
   private delayTimer: number | undefined;
   private handlers: DebounceEventHandler[] = [];
 
-  private onExecute(isWaiting: boolean): void {
-    this.isWaiting = isWaiting;
+  private onExecute(): void {
     this.handlers.forEach(handler => {
-      handler(isWaiting);
+      handler();
     });
   }
 
@@ -35,14 +30,13 @@ export class Debounce {
    * Execute all handlers depends on dueTime
    * @param dueTime
    */
-  execute(dueTime = 5000): void {
+  execute(dueTime = 500): void {
     if (this.delayTimer) {
-      return;
+      window.clearTimeout(this.delayTimer);
     }
-    this.onExecute(true);
     this.delayTimer = window.setTimeout(() => {
-      this.onExecute(false);
       this.delayTimer = undefined;
+      this.onExecute();
     }, dueTime);
   }
 
@@ -51,7 +45,10 @@ export class Debounce {
    * @param handler
    */
   subscribe(handler: DebounceEventHandler): void {
-    this.handlers.push(handler);
+    const index = this.handlers.indexOf(handler);
+    if (index === -1) {
+      this.handlers.push(handler);
+    }
   }
 
   /**
@@ -63,12 +60,8 @@ export class Debounce {
     if (index !== -1) {
       this.handlers.splice(index, 1);
     }
-  }
-
-  /**
-   * Unsubscribe from all execute events
-   */
-  unsubscribeAll(): void {
-    this.handlers = [];
+    if (this.handlers.length === 0 && this.delayTimer) {
+      window.clearTimeout(this.delayTimer);
+    }
   }
 }

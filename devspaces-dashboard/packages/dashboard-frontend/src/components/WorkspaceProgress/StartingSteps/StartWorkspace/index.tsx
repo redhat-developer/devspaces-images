@@ -16,8 +16,6 @@ import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { WorkspaceParams } from '../../../../Routes/routes';
-import { delay } from '../../../../services/helpers/delay';
-import { DisposableCollection } from '../../../../services/helpers/disposable';
 import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../services/helpers/types';
 import { Workspace } from '../../../../services/workspace-adapter';
@@ -25,7 +23,6 @@ import { AppState } from '../../../../store';
 import { selectStartTimeout } from '../../../../store/ServerConfig/selectors';
 import * as WorkspaceStore from '../../../../store/Workspaces';
 import { selectAllWorkspaces } from '../../../../store/Workspaces/selectors';
-import { MIN_STEP_DURATION_MS } from '../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
 import { ProgressStepTitle } from '../../StepTitle';
 import { TimeLimit } from '../../TimeLimit';
@@ -41,7 +38,6 @@ export type State = ProgressStepState & {
 
 class StartingStepStartWorkspace extends ProgressStep<Props, State> {
   protected readonly name = 'Waiting for workspace to start';
-  protected readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
     super(props);
@@ -57,8 +53,6 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
   }
 
   public async componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
   }
 
@@ -128,8 +122,6 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
    * The resolved boolean indicates whether to go to the next step or not
    */
   protected async runStep(): Promise<boolean> {
-    await delay(MIN_STEP_DURATION_MS);
-
     const { matchParams } = this.props;
     if (matchParams === undefined) {
       throw new Error('Cannot determine the workspace to start.');

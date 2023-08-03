@@ -10726,11 +10726,6 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
-real-cancellable-promise@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/real-cancellable-promise/-/real-cancellable-promise-1.1.1.tgz"
-  integrity sha512-vxanUX4Aff5sRX6Rb1CSeCDWhO20L0hKQXWTLOYbtRo9WYFMjlhEBX0E75iz3+7ucrmFdPpDolwLC7L65P7hag==
-
 recast@^0.11.17:
   version "0.11.23"
   resolved "https://registry.npmjs.org/recast/-/recast-0.11.23.tgz"

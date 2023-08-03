@@ -90,8 +90,6 @@ export class StartingStepWorkspaceConditions extends ProgressStep<Props, State> 
   }
 
   public async componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
   }
 

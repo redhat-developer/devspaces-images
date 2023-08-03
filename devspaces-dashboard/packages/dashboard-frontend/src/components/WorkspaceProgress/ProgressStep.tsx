@@ -13,9 +13,10 @@
 import { helpers } from '@eclipse-che/common';
 import { History } from 'history';
 import React from 'react';
-import { Cancellation, pseudoCancellable } from 'real-cancellable-promise';
 import { DisposableCollection } from '../../services/helpers/disposable';
 import { AlertItem, LoaderTab } from '../../services/helpers/types';
+import { Debounce } from '../../services/helpers/debounce';
+import { MIN_STEP_DURATION_MS } from './const';
 
 export type ProgressStepProps = {
   distance: -1 | 0 | 1 | undefined;
@@ -34,35 +35,42 @@ export abstract class ProgressStep<
   P extends ProgressStepProps,
   S extends ProgressStepState,
 > extends React.Component<P, S> {
-  protected readonly toDispose = new DisposableCollection();
+  protected readonly toDispose: DisposableCollection;
 
   protected abstract readonly name: string;
   protected abstract runStep(): Promise<boolean>;
   protected abstract buildAlertItem(error: Error): AlertItem;
 
-  protected async prepareAndRun(): Promise<void> {
+  private readonly debounce: Debounce;
+  private readonly callback = async () => {
     try {
-      const stepCancellablePromise = pseudoCancellable(this.runStep());
-      this.toDispose.push({
-        dispose: () => {
-          stepCancellablePromise.cancel();
-        },
-      });
-      const jumpToNextStep = await stepCancellablePromise;
-      if (jumpToNextStep === true) {
+      const jumpToNextStep = await this.runStep();
+      if (jumpToNextStep) {
         this.props.onNextStep();
       }
     } catch (e) {
       this.handleError(e);
     }
+  };
+
+  protected constructor(props) {
+    super(props);
+
+    this.debounce = new Debounce();
+    this.toDispose = new DisposableCollection();
+    this.toDispose.push({
+      dispose: () => {
+        this.debounce.unsubscribe(this.callback);
+      },
+    });
+  }
+
+  protected prepareAndRun(): void {
+    this.debounce.subscribe(this.callback);
+    this.debounce.execute(MIN_STEP_DURATION_MS);
   }
 
   protected handleError(e: unknown) {
-    if (e instanceof Cancellation) {
-      // component updated, do nothing
-      return;
-    }
-
     const error: Error = e instanceof Error ? e : new Error(helpers.errors.getMessage(e));
 
     this.setState({

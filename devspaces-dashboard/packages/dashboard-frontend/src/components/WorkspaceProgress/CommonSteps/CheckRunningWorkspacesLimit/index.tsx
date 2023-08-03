@@ -17,8 +17,6 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { ToggleBarsContext } from '../../../../contexts/ToggleBars';
 import { WorkspaceParams } from '../../../../Routes/routes';
-import { delay } from '../../../../services/helpers/delay';
-import { DisposableCollection } from '../../../../services/helpers/disposable';
 import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
 import { buildHomeLocation, buildIdeLoaderLocation } from '../../../../services/helpers/location';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../services/helpers/types';
@@ -33,7 +31,7 @@ import {
   selectAllWorkspaces,
   selectRunningWorkspaces,
 } from '../../../../store/Workspaces/selectors';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_STOP_SEC } from '../../const';
+import { TIMEOUT_TO_STOP_SEC } from '../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
 import { ProgressStepTitle } from '../../StepTitle';
 import { TimeLimit } from '../../TimeLimit';
@@ -53,8 +51,6 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
   static contextType = ToggleBarsContext;
   readonly context: React.ContextType<typeof ToggleBarsContext>;
 
-  protected readonly toDispose = new DisposableCollection();
-
   constructor(props: Props) {
     super(props);
 
@@ -69,8 +65,6 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
   }
 
   public async componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
   }
 
@@ -130,8 +124,6 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
    * The resolved boolean indicates whether to go to the next step or not
    */
   protected async runStep(): Promise<boolean> {
-    await delay(MIN_STEP_DURATION_MS);
-
     const { runningWorkspacesLimit } = this.props;
     const { shouldStop, redundantWorkspaceUID } = this.state;
 

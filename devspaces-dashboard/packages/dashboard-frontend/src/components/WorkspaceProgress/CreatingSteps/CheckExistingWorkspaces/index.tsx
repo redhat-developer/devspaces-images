@@ -15,7 +15,6 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { delay } from '../../../../services/helpers/delay';
 import {
   buildFactoryParams,
   FactoryParams,
@@ -30,16 +29,8 @@ import {
   selectFactoryResolverConverted,
 } from '../../../../store/FactoryResolver/selectors';
 import { selectAllWorkspaces } from '../../../../store/Workspaces/selectors';
-import { MIN_STEP_DURATION_MS } from '../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
 import { ProgressStepTitle } from '../../StepTitle';
-
-export class WorkspacesNameConflictError extends Error {
-  constructor(message: string | undefined) {
-    super(message);
-    this.name = 'RunningWorkspacesExceededError';
-  }
-}
 
 export type Props = MappedProps &
   ProgressStepProps & {
@@ -71,8 +62,6 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
   }
 
   public componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
   }
 
@@ -140,8 +129,6 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
   }
 
   protected async runStep(): Promise<boolean> {
-    await delay(MIN_STEP_DURATION_MS);
-
     const { devWorkspaceResources, factoryResolver, factoryResolverConverted } = this.props;
     const { factoryParams, shouldCreate } = this.state;
 

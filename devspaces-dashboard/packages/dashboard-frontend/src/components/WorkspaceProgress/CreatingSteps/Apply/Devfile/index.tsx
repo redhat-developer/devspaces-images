@@ -17,8 +17,6 @@ import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import devfileApi from '../../../../../services/devfileApi';
-import { delay } from '../../../../../services/helpers/delay';
-import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import {
   buildFactoryParams,
   FactoryParams,
@@ -38,7 +36,7 @@ import * as WorkspacesStore from '../../../../../store/Workspaces';
 import { selectDevWorkspaceWarnings } from '../../../../../store/Workspaces/devWorkspaces/selectors';
 import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import ExpandableWarning from '../../../../ExpandableWarning';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '../../../const';
+import { TIMEOUT_TO_CREATE_SEC } from '../../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../../ProgressStep';
 import { ProgressStepTitle } from '../../../StepTitle';
 import { TimeLimit } from '../../../TimeLimit';
@@ -68,7 +66,6 @@ export type State = ProgressStepState & {
 
 class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   protected readonly name = 'Applying devfile';
-  protected readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
     super(props);
@@ -85,8 +82,6 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   public componentDidUpdate() {
-    this.toDispose.dispose();
-
     this.init();
   }
 
@@ -207,8 +202,6 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   protected async runStep(): Promise<boolean> {
-    await delay(MIN_STEP_DURATION_MS);
-
     const { factoryResolverConverted, factoryResolver, defaultDevfile } = this.props;
     const { shouldCreate, devfile, warning, continueWithDefaultDevfile } = this.state;
 

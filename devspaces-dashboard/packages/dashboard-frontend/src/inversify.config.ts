@@ -13,7 +13,6 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import getDecorators from 'inversify-inject-decorators';
-import { Debounce } from './services/helpers/debounce';
 import { CheWorkspaceClient } from './services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppAlerts } from './services/alerts/appAlerts';
 import { IssuesReporterService } from './services/bootstrap/issuesReporter';
@@ -26,7 +25,6 @@ const container = new Container();
 const { lazyInject } = getDecorators(container);
 
 container.bind(IssuesReporterService).toSelf().inSingletonScope();
-container.bind(Debounce).toSelf();
 container.bind(WebsocketClient).toSelf().inSingletonScope();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();
 container.bind(DevWorkspaceClient).toSelf().inSingletonScope();
