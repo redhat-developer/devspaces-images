@@ -29,6 +29,12 @@ RUN yum -y -q update \
     && yum install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ python2 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
     && yum -y clean all && rm -rf /var/cache/yum \
     && npm install -g yarn@1.22.17
+
+#########################################################
+#
+# Copy Che-Code to the container
+#
+#########################################################
 COPY code /checode-compilation
 WORKDIR /checode-compilation
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
@@ -57,6 +63,18 @@ RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
     && cp -r ../vscode-reh-web-linux-${NODE_ARCH} /checode
 
 RUN chmod a+x /checode/out/server-main.js \
+    && chgrp -R 0 /checode && chmod -R g+rwX /checode
+
+#########################################################
+#
+# Copy VS Code launcher to the container
+#
+#########################################################
+COPY launcher /checode-launcher
+WORKDIR /checode-launcher
+RUN yarn \
+    && mkdir /checode/launcher \
+    && cp -r out/src/*.js /checode/launcher \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8-minimal
