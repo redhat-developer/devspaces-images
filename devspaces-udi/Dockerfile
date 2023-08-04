@@ -191,7 +191,7 @@ RUN \
     (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
     ## Rootless podman install #6: rename podman to allow the execution of 'podman run' using
     ##                             kubedock but 'podman build' using podman.orig
-    mv /usr/bin/podman /usr/bin/podman.orig
+    mv /usr/bin/podman /usr/bin/podman.orig && \
     # set up go/bin folder
     mkdir /home/user/go/bin -p
 
