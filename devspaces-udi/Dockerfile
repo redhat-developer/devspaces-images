@@ -30,7 +30,7 @@ RUN \
     # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
     source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
     GO111MODULE=on go build -o gopls && \
-    ./gopls version
+    ./gopls version && \
     # END Gopls
 
     # BEGIN Kubedock
@@ -38,7 +38,11 @@ RUN \
     cd $REMOTE_SOURCES_DIR/kubedock/app && \
     # build kubedock application with dependencies resolved by Cachito
     source $REMOTE_SOURCES_DIR/kubedock/cachito.env && \
-    make build && \
+    LDFLAGS="-X github.com/joyrex2001/kubedock/internal/config.Date=`date -u +%Y%m%d-%H%M%S`  \
+     -X github.com/joyrex2001/kubedock/internal/config.Build=9d21955b52e4905d916d24e724dcad195aef3515   \
+     -X github.com/joyrex2001/kubedock/internal/config.Version=0.11.0  \
+     -X github.com/joyrex2001/kubedock/internal/config.Image=joyrex2001/kubedock:0.11.0" && \
+    CGO_ENABLED=0 go build -ldflags "${LDFLAGS}" -o kubedock && \
     chmod +x ./kubedock && \
     ./kubedock version
     # END Kubedock
@@ -51,7 +55,7 @@ RUN \
     # ./kamel version && \
     # END Kamel
 
-# https://registry.access.redhat.com/ubi8-minimal 
+# https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.8-1014
 
 USER root
