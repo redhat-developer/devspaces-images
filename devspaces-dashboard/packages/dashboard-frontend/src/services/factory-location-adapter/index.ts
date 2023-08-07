@@ -56,7 +56,7 @@ export class FactoryLocationAdapter implements FactoryLocation {
   }
 
   public static isSshLocation(href: string): boolean {
-    return /^git@[^:]+:.*\/[^/]+$/.test(href);
+    return /^(ssh:\/\/)?git@[^:]+:.*\/[^/]+$/.test(href);
   }
 
   get searchParams(): URLSearchParams {

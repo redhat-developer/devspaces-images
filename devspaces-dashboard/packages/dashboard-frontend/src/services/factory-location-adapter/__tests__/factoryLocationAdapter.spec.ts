@@ -33,6 +33,14 @@ describe('FactoryLocationAdapter Service', () => {
       expect(factoryLocation.isFullPathUrl).toBeFalsy();
       expect(factoryLocation.isSshLocation).toBeTruthy();
     });
+    it('should determine the Bitbucket-Server SSH location', () => {
+      const location = 'ssh://git@bitbucket-server.com:7999/~user/repo.git';
+
+      factoryLocation = new FactoryLocationAdapter(location);
+
+      expect(factoryLocation.isFullPathUrl).toBeFalsy();
+      expect(factoryLocation.isSshLocation).toBeTruthy();
+    });
     it('should determine unsupported factory location', () => {
       const location = 'dummy.git';
 
