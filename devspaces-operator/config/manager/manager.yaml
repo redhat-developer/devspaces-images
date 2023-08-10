@@ -51,9 +51,12 @@ spec:
               value: ''
             - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
               value: ''
+            - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_CONTAINERSECURITYCONTEXT
+              value: '{"allowPrivilegeEscalation": true,"capabilities": {"add": ["SETGID",
+                "SETUID"]}}'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:48eafac620d4f35ea56394c89fe58173c0d4f8d895b3f650bbb8ac30d73bd19e"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:eb6dab91a85d28ded418bdb98c60ed3784defccb821ea4f44cbe876bc16a3e9c"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
