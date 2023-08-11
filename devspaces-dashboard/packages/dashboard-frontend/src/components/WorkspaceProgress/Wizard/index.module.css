@@ -31,10 +31,6 @@
   --pf-c-wizard__nav-link-toggle--Color: var(--pf-c-wizard__nav-link--Color);
 }
 
-.progress .pf-c-wizard__nav-link > svg {
-  margin-right: 5px;
-}
-
 .progress .pf-c-wizard__toggle {
   display: none;
 }

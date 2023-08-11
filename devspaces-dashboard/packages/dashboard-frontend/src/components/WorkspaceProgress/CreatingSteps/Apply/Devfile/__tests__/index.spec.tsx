@@ -676,6 +676,7 @@ function getComponent(
   const component = (
     <CreatingStepApplyDevfile
       distance={0}
+      hasChildren={false}
       searchParams={searchParams}
       history={history}
       onNextStep={mockOnNextStep}

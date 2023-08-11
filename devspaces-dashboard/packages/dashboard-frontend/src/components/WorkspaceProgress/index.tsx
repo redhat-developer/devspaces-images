@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
 import { History } from 'history';
 import isEqual from 'lodash/isEqual';
 import React from 'react';
@@ -37,9 +38,8 @@ import CreatingStepInitialize from './CreatingSteps/Initialize';
 import StartingStepInitialize from './StartingSteps/Initialize';
 import StartingStepOpenWorkspace from './StartingSteps/OpenWorkspace';
 import StartingStepStartWorkspace from './StartingSteps/StartWorkspace';
-import StartingStepWorkspaceConditions, {
-  ConditionType,
-} from './StartingSteps/WorkspaceConditions';
+import StartingStepWorkspaceConditions from './StartingSteps/WorkspaceConditions';
+import { ConditionType, isWorkspaceStatusCondition } from './utils';
 import WorkspaceProgressWizard, { WorkspaceProgressWizardStep } from './Wizard';
 
 export type Props = MappedProps & {
@@ -51,7 +51,8 @@ export type Props = MappedProps & {
 export type State = {
   activeStepId: StepId;
   alertItems: AlertItem[];
-  conditions: ConditionType[];
+  conditions: V1alpha2DevWorkspaceStatusConditions[];
+  hasBeenStarted: boolean;
   doneSteps: StepId[];
   factoryParams: FactoryParams;
   initialLoaderMode: LoaderMode;
@@ -85,6 +86,7 @@ class Progress extends React.Component<Props, State> {
       activeStepId: Step.INITIALIZE,
       alertItems: [],
       conditions: [],
+      hasBeenStarted: false,
       doneSteps: [],
       factoryParams,
       initialLoaderMode,
@@ -120,23 +122,42 @@ class Progress extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
-    this.init();
+    this.init(this.props, this.state, undefined);
   }
 
-  public componentDidUpdate(): void {
-    this.init();
+  public componentDidUpdate(prevProps: Props): void {
+    this.init(this.props, this.state, prevProps);
   }
 
-  private init(): void {
-    const workspace = this.findTargetWorkspace(this.props);
-    if (workspace && workspace.status === DevWorkspaceStatus.STARTING) {
-      const conditions = (workspace.ref.status?.conditions || []).filter(
-        condition => condition.message,
-      ) as ConditionType[];
+  private init(props: Props, state: State, prevProps: Props | undefined): void {
+    const workspace = this.findTargetWorkspace(props);
+    const prevWorkspace = this.findTargetWorkspace(prevProps);
+
+    if (
+      (prevWorkspace === undefined || prevWorkspace.status !== DevWorkspaceStatus.STARTING) &&
+      workspace?.status === DevWorkspaceStatus.STARTING &&
+      state.activeStepId === Step.START
+    ) {
+      this.setState({
+        hasBeenStarted: true,
+      });
+    }
+
+    if (
+      workspace &&
+      (workspace.status === DevWorkspaceStatus.STARTING ||
+        workspace.status === DevWorkspaceStatus.RUNNING ||
+        workspace.status === DevWorkspaceStatus.FAILING ||
+        workspace.status === DevWorkspaceStatus.FAILED)
+    ) {
+      const conditions = workspace.ref.status?.conditions || [];
 
       const lastScore = this.scoreConditions(this.state.conditions);
       const score = this.scoreConditions(conditions);
-      if (score > lastScore) {
+      if (
+        score > lastScore ||
+        (score !== 0 && score === lastScore && isEqual(this.state.conditions, conditions) === false)
+      ) {
         this.setState({
           conditions,
         });
@@ -144,7 +165,11 @@ class Progress extends React.Component<Props, State> {
     }
   }
 
-  private findTargetWorkspace(props: Props): Workspace | undefined {
+  private findTargetWorkspace(props?: Props): Workspace | undefined {
+    if (props === undefined) {
+      return;
+    }
+
     const { allWorkspaces, history } = props;
     const loaderMode = getLoaderMode(history.location);
 
@@ -155,7 +180,7 @@ class Progress extends React.Component<Props, State> {
     return findTargetWorkspace(allWorkspaces, loaderMode.workspaceParams);
   }
 
-  private scoreConditions(conditions: ConditionType[]): number {
+  private scoreConditions(conditions: V1alpha2DevWorkspaceStatusConditions[]): number {
     const typeScore = {
       Started: 1,
       DevWorkspaceResolved: 1,
@@ -241,6 +266,7 @@ class Progress extends React.Component<Props, State> {
       activeStepId: newActiveStep,
       doneSteps: newDoneSteps,
       conditions: [],
+      hasBeenStarted: false,
     });
 
     if (tab) {
@@ -276,6 +302,7 @@ class Progress extends React.Component<Props, State> {
       name: (
         <CreatingStepInitialize
           distance={this.getDistance(Step.INITIALIZE)}
+          hasChildren={false}
           history={history}
           searchParams={searchParams}
           onError={alertItem => this.handleStepsShowAlert(Step.INITIALIZE, alertItem)}
@@ -299,6 +326,7 @@ class Progress extends React.Component<Props, State> {
       name: (
         <StartingStepInitialize
           distance={this.getDistance(Step.INITIALIZE)}
+          hasChildren={false}
           history={history}
           matchParams={matchParams}
           onError={alertItem => this.handleStepsShowAlert(Step.INITIALIZE, alertItem)}
@@ -323,6 +351,7 @@ class Progress extends React.Component<Props, State> {
         name: (
           <CommonStepCheckRunningWorkspacesLimit
             distance={this.getDistance(Step.LIMIT_CHECK)}
+            hasChildren={false}
             history={history}
             matchParams={matchParams}
             onError={alertItem => this.handleStepsShowAlert(Step.LIMIT_CHECK, alertItem)}
@@ -341,13 +370,22 @@ class Progress extends React.Component<Props, State> {
     const { factoryParams } = this.state;
 
     const usePrebuiltResources = factoryParams.useDevworkspaceResources;
+    const steps = [
+      usePrebuiltResources ? this.getFactoryFetchResources() : this.getFactoryFetchDevfile(),
+      this.getCheckExistingWorkspacesStep(),
+      usePrebuiltResources ? this.getFactoryApplyResources() : this.getFactoryApplyDevfile(),
+    ];
+
+    const areFinishedChildren = steps.every(step => step.isFinishedStep);
+    const distance = areFinishedChildren ? 1 : -1;
 
     return [
       {
         id: Step.CREATE,
         name: (
           <CreatingStepCreateWorkspace
-            distance={this.getDistance(Step.CREATE)}
+            distance={distance}
+            hasChildren={true}
             history={history}
             searchParams={searchParams}
             onError={alertItem => this.handleStepsShowAlert(Step.CREATE, alertItem)}
@@ -357,37 +395,45 @@ class Progress extends React.Component<Props, State> {
           />
         ),
         component: <></>,
-        steps: [
-          usePrebuiltResources ? this.getFactoryFetchResources() : this.getFactoryFetchDevfile(),
-          {
-            id: Step.CONFLICT_CHECK,
-            name: (
-              <CreatingStepCheckExistingWorkspaces
-                distance={this.getDistance(Step.CONFLICT_CHECK)}
-                history={history}
-                searchParams={searchParams}
-                onError={alertItem => this.handleStepsShowAlert(Step.CONFLICT_CHECK, alertItem)}
-                onHideError={alertId => this.handleCloseStepAlert(alertId)}
-                onNextStep={() => this.handleStepsGoToNext(Step.CONFLICT_CHECK)}
-                onRestart={tab => this.handleStepsRestart(Step.CONFLICT_CHECK, tab)}
-              />
-            ),
-            component: <></>,
-          },
-          usePrebuiltResources ? this.getFactoryApplyResources() : this.getFactoryApplyDevfile(),
-        ],
+        steps,
       },
     ];
   }
 
+  private getCheckExistingWorkspacesStep(): WorkspaceProgressWizardStep {
+    const { history, searchParams } = this.props;
+    const distance = this.getDistance(Step.CONFLICT_CHECK);
+
+    return {
+      id: Step.CONFLICT_CHECK,
+      isFinishedStep: distance === 1,
+      name: (
+        <CreatingStepCheckExistingWorkspaces
+          distance={distance}
+          hasChildren={false}
+          history={history}
+          searchParams={searchParams}
+          onError={alertItem => this.handleStepsShowAlert(Step.CONFLICT_CHECK, alertItem)}
+          onHideError={alertId => this.handleCloseStepAlert(alertId)}
+          onNextStep={() => this.handleStepsGoToNext(Step.CONFLICT_CHECK)}
+          onRestart={tab => this.handleStepsRestart(Step.CONFLICT_CHECK, tab)}
+        />
+      ),
+      component: <></>,
+    };
+  }
+
   private getFactoryFetchResources(): WorkspaceProgressWizardStep {
     const { history, searchParams } = this.props;
+    const distance = this.getDistance(Step.FETCH);
 
     return {
       id: Step.FETCH,
+      isFinishedStep: distance === 1,
       name: (
         <CreatingStepFetchResources
-          distance={this.getDistance(Step.FETCH)}
+          distance={distance}
+          hasChildren={false}
           history={history}
           searchParams={searchParams}
           onError={alertItem => this.handleStepsShowAlert(Step.FETCH, alertItem)}
@@ -402,12 +448,15 @@ class Progress extends React.Component<Props, State> {
 
   private getFactoryApplyResources(): WorkspaceProgressWizardStep {
     const { history, searchParams } = this.props;
+    const distance = this.getDistance(Step.APPLY);
 
     return {
       id: Step.APPLY,
+      isFinishedStep: distance === 1,
       name: (
         <CreatingStepApplyResources
-          distance={this.getDistance(Step.APPLY)}
+          distance={distance}
+          hasChildren={false}
           history={history}
           searchParams={searchParams}
           onError={alertItem => this.handleStepsShowAlert(Step.APPLY, alertItem)}
@@ -422,12 +471,15 @@ class Progress extends React.Component<Props, State> {
 
   private getFactoryFetchDevfile(): WorkspaceProgressWizardStep {
     const { history, searchParams } = this.props;
+    const distance = this.getDistance(Step.FETCH);
 
     return {
       id: Step.FETCH,
+      isFinishedStep: distance === 1,
       name: (
         <CreatingStepFetchDevfile
-          distance={this.getDistance(Step.FETCH)}
+          distance={distance}
+          hasChildren={false}
           history={history}
           searchParams={searchParams}
           onError={alertItem => this.handleStepsShowAlert(Step.FETCH, alertItem)}
@@ -442,12 +494,15 @@ class Progress extends React.Component<Props, State> {
 
   private getFactoryApplyDevfile(): WorkspaceProgressWizardStep {
     const { history, searchParams } = this.props;
+    const distance = this.getDistance(Step.APPLY);
 
     return {
       id: Step.APPLY,
+      isFinishedStep: distance === 1,
       name: (
         <CreatingStepApplyDevfile
-          distance={this.getDistance(Step.APPLY)}
+          distance={distance}
+          hasChildren={false}
           history={history}
           searchParams={searchParams}
           onError={alertItem => this.handleStepsShowAlert(Step.APPLY, alertItem)}
@@ -467,7 +522,12 @@ class Progress extends React.Component<Props, State> {
 
     const matchParams = loaderMode.mode === 'workspace' ? loaderMode.workspaceParams : undefined;
 
-    const conditionSteps = this.buildConditionSteps();
+    // hide spinner near this (parent) step
+    const showChildren = this.state.hasBeenStarted;
+
+    // this (parent) step cannot be active if it contains child steps
+    // we need this step to be activated and start workspace and only then allow to appear condition steps
+    const conditionSteps = showChildren ? this.buildConditionSteps() : [];
     const steps = conditionSteps.length > 0 ? { steps: conditionSteps } : {};
 
     return [
@@ -476,6 +536,7 @@ class Progress extends React.Component<Props, State> {
         name: (
           <StartingStepStartWorkspace
             distance={this.getDistance(Step.START)}
+            hasChildren={showChildren}
             onError={alertItem => this.handleStepsShowAlert(Step.START, alertItem)}
             onHideError={key => this.handleCloseStepAlert(key)}
             onNextStep={() => this.handleStepsGoToNext(Step.START)}
@@ -491,6 +552,7 @@ class Progress extends React.Component<Props, State> {
         name: (
           <StartingStepOpenWorkspace
             distance={this.getDistance(Step.OPEN)}
+            hasChildren={false}
             onError={alertItem => this.handleStepsShowAlert(Step.OPEN, alertItem)}
             onHideError={key => this.handleCloseStepAlert(key)}
             onNextStep={() => this.handleStepsGoToNext(Step.OPEN)}
@@ -512,24 +574,45 @@ class Progress extends React.Component<Props, State> {
       return [];
     }
 
-    return conditions.map(condition => {
-      const stepId: ConditionStepId = `condition-${condition.type}`;
-      return {
-        id: stepId,
-        name: (
-          <StartingStepWorkspaceConditions
-            distance={1}
-            condition={condition as ConditionType}
-            matchParams={loaderMode.workspaceParams}
-            history={history}
-            onError={alertItem => this.handleStepsShowAlert(stepId, alertItem)}
-            onHideError={key => this.handleCloseStepAlert(key)}
-            onNextStep={() => this.handleStepsGoToNext(stepId)}
-            onRestart={tab => this.handleStepsRestart(stepId, tab)}
-          />
-        ),
-      };
-    });
+    // Children steps get hidden when all of them are finished. This usually
+    // happens in the middle of a devWorkspace starting flow and makes
+    // the condition sub-steps to flicker. The fix is to wait until
+    // the condition of type 'Ready' is done and only then set all
+    // condition steps as finished.
+    const areFinishedSteps = conditions.some(
+      condition => condition.type === 'Ready' && condition.status === 'True',
+    );
+
+    const workspaceStartFailed = conditions.some(condition => condition.reason !== undefined);
+
+    return conditions
+      .filter((condition): condition is ConditionType => isWorkspaceStatusCondition(condition))
+      .filter(condition => {
+        // show only condition with the failure description
+        return workspaceStartFailed ? condition.status === 'True' : true;
+      })
+      .map(condition => {
+        const stepId: ConditionStepId = `condition-${condition.type}`;
+        const distance = condition.status === 'True' ? 1 : 0;
+
+        return {
+          id: stepId,
+          isFinishedStep: areFinishedSteps,
+          name: (
+            <StartingStepWorkspaceConditions
+              distance={distance}
+              hasChildren={false}
+              condition={condition}
+              matchParams={loaderMode.workspaceParams}
+              history={history}
+              onError={alertItem => this.handleStepsShowAlert(stepId, alertItem)}
+              onHideError={key => this.handleCloseStepAlert(key)}
+              onNextStep={() => this.handleStepsGoToNext(stepId)}
+              onRestart={tab => this.handleStepsRestart(stepId, tab)}
+            />
+          ),
+        };
+      });
   }
 
   private handleSwitchToNextStep(nextStepId: StepId | undefined, prevStepId: StepId): void {

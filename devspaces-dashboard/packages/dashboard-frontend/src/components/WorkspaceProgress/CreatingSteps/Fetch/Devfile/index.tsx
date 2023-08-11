@@ -67,16 +67,19 @@ export type State = ProgressStepState & {
 };
 
 class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
-  protected readonly name = 'Looking for devfile';
+  protected readonly name = 'Inspecting repo';
 
   constructor(props: Props) {
     super(props);
 
+    const factoryParams = buildFactoryParams(props.searchParams);
+    const name = `Inspecting repo ${factoryParams.sourceUrl} for a devfile`;
+
     this.state = {
-      factoryParams: buildFactoryParams(props.searchParams),
+      factoryParams,
       shouldResolve: true,
       useDefaultDevfile: false,
-      name: this.name,
+      name,
     };
   }
 
@@ -374,7 +377,7 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
   }
 
   render(): React.ReactElement {
-    const { distance } = this.props;
+    const { distance, hasChildren } = this.props;
     const { name, lastError } = this.state;
 
     const isActive = distance === 0;
@@ -386,7 +389,12 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         {isActive && (
           <TimeLimit timeLimitSec={TIMEOUT_TO_RESOLVE_SEC} onTimeout={() => this.handleTimeout()} />
         )}
-        <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
+        <ProgressStepTitle
+          distance={distance}
+          hasChildren={hasChildren}
+          isError={isError}
+          isWarning={isWarning}
+        >
           {name}
         </ProgressStepTitle>
       </React.Fragment>

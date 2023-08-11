@@ -10,106 +10,74 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
 import common from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
+import isEqual from 'lodash/isEqual';
 import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import { WorkspaceParams } from '../../../../Routes/routes';
-import { delay } from '../../../../services/helpers/delay';
-import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, LoaderTab } from '../../../../services/helpers/types';
-import { Workspace } from '../../../../services/workspace-adapter';
-import { AppState } from '../../../../store';
-import { selectStartTimeout } from '../../../../store/ServerConfig/selectors';
-import * as WorkspaceStore from '../../../../store/Workspaces';
-import { selectAllWorkspaces } from '../../../../store/Workspaces/selectors';
-import { MIN_STEP_DURATION_MS } from '../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
 import { ProgressStepTitle } from '../../StepTitle';
+import { ConditionType, isConditionError, isConditionReady } from '../../utils';
+
 import styles from './index.module.css';
 
-export type ConditionType = V1alpha2DevWorkspaceStatusConditions &
-  (
-    | {
-        message: string;
-        status: 'True' | 'False';
-      }
-    | {
-        status: 'Unknown';
-      }
-  );
-
-export type Props = MappedProps &
-  ProgressStepProps & {
-    matchParams: WorkspaceParams;
-    condition: ConditionType;
-  };
+export type Props = ProgressStepProps & {
+  condition: ConditionType;
+  matchParams: WorkspaceParams;
+};
 export type State = ProgressStepState & {
-  isFailed: boolean;
+  isError: boolean;
   isReady: boolean;
+  condition: ConditionType;
 };
 
-export class StartingStepWorkspaceConditions extends ProgressStep<Props, State> {
+export default class StartingStepWorkspaceConditions extends ProgressStep<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { condition } = this.props;
-
-    this.state = {
-      isReady: false,
-      isFailed: false,
-      name: condition.message || condition.type,
-    };
+    this.state = this.buildState(props, undefined, undefined);
   }
 
   protected get name(): string {
     return this.state.name;
   }
 
-  private init() {
-    const workspace = this.findTargetWorkspace(this.props);
-    const condition = this.findTargetCondition(workspace);
+  private buildState(props: Props, prevProps: Props | undefined, state: State | undefined): State {
+    const condition = props.condition;
+    const prevCondition = prevProps?.condition;
 
-    const isReady = this.state.isReady === true || condition?.status === 'True';
-    const isFailed =
-      isReady === false && (condition === undefined || condition.status === 'Unknown');
-
-    if (isReady !== this.state.isReady || isFailed !== this.state.isFailed) {
-      this.setState({
-        isReady,
-        isFailed,
-      });
+    let name: string;
+    if (state === undefined) {
+      name = condition.message || condition.type;
+    } else {
+      name = condition.message || state.name;
     }
 
-    this.prepareAndRun();
+    return {
+      isReady: isConditionReady(condition, prevCondition),
+      isError: isConditionError(condition, prevCondition),
+      name,
+      condition,
+    };
   }
 
   public componentDidMount() {
-    this.init();
+    const state = this.buildState(this.props, undefined, this.state);
+    this.setState(state);
   }
 
-  public async componentDidUpdate() {
-    this.init();
+  public async componentDidUpdate(prevProps: Props) {
+    const state = this.buildState(this.props, prevProps, this.state);
+    this.setState(state);
   }
 
   public shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    const workspace = this.findTargetWorkspace(this.props);
-    const nextWorkspace = this.findTargetWorkspace(nextProps);
-
-    // change workspace status, etc.
-    if (workspace?.uid !== nextWorkspace?.uid || workspace?.status !== nextWorkspace?.status) {
+    if (isEqual(this.props.condition, nextProps.condition) === false) {
       return true;
     }
 
-    const condition = this.findTargetCondition(workspace);
-    const nextCondition = this.findTargetCondition(nextWorkspace);
-
-    if (nextCondition !== undefined && nextCondition.status !== condition?.status) {
-      return true;
-    }
-
-    if (this.state.isReady !== nextState.isReady || this.state.isFailed !== nextState.isFailed) {
+    if (isEqual(this.state.condition, nextState.condition) === false) {
       return true;
     }
 
@@ -119,29 +87,7 @@ export class StartingStepWorkspaceConditions extends ProgressStep<Props, State> 
   public componentWillUnmount() {
     this.toDispose.dispose();
   }
-
-  protected findTargetWorkspace(props: Props): Workspace | undefined {
-    return findTargetWorkspace(props.allWorkspaces, props.matchParams);
-  }
-
-  private findTargetCondition(workspace: Workspace | undefined): ConditionType | undefined {
-    if (workspace?.ref.status?.conditions === undefined) {
-      return;
-    }
-
-    const condition = workspace.ref.status.conditions.find(
-      condition => condition.type === this.props.condition.type,
-    );
-    return condition ? (condition as ConditionType) : undefined;
-  }
-
   protected async runStep(): Promise<boolean> {
-    await delay(MIN_STEP_DURATION_MS);
-
-    if (this.state.isReady) {
-      return true;
-    }
-
     return false;
   }
 
@@ -173,10 +119,10 @@ export class StartingStepWorkspaceConditions extends ProgressStep<Props, State> 
   }
 
   render() {
-    const { isFailed, isReady } = this.state;
+    const { hasChildren } = this.props;
+    const { isError, isReady } = this.state;
 
     const distance = isReady ? 1 : 0;
-    const isError = isFailed;
     const isWarning = false;
 
     return (
@@ -184,6 +130,7 @@ export class StartingStepWorkspaceConditions extends ProgressStep<Props, State> 
         <ProgressStepTitle
           className={styles.conditionTitle}
           distance={distance}
+          hasChildren={hasChildren}
           isError={isError}
           isWarning={isWarning}
         >
@@ -193,15 +140,3 @@ export class StartingStepWorkspaceConditions extends ProgressStep<Props, State> 
     );
   }
 }
-
-const mapStateToProps = (state: AppState) => ({
-  allWorkspaces: selectAllWorkspaces(state),
-  startTimeout: selectStartTimeout(state),
-});
-
-const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {
-  // forwardRef is mandatory for using `@react-mock/state` in unit tests
-  forwardRef: true,
-});
-type MappedProps = ConnectedProps<typeof connector>;
-export default connector(StartingStepWorkspaceConditions);

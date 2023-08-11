@@ -60,6 +60,7 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
     <Provider store={store}>
       <CreateWorkspace
         distance={0}
+        hasChildren={true}
         history={history}
         searchParams={searchParams}
         onNextStep={mockOnNextStep}
