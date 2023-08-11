@@ -321,6 +321,7 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
   const component = (
     <CreatingStepCheckExistingWorkspaces
       distance={0}
+      hasChildren={false}
       searchParams={searchParams}
       history={history}
       onNextStep={mockOnNextStep}

@@ -44,7 +44,7 @@ export type State = ProgressStepState & {
 };
 
 class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
-  protected readonly name = 'Checking existing workspaces';
+  protected readonly name = 'Checking if a workspace with the same name exists';
 
   constructor(props: Props) {
     super(props);
@@ -204,7 +204,7 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
   }
 
   render(): React.ReactElement {
-    const { distance } = this.props;
+    const { distance, hasChildren } = this.props;
     const { name, lastError } = this.state;
 
     const isError = lastError !== undefined;
@@ -212,7 +212,12 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
 
     return (
       <React.Fragment>
-        <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
+        <ProgressStepTitle
+          distance={distance}
+          hasChildren={hasChildren}
+          isError={isError}
+          isWarning={isWarning}
+        >
           {name}
         </ProgressStepTitle>
       </React.Fragment>

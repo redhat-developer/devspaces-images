@@ -244,6 +244,7 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
     <Provider store={store}>
       <CreatingStepInitialize
         distance={0}
+        hasChildren={false}
         history={history}
         searchParams={searchParams}
         onNextStep={mockOnNextStep}

@@ -18,24 +18,46 @@ const { createSnapshot } = getComponentRenderer(getComponent);
 
 describe('ProgressStepTitle', () => {
   test('snapshot - non-active step', () => {
-    const snapshot = createSnapshot(-1, false, false);
+    const snapshot = createSnapshot(-1, {});
     expect(snapshot).toMatchSnapshot();
   });
 
   test('snapshot - active step', () => {
-    const snapshot = createSnapshot(0, false, false);
+    const snapshot = createSnapshot(0, {});
     expect(snapshot).toMatchSnapshot();
   });
 
   test('snapshot - active step failed', () => {
-    const snapshot = createSnapshot(0, true, false);
+    const snapshot = createSnapshot(0, { isError: true });
+    expect(snapshot).toMatchSnapshot();
+  });
+
+  test('snapshot - active step warning', () => {
+    const snapshot = createSnapshot(0, { isWarning: true });
+    expect(snapshot).toMatchSnapshot();
+  });
+
+  test('snapshot - active step has children', () => {
+    const snapshot = createSnapshot(0, { hasChildren: true });
     expect(snapshot).toMatchSnapshot();
   });
 });
 
-function getComponent(distance: -1 | 0 | 1 | undefined, isError: boolean, isWarning: boolean) {
+function getComponent(
+  distance: -1 | 0 | 1 | undefined,
+  {
+    hasChildren = false,
+    isError = false,
+    isWarning = false,
+  }: { isError?: boolean; isWarning?: boolean; hasChildren?: boolean },
+) {
   return (
-    <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
+    <ProgressStepTitle
+      distance={distance}
+      hasChildren={hasChildren}
+      isError={isError}
+      isWarning={isWarning}
+    >
       Step 1
     </ProgressStepTitle>
   );

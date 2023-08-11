@@ -10,16 +10,14 @@
 *   Red Hat, Inc. - initial API and implementation
 */
 
-.pf-c-wizard__nav-link .stepIcon {
+.pf-c-wizard__nav-item .stepIcon {
   position: absolute;
   top: 3px;
   left: -56px;
 }
 
-.pf-c-wizard__toggle .pf-c-wizard__toggle-list-item .stepIcon {
-  position: absolute;
-  top: 3px;
-  left: -56px;
+.pf-c-wizard__nav-item .pf-c-wizard__nav-item .stepIcon {
+  left: -23px;
 }
 
 .errorIcon {

@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Starting steps, checking workspace conditions snapshot - condition failed 1`] = `
+<div>
+  <div
+    data-testid="isError"
+  />
+  <div
+    data-testid="distance"
+  >
+    1
+  </div>
+  <span
+    className="done"
+    data-testid="step-title"
+  >
+    Something happened
+  </span>
+</div>
+`;
+
+exports[`Starting steps, checking workspace conditions snapshot - condition in-progress 1`] = `
+<div>
+  <div
+    data-testid="distance"
+  >
+    0
+  </div>
+  <span
+    className="progress"
+    data-testid="step-title"
+  >
+    Preparing networking
+  </span>
+</div>
+`;
+
+exports[`Starting steps, checking workspace conditions snapshot - condition ready 1`] = `
+<div>
+  <div
+    data-testid="distance"
+  >
+    1
+  </div>
+  <span
+    className="done"
+    data-testid="step-title"
+  >
+    Networking ready
+  </span>
+</div>
+`;
