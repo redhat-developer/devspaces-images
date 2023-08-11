@@ -466,7 +466,6 @@ function getComponent(
     <Provider store={store}>
       <StartingStepInitialize
         distance={0}
-        hasChildren={false}
         history={history}
         matchParams={params}
         onNextStep={mockOnNextStep}

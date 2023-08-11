@@ -42,12 +42,7 @@ describe('Factory flow: step Fetch Devfile', () => {
           },
           converted: {
             isConverted: false,
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
+            devfileV2: {} as devfileApi.Devfile,
           },
         })
         .build();
@@ -59,7 +54,7 @@ describe('Factory flow: step Fetch Devfile', () => {
         store.getState().factoryResolver.converted!,
       );
 
-      expect(newTitle).toEqual('Devfile found with name "my-project".');
+      expect(newTitle).toEqual(`Devfile loaded from ${factoryUrl}.`);
     });
 
     test('devfile not found', async () => {
@@ -72,12 +67,7 @@ describe('Factory flow: step Fetch Devfile', () => {
           },
           converted: {
             isConverted: false,
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
+            devfileV2: {} as devfileApi.Devfile,
           },
         })
         .build();
@@ -104,12 +94,7 @@ describe('Factory flow: step Fetch Devfile', () => {
           },
           converted: {
             isConverted: false,
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
+            devfileV2: {} as devfileApi.Devfile,
           },
         })
         .build();
@@ -121,7 +106,7 @@ describe('Factory flow: step Fetch Devfile', () => {
         store.getState().factoryResolver.converted!,
       );
 
-      expect(newTitle).toEqual('Devfile found with name "my-project".');
+      expect(newTitle).toEqual(`Devfile found in repo ${factoryUrl} as 'devfile.yaml'.`);
     });
 
     test('devfile converted', async () => {
@@ -136,10 +121,6 @@ describe('Factory flow: step Fetch Devfile', () => {
             isConverted: true, // <-
             devfileV2: {
               schemaVersion: '2.1.0',
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
             } as devfileApi.Devfile,
           },
         })
@@ -153,7 +134,7 @@ describe('Factory flow: step Fetch Devfile', () => {
       );
 
       expect(newTitle).toEqual(
-        'Devfile found with name "my-project". Devfile version 1 found, converting it to devfile version 2.',
+        `Devfile found in repo ${factoryUrl} as 'devfile.yaml'. Devfile version 1 found, converting it to devfile version 2.`,
       );
     });
   });

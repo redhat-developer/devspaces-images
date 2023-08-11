@@ -13,35 +13,29 @@
 import React, { PropsWithChildren } from 'react';
 import { ProgressStepTitleIcon } from './Icon';
 
-import styles from './index.module.css';
-
 export type Props = PropsWithChildren<{
   className?: string;
   distance: -1 | 0 | 1 | undefined;
-  hasChildren: boolean;
   isError: boolean;
   isWarning: boolean;
 }>;
 
+import styles from './index.module.css';
+
 export class ProgressStepTitle extends React.Component<Props> {
   render(): React.ReactElement {
-    const { children, className, hasChildren, distance, isError, isWarning } = this.props;
+    const { children, className, distance, isError, isWarning } = this.props;
 
     let readiness = styles.ready;
     if (distance === 0) {
-      readiness = styles.progress;
-    } else if (isError) {
-      readiness = styles.error;
+      readiness = isError ? styles.error : styles.progress;
     }
 
     const fullClassName = [readiness, className].filter(c => c).join(' ');
 
-    // for step with children do not show in-progress spinner
-    const dist = hasChildren && distance === 0 ? -1 : distance;
-
     return (
       <>
-        <ProgressStepTitleIcon distance={dist} isError={isError} isWarning={isWarning} />
+        <ProgressStepTitleIcon distance={distance} isError={isError} isWarning={isWarning} />
         <span data-testid="step-title" className={fullClassName}>
           {children}
         </span>

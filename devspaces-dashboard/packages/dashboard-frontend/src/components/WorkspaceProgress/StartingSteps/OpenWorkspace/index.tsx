@@ -169,7 +169,7 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
   }
 
   render(): React.ReactNode {
-    const { distance, hasChildren } = this.props;
+    const { distance } = this.props;
     const { name, lastError } = this.state;
 
     const isActive = distance === 0;
@@ -181,12 +181,7 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
         {isActive && (
           <TimeLimit timeLimitSec={TIMEOUT_TO_GET_URL_SEC} onTimeout={() => this.handleTimeout()} />
         )}
-        <ProgressStepTitle
-          distance={distance}
-          hasChildren={hasChildren}
-          isError={isError}
-          isWarning={isWarning}
-        >
+        <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
           {name}
         </ProgressStepTitle>
       </React.Fragment>

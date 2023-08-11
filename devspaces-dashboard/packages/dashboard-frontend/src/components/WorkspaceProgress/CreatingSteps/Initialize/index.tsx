@@ -163,7 +163,7 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
   }
 
   render(): React.ReactElement {
-    const { distance, hasChildren } = this.props;
+    const { distance } = this.props;
     const { name, lastError } = this.state;
 
     const isError = lastError !== undefined;
@@ -171,12 +171,7 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
 
     return (
       <React.Fragment>
-        <ProgressStepTitle
-          distance={distance}
-          hasChildren={hasChildren}
-          isError={isError}
-          isWarning={isWarning}
-        >
+        <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
           {name}
         </ProgressStepTitle>
       </React.Fragment>

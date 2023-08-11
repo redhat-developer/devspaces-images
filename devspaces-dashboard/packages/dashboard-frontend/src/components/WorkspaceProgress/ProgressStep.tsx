@@ -20,7 +20,6 @@ import { MIN_STEP_DURATION_MS } from './const';
 
 export type ProgressStepProps = {
   distance: -1 | 0 | 1 | undefined;
-  hasChildren: boolean;
   history: History;
   onError: (alertItem: AlertItem) => void;
   onHideError: (key: string) => void;

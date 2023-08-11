@@ -17,18 +17,11 @@
 .progress .pf-c-wizard__nav {
   width: 100%;
   border: none;
-  box-shadow: none;
+  pointer-events: none;
 }
 
 .progress .pf-c-wizard__nav-link {
   margin-left: 8px;
-  pointer-events: none;
-}
-
-.progress .pf-c-wizard__nav-link:hover,
-.progress .pf-c-wizard__nav-link:focus {
-  --pf-c-wizard__nav-link--Color: var(--pf-c-wizard__nav-link--Color);
-  --pf-c-wizard__nav-link-toggle--Color: var(--pf-c-wizard__nav-link--Color);
 }
 
 .progress .pf-c-wizard__nav-link > svg {
@@ -36,5 +29,9 @@
 }
 
 .progress .pf-c-wizard__toggle {
-  display: none;
+  padding-left: 56px;
+}
+
+.progress .pf-c-wizard__toggle .pf-c-wizard__toggle-list-item > svg {
+  margin-right: 5px;
 }

@@ -236,6 +236,8 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
   }
 
   protected handleTimeout(redundantWorkspace: Workspace | undefined): void {
+    // eslint-disable-next-line no-debugger
+    debugger;
     const message = redundantWorkspace
       ? `The workspace status remains "${redundantWorkspace.status}" in the last ${TIMEOUT_TO_STOP_SEC} seconds.`
       : `Could not check running workspaces limit in the last ${TIMEOUT_TO_STOP_SEC} seconds.`;
@@ -308,7 +310,7 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
   }
 
   render(): React.ReactNode {
-    const { distance, hasChildren } = this.props;
+    const { distance } = this.props;
     const { name, lastError } = this.state;
 
     const redundantWorkspace = this.findRedundantWorkspace(this.props, this.state);
@@ -325,12 +327,7 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
             onTimeout={() => this.handleTimeout(redundantWorkspace)}
           />
         )}
-        <ProgressStepTitle
-          distance={distance}
-          hasChildren={hasChildren}
-          isError={isError}
-          isWarning={isWarning}
-        >
+        <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
           {name}
         </ProgressStepTitle>
       </React.Fragment>

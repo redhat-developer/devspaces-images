@@ -808,7 +808,6 @@ function getComponent(
     <Provider store={store}>
       <StartingStepStartWorkspace
         distance={0}
-        hasChildren={true}
         history={history}
         matchParams={params}
         onNextStep={mockOnNextStep}

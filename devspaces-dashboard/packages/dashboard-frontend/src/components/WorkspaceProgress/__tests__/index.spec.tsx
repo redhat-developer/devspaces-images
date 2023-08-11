@@ -285,16 +285,16 @@ describe('LoaderProgress', () => {
           const factoryParams = buildFactoryParams(searchParams);
           const localState: Partial<State> = {
             alertItems: [],
-            // active step is "open IDE"
-            activeStepId: Step.OPEN, // <-- not 8th but 5th step, active
+            // active step is "check running workspaces limit"
+            activeStepId: Step.OPEN, // <-- 8th step, active
             doneSteps: [
               Step.INITIALIZE,
               Step.LIMIT_CHECK,
               Step.CREATE,
-              Step.FETCH, // <-- hidden
-              Step.CONFLICT_CHECK, // <-- hidden
-              Step.APPLY, // <-- hidden
-              Step.START, // <-- not 7th but 4th step, non-active
+              Step.FETCH,
+              Step.CONFLICT_CHECK,
+              Step.APPLY,
+              Step.START, // <-- 7th step, non-active
             ],
             factoryParams,
             initialLoaderMode: {
@@ -306,23 +306,23 @@ describe('LoaderProgress', () => {
 
           const steps = getSteps();
 
-          // 4th step distance (non-active)
-          expect(within(steps[3]).getByTestId('step-distance').textContent).toEqual('1');
+          // 7th step distance (non-active)
+          expect(within(steps[6]).getByTestId('step-distance').textContent).toEqual('1');
 
-          // 5th step distance (active)
-          expect(within(steps[4]).getByTestId('step-distance').textContent).toEqual('0');
+          // 8th step distance (active)
+          expect(within(steps[7]).getByTestId('step-distance').textContent).toEqual('0');
 
           // trigger onRestart on the active step
-          const onRestart = within(steps[4]).getByRole('button', { name: 'onRestart' });
+          const onRestart = within(steps[7]).getByRole('button', { name: 'onRestart' });
           userEvent.click(onRestart);
 
-          // 4th step distance becomes 0 (active)
+          // 7th step distance becomes 0 (active)
           await waitFor(() =>
-            expect(within(steps[3]).getByTestId('step-distance').textContent).toEqual('0'),
+            expect(within(steps[6]).getByTestId('step-distance').textContent).toEqual('0'),
           );
 
-          // 5th step distance becomes -1 (non-active)
-          expect(within(steps[4]).getByTestId('step-distance').textContent).toEqual('-1');
+          // 8th step distance becomes -1 (non-active)
+          expect(within(steps[7]).getByTestId('step-distance').textContent).toEqual('-1');
         });
 
         test('on non-active step', async () => {
@@ -423,29 +423,16 @@ describe('LoaderProgress', () => {
         expect(within(steps[3]).getByTestId('step-name')).toHaveTextContent('Open workspace');
       });
 
-      test('with condition steps', async () => {
+      test('with condition steps', () => {
         const store = new FakeStoreBuilder()
           .withDevWorkspaces({ workspaces: [devWorkspace] })
           .build();
 
-        renderComponent(history, store, searchParams, false, {
-          activeStepId: Step.START,
-          alertItems: [],
-          conditions: [],
-          doneSteps: [Step.INITIALIZE, Step.LIMIT_CHECK],
-          hasBeenStarted: true,
-          initialLoaderMode: {
-            mode: 'workspace',
-            workspaceParams: {
-              namespace,
-              workspaceName,
-            },
-          },
-        });
+        renderComponent(history, store, searchParams, false);
 
         const steps = getSteps();
 
-        await waitFor(() => expect(getSteps().length).toEqual(6));
+        expect(steps.length).toEqual(6);
 
         expect(within(steps[0]).getByTestId('step-name')).toHaveTextContent('Initialize');
         expect(within(steps[1]).getByTestId('step-name')).toHaveTextContent(

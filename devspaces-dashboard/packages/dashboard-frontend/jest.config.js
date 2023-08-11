@@ -25,9 +25,6 @@ module.exports = {
       'vscode-languageserver-protocol/lib/common/utils/is',
     'vscode-languageserver-protocol/lib/main': 'vscode-languageserver-protocol/lib/node/main',
   },
-  modulePathIgnorePatterns: [
-    '__mocks__/index.tsx',
-  ],
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.test.json',

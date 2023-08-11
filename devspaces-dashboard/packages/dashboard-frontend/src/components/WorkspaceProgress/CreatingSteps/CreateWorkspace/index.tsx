@@ -52,7 +52,7 @@ export default class CreatingStepCreateWorkspace extends ProgressStep<Props, Sta
   }
 
   render(): React.ReactElement {
-    const { distance, hasChildren } = this.props;
+    const { distance } = this.props;
     const { name } = this.state;
 
     const isError = false;
@@ -60,12 +60,7 @@ export default class CreatingStepCreateWorkspace extends ProgressStep<Props, Sta
 
     return (
       <React.Fragment>
-        <ProgressStepTitle
-          distance={distance}
-          hasChildren={hasChildren}
-          isError={isError}
-          isWarning={isWarning}
-        >
+        <ProgressStepTitle distance={distance} isError={isError} isWarning={isWarning}>
           {name}
         </ProgressStepTitle>
       </React.Fragment>

@@ -446,7 +446,6 @@ function getComponent(store: Store, localState?: Partial<State>): React.ReactEle
   const component = (
     <CommonStepCheckRunningWorkspacesLimit
       distance={0}
-      hasChildren={false}
       history={history}
       matchParams={matchParams}
       onNextStep={mockOnNextStep}

@@ -377,7 +377,6 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
   const component = (
     <CreatingStepApplyResources
       distance={0}
-      hasChildren={false}
       searchParams={searchParams}
       history={history}
       onNextStep={mockOnNextStep}

@@ -73,12 +73,7 @@ describe('Creating steps, fetching a devfile', () => {
           location: factoryUrl,
         },
         converted: {
-          devfileV2: {
-            metadata: {
-              name: 'my-project',
-              generateName: 'my-project-',
-            },
-          } as devfileApi.Devfile,
+          devfileV2: {} as devfileApi.Devfile,
         },
       })
       .build();
@@ -492,12 +487,7 @@ describe('Creating steps, fetching a devfile', () => {
             location: factoryUrl,
           },
           converted: {
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
+            devfileV2: {} as devfileApi.Devfile,
           },
         })
         .build();
@@ -630,12 +620,7 @@ describe('Creating steps, fetching a devfile', () => {
             location: factoryUrl,
           },
           converted: {
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
+            devfileV2: {} as devfileApi.Devfile,
           },
         })
         .build();
@@ -670,7 +655,6 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
     <Provider store={store}>
       <CreatingStepFetchDevfile
         distance={0}
-        hasChildren={false}
         history={history}
         searchParams={searchParams}
         onNextStep={mockOnNextStep}

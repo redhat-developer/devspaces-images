@@ -118,10 +118,6 @@ class WorkspaceProgressWizard extends React.Component<Props> {
           const { canJumpTo, name, steps = [], id } = step;
           const flattenedStepNumber = this.getFlattenedStepsNumber(flattenedSteps, id);
 
-          const hasChildren = steps.length !== 0;
-          const allChildrenFinished = steps.every(subStep => subStep.isFinishedStep);
-          const showChildren = hasChildren && allChildrenFinished === false;
-
           const hasActiveChild = steps.some(subStep => subStep.id === activeStepId);
 
           return (
@@ -133,9 +129,13 @@ class WorkspaceProgressWizard extends React.Component<Props> {
               isDisabled={!canJumpTo}
               onNavItemClick={() => this.handleGoToStepById()}
             >
-              {showChildren && (
+              {steps.length !== 0 && (
                 <PF.WizardNav returnList>
                   {steps.map(subStep => {
+                    if (subStep.isFinishedStep) {
+                      return;
+                    }
+
                     const { canJumpTo, name, id } = subStep;
                     const flattenedStepNumber = this.getFlattenedStepsNumber(flattenedSteps, id);
                     return (
