@@ -89,8 +89,6 @@ find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
   `# Replace ubi8 with rhel8 version` \
   -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
   > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
