@@ -99,9 +99,6 @@ find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
     `# CRW-2500 the folder is packed to resources.tgz` \
     -e 's|COPY ./resources /build/resources|# COPY ./resources /build/resources|' \
     `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
