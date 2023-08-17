@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM registry.access.redhat.com/ubi8/nodejs-16:1-111.1690901930 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-16:1-118 as builder
 
 USER root
 
@@ -78,5 +78,5 @@ RUN yarn \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.8-1014
+FROM registry.access.redhat.com/ubi8-minimal:8.8-1037
 COPY --from=builder --chown=0:0 /checode /checode-linux-libc
