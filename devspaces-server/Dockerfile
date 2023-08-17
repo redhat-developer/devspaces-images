@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.8-1037
+FROM registry.access.redhat.com/ubi8-minimal:8.8-1037
 USER root
 ENV CHE_HOME=/home/user/devspaces
 ENV JAVA_HOME=/usr/lib/jvm/jre
@@ -50,8 +50,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
       version="3.9" \
-      pnc_artifact_id="10883214" \
-      pnc_build_id="A2T5LJ7HYHQAA" \
+      pnc_artifact_id="10893467" \
+      pnc_build_id="A2UP7WH2AHQAA" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
