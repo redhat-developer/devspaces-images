@@ -10,7 +10,7 @@
 #
 
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.19.10-10 as builder
+FROM registry.access.redhat.com/rhel8/go-toolset:1.19.10-10 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
 ARG SKIP_TESTS="false"
