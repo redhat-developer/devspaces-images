@@ -19,10 +19,10 @@ import { registerChatActions } from 'vs/workbench/contrib/chat/browser/actions/c
 import { registerChatCodeBlockActions } from 'vs/workbench/contrib/chat/browser/actions/chatCodeblockActions';
 import { registerChatCopyActions } from 'vs/workbench/contrib/chat/browser/actions/chatCopyActions';
 import { registerChatExecuteActions } from 'vs/workbench/contrib/chat/browser/actions/chatExecuteActions';
-import { registerChatQuickQuestionActions } from 'vs/workbench/contrib/chat/browser/actions/chatQuickInputActions';
+import { registerQuickChatActions } from 'vs/workbench/contrib/chat/browser/actions/chatQuickInputActions';
 import { registerChatTitleActions } from 'vs/workbench/contrib/chat/browser/actions/chatTitleActions';
 import { registerChatExportActions } from 'vs/workbench/contrib/chat/browser/actions/chatImportExport';
-import { IChatAccessibilityService, IChatWidget, IChatWidgetService } from 'vs/workbench/contrib/chat/browser/chat';
+import { IChatAccessibilityService, IChatWidget, IChatWidgetService, IQuickChatService } from 'vs/workbench/contrib/chat/browser/chat';
 import { ChatContributionService } from 'vs/workbench/contrib/chat/browser/chatContributionServiceImpl';
 import { ChatEditor, IChatEditorOptions } from 'vs/workbench/contrib/chat/browser/chatEditor';
 import { ChatEditorInput, ChatEditorInputSerializer } from 'vs/workbench/contrib/chat/browser/chatEditorInput';
@@ -36,16 +36,23 @@ import { IEditorResolverService, RegisteredEditorPriority } from 'vs/workbench/s
 import { LifecyclePhase } from 'vs/workbench/services/lifecycle/common/lifecycle';
 import '../common/chatColors';
 import { registerMoveActions } from 'vs/workbench/contrib/chat/browser/actions/chatMoveActions';
-import { registerClearActions } from 'vs/workbench/contrib/chat/browser/actions/chatClearActions';
-import { AccessibleViewAction, AccessibleViewType, IAccessibleViewService } from 'vs/workbench/contrib/accessibility/browser/accessibleView';
+import { ACTION_ID_CLEAR_CHAT, registerClearActions } from 'vs/workbench/contrib/chat/browser/actions/chatClearActions';
+import { AccessibleViewType, IAccessibleViewService } from 'vs/workbench/contrib/accessibility/browser/accessibleView';
 import { isResponseVM } from 'vs/workbench/contrib/chat/common/chatViewModel';
 import { CONTEXT_IN_CHAT_SESSION } from 'vs/workbench/contrib/chat/common/chatContextKeys';
 import { ChatAccessibilityService } from 'vs/workbench/contrib/chat/browser/chatAccessibilityService';
 import { ICodeEditorService } from 'vs/editor/browser/services/codeEditorService';
-import { alertFocusChange } from 'vs/workbench/contrib/accessibility/browser/accessibility.contribution';
 import { AccessibilityVerbositySettingId } from 'vs/workbench/contrib/accessibility/browser/accessibilityConfiguration';
 import { ChatWelcomeMessageModel } from 'vs/workbench/contrib/chat/common/chatModel';
 import { IMarkdownString } from 'vs/base/common/htmlContent';
+import { ChatProviderService, IChatProviderService } from 'vs/workbench/contrib/chat/common/chatProvider';
+import { ChatSlashCommandService, IChatSlashCommandService } from 'vs/workbench/contrib/chat/common/chatSlashCommands';
+import { alertFocusChange } from 'vs/workbench/contrib/accessibility/browser/accessibilityContributions';
+import { AccessibleViewAction } from 'vs/workbench/contrib/accessibility/browser/accessibleViewActions';
+import { ICommandService } from 'vs/platform/commands/common/commands';
+import { ChatVariablesService, IChatVariablesService } from 'vs/workbench/contrib/chat/common/chatVariables';
+import { registerChatFileTreeActions } from 'vs/workbench/contrib/chat/browser/actions/chatFileTreeActions';
+import { QuickChatService } from 'vs/workbench/contrib/chat/browser/chatQuick';
 
 // Register configuration
 const configurationRegistry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
@@ -79,18 +86,6 @@ configurationRegistry.registerConfiguration({
 			type: 'number',
 			description: nls.localize('interactiveSession.editor.lineHeight', "Controls the line height in pixels in chat codeblocks. Use 0 to compute the line height from the font size."),
 			default: 0
-		},
-		'chat.experimental.defaultMode': {
-			type: 'string',
-			tags: ['experimental'],
-			enum: ['chatView', 'quickQuestion', 'both'],
-			enumDescriptions: [
-				nls.localize('interactiveSession.defaultMode.chatView', "Use the chat view as the default mode. Displays the chat icon in the Activity Bar."),
-				nls.localize('interactiveSession.defaultMode.quickQuestion', "Use the quick question as the default mode. Displays the chat icon in the Title Bar."),
-				nls.localize('interactiveSession.defaultMode.both', "Displays the chat icon in the Activity Bar and the Title Bar which open their respective chat modes.")
-			],
-			description: nls.localize('interactiveSession.defaultMode', "Controls the default mode of the chat experience."),
-			default: 'chatView'
 		}
 	}
 });
@@ -206,7 +201,7 @@ class ChatAccessibleViewContribution extends Disposable {
 						alertFocusChange(responseIndex, length, 'previous');
 						renderAccessibleView(accessibleViewService, widgetService, codeEditorService);
 					},
-					options: { ariaLabel: nls.localize('chatAccessibleView', "Chat Accessible View"), type: AccessibleViewType.View }
+					options: { type: AccessibleViewType.View }
 				});
 				return true;
 			}
@@ -214,17 +209,37 @@ class ChatAccessibleViewContribution extends Disposable {
 	}
 }
 
+class ChatSlashStaticSlashCommandsContribution extends Disposable {
+
+	constructor(
+		@IChatSlashCommandService slashCommandService: IChatSlashCommandService,
+		@ICommandService commandService: ICommandService,
+	) {
+		super();
+		this._store.add(slashCommandService.registerSlashCommand({
+			command: 'clear',
+			detail: nls.localize('clear', "Clear the session"),
+			sortText: 'z_clear',
+			executeImmediately: true
+		}, async () => {
+			commandService.executeCommand(ACTION_ID_CLEAR_CHAT);
+		}));
+	}
+}
+
 const workbenchContributionsRegistry = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench);
 workbenchContributionsRegistry.registerWorkbenchContribution(ChatResolverContribution, LifecyclePhase.Starting);
 workbenchContributionsRegistry.registerWorkbenchContribution(ChatAccessibleViewContribution, LifecyclePhase.Eventually);
+workbenchContributionsRegistry.registerWorkbenchContribution(ChatSlashStaticSlashCommandsContribution, LifecyclePhase.Eventually);
 Registry.as<IEditorFactoryRegistry>(EditorExtensions.EditorFactory).registerEditorSerializer(ChatEditorInput.TypeID, ChatEditorInputSerializer);
 
 registerChatActions();
 registerChatCopyActions();
 registerChatCodeBlockActions();
+registerChatFileTreeActions();
 registerChatTitleActions();
 registerChatExecuteActions();
-registerChatQuickQuestionActions();
+registerQuickChatActions();
 registerChatExportActions();
 registerMoveActions();
 registerClearActions();
@@ -232,6 +247,9 @@ registerClearActions();
 registerSingleton(IChatService, ChatService, InstantiationType.Delayed);
 registerSingleton(IChatContributionService, ChatContributionService, InstantiationType.Delayed);
 registerSingleton(IChatWidgetService, ChatWidgetService, InstantiationType.Delayed);
+registerSingleton(IQuickChatService, QuickChatService, InstantiationType.Delayed);
 registerSingleton(IChatAccessibilityService, ChatAccessibilityService, InstantiationType.Delayed);
 registerSingleton(IChatWidgetHistoryService, ChatWidgetHistoryService, InstantiationType.Delayed);
-
+registerSingleton(IChatProviderService, ChatProviderService, InstantiationType.Delayed);
+registerSingleton(IChatSlashCommandService, ChatSlashCommandService, InstantiationType.Delayed);
+registerSingleton(IChatVariablesService, ChatVariablesService, InstantiationType.Delayed);
