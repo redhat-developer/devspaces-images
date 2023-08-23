@@ -101,6 +101,24 @@ describe('Normalize Devfile V2', () => {
     );
   });
 
+  it('should apply metadata name and namespace', () => {
+    const devfileLike = {
+      schemaVersion: '2.1.0',
+    } as devfileApi.DevfileLike;
+
+    const targetDevfile = normalizeDevfileV2(
+      devfileLike,
+      {} as FactoryResolver,
+      'http://dummy-registry/devfiles/empty.yaml',
+      [],
+      'che',
+      {},
+    );
+
+    expect(targetDevfile.metadata.name).toEqual(expect.stringContaining('empty-yaml'));
+    expect(targetDevfile.metadata.namespace).toEqual(expect.stringContaining('che'));
+  });
+
   it('should apply defaultComponents', () => {
     const devfileLike = {
       schemaVersion: '2.1.0',

@@ -45,10 +45,13 @@ export default function normalizeDevfileV2(
   const scmInfo = data['scm_info'];
 
   const projectName = getProjectName(scmInfo?.clone_url || location);
-  const prefix = devfileLike.metadata?.generateName
+  if (!devfileLike.metadata) {
+    devfileLike.metadata = {};
+  }
+  const prefix = devfileLike.metadata.generateName
     ? devfileLike.metadata.generateName
     : projectName;
-  const name = devfileLike.metadata?.name || generateWorkspaceName(prefix);
+  const name = devfileLike.metadata.name || generateWorkspaceName(prefix);
 
   // set mandatory fields
   const devfile = cloneDeep(devfileLike) as devfileApi.Devfile;

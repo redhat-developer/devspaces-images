@@ -47,7 +47,7 @@ fi
 CHE_HOST=http://localhost:8080
 CHE_HOST_ORIGIN=$(kubectl get checluster -n "$CHE_NAMESPACE" eclipse-che -o=json | jq -r '.status.cheURL')
 
-if [[ -z "$CHE_HOST_ORIGIN=" ]]; then
+if [[ -z "$CHE_HOST_ORIGIN" ]]; then
   echo '[ERROR] Cannot find cheURL.'
   exit 1
 fi
