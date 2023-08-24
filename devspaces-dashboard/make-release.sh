@@ -75,6 +75,9 @@ function update_pkgs_versions() {
   npm --no-git-tag-version version --allow-same-version "${VER}"
   # update each package version
   lerna version --no-git-tag-version -y "${VER}"
+  # update devworkspace generator version
+  jq ".\"dependencies\".\"@eclipse-che/che-devworkspace-generator\" = \"${VER}\"" packages/dashboard-backend/package.json > packages/dashboard-backend/package.json.update
+  mv packages/dashboard-backend/package.json.update packages/dashboard-backend/package.json
   # update excluded dependencies vesion
   sed_in_place -e "s/@eclipse-che\/dashboard-backend@.*\`/@eclipse-che\/dashboard-backend@${VER}\`/" .deps/EXCLUDED/prod.md
   sed_in_place -e "s/@eclipse-che\/dashboard-frontend@.*\`/@eclipse-che\/dashboard-frontend@${VER}\`/" .deps/EXCLUDED/prod.md
