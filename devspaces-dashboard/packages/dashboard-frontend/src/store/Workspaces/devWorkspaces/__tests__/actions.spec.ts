@@ -31,6 +31,7 @@ import * as ServerConfigStore from '../../../ServerConfig';
 import { DevWorkspaceBuilder } from '../../../__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import { checkRunningWorkspacesLimit } from '../checkRunningWorkspacesLimit';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../services/devfileApi/devWorkspace/spec/template';
 
 jest.mock('../../../../services/dashboard-backend-client/serverConfigApi');
 jest.mock('../../../../services/helpers/delay', () => ({
@@ -44,12 +45,75 @@ apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspaceTemplate
 metadata:
   name: che-code
+spec:
+  components:
+    - name: che-code-runtime-description
+      container:
+        image: quay.io/devfile/universal-developer-image:next
+        endpoints:
+          - name: che-code
+            attributes:
+              type: main
+              cookiesAuthEnabled: true
+              discoverable: false
+              urlRewriteSupported: true
+            targetPort: 3100
+            exposure: public
+            secure: false
+            protocol: https
+          - name: code-redirect-1
+            attributes:
+              discoverable: false
+              urlRewriteSupported: false
+            targetPort: 13131
+            exposure: public
+            protocol: http
+          - name: code-redirect-2
+            attributes:
+              discoverable: false
+              urlRewriteSupported: false
+            targetPort: 13132
+            exposure: public
+            protocol: http
+          - name: code-redirect-3
+            attributes:
+              discoverable: false
+              urlRewriteSupported: false
+            targetPort: 13133
+            exposure: public
+            protocol: http
 ---
 apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspace
 metadata:
   name: che
+spec:
+  routingClass: che
+  template:
+    components: []
 `,
+}));
+
+const mockPatchTemplate = jest.fn();
+jest.mock('../../../../services/dashboard-backend-client/devWorkspaceTemplateApi', () => ({
+  getTemplates: () => [
+    {
+      apiVersion: 'workspace.devfile.io/v1alpha2',
+      kind: 'DevWorkspaceTemplate',
+      metadata: {
+        name: 'che-code',
+        namespace: 'test-che',
+        ownerReferences: [{ uid: 'testDevWorkspaceUID' }],
+      },
+    },
+  ],
+  patchTemplate: (templateNamespace, templateName, targetTemplatePatch) =>
+    mockPatchTemplate(templateNamespace, templateName, targetTemplatePatch),
+}));
+const mockPatchWorkspace = jest.fn();
+jest.mock('../../../../services/dashboard-backend-client/devWorkspaceApi', () => ({
+  patchWorkspace: (namespace, workspaceName, patch) =>
+    mockPatchWorkspace(namespace, workspaceName, patch),
 }));
 
 // DevWorkspaceClient mocks
@@ -70,10 +134,8 @@ const mockUpdateAnnotation = jest.fn();
 
 describe('DevWorkspace store, actions', () => {
   const devWorkspaceClient = container.get(DevWorkspaceClient);
-
   let storeBuilder: FakeStoreBuilder;
   let store: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
-
   beforeEach(() => {
     container.snapshot();
     devWorkspaceClient.changeWorkspaceStatus = mockChangeWorkspaceStatus;
@@ -349,6 +411,176 @@ describe('DevWorkspace store, actions', () => {
         },
       ];
 
+      expect(actions).toStrictEqual(expectedActions);
+    });
+  });
+
+  describe('updateWorkspaceWithDefaultDevfile', () => {
+    const timestampNew = '2023-08-15T11:59:18.331Z';
+    beforeEach(() => {
+      class MockDate extends Date {
+        constructor() {
+          super(timestampNew);
+        }
+      }
+      window.Date = MockDate as DateConstructor;
+    });
+
+    it('should create REQUEST_DEVWORKSPACE and UPDATE_DEVWORKSPACE when update DevWorkspace with default devfile', async () => {
+      const devWorkspace = new DevWorkspaceBuilder()
+        .withName('dev-wksp')
+        .withNamespace('test-che')
+        .withUID('testDevWorkspaceUID')
+        .build();
+
+      mockPatchTemplate.mockResolvedValueOnce({});
+      mockPatchWorkspace.mockResolvedValueOnce({ devWorkspace: devWorkspace });
+
+      const store = storeBuilder
+        .withDevWorkspaces({ workspaces: [devWorkspace] })
+        .withDevfileRegistries({
+          registries: {
+            ['https://registry-url']: {
+              metadata: [
+                {
+                  displayName: 'Empty Workspace',
+                  description: 'Start an empty remote development environment',
+                  tags: ['Empty'],
+                  icon: '/images/empty.svg',
+                  links: {
+                    v2: 'https://resources-url',
+                  },
+                } as che.DevfileMetaData,
+              ],
+            },
+          },
+          devfiles: {
+            ['https://resources-url']: {
+              content: dump({
+                schemaVersion: '2.1.0',
+                metadata: {
+                  generateName: 'empty',
+                },
+              } as devfileApi.Devfile),
+            },
+            'https://dummy.registry/plugins/che-incubator/che-code/latest/devfile.yaml': {
+              content: dump({
+                apiVersion: 'workspace.devfile.io/v1alpha2',
+                kind: 'DevWorkspaceTemplate',
+                metadata: {
+                  name: 'che-code',
+                },
+                spec: {
+                  components: [],
+                },
+              }),
+            },
+          },
+        })
+        .withDwPlugins({}, false, undefined, 'che-incubator/che-code/latest')
+        .build();
+
+      await store.dispatch(
+        testStore.actionCreators.updateWorkspaceWithDefaultDevfile(devWorkspace),
+      );
+
+      const actions = store.getActions();
+
+      const expectedActions: Array<testStore.KnownAction | ServerConfigStore.KnownAction> = [
+        {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
+          type: testStore.Type.UPDATE_DEVWORKSPACE,
+          workspace: devWorkspace,
+        },
+      ];
+
+      expect(mockPatchTemplate).toHaveBeenCalledWith('test-che', 'che-code', [
+        {
+          op: 'add',
+          path: '/metadata/annotations',
+          value: {
+            'che.eclipse.org/components-update-policy': 'managed',
+            'che.eclipse.org/plugin-registry-url':
+              'https://dummy.registry/plugins/che-incubator/che-code/latest/devfile.yaml',
+          },
+        },
+        {
+          op: 'replace',
+          path: '/spec',
+          value: {
+            components: [
+              {
+                name: 'che-code-runtime-description',
+                container: {
+                  image: 'quay.io/devfile/universal-developer-image:next',
+                  endpoints: [
+                    {
+                      name: 'che-code',
+                      attributes: {
+                        type: 'main',
+                        discoverable: false,
+                        cookiesAuthEnabled: true,
+                        urlRewriteSupported: true,
+                      },
+                      targetPort: 3100,
+                      exposure: 'public',
+                      secure: false,
+                      protocol: 'https',
+                    },
+                  ],
+                  env: [
+                    {
+                      name: 'CHE_DASHBOARD_URL',
+                      value: 'http://localhost',
+                    },
+                    {
+                      name: 'CHE_PLUGIN_REGISTRY_URL',
+                      value: 'https://dummy.registry',
+                    },
+                    {
+                      name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
+                      value: '',
+                    },
+                    {
+                      name: 'OPENVSX_REGISTRY_URL',
+                      value: '',
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ]);
+      expect(mockPatchWorkspace).toHaveBeenCalledWith('test-che', 'dev-wksp', [
+        {
+          op: 'replace',
+          path: '/metadata/annotations',
+          value: {
+            'che.eclipse.org/che-editor': 'che-incubator/che-code/latest',
+            'che.eclipse.org/last-updated-timestamp': '2023-08-15T11:59:18.331Z',
+          },
+        },
+        {
+          op: 'replace',
+          path: '/spec',
+          value: {
+            contributions: undefined,
+            routingClass: 'che',
+            started: false,
+            template: {
+              attributes: {
+                [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
+              },
+              components: [],
+              projects: undefined,
+            },
+          },
+        },
+      ]);
       expect(actions).toStrictEqual(expectedActions);
     });
   });
@@ -687,6 +919,12 @@ describe('DevWorkspace store, actions', () => {
             metadata: {
               annotations: {},
               name: 'che',
+            },
+            spec: {
+              routingClass: 'che',
+              template: {
+                components: [],
+              },
             },
           },
         ]),

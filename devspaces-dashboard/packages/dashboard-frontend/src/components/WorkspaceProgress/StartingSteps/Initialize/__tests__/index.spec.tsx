@@ -89,10 +89,6 @@ describe('Starting steps, initializing', () => {
             title: 'Restart',
             callback: expect.any(Function),
           }),
-          expect.objectContaining({
-            title: 'Open in Verbose mode',
-            callback: expect.any(Function),
-          }),
         ],
       });
       await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
@@ -300,10 +296,6 @@ describe('Starting steps, initializing', () => {
           title: 'Restart',
           callback: expect.any(Function),
         }),
-        expect.objectContaining({
-          title: 'Open in Verbose mode',
-          callback: expect.any(Function),
-        }),
       ],
     });
     await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
@@ -399,10 +391,6 @@ describe('Starting steps, initializing', () => {
         actionCallbacks: [
           expect.objectContaining({
             title: 'Restart',
-            callback: expect.any(Function),
-          }),
-          expect.objectContaining({
-            title: 'Open in Verbose mode',
             callback: expect.any(Function),
           }),
         ],

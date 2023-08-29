@@ -299,10 +299,6 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
           title: 'Restart',
           callback: () => this.handleRestart(key),
         },
-        {
-          title: 'Open in Verbose mode',
-          callback: () => this.handleRestart(key, LoaderTab.Logs),
-        },
       ],
     };
   }

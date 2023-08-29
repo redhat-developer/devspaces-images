@@ -27,6 +27,12 @@ import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../Progre
 import { ProgressStepTitle } from '../../StepTitle';
 import { TimeLimit } from '../../TimeLimit';
 import workspaceStatusIs from '../../workspaceStatusIs';
+import {
+  applyRestartDefaultLocation,
+  applyRestartInSafeModeLocation,
+  getStartParams,
+  resetRestartInSafeModeLocation,
+} from './prepareRestart';
 
 export type Props = MappedProps &
   ProgressStepProps & {
@@ -34,6 +40,7 @@ export type Props = MappedProps &
   };
 export type State = ProgressStepState & {
   shouldStart: boolean; // should the loader start a workspace?
+  shouldUpdateWithDefaultDevfile: boolean;
 };
 
 class StartingStepStartWorkspace extends ProgressStep<Props, State> {
@@ -45,6 +52,7 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
     this.state = {
       shouldStart: true,
       name: this.name,
+      shouldUpdateWithDefaultDevfile: false,
     };
   }
 
@@ -53,6 +61,12 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
   }
 
   public async componentDidUpdate() {
+    const safeMode = resetRestartInSafeModeLocation(this.props.history.location);
+    if (safeMode) {
+      this.setState({ shouldUpdateWithDefaultDevfile: safeMode });
+      return;
+    }
+
     this.init();
   }
 
@@ -83,6 +97,15 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
     if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
+
+    if (this.state.shouldUpdateWithDefaultDevfile !== nextState.shouldUpdateWithDefaultDevfile) {
+      return true;
+    }
+
+    if (this.props.history.location.search !== nextProps.history.location.search) {
+      return true;
+    }
+
     return false;
   }
 
@@ -140,6 +163,12 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
       );
     }
 
+    if (this.state.shouldUpdateWithDefaultDevfile) {
+      await this.props.updateWorkspaceWithDefaultDevfile(workspace);
+      this.setState({ shouldUpdateWithDefaultDevfile: false });
+      return false;
+    }
+
     if (
       workspaceStatusIs(
         workspace,
@@ -165,7 +194,7 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
       this.state.shouldStart &&
       workspaceStatusIs(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED)
     ) {
-      await this.props.startWorkspace(workspace);
+      await this.props.startWorkspace(workspace, getStartParams(this.props.history.location));
     }
 
     // do not switch to the next step
@@ -189,11 +218,17 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
       actionCallbacks: [
         {
           title: 'Restart',
-          callback: () => this.handleRestart(key, LoaderTab.Progress),
+          callback: () => {
+            applyRestartDefaultLocation(this.props.history.location);
+            this.handleRestart(key, LoaderTab.Progress);
+          },
         },
         {
-          title: 'Open in Verbose mode',
-          callback: () => this.handleRestart(key, LoaderTab.Logs),
+          title: 'Restart with default devfile',
+          callback: () => {
+            applyRestartInSafeModeLocation(this.props.history.location);
+            this.handleRestart(key, LoaderTab.Progress);
+          },
         },
       ],
     };

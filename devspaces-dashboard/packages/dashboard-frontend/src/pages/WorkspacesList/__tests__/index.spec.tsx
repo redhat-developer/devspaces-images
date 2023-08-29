@@ -294,7 +294,7 @@ describe('Workspaces List Page', () => {
       expect(menuItems.length).toEqual(5);
 
       // check state of action buttons
-      const startDebugAction = screen.getByRole('button', { name: /verbose mode/i });
+      const startDebugAction = screen.getByRole('button', { name: /debug mode/i });
       expect(startDebugAction).toBeEnabled();
 
       const openInBackgroundAction = screen.getByRole('button', { name: /background/i });
@@ -321,14 +321,14 @@ describe('Workspaces List Page', () => {
       expect(actionButtons[0]).toBeDisabled();
     });
 
-    it('should handle "Open in Verbose mode" action', () => {
+    it('should handle "Restart in Debug mode" action', () => {
       renderComponent();
 
       const actionButtons = screen.getAllByRole('button', { name: /actions/i });
       // click the kebab button on the first workspace row
       userEvent.click(actionButtons[0]);
 
-      const startDebugAction = screen.getByRole('button', { name: /verbose mode/i });
+      const startDebugAction = screen.getByRole('button', { name: /debug mode/i });
       userEvent.click(startDebugAction);
 
       expect(mockOnAction).toHaveBeenCalledWith(

@@ -235,7 +235,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * propagate the plugin registry, plugin internal registry,
    * and dashboard URLs into the components containers
    */
-  private addEnvVarsToContainers(
+  public addEnvVarsToContainers(
     components:
       | V1alpha2DevWorkspaceSpecTemplateComponents[]
       | V1alpha2DevWorkspaceTemplateSpecComponents[]

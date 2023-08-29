@@ -18,6 +18,8 @@ export const POLICIES_CREATE_ATTR = 'policies.create';
 export const STORAGE_TYPE_ATTR = 'storageType';
 export const REMOTES_ATTR = 'remotes';
 export const IMAGE_ATTR = 'image';
+export const USE_DEFAULT_DEVFILE = 'useDefaultDevfile';
+export const DEBUG_WORKSPACE_START = 'debugWorkspaceStart';
 export const PROPAGATE_FACTORY_ATTRS = [
   'workspaceDeploymentAnnotations',
   'workspaceDeploymentLabels',
@@ -44,6 +46,8 @@ export type FactoryParams = {
   cheEditor: string | undefined;
   remotes: string | undefined;
   image: string | undefined;
+  useDefaultDevfile: boolean;
+  debugWorkspaceStart: boolean;
 };
 
 export type PoliciesCreate = 'perclick' | 'peruser';
@@ -63,6 +67,8 @@ export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams
     remotes: getRemotes(searchParams),
     useDevworkspaceResources: getDevworkspaceResourcesUrl(searchParams) !== undefined,
     image: getImage(searchParams),
+    useDefaultDevfile: isSafeWorkspaceStart(searchParams) !== undefined,
+    debugWorkspaceStart: isDebugWorkspaceStart(searchParams) !== undefined,
   };
 }
 
@@ -139,4 +145,16 @@ function isOverrideAttr(attr: string): attr is string {
 
 function getImage(searchParams: URLSearchParams): string | undefined {
   return searchParams.get(IMAGE_ATTR) || undefined;
+}
+
+function isSafeWorkspaceStart(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(USE_DEFAULT_DEVFILE) === null
+    ? undefined
+    : (searchParams.get(USE_DEFAULT_DEVFILE) as string);
+}
+
+function isDebugWorkspaceStart(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(DEBUG_WORKSPACE_START) === null
+    ? undefined
+    : (searchParams.get(DEBUG_WORKSPACE_START) as string);
 }

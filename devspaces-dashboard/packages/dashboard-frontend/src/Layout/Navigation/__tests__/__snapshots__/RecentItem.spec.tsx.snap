@@ -472,7 +472,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             tabIndex={-1}
           >
             <div>
-              Open in verbose mode
+              Open in Debug mode
             </div>
           </a>
         </li>

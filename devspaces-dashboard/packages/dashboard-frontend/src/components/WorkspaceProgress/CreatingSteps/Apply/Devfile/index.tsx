@@ -20,6 +20,7 @@ import devfileApi from '../../../../../services/devfileApi';
 import {
   buildFactoryParams,
   FactoryParams,
+  USE_DEFAULT_DEVFILE,
 } from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
 import { findTargetWorkspace } from '../../../../../services/helpers/factoryFlow/findTargetWorkspace';
 import { buildIdeLoaderLocation } from '../../../../../services/helpers/location';
@@ -43,6 +44,7 @@ import { TimeLimit } from '../../../TimeLimit';
 import { configureProjectRemotes } from './getGitRemotes';
 import { getProjectFromLocation } from './getProjectFromLocation';
 import { prepareDevfile } from './prepareDevfile';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../services/devfileApi/devWorkspace/spec/template';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {
@@ -61,7 +63,7 @@ export type State = ProgressStepState & {
   newWorkspaceName?: string; // a workspace name to create
   shouldCreate: boolean; // should the loader create a workspace
   warning?: string; // the devWorkspace warning to show
-  continueWithDefaultDevfile?: boolean; //
+  continueWithDefaultDevfile: boolean; //
 };
 
 class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
@@ -70,10 +72,12 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const factoryParams = buildFactoryParams(props.searchParams);
     this.state = {
       factoryParams: buildFactoryParams(props.searchParams),
       shouldCreate: true,
       name: this.name,
+      continueWithDefaultDevfile: factoryParams.useDefaultDevfile,
     };
   }
 
@@ -229,13 +233,19 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
     }
 
     // factory resolving failed in the previous step
-    // hence we have to proceed with the default devfile
+    // hence we have to proceed with default devfile
     if (factoryResolver === undefined) {
       if (devfile === undefined) {
         if (defaultDevfile === undefined) {
           throw new Error('Failed to resolve the default devfile.');
         }
-        this.updateCurrentDevfile(defaultDevfile);
+        const _devfile = cloneDeep(defaultDevfile);
+        // sets ephemeral storage type
+        if (!_devfile.attributes) {
+          _devfile.attributes = {};
+        }
+        _devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = 'ephemeral';
+        this.updateCurrentDevfile(_devfile);
       } else {
         try {
           await this.createWorkspaceFromDevfile(devfile);
@@ -248,7 +258,7 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
     }
 
     // the user devfile is invalid and caused creation error
-    // so we have to proceed with the default devfile
+    // so we have to proceed with default devfile
     if (continueWithDefaultDevfile === true) {
       if (defaultDevfile === undefined) {
         throw new Error('Failed to resolve the default devfile.');
@@ -256,6 +266,12 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
 
       if (devfile === undefined) {
         const _devfile = cloneDeep(defaultDevfile);
+
+        // sets ephemeral storage type
+        if (!_devfile.attributes) {
+          _devfile.attributes = {};
+        }
+        _devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = 'ephemeral';
 
         if (factoryResolverConverted?.devfileV2 !== undefined) {
           const { metadata, projects } = factoryResolverConverted.devfileV2;
@@ -268,7 +284,7 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
         return false;
       }
 
-      // proceed with the default devfile
+      // proceed with default devfile
       try {
         await this.createWorkspaceFromDevfile(devfile);
       } catch (e) {
@@ -321,6 +337,9 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   protected handleRestart(alertKey: string): void {
+    const searchParams = new URLSearchParams(this.props.history.location.search);
+    searchParams.delete(USE_DEFAULT_DEVFILE);
+    this.props.history.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -332,6 +351,9 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   private handleContinueWithDefaultDevfile(alertKey: string): void {
+    const searchParams = new URLSearchParams(this.props.history.location.search);
+    searchParams.set(USE_DEFAULT_DEVFILE, 'true');
+    this.props.history.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -366,7 +388,7 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
         ),
         actionCallbacks: [
           {
-            title: 'Continue with the default devfile',
+            title: 'Continue with default devfile',
             callback: () => this.handleContinueWithDefaultDevfile(key),
           },
           {
@@ -382,6 +404,10 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
       variant: AlertVariant.danger,
       children: helpers.errors.getMessage(error),
       actionCallbacks: [
+        {
+          title: 'Continue with default devfile',
+          callback: () => this.handleContinueWithDefaultDevfile(key),
+        },
         {
           title: 'Click to try again',
           callback: () => this.handleRestart(key),

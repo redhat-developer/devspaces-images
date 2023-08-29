@@ -170,7 +170,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
     return [
       {
-        title: 'Open in Verbose mode',
+        title: 'Open in Debug mode',
         isDisabled:
           false === this.isEnabledAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, workspace),
         onClick: (event, rowId, rowData) =>

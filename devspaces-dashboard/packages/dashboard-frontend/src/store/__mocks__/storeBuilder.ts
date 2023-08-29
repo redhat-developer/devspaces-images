@@ -367,10 +367,12 @@ export class FakeStoreBuilder {
     },
     isLoading = false,
     defaultEditorError?: string,
+    defaultEditorName?: string,
   ) {
     this.state.dwPlugins.defaultEditorError = defaultEditorError;
     this.state.dwPlugins.plugins = Object.assign({}, plugins);
     this.state.dwPlugins.isLoading = isLoading;
+    this.state.dwPlugins.defaultEditorName = defaultEditorName;
 
     return this;
   }

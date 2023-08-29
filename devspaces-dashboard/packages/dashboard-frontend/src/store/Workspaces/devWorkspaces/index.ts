@@ -56,6 +56,11 @@ import {
 } from '../../ServerConfig/selectors';
 import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
 import { selectDevWorkspacesResourceVersion } from './selectors';
+import * as DwtApi from '../../../services/dashboard-backend-client/devWorkspaceTemplateApi';
+import { selectDefaultDevfile } from '../../DevfileRegistries/selectors';
+import * as DwApi from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import { selectDefaultEditor } from '../../Plugins/devWorkspacePlugins/selectors';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../services/devfileApi/devWorkspace/spec/template';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -167,6 +172,9 @@ export type ActionCreators = {
     workspace: devfileApi.DevWorkspace,
   ) => AppThunk<KnownAction, Promise<void>>;
   updateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  updateWorkspaceWithDefaultDevfile: (
+    workspace: devfileApi.DevWorkspace,
+  ) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
     devfile: devfileApi.Devfile,
     attributes: Partial<FactoryParams>,
@@ -512,7 +520,7 @@ export const actionCreators: ActionCreators = {
       const openVSXUrl = selectOpenVSXUrl(state);
       const pluginRegistryUrl = selectPluginRegistryUrl(state);
       const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
-      const cheEditor = editorId ? editorId : state.dwPlugins.defaultEditorName;
+      const cheEditor = editorId ? editorId : selectDefaultEditor(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
       try {
         /* create a new DevWorkspace */
@@ -573,6 +581,204 @@ export const actionCreators: ActionCreators = {
       } catch (e) {
         const errorMessage =
           'Failed to create a new workspace, reason: ' + common.helpers.errors.getMessage(e);
+        dispatch({
+          type: Type.RECEIVE_DEVWORKSPACE_ERROR,
+          error: errorMessage,
+        });
+        throw e;
+      }
+    },
+
+  updateWorkspaceWithDefaultDevfile:
+    (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      const state = getState();
+
+      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+
+      const defaultsDevfile = selectDefaultDevfile(state);
+      if (!defaultsDevfile) {
+        throw new Error('Cannot define default devfile');
+      }
+      const defaultsEditor = selectDefaultEditor(state);
+      if (!defaultsEditor) {
+        throw new Error('Cannot define default editor');
+      }
+      const openVSXUrl = selectOpenVSXUrl(state);
+      const pluginRegistryUrl = selectPluginRegistryUrl(state);
+      const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
+      const clusterConsole = selectApplications(state).find(
+        app => app.id === ApplicationId.CLUSTER_CONSOLE,
+      );
+
+      let editorContent: string | undefined;
+      let editorYamlUrl: string | undefined;
+      let devWorkspaceResource: devfileApi.DevWorkspace;
+      let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
+
+      try {
+        const response = await getEditor(defaultsEditor, dispatch, getState, pluginRegistryUrl);
+        if (response.content) {
+          editorContent = response.content;
+          editorYamlUrl = response.editorYamlUrl;
+        } else {
+          throw new Error(response.error);
+        }
+        console.debug(`Using default editor ${defaultsEditor}`);
+
+        defaultsDevfile.metadata.name = workspace.metadata.name;
+        delete defaultsDevfile.metadata.generateName;
+        const resourcesContent = await fetchResources({
+          pluginRegistryUrl,
+          devfileContent: dump(defaultsDevfile),
+          editorPath: undefined,
+          editorId: undefined,
+          editorContent,
+        });
+        const resources = loadResourcesContent(resourcesContent);
+        devWorkspaceResource = resources.find(
+          resource => resource.kind === 'DevWorkspace',
+        ) as devfileApi.DevWorkspace;
+        if (devWorkspaceResource === undefined) {
+          throw new Error('Failed to find a DevWorkspace in the fetched resources.');
+        }
+        if (devWorkspaceResource.metadata) {
+          if (!devWorkspaceResource.metadata.annotations) {
+            devWorkspaceResource.metadata.annotations = {};
+          }
+        }
+        if (!devWorkspaceResource.spec.routingClass) {
+          devWorkspaceResource.spec.routingClass = 'che';
+        }
+        devWorkspaceResource.spec.started = false;
+
+        getDevWorkspaceClient().addEnvVarsToContainers(
+          devWorkspaceResource.spec.template.components,
+          pluginRegistryUrl,
+          pluginRegistryInternalUrl,
+          openVSXUrl,
+          clusterConsole,
+        );
+        if (!devWorkspaceResource.metadata.annotations) {
+          devWorkspaceResource.metadata.annotations = {};
+        }
+        devWorkspaceResource.spec.contributions = workspace.spec.contributions;
+
+        // add projects from the origin workspace
+        devWorkspaceResource.spec.template.projects = workspace.spec.template.projects;
+
+        // sets ephemeral storage type
+        const storageType: che.WorkspaceStorageType = 'ephemeral';
+        if (!devWorkspaceResource.spec.template.attributes) {
+          devWorkspaceResource.spec.template.attributes = {};
+        }
+        devWorkspaceResource.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = storageType;
+
+        devWorkspaceTemplateResource = resources.find(
+          resource => resource.kind === 'DevWorkspaceTemplate',
+        ) as devfileApi.DevWorkspaceTemplate;
+        if (devWorkspaceTemplateResource === undefined) {
+          throw new Error('Failed to find a DevWorkspaceTemplate in the fetched resources.');
+        }
+        if (!devWorkspaceTemplateResource.metadata.annotations) {
+          devWorkspaceTemplateResource.metadata.annotations = {};
+        }
+
+        // removes endpoints with 'urlRewriteSupport: false'
+        const components = devWorkspaceTemplateResource.spec?.components || [];
+        components.forEach(component => {
+          if (component.container && Array.isArray(component.container.endpoints)) {
+            component.container.endpoints = component.container.endpoints.filter(endpoint => {
+              const attributes = endpoint.attributes as { urlRewriteSupported: boolean };
+              return attributes.urlRewriteSupported;
+            });
+          }
+        });
+
+        if (editorYamlUrl) {
+          devWorkspaceTemplateResource.metadata.annotations[COMPONENT_UPDATE_POLICY] = 'managed';
+          devWorkspaceTemplateResource.metadata.annotations[REGISTRY_URL] = editorYamlUrl;
+        }
+
+        getDevWorkspaceClient().addEnvVarsToContainers(
+          devWorkspaceTemplateResource.spec?.components,
+          pluginRegistryUrl,
+          pluginRegistryInternalUrl,
+          openVSXUrl,
+          clusterConsole,
+        );
+        const templates = await DwtApi.getTemplates(workspace.metadata.namespace);
+        const targetTemplate = templates.find(template => {
+          const ownerReferences = template.metadata?.ownerReferences || [];
+          return (
+            ownerReferences.find(
+              ownerReference => ownerReference.uid === workspace.metadata.uid,
+            ) !== undefined
+          );
+        });
+        const templateName = targetTemplate?.metadata?.name;
+        const templateNamespace = targetTemplate?.metadata?.namespace;
+        if (!templateName || !templateNamespace) {
+          throw new Error('Cannot define the target template');
+        }
+
+        const targetTemplatePatch: api.IPatch[] = [];
+        if (targetTemplate.metadata.annotations) {
+          targetTemplatePatch.push({
+            op: 'replace',
+            path: '/metadata/annotations',
+            value: devWorkspaceTemplateResource.metadata.annotations,
+          });
+        } else {
+          targetTemplatePatch.push({
+            op: 'add',
+            path: '/metadata/annotations',
+            value: devWorkspaceTemplateResource.metadata.annotations,
+          });
+        }
+        targetTemplatePatch.push({
+          op: 'replace',
+          path: '/spec',
+          value: devWorkspaceTemplateResource.spec,
+        });
+        await DwtApi.patchTemplate(templateNamespace, templateName, targetTemplatePatch);
+
+        const targetWorkspacePatch: api.IPatch[] = [];
+        devWorkspaceResource.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
+          new Date().toISOString();
+        devWorkspaceResource.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = defaultsEditor;
+        if (workspace.metadata.annotations) {
+          targetWorkspacePatch.push({
+            op: 'replace',
+            path: '/metadata/annotations',
+            value: devWorkspaceResource.metadata.annotations,
+          });
+        } else {
+          targetWorkspacePatch.push({
+            op: 'add',
+            path: '/metadata/annotations',
+            value: devWorkspaceResource.metadata.annotations,
+          });
+        }
+        targetWorkspacePatch.push({
+          op: 'replace',
+          path: '/spec',
+          value: devWorkspaceResource.spec,
+        });
+        const { devWorkspace } = await DwApi.patchWorkspace(
+          workspace.metadata.namespace,
+          workspace.metadata.name,
+          targetWorkspacePatch,
+        );
+
+        dispatch({
+          type: Type.UPDATE_DEVWORKSPACE,
+          workspace: devWorkspace,
+        });
+      } catch (e) {
+        const errorMessage =
+          `Failed to update the workspace ${workspace.metadata.name}, reason: ` +
+          common.helpers.errors.getMessage(e);
         dispatch({
           type: Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: errorMessage,

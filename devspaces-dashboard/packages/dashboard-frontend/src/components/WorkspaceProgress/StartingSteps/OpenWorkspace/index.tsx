@@ -27,6 +27,10 @@ import { TIMEOUT_TO_GET_URL_SEC } from '../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
 import { ProgressStepTitle } from '../../StepTitle';
 import { TimeLimit } from '../../TimeLimit';
+import {
+  applyRestartDefaultLocation,
+  applyRestartInSafeModeLocation,
+} from '../StartWorkspace/prepareRestart';
 
 export type Props = MappedProps &
   ProgressStepProps & {
@@ -158,11 +162,17 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
       actionCallbacks: [
         {
           title: 'Restart',
-          callback: () => this.handleRestart(key, LoaderTab.Progress),
+          callback: () => {
+            applyRestartDefaultLocation(this.props.history.location);
+            this.handleRestart(key, LoaderTab.Progress);
+          },
         },
         {
-          title: 'Open in Verbose mode',
-          callback: () => this.handleRestart(key, LoaderTab.Logs),
+          title: 'Restart with default devfile',
+          callback: () => {
+            applyRestartInSafeModeLocation(this.props.history.location);
+            this.handleRestart(key, LoaderTab.Progress);
+          },
         },
       ],
     };

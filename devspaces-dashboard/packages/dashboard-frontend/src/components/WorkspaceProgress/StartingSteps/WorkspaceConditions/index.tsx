@@ -110,10 +110,6 @@ export default class StartingStepWorkspaceConditions extends ProgressStep<Props,
           title: 'Restart',
           callback: () => this.handleRestart(key, LoaderTab.Progress),
         },
-        {
-          title: 'Open in Verbose mode',
-          callback: () => this.handleRestart(key, LoaderTab.Logs),
-        },
       ],
     };
   }

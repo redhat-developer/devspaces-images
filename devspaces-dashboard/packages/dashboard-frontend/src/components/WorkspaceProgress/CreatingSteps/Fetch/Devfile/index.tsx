@@ -18,6 +18,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import {
   buildFactoryParams,
   FactoryParams,
+  USE_DEFAULT_DEVFILE,
 } from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
 import { getEnvironment, isDevEnvironment } from '../../../../../services/helpers/environment';
 import { AlertItem } from '../../../../../services/helpers/types';
@@ -154,6 +155,9 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
   }
 
   protected handleRestart(alertKey: string): void {
+    const searchParams = new URLSearchParams(this.props.history.location.search);
+    searchParams.delete(USE_DEFAULT_DEVFILE);
+    this.props.history.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -164,6 +168,9 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
   }
 
   private handleDefaultDevfile(alertKey: string): void {
+    const searchParams = new URLSearchParams(this.props.history.location.search);
+    searchParams.set(USE_DEFAULT_DEVFILE, 'true');
+    this.props.history.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -323,7 +330,7 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         ),
         actionCallbacks: [
           {
-            title: 'Continue with the default devfile',
+            title: 'Continue with default devfile',
             callback: () => this.handleDefaultDevfile(key),
           },
           {
@@ -347,7 +354,7 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         ),
         actionCallbacks: [
           {
-            title: 'Continue with the default devfile',
+            title: 'Continue with default devfile',
             callback: () => this.handleDefaultDevfile(key),
           },
           {
@@ -363,6 +370,10 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
       variant: AlertVariant.danger,
       children: helpers.errors.getMessage(error),
       actionCallbacks: [
+        {
+          title: 'Continue with default devfile',
+          callback: () => this.handleDefaultDevfile(key),
+        },
         {
           title: 'Click to try again',
           callback: () => this.handleRestart(key),

@@ -106,6 +106,7 @@ export type ActionCreators = {
   stopWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   deleteWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   updateWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
+  updateWorkspaceWithDefaultDevfile: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
     devfile: devfileApi.Devfile,
     attributes: Partial<FactoryParams>,
@@ -202,6 +203,23 @@ export const actionCreators: ActionCreators = {
       try {
         await dispatch(
           DevWorkspacesStore.actionCreators.updateWorkspace(
+            workspace.ref as devfileApi.DevWorkspace,
+          ),
+        );
+        dispatch({ type: 'UPDATE_WORKSPACE' });
+      } catch (e) {
+        dispatch({ type: 'RECEIVE_ERROR' });
+        throw e;
+      }
+    },
+
+  updateWorkspaceWithDefaultDevfile:
+    (workspace: Workspace): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_WORKSPACES' });
+      try {
+        await dispatch(
+          DevWorkspacesStore.actionCreators.updateWorkspaceWithDefaultDevfile(
             workspace.ref as devfileApi.DevWorkspace,
           ),
         );
