@@ -53,7 +53,7 @@ spec:
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:66e2147d3909568820ff436be5bcceb37f64f8b23796462504bc56cd3c663c9c"}}]'
+                "quay.io/devspaces/udi-rhel8@sha256:latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -107,13 +107,13 @@ spec:
             - name: RELATED_IMAGE_che_pycharm_plugin_registry_image_NZSXQ5A_
               value: quay.io/che-incubator/che-pycharm@sha256:40979e817d0523b5d9d32083a9502ce336a43bbda0ece2d1a85423ad886616e9
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/devspaces/server-rhel8:3.8
+              value: quay.io/devspaces/server-rhel8:latest
             - name: RELATED_IMAGE_code_server_plugin_registry_image_IBZWQYJSGU3DUZLGGA3TEOBRGAYDIOJQHFRGEMTDGIZDQNBSGJSGMMTFHE4WCNLCME2WKNBVGBTGGZJXGU2DMYRYMZQTCOBWHA2TEZRSGNRGMNRXGUYQ____
               value: index.docker.io/codercom/code-server@sha256:ef07281004909bb2c228422df2e99a5ba5e450fce7546b8fa186852f23bf6751
             - name: RELATED_IMAGE_dashboard
-              value: registry.redhat.io/devspaces/dashboard-rhel8:3.8
+              value: quay.io/devspaces/dashboard-rhel8:latest
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/devspaces/devfileregistry-rhel8:3.8
+              value: quay.io/devspaces/devfileregistry-rhel8:latest
             - name: RELATED_IMAGE_devworkspace_controller
               value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator
             - name: RELATED_IMAGE_dirigible_openshift_plugin_registry_image_IBZWQYJSGU3DUMZTGY2TMMZVMQYWKMBUGAZTMOJXMRSWCMBWG42GEYTCMRRTONBZMM2GEZJSMRRDEOJYGE4GCOJTMI4GKMLFGUZWGM3DGUYTINBRGEZQ____
@@ -125,13 +125,13 @@ spec:
             - name: RELATED_IMAGE_gateway_authorization_sidecar
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.12
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/devspaces/pluginregistry-rhel8:3.8
+              value: quay.io/devspaces/pluginregistry-rhel8:latest
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.8
             - name: RELATED_IMAGE_single_host_gateway
-              value: registry.redhat.io/devspaces/traefik-rhel8:3.8
+              value: quay.io/devspaces/traefik-rhel8:latest
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-              value: registry.redhat.io/devspaces/configbump-rhel8:3.8
+              value: quay.io/devspaces/configbump-rhel8:latest
             - name: RELATED_IMAGE_ubi_minimal_devfile_registry_image_
               value: registry.access.redhat.com/ubi8/ubi-minimal@sha256:e52fc1de73dc2879516431ff1865e0fb61b1a32f57b6f914bdcddb13c62f84e6
             - name: RELATED_IMAGE_universal_developer_image_devfile_registry_image_IBZWQYJSGU3DUYZTGUYWIYTBHBRTEMBTGQ4TINJRGJQWCZJSGBSDSMJRGQ2GCMBYGQZWMNRYMU4DSN3GMJRTIY3FGAZDSNRZGM4WENBYMY2DSOBVGNSQ____
