@@ -14,7 +14,6 @@ const base = require('../../jest.config.base');
 
 module.exports = {
   ...base,
-  name: 'common',
   displayName: 'Common',
   coverageThreshold: {
     global: {

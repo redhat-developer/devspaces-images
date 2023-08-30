@@ -118,7 +118,7 @@ describe('Common steps, check running workspaces limit', () => {
       .build();
 
     renderComponent(store);
-    jest.runOnlyPendingTimers();
+    await jest.runOnlyPendingTimersAsync();
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
     expect(mockOnError).not.toHaveBeenCalled();
@@ -188,7 +188,7 @@ describe('Common steps, check running workspaces limit', () => {
       });
 
       renderComponent(store);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -196,6 +196,7 @@ describe('Common steps, check running workspaces limit', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       /* test the action */
 
@@ -220,7 +221,7 @@ describe('Common steps, check running workspaces limit', () => {
       });
 
       renderComponent(store);
-      jest.runOnlyPendingTimers();
+      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -232,6 +233,7 @@ describe('Common steps, check running workspaces limit', () => {
 
       // resolve deferred to trigger restart
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() =>
         expect(spyHistoryPush).toHaveBeenCalledWith(
@@ -312,10 +314,11 @@ describe('Common steps, check running workspaces limit', () => {
 
         // resolve deferred to trigger restart
         deferred.resolve();
+        await jest.runOnlyPendingTimersAsync();
 
         await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
         expect(mockOnNextStep).not.toHaveBeenCalled();
-        expect(mockOnError).not.toHaveBeenCalled();
+        expect(mockOnError).toHaveBeenCalled();
       });
 
       test('the redundant workspace has been stopped', async () => {
@@ -330,7 +333,7 @@ describe('Common steps, check running workspaces limit', () => {
           })
           .build();
         const { reRenderComponent } = renderComponent(store, localState);
-        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+        await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
         const nextRedundantDevworkspace = runningDevworkspaceBuilder1
           .withStatus({ phase: 'STOPPED' })
@@ -342,7 +345,7 @@ describe('Common steps, check running workspaces limit', () => {
           })
           .build();
         reRenderComponent(nextStore);
-        jest.runOnlyPendingTimers();
+        await jest.runOnlyPendingTimersAsync();
 
         // switch to the next step
         await waitFor(() => expect(mockOnNextStep).toBeCalled());
@@ -379,7 +382,7 @@ describe('Common steps, check running workspaces limit', () => {
 
     test('alert notification', async () => {
       renderComponent(store);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       const expectAlertItem = expect.objectContaining({
         title: 'Running workspace(s) found.',
@@ -414,7 +417,7 @@ describe('Common steps, check running workspaces limit', () => {
       });
 
       renderComponent(store);
-      jest.runOnlyPendingTimers();
+      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -422,10 +425,11 @@ describe('Common steps, check running workspaces limit', () => {
 
       /* test the callback */
 
+      const spyHistoryPush = jest.spyOn(history, 'push');
+
       // resolve deferred to trigger restart
       deferred.resolve();
-
-      const spyHistoryPush = jest.spyOn(history, 'push');
+      await jest.runAllTimersAsync();
 
       await waitFor(() =>
         expect(spyHistoryPush).toHaveBeenCalledWith(

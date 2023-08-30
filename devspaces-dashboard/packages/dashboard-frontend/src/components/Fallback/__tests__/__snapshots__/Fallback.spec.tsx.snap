@@ -3,7 +3,7 @@
 exports[`React element that is rendered while waiting for the component to load should render fallback correctly 1`] = `
 <div
   style={
-    Object {
+    {
       "height": "100%",
       "opacity": "0.5",
       "textAlign": "center",
@@ -11,12 +11,13 @@ exports[`React element that is rendered while waiting for the component to load 
   }
 >
   <span
+    aria-label="Contents"
     aria-valuetext="Loading..."
     className="pf-c-spinner pf-m-xl"
     data-testid="fallback-spinner"
     role="progressbar"
     style={
-      Object {
+      {
         "top": "calc(50% - 18px)",
       }
     }

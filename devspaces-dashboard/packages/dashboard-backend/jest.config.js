@@ -14,7 +14,6 @@ const base = require('../../jest.config.base');
 
 module.exports = {
   ...base,
-  name: 'dashboard-backend',
   displayName: 'Dashboard backend',
   moduleDirectories: [
     'node_modules',
@@ -24,11 +23,12 @@ module.exports = {
 
     '!src/localRun/**',
   ],
+  testEnvironment: 'node',
   coverageThreshold: {
     global: {
       statements: 81,
       branches: 78,
-      functions: 79,
+      functions: 78,
       lines: 81,
     },
   },

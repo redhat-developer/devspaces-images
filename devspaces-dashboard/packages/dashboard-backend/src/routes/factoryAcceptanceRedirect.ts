@@ -12,12 +12,14 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
-export function registerFactoryAcceptanceRedirect(server: FastifyInstance): void {
+export function registerFactoryAcceptanceRedirect(instance: FastifyInstance): void {
   // redirect to the Dashboard factory flow
   function redirectFactoryFlow(path: string) {
-    server.get(path, async (request: FastifyRequest, reply: FastifyReply) => {
-      const queryStr = request.url.replace(path, '');
-      return reply.redirect('/dashboard/#/load-factory' + queryStr);
+    instance.register(async server => {
+      server.get(path, async (request: FastifyRequest, reply: FastifyReply) => {
+        const queryStr = request.url.replace(path, '');
+        return reply.redirect('/dashboard/#/load-factory' + queryStr);
+      });
     });
   }
   redirectFactoryFlow('/f');

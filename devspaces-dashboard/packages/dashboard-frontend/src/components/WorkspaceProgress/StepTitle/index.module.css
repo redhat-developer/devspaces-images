@@ -15,13 +15,13 @@
 }
 
 .pf-c-wizard__nav .error {
-  color: var(--pf-global--palette--black-1000);
   font-weight: bold;
+  color: var(--pf-global--palette--black-1000);
 }
 
 .pf-c-wizard__nav .progress {
-  color: var(--pf-global--palette--blue-400);
   font-weight: bold;
+  color: var(--pf-global--palette--blue-400);
 }
 
 .pf-c-wizard__nav .pf-m-current .ready.subStep {

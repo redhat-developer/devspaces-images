@@ -70,7 +70,7 @@ describe('Errors helper', () => {
   });
 
   describe('Frontend errors', () => {
-    it('should return error message if server responds with error #1', async done => {
+    it('should return error message if server responds with error #1', async () => {
       const message = '"500 Internal Server Error" returned by "/location/".';
 
       mockAxios.onGet('/location/').replyOnce(() => {
@@ -79,7 +79,8 @@ describe('Errors helper', () => {
 
       try {
         await axios.get('/location/');
-        done.fail();
+        // should not reach this line
+        expect(true).toBeFalsy();
       } catch (e) {
         const err = e as AxiosError;
         // provide `statusText` to the response because mocking library cannot do that
@@ -87,11 +88,10 @@ describe('Errors helper', () => {
           'Internal Server Error';
 
         expect(getMessage(err)).toEqual(message);
-        done();
       }
     });
 
-    it('should return error message if server responds with error #2', async done => {
+    it('should return error message if server responds with error #2', async () => {
       const message = 'The server failed to fulfill a request';
 
       mockAxios.onGet('/location/').replyOnce(() => {
@@ -100,7 +100,8 @@ describe('Errors helper', () => {
 
       try {
         await axios.get('/location/');
-        done.fail();
+        // should not reach this line
+        expect(true).toBeFalsy();
       } catch (e) {
         const err = e as AxiosError;
         // provide `statusText` to the response because mocking library cannot do that
@@ -108,11 +109,10 @@ describe('Errors helper', () => {
           'Internal Server Error';
 
         expect(getMessage(err)).toEqual(message);
-        done();
       }
     });
 
-    it('should return error message if server responds with error #3', async done => {
+    it('should return error message if server responds with error #3', async () => {
       const message = '"500 Internal Server Error".';
 
       mockAxios.onGet('/location/').replyOnce(() => {
@@ -121,58 +121,58 @@ describe('Errors helper', () => {
 
       try {
         await axios.get('/location/');
-        done.fail();
+        // should not reach this line
+        expect(true).toBeFalsy();
       } catch (e) {
         const err = e as AxiosError;
         // provide `statusText` to the response because mocking library cannot do that
         (err.response as AxiosResponse<unknown>).statusText =
           'Internal Server Error';
-        delete err.config.url;
+        delete err!.config!.url;
 
         expect(getMessage(err)).toEqual(message);
-        done();
       }
     });
 
-    it('should return error message if network error', async done => {
+    it('should return error message if network error', async () => {
       const message = 'Network Error';
 
       mockAxios.onGet('/location/').networkErrorOnce();
 
       try {
         await axios.get('/location/');
-        done.fail();
+        // should not reach this line
+        expect(true).toBeFalsy();
       } catch (e) {
         expect(getMessage(e)).toEqual(message);
-        done();
       }
     });
 
-    it('should return error message if network timeout', async done => {
+    it('should return error message if network timeout', async () => {
       const message = 'timeout of 0ms exceeded';
 
       mockAxios.onGet('/location/').timeoutOnce();
 
       try {
         await axios.get('/location/');
-        done.fail();
+        // should not reach this line
+        expect(true).toBeFalsy();
       } catch (e) {
         expect(getMessage(e)).toEqual(message);
-        done();
       }
     });
 
-    it('should return error message if request aborted', async done => {
+    it('should return error message if request aborted', async () => {
       const message = 'Request aborted';
 
       mockAxios.onGet('/location/').abortRequestOnce();
 
       try {
         await axios.get('/location/');
-        done.fail();
+        // should not reach this line
+        expect(true).toBeFalsy();
       } catch (e) {
         expect(getMessage(e)).toEqual(message);
-        done();
       }
     });
   });

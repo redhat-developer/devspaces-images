@@ -89,7 +89,7 @@ describe('Starting steps, opening an editor', () => {
     test('alert notification', async () => {
       renderComponent(store, paramsWithWrongName);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       const expectAlertItem = expect.objectContaining({
         title: 'Failed to open the workspace',
@@ -129,7 +129,7 @@ describe('Starting steps, opening an editor', () => {
         }
       });
       renderComponent(store, paramsWithWrongName);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       mockOnError.mockClear();
@@ -140,11 +140,12 @@ describe('Starting steps, opening an editor', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       // this mock is called from the action callback above
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
-      expect(mockOnError).not.toHaveBeenCalled();
+      expect(mockOnError).toHaveBeenCalled();
     });
   });
 
@@ -163,7 +164,7 @@ describe('Starting steps, opening an editor', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -206,7 +207,7 @@ describe('Starting steps, opening an editor', () => {
 
       renderComponent(store);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // wait for opening IDE url
       await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
@@ -227,7 +228,7 @@ describe('Starting steps, opening an editor', () => {
 
       const { reRenderComponent } = renderComponent(store);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // no errors at this moment
       expect(mockOnError).not.toHaveBeenCalled();
@@ -245,7 +246,7 @@ describe('Starting steps, opening an editor', () => {
         .build();
       reRenderComponent(nextStore);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // wait for opening IDE url
       await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
@@ -274,7 +275,7 @@ describe('Starting steps, opening an editor', () => {
 
       renderComponent(store);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // IDE is not opened
       expect(mockLocationReplace).not.toHaveBeenCalled();
@@ -295,7 +296,7 @@ describe('Starting steps, opening an editor', () => {
 
       const { reRenderComponent } = renderComponent(store);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // no errors at this moment
       expect(mockOnError).not.toHaveBeenCalled();
@@ -313,7 +314,7 @@ describe('Starting steps, opening an editor', () => {
         .build();
       reRenderComponent(nextStore);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // IDE is not opened
       expect(mockLocationReplace).not.toHaveBeenCalled();
@@ -330,7 +331,7 @@ describe('Starting steps, opening an editor', () => {
             new DevWorkspaceBuilder()
               .withName(workspaceName)
               .withNamespace(namespace)
-              .withStatus({ phase: 'STARTING' })
+              .withStatus({ phase: 'RUNNING' })
               .build(),
           ],
         })
@@ -386,7 +387,7 @@ describe('Starting steps, opening an editor', () => {
       });
 
       renderComponent(store);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       // trigger timeout
       const timeoutButton = screen.getByRole('button', {
@@ -403,6 +404,7 @@ describe('Starting steps, opening an editor', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();

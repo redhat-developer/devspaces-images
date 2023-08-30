@@ -149,6 +149,6 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
         preStart: ['init-container-command'],
       },
     },
-  } as any);
+  }) as any;
 
 export default getDevWorkspaceTemplate;

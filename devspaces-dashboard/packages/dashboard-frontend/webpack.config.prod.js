@@ -10,18 +10,26 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
-const merge = require('webpack-merge');
-const path = require('path');
-const webpack = require('webpack');
-const loaderUtils = require('loader-utils');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const loaderUtils = require('loader-utils');
+const webpack = require('webpack');
+const { merge } = require('webpack-merge');
 
 const common = require('./webpack.config.common.js');
 
 const config = {
   mode: 'production',
+  optimization: {
+    chunkIds: 'deterministic',
+    minimize: true,
+    minimizer: [
+      `...`,
+      new CssMinimizerPlugin(),
+    ]
+  },
   module: {
     rules: [
       {
@@ -43,7 +51,6 @@ const config = {
                   const hash = loaderUtils.getHashDigest(context.context, 'md5', 'hex');
                   return localIdentName.replace('[local]', localName).replace('[hash]', hash);
                 },
-                context: path.resolve(__dirname),
               },
             },
           },

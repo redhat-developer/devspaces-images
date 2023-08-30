@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`The workspace status label component Che Workspaces should render ERROR status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label pf-m-red statusLabel"
     data-tip=""
@@ -19,7 +19,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -41,7 +41,7 @@ Array [
 `;
 
 exports[`The workspace status label component Che Workspaces should render RUNNING status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label pf-m-green statusLabel"
     data-tip=""
@@ -59,7 +59,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -81,7 +81,7 @@ Array [
 `;
 
 exports[`The workspace status label component Che Workspaces should render STOPPED status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label statusLabel stoppedLabel"
     data-tip=""
@@ -98,7 +98,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -127,7 +127,7 @@ Array [
 `;
 
 exports[`The workspace status label component Deprecated workspaces should render "Deprecated" status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label pf-m-orange statusLabel"
     data-tip=""
@@ -145,7 +145,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -167,7 +167,7 @@ Array [
 `;
 
 exports[`The workspace status label component DevWorkspaces should render FAILED status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label pf-m-red statusLabel"
     data-tip=""
@@ -185,7 +185,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -207,7 +207,7 @@ Array [
 `;
 
 exports[`The workspace status label component DevWorkspaces should render FAILING status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label pf-m-red statusLabel"
     data-tip=""
@@ -226,7 +226,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -248,7 +248,7 @@ Array [
 `;
 
 exports[`The workspace status label component DevWorkspaces should render RUNNING status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label pf-m-green statusLabel"
     data-tip=""
@@ -266,7 +266,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -288,7 +288,7 @@ Array [
 `;
 
 exports[`The workspace status label component DevWorkspaces should render STOPPED status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label statusLabel stoppedLabel"
     data-tip=""
@@ -305,7 +305,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -334,7 +334,7 @@ Array [
 `;
 
 exports[`The workspace status label component should render default status correctly 1`] = `
-Array [
+[
   <span
     className="pf-c-label statusLabel"
     data-tip=""
@@ -353,7 +353,7 @@ Array [
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }

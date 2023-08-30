@@ -15,7 +15,7 @@ exports[`No git services component for empty state should render title correctly
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -28,6 +28,9 @@ exports[`No git services component for empty state should render title correctly
     </svg>
     <h4
       className="pf-c-title pf-m-lg"
+      data-ouia-component-id="OUIA-Generated-Title-1"
+      data-ouia-component-type="PF4/Title"
+      data-ouia-safe={true}
     >
       No Git Services
     </h4>

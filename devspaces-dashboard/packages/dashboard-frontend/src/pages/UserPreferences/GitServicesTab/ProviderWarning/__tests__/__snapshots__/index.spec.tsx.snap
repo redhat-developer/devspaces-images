@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ProviderWarning component should render ProviderWarning correctly 1`] = `
-Array [
+[
   <svg
     aria-hidden={true}
     aria-labelledby={null}
@@ -9,7 +9,7 @@ Array [
     height="1em"
     role="img"
     style={
-      Object {
+      {
         "margin": "2px 5px",
         "verticalAlign": "text-top",
       }

@@ -13,7 +13,7 @@
 module.exports = {
   extends: [
     'stylelint-config-standard',
-    'stylelint-config-idiomatic-order',
+    'stylelint-config-clean-order',
   ],
   rules: {
     'selector-class-pattern': null,

@@ -10,7 +10,7 @@ exports[`StepTitleIcon error 1`] = `
   height="1em"
   role="img"
   style={
-    Object {
+    {
       "verticalAlign": "-0.125em",
     }
   }
@@ -33,7 +33,7 @@ exports[`StepTitleIcon step is done 1`] = `
   height="1em"
   role="img"
   style={
-    Object {
+    {
       "verticalAlign": "-0.125em",
     }
   }
@@ -56,7 +56,7 @@ exports[`StepTitleIcon step is in-progress 1`] = `
   height="1em"
   role="img"
   style={
-    Object {
+    {
       "verticalAlign": "-0.125em",
     }
   }
@@ -81,7 +81,7 @@ exports[`StepTitleIcon warning 1`] = `
   height="1em"
   role="img"
   style={
-    Object {
+    {
       "verticalAlign": "-0.125em",
     }
   }

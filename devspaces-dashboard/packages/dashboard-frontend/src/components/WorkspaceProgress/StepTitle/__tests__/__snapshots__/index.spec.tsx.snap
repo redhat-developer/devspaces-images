@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ProgressStepTitle snapshot - active step 1`] = `
-Array [
+[
   <svg
     aria-hidden={true}
     aria-labelledby={null}
@@ -11,7 +11,7 @@ Array [
     height="1em"
     role="img"
     style={
-      Object {
+      {
         "verticalAlign": "-0.125em",
       }
     }
@@ -32,7 +32,7 @@ Array [
 `;
 
 exports[`ProgressStepTitle snapshot - active step failed 1`] = `
-Array [
+[
   <svg
     aria-hidden={true}
     aria-labelledby={null}
@@ -42,7 +42,7 @@ Array [
     height="1em"
     role="img"
     style={
-      Object {
+      {
         "verticalAlign": "-0.125em",
       }
     }
@@ -72,7 +72,7 @@ exports[`ProgressStepTitle snapshot - active step has children 1`] = `
 `;
 
 exports[`ProgressStepTitle snapshot - active step warning 1`] = `
-Array [
+[
   <svg
     aria-hidden={true}
     aria-labelledby={null}
@@ -82,7 +82,7 @@ Array [
     height="1em"
     role="img"
     style={
-      Object {
+      {
         "verticalAlign": "-0.125em",
       }
     }

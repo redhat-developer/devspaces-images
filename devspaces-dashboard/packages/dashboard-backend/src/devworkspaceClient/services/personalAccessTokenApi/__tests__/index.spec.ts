@@ -27,10 +27,10 @@ jest.mock('../helpers', () => {
 
   return {
     ...originalModule,
-    isPatSecret: (...args: Parameters<typeof originalModule['isPatSecret']>) =>
+    isPatSecret: (...args: Parameters<(typeof originalModule)['isPatSecret']>) =>
       mockIsPatSecret(...args),
-    toToken: (...args: Parameters<typeof originalModule['toToken']>) => mockToToken(),
-    toSecret: (...args: Parameters<typeof originalModule['toSecret']>) => mockToSecret(...args),
+    toToken: (...args: Parameters<(typeof originalModule)['toToken']>) => mockToToken(),
+    toSecret: (...args: Parameters<(typeof originalModule)['toSecret']>) => mockToSecret(...args),
   };
 });
 jest.mock('../../helpers/retryableExec');
@@ -116,19 +116,19 @@ describe('Personal Access Token API', () => {
       );
     });
 
-    it('should return error', async done => {
+    it('should return error', async () => {
       spyListNamespacedSecret.mockImplementationOnce(() => {
         throw new Error('Conflict');
       });
 
       try {
         await personalAccessTokenService.listInNamespace(namespace);
-        done.fail('should have thrown an error');
+        // should not reach this line
+        expect(true).toEqual(false);
       } catch (e) {
         expect((e as unknown as Error).message).toEqual(
           `Unable to list personal access tokens in the namespace "${namespace}": Conflict`,
         );
-        done();
       }
     });
   });
@@ -145,7 +145,7 @@ describe('Personal Access Token API', () => {
       expect(spyCreateNamespacedSecret).toHaveBeenCalled();
     });
 
-    it('should return error if token already exists', async done => {
+    it('should return error if token already exists', async () => {
       const token = {
         tokenName: 'asdf-1234',
         tokenData: 'token-data',
@@ -168,16 +168,16 @@ describe('Personal Access Token API', () => {
 
       try {
         await personalAccessTokenService.create(namespace, token);
-        done.fail('should have thrown an error');
+        // should not reach this line
+        expect(true).toEqual(false);
       } catch (e) {
         expect((e as unknown as Error).message).toEqual(
           `Unable to add personal access token "${token.tokenName}": Token already exists`,
         );
       }
-      done();
     });
 
-    it('should return error if token contains the dummy data', async done => {
+    it('should return error if token contains the dummy data', async () => {
       const errorMessage = 'Token is not defined';
       mockToSecret.mockImplementationOnce(() => {
         throw new Error(errorMessage);
@@ -190,18 +190,18 @@ describe('Personal Access Token API', () => {
 
       try {
         await personalAccessTokenService.create(namespace, token);
-        done.fail('should have thrown an error');
+        // should not reach this line
+        expect(true).toEqual(false);
       } catch (e) {
         expect((e as unknown as Error).message).toEqual(
           `Unable to add personal access token "${token.tokenName}": ${errorMessage}`,
         );
       }
-      done();
     });
   });
 
   describe('updating PAT secret', () => {
-    it('should return error if secret not found', async done => {
+    it('should return error if secret not found', async () => {
       spyReadNamespacedSecret.mockImplementationOnce(() => {
         throw new Error('Not Found');
       });
@@ -213,17 +213,16 @@ describe('Personal Access Token API', () => {
 
       try {
         await personalAccessTokenService.replace(namespace, token);
-        done.fail('should have thrown an error');
+        // should not reach this line
+        expect(true).toEqual(false);
       } catch (e) {
         expect((e as unknown as Error).message).toEqual(
           `Unable to find personal access token "${token.tokenName}" in the namespace "${namespace}": Not Found`,
         );
       }
-
-      done();
     });
 
-    it('should return error if unable to replace the secret', async done => {
+    it('should return error if unable to replace the secret', async () => {
       const errorMessage = 'Conflict';
       spyReplaceNamespacedSecret.mockImplementationOnce(() => {
         throw new Error(errorMessage);
@@ -236,14 +235,13 @@ describe('Personal Access Token API', () => {
 
       try {
         await personalAccessTokenService.replace(namespace, token);
-        done.fail('should have thrown an error');
+        // should not reach this line
+        expect(true).toEqual(false);
       } catch (e) {
         expect((e as unknown as Error).message).toEqual(
           `Unable to replace personal access token "${token.tokenName}" in the namespace "${namespace}": ${errorMessage}`,
         );
       }
-
-      done();
     });
 
     it('should replace token with new data', async () => {
@@ -299,7 +297,7 @@ describe('Personal Access Token API', () => {
       expect(spyDeleteNamespacedSecret).toHaveBeenCalledTimes(1);
     });
 
-    it('should return error if unable to delete the secret', async done => {
+    it('should return error if unable to delete the secret', async () => {
       const errorMessage = 'Conflict';
       spyDeleteNamespacedSecret.mockImplementationOnce(() => {
         throw new Error(errorMessage);
@@ -309,14 +307,13 @@ describe('Personal Access Token API', () => {
 
       try {
         await personalAccessTokenService.delete(namespace, tokenName);
-        done.fail('should have thrown an error');
+        // should not reach this line
+        expect(true).toEqual(false);
       } catch (e) {
         expect((e as unknown as Error).message).toEqual(
           `Unable to delete personal access token "${tokenName}" in the namespace "${namespace}": ${errorMessage}`,
         );
       }
-
-      done();
     });
   });
 });

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Editor Tab devworkspaces should render the component 1`] = `
-Array [
+[
   <br />,
   "",
   <div

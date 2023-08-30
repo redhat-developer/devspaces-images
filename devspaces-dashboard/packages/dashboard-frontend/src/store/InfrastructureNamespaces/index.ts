@@ -53,9 +53,10 @@ export const actionCreators: ActionCreators = {
       await dispatch({ type: 'REQUEST_NAMESPACES', check: AUTHORIZED });
 
       try {
-        const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<
-          Array<che.KubernetesNamespace>
-        >();
+        const namespaces =
+          await WorkspaceClient.restApiClient.getKubernetesNamespace<
+            Array<che.KubernetesNamespace>
+          >();
         dispatch({
           type: 'RECEIVE_NAMESPACES',
           namespaces,

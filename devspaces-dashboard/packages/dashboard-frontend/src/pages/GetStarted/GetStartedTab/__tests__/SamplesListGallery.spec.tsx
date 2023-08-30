@@ -89,7 +89,8 @@ describe('Samples List Gallery', () => {
     (mockAxios.get as any).mockResolvedValueOnce({
       data: {},
     });
-    const windowSpy = spyOn(window, 'open');
+    const windowSpy = jest.spyOn(window, 'open').mockImplementationOnce(() => null);
+
     const cardHeader = screen.getByText('Java with Spring Boot and MongoDB');
     fireEvent.click(cardHeader);
     jest.runOnlyPendingTimers();

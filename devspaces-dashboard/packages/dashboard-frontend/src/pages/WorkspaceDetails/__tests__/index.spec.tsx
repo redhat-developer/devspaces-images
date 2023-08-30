@@ -72,8 +72,8 @@ describe('Workspace Details page', () => {
         workspace,
       });
 
-      const overviewTab = screen.getByRole('button', { name: 'Overview' });
-      const devfileTab = screen.getByRole('button', { name: 'Devfile' });
+      const overviewTab = screen.queryByRole('tab', { name: 'Overview' });
+      const devfileTab = screen.queryByRole('tab', { name: 'Devfile' });
 
       expect(overviewTab).toBeTruthy();
       expect(devfileTab).toBeTruthy();
@@ -85,7 +85,7 @@ describe('Workspace Details page', () => {
         workspace,
       });
 
-      const devfileTab = screen.getByRole('button', { name: 'Devfile' });
+      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
       userEvent.click(devfileTab);
 
       const fakeEditor = screen.queryByText('Fake Editor Tab');
@@ -128,7 +128,7 @@ describe('Workspace Details page', () => {
         workspace,
       });
 
-      const devfileTab = screen.getByRole('button', { name: 'Devfile' });
+      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
       userEvent.click(devfileTab);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -152,7 +152,7 @@ describe('Workspace Details page', () => {
         workspace,
       });
 
-      const devfileTab = screen.getByRole('button', { name: 'Devfile' });
+      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
       userEvent.click(devfileTab);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });

@@ -10,8 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const merge = require('webpack-merge');
-const nodeExternals = require('webpack-node-externals');
+const { merge } = require('webpack-merge');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
@@ -26,9 +25,6 @@ const config = {
       ignored: /node_modules/,
       poll: 1000,
     },
-    externals: [
-      nodeExternals(),
-    ],
     plugins: [
       new ESLintPlugin({
         cache: true,

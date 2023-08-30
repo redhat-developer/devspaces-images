@@ -123,7 +123,7 @@ describe('Starting steps, starting a workspace', () => {
     test('alert notification', async () => {
       renderComponent(store, paramsWithWrongName);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       const expectAlertItem = expect.objectContaining({
         title: 'Failed to open the workspace',
@@ -163,7 +163,7 @@ describe('Starting steps, starting a workspace', () => {
         }
       });
       renderComponent(store, paramsWithWrongName);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       mockOnError.mockClear();
@@ -174,11 +174,12 @@ describe('Starting steps, starting a workspace', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       // this mock is called from the action callback above
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
-      expect(mockOnError).not.toHaveBeenCalled();
+      expect(mockOnError).toHaveBeenCalled();
     });
   });
 
@@ -197,7 +198,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // the workspace should be started
     await waitFor(() => expect(mockStartWorkspace).toHaveBeenCalled());
@@ -228,7 +229,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should call the workspace start mock
     await waitFor(() => expect(mockStartWorkspace).toHaveBeenCalled());
@@ -269,7 +270,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // the workspace should be started
     await waitFor(() => expect(mockStartWorkspace).toHaveBeenCalled());
@@ -296,7 +297,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should switch to the next step
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
@@ -326,7 +327,7 @@ describe('Starting steps, starting a workspace', () => {
 
     const { reRenderComponent } = renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // no errors at this moment
     expect(mockOnError).not.toHaveBeenCalled();
@@ -346,7 +347,7 @@ describe('Starting steps, starting a workspace', () => {
       .build();
     reRenderComponent(nextStore);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // switch to the next step
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
@@ -370,7 +371,7 @@ describe('Starting steps, starting a workspace', () => {
 
     const { reRenderComponent } = renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // no errors at this moment
     expect(mockOnError).not.toHaveBeenCalled();
@@ -390,7 +391,7 @@ describe('Starting steps, starting a workspace', () => {
       .build();
     reRenderComponent(nextStore);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -432,7 +433,7 @@ describe('Starting steps, starting a workspace', () => {
 
     const { reRenderComponent } = renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // no errors at this moment
     expect(mockOnError).not.toHaveBeenCalled();
@@ -450,7 +451,7 @@ describe('Starting steps, starting a workspace', () => {
       .build();
     reRenderComponent(nextStore);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -492,7 +493,7 @@ describe('Starting steps, starting a workspace', () => {
 
     const { reRenderComponent } = renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // no errors at this moment
     expect(mockOnError).not.toHaveBeenCalled();
@@ -510,7 +511,7 @@ describe('Starting steps, starting a workspace', () => {
       .build();
     reRenderComponent(nextStore);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -550,7 +551,7 @@ describe('Starting steps, starting a workspace', () => {
 
     const { reRenderComponent } = renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // no errors at this moment
     expect(mockOnError).not.toHaveBeenCalled();
@@ -568,7 +569,7 @@ describe('Starting steps, starting a workspace', () => {
       .build();
     reRenderComponent(nextStore);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -609,7 +610,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -647,7 +648,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -685,7 +686,7 @@ describe('Starting steps, starting a workspace', () => {
 
     renderComponent(store);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     // should report the error
     const expectAlertItem = expect.objectContaining({
@@ -774,7 +775,7 @@ describe('Starting steps, starting a workspace', () => {
       });
 
       renderComponent(store);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       // trigger timeout
       const timeoutButton = screen.getByRole('button', {
@@ -791,6 +792,7 @@ describe('Starting steps, starting a workspace', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();

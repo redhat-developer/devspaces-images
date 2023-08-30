@@ -6,6 +6,9 @@ exports[`Issue component should render an unknown error 1`] = `
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-36"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -16,7 +19,7 @@ exports[`Issue component should render an unknown error 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -31,12 +34,18 @@ exports[`Issue component should render an unknown error 1`] = `
   </h1>
   <pre
     className="errorMessage"
+    data-ouia-component-id="OUIA-Generated-Text-37"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Unknown Error Message
   </pre>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-38"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Please try 
@@ -61,6 +70,9 @@ exports[`Issue component should render the SSO error 1`] = `
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-1"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -71,7 +83,7 @@ exports[`Issue component should render the SSO error 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -86,6 +98,9 @@ exports[`Issue component should render the SSO error 1`] = `
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-2"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     We are experiencing some technical difficulties from our SSO
@@ -93,12 +108,18 @@ exports[`Issue component should render the SSO error 1`] = `
   </p>
   <pre
     className="errorMessage"
+    data-ouia-component-id="OUIA-Generated-Text-3"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     SSO Error Message
   </pre>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-4"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Please try 
@@ -123,6 +144,9 @@ exports[`Issue component should render the workspaceInactive error 1`] = `
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-5"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -133,7 +157,7 @@ exports[`Issue component should render the workspaceInactive error 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -148,6 +172,9 @@ exports[`Issue component should render the workspaceInactive error 1`] = `
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-6"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped due to inactivity. 
@@ -160,6 +187,9 @@ exports[`Issue component should render the workspaceInactive error 1`] = `
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-7"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -177,6 +207,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-11"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -187,7 +220,7 @@ exports[`Issue component should render the workspaceInactive error with timeout 
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -202,6 +235,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-12"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because there was no activity for 5 minutes. 
@@ -214,6 +250,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-13"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -231,6 +270,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-14"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -241,7 +283,7 @@ exports[`Issue component should render the workspaceInactive error with timeout 
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -256,6 +298,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-15"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because there was no activity for 5 minutes and 20 seconds. 
@@ -268,6 +313,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-16"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -285,6 +333,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-8"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -295,7 +346,7 @@ exports[`Issue component should render the workspaceInactive error with timeout 
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -310,6 +361,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-9"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because there was no activity for 40 seconds. 
@@ -322,6 +376,9 @@ exports[`Issue component should render the workspaceInactive error with timeout 
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-10"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -339,6 +396,9 @@ exports[`Issue component should render the workspaceRunTimeout error 1`] = `
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-17"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -349,7 +409,7 @@ exports[`Issue component should render the workspaceRunTimeout error 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -364,6 +424,9 @@ exports[`Issue component should render the workspaceRunTimeout error 1`] = `
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-18"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because it has reached the maximum run time. 
@@ -376,6 +439,9 @@ exports[`Issue component should render the workspaceRunTimeout error 1`] = `
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-19"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -393,6 +459,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-23"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -403,7 +472,7 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -418,6 +487,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-24"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because it has reached the maximum run time of 5 minutes. 
@@ -430,6 +502,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-25"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -447,6 +522,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-26"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -457,7 +535,7 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -472,6 +550,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-27"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because it has reached the maximum run time of 5 minutes and 20 seconds. 
@@ -484,6 +565,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-28"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -501,6 +585,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-20"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -511,7 +598,7 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -526,6 +613,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-21"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace has stopped because it has reached the maximum run time of 40 seconds. 
@@ -538,114 +628,9 @@ exports[`Issue component should render the workspaceRunTimeout error with timeou
   </p>
   <p
     className=""
-    data-pf-content={true}
-  >
-    <a
-      onClick={[Function]}
-    >
-      Return to dashboard
-    </a>
-  </p>
-</div>
-`;
-
-exports[`Issue component should render the workspaceRunTimeout error with timeout with minutes 1`] = `
-<div
-  className="pf-c-content messageContainer"
->
-  <h1
-    className=""
-    data-pf-content={true}
-  >
-    <svg
-      aria-hidden={true}
-      aria-labelledby={null}
-      className="warningIcon"
-      fill="currentColor"
-      height="1em"
-      role="img"
-      style={
-        Object {
-          "verticalAlign": "-0.125em",
-        }
-      }
-      viewBox="0 0 1088 1024"
-      width="1em"
-    >
-      <path
-        d="M1057.10141,663.5 L845.101405,215.4 C787.101405,71.8 665.401405,0 542.901405,0 C420.201405,0 296.701405,71.9 235.001405,215.6 L31.7014051,648.5 C10.4014051,700 -0.0985948775,752.3 0.000697596367,800.8 C0.301405123,924.8 70.2014051,1024 209.101405,1024 L868.401405,1024 C1005.80141,1024 1087.70141,918.6 1088.00215,795.5 C1088.10141,752.4 1078.20141,707.2 1057.10141,663.5 Z M959.401405,800.3 C958.701405,822.9 952.901405,843.5 942.601405,859.7 C926.801405,884.6 902.601405,896.7 868.301405,896.7 L209.101405,896.7 C191.201405,896.7 176.601405,893.8 165.401405,888.2 C157.301405,884 150.801405,878.4 145.401405,870.3 C135.101405,855 129.101405,832 128.401405,805.6 C127.601405,772.8 134.901405,736.5 149.401405,700.5 L353.001405,266.7 C363.201405,242.9 376.101405,221.5 391.101405,203.2 C404.801405,186.6 420.301405,172.4 437.401405,161.1 C469.201405,139.9 505.701405,128.8 542.901405,128.8 C579.701405,128.8 615.401405,139.8 646.001405,160.5 C662.401405,171.6 677.101405,185.4 690.101405,201.6 C704.501405,219.6 716.401405,240.6 725.901405,264 L940.901405,718.9 L941.101405,719.3 L941.301405,719.7 C953.901405,746 960.201405,773.9 959.401405,800.3 Z M586.601405,832 L501.301405,832 C489.501405,831.8 480.201405,821.5 480.001405,808.7 L480.001405,727.3 C480.201405,714.5 489.601405,704.3 501.301405,704 L586.601405,704 C598.401405,704.2 607.701405,714.5 607.901405,727.3 L607.901405,808.7 L608.001405,808.7 C607.701405,821.5 598.301405,831.8 586.601405,832 M639.901405,290.7 L613.201405,610.4 C611.801405,626.9 598.001405,640 581.301405,640 L506.601405,640 C490.001405,640 476.101405,627.2 474.701405,610.7 L448.101405,291 C446.501405,272.3 461.301405,256.3 480.001405,256.3 L608.001405,256 C626.701405,256 641.401405,272 639.901405,290.7"
-      />
-    </svg>
-    Warning
-  </h1>
-  <p
-    className=""
-    data-pf-content={true}
-  >
-    Your workspace has stopped because it has reached the maximum run time of 5 minutes. 
-    <a
-      onClick={[Function]}
-    >
-      Restart your workspace
-    </a>
-     to continue using your workspace.
-  </p>
-  <p
-    className=""
-    data-pf-content={true}
-  >
-    <a
-      onClick={[Function]}
-    >
-      Return to dashboard
-    </a>
-  </p>
-</div>
-`;
-
-exports[`Issue component should render the workspaceRunTimeout error with timeout with minutes and seconds 1`] = `
-<div
-  className="pf-c-content messageContainer"
->
-  <h1
-    className=""
-    data-pf-content={true}
-  >
-    <svg
-      aria-hidden={true}
-      aria-labelledby={null}
-      className="warningIcon"
-      fill="currentColor"
-      height="1em"
-      role="img"
-      style={
-        Object {
-          "verticalAlign": "-0.125em",
-        }
-      }
-      viewBox="0 0 1088 1024"
-      width="1em"
-    >
-      <path
-        d="M1057.10141,663.5 L845.101405,215.4 C787.101405,71.8 665.401405,0 542.901405,0 C420.201405,0 296.701405,71.9 235.001405,215.6 L31.7014051,648.5 C10.4014051,700 -0.0985948775,752.3 0.000697596367,800.8 C0.301405123,924.8 70.2014051,1024 209.101405,1024 L868.401405,1024 C1005.80141,1024 1087.70141,918.6 1088.00215,795.5 C1088.10141,752.4 1078.20141,707.2 1057.10141,663.5 Z M959.401405,800.3 C958.701405,822.9 952.901405,843.5 942.601405,859.7 C926.801405,884.6 902.601405,896.7 868.301405,896.7 L209.101405,896.7 C191.201405,896.7 176.601405,893.8 165.401405,888.2 C157.301405,884 150.801405,878.4 145.401405,870.3 C135.101405,855 129.101405,832 128.401405,805.6 C127.601405,772.8 134.901405,736.5 149.401405,700.5 L353.001405,266.7 C363.201405,242.9 376.101405,221.5 391.101405,203.2 C404.801405,186.6 420.301405,172.4 437.401405,161.1 C469.201405,139.9 505.701405,128.8 542.901405,128.8 C579.701405,128.8 615.401405,139.8 646.001405,160.5 C662.401405,171.6 677.101405,185.4 690.101405,201.6 C704.501405,219.6 716.401405,240.6 725.901405,264 L940.901405,718.9 L941.101405,719.3 L941.301405,719.7 C953.901405,746 960.201405,773.9 959.401405,800.3 Z M586.601405,832 L501.301405,832 C489.501405,831.8 480.201405,821.5 480.001405,808.7 L480.001405,727.3 C480.201405,714.5 489.601405,704.3 501.301405,704 L586.601405,704 C598.401405,704.2 607.701405,714.5 607.901405,727.3 L607.901405,808.7 L608.001405,808.7 C607.701405,821.5 598.301405,831.8 586.601405,832 M639.901405,290.7 L613.201405,610.4 C611.801405,626.9 598.001405,640 581.301405,640 L506.601405,640 C490.001405,640 476.101405,627.2 474.701405,610.7 L448.101405,291 C446.501405,272.3 461.301405,256.3 480.001405,256.3 L608.001405,256 C626.701405,256 641.401405,272 639.901405,290.7"
-      />
-    </svg>
-    Warning
-  </h1>
-  <p
-    className=""
-    data-pf-content={true}
-  >
-    Your workspace has stopped because it has reached the maximum run time of 5 minutes and 20 seconds. 
-    <a
-      onClick={[Function]}
-    >
-      Restart your workspace
-    </a>
-     to continue using your workspace.
-  </p>
-  <p
-    className=""
+    data-ouia-component-id="OUIA-Generated-Text-22"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -663,6 +648,9 @@ exports[`Issue component should render the workspaceStopped error 1`] = `
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-33"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -673,7 +661,7 @@ exports[`Issue component should render the workspaceStopped error 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -688,6 +676,9 @@ exports[`Issue component should render the workspaceStopped error 1`] = `
   </h1>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-34"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Your workspace is not running. 
@@ -700,6 +691,9 @@ exports[`Issue component should render the workspaceStopped error 1`] = `
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-35"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -717,6 +711,9 @@ exports[`Issue component should render the workspaceStoppedError error 1`] = `
 >
   <h1
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-29"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <svg
@@ -727,7 +724,7 @@ exports[`Issue component should render the workspaceStoppedError error 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -742,12 +739,18 @@ exports[`Issue component should render the workspaceStoppedError error 1`] = `
   </h1>
   <pre
     className="errorMessage"
+    data-ouia-component-id="OUIA-Generated-Text-30"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     workspaceStoppedError error message
   </pre>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-31"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a
@@ -758,6 +761,9 @@ exports[`Issue component should render the workspaceStoppedError error 1`] = `
   </p>
   <p
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-32"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <a

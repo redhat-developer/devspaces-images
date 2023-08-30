@@ -12,14 +12,12 @@
 
 import { default as WorkspaceClientLib } from '@eclipse-che/workspace-client';
 import axios, { AxiosInstance } from 'axios';
-import { injectable } from 'inversify';
 
 export const CHE_EDITOR_YAML_PATH = '.che/che-editor.yaml';
 
 /**
  * This class manages the common functions between the che workspace client and the devworkspace client
  */
-@injectable()
 export abstract class WorkspaceClient {
   protected readonly axios: AxiosInstance;
 

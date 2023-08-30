@@ -86,10 +86,7 @@ export class GitProviderSelector extends React.PureComponent<Props, State> {
         <Dropdown
           onSelect={(...args) => this.onSelect(...args)}
           toggle={
-            <DropdownToggle
-              id={this.toggleElementId}
-              onToggle={(...args) => this.onToggle(...args)}
-            >
+            <DropdownToggle id={this.toggleElementId} onToggle={isOpen => this.onToggle(isOpen)}>
               {providerName}
             </DropdownToggle>
           }

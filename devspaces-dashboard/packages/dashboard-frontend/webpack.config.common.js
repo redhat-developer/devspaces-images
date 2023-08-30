@@ -39,31 +39,28 @@ const config = {
     clean: true,
   },
   optimization: {
-    chunkIds: 'deterministic',
     splitChunks: {
-      chunks: 'initial',
+      chunks: 'all',
+      maxAsyncRequests: 30,
+      maxInitialRequests: 30,
+      minChunks: 1,
       cacheGroups: {
-        default: false,
-        vendors: false,
         monaco: {
           name: 'monaco',
-          chunks: 'all',
-          priority: 25,
-          test: /monaco/
+          priority: 0,
+          test: /[\\/]monaco/,
+          reuseExistingChunk: true,
         },
-        vendor: {
-          name: 'vendor',
-          chunks: 'all',
-          test: /node_modules/,
-          priority: 20
+        vendors: {
+          name: 'vendors',
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
         },
         common: {
-          name: 'common',
           minChunks: 2,
-          chunks: 'async',
-          priority: 10,
+          priority: -10,
           reuseExistingChunk: true,
-          enforce: true
         },
       },
     },
@@ -93,14 +90,12 @@ const config = {
         use: ['null-loader']
       },
       {
-        test: /\.(jpg|svg|woff|woff2|ttf|eot|ico)$/,
-        use: [{
-          loader: 'file-loader',
-          options: {
-            name: '[name].[ext]',
-            outputPath: 'fonts/'
-          }
-        }]
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|ttf|eot|ico)$/i,
+        type: 'asset/resource',
       },
     ]
   },

@@ -111,6 +111,7 @@ export class PersonalAccessTokenList extends React.PureComponent<Props, State> {
           select={{
             onSelect: (...args) => this.handleSelectAllTokens(...args),
             isSelected: areAllTokensSelected,
+            isDisabled: isDisabled,
             isHeaderSelectDisabled: isDisabled,
           }}
         />

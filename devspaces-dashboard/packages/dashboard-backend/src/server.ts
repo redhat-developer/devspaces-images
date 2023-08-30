@@ -20,19 +20,25 @@ const server = fastify({
 });
 buildApp(server);
 
-server.listen(8080, '0.0.0.0', (err: Error | null, address: string) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  if (isLocalRun()) {
-    // when we're running against keycloak, 0.0.0.0 is not allowed
-    // so suggesting to use whitelisted localhost instead
-    console.log('Server listening at http://localhost:8080/');
-  } else {
-    console.log(`Server listening at ${address}`);
-  }
-});
+server.listen(
+  {
+    port: 8080,
+    host: '0.0.0.0',
+  },
+  (err: Error | null, address: string) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    if (isLocalRun()) {
+      // when we're running against keycloak, 0.0.0.0 is not allowed
+      // so suggesting to use whitelisted localhost instead
+      console.log('Server listening at http://localhost:8080/');
+    } else {
+      console.log(`Server listening at ${address}`);
+    }
+  },
+);
 
 server.ready(() => {
   console.log(

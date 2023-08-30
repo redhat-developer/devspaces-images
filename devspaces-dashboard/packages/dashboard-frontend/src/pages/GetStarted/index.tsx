@@ -183,7 +183,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
     },
   ): Promise<void> {
     try {
-      const devfile = load(devfileContent);
+      const devfile = load(devfileContent) as devfileApi.Devfile;
       return this.createWorkspace(
         devfile,
         attrs.stackName,

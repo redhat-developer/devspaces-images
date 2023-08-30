@@ -16,10 +16,11 @@ import { Props } from '..';
 export class WorkspaceEventsItem extends React.PureComponent<Props> {
   render(): React.ReactElement {
     const { event } = this.props;
+    const lastTimestamp = new Date(event.lastTimestamp || 0).toISOString();
     return (
       <div data-testid="event-item">
         <span data-testid="event-message">{event.message}</span>
-        <span data-testid="event-time">{event.lastTimestamp}</span>
+        <span data-testid="event-time">{lastTimestamp}</span>
         <span data-testid="event-source">
           {event.source?.component} on {event.source?.host}
         </span>

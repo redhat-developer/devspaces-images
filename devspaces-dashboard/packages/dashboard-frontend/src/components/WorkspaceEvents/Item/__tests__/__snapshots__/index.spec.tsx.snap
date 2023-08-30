@@ -22,6 +22,9 @@ exports[`WorkspaceEventsItem component snapshot 1`] = `
         >
           <small
             className=""
+            data-ouia-component-id="OUIA-Generated-Text-1"
+            data-ouia-component-type="PF4/Text"
+            data-ouia-safe={true}
             data-pf-content={true}
           >
             <span
@@ -45,6 +48,9 @@ exports[`WorkspaceEventsItem component snapshot 1`] = `
         >
           <small
             className=""
+            data-ouia-component-id="OUIA-Generated-Text-2"
+            data-ouia-component-type="PF4/Text"
+            data-ouia-safe={true}
             data-pf-content={true}
           >
             <span
@@ -61,6 +67,9 @@ exports[`WorkspaceEventsItem component snapshot 1`] = `
     >
       <p
         className=""
+        data-ouia-component-id="OUIA-Generated-Text-3"
+        data-ouia-component-type="PF4/Text"
+        data-ouia-safe={true}
         data-pf-content={true}
       >
         Event message

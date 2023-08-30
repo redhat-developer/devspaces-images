@@ -15,7 +15,7 @@ exports[`The WorkspaceEvents component snapshot - empty state 1`] = `
       height="1em"
       role="img"
       style={
-        Object {
+        {
           "verticalAlign": "-0.125em",
         }
       }
@@ -28,6 +28,9 @@ exports[`The WorkspaceEvents component snapshot - empty state 1`] = `
     </svg>
     <h4
       className="pf-c-title pf-m-lg"
+      data-ouia-component-id="OUIA-Generated-Title-1"
+      data-ouia-component-type="PF4/Title"
+      data-ouia-safe={true}
     >
       No events to show.
     </h4>
@@ -61,6 +64,9 @@ exports[`The WorkspaceEvents component snapshot - no events 1`] = `
           >
             <small
               className=""
+              data-ouia-component-id="OUIA-Generated-Text-1"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
             >
               Streaming events...
@@ -75,12 +81,15 @@ exports[`The WorkspaceEvents component snapshot - no events 1`] = `
           >
             <small
               className=""
+              data-ouia-component-id="OUIA-Generated-Text-2"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
             >
               Showing 
               <span
                 className={null}
-                style={Object {}}
+                style={{}}
               >
                 0 events
               </span>
@@ -97,6 +106,9 @@ exports[`The WorkspaceEvents component snapshot - no events 1`] = `
       >
         <small
           className=""
+          data-ouia-component-id="OUIA-Generated-Text-3"
+          data-ouia-component-type="PF4/Text"
+          data-ouia-safe={true}
           data-pf-content={true}
         >
           Older events are not stored.
@@ -128,6 +140,9 @@ exports[`The WorkspaceEvents component snapshot - with events 1`] = `
           >
             <small
               className=""
+              data-ouia-component-id="OUIA-Generated-Text-4"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
             >
               Streaming events...
@@ -142,12 +157,15 @@ exports[`The WorkspaceEvents component snapshot - with events 1`] = `
           >
             <small
               className=""
+              data-ouia-component-id="OUIA-Generated-Text-5"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
             >
               Showing 
               <span
                 className={null}
-                style={Object {}}
+                style={{}}
               >
                 2 events
               </span>
@@ -173,7 +191,7 @@ exports[`The WorkspaceEvents component snapshot - with events 1`] = `
           <span
             data-testid="event-time"
           >
-            2021-03-31T14:01:00Z
+            2021-03-31T14:01:00.000Z
           </span>
           <span
             data-testid="event-source"
@@ -207,7 +225,7 @@ exports[`The WorkspaceEvents component snapshot - with events 1`] = `
           <span
             data-testid="event-time"
           >
-            2021-03-31T14:00:00Z
+            2021-03-31T14:00:00.000Z
           </span>
           <span
             data-testid="event-source"
@@ -232,6 +250,9 @@ exports[`The WorkspaceEvents component snapshot - with events 1`] = `
       >
         <small
           className=""
+          data-ouia-component-id="OUIA-Generated-Text-6"
+          data-ouia-component-type="PF4/Text"
+          data-ouia-safe={true}
           data-pf-content={true}
         >
           Older events are not stored.

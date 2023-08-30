@@ -11,9 +11,9 @@
  */
 
 .error {
+  background-color: var(--pf-global--palette--red-50);
   border-color: var(--pf-global--palette--red-100);
   border-top: 2px solid;
-  background-color: var(--pf-global--palette--red-50);
 }
 
 .error small,

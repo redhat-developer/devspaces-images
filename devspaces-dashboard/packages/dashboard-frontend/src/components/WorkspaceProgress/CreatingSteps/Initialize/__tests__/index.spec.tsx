@@ -69,7 +69,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -95,7 +95,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -120,7 +120,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -147,7 +147,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
     expect(mockOnError).not.toHaveBeenCalled();
@@ -162,7 +162,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -189,7 +189,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(storeNoNamespace, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -220,7 +220,7 @@ describe('Creating steps, initializing', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',

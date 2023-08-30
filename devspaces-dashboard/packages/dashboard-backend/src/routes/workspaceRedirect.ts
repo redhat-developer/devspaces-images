@@ -12,16 +12,18 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
-export function registerWorkspaceRedirect(server: FastifyInstance): void {
+export function registerWorkspaceRedirect(instance: FastifyInstance): void {
   // redirect to the Dashboard factory flow
   function redirectWorkspaceFlow(path: string) {
-    server.get(path, async (request: FastifyRequest, reply: FastifyReply) => {
-      const searchParams = new URLSearchParams(decodeURIComponent(request.url.replace(path, '')));
-      const params = searchParams.get('params');
-      if (params) {
-        const parse: { namespace: string; workspace: string } = JSON.parse(params);
-        return reply.redirect(`/dashboard/#/ide/${parse.namespace}/${parse.workspace}`);
-      }
+    instance.register(async server => {
+      server.get(path, async (request: FastifyRequest, reply: FastifyReply) => {
+        const searchParams = new URLSearchParams(decodeURIComponent(request.url.replace(path, '')));
+        const params = searchParams.get('params');
+        if (params) {
+          const parse: { namespace: string; workspace: string } = JSON.parse(params);
+          return reply.redirect(`/dashboard/#/ide/${parse.namespace}/${parse.workspace}`);
+        }
+      });
     });
   }
   redirectWorkspaceFlow('/w');

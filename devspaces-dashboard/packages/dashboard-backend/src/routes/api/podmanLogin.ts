@@ -20,27 +20,29 @@ import { namespacedKubeConfigSchema } from '../../constants/schemas';
 
 const tags = ['Podman Login'];
 
-export function registerPodmanLoginRoute(server: FastifyInstance) {
-  server.post(
-    `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/podmanlogin`,
-    getSchema({
-      tags,
-      params: namespacedKubeConfigSchema,
-      response: {
-        204: {
-          description:
-            'The podman login command to the internal OpenShift registry has been successfully executed',
-          type: 'null',
+export function registerPodmanLoginRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.post(
+      `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/podmanlogin`,
+      getSchema({
+        tags,
+        params: namespacedKubeConfigSchema,
+        response: {
+          204: {
+            description:
+              'The podman login command to the internal OpenShift registry has been successfully executed',
+            type: 'null',
+          },
         },
+      }),
+      async function (request: FastifyRequest, reply: FastifyReply) {
+        const token = getToken(request);
+        const { podmanApi } = getDevWorkspaceClient(token);
+        const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
+        await podmanApi.podmanLogin(namespace, devworkspaceId);
+        reply.code(204);
+        return reply.send();
       },
-    }),
-    async function (request: FastifyRequest, reply: FastifyReply) {
-      const token = getToken(request);
-      const { podmanApi } = getDevWorkspaceClient(token);
-      const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
-      await podmanApi.podmanLogin(namespace, devworkspaceId);
-      reply.code(204);
-      return reply.send();
-    },
-  );
+    );
+  });
 }

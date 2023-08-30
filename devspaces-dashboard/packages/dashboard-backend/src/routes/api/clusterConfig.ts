@@ -19,10 +19,12 @@ import { getServiceAccountToken } from './helpers/getServiceAccountToken';
 
 const tags = ['Cluster Config'];
 
-export function registerClusterConfigRoute(server: FastifyInstance) {
-  server.get(`${baseApiPath}/cluster-config`, getSchema({ tags }), async () =>
-    buildClusterConfig(),
-  );
+export function registerClusterConfigRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(`${baseApiPath}/cluster-config`, getSchema({ tags }), async () =>
+      buildClusterConfig(),
+    );
+  });
 }
 
 async function buildClusterConfig(): Promise<ClusterConfig> {

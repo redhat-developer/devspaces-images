@@ -45,7 +45,7 @@ export type State = {
   watchLogs: boolean;
 };
 
-export class WorkspaceLogs extends React.PureComponent<Props, State> {
+class WorkspaceLogs extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 

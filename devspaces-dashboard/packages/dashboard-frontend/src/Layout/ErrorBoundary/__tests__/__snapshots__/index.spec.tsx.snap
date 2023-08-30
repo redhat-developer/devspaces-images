@@ -23,7 +23,7 @@ exports[`Error boundary should catch an error thrown inside a component 1`] = `
         height="1em"
         role="img"
         style={
-          Object {
+          {
             "verticalAlign": "-0.125em",
           }
         }

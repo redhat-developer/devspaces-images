@@ -8,7 +8,7 @@ exports[`Registry Username Input should correctly render the component 1`] = `
   <div
     className="pf-c-form__group"
     style={
-      Object {
+      {
         "gridTemplateColumns": "80px",
         "minHeight": "65px",
       }
@@ -36,12 +36,14 @@ exports[`Registry Username Input should correctly render the component 1`] = `
         aria-invalid={false}
         aria-label="Username input"
         className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
         disabled={false}
         onBlur={[Function]}
         onChange={[Function]}
         onFocus={[Function]}
         placeholder="Enter a username"
-        readOnly={false}
         required={false}
         type="text"
         value="Attt"

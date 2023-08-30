@@ -35,7 +35,7 @@ exports[`User Menu should correctly render the component 1`] = `
         height="1em"
         role="img"
         style={
-          Object {
+          {
             "verticalAlign": "-0.125em",
           }
         }

@@ -18,7 +18,7 @@ import {
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
-import { inject, injectable } from 'inversify';
+import { decorate, inject, injectable } from 'inversify';
 import { load } from 'js-yaml';
 import { cloneDeep, isEqual } from 'lodash';
 import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
@@ -72,6 +72,8 @@ export interface ICheEditorYaml {
     containers: ICheEditorOverrideContainer[];
   };
 }
+
+decorate(injectable(), WorkspaceClient);
 
 /**
  * This class manages the connection between the frontend and the devworkspace typescript library

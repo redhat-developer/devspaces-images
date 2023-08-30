@@ -20,15 +20,17 @@ import { getToken } from './helpers/getToken';
 
 const tags = ['UserProfile'];
 
-export function registerUserProfileRoute(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/userprofile/:namespace`,
-    getSchema({ tags, params: namespacedSchema }),
-    async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParams;
-      const token = getToken(request);
-      const { userProfileApi } = getDevWorkspaceClient(token);
-      return userProfileApi.getUserProfile(namespace);
-    },
-  );
+export function registerUserProfileRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(
+      `${baseApiPath}/userprofile/:namespace`,
+      getSchema({ tags, params: namespacedSchema }),
+      async function (request: FastifyRequest) {
+        const { namespace } = request.params as restParams.INamespacedParams;
+        const token = getToken(request);
+        const { userProfileApi } = getDevWorkspaceClient(token);
+        return userProfileApi.getUserProfile(namespace);
+      },
+    );
+  });
 }

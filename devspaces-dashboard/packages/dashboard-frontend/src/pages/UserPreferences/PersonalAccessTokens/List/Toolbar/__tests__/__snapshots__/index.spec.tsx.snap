@@ -3,6 +3,9 @@
 exports[`PersonalAccessTokenListToolbar snapshot when no items selected 1`] = `
 <div
   className="pf-c-toolbar"
+  data-ouia-component-id="OUIA-Generated-Toolbar-1"
+  data-ouia-component-type="PF4/Toolbar"
+  data-ouia-safe={true}
   id="pf-random-id-0"
 >
   <div
@@ -55,7 +58,7 @@ exports[`PersonalAccessTokenListToolbar snapshot when no items selected 1`] = `
               height="1em"
               role="img"
               style={
-                Object {
+                {
                   "verticalAlign": "-0.125em",
                 }
               }
@@ -94,6 +97,9 @@ exports[`PersonalAccessTokenListToolbar snapshot when no items selected 1`] = `
 exports[`PersonalAccessTokenListToolbar snapshot when some items selected 1`] = `
 <div
   className="pf-c-toolbar"
+  data-ouia-component-id="OUIA-Generated-Toolbar-2"
+  data-ouia-component-type="PF4/Toolbar"
+  data-ouia-safe={true}
   id="pf-random-id-1"
 >
   <div
@@ -145,7 +151,7 @@ exports[`PersonalAccessTokenListToolbar snapshot when some items selected 1`] = 
               height="1em"
               role="img"
               style={
-                Object {
+                {
                   "verticalAlign": "-0.125em",
                 }
               }

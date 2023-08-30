@@ -76,7 +76,7 @@ describe('Creating steps, checking existing workspaces', () => {
       const store = new FakeStoreBuilder().build();
       renderComponent(store, searchParams);
 
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
       expect(mockOnError).not.toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('Creating steps, checking existing workspaces', () => {
       it('should proceed to the next step', async () => {
         renderComponent(store, searchParams);
 
-        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+        await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
         jest.runOnlyPendingTimers();
 
@@ -158,7 +158,7 @@ describe('Creating steps, checking existing workspaces', () => {
       test('notification alert', async () => {
         renderComponent(store, searchParams);
 
-        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+        await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
         const expectAlertItem = expect.objectContaining({
           title: 'Existing workspace found',
@@ -199,7 +199,7 @@ describe('Creating steps, checking existing workspaces', () => {
         });
 
         renderComponent(store, searchParams);
-        jest.runAllTimers();
+        await jest.runAllTimersAsync();
 
         await waitFor(() => expect(mockOnError).toHaveBeenCalled());
         expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -211,6 +211,7 @@ describe('Creating steps, checking existing workspaces', () => {
 
         // resolve deferred to trigger the callback
         deferred.resolve();
+        await jest.runOnlyPendingTimersAsync();
 
         await waitFor(() => expect(history.location.pathname).toEqual('/ide/user-che/my-project'));
 
@@ -238,7 +239,7 @@ describe('Creating steps, checking existing workspaces', () => {
         });
 
         renderComponent(store, searchParams);
-        jest.runAllTimers();
+        await jest.runAllTimersAsync();
 
         await waitFor(() => expect(mockOnError).toHaveBeenCalled());
         expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -250,6 +251,7 @@ describe('Creating steps, checking existing workspaces', () => {
 
         // resolve deferred to trigger the callback
         deferred.resolve();
+        await jest.runOnlyPendingTimersAsync();
 
         await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
         expect(mockOnRestart).not.toHaveBeenCalled();
@@ -293,7 +295,7 @@ describe('Creating steps, checking existing workspaces', () => {
 
       test('notification alert', async () => {
         renderComponent(store, searchParams);
-        jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+        await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
         const expectAlertItem = expect.objectContaining({
           title: 'Existing workspace found',

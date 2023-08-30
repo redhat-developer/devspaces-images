@@ -21,11 +21,13 @@ body {
 .page-description {
   min-height: 30px;
   padding: 5px 25px;
+
+  font-size: 14px;
+  color: #6e6e6e;
+
+  background-color: #ededed;
   border-top: 1px solid #cbcbcb;
   border-bottom: 1px solid #cbcbcb;
-  background-color: #ededed;
-  color: #6e6e6e;
-  font-size: 14px;
 }
 
 .page-description a {
@@ -48,24 +50,29 @@ div.tippy-popper a:hover {
 div.main-page-loader {
   position: absolute;
   z-index: 80;
+  inset: 0;
+
   margin: auto;
-  background-color: #000;
-  color: #fff;
+
   font-family: Helvetica, Arial, sans-serif;
   font-size: 24px;
-  inset: 0;
+  color: #fff;
+
+  background-color: #000;
 }
 
 div.main-page-loader .ide-page-loader-content img {
   position: absolute;
+  inset: 0;
+
   max-width: 140px;
   max-height: 140px;
   margin: auto;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
+
   animation-name: opacity;
+  animation-duration: 2s;
   animation-timing-function: ease-in-out;
-  inset: 0;
+  animation-iteration-count: infinite;
 }
 
 @keyframes opacity {
@@ -86,19 +93,21 @@ div.main-page-loader .ide-page-loader-content img {
 }
 
 .page-label {
-  color: #353e50;
   font-size: 20px;
+  color: #353e50;
   text-align: center;
 }
 
 .header-buttons .pf-c-button {
   padding: 0 15px;
-  border-radius: 2px;
-  background-color: #4a90e2;
-  color: #fff;
+
   font-size: 14px;
   font-weight: 400;
   line-height: 36px;
+  color: #fff;
+
+  background-color: #4a90e2;
+  border-radius: 2px;
 }
 
 .header-buttons + section.pf-c-page__main-section {
@@ -107,8 +116,8 @@ div.main-page-loader .ide-page-loader-content img {
 }
 
 .show-header {
-  animation-duration: 0.1s;
   animation-name: show;
+  animation-duration: 0.1s;
   animation-timing-function: linear;
 }
 
@@ -128,10 +137,12 @@ div.main-page-loader .ide-page-loader-content img {
 
 .hide-header {
   overflow: hidden;
+
   min-height: 0;
   max-height: 0;
-  animation-duration: 0.1s;
+
   animation-name: hide;
+  animation-duration: 0.1s;
   animation-timing-function: linear;
 }
 

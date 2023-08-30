@@ -20,16 +20,18 @@ import { getToken } from './helpers/getToken';
 
 const tags = ['Pod'];
 
-export function registerPodsRoutes(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/namespace/:namespace/pods`,
-    getSchema({ tags, params: namespacedSchema }),
-    async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParams;
-      const token = getToken(request);
+export function registerPodsRoutes(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(
+      `${baseApiPath}/namespace/:namespace/pods`,
+      getSchema({ tags, params: namespacedSchema }),
+      async function (request: FastifyRequest) {
+        const { namespace } = request.params as restParams.INamespacedParams;
+        const token = getToken(request);
 
-      const { podApi } = getDevWorkspaceClient(token);
-      return await podApi.listInNamespace(namespace);
-    },
-  );
+        const { podApi } = getDevWorkspaceClient(token);
+        return await podApi.listInNamespace(namespace);
+      },
+    );
+  });
 }

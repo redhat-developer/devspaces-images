@@ -2,7 +2,9 @@
 
 exports[`Loader Alert snapshot with alert items 1`] = `
 <ul
+  aria-atomic={null}
   aria-label="Loader Alerts Group"
+  aria-live={null}
   className="pf-c-alert-group"
   data-testid="loader-alerts-group"
 >
@@ -27,7 +29,7 @@ exports[`Loader Alert snapshot with alert items 1`] = `
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -91,7 +93,7 @@ exports[`Loader Alert snapshot with alert items 1`] = `
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }

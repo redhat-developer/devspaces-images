@@ -14,7 +14,6 @@ const base = require('../../jest.config.base');
 
 module.exports = {
   ...base,
-  name: 'dashboard-frontend',
   displayName: 'Dashboard Frontend',
   moduleDirectories: ['node_modules', '../../node_modules', 'src'],
   moduleNameMapper: {
@@ -28,11 +27,14 @@ module.exports = {
   modulePathIgnorePatterns: [
     '__mocks__/index.tsx',
   ],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.test.json',
-      diagnostics: true,
-    },
+  testEnvironment: 'jsdom',
+  transform: {
+    '^.*\\.tsx?$': [
+      'ts-jest',
+      {
+        diagnostics: true,
+      },
+    ],
   },
   setupFilesAfterEnv: ['./jest.setup.ts'],
   setupFiles: ['./src/inversify.config.ts'],

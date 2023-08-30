@@ -11,13 +11,13 @@
 */
 
 .experimentalStorageType {
-  color: var(--pf-global--palette--orange-300);
   font-size: 0.8em;
+  color: var(--pf-global--palette--orange-300);
 }
 
 .labelIcon {
-  padding: 0;
   margin-left: 5px;
+  padding: 0;
   outline: none;
 }
 

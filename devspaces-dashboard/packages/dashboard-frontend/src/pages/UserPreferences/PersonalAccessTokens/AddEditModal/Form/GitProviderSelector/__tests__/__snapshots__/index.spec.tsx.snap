@@ -60,7 +60,7 @@ exports[`Registry Username Input snapshot 1`] = `
               height="1em"
               role="img"
               style={
-                Object {
+                {
                   "verticalAlign": "-0.125em",
                 }
               }

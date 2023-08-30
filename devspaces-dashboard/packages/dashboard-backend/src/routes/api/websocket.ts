@@ -20,8 +20,10 @@ import { SubscriptionManager } from '../../services/SubscriptionManager';
 import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
 import { getToken } from './helpers/getToken';
 
-export function registerWebsocket(server: FastifyInstance) {
-  server.get(`${baseApiPath}/websocket`, { websocket: true }, webSocketHandler);
+export function registerWebsocket(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(`${baseApiPath}/websocket`, { websocket: true }, webSocketHandler);
+  });
 }
 
 function webSocketHandler(connection: SocketStream, request: FastifyRequest): void {

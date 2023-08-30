@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React, { ErrorInfo } from 'react';
+import React, { ErrorInfo, PropsWithChildren } from 'react';
 import {
   Alert,
   AlertActionLink,
@@ -28,7 +28,7 @@ export const STORAGE_KEY_RELOAD_NUMBER = 'UD:ErrorBoundary:reloaded';
 const RELOAD_TIMEOUT_SEC = 30;
 const RELOADS_FOR_EXTENDED_MESSAGE = 2;
 
-type Props = unknown;
+type Props = PropsWithChildren;
 type State = {
   hasError: boolean;
   error?: Error;
@@ -142,7 +142,7 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
     });
   }
 
-  private buildErrorMessageAlert(): React.ReactNode {
+  private buildErrorMessageAlert(): React.ReactElement {
     const { error, errorInfo, expanded } = this.state;
 
     const actionErrorTitle = expanded ? 'Hide stack' : 'View stack';

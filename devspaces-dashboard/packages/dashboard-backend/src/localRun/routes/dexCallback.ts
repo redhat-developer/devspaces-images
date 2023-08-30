@@ -14,9 +14,9 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 export function registerDexCallback(server: FastifyInstance) {
   server.get('/oauth/callback', async function (request: FastifyRequest, reply: FastifyReply) {
-    const token = await server.localStart.getAccessTokenFromAuthorizationCodeFlow(request);
-    process.env.CLUSTER_ACCESS_TOKEN = token?.access_token;
-    const authorizationUri = server.localStart.generateAuthorizationUri(request);
+    const { token } = await server.localStart.getAccessTokenFromAuthorizationCodeFlow(request);
+    process.env.CLUSTER_ACCESS_TOKEN = token.access_token;
+    const authorizationUri = server.localStart.generateAuthorizationUri(request, reply);
     return reply.redirect(token ? '/dashboard/' : authorizationUri);
   });
 }

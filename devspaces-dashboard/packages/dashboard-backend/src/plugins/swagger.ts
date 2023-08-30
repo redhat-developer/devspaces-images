@@ -12,6 +12,7 @@
 
 import { FastifyInstance } from 'fastify';
 import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
 
 const ROUTE_PREFIX = '/dashboard/api/swagger';
 
@@ -23,11 +24,10 @@ type MySchema = {
   };
 };
 
-export function registerSwagger(server: FastifyInstance): void {
+export function registerSwagger(server: FastifyInstance) {
   console.log(`Che Dashboard swagger is running on "${ROUTE_PREFIX}".`);
 
   server.register(fastifySwagger, {
-    routePrefix: ROUTE_PREFIX,
     mode: 'dynamic',
     openapi: {
       info: {
@@ -46,18 +46,21 @@ export function registerSwagger(server: FastifyInstance): void {
         },
       },
     },
-    uiConfig: {
-      tryItOutEnabled: true,
-      validatorUrl: null,
-    },
     hideUntagged: true,
-    exposeRoute: true,
     transform: ({ schema, url }) => {
       const mySchema = schema as MySchema;
       if (mySchema?.headers?.properties?.authorization) {
         delete mySchema.headers.properties.authorization;
       }
       return { schema: mySchema, url };
+    },
+  });
+
+  server.register(fastifySwaggerUi, {
+    routePrefix: ROUTE_PREFIX,
+    uiConfig: {
+      tryItOutEnabled: true,
+      validatorUrl: null,
     },
   });
 }

@@ -17,10 +17,12 @@ import { getSchema } from '../../services/helpers';
 
 const tags = ['Cluster Info'];
 
-export function registerClusterInfoRoute(server: FastifyInstance) {
-  server.get(`${baseApiPath}/cluster-info`, getSchema({ tags }), async () =>
-    buildApplicationInfo(),
-  );
+export function registerClusterInfoRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(`${baseApiPath}/cluster-info`, getSchema({ tags }), async () =>
+      buildApplicationInfo(),
+    );
+  });
 }
 
 function buildApplicationInfo(): ClusterInfo {

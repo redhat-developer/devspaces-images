@@ -20,16 +20,18 @@ import { getToken } from './helpers/getToken';
 
 const tags = ['Event'];
 
-export function registerEventsRoutes(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/namespace/:namespace/events`,
-    getSchema({ tags, params: namespacedSchema }),
-    async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParams;
-      const token = getToken(request);
+export function registerEventsRoutes(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(
+      `${baseApiPath}/namespace/:namespace/events`,
+      getSchema({ tags, params: namespacedSchema }),
+      async function (request: FastifyRequest) {
+        const { namespace } = request.params as restParams.INamespacedParams;
+        const token = getToken(request);
 
-      const { eventApi } = getDevWorkspaceClient(token);
-      return await eventApi.listInNamespace(namespace);
-    },
-  );
+        const { eventApi } = getDevWorkspaceClient(token);
+        return await eventApi.listInNamespace(namespace);
+      },
+    );
+  });
 }

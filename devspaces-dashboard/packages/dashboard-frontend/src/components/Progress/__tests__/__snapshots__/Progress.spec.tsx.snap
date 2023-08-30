@@ -31,7 +31,7 @@ exports[`Progress component should render progress with loading correctly 1`] = 
       <div
         className="pf-c-progress__indicator"
         style={
-          Object {
+          {
             "width": "0%",
           }
         }

@@ -6,12 +6,18 @@ exports[`Expandable warning items should correctly render the component 1`] = `
 >
   <small
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-1"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi non sollicitudin lorem, a suscipit massa. Cras egestas ante vel est pulvinar, a elementum orci faucibus. Etiam in risus et augue sollicitudin facilisis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus ligula arcu, imperdiet hendrerit nulla varius, molestie volutpat nunc.
   </small>
   <small
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-2"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     <div
@@ -45,7 +51,7 @@ exports[`Expandable warning items should correctly render the component 1`] = `
                 height="1em"
                 role="img"
                 style={
-                  Object {
+                  {
                     "verticalAlign": "-0.125em",
                   }
                 }
@@ -73,6 +79,9 @@ exports[`Expandable warning items should correctly render the component 1`] = `
           >
             <small
               className="hideOverflow"
+              data-ouia-component-id="OUIA-Generated-Text-3"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
               data-testid="expandable-warning-error-message"
               id="expandable-warning-error-message"
@@ -86,6 +95,9 @@ exports[`Expandable warning items should correctly render the component 1`] = `
   </small>
   <small
     className=""
+    data-ouia-component-id="OUIA-Generated-Text-4"
+    data-ouia-component-type="PF4/Text"
+    data-ouia-safe={true}
     data-pf-content={true}
   >
     Sed iaculis dictum nibh nec varius. Pellentesque ac diam vestibulum nisl condimentum feugiat. Sed et est in dolor posuere pharetra. Aliquam sodales lorem eu velit efficitur vestibulum. Praesent ornare ut tellus nec cursus. Proin at hendrerit metus, sed placerat justo. Cras id hendrerit ante, et consequat orci. Ut ante ipsum, eleifend sit amet iaculis quis, scelerisque eget mi. Pellentesque aliquam porttitor neque ut consectetur. Vivamus euismod elit velit, eget suscipit sem euismod vitae. Quisque sagittis, felis ut rhoncus vestibulum, arcu dui tincidunt quam, sit amet congue ligula dolor id sapien.

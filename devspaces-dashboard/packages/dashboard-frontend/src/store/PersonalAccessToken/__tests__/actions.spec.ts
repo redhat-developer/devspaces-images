@@ -38,7 +38,7 @@ jest.mock(
       addToken: (...args) => mockAddToken(...args),
       updateToken: (...args) => mockUpdateToken(...args),
       removeToken: (...args) => mockRemoveToken(...args),
-    } as typeof PersonalAccessTokenApi),
+    }) as typeof PersonalAccessTokenApi,
 );
 
 // mute the outputs

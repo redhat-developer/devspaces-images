@@ -32,6 +32,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
       className=""
     >
       <tr
+        aria-label=""
         className=""
         data-ouia-component-id="OUIA-Generated-TableRow-1"
         data-ouia-component-type="PF4/TableRow"
@@ -76,6 +77,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
         </th>
         <td
           className=""
+          onMouseEnter={[Function]}
         />
       </tr>
     </thead>
@@ -84,6 +86,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
       role="rowgroup"
     >
       <tr
+        aria-label=""
         className=""
         data-ouia-component-id="OUIA-Generated-TableRow-2"
         data-ouia-component-type="PF4/TableRow"
@@ -92,6 +95,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
       >
         <td
           className="pf-c-table__check"
+          onMouseEnter={[Function]}
         >
           <label>
             <input
@@ -106,23 +110,27 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
         <td
           className=""
           data-label="Name"
+          onMouseEnter={[Function]}
         >
           token-name-1
         </td>
         <td
           className=""
           data-label="Provider"
+          onMouseEnter={[Function]}
         >
           github
         </td>
         <td
           className=""
           data-label="Endpoint"
+          onMouseEnter={[Function]}
         >
           https://github.com
         </td>
         <td
           className="pf-c-table__action"
+          onMouseEnter={[Function]}
         >
           <div
             className="pf-c-dropdown pf-m-align-right"
@@ -148,7 +156,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
                 height="1em"
                 role="img"
                 style={
-                  Object {
+                  {
                     "verticalAlign": "-0.125em",
                   }
                 }
@@ -164,6 +172,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
         </td>
       </tr>
       <tr
+        aria-label=""
         className=""
         data-ouia-component-id="OUIA-Generated-TableRow-3"
         data-ouia-component-type="PF4/TableRow"
@@ -172,6 +181,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
       >
         <td
           className="pf-c-table__check"
+          onMouseEnter={[Function]}
         >
           <label>
             <input
@@ -186,23 +196,27 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
         <td
           className=""
           data-label="Name"
+          onMouseEnter={[Function]}
         >
           token-name-2
         </td>
         <td
           className=""
           data-label="Provider"
+          onMouseEnter={[Function]}
         >
           azure-devops
         </td>
         <td
           className=""
           data-label="Endpoint"
+          onMouseEnter={[Function]}
         >
           https://dev.azure.com
         </td>
         <td
           className="pf-c-table__action"
+          onMouseEnter={[Function]}
         >
           <div
             className="pf-c-dropdown pf-m-align-right"
@@ -228,7 +242,7 @@ exports[`PersonalAccessTokenList should match the snapshot 1`] = `
                 height="1em"
                 role="img"
                 style={
-                  Object {
+                  {
                     "verticalAlign": "-0.125em",
                   }
                 }

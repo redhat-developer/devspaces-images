@@ -6,6 +6,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
   data-ouia-component-id="OUIA-Generated-NavItem-5"
   data-ouia-component-type="PF4/NavItem"
   data-ouia-safe={true}
+  onMouseOver={[Function]}
 >
   <a
     aria-current={null}
@@ -48,7 +49,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -68,10 +69,9 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
         role="menu"
       >
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -79,6 +79,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
             data-ouia-component-id="OUIA-Generated-DropdownItem-11"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -87,10 +88,9 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -98,6 +98,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
             data-ouia-component-id="OUIA-Generated-DropdownItem-12"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -106,10 +107,9 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -117,6 +117,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
             data-ouia-component-id="OUIA-Generated-DropdownItem-13"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -136,6 +137,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
   data-ouia-component-id="OUIA-Generated-NavItem-3"
   data-ouia-component-type="PF4/NavItem"
   data-ouia-safe={true}
+  onMouseOver={[Function]}
 >
   <a
     aria-current={null}
@@ -178,7 +180,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -198,10 +200,9 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
         role="menu"
       >
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -209,6 +210,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
             data-ouia-component-id="OUIA-Generated-DropdownItem-7"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -217,10 +219,9 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -228,6 +229,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
             data-ouia-component-id="OUIA-Generated-DropdownItem-8"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -236,10 +238,9 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -247,6 +248,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
             data-ouia-component-id="OUIA-Generated-DropdownItem-9"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -266,6 +268,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
   data-ouia-component-id="OUIA-Generated-NavItem-2"
   data-ouia-component-type="PF4/NavItem"
   data-ouia-safe={true}
+  onMouseOver={[Function]}
 >
   <a
     aria-current={null}
@@ -308,7 +311,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -328,10 +331,9 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
         role="menu"
       >
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -339,6 +341,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
             data-ouia-component-id="OUIA-Generated-DropdownItem-4"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -347,10 +350,9 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -358,6 +360,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
             data-ouia-component-id="OUIA-Generated-DropdownItem-5"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -366,10 +369,9 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -377,6 +379,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
             data-ouia-component-id="OUIA-Generated-DropdownItem-6"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -396,6 +399,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
   data-ouia-component-id="OUIA-Generated-NavItem-1"
   data-ouia-component-type="PF4/NavItem"
   data-ouia-safe={true}
+  onMouseOver={[Function]}
 >
   <a
     aria-current={null}
@@ -438,7 +442,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -458,10 +462,9 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
         role="menu"
       >
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -469,6 +472,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             data-ouia-component-id="OUIA-Generated-DropdownItem-1"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -477,10 +481,9 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -488,6 +491,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             data-ouia-component-id="OUIA-Generated-DropdownItem-2"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -496,10 +500,9 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
           </a>
         </li>
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -507,6 +510,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             data-ouia-component-id="OUIA-Generated-DropdownItem-3"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>
@@ -526,6 +530,7 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
   data-ouia-component-id="OUIA-Generated-NavItem-4"
   data-ouia-component-type="PF4/NavItem"
   data-ouia-safe={true}
+  onMouseOver={[Function]}
 >
   <a
     aria-current={null}
@@ -568,7 +573,7 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
           height="1em"
           role="img"
           style={
-            Object {
+            {
               "verticalAlign": "-0.125em",
             }
           }
@@ -588,10 +593,9 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
         role="menu"
       >
         <li
-          className={null}
           onClick={[Function]}
           onKeyDown={[Function]}
-          role="menuitem"
+          role="none"
         >
           <a
             aria-disabled={false}
@@ -599,6 +603,7 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
             data-ouia-component-id="OUIA-Generated-DropdownItem-10"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
+            role="menuitem"
             tabIndex={-1}
           >
             <div>

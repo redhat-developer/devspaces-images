@@ -26,74 +26,77 @@ import { isLocalRun } from '../../localRun';
 
 const tags = ['Devworkspace Template'];
 
-export function registerDevWorkspaceTemplates(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
-    getSchema({
-      tags,
-      params: namespacedSchema,
-    }),
-    async function (request: FastifyRequest) {
-      const { namespace } = request.params as restParams.INamespacedParams;
-      const token = getToken(request);
-      const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
-      return templateApi.listInNamespace(namespace);
-    },
-  );
-
-  server.post(
-    `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
-    getSchema({
-      tags,
-      params: namespacedSchema,
-      body: templateStartedSchema,
-    }),
-    async function (request: FastifyRequest) {
-      const { template } = request.body as restParams.ITemplateBodyParams;
-      const { namespace } = request.params as restParams.INamespacedParams;
-      if (!template.metadata) {
-        template.metadata = {};
-      }
-      template.metadata.namespace = namespace;
-      const token = getToken(request);
-      const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
-      return templateApi.create(template);
-    },
-  );
-
-  server.patch(
-    `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
-    getSchema({ tags, params: namespacedTemplateSchema, body: dwTemplatePatchSchema }),
-    async function (request: FastifyRequest) {
-      const { namespace, templateName } = request.params as restParams.INamespacedTemplateParams;
-      const patch = request.body as { op: string; path: string; value?: any }[];
-      const token = getToken(request);
-      const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
-      return templateApi.patch(namespace, templateName, patch);
-    },
-  );
-
-  if (isLocalRun()) {
-    server.delete(
-      `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+export function registerDevWorkspaceTemplates(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(
+      `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
       getSchema({
         tags,
-        params: namespacedTemplateSchema,
-        response: {
-          204: {
-            description: 'The DevWorkspaceTemplate successfully deleted',
-            type: 'null',
-          },
-        },
+        params: namespacedSchema,
       }),
-      async function (request: FastifyRequest, reply: FastifyReply) {
-        const { namespace, templateName } = request.params as restParams.INamespacedTemplateParams;
+      async function (request: FastifyRequest) {
+        const { namespace } = request.params as restParams.INamespacedParams;
         const token = getToken(request);
         const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
-        await templateApi.delete(namespace, templateName);
-        reply.code(204);
-        return reply.send();
+        return templateApi.listInNamespace(namespace);
       },
     );
-  }
+
+    server.post(
+      `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
+      getSchema({
+        tags,
+        params: namespacedSchema,
+        body: templateStartedSchema,
+      }),
+      async function (request: FastifyRequest) {
+        const { template } = request.body as restParams.ITemplateBodyParams;
+        const { namespace } = request.params as restParams.INamespacedParams;
+        if (!template.metadata) {
+          template.metadata = {};
+        }
+        template.metadata.namespace = namespace;
+        const token = getToken(request);
+        const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
+        return templateApi.create(template);
+      },
+    );
+
+    server.patch(
+      `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+      getSchema({ tags, params: namespacedTemplateSchema, body: dwTemplatePatchSchema }),
+      async function (request: FastifyRequest) {
+        const { namespace, templateName } = request.params as restParams.INamespacedTemplateParams;
+        const patch = request.body as { op: string; path: string; value?: any }[];
+        const token = getToken(request);
+        const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
+        return templateApi.patch(namespace, templateName, patch);
+      },
+    );
+
+    if (isLocalRun()) {
+      server.delete(
+        `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+        getSchema({
+          tags,
+          params: namespacedTemplateSchema,
+          response: {
+            204: {
+              description: 'The DevWorkspaceTemplate successfully deleted',
+              type: 'null',
+            },
+          },
+        }),
+        async function (request: FastifyRequest, reply: FastifyReply) {
+          const { namespace, templateName } =
+            request.params as restParams.INamespacedTemplateParams;
+          const token = getToken(request);
+          const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
+          await templateApi.delete(namespace, templateName);
+          reply.code(204);
+          return reply.send();
+        },
+      );
+    }
+  });
 }

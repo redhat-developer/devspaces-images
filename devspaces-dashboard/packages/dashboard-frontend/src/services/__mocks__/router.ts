@@ -25,10 +25,9 @@ const generateUrl = <Params>(path: string, params: Params): string => {
   return resultPath;
 };
 
-export function getMockRouterProps<Params>(
-  path: string,
-  params: Params,
-): RouteComponentProps<Params> {
+export function getMockRouterProps<
+  Params extends { [K in keyof Params]?: string } = Record<string, string>,
+>(path: string, params: Params): RouteComponentProps<Params> {
   const isExact = false;
   const url = generateUrl(path, params);
 

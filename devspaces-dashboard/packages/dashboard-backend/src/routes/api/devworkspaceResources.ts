@@ -22,33 +22,35 @@ import { api } from '@eclipse-che/common';
 
 const tags = ['DevWorkspace Resources'];
 
-export function registerDevworkspaceResourcesRoute(server: FastifyInstance) {
+export function registerDevworkspaceResourcesRoute(instance: FastifyInstance) {
   const generator = new DevworkspaceGenerator();
 
-  server.post(
-    `${baseApiPath}/devworkspace-resources`,
-    getSchema({ tags, body: devWorkspaceResourcesSchema }),
-    async function (request: FastifyRequest) {
-      const { devfileContent, editorPath, pluginRegistryUrl, editorId, editorContent } =
-        request.body as api.IDevWorkspaceResources;
-      const context = await generator.generateDevfileContext(
-        {
-          devfileContent,
-          editorPath,
-          pluginRegistryUrl,
-          editorEntry: editorId,
-          editorContent,
-          projects: [],
-        },
-        axiosInstance,
-      );
-      // write templates and then DevWorkspace in a single file
-      const allContentArray = context.devWorkspaceTemplates.map(
-        (template: V1alpha2DevWorkspaceTemplate) => dump(template),
-      );
-      allContentArray.push(dump(context.devWorkspace));
+  instance.register(async server => {
+    server.post(
+      `${baseApiPath}/devworkspace-resources`,
+      getSchema({ tags, body: devWorkspaceResourcesSchema }),
+      async function (request: FastifyRequest) {
+        const { devfileContent, editorPath, pluginRegistryUrl, editorId, editorContent } =
+          request.body as api.IDevWorkspaceResources;
+        const context = await generator.generateDevfileContext(
+          {
+            devfileContent,
+            editorPath,
+            pluginRegistryUrl,
+            editorEntry: editorId,
+            editorContent,
+            projects: [],
+          },
+          axiosInstance,
+        );
+        // write templates and then DevWorkspace in a single file
+        const allContentArray = context.devWorkspaceTemplates.map(
+          (template: V1alpha2DevWorkspaceTemplate) => dump(template),
+        );
+        allContentArray.push(dump(context.devWorkspace));
 
-      return allContentArray.join('---\n');
-    },
-  );
+        return allContentArray.join('---\n');
+      },
+    );
+  });
 }

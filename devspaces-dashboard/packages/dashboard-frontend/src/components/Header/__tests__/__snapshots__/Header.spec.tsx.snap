@@ -27,7 +27,6 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
             <a
               className="pf-c-breadcrumb__link"
               href="/dashboard/"
-              target={null}
             >
               Workspaces
             </a>
@@ -45,7 +44,7 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
                 height="1em"
                 role="img"
                 style={
-                  Object {
+                  {
                     "verticalAlign": "-0.125em",
                   }
                 }
@@ -76,6 +75,9 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
           >
             <h1
               className=""
+              data-ouia-component-id="OUIA-Generated-Text-1"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
             >
               Start workspace
@@ -103,7 +105,7 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
                   height="1em"
                   role="img"
                   style={
-                    Object {
+                    {
                       "verticalAlign": "-0.125em",
                     }
                   }
@@ -155,7 +157,6 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
             <a
               className="pf-c-breadcrumb__link"
               href="/dashboard/"
-              target={null}
             >
               Workspaces
             </a>
@@ -173,7 +174,7 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
                 height="1em"
                 role="img"
                 style={
-                  Object {
+                  {
                     "verticalAlign": "-0.125em",
                   }
                 }
@@ -204,6 +205,9 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
           >
             <h1
               className=""
+              data-ouia-component-id="OUIA-Generated-Text-2"
+              data-ouia-component-type="PF4/Text"
+              data-ouia-safe={true}
               data-pf-content={true}
             >
               Workspace error
@@ -230,7 +234,7 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
                   height="1em"
                   role="img"
                   style={
-                    Object {
+                    {
                       "verticalAlign": "-0.125em",
                     }
                   }

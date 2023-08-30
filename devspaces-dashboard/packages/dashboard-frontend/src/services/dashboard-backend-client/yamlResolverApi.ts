@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import { helpers } from '@eclipse-che/common';
-import { prefix } from './const';
+import axios from 'axios';
 import * as yaml from 'js-yaml';
+import devfileApi from '../devfileApi';
 import { FactoryResolver } from '../helpers/types';
+import { prefix } from './const';
 
 export async function getYamlResolver(
   namespace: string,
@@ -29,7 +30,7 @@ export async function getYamlResolver(
 
     return {
       v: 'yaml-resolver',
-      devfile: yaml.load(response.data),
+      devfile: yaml.load(response.data) as devfileApi.Devfile,
       location: url.href,
       links: [],
     };

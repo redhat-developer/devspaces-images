@@ -23,6 +23,7 @@ import ImportFromGit from './ImportFromGit';
 import { ResolverState } from '../../../store/FactoryResolver';
 import { DevfileAdapter } from '../../../services/devfile/adapter';
 import { selectPvcStrategy } from '../../../store/ServerConfig/selectors';
+import devfileApi from '../../../services/devfileApi';
 
 // At runtime, Redux will merge together...
 type Props = {
@@ -76,7 +77,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     if (this.isLoading) {
       return;
     }
-    const devfileAdapter = new DevfileAdapter(load(devfileContent));
+    const devfileAdapter = new DevfileAdapter(load(devfileContent) as devfileApi.Devfile);
     devfileAdapter.storageType = this.getStorageType();
     this.isLoading = true;
     try {

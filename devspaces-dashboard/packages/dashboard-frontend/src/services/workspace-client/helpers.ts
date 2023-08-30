@@ -11,7 +11,7 @@
  */
 
 import common from '@eclipse-che/common';
-import devfileApi from '../devfileApi';
+import devfileApi, { isDevfileV2 } from '../devfileApi';
 import { load, dump } from 'js-yaml';
 import { ICheEditorYaml } from './devworkspace/devWorkspaceClient';
 import { CHE_EDITOR_YAML_PATH } from './';
@@ -117,7 +117,8 @@ export async function getCustomEditor(
     if (repositoryEditorYamlUrl) {
       const response = await getEditor(repositoryEditorYamlUrl, dispatch, getState);
       if (response.content) {
-        repositoryEditorYaml = load(response.content);
+        const yaml = load(response.content);
+        repositoryEditorYaml = isDevfileV2(yaml) ? yaml : undefined;
       } else {
         throw new Error(response.error);
       }

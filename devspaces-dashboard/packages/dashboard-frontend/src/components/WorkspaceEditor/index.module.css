@@ -25,6 +25,6 @@
 
 .workspaceEditor .monaco .monaco-editor {
   position: absolute;
-  border: 1px solid var(--pf-global--BorderColor--100);
   inset: 0;
+  border: 1px solid var(--pf-global--BorderColor--100);
 }

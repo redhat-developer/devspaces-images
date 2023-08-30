@@ -10,18 +10,18 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
     className="pf-c-wizard__toggle pf-m-expanded"
     onClick={[Function]}
   >
-    <ol
+    <span
       className="pf-c-wizard__toggle-list"
     >
-      <li
+      <span
         className="pf-c-wizard__toggle-list-item"
       >
         <span
           className="pf-c-wizard__toggle-num"
         />
          
-      </li>
-    </ol>
+      </span>
+    </span>
     <span
       className="pf-c-wizard__toggle-icon"
     >
@@ -32,7 +32,7 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
         height="1em"
         role="img"
         style={
-          Object {
+          {
             "verticalAlign": "-0.125em",
           }
         }
@@ -54,6 +54,9 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
       <nav
         aria-label="Workspace Progress Steps"
         className="pf-c-wizard__nav pf-m-expanded"
+        data-ouia-component-id="OUIA-Generated-WizardNav-1"
+        data-ouia-component-type="PF4/WizardNav"
+        data-ouia-safe={true}
       >
         <ol
           className="pf-c-wizard__nav-list"
@@ -65,6 +68,9 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
               aria-current={false}
               aria-disabled={null}
               className="pf-c-wizard__nav-link"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-1"
+              data-ouia-component-type="PF4/WizardNavItem"
+              data-ouia-safe={true}
               disabled={false}
               onClick={[Function]}
             >
@@ -75,9 +81,12 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
             className="pf-c-wizard__nav-item"
           >
             <button
-              aria-current="page"
+              aria-current="step"
               aria-disabled={null}
               className="pf-c-wizard__nav-link pf-m-current"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-2"
+              data-ouia-component-type="PF4/WizardNavItem"
+              data-ouia-safe={true}
               disabled={false}
               onClick={[Function]}
             >
@@ -91,6 +100,9 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
               aria-current={false}
               aria-disabled={null}
               className="pf-c-wizard__nav-link"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-3"
+              data-ouia-component-type="PF4/WizardNavItem"
+              data-ouia-safe={true}
               disabled={false}
               onClick={[Function]}
             >
@@ -106,6 +118,9 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
                   aria-current={false}
                   aria-disabled={true}
                   className="pf-c-wizard__nav-link pf-m-disabled"
+                  data-ouia-component-id="OUIA-Generated-WizardNavItem-4"
+                  data-ouia-component-type="PF4/WizardNavItem"
+                  data-ouia-safe={true}
                   disabled={true}
                   onClick={[Function]}
                 >
@@ -119,6 +134,9 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
                   aria-current={false}
                   aria-disabled={true}
                   className="pf-c-wizard__nav-link pf-m-disabled"
+                  data-ouia-component-id="OUIA-Generated-WizardNavItem-5"
+                  data-ouia-component-type="PF4/WizardNavItem"
+                  data-ouia-safe={true}
                   disabled={true}
                   onClick={[Function]}
                 >
@@ -132,6 +150,9 @@ exports[`WorkspaceProgressWizard component snapshot 1`] = `
                   aria-current={false}
                   aria-disabled={true}
                   className="pf-c-wizard__nav-link pf-m-disabled"
+                  data-ouia-component-id="OUIA-Generated-WizardNavItem-6"
+                  data-ouia-component-type="PF4/WizardNavItem"
+                  data-ouia-safe={true}
                   disabled={true}
                   onClick={[Function]}
                 >

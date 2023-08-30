@@ -25,26 +25,28 @@ const tags = ['Devfile'];
 
 type DevfileSchemaV100 = { [key: string]: unknown };
 
-export function registerDevfileSchemaRoute(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/devfile`,
-    getSchema({ tags, query: devfileVersionSchema }),
-    async function (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ): Promise<JSONSchema7 | DevfileSchemaV100 | undefined> {
-      const { version } = request.query as restParams.IDevfileVersionParams;
-      switch (version) {
-        case '2.0.0':
-          return devfileSchemaV200;
-        case '2.1.0':
-          return devfileSchemaV210;
-        case '2.2.0':
-          return devfileSchemaV220;
-        case '2.2.1-alpha':
-          return devfileSchemaV221Alpha;
-      }
-      reply.code(404);
-    },
-  );
+export function registerDevfileSchemaRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.get(
+      `${baseApiPath}/devfile`,
+      getSchema({ tags, query: devfileVersionSchema }),
+      async function (
+        request: FastifyRequest,
+        reply: FastifyReply,
+      ): Promise<JSONSchema7 | DevfileSchemaV100 | undefined> {
+        const { version } = request.query as restParams.IDevfileVersionParams;
+        switch (version) {
+          case '2.0.0':
+            return devfileSchemaV200;
+          case '2.1.0':
+            return devfileSchemaV210;
+          case '2.2.0':
+            return devfileSchemaV220;
+          case '2.2.1-alpha':
+            return devfileSchemaV221Alpha;
+        }
+        reply.code(404);
+      },
+    );
+  });
 }

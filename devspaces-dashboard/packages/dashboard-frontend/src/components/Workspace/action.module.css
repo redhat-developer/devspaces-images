@@ -1,7 +1,7 @@
 .workspaceStatus,
 .disabledWorkspaceStatus {
-  padding-bottom: 0;
   margin-right: 10px;
+  padding-bottom: 0;
 }
 
 .workspaceStatus > *,
@@ -12,8 +12,8 @@
 }
 
 .disabledWorkspaceStatus > * {
-  color: #d2d2d2;
   cursor: not-allowed;
+  color: #d2d2d2;
 }
 
 .workspaceStatus {
@@ -35,6 +35,6 @@
 
 .infoModalHeader svg {
   margin: 0 0.4rem;
-  color: var(--pf-global--warning-color--100);
   font-size: 1.5rem;
+  color: var(--pf-global--warning-color--100);
 }

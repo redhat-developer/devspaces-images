@@ -20,26 +20,28 @@ import { namespacedKubeConfigSchema } from '../../constants/schemas';
 
 const tags = ['Kube Config'];
 
-export function registerKubeConfigRoute(server: FastifyInstance) {
-  server.post(
-    `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/kubeconfig`,
-    getSchema({
-      tags,
-      params: namespacedKubeConfigSchema,
-      response: {
-        204: {
-          description: 'The cube config file is successfully injected',
-          type: 'null',
+export function registerKubeConfigRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.post(
+      `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/kubeconfig`,
+      getSchema({
+        tags,
+        params: namespacedKubeConfigSchema,
+        response: {
+          204: {
+            description: 'The cube config file is successfully injected',
+            type: 'null',
+          },
         },
+      }),
+      async function (request: FastifyRequest, reply: FastifyReply) {
+        const token = getToken(request);
+        const { kubeConfigApi } = getDevWorkspaceClient(token);
+        const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
+        await kubeConfigApi.injectKubeConfig(namespace, devworkspaceId);
+        reply.code(204);
+        return reply.send();
       },
-    }),
-    async function (request: FastifyRequest, reply: FastifyReply) {
-      const token = getToken(request);
-      const { kubeConfigApi } = getDevWorkspaceClient(token);
-      const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
-      await kubeConfigApi.injectKubeConfig(namespace, devworkspaceId);
-      reply.code(204);
-      return reply.send();
-    },
-  );
+    );
+  });
 }

@@ -1,11 +1,13 @@
 .viewer {
   height: calc(100vh - 31em);
   min-height: 15em;
+
+  font-size: small;
+  color: var(--pf-global--palette--black-400);
+
+  background-color: var(--pf-global--palette--black-1000);
   border: var(--pf-global--BackgroundColor--dark-200) solid 2px;
   border-radius: 2px;
-  background-color: var(--pf-global--palette--black-1000);
-  color: var(--pf-global--palette--black-400);
-  font-size: small;
 }
 
 .expanded.viewer {
@@ -14,9 +16,9 @@
 
 .linesCounter {
   padding: 0 5px;
-  background-color: var(--pf-global--BackgroundColor--dark-300);
   font-weight: 600;
   line-height: 2em;
+  background-color: var(--pf-global--BackgroundColor--dark-300);
 }
 
 .logs {

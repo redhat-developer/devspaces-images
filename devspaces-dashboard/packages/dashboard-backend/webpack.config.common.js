@@ -51,8 +51,16 @@ module.exports = () => {
       new CopyPlugin({
         patterns: [
           {
-            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger', 'static'),
-            to: 'static/',
+            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger-ui', 'static', 'logo.svg'),
+            to: 'server/static',
+          }
+        ]
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger-ui', 'static'),
+            to: 'static',
             transform(content, absoluteFrom) {
               // it needs to hide the top bar(the definition URL path)
               if (absoluteFrom.split('/').reverse()[0] === 'index.html') {
@@ -64,10 +72,10 @@ module.exports = () => {
         ]
       }),
     ],
-    target: 'node',
     node: {
       __dirname: false,
     },
+    target: 'node',
     externals: [
       'long',
       'pino-pretty',

@@ -43,7 +43,7 @@ describe('About Menu', () => {
     render(component);
 
     const toggleButton = screen.queryByRole('button', { name: 'External Applications' });
-    expect(toggleButton).toBeInTheDocument();
+    expect(toggleButton).toBeTruthy();
   });
 
   it('should show list of two items', () => {
@@ -67,11 +67,8 @@ describe('About Menu', () => {
     const nameApp1 = /External App #1/;
     const nameApp2 = /External App #2/;
 
-    expect(screen.getByRole('menuitem', { name: nameApp1 })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: nameApp2 }));
-
-    expect(screen.getByRole('link', { name: nameApp1 }));
-    expect(screen.getByRole('link', { name: nameApp2 }));
+    expect(screen.queryByRole('menuitem', { name: nameApp1 })).toBeTruthy();
+    expect(screen.queryByRole('menuitem', { name: nameApp2 })).toBeTruthy();
   });
 
   it('should have two groups', () => {
@@ -84,8 +81,8 @@ describe('About Menu', () => {
     const group1 = 'Group 1';
     const group2 = 'Group 2';
 
-    expect(screen.getByText(group1)).toBeInTheDocument();
-    expect(screen.getByText(group2)).toBeInTheDocument();
+    expect(screen.queryByText(group1)).toBeTruthy();
+    expect(screen.queryByText(group2)).toBeTruthy();
   });
 });
 

@@ -32,12 +32,12 @@ describe('TimeLimit', () => {
     const timeout = 10;
     renderComponent(timeout);
 
-    jest.advanceTimersByTime((timeout - 1) * 1000);
+    await jest.advanceTimersByTimeAsync((timeout - 1) * 1000);
     await Promise.resolve();
     await Promise.resolve();
     expect(mockOnTimeout).not.toHaveBeenCalled();
 
-    jest.advanceTimersByTime((timeout + 1) * 1000);
+    await jest.advanceTimersByTimeAsync((timeout + 1) * 1000);
     await Promise.resolve();
     await Promise.resolve();
     expect(mockOnTimeout).toHaveBeenCalled();

@@ -22,31 +22,33 @@ import { helpers } from '@eclipse-che/common';
 
 const tags = ['Yaml Resolver'];
 
-export function registerYamlResolverRoute(server: FastifyInstance) {
-  server.post(
-    `${baseApiPath}/namespace/:namespace/yaml/resolver`,
-    getSchema({ tags, params: namespacedSchema, body: yamlResolverSchema }),
-    async function (request: FastifyRequest, reply: FastifyReply): Promise<string | void> {
-      const { url } = request.body as restParams.IYamlResolverParams;
-      const { namespace } = request.params as restParams.INamespacedParams;
-      const token = getToken(request);
-      const { dockerConfigApi } = getDevWorkspaceClient(token);
+export function registerYamlResolverRoute(instance: FastifyInstance) {
+  instance.register(async server => {
+    server.post(
+      `${baseApiPath}/namespace/:namespace/yaml/resolver`,
+      getSchema({ tags, params: namespacedSchema, body: yamlResolverSchema }),
+      async function (request: FastifyRequest, reply: FastifyReply): Promise<string | void> {
+        const { url } = request.body as restParams.IYamlResolverParams;
+        const { namespace } = request.params as restParams.INamespacedParams;
+        const token = getToken(request);
+        const { dockerConfigApi } = getDevWorkspaceClient(token);
 
-      try {
-        // check user permissions
-        await dockerConfigApi.read(namespace);
-      } catch (e) {
-        throw new Error(`User permissions error. ${helpers.errors.getMessage(e)}`);
-      }
+        try {
+          // check user permissions
+          await dockerConfigApi.read(namespace);
+        } catch (e) {
+          throw new Error(`User permissions error. ${helpers.errors.getMessage(e)}`);
+        }
 
-      const response = await fetch(url);
-      if (response.ok) {
-        return response.text();
-      } else {
-        reply.code(response.status);
-        reply.send(response.body);
-        return reply;
-      }
-    },
-  );
+        const response = await fetch(url);
+        if (response.ok) {
+          return response.text();
+        } else {
+          reply.code(response.status);
+          reply.send(response.body);
+          return reply;
+        }
+      },
+    );
+  });
 }

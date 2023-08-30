@@ -8,7 +8,7 @@ exports[`Registry Url Input should correctly render the component 1`] = `
   <div
     className="pf-c-form__group"
     style={
-      Object {
+      {
         "gridTemplateColumns": "80px",
         "minHeight": "65px",
       }
@@ -46,12 +46,14 @@ exports[`Registry Url Input should correctly render the component 1`] = `
           aria-invalid={false}
           aria-label="Url input"
           className="pf-c-form-control"
+          data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+          data-ouia-component-type="PF4/TextInput"
+          data-ouia-safe={true}
           disabled={false}
           onBlur={[Function]}
           onChange={[Function]}
           onFocus={[Function]}
           placeholder="Enter a registry"
-          readOnly={false}
           required={false}
           type="url"
           value="https://ttt"
@@ -72,7 +74,7 @@ exports[`Registry Url Input should correctly render the component 1`] = `
             href="https://ttt"
             rel="noreferrer"
             style={
-              Object {
+              {
                 "color": "inherit",
               }
             }
@@ -85,7 +87,7 @@ exports[`Registry Url Input should correctly render the component 1`] = `
               height="1em"
               role="img"
               style={
-                Object {
+                {
                   "verticalAlign": "-0.125em",
                 }
               }

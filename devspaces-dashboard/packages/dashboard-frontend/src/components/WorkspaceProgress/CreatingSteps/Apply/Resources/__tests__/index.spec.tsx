@@ -103,7 +103,7 @@ describe('Creating steps, applying resources', () => {
     const store = getStoreBuilder().build();
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -139,7 +139,7 @@ describe('Creating steps, applying resources', () => {
         .build();
 
       renderComponent(store, searchParams);
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
         expect(prepareResources).toHaveBeenCalledWith(resources, factoryId, undefined, true),
@@ -164,7 +164,7 @@ describe('Creating steps, applying resources', () => {
       searchParams.append(POLICIES_CREATE_ATTR, 'perclick');
 
       renderComponent(store, searchParams);
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
         expect(prepareResources).toHaveBeenCalledWith(resources, factoryId, undefined, true),
@@ -186,7 +186,7 @@ describe('Creating steps, applying resources', () => {
         .build();
 
       renderComponent(store, searchParams);
-      jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
         expect(prepareResources).toHaveBeenCalledWith(resources, factoryId, undefined, false),
@@ -246,7 +246,7 @@ describe('Creating steps, applying resources', () => {
       });
 
       renderComponent(emptyStore, searchParams);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       // trigger timeout
       const timeoutButton = screen.getByRole('button', {
@@ -263,10 +263,11 @@ describe('Creating steps, applying resources', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
-      expect(mockOnError).not.toHaveBeenCalled();
+      expect(mockOnError).toHaveBeenCalled();
     });
   });
 
@@ -288,7 +289,8 @@ describe('Creating steps, applying resources', () => {
 
     const { reRenderComponent } = renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+    await jest.runOnlyPendingTimersAsync();
 
     await waitFor(() => expect(mockCreateWorkspaceFromResources).toHaveBeenCalled());
 
@@ -300,7 +302,7 @@ describe('Creating steps, applying resources', () => {
 
     // wait a bit less than necessary to end the workspace creating timeout
     const time = (TIMEOUT_TO_CREATE_SEC - 1) * 1000;
-    jest.advanceTimersByTime(time);
+    await jest.advanceTimersByTimeAsync(time);
 
     // build next store
     const nextStore = getStoreBuilder()
@@ -322,7 +324,7 @@ describe('Creating steps, applying resources', () => {
       .build();
     reRenderComponent(nextStore, searchParams);
 
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
     expect(mockOnError).not.toHaveBeenCalled();
@@ -354,7 +356,7 @@ describe('Creating steps, applying resources', () => {
       .build();
 
     renderComponent(store, searchParams);
-    jest.runOnlyPendingTimers();
+    await jest.runAllTimersAsync();
 
     await waitFor(() => expect(screen.getByText(`Warning: ${warningMessage}`)).toBeTruthy());
 

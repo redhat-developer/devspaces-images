@@ -83,7 +83,7 @@ describe('Quick Add page', () => {
   it('should create and start a new workspace', async () => {
     renderGetStartedPage();
 
-    const quickAddTabButton = screen.getByRole('button', { name: 'Quick Add' });
+    const quickAddTabButton = screen.getByRole('tab', { name: 'Quick Add' });
     quickAddTabButton.click();
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Dummy Devfile' })).toBeTruthy());
@@ -101,7 +101,7 @@ describe('Quick Add page', () => {
     renderGetStartedPage();
     const masthead = screen.getByRole('heading');
 
-    const quickAddTabButton = screen.getByRole('button', { name: 'Quick Add' });
+    const quickAddTabButton = screen.getByRole('tab', { name: 'Quick Add' });
     quickAddTabButton.click();
 
     expect(masthead.textContent?.startsWith('Getting Started with'));

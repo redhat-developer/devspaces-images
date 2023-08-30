@@ -44,7 +44,7 @@ export type Props = {
   workspaceUID: string | undefined;
 } & MappedProps;
 
-export class WorkspaceEvents extends React.PureComponent<Props> {
+class WorkspaceEvents extends React.PureComponent<Props> {
   private findWorkspace(
     workspaceUID: string | undefined,
     allWorkspaces: Workspace[],

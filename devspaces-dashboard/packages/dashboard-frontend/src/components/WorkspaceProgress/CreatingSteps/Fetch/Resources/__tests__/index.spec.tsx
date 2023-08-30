@@ -89,7 +89,7 @@ describe('Creating steps, fetching resources', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
 
@@ -102,7 +102,7 @@ describe('Creating steps, fetching resources', () => {
     const store = new FakeStoreBuilder().build();
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     await waitFor(() => expect(mockRequestResources).toHaveBeenCalled());
 
@@ -119,7 +119,7 @@ describe('Creating steps, fetching resources', () => {
 
     renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
@@ -142,7 +142,7 @@ describe('Creating steps, fetching resources', () => {
 
     const { reRenderComponent } = renderComponent(store, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     await waitFor(() => expect(mockRequestResources).toHaveBeenCalled());
 
@@ -162,7 +162,7 @@ describe('Creating steps, fetching resources', () => {
       .build();
     reRenderComponent(nextStore, searchParams);
 
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
     expect(mockOnError).not.toHaveBeenCalled();
@@ -221,7 +221,7 @@ describe('Creating steps, fetching resources', () => {
       });
 
       renderComponent(emptyStore, searchParams);
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
 
       // trigger timeout
       const timeoutButton = screen.getByRole('button', {
@@ -238,6 +238,7 @@ describe('Creating steps, fetching resources', () => {
 
       // resolve deferred to trigger the callback
       deferred.resolve();
+      await jest.runAllTimersAsync();
 
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const loaderUtils = require('loader-utils');
 const path = require('path');
 const webpack = require('webpack');
@@ -58,7 +58,6 @@ const config = {
                     .replace(/[<>:"/\\|?*.]/g, '-')
                     .replace('[local]', localName);
                 },
-                context: path.resolve(__dirname),
               },
             },
           },
@@ -91,6 +90,7 @@ const config = {
     removeAvailableModules: false,
     removeEmptyChunks: false,
     splitChunks: false,
+    chunkIds: 'named',
   },
   devtool: 'eval-cheap-module-source-map',
   watchOptions: {

@@ -12,15 +12,18 @@
 
 .icon {
   display: inline-block;
-  min-width: 18px;
   flex-shrink: 0;
-  padding: 1px 4px;
-  border-radius: 20px;
+
+  min-width: 18px;
   margin-right: 4px;
-  background-color: var(--pf-global--palette--cyan-300);
-  color: var(--pf-global--palette--white);
+  padding: 1px 4px;
+
   font-size: 14px;
   line-height: 16px;
+  color: var(--pf-global--palette--white);
   text-align: center;
   white-space: nowrap;
+
+  background-color: var(--pf-global--palette--cyan-300);
+  border-radius: 20px;
 }

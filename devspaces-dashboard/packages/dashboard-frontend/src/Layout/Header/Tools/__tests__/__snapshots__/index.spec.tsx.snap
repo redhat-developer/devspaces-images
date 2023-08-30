@@ -41,7 +41,7 @@ exports[`Page header tools should correctly render the component 1`] = `
               height="1em"
               role="img"
               style={
-                Object {
+                {
                   "verticalAlign": "-0.125em",
                 }
               }
@@ -88,7 +88,7 @@ exports[`Page header tools should correctly render the component 1`] = `
               height="1em"
               role="img"
               style={
-                Object {
+                {
                   "verticalAlign": "-0.125em",
                 }
               }
