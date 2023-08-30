@@ -14,3 +14,65 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-code
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: b8d76a3091d9fbf553184bd0a3d8b797a76e38dd
+    pkg_managers: [npm, yarn]
+    packages:
+      npm:
+        - path: devspaces-code/cachito 
+      yarn: 
+      # CRW-3160 this section is automatically generated in sync.sh 
+        - path: devspaces-code/code/
+        - path: devspaces-code/code/build
+        - path: devspaces-code/code/extensions
+        - path: devspaces-code/code/extensions/che-activity-tracker
+        - path: devspaces-code/code/extensions/che-api
+        - path: devspaces-code/code/extensions/che-commands
+        - path: devspaces-code/code/extensions/che-port
+        - path: devspaces-code/code/extensions/che-remote
+        - path: devspaces-code/code/extensions/che-resource-monitor
+        - path: devspaces-code/code/extensions/che-terminal
+        - path: devspaces-code/code/extensions/che-github-authentication
+        - path: devspaces-code/code/extensions/configuration-editing
+        - path: devspaces-code/code/extensions/css-language-features
+        - path: devspaces-code/code/extensions/css-language-features/server
+        - path: devspaces-code/code/extensions/debug-auto-launch
+        - path: devspaces-code/code/extensions/debug-server-ready
+        - path: devspaces-code/code/extensions/emmet
+        - path: devspaces-code/code/extensions/extension-editing
+        - path: devspaces-code/code/extensions/git
+        - path: devspaces-code/code/extensions/git-base
+        - path: devspaces-code/code/extensions/github
+        - path: devspaces-code/code/extensions/github-authentication
+        - path: devspaces-code/code/extensions/grunt
+        - path: devspaces-code/code/extensions/gulp
+        - path: devspaces-code/code/extensions/html-language-features
+        - path: devspaces-code/code/extensions/html-language-features/server
+        - path: devspaces-code/code/extensions/ipynb
+        - path: devspaces-code/code/extensions/jake
+        - path: devspaces-code/code/extensions/json-language-features
+        - path: devspaces-code/code/extensions/json-language-features/server
+        - path: devspaces-code/code/extensions/markdown-language-features/server
+        - path: devspaces-code/code/extensions/markdown-language-features
+        - path: devspaces-code/code/extensions/markdown-math
+        - path: devspaces-code/code/extensions/media-preview
+        - path: devspaces-code/code/extensions/merge-conflict
+        - path: devspaces-code/code/extensions/microsoft-authentication
+        - path: devspaces-code/code/extensions/notebook-renderers
+        - path: devspaces-code/code/extensions/npm
+        - path: devspaces-code/code/extensions/php-language-features
+        - path: devspaces-code/code/extensions/references-view
+        - path: devspaces-code/code/extensions/search-result
+        - path: devspaces-code/code/extensions/simple-browser
+        - path: devspaces-code/code/extensions/tunnel-forwarding
+        - path: devspaces-code/code/extensions/typescript-language-features
+        - path: devspaces-code/code/extensions/vscode-api-tests
+        - path: devspaces-code/code/extensions/vscode-colorize-tests
+        - path: devspaces-code/code/extensions/vscode-test-resolver
+        - path: devspaces-code/code/remote
+        - path: devspaces-code/code/remote/web
+        - path: devspaces-code/launcher

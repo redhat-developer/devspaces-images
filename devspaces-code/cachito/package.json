@@ -1,0 +1,8 @@
+{
+  "name": "cachito-project-stub",
+  "version": "0.0.1",
+  "description": "This project exists to provide  dependencies, that need to be fetched via Cachito.",
+  "dependencies": {
+    "node-gyp": "10.0.0"
+  }
+}
