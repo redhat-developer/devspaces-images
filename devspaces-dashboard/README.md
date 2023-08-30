@@ -10,7 +10,7 @@ Eclipse Che is a next generation Eclipse IDE. This repository is licensed under 
 
 ## Requirements
 
-- Node.js `v16.14` and later.
+- Node.js `v18.16` and later.
 - yarn `v1.20.0` or higher.
 
 **Note**:
@@ -25,7 +25,7 @@ Below you can find installation instructions
 docker build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:next
 ```
 
-## Running locally against remote Che Cluster (Node.js v.16)
+## Running locally against remote Che Cluster (Node.js 18)
 
 To run Dashboard against Che Cluster you need access to Kubernetes cluster where it lives.
 So, make sure kubeconfig from $KUBECONFIG (or if unset ~/.kube/config) has the target cluster as current.
@@ -198,7 +198,7 @@ yarn build-and-patch
 
 ### Update dashboard on remote cluster using `skaffold.dev`
 
-To update the dashboard deployment you need access to the Kubernetes cluster (see [Running locally against remote Che Cluster (Node.js v.16)](#running-locally-against-remote-che-cluster-nodejs-v16))
+To update the dashboard deployment you need access to the Kubernetes cluster (see [Running locally against remote Che Cluster (Node.js v18)](#running-locally-against-remote-che-cluster-nodejs-v18))
 
 Then proceed with the following steps:
 

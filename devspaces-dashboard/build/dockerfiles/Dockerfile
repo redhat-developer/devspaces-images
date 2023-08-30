@@ -1,4 +1,4 @@
-# Copyright (c) 2021     Red Hat, Inc.
+# Copyright (c) 2021-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,10 +8,12 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM docker.io/node:16.16.0-alpine3.15 as builder
+FROM docker.io/node:18.16.1-alpine3.18 as builder
 
-RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/* 
+# hadolint ignore=DL3018
+RUN apk add --no-cache python3 make g++
 
+# hadolint ignore=DL3059,SC1072
 RUN if ! [ type "yarn" &> /dev/null ]; then \
         apk add yarn --no-cache; \
     fi
@@ -35,7 +37,7 @@ RUN yarn install --network-timeout 3600000
 COPY packages/ /dashboard/packages
 RUN yarn build
 
-FROM docker.io/node:16.16.0-alpine3.15
+FROM docker.io/node:18.16.1-alpine3.18
 
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
