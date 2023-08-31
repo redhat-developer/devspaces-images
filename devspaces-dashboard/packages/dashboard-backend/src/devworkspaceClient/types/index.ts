@@ -133,6 +133,12 @@ export type CustomResourceDefinitionSpecDevEnvironments = {
 
 export type CustomResourceDefinitionSpecComponents = {
   dashboard?: {
+    branding?: {
+      logo?: {
+        base64data: string;
+        mediatype: string;
+      };
+    };
     headerMessage?: {
       show?: boolean;
       text?: string;
@@ -232,6 +238,13 @@ export interface IServerConfigApi {
    * Returns the workspace start timeout
    */
   getWorkspaceStartTimeout(cheCustomResource: CustomResourceDefinition): number;
+
+  /**
+   * Returns the dashboard branding logo
+   */
+  getDashboardLogo(
+    cheCustomResource: CustomResourceDefinition,
+  ): { base64data: string; mediatype: string } | undefined;
 }
 
 export interface IKubeConfigApi {

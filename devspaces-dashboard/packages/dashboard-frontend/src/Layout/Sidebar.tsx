@@ -15,25 +15,17 @@ import { PageSidebar } from '@patternfly/react-core';
 import { History } from 'history';
 
 import Navigation from './Navigation';
-import { ThemeVariant } from './themeVariant';
 
 type Props = {
   isManaged: boolean;
   isNavOpen: boolean;
   history: History;
-  theme: ThemeVariant;
 };
 
 export default class Sidebar extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const { isNavOpen, history, theme } = this.props;
+    const { isNavOpen, history } = this.props;
 
-    return (
-      <PageSidebar
-        isNavOpen={isNavOpen}
-        theme={theme}
-        nav={<Navigation history={history} theme={theme} />}
-      />
-    );
+    return <PageSidebar isNavOpen={isNavOpen} nav={<Navigation history={history} />} />;
   }
 }

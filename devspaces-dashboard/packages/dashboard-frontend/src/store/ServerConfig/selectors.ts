@@ -56,4 +56,6 @@ export const selectStartTimeout = createSelector(
   state => (state.config.timeouts as any)?.startTimeout,
 );
 
+export const selectDashboardLogo = createSelector(selectState, state => state.config.dashboardLogo);
+
 export const selectServerConfigError = createSelector(selectState, state => state.error);

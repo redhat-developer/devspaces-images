@@ -201,4 +201,10 @@ export class ServerConfigApiService implements IServerConfigApi {
   getWorkspaceStartTimeout(cheCustomResource: CustomResourceDefinition): number {
     return cheCustomResource.spec.devEnvironments?.startTimeoutSeconds || startTimeoutSeconds;
   }
+
+  getDashboardLogo(
+    cheCustomResource: CustomResourceDefinition,
+  ): { base64data: string; mediatype: string } | undefined {
+    return cheCustomResource.spec.components?.dashboard?.branding?.logo;
+  }
 }

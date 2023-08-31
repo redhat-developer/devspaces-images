@@ -52,6 +52,10 @@ export const defaultDevfileRegistryUrl = 'http://devfile-registry.eclipse-che.sv
 export const defaultPluginRegistryUrl = 'http://plugin-registry.eclipse-che.svc/v3';
 export const internalRegistryDisableStatus = true;
 export const externalDevfileRegistries = [{ url: 'https://devfile.registry.test.org/' }];
+export const dashboardLogo = {
+  base64data: 'base64-encoded-data',
+  mediatype: 'image/svg+xml',
+};
 
 export const stubDevWorkspacesList: api.IDevWorkspaceList = {
   apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -125,6 +129,7 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       getDefaultPluginRegistryUrl: _cheCustomResource => defaultPluginRegistryUrl,
       getExternalDevfileRegistries: _cheCustomResource => externalDevfileRegistries,
       getInternalRegistryDisableStatus: _cheCustomResource => internalRegistryDisableStatus,
+      getDashboardLogo: _cheCustomResource => dashboardLogo,
     } as IServerConfigApi,
     devworkspaceApi: {
       create: (_devworkspace, _namespace) =>

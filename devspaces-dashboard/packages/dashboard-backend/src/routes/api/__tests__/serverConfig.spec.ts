@@ -61,6 +61,10 @@ describe('Server Config Route', () => {
           },
         ],
       },
+      dashboardLogo: {
+        base64data: 'base64-encoded-data',
+        mediatype: 'image/svg+xml',
+      },
     });
   });
 });

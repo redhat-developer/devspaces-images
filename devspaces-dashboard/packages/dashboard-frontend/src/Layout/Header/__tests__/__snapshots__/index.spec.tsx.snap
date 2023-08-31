@@ -65,10 +65,5 @@ exports[`Page header should correctly render the component 1`] = `
   >
     logout
   </button>
-  <button
-    onClick={[Function]}
-  >
-    change theme
-  </button>
 </header>
 `;

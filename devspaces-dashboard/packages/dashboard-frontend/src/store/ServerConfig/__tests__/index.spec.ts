@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { api } from '@eclipse-che/common';
 import mockAxios from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
@@ -18,6 +17,7 @@ import { AppState } from '../..';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
 import * as dwServerConfigStore from '../../ServerConfig';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+import { serverConfig } from './stubs';
 
 // mute the outputs
 console.error = jest.fn();
@@ -28,50 +28,6 @@ describe('dwPlugins store', () => {
   });
 
   describe('actions', () => {
-    const serverConfig: api.IServerConfig = {
-      containerBuild: {
-        disableContainerBuildCapabilities: false,
-        containerBuildConfiguration: {
-          openShiftSecurityContextConstraint: 'container-build',
-        },
-      },
-      defaults: {
-        editor: 'eclipse/theia/next',
-        components: [
-          {
-            name: 'universal-developer-image',
-            container: {
-              image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
-            },
-          },
-        ],
-        plugins: [
-          {
-            editor: 'eclipse/theia/next',
-            plugins: ['https://test.com/devfile.yaml'],
-          },
-        ],
-        pvcStrategy: 'per-workspace',
-      },
-      pluginRegistry: {
-        openVSXURL: '',
-      },
-      timeouts: {
-        inactivityTimeout: -1,
-        runTimeout: -1,
-        startTimeout: 300,
-      },
-      cheNamespace: 'eclipse-che',
-      devfileRegistry: {
-        disableInternalRegistry: false,
-        externalDevfileRegistries: [],
-      },
-      devfileRegistryURL: '',
-      devfileRegistryInternalURL: '',
-      pluginRegistryURL: '',
-      pluginRegistryInternalURL: '',
-    };
-
     it('should create RECEIVE_DW_SERVER_CONFIG when fetching server config', async () => {
       (mockAxios.get as jest.Mock).mockResolvedValueOnce({
         data: serverConfig,

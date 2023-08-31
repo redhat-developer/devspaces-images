@@ -46,6 +46,7 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
         serverConfigApi.getExternalDevfileRegistries(cheCustomResource);
       const disableInternalRegistry =
         serverConfigApi.getInternalRegistryDisableStatus(cheCustomResource);
+      const dashboardLogo = serverConfigApi.getDashboardLogo(cheCustomResource);
 
       const serverConfig: api.IServerConfig = {
         containerBuild,
@@ -73,6 +74,10 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
         devfileRegistryURL,
         devfileRegistryInternalURL,
       };
+
+      if (dashboardLogo) {
+        serverConfig.dashboardLogo = dashboardLogo;
+      }
 
       return serverConfig;
     });

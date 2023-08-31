@@ -15,12 +15,12 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { fireEvent, render, screen } from '@testing-library/react';
 import Header from '..';
+import { Brand } from '@patternfly/react-core';
 
 jest.mock('../Tools', () => {
   const FakeTools = (props: { logout: () => void; changeTheme: () => void }) => (
     <React.Fragment>
       <button onClick={() => props.logout()}>logout</button>
-      <button onClick={() => props.changeTheme()}>change theme</button>
     </React.Fragment>
   );
   FakeTools.displayName = 'Tools';
@@ -30,9 +30,8 @@ jest.mock('../Tools', () => {
 describe('Page header', () => {
   const mockLogout = jest.fn();
   const mockToggleNav = jest.fn();
-  const mockChangeTheme = jest.fn();
 
-  const logoUrl = 'branding/logo';
+  const logo = <Brand src="branding/logo" alt="Logo" />;
   const isHeaderVisible = true;
   const history = createHashHistory();
 
@@ -40,10 +39,9 @@ describe('Page header', () => {
     <Header
       history={history}
       isVisible={isHeaderVisible}
-      logoUrl={logoUrl}
+      logo={logo}
       logout={mockLogout}
       toggleNav={mockToggleNav}
-      changeTheme={mockChangeTheme}
     />
   );
 

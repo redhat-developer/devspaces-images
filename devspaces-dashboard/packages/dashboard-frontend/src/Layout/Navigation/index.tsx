@@ -15,7 +15,6 @@ import { connect, ConnectedProps } from 'react-redux';
 import { History, Location, UnregisterCallback } from 'history';
 import { Nav } from '@patternfly/react-core';
 
-import { ThemeVariant } from '../themeVariant';
 import { AppState } from '../../store';
 import NavigationMainList from './MainList';
 import NavigationRecentList from './RecentList';
@@ -47,7 +46,6 @@ export interface NavigationRecentItemObject {
 
 type Props = MappedProps & {
   history: History;
-  theme: ThemeVariant;
 };
 
 type State = {
@@ -112,15 +110,11 @@ export class Navigation extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { theme, recentWorkspaces, history } = this.props;
+    const { recentWorkspaces, history } = this.props;
     const { activeLocation } = this.state;
 
     return (
-      <Nav
-        aria-label="Navigation"
-        onSelect={selected => this.handleNavSelect(selected)}
-        theme={theme}
-      >
+      <Nav aria-label="Navigation" onSelect={selected => this.handleNavSelect(selected)}>
         <NavigationMainList activePath={activeLocation.pathname} />
         <NavigationRecentList
           workspaces={recentWorkspaces}
