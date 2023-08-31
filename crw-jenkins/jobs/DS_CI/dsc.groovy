@@ -113,7 +113,13 @@ if unset, version is DS_VERSION-YYYYmmdd-commitSHA<br/>
 * push all CI and RC bits to GH<br/>
 * for GA suffix, push to GH and spmm-util; run <tt>stage-mw-release devspaces-3.yy.z.yyyy-mm-dd</tt> 
 ''')
-                stringParam("nodeVersion", config."Management-Jobs".dsc[JB].node_version, "Node version required to build dsc")
+                // TODO remove this if block when 3.9 is live; only use config.Other.NODE_VERSION[JB] for nodeVersion
+                // CRW-4820 up to 3.8, use config."Management-Jobs".dsc[JB].node_version; for 3.9+ use config.Other.NODE_VERSION[JB]
+                if (!JOB_BRANCH.equals("3.7") && !JOB_BRANCH.equals("3.8")) {
+                    stringParam("nodeVersion", config.Other.NODE_VERSION[JB], "Common node version used to build dsc")
+                } else {
+                    stringParam("nodeVersion", config."Management-Jobs".dsc[JB].node_version, "Custom node version used to build dsc")
+                }
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
             
