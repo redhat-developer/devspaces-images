@@ -101,6 +101,17 @@ export class WorkspaceAdapter<T extends devfileApi.DevWorkspace> implements Work
     return workspace.status.phase as DevWorkspaceStatus;
   }
 
+  static buildClusterConsoleUrl(
+    workspace: devfileApi.DevWorkspace,
+    clusterConsoleUrl: string,
+  ): string {
+    const workspaceName = workspace.metadata.name;
+    const userNamespace = workspace.metadata.namespace;
+    const resourcePath = workspace.apiVersion.replace('/', '~') + '~' + workspace.kind;
+
+    return `${clusterConsoleUrl}/k8s/ns/${userNamespace}/${resourcePath}/${workspaceName}`;
+  }
+
   get ref(): T {
     return this.workspace;
   }

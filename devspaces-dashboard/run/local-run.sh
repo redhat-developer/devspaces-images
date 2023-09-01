@@ -123,6 +123,11 @@ export CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL=$(grep -o 'CHE_WORKSPACE_PL
 export CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL=$(grep -o 'CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
 export CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL=$(grep -o 'CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
 
+export OPENSHIFT_CONSOLE_URL=$(grep -o 'OPENSHIFT_CONSOLE_URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export OPENSHIFT_CONSOLE_TITLE=$(grep -o 'OPENSHIFT_CONSOLE_TITLE:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export OPENSHIFT_CONSOLE_ICON=$(grep -o 'OPENSHIFT_CONSOLE_ICON:.*' run/.che-dashboard-pod | grep -o '\S*$')
+export OPENSHIFT_CONSOLE_GROUP=$(grep -o 'OPENSHIFT_CONSOLE_GROUP:.*' run/.che-dashboard-pod | grep -o '\S*$')
+
 if [ "$CHE_IN_CHE" == "true" ]; then
   export CHE_INTERNAL_URL=$(grep -o 'CHE_INTERNAL_URL:.*' run/.che-dashboard-pod | grep -o '\S*$')
 else

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { constructWorkspace } from '..';
+import { WorkspaceAdapter, constructWorkspace } from '..';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/devWorkspace/metadata';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../devfileApi/devWorkspace/spec/template';
@@ -20,7 +20,23 @@ import { StorageTypeTitle } from '../../storageTypes';
 /**
  * @jest-environment node
  */
-describe('for Dev workspace', () => {
+describe('for DevWorkspace', () => {
+  describe('static methods', () => {
+    test('buildClusterConsoleUrl', () => {
+      const clusterUrl = 'https://cluster.url';
+      const namespace = 'test-namespace';
+      const workspaceName = 'test-workspace';
+      const workspace = new DevWorkspaceBuilder()
+        .withName(workspaceName)
+        .withNamespace(namespace)
+        .build();
+      const consoleUrl = WorkspaceAdapter.buildClusterConsoleUrl(workspace, clusterUrl);
+      expect(consoleUrl).toEqual(
+        `${clusterUrl}/k8s/ns/${namespace}/workspace.devfile.io~v1alpha2~DevWorkspace/${workspaceName}`,
+      );
+    });
+  });
+
   it('should set "ephemeral" storage type', () => {
     const devWorkspace = new DevWorkspaceBuilder().build();
     devWorkspace.spec.template.attributes = {

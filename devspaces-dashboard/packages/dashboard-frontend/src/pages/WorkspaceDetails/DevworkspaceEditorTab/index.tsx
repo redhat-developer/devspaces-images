@@ -47,7 +47,7 @@ export class DevworkspaceEditorTab extends React.PureComponent<Props, State> {
         <br />
         <TextContent className={editorTabStyle}>
           <EditorTools
-            content={workspace.ref}
+            devfileOrDevWorkspace={workspace.ref}
             handleExpand={isExpanded => {
               this.setState({ isExpanded });
             }}

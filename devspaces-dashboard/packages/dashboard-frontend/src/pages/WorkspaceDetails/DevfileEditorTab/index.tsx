@@ -206,7 +206,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
             </AlertGroup>
           )}
           <EditorTools
-            content={devfile}
+            devfileOrDevWorkspace={devfile}
             handleExpand={isExpanded => {
               this.setState({ isExpanded });
             }}
