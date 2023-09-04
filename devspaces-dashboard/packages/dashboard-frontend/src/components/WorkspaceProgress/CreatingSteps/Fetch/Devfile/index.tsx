@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common, { helpers } from '@eclipse-che/common';
+import common, { FACTORY_LINK_ATTR, helpers } from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
@@ -20,7 +20,6 @@ import {
   FactoryParams,
   USE_DEFAULT_DEVFILE,
 } from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { getEnvironment, isDevEnvironment } from '../../../../../services/helpers/environment';
 import { AlertItem } from '../../../../../services/helpers/types';
 import OAuthService, { isOAuthResponse } from '../../../../../services/oauth';
 import SessionStorageService, { SessionStorageKey } from '../../../../../services/session-storage';
@@ -32,10 +31,10 @@ import {
 } from '../../../../../store/FactoryResolver/selectors';
 import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import ExpandableWarning from '../../../../ExpandableWarning';
-import { TIMEOUT_TO_RESOLVE_SEC } from '../../../const';
 import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../../ProgressStep';
 import { ProgressStepTitle } from '../../../StepTitle';
 import { TimeLimit } from '../../../TimeLimit';
+import { TIMEOUT_TO_RESOLVE_SEC } from '../../../const';
 import { buildStepName } from './buildStepName';
 
 export class ApplyingDevfileError extends Error {
@@ -247,16 +246,16 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         this.checkNumberOfTries(factoryUrl);
         this.increaseNumberOfTries(factoryUrl);
 
-        // open authentication page
-        const env = getEnvironment();
-        // build redirect URL
-        let redirectHost = window.location.protocol + '//' + window.location.host;
-        if (isDevEnvironment(env)) {
-          redirectHost = env.server;
-        }
-        const redirectUrl = new URL('/f', redirectHost);
-        redirectUrl.searchParams.set('url', factoryUrl);
+        /* open authentication page */
+
+        const redirectUrl = new URL('/f', window.location.origin);
+        redirectUrl.searchParams.set(
+          FACTORY_LINK_ATTR,
+          this.props.history.location.search.replace(/^\?/, ''),
+        );
+
         OAuthService.openOAuthPage(e.attributes.oauth_authentication_url, redirectUrl.toString());
+
         return false;
       }
 

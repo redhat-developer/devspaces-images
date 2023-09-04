@@ -10,15 +10,27 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { FACTORY_LINK_ATTR } from '@eclipse-che/common';
+import { sanitizeSearchParams } from '@eclipse-che/common/src/helpers/sanitize';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import querystring from 'querystring';
 
 export function registerFactoryAcceptanceRedirect(instance: FastifyInstance): void {
   // redirect to the Dashboard factory flow
   function redirectFactoryFlow(path: string) {
     instance.register(async server => {
       server.get(path, async (request: FastifyRequest, reply: FastifyReply) => {
-        const queryStr = request.url.replace(path, '');
-        return reply.redirect('/dashboard/#/load-factory' + queryStr);
+        let queryStr = request.url.replace(path, '').replace(/^\?/, '');
+
+        const query = querystring.parse(queryStr);
+        if (query[FACTORY_LINK_ATTR] !== undefined) {
+          // restore the factory link from the query string
+          queryStr = querystring.unescape(query[FACTORY_LINK_ATTR] as string);
+        }
+
+        const sanitizedQueryParams = sanitizeSearchParams(new URLSearchParams(queryStr));
+
+        return reply.redirect('/dashboard/#/load-factory?' + sanitizedQueryParams.toString());
       });
     });
   }

@@ -64,7 +64,7 @@ export class GitRepoLocationInput extends React.PureComponent<Props, State> {
 
   private handleChange(location: string): void {
     const isValid =
-      FactoryLocationAdapter.isFullPathUrl(location) ||
+      FactoryLocationAdapter.isHttpLocation(location) ||
       FactoryLocationAdapter.isSshLocation(location);
 
     if (isValid) {

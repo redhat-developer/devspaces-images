@@ -33,6 +33,15 @@ describe('Factory Acceptance Redirect', () => {
     expect(res.headers.location).toEqual(`/dashboard/#/load-factory?url=${factoryUrl}`);
   });
 
+  it('should redirect "/f?url=factoryUrl"', async () => {
+    const factoryUrl = 'factoryUrl';
+    const res = await app.inject({
+      url: `/f?factoryLink=${encodeURIComponent('url=' + factoryUrl)}`,
+    });
+    expect(res.statusCode).toEqual(302);
+    expect(res.headers.location).toEqual(`/dashboard/#/load-factory?url=${factoryUrl}`);
+  });
+
   it('should redirect "/dashboard/f?url=factoryUrl"', async () => {
     const factoryUrl = 'factoryUrl';
     const res = await app.inject({

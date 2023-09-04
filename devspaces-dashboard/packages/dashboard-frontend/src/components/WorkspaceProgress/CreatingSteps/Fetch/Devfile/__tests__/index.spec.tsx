@@ -12,26 +12,28 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import { FACTORY_LINK_ATTR } from '@eclipse-che/common';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
+import { MemoryHistory, createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
 import CreatingStepFetchDevfile from '..';
-import ExpandableWarning from '../../../../../ExpandableWarning';
+import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
 import devfileApi from '../../../../../../services/devfileApi';
+import { getDefer } from '../../../../../../services/helpers/deferred';
 import {
   FACTORY_URL_ATTR,
   OVERRIDE_ATTR_PREFIX,
   REMOTES_ATTR,
 } from '../../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { getDefer } from '../../../../../../services/helpers/deferred';
 import { AlertItem } from '../../../../../../services/helpers/types';
-import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
+import OAuthService from '../../../../../../services/oauth';
 import { AppThunk } from '../../../../../../store';
 import { ActionCreators, OAuthResponse } from '../../../../../../store/FactoryResolver';
 import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import ExpandableWarning from '../../../../../ExpandableWarning';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RESOLVE_SEC } from '../../../../const';
 
 jest.mock('../../../../TimeLimit');
@@ -524,6 +526,8 @@ describe('Creating steps, fetching a devfile', () => {
     const host = 'che-host';
     const protocol = 'http://';
     let spyWindowLocation: jest.SpyInstance;
+    let spyOpenOAuthPage: jest.SpyInstance;
+    let history: MemoryHistory;
 
     beforeEach(() => {
       mockIsOAuthResponse.mockReturnValue(true);
@@ -535,25 +539,39 @@ describe('Creating steps, fetching a devfile', () => {
       } as OAuthResponse);
 
       spyWindowLocation = createWindowLocationSpy(host, protocol);
+      spyOpenOAuthPage = jest
+        .spyOn(OAuthService, 'openOAuthPage')
+        .mockImplementation(() => jest.fn());
+
+      history = createMemoryHistory({
+        initialEntries: [
+          {
+            search: searchParams.toString(),
+          },
+        ],
+      });
     });
 
     afterEach(() => {
       sessionStorage.clear();
       spyWindowLocation.mockClear();
+      spyOpenOAuthPage.mockClear();
     });
 
     test('redirect to an authentication URL', async () => {
       const emptyStore = new FakeStoreBuilder().build();
 
-      renderComponent(emptyStore, searchParams);
+      renderComponent(emptyStore, searchParams, history);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-      const expectedRedirectUrl = `${oauthAuthenticationUrl}/&redirect_after_login=${protocol}${host}/f?url=${encodeURIComponent(
-        factoryUrl,
+      const expectedRedirectUrl = `${protocol}${host}/f?${FACTORY_LINK_ATTR}=${encodeURIComponent(
+        'url=' + encodeURIComponent(factoryUrl),
       )}`;
 
-      await waitFor(() => expect(spyWindowLocation).toHaveBeenCalledWith(expectedRedirectUrl));
+      await waitFor(() =>
+        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+      );
 
       expect(mockOnError).not.toHaveBeenCalled();
       expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -562,25 +580,29 @@ describe('Creating steps, fetching a devfile', () => {
     test('authentication fails', async () => {
       const emptyStore = new FakeStoreBuilder().build();
 
-      renderComponent(emptyStore, searchParams);
+      renderComponent(emptyStore, searchParams, history);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-      const expectedRedirectUrl = `${oauthAuthenticationUrl}/&redirect_after_login=${protocol}${host}/f?url=${encodeURIComponent(
-        factoryUrl,
+      const expectedRedirectUrl = `${protocol}${host}/f?${FACTORY_LINK_ATTR}=${encodeURIComponent(
+        'url=' + encodeURIComponent(factoryUrl),
       )}`;
 
-      await waitFor(() => expect(spyWindowLocation).toHaveBeenCalledWith(expectedRedirectUrl));
+      await waitFor(() =>
+        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+      );
 
       // cleanup previous render
       cleanup();
 
       // first unsuccessful try to resolve devfile after authentication
-      renderComponent(emptyStore, searchParams);
+      renderComponent(emptyStore, searchParams, history);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-      await waitFor(() => expect(spyWindowLocation).toHaveBeenCalledWith(expectedRedirectUrl));
+      await waitFor(() =>
+        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+      );
 
       await waitFor(() => expect(mockOnError).not.toHaveBeenCalled());
 
@@ -588,11 +610,13 @@ describe('Creating steps, fetching a devfile', () => {
       cleanup();
 
       // second unsuccessful try to resolve devfile after authentication
-      renderComponent(emptyStore, searchParams);
+      renderComponent(emptyStore, searchParams, history);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-      await waitFor(() => expect(spyWindowLocation).toHaveBeenCalledWith(expectedRedirectUrl));
+      await waitFor(() =>
+        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+      );
 
       const expectAlertItem = expect.objectContaining({
         title: 'Failed to create the workspace',
@@ -667,6 +691,7 @@ function createWindowLocationSpy(host: string, protocol: string): jest.SpyInstan
   (window.location as any) = {
     host,
     protocol,
+    origin: protocol + host,
   };
   Object.defineProperty(window.location, 'href', {
     set: () => {
@@ -677,8 +702,11 @@ function createWindowLocationSpy(host: string, protocol: string): jest.SpyInstan
   return jest.spyOn(window.location, 'href', 'set');
 }
 
-function getComponent(store: Store, searchParams: URLSearchParams): React.ReactElement {
-  const history = createMemoryHistory();
+function getComponent(
+  store: Store,
+  searchParams: URLSearchParams,
+  history = createMemoryHistory(),
+): React.ReactElement {
   return (
     <Provider store={store}>
       <CreatingStepFetchDevfile

@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router';
-import { buildFactoryLoaderPath } from '../preload';
+import { buildFactoryLoaderPath } from '../preload/main';
 import { ROUTE } from './routes';
 
 const CreateWorkspace = React.lazy(() => import('../pages/GetStarted'));

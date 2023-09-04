@@ -25,7 +25,7 @@ export function getProjectFromLocation(
       git: { remotes: { [remoteName]: origin } },
       name,
     };
-  } else if (FactoryLocationAdapter.isFullPathUrl(location)) {
+  } else if (FactoryLocationAdapter.isHttpLocation(location)) {
     const sourceUrl = new URL(location);
     if (sourceUrl.pathname.endsWith('.git')) {
       const origin = `${sourceUrl.origin}${sourceUrl.pathname}`;

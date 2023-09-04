@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { helpers } from '@eclipse-che/common';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { LoaderPage } from '../../pages/Loader';
 import { findTargetWorkspace } from '../../services/helpers/factoryFlow/findTargetWorkspace';
 import { getLoaderMode } from '../../services/helpers/factoryFlow/getLoaderMode';
-import { sanitizeLocation } from '../../services/helpers/location';
 import { LoaderTab } from '../../services/helpers/types';
 import { Workspace } from '../../services/workspace-adapter';
 import { AppState } from '../../store';
@@ -33,7 +33,7 @@ class LoaderContainer extends React.Component<Props, State> {
     super(props);
 
     const { location: dirtyLocation } = this.props.history;
-    const { search } = sanitizeLocation(dirtyLocation);
+    const { search } = helpers.sanitizeLocation(dirtyLocation);
     const searchParams = new URLSearchParams(search);
     const tabParam = searchParams.get('tab') || undefined;
 

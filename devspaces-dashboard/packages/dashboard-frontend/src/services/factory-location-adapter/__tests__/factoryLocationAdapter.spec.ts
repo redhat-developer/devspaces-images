@@ -22,7 +22,7 @@ describe('FactoryLocationAdapter Service', () => {
 
       factoryLocation = new FactoryLocationAdapter(location);
 
-      expect(factoryLocation.isFullPathUrl).toBeTruthy();
+      expect(factoryLocation.isHttpLocation).toBeTruthy();
       expect(factoryLocation.isSshLocation).toBeFalsy();
     });
     it('should determine the SSH location', () => {
@@ -30,7 +30,7 @@ describe('FactoryLocationAdapter Service', () => {
 
       factoryLocation = new FactoryLocationAdapter(location);
 
-      expect(factoryLocation.isFullPathUrl).toBeFalsy();
+      expect(factoryLocation.isHttpLocation).toBeFalsy();
       expect(factoryLocation.isSshLocation).toBeTruthy();
     });
     it('should determine the Bitbucket-Server SSH location', () => {
@@ -38,7 +38,7 @@ describe('FactoryLocationAdapter Service', () => {
 
       factoryLocation = new FactoryLocationAdapter(location);
 
-      expect(factoryLocation.isFullPathUrl).toBeFalsy();
+      expect(factoryLocation.isHttpLocation).toBeFalsy();
       expect(factoryLocation.isSshLocation).toBeTruthy();
     });
     it('should determine unsupported factory location', () => {

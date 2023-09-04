@@ -11,7 +11,15 @@
  */
 
 import * as errors from './errors';
+import {
+  sanitizeLocation,
+  sanitizePathname,
+  sanitizeSearchParams,
+} from './sanitize';
 
 export default {
   errors,
+  sanitizeLocation,
+  sanitizePathname,
+  sanitizeSearchParams,
 };

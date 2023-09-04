@@ -18,6 +18,8 @@ export * from './dto/cluster-config';
 
 export { helpers, api };
 
+export const FACTORY_LINK_ATTR = 'factoryLink';
+
 const common = {
   helpers,
   api,
