@@ -37,6 +37,7 @@ import { registerWebsocket } from './routes/api/websocket';
 import { registerYamlResolverRoute } from './routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from './routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from './routes/workspaceRedirect';
+import { registerGettingStartedSamplesRoutes } from './routes/api/gettingStartedSample';
 
 export default async function buildApp(server: FastifyInstance): Promise<void> {
   const cheHost = process.env.CHE_HOST as string;
@@ -110,4 +111,6 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerDevworkspaceResourcesRoute(server);
 
   registerPersonalAccessTokenRoutes(server);
+
+  registerGettingStartedSamplesRoutes(server);
 }

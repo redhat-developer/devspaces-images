@@ -349,6 +349,16 @@ export default class Bootstrap {
       undefined,
     );
 
+    const gettingStartedSampleURL = new URL(
+      '/dashboard/api/getting-started-sample',
+      window.location.origin,
+    ).href;
+    await requestRegistriesMetadata(gettingStartedSampleURL, false)(
+      this.store.dispatch,
+      this.store.getState,
+      undefined,
+    );
+
     const serverConfig = this.store.getState().dwServerConfig.config;
     const devfileRegistry = serverConfig.devfileRegistry;
     const internalDevfileRegistryUrl = serverConfig.devfileRegistryURL;

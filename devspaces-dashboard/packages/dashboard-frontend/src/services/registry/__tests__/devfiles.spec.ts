@@ -97,6 +97,31 @@ describe('fetch registry metadata', () => {
       expect(resolved).toEqual([metadata]);
     });
 
+    describe('getting started samples', () => {
+      const baseUrl = 'http://this.is.my.base.url';
+
+      it('should fetch getting started samples', async () => {
+        const metadata = {
+          displayName: 'java-maven',
+          tags: ['Java'],
+          url: 'some-url',
+          icon: { mediatype: 'image/png', base64data: 'some-data' },
+        } as che.DevfileMetaData;
+        mockFetchData.mockResolvedValue([metadata]);
+
+        const resolved = await fetchRegistryMetadata(
+          `${baseUrl}/dashboard/api/getting-started-sample`,
+          false,
+        );
+
+        expect(mockSessionStorageServiceGet).not.toHaveBeenCalled();
+        expect(mockFetchData).toHaveBeenCalledTimes(1);
+        expect(mockFetchData).toBeCalledWith(`${baseUrl}/dashboard/api/getting-started-sample`);
+        expect(mockSessionStorageServiceUpdate).not.toHaveBeenCalled();
+        expect(resolved).toEqual([metadata]);
+      });
+    });
+
     it('should throw an error if fetched data is not array', async () => {
       mockDateNow.mockReturnValue(1555555555555);
       mockFetchData.mockResolvedValue('foo');

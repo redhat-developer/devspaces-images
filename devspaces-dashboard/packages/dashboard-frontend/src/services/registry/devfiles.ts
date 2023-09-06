@@ -26,12 +26,27 @@ function createURL(url: string, baseUrl: string): URL {
   return new URL(url, baseUrl);
 }
 
-function resolveIconUrl(metadata: che.DevfileMetaData, baseUrl: string): string {
-  if (!metadata.icon || metadata.icon.startsWith('http')) {
-    return metadata.icon;
+function resolveIconUrl(
+  metadata: che.DevfileMetaData,
+  baseUrl: string,
+): string | { base64data: string; mediatype: string } {
+  if (typeof metadata.icon === 'string') {
+    if (!metadata.icon || metadata.icon.startsWith('http')) {
+      return metadata.icon;
+    }
+
+    return createURL(metadata.icon, baseUrl).href;
   }
 
-  return createURL(metadata.icon, baseUrl).href;
+  return metadata.icon;
+}
+
+export function convertIconToSrc(icon: che.DevfileMetaData['icon']): string {
+  if (typeof icon === 'string') {
+    return icon;
+  }
+
+  return 'data:' + icon.mediatype + ';base64,' + icon.base64data;
 }
 
 export function resolveTags(
@@ -65,6 +80,12 @@ export function resolveLinks(
       delete metadata.links.self;
     }
   }
+
+  if (metadata.url) {
+    metadata.links = { v2: metadata.url };
+    delete metadata.url;
+  }
+
   const resolvedLinks = {};
   const linkNames = Object.keys(metadata.links);
   linkNames.map(linkName => {
@@ -87,10 +108,14 @@ export function updateObjectLinks(object: any, baseUrl): any {
 }
 
 export function getRegistryIndexUrl(registryUrl: string, isExternal: boolean): URL {
+  registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
+
   if (isExternal) {
     if (new URL(registryUrl).host === 'registry.devfile.io') {
       return new URL('index', registryUrl);
     }
+  } else if (registryUrl.endsWith('/getting-started-sample/')) {
+    return new URL(registryUrl.replace(/\/$/, ''));
   }
   return new URL('devfiles/index.json', registryUrl);
 }
@@ -99,8 +124,6 @@ export async function fetchRegistryMetadata(
   registryUrl: string,
   isExternal: boolean,
 ): Promise<che.DevfileMetaData[]> {
-  registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
-
   try {
     const registryIndexUrl = getRegistryIndexUrl(registryUrl, isExternal);
     if (isExternal) {

@@ -101,7 +101,7 @@ declare namespace che {
     description?: string;
     globalMemoryLimit?: string;
     registry?: string;
-    icon: string;
+    icon: string | { base64data: string; mediatype: string };
     links: {
       v2?: string;
       devWorkspaces?: {
@@ -110,6 +110,7 @@ declare namespace che {
       self?: string;
       [key: string]: any;
     };
+    url?: string;
     tags: Array<string>;
   }
 

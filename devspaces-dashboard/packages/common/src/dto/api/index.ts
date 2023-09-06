@@ -126,3 +126,11 @@ export interface IDevWorkspaceResources {
   editorId: string | undefined;
   editorContent: string | undefined;
 }
+
+export interface IGettingStartedSample {
+  displayName: string;
+  description?: string;
+  icon: { base64data: string; mediatype: string };
+  url: string;
+  tags?: Array<string>;
+}

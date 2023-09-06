@@ -322,3 +322,10 @@ export interface IWatcherService<T = Record<string, unknown>> {
    */
   stopWatching(): void;
 }
+
+export interface IGettingStartedSampleApi {
+  /**
+   * Reads all the Getting Started Samples ConfigMaps.
+   */
+  list(): Promise<Array<api.IGettingStartedSample>>;
+}

@@ -22,7 +22,7 @@ import { PersonalAccessTokenService } from './services/personalAccessTokenApi';
 import { PodApiService } from './services/podApi';
 import { ServerConfigApiService } from './services/serverConfigApi';
 import { UserProfileApiService } from './services/userProfileApi';
-import { IPodmanApi } from './types/index';
+import { IGettingStartedSampleApi, IPodmanApi } from './types/index';
 import {
   IDevWorkspaceApi,
   IDevWorkspaceClient,
@@ -36,6 +36,7 @@ import {
   IServerConfigApi,
   IUserProfileApi,
 } from './types';
+import { GettingStartedSamplesApiService } from './services/gettingStartedSamplesApi';
 
 export * from './types';
 
@@ -88,5 +89,9 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   get personalAccessTokenApi(): IPersonalAccessTokenApi {
     return new PersonalAccessTokenService(this.kubeConfig);
+  }
+
+  get gettingStartedSampleApi(): IGettingStartedSampleApi {
+    return new GettingStartedSamplesApiService(this.kubeConfig);
   }
 }

@@ -28,6 +28,7 @@ import DropdownEditors from '../DropdownEditors';
 import { CubesIcon } from '@patternfly/react-icons';
 
 import styles from './index.module.css';
+import { convertIconToSrc } from '../../../../services/registry/devfiles';
 
 type Props = {
   metadata: che.DevfileMetaData;
@@ -157,6 +158,10 @@ export class SampleCard extends React.PureComponent<Props, State> {
       'data-testid': 'sample-card-icon',
     };
 
-    return metadata.icon ? <Brand src={metadata.icon} {...props} /> : <CubesIcon {...props} />;
+    return metadata.icon ? (
+      <Brand src={convertIconToSrc(metadata.icon)} {...props} />
+    ) : (
+      <CubesIcon {...props} />
+    );
   }
 }
