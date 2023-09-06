@@ -40,7 +40,10 @@ const config = {
   },
   optimization: {
     splitChunks: {
-      chunks: 'all',
+      chunks: (chunk) => {
+        // exclude `accept-factory-link` from being split
+        return chunk.name !== 'accept-factory-link';
+      },
       maxAsyncRequests: 30,
       maxInitialRequests: 30,
       minChunks: 1,
