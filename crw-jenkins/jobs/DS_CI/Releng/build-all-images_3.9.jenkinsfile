@@ -59,7 +59,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
-                                        util.notifyBuildFailed()
+                                        util.notifyBuildFailed(currentBuild.description)
                                     }
                                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                                 }
@@ -95,7 +95,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
-                                        util.notifyBuildFailed()
+                                        util.notifyBuildFailed(currentBuild.description)
                                     }
                                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                                 }
@@ -130,7 +130,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
-                                        util.notifyBuildFailed()
+                                        util.notifyBuildFailed(currentBuild.description)
                                     }
                                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                                 }

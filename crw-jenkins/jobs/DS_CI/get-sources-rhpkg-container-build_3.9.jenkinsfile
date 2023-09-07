@@ -38,8 +38,7 @@ timeout(240) {
           util.cloneRepo("ssh://devspaces-build@pkgs.devel.redhat.com/${GIT_PATHs}", "sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), false)
           currentBuild.description=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
           try {
-            // CRW-4359 Do not update base images while python-38 is broken
-            //util.updateBaseImages("${WORKSPACE}/sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            util.updateBaseImages("${WORKSPACE}/sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
             echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"

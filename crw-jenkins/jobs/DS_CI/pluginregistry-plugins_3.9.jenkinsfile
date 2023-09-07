@@ -1,0 +1,168 @@
+#!/usr/bin/env groovy
+import groovy.json.JsonSlurper
+
+// PARAMETERS for this pipeline:
+//   SOURCE_REPO
+//   SOURCE_BRANCH
+//   BUILD_ALL
+//   BUILD_SOME
+//   CLEAN_ON_FAILURE = "true"
+
+// run on x64 to avoid P&Z-specific build node issues
+def String nodeLabel = 'x86_64-rhel8'
+timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
+  node(nodeLabel) {
+    stage("Build Visual Studio Plugins on ${nodeLabel}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + SOURCE_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        cleanWs()
+        DS_VERSION = util.getDsVersion(SOURCE_BRANCH)
+        println "DS_VERSION = '" + DS_VERSION + "'"
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+          //Sync devspaces-vscode-extensions
+          println "########################################################################################################"
+          println "##  Clone github.com/${SOURCE_REPO}.git"
+          println "########################################################################################################"
+          SOURCE_DIR="${WORKSPACE}/devspaces-vscode-extensions"
+          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
+
+          println "########################################################################################################"
+          println "##  Build Plugins"
+          println "########################################################################################################"
+          sh('''#!/bin/bash -e
+cd ''' + SOURCE_DIR + '''
+cat plugin-config.json | jq -r '.Plugins | keys[]' > PLUGINS
+          ''')
+          def PLUGINS = readFile SOURCE_DIR + '/PLUGINS'
+
+          println "BUILD_ALL: " + BUILD_ALL
+          println "BUILD_SOME: " + BUILD_SOME
+
+          if (BUILD_ALL == false || BUILD_ALL.toString().equals("false")){
+            if (BUILD_SOME.equals("")) {
+              //check for updates if no plugin was specified
+              sh('''#!/bin/bash -e
+cd ''' + SOURCE_DIR + '''
+
+# Download openvsx-sync.json and download-vsix.sh
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + SOURCE_BRANCH + '''/dependencies/che-plugin-registry/openvsx-sync.json
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + SOURCE_BRANCH + '''/dependencies/che-plugin-registry/build/scripts/download_vsix.sh
+
+./build/update-from-ovsx.sh
+git add plugin-config.json
+            ''')
+              PLUGINS = readFile SOURCE_DIR + '/updates.txt'
+            }
+            else {
+              PLUGINS = BUILD_SOME
+            }
+            
+          }
+
+          if (PLUGINS == "") {
+            println "No updates, skipping build"
+          }
+          else {
+            println "Plugins: " + PLUGINS
+            //build and track failures
+            def FAILURES = ""  
+            for (PLUGIN in PLUGINS.split('\n')) {
+              try {
+                sh('''#!/bin/bash -e
+cd ''' + SOURCE_DIR + '''
+# this process also generates plugin-manifest.json
+./build/build.sh ''' + PLUGIN + '''
+                ''')
+              }
+              catch(err) {
+                println "Plugin " + PLUGIN + " failed to build."
+                FAILURES = FAILURES + PLUGIN + "\n"
+              }
+              //cleanup
+              sh('podman system prune -a -f')
+            }
+
+            println "########################################################################################################"
+            println "##  Commit Updates to plugin-config.json"
+            println "########################################################################################################"
+            sh('''#!/bin/bash -e
+cd ''' + SOURCE_DIR + '''
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD plugin-config.json) || \$(git diff-index HEAD plugin-manifest.json) ]]; then # file changed
+  git add plugin-*.json
+  git commit -s -m "ci: Update plugin data files with SHAs from build ''' + JENKINS_URL + '''" || true
+  git pull origin ''' + SOURCE_BRANCH + ''' || true
+  git push origin ''' + SOURCE_BRANCH + ''' || true
+fi
+            ''')
+
+            //push to staging area DS_VERSION folder on spmm-util
+            println "########################################################################################################"
+            println "##  Copy vsix files to spmm-util"
+            println "########################################################################################################"
+            //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+            sh('''#!/bin/bash -ex
+# TODO CRW-1919 remove this when we no longer need it
+export KRB5CCNAME=/var/tmp/devspaces-build_ccache
+
+cd ''' + SOURCE_DIR + '''
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + SOURCE_BRANCH + '''/product/copyVSIXToStage.sh
+chmod +x copyVSIXToStage.sh
+./copyVSIXToStage.sh -b ''' + SOURCE_BRANCH + ''' -v ''' + DS_VERSION + ''' -w ''' + WORKSPACE + '''
+            ''')
+
+            //Report any new plugins
+            def NEW = fileExists SOURCE_DIR + '/new.txt'
+            if (NEW) {
+              def newPlugins = readFile SOURCE_DIR + '/new.txt'
+              def mailSubject = "${JOB_BASE_NAME} - NEW PLUGINS FOUND"
+              def mailBody = """ 
+Build: ${BUILD_URL}
+
+New Plugin(s):
+${newPlugins}
+              """ 
+              emailext(
+                subject: mailSubject,
+                body: mailBody, 
+                to: 'sdawley@redhat.com'
+              )
+            }
+
+            //Report failures and send email
+            if (FAILURES != ""){
+              println "########################################################################################################"
+              println "##  Failures: "
+              println "########################################################################################################"
+              println FAILURES
+
+              def mailSubject = "${JOB_BASE_NAME} - PLUGINS FAILED TO BUILD"
+              def mailBody = """ 
+Build: ${BUILD_URL}
+
+Failing Plugin(s):
+${FAILURES}
+              """ 
+              emailext(
+                subject: mailSubject,
+                body: mailBody, 
+                to: 'sdawley@redhat.com'
+              )
+            }
+          }
+        } // withCredentials
+      } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } //stage
+  } //node
+} //timeout
