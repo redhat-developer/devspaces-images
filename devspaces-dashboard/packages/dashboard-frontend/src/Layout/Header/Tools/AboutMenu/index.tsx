@@ -23,6 +23,7 @@ import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 type Props = {
   branding: BrandingData;
   username: string;
+  dashboardLogo?: { base64data: string; mediatype: string };
 };
 type State = {
   isLauncherOpen: boolean;
@@ -88,10 +89,15 @@ export class AboutMenu extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { username } = this.props;
+    const { username, dashboardLogo } = this.props;
     const { isLauncherOpen, isModalOpen } = this.state;
 
     const { logoFile, name, productVersion } = this.props.branding;
+
+    const logoSrc =
+      dashboardLogo !== undefined
+        ? `data:${dashboardLogo.mediatype};base64,${dashboardLogo.base64data}`
+        : logoFile;
 
     return (
       <>
@@ -107,7 +113,7 @@ export class AboutMenu extends React.PureComponent<Props, State> {
           isOpen={isModalOpen}
           closeModal={() => this.closeModal()}
           username={username}
-          logo={logoFile}
+          logo={logoSrc}
           productName={name}
           serverVersion={productVersion}
         />
