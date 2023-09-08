@@ -328,9 +328,7 @@ export abstract class AbstractTaskService extends Disposable implements ITaskSer
 			this._willRestart = e.reason !== ShutdownReason.RELOAD;
 		});
 		this._register(this.onDidStateChange(e => {
-			if (e.kind === TaskEventKind.Changed) {
-				// no-op
-			} else if ((this._willRestart || (e.kind === TaskEventKind.Terminated && e.exitReason === TerminalExitReason.User)) && e.taskId) {
+			if ((this._willRestart || e.exitReason === TerminalExitReason.User) && e.taskId) {
 				this.removePersistentTask(e.taskId);
 			} else if (e.kind === TaskEventKind.Start && e.__task && e.__task.getWorkspaceFolder()) {
 				this._setPersistentTask(e.__task);

@@ -8,7 +8,7 @@ import { Codicon } from 'vs/base/common/codicons';
 import { Disposable, IDisposable } from 'vs/base/common/lifecycle';
 import Severity from 'vs/base/common/severity';
 import { AbstractProblemCollector, StartStopProblemCollector } from 'vs/workbench/contrib/tasks/common/problemCollectors';
-import { ITaskGeneralEvent, ITaskProcessEndedEvent, ITaskProcessStartedEvent, TaskEventKind, TaskRunType } from 'vs/workbench/contrib/tasks/common/tasks';
+import { ITaskEvent, TaskEventKind, TaskRunType } from 'vs/workbench/contrib/tasks/common/tasks';
 import { ITaskService, Task } from 'vs/workbench/contrib/tasks/common/taskService';
 import { ITerminalInstance } from 'vs/workbench/contrib/terminal/browser/terminal';
 import { MarkerSeverity } from 'vs/platform/markers/common/markers';
@@ -71,14 +71,14 @@ export class TaskTerminalStatus extends Disposable {
 		this.terminalMap.set(terminal.instanceId, { terminal, task, status, problemMatcher, taskRunEnded: false });
 	}
 
-	private terminalFromEvent(event: { terminalId: number | undefined }): ITerminalData | undefined {
-		if (!('terminalId' in event) || !event.terminalId) {
+	private terminalFromEvent(event: ITaskEvent): ITerminalData | undefined {
+		if (!event.terminalId) {
 			return undefined;
 		}
 		return this.terminalMap.get(event.terminalId);
 	}
 
-	private eventEnd(event: ITaskProcessEndedEvent) {
+	private eventEnd(event: ITaskEvent) {
 		const terminalData = this.terminalFromEvent(event);
 		if (!terminalData) {
 			return;
@@ -104,7 +104,7 @@ export class TaskTerminalStatus extends Disposable {
 		}
 	}
 
-	private eventInactive(event: ITaskGeneralEvent) {
+	private eventInactive(event: ITaskEvent) {
 		const terminalData = this.terminalFromEvent(event);
 		if (!terminalData || !terminalData.problemMatcher || terminalData.taskRunEnded) {
 			return;
@@ -123,7 +123,7 @@ export class TaskTerminalStatus extends Disposable {
 		}
 	}
 
-	private eventActive(event: ITaskGeneralEvent | ITaskProcessStartedEvent) {
+	private eventActive(event: ITaskEvent) {
 		const terminalData = this.terminalFromEvent(event);
 		if (!terminalData) {
 			return;

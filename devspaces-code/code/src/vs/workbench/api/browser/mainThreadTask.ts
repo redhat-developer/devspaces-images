@@ -429,11 +429,7 @@ export class MainThreadTask implements MainThreadTaskShape {
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTask);
 		this._providers = new Map();
 		this._taskService.onDidStateChange(async (event: ITaskEvent) => {
-			if (event.kind === TaskEventKind.Changed) {
-				return;
-			}
-
-			const task = event.__task;
+			const task = event.__task!;
 			if (event.kind === TaskEventKind.Start) {
 				const execution = TaskExecutionDTO.from(task.getTaskExecution());
 				let resolvedDefinition: ITaskDefinitionDTO = execution.task!.definition;

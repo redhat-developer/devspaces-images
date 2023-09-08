@@ -15,7 +15,6 @@ import { CompletionContext, CompletionItem, CompletionItemKind, CompletionList }
 import { ITextModel } from 'vs/editor/common/model';
 import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import { localize } from 'vs/nls';
-import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { Registry } from 'vs/platform/registry/common/platform';
 import { inputPlaceholderForeground } from 'vs/platform/theme/common/colorRegistry';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
@@ -358,7 +357,6 @@ class VariableCompletions extends Disposable {
 		@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService,
 		@IChatWidgetService private readonly chatWidgetService: IChatWidgetService,
 		@IChatVariablesService private readonly chatVariablesService: IChatVariablesService,
-		@IConfigurationService private readonly configurationService: IConfigurationService,
 	) {
 		super();
 
@@ -391,14 +389,13 @@ class VariableCompletions extends Disposable {
 					.filter(isResponseVM);
 
 				// TODO@roblourens work out a real API for this- maybe it can be part of the two-step flow that @file will probably use
-				const historyVariablesEnabled = this.configurationService.getValue('chat.experimental.historyVariables');
-				const historyItems = historyVariablesEnabled ? history.map((h, i): CompletionItem => ({
+				const historyItems = history.map((h, i): CompletionItem => ({
 					label: `@response:${i + 1}`,
 					detail: h.response.asString(),
 					insertText: `@response:${String(i + 1).padStart(String(history.length).length, '0')} `,
 					kind: CompletionItemKind.Text,
 					range: { insert, replace },
-				})) : [];
+				}));
 
 				const variableItems = Array.from(this.chatVariablesService.getVariables()).map(v => {
 					const withAt = `@${v.name}`;

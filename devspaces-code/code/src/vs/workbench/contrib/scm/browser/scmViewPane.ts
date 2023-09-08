@@ -96,7 +96,6 @@ import { IDragAndDropData } from 'vs/base/browser/dnd';
 import { fillEditorsDragData } from 'vs/workbench/browser/dnd';
 import { ElementsDragAndDropData } from 'vs/base/browser/ui/list/listView';
 import { CodeDataTransfers } from 'vs/platform/dnd/browser/dnd';
-import { FormatOnType } from 'vs/editor/contrib/format/browser/formatActions';
 
 type TreeElement = ISCMRepository | ISCMInput | ISCMActionButton | ISCMResourceGroup | IResourceNode<ISCMResource, ISCMResourceGroup> | ISCMResource;
 
@@ -2026,7 +2025,6 @@ class SCMInputWidget {
 			quickSuggestions: false,
 			scrollbar: { alwaysConsumeMouseWheel: false },
 			overflowWidgetsDomNode,
-			formatOnType: true,
 			renderWhitespace: 'none',
 			dropIntoEditor: { enabled: true }
 		};
@@ -2047,7 +2045,6 @@ class SCMInputWidget {
 				SuggestController.ID,
 				InlineCompletionsController.ID,
 				CodeActionController.ID,
-				FormatOnType.ID
 			])
 		};
 
