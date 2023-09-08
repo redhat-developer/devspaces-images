@@ -101,10 +101,9 @@ find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# CRW-2500 the folder is packed to resources.tgz` \
     -e 's|COPY ./resources /build/resources|# COPY ./resources /build/resources|' \
-    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
-    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
-    -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
-    `# trim off version so we get the latest from internal registry` \
+    `# CRW-4801, CRW-4843 don't switch from ubi8 to rhel8 as we now include the full registry reference; DO trim version so we get the latest` \
+    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|ubi8/httpd-24:\1|g' \
+    `# trim version so we get the latest` \
     -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
