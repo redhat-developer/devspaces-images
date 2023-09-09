@@ -1,7 +1,7 @@
 builds:
-  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/12976/builds/A3C2XUMS2EQAA
+  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/12976/builds/A3DSWOKUSEQAA
   # build id must be string
-  - build_id: 'A3C2XUMS2EQAA'
+  - build_id: 'A3DSWOKUSEQAA'
     artifacts:
       # https://orch.psi.redhat.com/pnc-web/#/artifacts/
       # ==> org.eclipse.che:assembly-main:tar.gz:null
