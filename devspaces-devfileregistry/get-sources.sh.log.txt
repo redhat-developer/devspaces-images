@@ -61,23 +61,23 @@ RUN ./index.sh > /build/devfiles/index.json && \
 ======= START BOOTSTRAP BUILD =======>
 STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
 STEP 2/23: USER 0
---> 4b1078fd9a8
+--> dceb2870d4c
 STEP 3/23: ARG BOOTSTRAP=true
---> 33a518170f0
+--> 143e222b02d
 STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
---> e3cb5a69d93
+--> 0e5cfb4df93
 STEP 5/23: ARG ALLOWED_REGISTRIES=""
---> 5ab4106050d
+--> f558296ae0c
 STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
---> 9677112d290
+--> e1b490cb065
 STEP 7/23: ARG ALLOWED_TAGS=""
---> 228d0a8004d
+--> caa9ae27b1f
 STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
---> 0e0c4bc0a8b
+--> 3f21ba9b970
 STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
---> d08ea82347f
+--> 96ad03c60ba
 STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
---> 972a92d04cf
+--> 84f038e7be3
 STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
 Installed:
@@ -116,14 +116,14 @@ Collecting yq
   Downloading yq-3.2.3-py3-none-any.whl (17 kB)
 Collecting argcomplete
   Downloading argcomplete-3.1.1-py3-none-any.whl (41 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.5/41.5 kB 4.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.5/41.5 kB 4.2 MB/s eta 0:00:00
 Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
 Collecting pip
   Downloading pip-23.2.1-py3-none-any.whl (2.1 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 52.0 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 50.8 MB/s eta 0:00:00
 Collecting PyYAML>=5.3.1
   Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 452.0 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 464.1 MB/s eta 0:00:00
 Collecting xmltodict>=0.11.0
   Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
 Collecting tomlkit>=0.11.6
@@ -133,17 +133,17 @@ Successfully installed PyYAML-6.0.1 argcomplete-3.1.1 pip-23.2.1 tomlkit-0.12.1 
 python: Python 3.8.16
 yq: yq 3.2.3
 jq: jq-1.6
---> b61417e7d69
+--> ed7f3c71192
 STEP 12/23: COPY ./build/scripts ./versions.json /build/
---> 4cfa1224f75
+--> 70d9ea7a645
 STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
---> ea4a7c6db3c
+--> 93e153cebc3
 STEP 14/23: COPY ./VERSION /
---> 55e5c34490b
+--> a4d16687877
 STEP 15/23: COPY ./devfiles /build/devfiles
---> a23deddb88e
+--> 121df2f7094
 STEP 16/23: WORKDIR /build/
---> bbb53b09927
+--> d1cb14a6437
 STEP 17/23: RUN ./generate_devworkspace_templates.sh
 
 > core-js@2.6.12 postinstall /build/node_modules/core-js
@@ -158,7 +158,7 @@ STEP 17/23: RUN ./generate_devworkspace_templates.sh
 [96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
 
 + @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
-added 119 packages from 182 contributors and audited 119 packages in 7.842s
+added 119 packages from 182 contributors and audited 119 packages in 8.39s
 
 5 packages are looking for funding
   run `npm fund` for details
@@ -195,16 +195,16 @@ DevWorkspace che-idea-golang was generated.
 DevWorkspace che-code-php-hello-world was generated.
 DevWorkspace che-code-php-hello-world was generated.
 DevWorkspace che-idea-php-hello-world was generated.
---> 2c8b052bb9d
+--> 8575e2a7080
 STEP 18/23: RUN chmod -R g+rwX /build/resources
---> 3788c25c825
+--> f621cc2fe20
 STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
  = quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc PASS
  + registry.redhat.io/devspaces/code-rhel8:3.10 PASS - 3.10 allowed
  + registry.redhat.io/devspaces/idea-rhel8:3.10 PASS - 3.10 allowed
  + registry.redhat.io/devspaces/udi-rhel8:3.10 PASS - 3.10 allowed
  = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
---> 5408b696f85
+--> f31bfd92fbd
 STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
 Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
 Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
@@ -216,42 +216,42 @@ Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
 Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
 Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
 Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
---> 27adf693d97
+--> 8540f8ef863
 STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
---> 3ea1a09599a
+--> d3e472840ab
 STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
---> 26ce5c2d042
+--> 68579a5583d
 STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
 COMMIT devfileregistry:tmp
---> 1c93abc31b1
+--> 93f530f91c7
 Successfully tagged localhost/devfileregistry:tmp
-1c93abc31b1db61029b96829d1c16ae606079c3d78765b47c6bd656eb1b77dd8
+93f530f91c7e1cfe6632d268d8f21f710f33e87f0015a6dc654e3b65c14c5a9a
 <======= END BOOTSTRAP BUILD =======
 Downloading root-local.tgz
 Downloading resources.tgz
 Untagged: localhost/devfileregistry:tmp
-Deleted: 1c93abc31b1db61029b96829d1c16ae606079c3d78765b47c6bd656eb1b77dd8
-Deleted: 26ce5c2d042947ad9839c9b1ff1ed670f48bfda36916f3ab328bfd5f3523ffe6
-Deleted: 3ea1a09599a4b96384b8c2225c1354f24c639bd09dcf6fe9bc3c311a9e2b8b47
-Deleted: 27adf693d978b2c09c5e3c8936a1c6a0668899b6f718b3a642dc18cfc3c8fa65
-Deleted: 5408b696f85c4c439fda383dd9fcf5fe222363eca356037f0ce2610b1e6cba84
-Deleted: 3788c25c82568a83d414e9f4cb29f0efc48317752c517d4305602d378f74d3bd
-Deleted: 2c8b052bb9dec4921916223f32ffdb8c15a3b3844e6dd5f2249f958b88deb2e4
-Deleted: bbb53b0992765425dc97a30709f6def1fd77d00d2e691bba6c44fe777b7f6e34
-Deleted: a23deddb88e6c5b12f567d1d1560a97149d56e0e9084bd4f824f2ec379fe0db3
-Deleted: 55e5c34490ba54c75e8205e6fb6f8ccbb5c510b706c4fe9d492aeb03749a8f72
-Deleted: ea4a7c6db3c5bb25b2c02f75e8ab26714c5409a82edf7371cbfe679c3c32eca8
-Deleted: 4cfa1224f75a74b67be7b2ae095ece52ae22e99931d85fa2ad7f186f09bb8dfa
-Deleted: b61417e7d69b11c596a2f729d6c6bcf7efbdd3327e813e74db22790add55cfbe
-Deleted: 972a92d04cf24b2a316606c7859cb5c1ef5d1ff68b53374d53a4b2a457f4fbab
-Deleted: d08ea82347f5dad7d2287560d2398040b0e44d9ae76309c82bffe453cdebd5e6
-Deleted: 0e0c4bc0a8bde791ef56daa8984dc320f9dcc376d52abcee5f255a90ea404634
-Deleted: 228d0a8004de966f31cd5acd1c1ce26cd0fe8d61d5da69f31060ce6010e92144
-Deleted: 9677112d290bb3dba4403159901e174448e04f6e3a6f62cf73c7398f80552e14
-Deleted: 5ab4106050d4ecc175941a9d0515fc5132d42d33830f28efa218c9c8434d1e3b
-Deleted: e3cb5a69d93aa47e1240a3047454219c582660812061eb876cdd9b392c37de42
-Deleted: 33a518170f0c4be853c975a97a66ef25062b8a5c43f420860f407897b2db5801
-Deleted: 4b1078fd9a81ac84536a5d301a4b15107c218c0f67e68cd0c30601114352cf64
+Deleted: 93f530f91c7e1cfe6632d268d8f21f710f33e87f0015a6dc654e3b65c14c5a9a
+Deleted: 68579a5583decd839182688cb99580c6775280a5dfc5d17998653c4930a8a008
+Deleted: d3e472840ab9fba2f4591f6e06c1e5cfc5c6ef40fcf13747ddddbbefc5c57b45
+Deleted: 8540f8ef8634b11904631ecf225335e871ee6af4c0e0bc6270c9921f753eb3c1
+Deleted: f31bfd92fbd504001e2aaa2c6c6d70d330eda608e1603d2ffbe4a2e5634dd7d8
+Deleted: f621cc2fe20cd430e73ab7071b39991159b518f51a0f36b9a9217ee730f29a67
+Deleted: 8575e2a7080c25db268e449566e10b68c8740bc49d3cc7b50d315b99e143f397
+Deleted: d1cb14a6437d2c3035e0cdb9cf154236e506ef5baf85af61606b2fc77c76dd20
+Deleted: 121df2f70942dc79a8a0fbcb067fb467e2c71e1c1052b1dff848aedff6cd1637
+Deleted: a4d1668787701b35385dad880bf56f8eb15a30f599791b353bf1c213e4a9287d
+Deleted: 93e153cebc3fb3b085cfc13eab5fd6340e8dbd065704a5c126c9aa7307a75734
+Deleted: 70d9ea7a645f4b6caa4d187d5a98f78db173198b406c54b995047964b4089777
+Deleted: ed7f3c711928f9bec4758ce74ba3ba7831e8363b7ec1546d6e87c23dddfc3f4e
+Deleted: 84f038e7be3b018906dd46d9f25a4deaf2be516a1137e1c43955c86096c0a7b6
+Deleted: 96ad03c60bae99f49567bc6ae8793a260f19eba719390ad1d069b08ae758914c
+Deleted: 3f21ba9b9701a33dc79a307267e5d30e1b2394c6bc0a84d9b995e1fe3b441c9a
+Deleted: caa9ae27b1f340fd4260ac79b1ea6e95a5b87a1341d197c58386faabea14a97f
+Deleted: e1b490cb065319d7b1c139ff528b31ffd5c3e51c88421db3b01c9776095a64b9
+Deleted: f558296ae0c6a47e23ba807111b9936908b5efe74a063dd62fe7faa4fa910931
+Deleted: 0e5cfb4df93ad880796f1bb0e5b879b832d8da47f3ab1bc659d721fa6904137f
+Deleted: 143e222b02d6d164f16cc2c01d1140e1593a5f79926aa5da0114b2b7e12c4777
+Deleted: dceb2870d4c9da9a468afcaef0c2180d62702f65f70a20bdefdb4d81b9dad310
 File already uploaded: root-local.tgz
 File already uploaded: resources.tgz
 All sources were already uploaded.
