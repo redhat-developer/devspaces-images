@@ -167,9 +167,6 @@ generateFetchArtifactsPNCYaml
 
 # NOTE: upstream Dockerfile is in non-standard path (not build/dockerfiles/Dockerfile) because project has multiple container builds
 sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
     -e 's@/home/user/eclipse-che@/home/user/devspaces@g' \
 	`# insert logic to unpack asset-*.tgz` \
     -e 's@ADD eclipse-che .+@# see fetch-artifacts-pnc.yaml\nCOPY artifacts/assembly-main.tar.gz /tmp/assembly-main.tar.gz\nRUN tar xzf /tmp/assembly-main.tar.gz --strip-components=1 -C /home/user/devspaces; rm -f /tmp/assembly-main.tar.gz\n@g' \

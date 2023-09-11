@@ -104,10 +104,6 @@ popd >/dev/null || exit
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|rhel8/postgresql-13:([0-9]+)(-[0-9.]+)|rhel8/postgresql-13:\1|g' \
-    `# Remove registry so build works in Brew` \
-    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \

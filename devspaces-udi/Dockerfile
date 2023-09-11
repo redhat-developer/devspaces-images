@@ -11,7 +11,7 @@
 # use rhel8/ for Brew, not ubi8/
 # can pin to specific tag filter using rhel8/go-toolset#^1.17
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.19.10-3 as go-builder
+FROM rhel8/go-toolset:1.19.10-10 as go-builder
 
 USER root
 
@@ -55,8 +55,8 @@ RUN \
     # ./kamel version && \
     # END Kamel
 
-# https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.8-1014
+# https://registry.access.redhat.com/ubi8-minimal 
+FROM ubi8-minimal:8.8-1037
 
 USER root
 
@@ -144,10 +144,10 @@ RUN \
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.x86_64.rpm
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.s390x.rpm
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.ppc64le.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202306230041.p0.gea7c11a.assembly.stream.el8.x86_64.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202306230041.p0.gea7c11a.assembly.stream.el8.s390x.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202306230041.p0.gea7c11a.assembly.stream.el8.ppc64le.rpm
-        odo-3.9.0-1.el8 helm-3.10.1-2.el8 openshift-clients-4.12.0-202306230041.p0.gea7c11a.assembly.stream.el8 \
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202307200611.p0.g49844f7.assembly.stream.el8.x86_64.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202307200611.p0.g49844f7.assembly.stream.el8.s390x.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202307200611.p0.g49844f7.assembly.stream.el8.ppc64le.rpm
+        odo-3.9.0-1.el8 helm-3.10.1-2.el8 openshift-clients-4.12.0-202307200611.p0.g49844f7.assembly.stream.el8 \
     && \
     dnf -y -q reinstall shadow-utils && \
     # fetch CVE updates (can exclude rpms to prevent update, eg., --exclude=odo)
