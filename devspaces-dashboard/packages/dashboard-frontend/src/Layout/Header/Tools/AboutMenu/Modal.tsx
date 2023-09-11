@@ -29,9 +29,9 @@ type Props = {
 };
 
 export class AboutModal extends React.PureComponent<Props> {
-  private browserVersion: string | undefined | null;
-  private browserOS: string | undefined | null;
-  private browserName: string | undefined;
+  private readonly browserVersion: string | undefined | null;
+  private readonly browserOS: string | undefined | null;
+  private readonly browserName: string | undefined;
 
   constructor(props: Props) {
     super(props);

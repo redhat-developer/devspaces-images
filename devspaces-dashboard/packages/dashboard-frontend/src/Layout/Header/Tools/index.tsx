@@ -27,6 +27,7 @@ import { AboutMenu } from './AboutMenu';
 import UserMenu from './UserMenu';
 import { ApplicationsMenu } from './ApplicationsMenu';
 import { selectApplications } from '../../../store/ClusterInfo/selectors';
+import { selectDashboardLogo } from '../../../store/ServerConfig/selectors';
 
 type Props = MappedProps & {
   history: History;
@@ -50,7 +51,11 @@ export class HeaderTools extends React.PureComponent<Props> {
           <PageHeaderToolsGroup>
             {applications.length !== 0 && <ApplicationsMenu applications={applications} />}
             <PageHeaderToolsItem>
-              <AboutMenu branding={this.props.branding} username={username} />
+              <AboutMenu
+                branding={this.props.branding}
+                dashboardLogo={this.props.dashboardLogo}
+                username={username}
+              />
             </PageHeaderToolsItem>
             {isUserAuthenticated && (
               <PageHeaderToolsItem>
@@ -73,6 +78,7 @@ export class HeaderTools extends React.PureComponent<Props> {
 const mapStateToProps = (state: AppState) => ({
   userProfile: selectUserProfile(state),
   branding: selectBranding(state),
+  dashboardLogo: selectDashboardLogo(state),
   applications: selectApplications(state),
 });
 
