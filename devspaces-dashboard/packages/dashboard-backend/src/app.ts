@@ -112,5 +112,5 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
 
   registerPersonalAccessTokenRoutes(server);
 
-  registerGettingStartedSamplesRoutes(server);
+  registerGettingStartedSamplesRoutes(isLocalRun(), server);
 }
