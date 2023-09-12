@@ -13,7 +13,7 @@ For the latest stable release, see the **devspaces-3.y-rhel-8** branch with the 
 
 1. Sync code from upstream using `build/scripts/sync.sh`.
 
-2. Build the Server assembly with maven 3.6 and JDK 11:
+2. Build the Server assembly with maven 3.9.4 and JDK 11.0.20:
 +
 ```
 mvn clean install -Dmaven.repo.local=.repository/ -V -B -e -DskipTests # -Pintegration
