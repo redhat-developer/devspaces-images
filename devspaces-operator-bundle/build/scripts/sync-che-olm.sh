@@ -184,6 +184,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		\
 		-e "s|name: eclipse-che.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
 		\
+		-e "s|app.kubernetes.io/name: che|app.kubernetes.io/name: devspaces|g" \
+		-e "s|app.kubernetes.io/instance: che|app.kubernetes.io/name: devspaces|g" \
 		\
 		-e "s|    - base64data: .+|${ICON}|" \
 		-e "s|createdAt:.+|createdAt: \"${NOW}\"|" \
