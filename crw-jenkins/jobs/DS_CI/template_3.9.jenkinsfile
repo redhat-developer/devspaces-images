@@ -213,7 +213,8 @@ fi
           // comment on the PR with this job's build description
           println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_this))
 
-          if (currentBuild.result == 'UNSTABLE' || currentBuild.result == 'FAILURE') {
+          // only send emails for failures, not for currentBuild.result == 'UNSTABLE' (no sync or brew build downstream of this job)
+          if (currentBuild.result == 'FAILURE') {
             util.notifyBuildFailed(currentBuild.description)
           }
         } // with
