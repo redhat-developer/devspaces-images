@@ -12,13 +12,13 @@
 
 import common, { api } from '@eclipse-che/common';
 import axios from 'axios';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 /**
  * Returns object with user profile data.
  */
 export async function fetchUserProfile(namespace: string): Promise<api.IUserProfile> {
-  const url = `${prefix}/userprofile/${namespace}`;
+  const url = `${dashboardBackendPrefix}/userprofile/${namespace}`;
   try {
     const response = await axios.get<api.IUserProfile>(url);
     return response.data;

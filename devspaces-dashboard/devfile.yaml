@@ -22,6 +22,9 @@ components:
           path: /
           protocol: http
           targetPort: 8888
+      env:
+        - name: KUBEDOCK_ENABLED
+          value: true
 commands:
   - id: installdependencies
     exec:

@@ -16,8 +16,7 @@ import common from '@eclipse-che/common';
 import { AppState } from '../..';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import devfileApi from '../../../services/devfileApi';
-import { container } from '../../../inversify.config';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import * as factoryResolver from '../../../services/dashboard-backend-client/factoryResolverApi';
 import * as factoryResolverStore from '..';
 import { AxiosError } from 'axios';
 import normalizeDevfileV1 from '../normalizeDevfileV1';
@@ -64,9 +63,7 @@ jest.mock('../../../services/devfileApi/typeguards.ts', () => {
 // mute the error outputs
 console.error = jest.fn();
 
-const cheWorkspaceClient = container.get(CheWorkspaceClient);
-
-const getFactoryResolverSpy = jest.spyOn(cheWorkspaceClient.restApiClient, 'getFactoryResolver');
+const getFactoryResolverSpy = jest.spyOn(factoryResolver, 'getFactoryResolver');
 const getYamlResolverSpy = jest.spyOn(yamlResolver, 'getYamlResolver');
 
 describe('FactoryResolver store', () => {

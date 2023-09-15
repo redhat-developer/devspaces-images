@@ -13,12 +13,12 @@
 import axios from 'axios';
 import common, { api } from '@eclipse-che/common';
 import devfileApi from '../devfileApi';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function createTemplate(
   template: devfileApi.DevWorkspaceTemplate,
 ): Promise<devfileApi.DevWorkspaceTemplate> {
-  const url = `${prefix}/namespace/${template.metadata.namespace}/devworkspacetemplates`;
+  const url = `${dashboardBackendPrefix}/namespace/${template.metadata.namespace}/devworkspacetemplates`;
   try {
     const response = await axios.post(url, { template });
     return response.data;
@@ -30,7 +30,7 @@ export async function createTemplate(
 }
 
 export async function getTemplates(namespace: string): Promise<devfileApi.DevWorkspaceTemplate[]> {
-  const url = `${prefix}/namespace/${namespace}/devworkspacetemplates`;
+  const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`;
   try {
     const response = await axios.get(url);
     return response.data;
@@ -46,7 +46,7 @@ export async function patchTemplate(
   templateName: string,
   patch: api.IPatch[],
 ): Promise<devfileApi.DevWorkspace> {
-  const url = `${prefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`;
+  const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`;
   try {
     const response = await axios.patch(url, patch);
     return response.data;

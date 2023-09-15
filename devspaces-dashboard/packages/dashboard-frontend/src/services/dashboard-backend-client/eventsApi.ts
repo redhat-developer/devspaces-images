@@ -12,11 +12,11 @@
 
 import axios from 'axios';
 import { api, helpers } from '@eclipse-che/common';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function fetchEvents(namespace: string): Promise<api.IEventList> {
   try {
-    const response = await axios.get(`${prefix}/namespace/${namespace}/events`);
+    const response = await axios.get(`${dashboardBackendPrefix}/namespace/${namespace}/events`);
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch events. ${helpers.errors.getMessage(e)}`);

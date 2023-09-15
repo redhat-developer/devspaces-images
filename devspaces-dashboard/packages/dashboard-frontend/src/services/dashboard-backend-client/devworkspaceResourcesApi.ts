@@ -12,11 +12,11 @@
 
 import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function fetchResources(params: api.IDevWorkspaceResources): Promise<string> {
   try {
-    const response = await axios.post(`${prefix}/devworkspace-resources`, params);
+    const response = await axios.post(`${dashboardBackendPrefix}/devworkspace-resources`, params);
     return response.data;
   } catch (e) {
     const errorMessage = helpers.errors.getMessage(e);

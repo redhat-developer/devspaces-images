@@ -12,11 +12,11 @@
 
 import axios from 'axios';
 import common, { ClusterInfo } from '@eclipse-che/common';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function fetchClusterInfo(): Promise<ClusterInfo> {
   try {
-    const response = await axios.get(`${prefix}/cluster-info`);
+    const response = await axios.get(`${dashboardBackendPrefix}/cluster-info`);
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch cluster information. ${common.helpers.errors.getMessage(e)}`);

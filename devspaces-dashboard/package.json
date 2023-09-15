@@ -27,6 +27,7 @@
     "license:check": "${PWD}/scripts/container_tool.sh run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses@sha256:72290f67f297a31b7b9b343d19f42cc0ecc90e1d36cc9f18473c586a70e4b7eb --check",
     "license:generate": "${PWD}/scripts/container_tool.sh run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next",
     "test": "lerna run test --stream -- --no-cache $@",
+    "test:check": "yarn pretest && yarn --cwd packages/dashboard-frontend test --config=jest.config.check.js",
     "pretest": "yarn run prebuild",
     "test:coverage": "yarn run test -- --coverage",
     "format:check": "yarn workspaces run format:check",

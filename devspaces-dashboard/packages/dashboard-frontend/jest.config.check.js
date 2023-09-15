@@ -10,6 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export const dashboardBackendPrefix = '/dashboard/api';
+const config = require('./jest.config');
 
-export const cheServerPrefix = '/api';
+module.exports = {
+  ...config,
+  testRegex: '(/src/.+\\.check)\\.tsx?$',
+};

@@ -12,11 +12,11 @@
 
 import axios from 'axios';
 import { api, helpers } from '@eclipse-che/common';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function fetchPods(namespace: string): Promise<api.IPodList> {
   try {
-    const response = await axios.get(`${prefix}/namespace/${namespace}/pods`);
+    const response = await axios.get(`${dashboardBackendPrefix}/namespace/${namespace}/pods`);
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch pods. ${helpers.errors.getMessage(e)}`);

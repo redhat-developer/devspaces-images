@@ -14,7 +14,7 @@ import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import devfileApi, { IDevWorkspacesList } from '../devfileApi';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export type Headers = { [key: string]: string };
 
@@ -23,7 +23,7 @@ export async function createWorkspace(
 ): Promise<{ devWorkspace: devfileApi.DevWorkspace; headers: Headers }> {
   try {
     const response = await axios.post(
-      `${prefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
+      `${dashboardBackendPrefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
       { devworkspace },
     );
     return { devWorkspace: response.data, headers: response.headers };
@@ -40,7 +40,9 @@ export async function listWorkspacesInNamespace(
   defaultNamespace: string,
 ): Promise<IDevWorkspacesList> {
   try {
-    const response = await axios.get(`${prefix}/namespace/${defaultNamespace}/devworkspaces`);
+    const response = await axios.get(
+      `${dashboardBackendPrefix}/namespace/${defaultNamespace}/devworkspaces`,
+    );
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch the list of devWorkspaces. ${helpers.errors.getMessage(e)}`);
@@ -53,7 +55,7 @@ export async function getWorkspaceByName(
 ): Promise<devfileApi.DevWorkspace> {
   try {
     const response = await axios.get(
-      `${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
     );
     return response.data;
   } catch (e) {
@@ -70,7 +72,7 @@ export async function patchWorkspace(
 ): Promise<{ devWorkspace: devfileApi.DevWorkspace; headers: Headers }> {
   try {
     const response = await axios.patch(
-      `${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
       patch,
     );
     return { devWorkspace: response.data, headers: response.headers };
@@ -83,7 +85,9 @@ export async function patchWorkspace(
 
 export async function deleteWorkspace(namespace: string, workspaceName: string): Promise<void> {
   try {
-    await axios.delete(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`);
+    await axios.delete(
+      `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
+    );
   } catch (e) {
     throw new Error(
       `Failed to delete workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`,
@@ -93,7 +97,9 @@ export async function deleteWorkspace(namespace: string, workspaceName: string):
 
 export async function getDockerConfig(namespace: string): Promise<api.IDockerConfig> {
   try {
-    const response = await axios.get(`${prefix}/namespace/${namespace}/dockerconfig`);
+    const response = await axios.get(
+      `${dashboardBackendPrefix}/namespace/${namespace}/dockerconfig`,
+    );
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch dockerconfig. ${helpers.errors.getMessage(e)}`);
@@ -105,7 +111,10 @@ export async function putDockerConfig(
   dockerconfig: api.IDockerConfig,
 ): Promise<api.IDockerConfig> {
   try {
-    const response = await axios.put(`${prefix}/namespace/${namespace}/dockerconfig`, dockerconfig);
+    const response = await axios.put(
+      `${dashboardBackendPrefix}/namespace/${namespace}/dockerconfig`,
+      dockerconfig,
+    );
     return response.data;
   } catch (e) {
     throw new Error(`Failed to put dockerconfig. ${helpers.errors.getMessage(e)}`);
@@ -118,7 +127,7 @@ export async function addPersonalAccessToken(
 ): Promise<api.PersonalAccessToken> {
   try {
     const response = await axios.post(
-      `${prefix}/namespace/${namespace}/personal-access-token`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
       personalAccessToken,
     );
     return response.data;
@@ -130,7 +139,7 @@ export async function addPersonalAccessToken(
 export async function injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void> {
   try {
     await axios.post(
-      `${prefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`,
     );
   } catch (e) {
     throw new Error(`Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`);
@@ -140,7 +149,7 @@ export async function injectKubeConfig(namespace: string, devworkspaceId: string
 export async function podmanLogin(namespace: string, devworkspaceId: string): Promise<void> {
   try {
     await axios.post(
-      `${prefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/podmanlogin`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/podmanlogin`,
     );
   } catch (e) {
     throw new Error(`Failed to podman login. ${helpers.errors.getMessage(e)}`);
@@ -151,7 +160,7 @@ export async function getDevfileSchema(
   schemaVersion: string,
 ): Promise<JSONSchema7 | { [key: string]: any }> {
   try {
-    const response = await axios.get(`${prefix}/devfile?version=${schemaVersion}`);
+    const response = await axios.get(`${dashboardBackendPrefix}/devfile?version=${schemaVersion}`);
     return response.data;
   } catch (e) {
     throw new Error(

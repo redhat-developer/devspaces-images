@@ -14,8 +14,6 @@ import { Action, Reducer } from 'redux';
 import axios from 'axios';
 import common from '@eclipse-che/common';
 import { FactoryResolver } from '../../services/helpers/types';
-import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
 import { selectDefaultComponents, selectPvcStrategy } from '../ServerConfig/selectors';
@@ -30,8 +28,7 @@ import { isOAuthResponse } from '../../services/oauth';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client';
 import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
-
-const WorkspaceClient = container.get(CheWorkspaceClient);
+import { getFactoryResolver } from '../../services/dashboard-backend-client/factoryResolverApi';
 
 export type OAuthResponse = {
   attributes: {
@@ -164,10 +161,7 @@ export const actionCreators: ActionCreators = {
         if (isDevfileRegistryLocation(location)) {
           data = await getYamlResolver(namespace, location);
         } else {
-          data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(
-            location,
-            overrideParams,
-          );
+          data = await getFactoryResolver(location, overrideParams);
           const cheEditor = await grabLink(data.links, CHE_EDITOR_YAML_PATH);
           if (cheEditor) {
             optionalFilesContent[CHE_EDITOR_YAML_PATH] = cheEditor;

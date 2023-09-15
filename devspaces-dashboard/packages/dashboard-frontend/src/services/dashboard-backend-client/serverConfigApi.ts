@@ -12,7 +12,7 @@
 
 import { api } from '@eclipse-che/common';
 import axios from 'axios';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 /**
  * Returns an array of default plug-ins per editor
@@ -22,7 +22,7 @@ import { prefix } from './const';
  * default editor and default components
  */
 export async function fetchServerConfig(): Promise<api.IServerConfig> {
-  const url = `${prefix}/server-config`;
+  const url = `${dashboardBackendPrefix}/server-config`;
   const response = await axios.get(url);
   return response.data ? response.data : [];
 }

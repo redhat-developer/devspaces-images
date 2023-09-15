@@ -12,11 +12,11 @@
 
 import axios from 'axios';
 import common, { ClusterConfig } from '@eclipse-che/common';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function fetchClusterConfig(): Promise<ClusterConfig> {
   try {
-    const response = await axios.get(`${prefix}/cluster-config`);
+    const response = await axios.get(`${dashboardBackendPrefix}/cluster-config`);
     return response.data;
   } catch (e) {
     throw new Error(

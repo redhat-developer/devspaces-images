@@ -14,7 +14,7 @@ import { api } from '@eclipse-che/common';
 import { injectable } from 'inversify';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { getDefer, IDeferred } from '../../helpers/deferred';
-import { prefix } from '../const';
+import { dashboardBackendPrefix } from '../const';
 import { ChannelListener, WebSocketMessageHandler } from './messageHandler';
 import { SubscriptionArgs, WebSocketSubscriptionsManager } from './subscriptionsManager';
 
@@ -33,7 +33,7 @@ export class WebsocketClient {
   private readonly messageHandler: WebSocketMessageHandler;
   private readonly subscriptionsManager: WebSocketSubscriptionsManager;
   private websocketStream: ReconnectingWebSocket | undefined;
-  public readonly websocketContext = `${prefix}/websocket`;
+  public readonly websocketContext = `${dashboardBackendPrefix}/websocket`;
 
   constructor() {
     this.messageHandler = new WebSocketMessageHandler();

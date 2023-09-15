@@ -12,11 +12,13 @@
 
 import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
-import { prefix } from './const';
+import { dashboardBackendPrefix } from './const';
 
 export async function fetchTokens(namespace: string): Promise<api.PersonalAccessToken[]> {
   try {
-    const response = await axios.get(`${prefix}/namespace/${namespace}/personal-access-token`);
+    const response = await axios.get(
+      `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
+    );
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch personal access tokens. ${helpers.errors.getMessage(e)}`);
@@ -29,7 +31,7 @@ export async function addToken(
 ): Promise<api.PersonalAccessToken> {
   try {
     const response = await axios.post(
-      `${prefix}/namespace/${namespace}/personal-access-token`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
       token,
     );
     return response.data;
@@ -44,7 +46,7 @@ export async function updateToken(
 ): Promise<api.PersonalAccessToken> {
   try {
     const response = await axios.patch(
-      `${prefix}/namespace/${namespace}/personal-access-token`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
       token,
     );
     return response.data;
@@ -59,7 +61,7 @@ export async function removeToken(
 ): Promise<api.PersonalAccessToken> {
   try {
     const response = await axios.delete(
-      `${prefix}/namespace/${namespace}/personal-access-token/${token.tokenName}`,
+      `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token/${token.tokenName}`,
     );
     return response.data;
   } catch (e) {

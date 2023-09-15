@@ -10,12 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { helpers } from '@eclipse-che/common';
 import axios from 'axios';
+import { helpers } from '@eclipse-che/common';
+import { dashboardBackendPrefix } from './const';
 import * as yaml from 'js-yaml';
 import devfileApi from '../devfileApi';
 import { FactoryResolver } from '../helpers/types';
-import { prefix } from './const';
 
 export async function getYamlResolver(
   namespace: string,
@@ -26,7 +26,9 @@ export async function getYamlResolver(
     const response =
       url.origin === window.location.origin
         ? await axios.get(url.href)
-        : await axios.post(`${prefix}/namespace/${namespace}/yaml/resolver`, { url: url.href });
+        : await axios.post(`${dashboardBackendPrefix}/namespace/${namespace}/yaml/resolver`, {
+            url: url.href,
+          });
 
     return {
       v: 'yaml-resolver',
