@@ -18,7 +18,6 @@ import { fetchData } from './fetchData';
 import SessionStorageService, { SessionStorageKey } from '../session-storage';
 
 function createURL(url: string, baseUrl: string): URL {
-  // Remove it after fixing all source links https://github.com/eclipse/che/issues/19140
   if (/^\/(\w+)/.test(url)) {
     return new URL(`.${url}`, baseUrl);
   }
