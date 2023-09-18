@@ -25,7 +25,7 @@ We originally wrote a prototype of this tool in Rust (https://github.com/metlos/
 
 ```
 $ ./configbump --help
-config-bump 0.1.0
+config-bump 7.75.0-SNAPSHOT
 Usage: configbump --dir DIR --labels LABELS [--namespace NAMESPACE]
 
 Options:
