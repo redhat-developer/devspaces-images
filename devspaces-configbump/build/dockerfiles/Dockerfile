@@ -11,24 +11,11 @@
 #
 # Note: if we used a UBI image we could keep this current with
 # https://github.com/eclipse-che/che-release/blob/main/.github/workflows/update-base-images.yml
-FROM --platform=${BUILDPLATFORM:-linux/amd64} docker.io/golang:1.18-alpine as builder
+FROM docker.io/golang:1.18-alpine as builder
 
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-RUN printf "I am running on ${BUILDPLATFORM:-linux/amd64}, building for ${TARGETPLATFORM:-linux/amd64}\n$(uname -a)\n" \
-  && $(case ${TARGETPLATFORM:-linux/amd64} in \
-      "linux/amd64")   echo "GOOS=linux GOARCH=amd64" > /tmp/.env                       ;; \
-      "linux/arm64")   echo "GOOS=linux GOARCH=arm64" > /tmp/.env                       ;; \
-      "linux/ppc64le") echo "GOOS=linux GOARCH=ppc64le" > /tmp/.env                     ;; \
-      "linux/s390x")   echo "GOOS=linux GOARCH=s390x" > /tmp/.env                       ;; \
-      *)               echo "TARGETPLATFORM ${TARGETPLATFORM} not found..." && exit 1   ;; \
-    esac) \
-  && cat /tmp/.env
-RUN env $(cat /tmp/.env | xargs) go env
 
 RUN apk --update --no-cache add \
     build-base \
@@ -44,13 +31,13 @@ ENV GOPROXY https://goproxy.io
 ENV CGO_ENABLED=1
 COPY go.mod .
 COPY go.sum .
-RUN env $(cat /tmp/.env | xargs) go mod download
+RUN go mod download
 COPY . ./
 
 ARG VERSION=dev
-RUN env $(cat /tmp/.env | xargs) go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go
+RUN GOOS=linux go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} docker.io/alpine:3.12
+FROM docker.io/alpine:3.18
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -73,7 +60,7 @@ RUN apk --update --no-cache add \
     ca-certificates \
     libressl \
     tzdata \
-  && rm -rf /tmp/* /var/cache/apk/*
+  && rm -rf /tmp/* /var/cache/apk/* 
 
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
