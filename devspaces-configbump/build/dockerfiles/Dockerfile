@@ -37,7 +37,7 @@ COPY . ./
 ARG VERSION=dev
 RUN GOOS=linux go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go
 
-FROM docker.io/alpine:3.12
+FROM docker.io/alpine:3.18
 
 ARG BUILD_DATE
 ARG VCS_REF
