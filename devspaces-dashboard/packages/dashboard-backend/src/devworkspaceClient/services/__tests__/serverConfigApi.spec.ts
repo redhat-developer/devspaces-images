@@ -134,7 +134,7 @@ describe('Server Config API Service', () => {
 
   test('getting default devfile registry URL', () => {
     const res = serverConfigService.getDefaultDevfileRegistryUrl(buildCustomResource());
-    expect(res).toEqual('http://devfile-registry.eclipse-che.svc');
+    expect(res).toEqual('http://devfile-registry.eclipse-che.svc/devfile-registry/');
   });
 });
 
@@ -194,7 +194,7 @@ function buildCustomResource(): CustomResourceDefinition {
       },
     },
     status: {
-      devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc',
+      devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc/devfile-registry',
       pluginRegistryURL: 'http://plugin-registry.eclipse-che.svc/v3',
     },
   } as CustomResourceDefinition;
