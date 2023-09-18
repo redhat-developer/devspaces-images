@@ -11,7 +11,6 @@
  */
 
 import axios from 'axios';
-import { helpers } from '@eclipse-che/common';
 import { cheServerPrefix } from './const';
 import { FactoryResolver } from '../helpers/types';
 
@@ -21,14 +20,10 @@ export async function getFactoryResolver(
   url: string,
   overrideParams: { [params: string]: string } = {},
 ): Promise<FactoryResolver> {
-  try {
-    const response = await axios.post(
-      `${cheServerPrefix}${factoryResolverEndpoint}`,
-      Object.assign({}, overrideParams, { url }),
-    );
+  const response = await axios.post(
+    `${cheServerPrefix}${factoryResolverEndpoint}`,
+    Object.assign({}, overrideParams, { url }),
+  );
 
-    return response.data;
-  } catch (e) {
-    throw new Error(`Failed to fetch factory resolver'. ${helpers.errors.getMessage(e)}`);
-  }
+  return response.data;
 }
