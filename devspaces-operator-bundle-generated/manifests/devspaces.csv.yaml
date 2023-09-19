@@ -876,9 +876,9 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:2c35ebea0336156ae169e5aa4a95776af729a24f66aca65f584d4e88ff3429a9
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:75a1613de0dc0857dfcc60180024572977b6a0d7605abc363525cde10582627b
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:199d685cec970f9f1a2a4b74fea5f0e2e7df1c98e517a61654dae272e753bce0
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:75a1613de0dc0857dfcc60180024572977b6a0d7605abc363525cde10582627b
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:199d685cec970f9f1a2a4b74fea5f0e2e7df1c98e517a61654dae272e753bce0
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCMAK
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:f306c00fadc0f4fc517eee18650da8595fb530c93a6d5c3f38c6452fd4446c9c
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMAK
@@ -894,7 +894,7 @@ spec:
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:04b6286f7a252fa2f00ab26511ccca092c20d5fffccb1cd8a692824e2e06f588
                 - name: RELATED_IMAGE_pvc_jobs
-                  value: registry.redhat.io/ubi8/ubi-minimal@sha256:8d43664c250c72d35af8498c7ff76a9f0d42f16b9b3b29f0caa747121778de0e
+                  value: registry.redhat.io/ubi8/ubi-minimal@sha256:ca2d09012e43e133f7703cbfc9ed9a6b5e5485ca7b3d52e9b3b287a0780b1bb3
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
@@ -1255,9 +1255,9 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:2c35ebea0336156ae169e5aa4a95776af729a24f66aca65f584d4e88ff3429a9
   - name: devspaces_code_devfile_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:75a1613de0dc0857dfcc60180024572977b6a0d7605abc363525cde10582627b
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:199d685cec970f9f1a2a4b74fea5f0e2e7df1c98e517a61654dae272e753bce0
   - name: devspaces_code_plugin_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:75a1613de0dc0857dfcc60180024572977b6a0d7605abc363525cde10582627b
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:199d685cec970f9f1a2a4b74fea5f0e2e7df1c98e517a61654dae272e753bce0
   - name: devspaces_idea_devfile_registry_image_gmxdcmak
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:f306c00fadc0f4fc517eee18650da8595fb530c93a6d5c3f38c6452fd4446c9c
   - name: devspaces_idea_plugin_registry_image_gmxdcmak
@@ -1273,7 +1273,7 @@ spec:
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:04b6286f7a252fa2f00ab26511ccca092c20d5fffccb1cd8a692824e2e06f588
   - name: pvc_jobs
-    image: registry.redhat.io/ubi8/ubi-minimal@sha256:8d43664c250c72d35af8498c7ff76a9f0d42f16b9b3b29f0caa747121778de0e
+    image: registry.redhat.io/ubi8/ubi-minimal@sha256:ca2d09012e43e133f7703cbfc9ed9a6b5e5485ca7b3d52e9b3b287a0780b1bb3
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: rhscl_mongodb_36_rhel7_plugin_registry_image_gewtkmak
