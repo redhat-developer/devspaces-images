@@ -5,6 +5,7 @@ import groovy.transform.Field
 //  MIDSTM_BRANCH
 //  DS_VERSION
 //  OCP_VERSIONS
+//  SLACK_NOTIFICATION
 
 def String nodeLabel = '(x86_64-rhel8||ppc64le-rhel8)'
 def copyIIBsToQuayTimeout=120
@@ -14,6 +15,7 @@ node(nodeLabel){
     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
       sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
       util = load "${WORKSPACE}/util2.groovy"
+      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
       // comment on the PR with links to this job
       if (util.globalVar({comments_url})?.trim()) {
         println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
@@ -116,6 +118,33 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
           println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
         }
       }
+      stage ("Send Slack Notification") {
+        if ( SLACK_NOTIFICATION ) {
+          println "Scheduling update-digests for this update:"
+          jobPath='/job/DS_CI/job/Releng/send-slack-message_' + JOB_BRANCH
+          final jobResult = build(
+            job: jobPath.replaceAll("/job/","/"),
+            wait: false,
+            propagate: false,
+            quietPeriod: 0,
+            parameters: [
+              [
+                $class: 'StringParameterValue',
+                name: 'OCP_VERSIONS',
+                value: OCP_VERSIONS
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'MIDSTM_BRANCH',
+                value: MIDSTM_BRANCH
+              ]
+            ]
+          )
+          println("triggered build(" + jobPath + ") [no wait]")
+          println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+          currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+        }
+      } 
       cleanWs(
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,

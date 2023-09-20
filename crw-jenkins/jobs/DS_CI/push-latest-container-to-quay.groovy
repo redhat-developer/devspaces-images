@@ -23,6 +23,7 @@ for (JB in JOB_BRANCHES) {
         FLOATING_QUAY_TAGS="" + config.Other."FLOATING_QUAY_TAGS"[JB]
         OCP_VERSIONS="" + config.Other."OPENSHIFT_VERSIONS_SUPPORTED"[JB]?.join(" ")
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+        slackNotification=config."Management-Jobs"."slack_notification"[JB].disabled
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
@@ -74,10 +75,6 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
     <li>Trigger <a href=../update-digests_''' + JOB_BRANCH + '''>update-digests</a> to rebuild operator-bundle</li>
 
     <li><a href=../Releng/job/copyIIBsToQuay/>Copy IIBs</a> to <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a></li>
-
-        <!-- TODO remove theia after 3.6 is live -->
-    <!-- <li>Trigger <a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> after a successful push of a 
-    <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build of <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a></li> -->
   </ol>
 ''')
 
@@ -113,6 +110,7 @@ idea imagepuller machineexec pluginregistry server traefik udi''', '''list of 13
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
                 stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
                 stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (3.y-zz) and base (3.y) tags.")
+                booleanParam("SLACK_NOTIFICATION", slackNotification, "Send RC notification to #devspaces-ci channel in Slack when copyIIBsToQuay runs," )
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
