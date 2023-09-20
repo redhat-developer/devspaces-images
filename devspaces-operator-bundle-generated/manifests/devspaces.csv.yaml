@@ -876,9 +876,9 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:6d854765124ec58b13eb6aa9578fb3109a607378d09690ebc32aceb50a37ff11
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:806929eb364adcb8b93302835017aea028bdbc494cebb19018fd18daf8131cec
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:8bb0565668eb70a1a3e146c0d5a4bc2680e8fe2f96f1b2e4cefc881dac0fb5be
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:806929eb364adcb8b93302835017aea028bdbc494cebb19018fd18daf8131cec
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:8bb0565668eb70a1a3e146c0d5a4bc2680e8fe2f96f1b2e4cefc881dac0fb5be
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCMAK
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:f306c00fadc0f4fc517eee18650da8595fb530c93a6d5c3f38c6452fd4446c9c
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMAK
@@ -1255,9 +1255,9 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:6d854765124ec58b13eb6aa9578fb3109a607378d09690ebc32aceb50a37ff11
   - name: devspaces_code_devfile_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:806929eb364adcb8b93302835017aea028bdbc494cebb19018fd18daf8131cec
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:8bb0565668eb70a1a3e146c0d5a4bc2680e8fe2f96f1b2e4cefc881dac0fb5be
   - name: devspaces_code_plugin_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:806929eb364adcb8b93302835017aea028bdbc494cebb19018fd18daf8131cec
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:8bb0565668eb70a1a3e146c0d5a4bc2680e8fe2f96f1b2e4cefc881dac0fb5be
   - name: devspaces_idea_devfile_registry_image_gmxdcmak
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:f306c00fadc0f4fc517eee18650da8595fb530c93a6d5c3f38c6452fd4446c9c
   - name: devspaces_idea_plugin_registry_image_gmxdcmak
