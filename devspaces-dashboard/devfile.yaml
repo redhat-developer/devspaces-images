@@ -24,7 +24,7 @@ components:
           targetPort: 8888
       env:
         - name: KUBEDOCK_ENABLED
-          value: true
+          value: "true"
 commands:
   - id: installdependencies
     exec:
