@@ -375,9 +375,9 @@
   integrity sha512-baah1TSYAmCOuiFCHssb7mBoO5BrTAAz8tLV8Y1nqXvDIYMXXyHOnbBpl8/rVeplHGEZIDpFyFN1OGLoy6mcJA==
 
 "@eclipse-che/che-devworkspace-generator@next":
-  version "7.75.0-next-50585f6"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.75.0-next-50585f6.tgz#928bc25b055f556fd500baba43c7793d4738c486"
-  integrity sha512-n3NpN8xpT8DqbVG+9qcVWglUP744XnfU76w++/n0JsuV/7WdZWawb8Avi+vCHLCoHXHjeCfz8AwffFZ6/HKB9w==
+  version "7.75.0-next-bbd66d3"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.75.0-next-bbd66d3.tgz#090f1331dd1bb3db97dc8c059e8c4527654cf881"
+  integrity sha512-3QY8/DqgN0aDmQ3OGlMRLjUUM/A/PWpSNokGhMorjoF61CQ52f0h2P+zqLfU2sATrYwHWEDqKO2KoYdR35woPg==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
