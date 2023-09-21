@@ -25,6 +25,7 @@ import {
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEventApi,
+  IGitConfigApi,
   IKubeConfigApi,
   ILogsApi,
   IPersonalAccessTokenApi,
@@ -109,7 +110,9 @@ export const stubPodsList: api.IPodList = {
 
 export const stubPersonalAccessTokenList: api.PersonalAccessToken[] = [];
 
-export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnType<typeof helper> {
+export function getDevWorkspaceClient(
+  ..._args: Parameters<typeof helper>
+): ReturnType<typeof helper> {
   return {
     serverConfigApi: {
       fetchCheCustomResource: () => ({}),
@@ -176,5 +179,9 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       listInNamespace: _namespace => Promise.resolve(stubPersonalAccessTokenList),
       replace: (_namespace, _token) => Promise.resolve({} as api.PersonalAccessToken),
     } as IPersonalAccessTokenApi,
+    gitConfigApi: {
+      read: _namespace => Promise.resolve({} as api.IGitConfig),
+      patch: (_namespace, _gitconfig) => Promise.resolve({} as api.IGitConfig),
+    } as IGitConfigApi,
   } as DevWorkspaceClient;
 }

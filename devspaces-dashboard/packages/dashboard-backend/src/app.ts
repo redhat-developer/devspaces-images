@@ -37,6 +37,7 @@ import { registerWebsocket } from './routes/api/websocket';
 import { registerYamlResolverRoute } from './routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from './routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from './routes/workspaceRedirect';
+import { registerGitConfigRoutes } from './routes/api/gitConfig';
 import { registerGettingStartedSamplesRoutes } from './routes/api/gettingStartedSample';
 
 export default async function buildApp(server: FastifyInstance): Promise<void> {
@@ -111,6 +112,8 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerDevworkspaceResourcesRoute(server);
 
   registerPersonalAccessTokenRoutes(server);
+
+  registerGitConfigRoutes(server);
 
   registerGettingStartedSamplesRoutes(isLocalRun(), server);
 }

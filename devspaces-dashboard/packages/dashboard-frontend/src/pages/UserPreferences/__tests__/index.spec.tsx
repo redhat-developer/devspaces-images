@@ -22,6 +22,7 @@ import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 jest.mock('../GitServicesTab');
 jest.mock('../ContainerRegistriesTab');
 jest.mock('../PersonalAccessTokens');
+jest.mock('../GitConfig');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 
@@ -91,8 +92,8 @@ describe('UserPreferences', () => {
     it('should activate the Container Registries tab', () => {
       renderComponent();
 
-      const devfileTab = screen.getByRole('tab', { name: 'Container Registries' });
-      userEvent.click(devfileTab);
+      const tab = screen.getByRole('tab', { name: 'Container Registries' });
+      userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Container Registries' })).toBeTruthy();
     });
@@ -100,8 +101,8 @@ describe('UserPreferences', () => {
     it('should activate the Git Services tab', () => {
       renderComponent();
 
-      const devfileTab = screen.getByRole('tab', { name: 'Git Services' });
-      userEvent.click(devfileTab);
+      const tab = screen.getByRole('tab', { name: 'Git Services' });
+      userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Git Services' })).toBeTruthy();
     });
@@ -109,10 +110,19 @@ describe('UserPreferences', () => {
     it('should activate the Personal Access Tokens tab', () => {
       renderComponent();
 
-      const devfileTab = screen.getByRole('tab', { name: 'Personal Access Tokens' });
-      userEvent.click(devfileTab);
+      const tab = screen.getByRole('tab', { name: 'Personal Access Tokens' });
+      userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Personal Access Tokens' })).toBeTruthy();
+    });
+
+    it('should activate the Gitconfig tab', () => {
+      renderComponent();
+
+      const tab = screen.getByRole('tab', { name: 'Gitconfig' });
+      userEvent.click(tab);
+
+      expect(screen.queryByRole('tabpanel', { name: 'Gitconfig' })).toBeTruthy();
     });
   });
 });

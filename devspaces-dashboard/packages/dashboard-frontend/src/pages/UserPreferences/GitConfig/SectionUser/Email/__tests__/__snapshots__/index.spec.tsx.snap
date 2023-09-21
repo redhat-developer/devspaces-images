@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitConfigUserEmail snapshot 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+      htmlFor="gitconfig-user-email"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        email
+      </span>
+      <span
+        aria-hidden="true"
+        className="pf-c-form__label-required"
+      >
+         
+        *
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <div>
+      <input
+        aria-invalid={false}
+        aria-label={null}
+        className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
+        disabled={false}
+        id="gitconfig-user-email"
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        required={false}
+        type="text"
+        value="user@che"
+      />
+      <span
+        data-testid="validated"
+      />
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-primary"
+        data-ouia-component-id="OUIA-Generated-Button-primary-1"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        data-testid="button-save"
+        disabled={false}
+        onClick={[Function]}
+        role={null}
+        type="button"
+      />
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-primary"
+        data-ouia-component-id="OUIA-Generated-Button-primary-2"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        data-testid="button-cancel"
+        disabled={false}
+        onClick={[Function]}
+        role={null}
+        type="button"
+      />
+    </div>
+    
+  </div>
+</div>
+`;

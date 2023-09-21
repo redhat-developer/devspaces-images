@@ -160,6 +160,11 @@ export class FakeStoreBuilder {
       isLoading: false,
       tokens: [],
     },
+    gitConfig: {
+      config: undefined,
+      isLoading: false,
+      error: undefined,
+    },
   };
 
   constructor(store?: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>) {
@@ -431,6 +436,20 @@ export class FakeStoreBuilder {
     this.state.userId.cheUserId = options.cheUserId;
     this.state.userId.error = options.error;
     this.state.userId.isLoading = isLoading;
+    return this;
+  }
+
+  public withGitConfig(
+    options: {
+      config?: api.IGitConfig;
+      error?: string;
+    },
+    isLoading = false,
+  ) {
+    this.state.gitConfig.config = options.config;
+    this.state.gitConfig.error = options.error;
+
+    this.state.gitConfig.isLoading = isLoading;
     return this;
   }
 

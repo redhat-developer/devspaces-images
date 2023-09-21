@@ -13,20 +13,22 @@
 import { PageSection, PageSectionVariants, Tab, Tabs, Title } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
+import { ConnectedProps, connect } from 'react-redux';
+import { ROUTE } from '../../Routes/routes';
 import Head from '../../components/Head';
 import { UserPreferencesTab } from '../../services/helpers/types';
-import { ROUTE } from '../../Routes/routes';
 import { AppState } from '../../store';
-import { selectIsLoading } from '../../store/GitOauthConfig/selectors';
 import { actionCreators } from '../../store/GitOauthConfig';
+import { selectIsLoading } from '../../store/GitOauthConfig/selectors';
 import ContainerRegistries from './ContainerRegistriesTab';
+import GitConfig from './GitConfig';
 import GitServicesTab from './GitServicesTab';
 import PersonalAccessTokens from './PersonalAccessTokens';
 
 const CONTAINER_REGISTRIES_TAB: UserPreferencesTab = 'container-registries';
 const GIT_SERVICES_TAB: UserPreferencesTab = 'git-services';
 const PERSONAL_ACCESS_TOKENS_TAB: UserPreferencesTab = 'personal-access-tokens';
+const GITCONFIG_TAB: UserPreferencesTab = 'gitconfig';
 
 export type Props = {
   history: History;
@@ -56,6 +58,7 @@ export class UserPreferences extends React.PureComponent<Props, State> {
       if (
         pathname === ROUTE.USER_PREFERENCES &&
         (tab === CONTAINER_REGISTRIES_TAB ||
+          tab === GITCONFIG_TAB ||
           tab === GIT_SERVICES_TAB ||
           tab === PERSONAL_ACCESS_TOKENS_TAB)
       ) {
@@ -102,6 +105,9 @@ export class UserPreferences extends React.PureComponent<Props, State> {
           </Tab>
           <Tab eventKey={PERSONAL_ACCESS_TOKENS_TAB} title="Personal Access Tokens">
             <PersonalAccessTokens />
+          </Tab>
+          <Tab eventKey={GITCONFIG_TAB} title="Gitconfig">
+            <GitConfig />
           </Tab>
         </Tabs>
       </React.Fragment>

@@ -436,7 +436,7 @@
 | [`fs-constants@1.0.0`](https://github.com/mafintosh/fs-constants.git) | MIT | clearlydefined |
 | [`fs-extra@9.1.0`](https://github.com/jprichardson/node-fs-extra) | MIT | clearlydefined |
 | `fsevents@2.3.2` |  | transitive dependency |
-| [`function.prototype.name@1.1.5`](git://github.com/es-shims/Function.prototype.name.git) | MIT | clearlydefined |
+| [`function.prototype.name@1.1.5`](git://github.com/es-shims/Function.prototype.name.git) | MIT | #10255 |
 | [`functions-have-names@1.2.3`](git+https://github.com/inspect-js/functions-have-names.git) | MIT | clearlydefined |
 | [`gauge@4.0.4`](https://github.com/npm/gauge.git) | ISC | clearlydefined |
 | [`gensync@1.0.0-beta.2`](https://github.com/loganfsmyth/gensync.git) | MIT | clearlydefined |
@@ -799,7 +799,7 @@
 | [`run-async@2.4.1`](https://github.com/SBoudrias/run-async.git) | MIT | clearlydefined |
 | [`run-parallel@1.2.0`](git://github.com/feross/run-parallel.git) | MIT | clearlydefined |
 | [`rxjs@7.8.1`](https://github.com/reactivex/rxjs.git) | Apache-2.0 | #5993 |
-| [`safe-array-concat@1.0.0`](git+https://github.com/ljharb/safe-array-concat.git) | MIT | clearlydefined |
+| [`safe-array-concat@1.0.0`](git+https://github.com/ljharb/safe-array-concat.git) | MIT | #10335 |
 | [`safe-regex-test@1.0.0`](git+https://github.com/ljharb/safe-regex-test.git) | MIT | clearlydefined |
 | [`saxes@6.0.0`](https://github.com/lddubeau/saxes.git) | ISC | clearlydefined |
 | [`schema-utils@4.2.0`](https://github.com/webpack/schema-utils.git) | MIT | #8986 |
@@ -836,7 +836,7 @@
 | [`string-width-cjs@4.2.3`](https://github.com/sindresorhus/string-width.git) | MIT | transitive dependency |
 | [`string-width@4.2.3`](https://github.com/sindresorhus/string-width.git) | MIT | clearlydefined |
 | [`string.prototype.matchall@4.0.8`](git+https://github.com/es-shims/String.prototype.matchAll.git) | MIT | #4571 |
-| [`string.prototype.trim@1.2.7`](git://github.com/es-shims/String.prototype.trim.git) | MIT | clearlydefined |
+| [`string.prototype.trim@1.2.7`](git://github.com/es-shims/String.prototype.trim.git) | MIT | #10361 |
 | [`string.prototype.trimend@1.0.6`](git://github.com/es-shims/String.prototype.trimEnd.git) | MIT | #4564 |
 | [`string.prototype.trimstart@1.0.6`](git://github.com/es-shims/String.prototype.trimStart.git) | MIT | #4647 |
 | [`strip-ansi-cjs@6.0.1`](https://github.com/chalk/strip-ansi.git) | MIT | transitive dependency |

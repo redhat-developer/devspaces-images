@@ -36,6 +36,18 @@ export interface IDockerConfigApi {
   update(namespace: string, dockerCfg: api.IDockerConfig): Promise<api.IDockerConfig>;
 }
 
+export interface IGitConfigApi {
+  /**
+   * Read gitconfig from configmap in the specified namespace
+   */
+  read(namespace: string): Promise<api.IGitConfig>;
+
+  /**
+   * Replace gitconfig in configmap in the specified namespace
+   */
+  patch(namespace: string, gitconfig: api.IGitConfig): Promise<api.IGitConfig>;
+}
+
 export interface IDevWorkspaceApi extends IWatcherService<api.webSocket.SubscribeParams> {
   /**
    * Get the DevWorkspace with given namespace in the specified namespace

@@ -17,6 +17,7 @@ import { DevWorkspaceApiService } from '../services/devWorkspaceApi';
 import { DevWorkspaceTemplateApiService } from '../services/devWorkspaceTemplateApi';
 import { DockerConfigApiService } from '../services/dockerConfigApi';
 import { EventApiService } from '../services/eventApi';
+import { GitConfigApiService } from '../services/gitConfigApi';
 import { KubeConfigApiService } from '../services/kubeConfigApi';
 import { LogsApiService } from '../services/logsApi';
 import { PodApiService } from '../services/podApi';
@@ -50,6 +51,7 @@ describe('DevWorkspace client', () => {
     expect(client.podApi).toBeInstanceOf(PodApiService);
     expect(client.serverConfigApi).toBeInstanceOf(ServerConfigApiService);
     expect(client.userProfileApi).toBeInstanceOf(UserProfileApiService);
+    expect(client.gitConfigApi).toBeInstanceOf(GitConfigApiService);
     expect(client.gettingStartedSampleApi).toBeInstanceOf(GettingStartedSamplesApiService);
   });
 });

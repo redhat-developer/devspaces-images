@@ -127,6 +127,32 @@ export const dockerConfigSchema: JSONSchema7 = {
   required: ['dockerconfig'],
 };
 
+export const gitConfigSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    gitconfig: {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+            email: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+    resourceVersion: {
+      type: 'string',
+    },
+  },
+  required: ['gitconfig'],
+};
+
 export const devfileVersionSchema: JSONSchema7 = {
   type: 'object',
   properties: {

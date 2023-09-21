@@ -20,6 +20,8 @@ export type CoreV1API = Pick<
   | 'listNamespacedEvent'
   | 'listNamespacedPod'
   | 'listNamespacedSecret'
+  | 'patchNamespacedConfigMap'
+  | 'readNamespacedConfigMap'
   | 'readNamespacedPod'
   | 'readNamespacedSecret'
   | 'replaceNamespacedSecret'
@@ -40,6 +42,10 @@ export function prepareCoreV1API(kc: k8s.KubeConfig): CoreV1API {
       retryableExec(() => coreV1API.listNamespacedPod(...args)),
     listNamespacedSecret: (...args: Parameters<typeof coreV1API.listNamespacedSecret>) =>
       retryableExec(() => coreV1API.listNamespacedSecret(...args)),
+    patchNamespacedConfigMap: (...args: Parameters<typeof coreV1API.patchNamespacedConfigMap>) =>
+      retryableExec(() => coreV1API.patchNamespacedConfigMap(...args)),
+    readNamespacedConfigMap: (...args: Parameters<typeof coreV1API.readNamespacedConfigMap>) =>
+      retryableExec(() => coreV1API.readNamespacedConfigMap(...args)),
     readNamespacedPod: (...args: Parameters<typeof coreV1API.readNamespacedPod>) =>
       retryableExec(() => coreV1API.readNamespacedPod(...args)),
     readNamespacedSecret: (...args: Parameters<typeof coreV1API.readNamespacedSecret>) =>

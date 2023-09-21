@@ -54,6 +54,19 @@ export interface IDockerConfig {
   resourceVersion?: string;
 }
 
+export interface IGitConfig {
+  resourceVersion?: string;
+  gitconfig: {
+    user: {
+      name: string;
+      email: string;
+    };
+    [section: string]: {
+      [key: string]: string;
+    };
+  };
+}
+
 export interface IWorkspacesDefaultPlugins {
   editor: string;
   plugins: string[];

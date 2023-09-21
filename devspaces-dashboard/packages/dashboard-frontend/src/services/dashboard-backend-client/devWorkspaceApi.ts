@@ -121,21 +121,6 @@ export async function putDockerConfig(
   }
 }
 
-export async function addPersonalAccessToken(
-  namespace: string,
-  personalAccessToken: api.PersonalAccessToken,
-): Promise<api.PersonalAccessToken> {
-  try {
-    const response = await axios.post(
-      `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
-      personalAccessToken,
-    );
-    return response.data;
-  } catch (e) {
-    throw new Error(`Failed to add personal access token. ${helpers.errors.getMessage(e)}`);
-  }
-}
-
 export async function injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void> {
   try {
     await axios.post(
