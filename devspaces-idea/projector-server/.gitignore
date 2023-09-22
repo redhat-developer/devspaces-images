@@ -9,12 +9,3 @@ build/
 out/
 local.properties
 pluginVersions.txt
-
-projector-agent/bin
-projector-awt/bin
-projector-awt-common/bin
-projector-awt-jdk17
-projector-plugin/bin
-projector-server/bin
-projector-server-common/bin
-projector-server-jdk17/bin
