@@ -23,7 +23,7 @@ fi
 
 declare -A limits
 declare -A links
-limits["hashicorp/consul"]="v1.5.5"
+limits["hashicorp/consul"]="v1.15.5"
 links["hashicorp/consul"]="https://github.com/cncf/foundation/issues/617 and https://issues.redhat.com/browse/CRW-4868"
 # add other array values here if there are more things to limit
 
