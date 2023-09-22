@@ -8,3 +8,10 @@ build/
 out/
 JacocoReports/
 local.properties
+
+projector-agent-common/bin
+projector-agent-ij-injector/bin
+projector-ij-common/bin
+projector-server-core/bin
+projector-util-agent/bin
+projector-util-loading/bin

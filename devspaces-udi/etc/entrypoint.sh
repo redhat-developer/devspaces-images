@@ -54,15 +54,16 @@ fi
 # use java 17 if USE_JAVA17 is set to 'true', 
 # by default it is java 11
 #############################################################################
+rm -rf "${HOME}"/.java/current
+mkdir -p "${HOME}"/.java/current
 if [ "${USE_JAVA8}" == "true" ] && [ ! -z "${JAVA_HOME_8}" ]; then
-  rm -r "${HOME}"/.java/current/*
   ln -s "${JAVA_HOME_8}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA_HOME_8}"
 elif [ "${USE_JAVA17}" == "true" ] && [ ! -z "${JAVA_HOME_17}" ]; then
-  rm -r "${HOME}"/.java/current/*
   ln -s "${JAVA_HOME_17}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA_HOME_17}"
 else
+  ln -s "${JAVA_HOME_11}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA_HOME_11}"
 fi
 
