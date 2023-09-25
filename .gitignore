@@ -4,3 +4,4 @@ asset*tar.gz
 nodejs.tar.gz
 openvsx-server.tar.gz
 postgresql13.tar.gz
+devspaces-idea/**/bin/
