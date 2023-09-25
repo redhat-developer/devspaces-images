@@ -59,7 +59,7 @@ export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 
 set -x
 # generate binaries and sources and publish
-./build/scripts/build.sh --gh -v ''' + DSC_VERSION + ''' --ds-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
+./build/scripts/build.sh --quay -v ''' + DSC_VERSION + ''' --ds-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/devspaces-images ''' +
   (versionSuffix.equals("GA") ? " --publish --desthost " + util.getStagingHost() : "") +
   (versionSuffix.equals("") ? "" : " --suffix "+versionSuffix)
