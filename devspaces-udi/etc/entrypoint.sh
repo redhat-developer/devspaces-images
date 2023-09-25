@@ -63,6 +63,9 @@ elif [ "${USE_JAVA17}" == "true" ] && [ ! -z "${JAVA_HOME_17}" ]; then
   ln -s "${JAVA_HOME_17}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA_HOME_17}"
 else
+  # End of Support for OpenJDK 11 in October 2024
+  # https://access.redhat.com/articles/1299013
+  echo "TODO: it needs to set JDK 17 as default before OpenJDK 11 hits EOL in October 2024"
   ln -s "${JAVA_HOME_11}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA_HOME_11}"
 fi
