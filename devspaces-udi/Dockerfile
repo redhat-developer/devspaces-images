@@ -11,7 +11,7 @@
 # use rhel8/ for Brew, not ubi8/
 # can pin to specific tag filter using rhel8/go-toolset#^1.17
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.19.10-10 as go-builder
+FROM rhel8/go-toolset:1.19.10-16 as go-builder
 
 USER root
 
@@ -56,7 +56,7 @@ RUN \
     # END Kamel
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.8-1037
+FROM ubi8-minimal:8.8-1072
 
 USER root
 
@@ -73,7 +73,8 @@ ENV \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/user/.java/current" \
-    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    GOBIN="/home/user/go/bin/" \
+    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/user/go/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -107,7 +108,7 @@ ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 COPY etc/docker.sh /usr/local/bin/docker
-COPY etc/podman-wrapper.sh /usr/bin/
+COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah

@@ -14,6 +14,8 @@
 
 set -e
 
+SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 3.y
@@ -93,6 +95,9 @@ if [[ ! $TRAEFIK_VERSION ]]; then
 fi
 
 SOURCE_SHA=$(cd "${SOURCEDIR}"; git checkout "${TRAEFIK_VERSION}"; git rev-parse --short=4 HEAD || true)
+
+"${SCRIPT_DIR}/checkgoMod.sh" "${TARGETDIR}" || exit $?
+
 sed -r \
   `# Use the current SHA to build` \
   -e "s#ARG TRAEFIK_SHA=\".*\"#ARG TRAEFIK_SHA=\"${SOURCE_SHA}\"#g" \
