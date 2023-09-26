@@ -870,11 +870,11 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:1094bc5eb815e53ac2dd48e9074e0a23e30fdab0e352f0bd16944c81b361c449
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:f9eac7375948b19ff38144f098cb90504132c352d638f5b2c6d964ce1a4310dd
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:b2b1eb24500b1de6d10109179a15a4c28c008a3a1c500bda7285ccddeea228e8
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:5e3c08c8e8dbc204130f67796bb9b2a58dcd83127f091857fa0605f6d31746fb
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:30bf9649b3287fb1b7b7daa4f21e9ae695a90bcab0249829c91187b59c3ca53e
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCMAK
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:e766c735f4dca9f662ce6e9058280d35c82db578130635b8368e8b3cbe2b3f87
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMAK
@@ -1249,11 +1249,11 @@ spec:
   - name: devspaces-operator
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:32aeb9b1d46e5df54105d8961fb5e20777ee85b8a1ec8673fb9076f618f11dff
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:1094bc5eb815e53ac2dd48e9074e0a23e30fdab0e352f0bd16944c81b361c449
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:f9eac7375948b19ff38144f098cb90504132c352d638f5b2c6d964ce1a4310dd
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:b2b1eb24500b1de6d10109179a15a4c28c008a3a1c500bda7285ccddeea228e8
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:5e3c08c8e8dbc204130f67796bb9b2a58dcd83127f091857fa0605f6d31746fb
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:30bf9649b3287fb1b7b7daa4f21e9ae695a90bcab0249829c91187b59c3ca53e
   - name: devspaces_code_devfile_registry_image_gmxdcmak
     image: registry.redhat.io/devspaces/code-rhel8@sha256:e766c735f4dca9f662ce6e9058280d35c82db578130635b8368e8b3cbe2b3f87
   - name: devspaces_code_plugin_registry_image_gmxdcmak
