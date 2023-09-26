@@ -12,7 +12,7 @@
 # to facilitate testing before using Cachito sources in OSBS
 
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.7-1049.1675784874
+FROM ubi8-minimal:8.8-1072
 
 USER root
 ENV \
