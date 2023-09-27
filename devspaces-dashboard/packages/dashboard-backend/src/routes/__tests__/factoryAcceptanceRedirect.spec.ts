@@ -50,4 +50,24 @@ describe('Factory Acceptance Redirect', () => {
     expect(res.statusCode).toEqual(302);
     expect(res.headers.location).toEqual(`/dashboard/#/load-factory?url=${factoryUrl}`);
   });
+
+  it('should redirect "/dashboard/f?factoryLink%3Durl%3DfactoryUrl"', async () => {
+    const factoryUrl = 'factoryUrl';
+    const res = await app.inject({
+      url: `/dashboard/f?factoryLink%3Durl%3D${factoryUrl}`,
+    });
+    expect(res.statusCode).toEqual(302);
+    expect(res.headers.location).toEqual(`/dashboard/#/load-factory?url=${factoryUrl}`);
+  });
+
+  it('should redirect "/dashboard/f?factoryLink%3Durl%3DfactoryUrl%26error_code%3Daccess_denied"', async () => {
+    const factoryUrl = 'factoryUrl';
+    const res = await app.inject({
+      url: `/dashboard/f?factoryLink%3Durl%3D${factoryUrl}%26error_code%3Daccess_denied`,
+    });
+    expect(res.statusCode).toEqual(302);
+    expect(res.headers.location).toEqual(
+      `/dashboard/#/load-factory?url=${factoryUrl}&error_code=access_denied`,
+    );
+  });
 });

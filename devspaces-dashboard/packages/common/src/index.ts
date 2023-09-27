@@ -19,6 +19,7 @@ export * from './dto/cluster-config';
 export { helpers, api };
 
 export const FACTORY_LINK_ATTR = 'factoryLink';
+export const ERROR_CODE_ATTR = 'error_code';
 
 const common = {
   helpers,
