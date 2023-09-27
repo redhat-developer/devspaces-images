@@ -13,4 +13,29 @@ schemaVersion: 2.2.0
 metadata:
   name: devspaces-images
 # add components:, unless basic udi component is good enough?
-# add commands: for building all of the containers?
+components:
+  - name: tools
+    container:
+      image: quay.io/devspaces/devspaces-images-dev:latest
+      memoryRequest: 1Gi
+      memoryLimit: 8Gi
+      cpuLimit: '4'
+      cpuRequest: '0.5'
+commands:
+  #devspaces-operator
+  - id: operator-go-build
+    exec:
+      label: Build Eclipse Che Operator binary
+      component: tooling-container
+      commandLine: cd devspaces-operator && make build
+  - id: operator-go-run
+    exec:
+      label: Run Eclipse Che Operator
+      component: tooling-container
+      commandLine: cd devspaces-operator && make run
+  - id: operator-go-test
+    exec:
+      label: Run unit tests
+      component: tooling-container
+      commandLine: cd devspaces-operator && make test
+  #devspaces-operator-bundle
