@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-60.1692780884 as builder
+FROM ubi8/nodejs-18:1-71 as builder
 # hadolint ignore=DL3002
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
@@ -43,7 +43,7 @@ RUN yarn build
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-60.1692780884
+FROM ubi8/nodejs-18:1-71
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006
