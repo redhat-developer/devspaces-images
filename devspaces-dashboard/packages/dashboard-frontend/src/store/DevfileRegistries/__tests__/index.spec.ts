@@ -109,7 +109,9 @@ describe('Devfile registries', () => {
         store.dispatch(
           devfileRegistriesStore.actionCreators.requestRegistriesMetadata(locations, false),
         ),
-      ).rejects.toMatch('Failed to fetch devfiles metadata from registry');
+      ).rejects.toMatch(
+        'Failed to fetch devfiles metadata from registry URL: http://example.com/location3, reason: Unexpected error. Check DevTools console and network tabs for more information.',
+      );
 
       const actions = store.getActions();
 

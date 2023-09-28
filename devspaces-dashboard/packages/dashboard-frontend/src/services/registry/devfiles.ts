@@ -16,6 +16,16 @@ const EXPIRATION_TIME_FOR_STORED_METADATA = 60 * 60 * 1000; // expiration time i
 
 import { fetchData } from './fetchData';
 import SessionStorageService, { SessionStorageKey } from '../session-storage';
+import common from '@eclipse-che/common';
+
+export class DevfileMetaDataIsNotArrayError extends Error {
+  public location: string;
+
+  constructor(location: string) {
+    super('Returned value is not array.');
+    this.location = location;
+  }
+}
 
 function createURL(url: string, baseUrl: string): URL {
   if (/^\/(\w+)/.test(url)) {
@@ -106,17 +116,26 @@ export function updateObjectLinks(object: any, baseUrl): any {
   return object;
 }
 
-export function getRegistryIndexUrl(registryUrl: string, isExternal: boolean): URL {
+export function getRegistryIndexLocations(registryUrl: string, isExternal: boolean): Array<string> {
   registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
-
+  const registryIndexLocations: Array<string> = [];
   if (isExternal) {
-    if (new URL(registryUrl).host === 'registry.devfile.io') {
-      return new URL('index', registryUrl);
+    const indexUrl = new URL('index', registryUrl);
+    registryIndexLocations.push(indexUrl.href);
+
+    const deprecatedIndexUrl = new URL('devfiles/index.json', registryUrl);
+    registryIndexLocations.push(deprecatedIndexUrl.href);
+  } else {
+    if (registryUrl.endsWith('/getting-started-sample/')) {
+      const indexUrl = new URL(registryUrl.slice(0, -1));
+      registryIndexLocations.push(indexUrl.href);
+    } else {
+      const indexUrl = new URL('devfiles/index.json', registryUrl);
+      registryIndexLocations.push(indexUrl.href);
     }
-  } else if (registryUrl.endsWith('/getting-started-sample/')) {
-    return new URL(registryUrl.replace(/\/$/, ''));
   }
-  return new URL('devfiles/index.json', registryUrl);
+
+  return registryIndexLocations;
 }
 
 export async function fetchRegistryMetadata(
@@ -124,32 +143,48 @@ export async function fetchRegistryMetadata(
   isExternal: boolean,
 ): Promise<che.DevfileMetaData[]> {
   try {
-    const registryIndexUrl = getRegistryIndexUrl(registryUrl, isExternal);
+    const registryIndexLocations = getRegistryIndexLocations(registryUrl, isExternal);
     if (isExternal) {
-      const devfileMetaDataArr = getExternalRegistryMetadataFromStorage(registryIndexUrl.href);
+      const devfileMetaDataArr = getExternalRegistryMetadataFromStorage(registryIndexLocations[0]);
       if (devfileMetaDataArr !== undefined) {
         return devfileMetaDataArr;
       }
     }
-    const data = await fetchData(registryIndexUrl.href);
-    const devfileMetaDataArr: che.DevfileMetaData[] = isExternal
-      ? []
-      : (data as che.DevfileMetaData[]);
 
-    if (isExternal) {
-      if (!Array.isArray(data)) {
-        throw new Error('Returns type is not array.');
-      }
-      data.forEach(val => {
-        if (isDevfileMetaData(val)) {
-          devfileMetaDataArr.push(val);
+    const devfileMetaDataArr: che.DevfileMetaData[] = [];
+    for (const [index, location] of registryIndexLocations.entries()) {
+      try {
+        const data = await fetchData(location);
+        if (Array.isArray(data)) {
+          data.forEach(metadata => {
+            if (metadata.url) {
+              if (!metadata.links) {
+                metadata.links = {};
+              }
+              metadata.links.v2 = metadata.url;
+              delete metadata.url;
+            }
+            if (isDevfileMetaData(metadata)) {
+              devfileMetaDataArr.push(metadata);
+            } else {
+              console.warn(
+                `Returns type from registry URL: ${registryUrl} is not DevfileMetaData.`,
+                metadata,
+              );
+            }
+          });
+          break;
         } else {
-          console.warn(
-            `Returns type from registry URL: ${registryUrl} is not DevfileMetaData.`,
-            val,
-          );
+          throw new DevfileMetaDataIsNotArrayError(location);
         }
-      });
+      } catch (e) {
+        if (
+          e instanceof DevfileMetaDataIsNotArrayError ||
+          index === registryIndexLocations.length - 1
+        ) {
+          throw e;
+        }
+      }
     }
 
     const val = devfileMetaDataArr.map(meta => {
@@ -159,12 +194,13 @@ export async function fetchRegistryMetadata(
       return meta;
     });
     if (isExternal) {
-      setExternalRegistryMetadataToStorage(registryIndexUrl.href, val);
+      setExternalRegistryMetadataToStorage(registryIndexLocations[0], val);
     }
     return val;
   } catch (error) {
     const errorMessage =
-      `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + error;
+      `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` +
+      common.helpers.errors.getMessage(error);
     console.error(errorMessage);
     throw errorMessage;
   }

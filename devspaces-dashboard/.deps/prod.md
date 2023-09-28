@@ -5,7 +5,7 @@
 | [`@babel/runtime@7.22.10`](https://github.com/babel/babel.git) | MIT | #8730 |
 | [`@devfile/api@2.2.1-alpha-1667236163`](https://github.com/devfile/api.git) | Apache-2.0 | clearlydefined |
 | `@eclipse-che/api@7.72.0` | EPL-2.0 | ecd.che |
-| [`@eclipse-che/che-devworkspace-generator@7.75.0-next-50585f6`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/che-devworkspace-generator@7.75.0-next-bbd66d3`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/common@7.75.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-backend@7.75.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-frontend@7.75.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
