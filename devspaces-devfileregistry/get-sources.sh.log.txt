@@ -1,0 +1,516 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 3c3ddb7f94d
+STEP 3/23: ARG BOOTSTRAP=true
+--> 08747c02f17
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> ad090990a47
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> c8e53e7b1c5
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> f580dcd4901
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 70b3a779a10
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 76c651a2b18
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> cd998afc571
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 13af25c0e43
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  findutils-1:4.6.0-20.el8_8.1.ppc64le                                          
+Installed:
+  containers-common-2:1-64.module+el8.8.0+18571+eed59fc4.ppc64le                
+  criu-3.15-4.module+el8.8.0+19044+f9982fd8.ppc64le                             
+  fuse-common-3.3.0-16.el8.ppc64le                                              
+  fuse-overlayfs-1.11-1.module+el8.8.0+18634+9a268292.ppc64le                   
+  fuse3-3.3.0-16.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-16.el8.ppc64le                                               
+  iptables-libs-1.8.4-24.el8_8.2.ppc64le                                        
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-6.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-44.0-2.el8.1.ppc64le                                               
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.8.0+18060+3f21f2cc.ppc64le                        
+  mpdecimal-2.5.1-3.el8.ppc64le                                                 
+  nftables-1:0.9.3-26.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  python3.11-3.11.2-2.el8_8.1.ppc64le                                           
+  python3.11-devel-3.11.2-2.el8_8.1.ppc64le                                     
+  python3.11-libs-3.11.2-2.el8_8.1.ppc64le                                      
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+18060+3f21f2cc.ppc64le                          
+  skopeo-2:1.11.2-0.2.module+el8.8.0+18251+ad5b274c.ppc64le                     
+  slirp4netns-1.2.0-2.module+el8.8.0+18060+3f21f2cc.ppc64le                     
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.2-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.5/41.5 kB 4.0 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.2.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 48.8 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1.tar.gz (125 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.2/125.2 kB 246.7 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.1-py3-none-any.whl (37 kB)
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (pyproject.toml): started
+  Building wheel for PyYAML (pyproject.toml): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0.1-cp311-cp311-linux_ppc64le.whl size=45364 sha256=809e7af8437ecb5038f21bda2b9300d76615ce3b17ac25ae33c6c74b7e138420
+  Stored in directory: /tmp/pip-ephem-wheel-cache-r5ce4dip/wheels/9d/b8/03/596afac31be302ab459eb56558a9ee17cc947ffe6f85d67dcf
+Successfully built PyYAML
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.2 pip-23.2.1 tomlkit-0.12.1 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> 15f31479f0e
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 3b12e9a55cf
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 518053f64c7
+STEP 14/23: COPY ./VERSION /
+--> af2f7b0ef05
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 0ed5d74dae6
+STEP 16/23: WORKDIR /build/
+--> 332a416a6db
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 119 packages from 182 contributors and audited 119 packages in 9.903s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 92d174e3600
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> b0100cb1dc0
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.10 PASS - 3.10 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.10 PASS - 3.10 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.10 PASS - 3.10 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> db1e463aff1
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> ac443d00f50
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 7969ead4379
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 8f5c8888fdd
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 258ac873560
+Successfully tagged localhost/devfileregistry:tmp
+258ac8735601001562f77a79fb056563418bd629e0a3ae39257a7d6382b9ce0e
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.FHoAdmdz1H/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/RECORD /tmp/tmp.fUkRnwZTnC/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/RECORD
+--- /tmp/tmp.FHoAdmdz1H/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/RECORD	2023-09-16 22:28:27.000000000 +0000
++++ /tmp/tmp.fUkRnwZTnC/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/RECORD	2023-09-28 22:25:41.575720475 +0000
+@@ -2,7 +2,7 @@
+ PyYAML-6.0.1.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+ PyYAML-6.0.1.dist-info/METADATA,sha256=UNNF8-SzzwOKXVo-kV5lXUGH2_wDWMBmGxqISpp5HQk,2058
+ PyYAML-6.0.1.dist-info/RECORD,,
+-PyYAML-6.0.1.dist-info/WHEEL,sha256=8KU227XctfdX2qUwyjQUO-ciQuZtmyPUCKmeGV6Byto,152
++PyYAML-6.0.1.dist-info/WHEEL,sha256=OOQMLPkenv1wsbQjEBTn8EHchYXEyB1NkjV6tQVFo8s,106
+ PyYAML-6.0.1.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-311.pyc,,
+@@ -24,7 +24,6 @@
+ yaml/__pycache__/scanner.cpython-311.pyc,,
+ yaml/__pycache__/serializer.cpython-311.pyc,,
+ yaml/__pycache__/tokens.cpython-311.pyc,,
+-yaml/_yaml.cpython-311-x86_64-linux-gnu.so,sha256=ls52EONnCPWCytU6wojl6RE4BhAUdu8LH3XIYfgpH0k,2504120
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.FHoAdmdz1H/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/WHEEL /tmp/tmp.fUkRnwZTnC/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/WHEEL
+--- /tmp/tmp.FHoAdmdz1H/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/WHEEL	2023-09-16 22:28:27.000000000 +0000
++++ /tmp/tmp.fUkRnwZTnC/lib/python3.11/site-packages/PyYAML-6.0.1.dist-info/WHEEL	2023-09-28 22:25:41.575720475 +0000
+@@ -1,6 +1,5 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.40.0)
++Generator: bdist_wheel (0.41.2)
+ Root-Is-Purelib: false
+-Tag: cp311-cp311-manylinux_2_17_x86_64
+-Tag: cp311-cp311-manylinux2014_x86_64
++Tag: cp311-cp311-linux_ppc64le
+ 
+Only in /tmp/tmp.FHoAdmdz1H/lib/python3.11/site-packages/yaml: _yaml.cpython-311-x86_64-linux-gnu.so
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.SpXAWLxYqU/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml /tmp/tmp.69zEoZmgNW/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.SpXAWLxYqU/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-09-07 21:00:25.000000000 +0000
++++ /tmp/tmp.69zEoZmgNW/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-09-28 22:25:44.155661747 +0000
+@@ -93,7 +93,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++              quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -117,7 +117,8 @@
+           exec:
+             label: 'Molecule: Run Scenario for Backup Role'
+             commandLine: source $HOME/.bashrc && molecule test
+-            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++            workingDir: >-
++              ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+             group:
+               kind: run
+               isDefault: true
+@@ -126,7 +127,8 @@
+           exec:
+             label: 'Molecule: Validate Backup File Role'
+             commandLine: source $HOME/.bashrc && molecule verify
+-            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++            workingDir: >-
++              ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+             group:
+               kind: run
+               isDefault: true
+@@ -146,7 +148,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++            quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -170,7 +172,8 @@
+         exec:
+           label: 'Molecule: Run Scenario for Backup Role'
+           commandLine: source $HOME/.bashrc && molecule test
+-          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++          workingDir: >-
++            ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+           group:
+             kind: run
+             isDefault: true
+@@ -179,7 +182,8 @@
+         exec:
+           label: 'Molecule: Validate Backup File Role'
+           commandLine: source $HOME/.bashrc && molecule verify
+-          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++          workingDir: >-
++            ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+           group:
+             kind: run
+             isDefault: true
+diff --suppress-common-lines -u -r /tmp/tmp.SpXAWLxYqU/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml /tmp/tmp.69zEoZmgNW/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.SpXAWLxYqU/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-09-07 21:00:25.000000000 +0000
++++ /tmp/tmp.69zEoZmgNW/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-09-28 22:25:44.155661747 +0000
+@@ -93,7 +93,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++              quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -117,7 +117,8 @@
+           exec:
+             label: 'Molecule: Run Scenario for Backup Role'
+             commandLine: source $HOME/.bashrc && molecule test
+-            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++            workingDir: >-
++              ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+             group:
+               kind: run
+               isDefault: true
+@@ -126,7 +127,8 @@
+           exec:
+             label: 'Molecule: Validate Backup File Role'
+             commandLine: source $HOME/.bashrc && molecule verify
+-            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++            workingDir: >-
++              ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+             group:
+               kind: run
+               isDefault: true
+@@ -146,7 +148,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++            quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -170,7 +172,8 @@
+         exec:
+           label: 'Molecule: Run Scenario for Backup Role'
+           commandLine: source $HOME/.bashrc && molecule test
+-          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++          workingDir: >-
++            ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+           group:
+             kind: run
+             isDefault: true
+@@ -179,7 +182,8 @@
+         exec:
+           label: 'Molecule: Validate Backup File Role'
+           commandLine: source $HOME/.bashrc && molecule verify
+-          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++          workingDir: >-
++            ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+           group:
+             kind: run
+             isDefault: true
+diff --suppress-common-lines -u -r /tmp/tmp.SpXAWLxYqU/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml /tmp/tmp.69zEoZmgNW/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.SpXAWLxYqU/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2023-09-07 21:00:25.000000000 +0000
++++ /tmp/tmp.69zEoZmgNW/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2023-09-28 22:25:44.155661747 +0000
+@@ -112,7 +112,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++              quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -136,7 +136,8 @@
+           exec:
+             label: 'Molecule: Run Scenario for Backup Role'
+             commandLine: source $HOME/.bashrc && molecule test
+-            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++            workingDir: >-
++              ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+             group:
+               kind: run
+               isDefault: true
+@@ -145,7 +146,8 @@
+           exec:
+             label: 'Molecule: Validate Backup File Role'
+             commandLine: source $HOME/.bashrc && molecule verify
+-            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++            workingDir: >-
++              ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+             group:
+               kind: run
+               isDefault: true
+@@ -165,7 +167,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++            quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -189,7 +191,8 @@
+         exec:
+           label: 'Molecule: Run Scenario for Backup Role'
+           commandLine: source $HOME/.bashrc && molecule test
+-          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++          workingDir: >-
++            ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+           group:
+             kind: run
+             isDefault: true
+@@ -198,7 +201,8 @@
+         exec:
+           label: 'Molecule: Validate Backup File Role'
+           commandLine: source $HOME/.bashrc && molecule verify
+-          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo/roles/backup_file
++          workingDir: >-
++            ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/example/collection/roles/backup_file
+           group:
+             kind: run
+             isDefault: true
+diff --suppress-common-lines -u -r /tmp/tmp.SpXAWLxYqU/devfiles/external_images_by_devfile.txt /tmp/tmp.69zEoZmgNW/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.SpXAWLxYqU/devfiles/external_images_by_devfile.txt	2023-09-07 21:00:25.000000000 +0000
++++ /tmp/tmp.69zEoZmgNW/devfiles/external_images_by_devfile.txt	2023-09-28 22:25:44.155661747 +0000
+@@ -1,6 +1,6 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.10	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.10	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.10	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.SpXAWLxYqU/devfiles/external_images.txt /tmp/tmp.69zEoZmgNW/devfiles/external_images.txt
+--- /tmp/tmp.SpXAWLxYqU/devfiles/external_images.txt	2023-09-07 21:00:25.000000000 +0000
++++ /tmp/tmp.69zEoZmgNW/devfiles/external_images.txt	2023-09-28 22:25:44.155661747 +0000
+@@ -1,4 +1,4 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:808df400692bdd4a97ee5e0d6c64440a8add170dc5c0590bde9862a0dc3979dc
++quay.io/devspaces/ansible-creator-ee@sha256:6b90971a0cf2c2fac5fdf30e8ae546eb1ea9edef02e1e809cbf8c48bd7693851
+ registry.redhat.io/devspaces/code-rhel8:3.10
+ registry.redhat.io/devspaces/idea-rhel8:3.10
+ registry.redhat.io/devspaces/udi-rhel8:3.10
+Binary files /tmp/tmp.SpXAWLxYqU/resources/v2/ansible-devspaces-demo.zip and /tmp/tmp.69zEoZmgNW/resources/v2/ansible-devspaces-demo.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 258ac8735601001562f77a79fb056563418bd629e0a3ae39257a7d6382b9ce0e
+Deleted: 8f5c8888fdd17baa60b80e602947bba7648662595e5b0601c3038eccdd28c508
+Deleted: 7969ead437991ff1b3959381c993373cdd595a770d525f62e960417e76a77538
+Deleted: ac443d00f50c07ffc934191e6c2efeedaefbb1c5397e9bf029cc5a1c65e5dc13
+Deleted: db1e463aff1c329005dd9b02031f29e4a0bcfaafceee7838af35020612da4d52
+Deleted: b0100cb1dc053bfc52bf91670643f42589079d52ff546a4aef59735e8ad553b1
+Deleted: 92d174e36005f9862c00e639f3dbad6d1c3c479ce19819eff94544e8a4d57e47
+Deleted: 332a416a6db4cbe69263f73b543cae1a30ecbe6ebf35ecefc2150b1c0d8fd03b
+Deleted: 0ed5d74dae6642eb21a10372aad72826180c4d8f7961da2420af11b552efb073
+Deleted: af2f7b0ef058b2f725a7a9bb320fe0d630d6d01c3b90a073822a6f6e6678bfd5
+Deleted: 518053f64c78b76b0805c0338a6b96fb298a888eb72a3d9b0c2667fe9f839889
+Deleted: 3b12e9a55cf042d5514f60604fceb072791748957ec16253d40fea707d000df7
+Deleted: 15f31479f0e1ec31a4eee66b15d7180e004d6c09a82ad6975cc922114303b29b
+Deleted: 13af25c0e43c340a89f6037e4cd1c3412e0fd3cc3082a50e75222783c19d53bf
+Deleted: cd998afc571987c30c0ba4feba8dc90eee5cfee8ece7c3d015ec58fc2956f8a2
+Deleted: 76c651a2b18e8eb307c4b6ea46b5341971ee6b88cfc3393a320168481bef9c21
+Deleted: 70b3a779a105093e1aabe9dec252290dc4559c9d619f839671762ae5182aa014
+Deleted: f580dcd49012ce337b86ac875919a8e53633d548b351ddc76c84b7ffa2b4bb9c
+Deleted: c8e53e7b1c508e58c8c5f7455780ea3fd4e7c071d24ade95c0e9ca7899c6ff89
+Deleted: ad090990a4777ff359ada68223485356f853a841ee37f759b5db71096456c45a
+Deleted: 08747c02f172acddad6f0a131433073ad0e9e659879fad65e633b85c1556be5a
+Deleted: 3c3ddb7f94d3e222481f2b36aa44528b71028dba9977a5e736dcec43fb600e7d
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
