@@ -62,7 +62,7 @@ USER root
 
 ENV \
     HOME=/home/user \
-    NODEJS_VERSION="16" \
+    NODEJS_VERSION="18" \
     PYTHON_VERSION="3.9" \
     PHP_VERSION="7.4" \
     XDEBUG_VERSION="3.1.6" \
