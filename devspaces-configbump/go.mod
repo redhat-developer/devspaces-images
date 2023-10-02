@@ -19,7 +19,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/evanphx/json-patch v4.5.0+incompatible // indirect
 	github.com/go-logr/logr v0.1.0 // indirect
-	github.com/gogo/protobuf v1.1.1 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20180513044358-24b0969c4cb7 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf // indirect
