@@ -11,7 +11,7 @@
 # use rhel8/ for Brew, not ubi8/
 # can pin to specific tag filter using rhel8/go-toolset#^1.17
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.19.10-16 as go-builder
+FROM rhel8/go-toolset:1.19.10-16.1695267225 as go-builder
 
 USER root
 
@@ -62,7 +62,7 @@ USER root
 
 ENV \
     HOME=/home/user \
-    NODEJS_VERSION="16" \
+    NODEJS_VERSION="18" \
     PYTHON_VERSION="3.9" \
     PHP_VERSION="7.4" \
     XDEBUG_VERSION="3.1.6" \
