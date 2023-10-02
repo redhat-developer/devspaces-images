@@ -53,9 +53,8 @@ Results: <ul><li> <a href=https://quay.io/repository/devspaces/dsc?tab=tags>quay
 <p><blockquote>
     To install dsc from a container image for your OS & arch:
     <pre>
-        cd /tmp
-        git clone https://github.com/redhat-developer/devspaces-chectl --depth=1 dsc-checkout && cd dsc-checkout
-        ./build/scripts/installDscFromContainer.sh quay.io/devspaces/dsc:'''+(JOB_BRANCH.equals("3.x")?"next":JOB_BRANCH+"")+'''</pre>
+  cd /tmp; curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces-chectl/''' + MIDSTM_BRANCH + '''/build/scripts/installDscFromContainer.sh; chmod +x installDscFromContainer.sh
+  ./build/scripts/installDscFromContainer.sh quay.io/devspaces/dsc:'''+(JOB_BRANCH.equals("3.x")?"next":JOB_BRANCH+"")+'''</pre>
 </blockquote></p>
 ''' : 
 '''
