@@ -1,4 +1,4 @@
-[![CI](https://github.com/eclipse/che-dashboard/workflows/CI/badge.svg)](https://github.com/eclipse/che-dashboard/actions/workflows/ci.yaml)
+[![Next](https://github.com/eclipse-che/che-dashboard//workflows/Next%20container%20image/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml)
 [![codecov](https://codecov.io/gh/eclipse-che/che-dashboard/branch/main/graph/badge.svg?token=ao9sqdlXeT)](https://codecov.io/gh/eclipse-che/che-dashboard)
 [![Contribute (nightly)](https://img.shields.io/static/v1?label=nightly%20Che&message=for%20maintainers&logo=eclipseche&color=FDB940&labelColor=525C86)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com#https://github.com/eclipse-che/che-dashboard&storageType=persistent)
 
