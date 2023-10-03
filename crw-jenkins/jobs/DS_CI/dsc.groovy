@@ -51,10 +51,10 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 '''
 Results: <ul><li> <a href=https://quay.io/repository/devspaces/dsc?tab=tags>quay.io/devspaces/dsc</a> </li></ul>
 <p><blockquote>
-    To install dsc from a container image for your OS & arch:
+    To install dsc from a container image for your OS & arch into \$HOME/dsc/bin/dsc:
     <pre>
-  cd /tmp; curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces-chectl/''' + MIDSTM_BRANCH + '''/build/scripts/installDscFromContainer.sh; chmod +x installDscFromContainer.sh
-  ./build/scripts/installDscFromContainer.sh quay.io/devspaces/dsc:'''+(JOB_BRANCH.equals("3.x")?"next":JOB_BRANCH+"")+'''</pre>
+    cd /tmp; curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces-chectl/''' + MIDSTM_BRANCH + '''/build/scripts/installDscFromContainer.sh; 
+    chmod +x installDscFromContainer.sh; ./installDscFromContainer.sh quay.io/devspaces/dsc:'''+(JOB_BRANCH.equals("3.x")?"next":JOB_BRANCH+"")+''' -t \$HOME --delete-after -v </pre>
 </blockquote></p>
 ''' : 
 '''
@@ -62,24 +62,24 @@ Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/r
 <p><blockquote>
     To retrieve assets from github:
     <pre>
-        cd /tmp
-        git clone git@github.com:redhat-developer/devspaces-chectl.git --depth=1 dsc && cd dsc
+    cd /tmp
+    git clone git@github.com:redhat-developer/devspaces-chectl.git --depth=1 dsc && cd dsc
 
-        export GITHUB_TOKEN="github-token-here"
+    export GITHUB_TOKEN="github-token-here"
 
-        hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i LIST
-        ...
-        hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i "*dsc-linux-x64*"</pre>
+    hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i LIST
+    ...
+    hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i "*dsc-linux-x64*"</pre>
 </blockquote></p>
 ''') + 
 '''
 <p><blockquote>
     For GA builds only: if the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
     <pre>
-        kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
-        REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
-        ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z.yyyy-mm-dd"
-        Staged devspaces-3.yy.z.2023-03-21 in 0:04:30.158899</pre>
+    kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
+    REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+    ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z.yyyy-mm-dd"
+    Staged devspaces-3.yy.z.2023-03-21 in 0:04:30.158899</pre>
 </blockquote></p>
 ''')
 
