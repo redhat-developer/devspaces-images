@@ -111,6 +111,22 @@ describe('FactoryLocationAdapter Service', () => {
     });
   });
 
+  describe('test FactoryLocationAdapter.isHttpLocation', () => {
+    it('should return true for https git url', () => {
+      const location = 'https://git-test.com/dummy.git';
+      expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
+    });
+    it('should return true when git remote specified', () => {
+      const location = 'https://git-test.com/dummy.git?remotes={https://git-test.com/remote.git}';
+      expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
+    });
+    it('should return true when git remotes and remote names are specified', () => {
+      const location =
+        'https://git-test.com/dummy.git?remotes={{origin,https://git-test.com/origin.git},{upstream,https://git-test.com/upstream.git}}';
+      expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
+    });
+  });
+
   it('should return factory reference without oauth params', () => {
     const fullPathUrl = 'https://github.com/eclipse-che/che-dashboard.git';
     const oauthParams = 'session_state=63273265623765783252378';

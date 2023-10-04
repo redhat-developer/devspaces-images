@@ -7,6 +7,9 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
 
 # Release process automation script.
 # Used to create branch/tag, update VERSION files
@@ -95,7 +98,7 @@ function update_pkgs_versions() {
 usage ()
 {
   echo "Usage: $0 --version [VERSION TO RELEASE] [--tag-release]"
-  echo "Example: $0 --version 7.7.0 --tag-release"; echo
+  echo "Example: $0 --version 7.75.0 --tag-release"; echo
 }
 
 if [[ ! ${VERSION} ]]; then
@@ -131,7 +134,7 @@ update_pkgs_versions $VERSION
 
 # commit change into branch
 if [[ ${NOCOMMIT} -eq 0 ]]; then
-  COMMIT_MSG="chore: Bump to ${VERSION} in ${BRANCH}"
+  COMMIT_MSG="chore: release: bump to ${VERSION} in ${BRANCH}"
   git commit -asm "${COMMIT_MSG}"
   git pull origin "${BRANCH}"
   git push origin "${BRANCH}"
