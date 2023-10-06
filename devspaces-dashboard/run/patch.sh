@@ -17,7 +17,7 @@ CHE_DASHBOARD_IMAGE="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-dash
 
 echo "[INFO] Build a new image '${CHE_DASHBOARD_IMAGE}'..."
 
-"${PWD}/scripts/container_tool.sh" build . -f build/dockerfiles/Dockerfile -t $CHE_DASHBOARD_IMAGE
+"${PWD}/scripts/container_tool.sh" build . -f build/dockerfiles/skaffold.Dockerfile -t $CHE_DASHBOARD_IMAGE
 
 echo "[INFO] Push the image '${CHE_DASHBOARD_IMAGE}'..."
 

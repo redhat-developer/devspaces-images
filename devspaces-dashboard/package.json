@@ -34,7 +34,7 @@
     "format:fix": "lerna run --stream  format:fix",
     "lint:check": "yarn workspaces run lint:check",
     "lint:fix": "lerna run --stream lint:fix",
-    "build-and-patch": "${PWD}/run/build-and-patch.sh $@"
+    "patch": "${PWD}/run/patch.sh $@"
   },
   "devDependencies": {
     "lerna": "^6"
