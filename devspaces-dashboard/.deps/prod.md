@@ -10,7 +10,6 @@
 | [`@eclipse-che/dashboard-backend@7.75.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-frontend@7.75.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-ff55f9a`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/workspace-client@0.0.1-1672830275`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/accept-negotiator@1.1.0`](git+https://github.com/fastify/accept-negotiator.git) | MIT | clearlydefined |
 | [`@fastify/ajv-compiler@3.5.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@fastify/cookie@8.3.0`](git+ssh://git@github.com/fastify/fastify-cookie.git) | MIT | clearlydefined |
@@ -379,7 +378,6 @@
 | [`trim-right@1.0.1`](https://github.com/sindresorhus/trim-right.git) | MIT | clearlydefined |
 | [`tslib@2.6.1`](https://github.com/Microsoft/tslib.git) | 0BSD | #9189 |
 | [`tunnel-agent@0.6.0`](https://github.com/mikeal/tunnel-agent) | Apache-2.0 | clearlydefined |
-| [`tunnel@0.0.6`](https://github.com/koichik/node-tunnel.git) | MIT | clearlydefined |
 | [`tweetnacl@0.14.5`](https://github.com/dchest/tweetnacl-js.git) | Unlicense | #1035 |
 | [`type-fest@1.4.0`](https://github.com/sindresorhus/type-fest.git) | (MIT OR CC0-1.0) | clearlydefined |
 | [`underscore@1.13.6`](git://github.com/jashkenas/underscore.git) | MIT | clearlydefined |

@@ -20,7 +20,7 @@ import {
   ConnectionEvent,
   ConnectionListener,
   WebsocketClient,
-} from '../../../services/dashboard-backend-client/websocketClient';
+} from '../../../services/backend-client/websocketClient';
 
 type Props = MappedProps;
 

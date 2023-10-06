@@ -13,6 +13,7 @@
 import { AlertVariant } from '@patternfly/react-core';
 import * as React from 'react';
 import devfileApi from '../devfileApi';
+import * as cheApi from '@eclipse-che/api';
 
 export type ActionCallback = {
   title: string;
@@ -35,7 +36,7 @@ export interface FactoryResolver {
   devfile: devfileApi.Devfile | che.WorkspaceDevfile;
   location?: string;
   scm_info?: FactoryResolverScmInfo;
-  links: api.che.core.rest.Link[];
+  links: cheApi.che.core.rest.Link[];
 }
 
 export type FactoryResolverScmInfo = {

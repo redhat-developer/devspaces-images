@@ -335,5 +335,26 @@ describe('Errors helper', () => {
       };
       expect(getMessage(error)).toEqual(expectedMessage);
     });
+
+    it('should return a message if `error.response.data` includes a HTML page', () => {
+      const htmlPage =
+        '<!DOCTYPE html><html><head></head><body>...</body></html>';
+      const error = {
+        name: 'Error',
+        config: {},
+        request: {},
+        response: {
+          data: htmlPage,
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {},
+          config: {},
+          request: {},
+        },
+        message: '"500" returned by "/kubernetes/namespace/provision".',
+      };
+
+      expect(getMessage(error)).toEqual(error.message);
+    });
   });
 });

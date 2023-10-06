@@ -18,11 +18,11 @@ import {
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
-import { decorate, inject, injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { load } from 'js-yaml';
 import { cloneDeep, isEqual } from 'lodash';
-import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
-import * as DwtApi from '../../dashboard-backend-client/devWorkspaceTemplateApi';
+import * as DwApi from '../../backend-client/devWorkspaceApi';
+import * as DwtApi from '../../backend-client/devWorkspaceTemplateApi';
 import devfileApi from '../../devfileApi';
 import {
   DEVWORKSPACE_CHE_EDITOR,
@@ -38,7 +38,6 @@ import { isWebTerminal } from '../../helpers/devworkspace';
 import { DevWorkspaceStatus } from '../../helpers/types';
 import { fetchData } from '../../registry/fetchData';
 import { WorkspaceAdapter } from '../../workspace-adapter';
-import { WorkspaceClient } from '../index';
 import {
   devWorkspaceApiGroup,
   devWorkspaceSingularSubresource,
@@ -73,13 +72,11 @@ export interface ICheEditorYaml {
   };
 }
 
-decorate(injectable(), WorkspaceClient);
-
 /**
  * This class manages the connection between the frontend and the devworkspace typescript library
  */
 @injectable()
-export class DevWorkspaceClient extends WorkspaceClient {
+export class DevWorkspaceClient {
   private readonly maxStatusAttempts: number;
   private readonly pluginRegistryUrlEnvName: string;
   private readonly pluginRegistryInternalUrlEnvName: string;
@@ -93,7 +90,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     @inject(DevWorkspaceDefaultPluginsHandler)
     defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler,
   ) {
-    super();
     this.maxStatusAttempts = 10;
     this.pluginRegistryUrlEnvName = 'CHE_PLUGIN_REGISTRY_URL';
     this.pluginRegistryInternalUrlEnvName = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';

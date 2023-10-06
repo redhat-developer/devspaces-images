@@ -12,8 +12,8 @@
 
 import { container } from '../../../../inversify.config';
 import { DevWorkspaceClient } from '../devWorkspaceClient';
-import * as DwtApi from '../../../dashboard-backend-client/devWorkspaceTemplateApi';
-import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
+import * as DwtApi from '../../../backend-client/devWorkspaceTemplateApi';
+import * as DwApi from '../../../backend-client/devWorkspaceApi';
 import devfileApi from '../../../devfileApi';
 
 describe('DevWorkspace client, create', () => {

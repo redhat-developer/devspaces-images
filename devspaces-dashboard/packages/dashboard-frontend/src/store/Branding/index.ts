@@ -117,17 +117,17 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_BRANDING':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVED_BRANDING':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         data: action.data,
       });
     case 'RECEIVED_BRANDING_ERROR':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

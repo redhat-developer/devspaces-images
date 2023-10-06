@@ -26,4 +26,4 @@ export const selectAsyncIsAuthorized = createSelector(
   },
 );
 
-export const selectSanityCheckError = createSelector(selectState, state => state.error);
+export const selectSanityCheckError = createSelector(selectState, state => state.error || '');

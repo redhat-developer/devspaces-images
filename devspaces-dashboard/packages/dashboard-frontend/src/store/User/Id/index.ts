@@ -16,6 +16,7 @@ import { fetchCheUserId } from '../../../services/che-user-id';
 import { createObject } from '../../helpers';
 import { AppThunk } from '../../index';
 import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
 
 export interface State {
   cheUserId: string;
@@ -52,10 +53,13 @@ export type ActionCreators = {
 export const actionCreators: ActionCreators = {
   requestCheUserId:
     (): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_CHE_USER_ID, check: AUTHORIZED });
-
+    async (dispatch, getState): Promise<void> => {
       try {
+        await dispatch({ type: Type.REQUEST_CHE_USER_ID, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const cheUserId = await fetchCheUserId();
         dispatch({
           type: Type.RECEIVE_CHE_USER_ID,
@@ -88,17 +92,17 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_CHE_USER_ID:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_CHE_USER_ID:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         cheUserId: action.cheUserId,
       });
     case Type.RECEIVE_CHE_USER_ID_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

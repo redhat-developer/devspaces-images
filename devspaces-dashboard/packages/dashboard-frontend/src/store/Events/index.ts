@@ -15,8 +15,8 @@ import { CoreV1Event } from '@kubernetes/client-node';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
 import { container } from '../../inversify.config';
-import { fetchEvents } from '../../services/dashboard-backend-client/eventsApi';
-import { WebsocketClient } from '../../services/dashboard-backend-client/websocketClient';
+import { fetchEvents } from '../../services/backend-client/eventsApi';
+import { WebsocketClient } from '../../services/backend-client/websocketClient';
 import { getNewerResourceVersion } from '../../services/helpers/resourceVersion';
 import { createObject } from '../helpers';
 import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
@@ -188,18 +188,18 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_EVENTS:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_EVENTS:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         events: state.events.concat(action.events),
         resourceVersion: getNewerResourceVersion(action.resourceVersion, state.resourceVersion),
       });
     case Type.MODIFY_EVENT:
-      return createObject(state, {
+      return createObject<State>(state, {
         events: state.events.map(event => {
           if (event.metadata.uid === action.event.metadata.uid) {
             return action.event;
@@ -212,7 +212,7 @@ export const reducer: Reducer<State> = (
         ),
       });
     case Type.DELETE_EVENT:
-      return createObject(state, {
+      return createObject<State>(state, {
         events: state.events.filter(event => event.metadata.uid !== action.event.metadata.uid),
         resourceVersion: getNewerResourceVersion(
           action.event.metadata.resourceVersion,
@@ -220,7 +220,7 @@ export const reducer: Reducer<State> = (
         ),
       });
     case Type.RECEIVE_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

@@ -14,25 +14,37 @@ import { Action, Reducer } from 'redux';
 import { api, helpers } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
-import * as DwApi from '../../services/dashboard-backend-client/devWorkspaceApi';
+import * as DwApi from '../../services/backend-client/devWorkspaceApi';
 import { RegistryEntry } from './types';
-import { State } from './dockerConfigState';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-export * from './dockerConfigState';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
+
+export interface State {
+  isLoading: boolean;
+  registries: RegistryEntry[];
+  resourceVersion?: string;
+  error: string | undefined;
+}
+
+export enum Type {
+  REQUEST_DEVWORKSPACE_CREDENTIALS = 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+  SET_DEVWORKSPACE_CREDENTIALS = 'SET_DEVWORKSPACE_CREDENTIALS',
+  RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR = 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
+}
 
 export interface RequestCredentialsAction extends Action, SanityCheckAction {
-  type: 'REQUEST_DEVWORKSPACE_CREDENTIALS';
+  type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS;
 }
 
 export interface SetCredentialsAction extends Action {
-  type: 'SET_DEVWORKSPACE_CREDENTIALS';
+  type: Type.SET_DEVWORKSPACE_CREDENTIALS;
   registries: RegistryEntry[];
   resourceVersion: string | undefined;
 }
 
 export interface ReceiveErrorAction extends Action {
-  type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR';
+  type: Type.RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR;
   error: string;
 }
 
@@ -47,20 +59,23 @@ export const actionCreators: ActionCreators = {
   requestCredentials:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      const state = getState();
-      const namespace = selectDefaultNamespace(state).name;
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS', check: AUTHORIZED });
+      const namespace = selectDefaultNamespace(getState()).name;
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const { registries, resourceVersion } = await getDockerConfig(namespace);
         dispatch({
-          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          type: Type.SET_DEVWORKSPACE_CREDENTIALS,
           registries,
           resourceVersion,
         });
       } catch (e) {
         const errorMessage = helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR,
           error: errorMessage,
         });
         throw e;
@@ -70,24 +85,28 @@ export const actionCreators: ActionCreators = {
   updateCredentials:
     (registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS', check: AUTHORIZED });
       const state = getState();
       const namespace = selectDefaultNamespace(state).name;
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const { resourceVersion } = await putDockerConfig(
           namespace,
           registries,
           state.dockerConfig?.resourceVersion,
         );
         dispatch({
-          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          type: Type.SET_DEVWORKSPACE_CREDENTIALS,
           registries,
           resourceVersion,
         });
       } catch (e) {
         const errorMessage = helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR,
           error: errorMessage,
         });
         throw e;
@@ -165,19 +184,19 @@ export const reducer: Reducer<State> = (
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case 'REQUEST_DEVWORKSPACE_CREDENTIALS':
-      return createObject(state, {
+    case Type.REQUEST_DEVWORKSPACE_CREDENTIALS:
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
-    case 'SET_DEVWORKSPACE_CREDENTIALS':
-      return createObject(state, {
+    case Type.SET_DEVWORKSPACE_CREDENTIALS:
+      return createObject<State>(state, {
         isLoading: false,
         registries: action.registries,
         resourceVersion: action.resourceVersion,
       });
-    case 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR':
-      return createObject(state, {
+    case Type.RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR:
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

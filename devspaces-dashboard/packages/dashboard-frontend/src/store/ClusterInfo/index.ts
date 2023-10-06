@@ -14,7 +14,7 @@ import { Action, Reducer } from 'redux';
 import common, { ClusterInfo } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
-import { fetchClusterInfo } from '../../services/dashboard-backend-client/clusterInfoApi';
+import { fetchClusterInfo } from '../../services/backend-client/clusterInfoApi';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
@@ -97,17 +97,17 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_CLUSTER_INFO:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_CLUSTER_INFO:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         clusterInfo: action.clusterInfo,
       });
     case Type.RECEIVE_CLUSTER_INFO_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

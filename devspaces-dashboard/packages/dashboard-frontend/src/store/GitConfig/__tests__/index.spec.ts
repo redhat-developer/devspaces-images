@@ -20,7 +20,7 @@ import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 const mockFetchGitConfig = jest.fn().mockResolvedValue({ gitconfig: {} } as api.IGitConfig);
 const mockPatchGitConfig = jest.fn().mockResolvedValue({ gitconfig: {} } as api.IGitConfig);
-jest.mock('../../../services/dashboard-backend-client/gitConfigApi', () => {
+jest.mock('../../../services/backend-client/gitConfigApi', () => {
   return {
     fetchGitConfig: (...args: unknown[]) => mockFetchGitConfig(...args),
     patchGitConfig: (...args: unknown[]) => mockPatchGitConfig(...args),

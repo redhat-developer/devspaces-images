@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
+import * as DwApi from '../../backend-client/devWorkspaceApi';
 import devfileApi from '../../devfileApi';
 import { api } from '@eclipse-che/common';
 import { createHash } from 'crypto';

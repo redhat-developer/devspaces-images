@@ -19,7 +19,7 @@ import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import {
   ConnectionEvent,
   WebsocketClient,
-} from '../../../../services/dashboard-backend-client/websocketClient';
+} from '../../../../services/backend-client/websocketClient';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 
 const failingMessage = 'WebSocket connections are failing';

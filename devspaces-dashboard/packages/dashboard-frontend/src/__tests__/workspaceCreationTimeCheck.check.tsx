@@ -91,7 +91,7 @@ describe('Workspace creation time', () => {
 
     await waitFor(
       () => expect(mockPost).toBeCalledWith('/api/factory/resolver', expect.anything()),
-      { timeout: 6000 },
+      { timeout: 8000 },
     );
     expect(mockPost).toHaveBeenCalledTimes(1);
     expect(mockGet).not.toHaveBeenCalled();

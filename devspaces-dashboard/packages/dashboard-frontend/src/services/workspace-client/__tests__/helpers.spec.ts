@@ -10,14 +10,71 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getCustomEditor, isForbidden, isInternalServerError, isUnauthorized } from '../helpers';
-import { CHE_EDITOR_YAML_PATH } from '../';
+import {
+  getCustomEditor,
+  hasLoginPage,
+  getErrorMessage,
+  isForbidden,
+  isInternalServerError,
+  isUnauthorized,
+} from '../helpers';
+import { CHE_EDITOR_YAML_PATH } from '../helpers';
 import { dump } from 'js-yaml';
 import common from '@eclipse-che/common';
 import devfileApi from '../../devfileApi';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 describe('Workspace-client helpers', () => {
+  describe('get an error message', () => {
+    it('should return the default error message', () => {
+      expect(getErrorMessage(undefined)).toEqual('Check the browser logs message.');
+    });
+    it('should return the unknown error message', () => {
+      expect(getErrorMessage({})).toEqual('Unexpected error type. Please report a bug.');
+    });
+    it('should return the error message', () => {
+      expect(
+        getErrorMessage({
+          response: {
+            status: 401,
+          },
+          request: {
+            responseURL: 'http://dummyurl.com',
+          },
+        }),
+      ).toEqual(
+        'HTTP Error code 401. Endpoint which throws an error http://dummyurl.com. Check the browser logs message.',
+      );
+    });
+  });
+  describe('checks for HTML login page in response data', () => {
+    it('should return false without  HTML login page', () => {
+      expect(
+        hasLoginPage({
+          response: {
+            status: 401,
+            statusText: '...',
+            headers: {},
+            config: {},
+            data: '<!DOCTYPE html><html><head></head><body>...</body></html>',
+          },
+        }),
+      ).toBeFalsy();
+    });
+    it('should return true in the case with  HTML login page', () => {
+      expect(
+        hasLoginPage({
+          response: {
+            status: 401,
+            statusText: '...',
+            headers: {},
+            config: {},
+            data: '<!DOCTYPE html><html><head></head><body><span>Log In</span></body></html>',
+          },
+        }),
+      ).toBeTruthy();
+    });
+  });
   describe('checks for HTTP 401 Unauthorized response status code', () => {
     it('should return false in the case with HTTP 400 Bad Request', () => {
       expect(isUnauthorized('...HTTP Status 400 ....')).toBeFalsy();

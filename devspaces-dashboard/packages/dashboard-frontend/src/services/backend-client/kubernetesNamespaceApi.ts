@@ -12,18 +12,15 @@
 
 import axios from 'axios';
 import { cheServerPrefix } from './const';
-import { FactoryResolver } from '../helpers/types';
 
-const factoryResolverEndpoint = '/factory/resolver';
+export async function getKubernetesNamespace(): Promise<che.KubernetesNamespace[]> {
+  const response = await axios.get(`${cheServerPrefix}/kubernetes/namespace`);
 
-export async function getFactoryResolver(
-  url: string,
-  overrideParams: { [params: string]: string } = {},
-): Promise<FactoryResolver> {
-  const response = await axios.post(
-    `${cheServerPrefix}${factoryResolverEndpoint}`,
-    Object.assign({}, overrideParams, { url }),
-  );
+  return response.data;
+}
+
+export async function provisionKubernetesNamespace(): Promise<che.KubernetesNamespace> {
+  const response = await axios.post(`${cheServerPrefix}/kubernetes/namespace/provision`);
 
   return response.data;
 }

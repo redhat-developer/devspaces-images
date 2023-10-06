@@ -22,8 +22,8 @@ import * as testStore from '..';
 import { AppState } from '../../..';
 import { container } from '../../../../inversify.config';
 import { FactoryParams } from '../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { fetchServerConfig } from '../../../../services/dashboard-backend-client/serverConfigApi';
-import { WebsocketClient } from '../../../../services/dashboard-backend-client/websocketClient';
+import { fetchServerConfig } from '../../../../services/backend-client/serverConfigApi';
+import { WebsocketClient } from '../../../../services/backend-client/websocketClient';
 import devfileApi from '../../../../services/devfileApi';
 import { DevWorkspaceClient } from '../../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { AUTHORIZED } from '../../../sanityCheckMiddleware';
@@ -33,13 +33,13 @@ import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import { checkRunningWorkspacesLimit } from '../checkRunningWorkspacesLimit';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../services/devfileApi/devWorkspace/spec/template';
 
-jest.mock('../../../../services/dashboard-backend-client/serverConfigApi');
+jest.mock('../../../../services/backend-client/serverConfigApi');
 jest.mock('../../../../services/helpers/delay', () => ({
   delay: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('../checkRunningWorkspacesLimit.ts');
 
-jest.mock('../../../../services/dashboard-backend-client/devworkspaceResourcesApi', () => ({
+jest.mock('../../../../services/backend-client/devworkspaceResourcesApi', () => ({
   fetchResources: () => `
 apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspaceTemplate
@@ -95,7 +95,7 @@ spec:
 }));
 
 const mockPatchTemplate = jest.fn();
-jest.mock('../../../../services/dashboard-backend-client/devWorkspaceTemplateApi', () => ({
+jest.mock('../../../../services/backend-client/devWorkspaceTemplateApi', () => ({
   getTemplates: () => [
     {
       apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -111,7 +111,7 @@ jest.mock('../../../../services/dashboard-backend-client/devWorkspaceTemplateApi
     mockPatchTemplate(templateNamespace, templateName, targetTemplatePatch),
 }));
 const mockPatchWorkspace = jest.fn();
-jest.mock('../../../../services/dashboard-backend-client/devWorkspaceApi', () => ({
+jest.mock('../../../../services/backend-client/devWorkspaceApi', () => ({
   patchWorkspace: (namespace, workspaceName, patch) =>
     mockPatchWorkspace(namespace, workspaceName, patch),
 }));
@@ -636,6 +636,10 @@ describe('DevWorkspace store, actions', () => {
 
       const expectedActions: Array<testStore.KnownAction> = [
         {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
           message: 'Cleaning up resources for deletion',
           type: testStore.Type.TERMINATE_DEVWORKSPACE,
           workspaceUID: devWorkspace.metadata.uid,
@@ -659,6 +663,10 @@ describe('DevWorkspace store, actions', () => {
       const actions = store.getActions();
 
       const expectedActions: Array<testStore.KnownAction> = [
+        {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
         {
           type: testStore.Type.RECEIVE_DEVWORKSPACE_ERROR,
           error: `Failed to delete the workspace ${devWorkspace.metadata.name}, reason: Something unexpected happened.`,

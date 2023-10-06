@@ -15,7 +15,7 @@ import common, { ClusterConfig } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
 import * as BannerAlertStore from '../BannerAlert';
-import { fetchClusterConfig } from '../../services/dashboard-backend-client/clusterConfigApi';
+import { fetchClusterConfig } from '../../services/backend-client/clusterConfigApi';
 import { AddBannerAction } from '../BannerAlert';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
@@ -105,17 +105,17 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_CLUSTER_CONFIG:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_CLUSTER_CONFIG:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         clusterConfig: action.clusterConfig,
       });
     case Type.RECEIVE_CLUSTER_CONFIG_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

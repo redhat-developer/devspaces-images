@@ -18,7 +18,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import * as testStore from '..';
 import { AppState } from '../..';
 import { container } from '../../../inversify.config';
-import { WebsocketClient } from '../../../services/dashboard-backend-client/websocketClient';
+import { WebsocketClient } from '../../../services/backend-client/websocketClient';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import { pod1, pod2 } from './stub';

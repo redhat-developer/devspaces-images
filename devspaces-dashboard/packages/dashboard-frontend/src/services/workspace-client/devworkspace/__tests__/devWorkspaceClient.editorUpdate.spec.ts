@@ -13,10 +13,10 @@
 import { container } from '../../../../inversify.config';
 import { DevWorkspaceClient } from '../devWorkspaceClient';
 import mockAxios from 'axios';
-import { dashboardBackendPrefix } from '../../../dashboard-backend-client/const';
+import { dashboardBackendPrefix } from '../../../backend-client/const';
 import getDevWorkspaceTemplate from './__mocks__/devWorkspaceSpecTemplates';
 import devfileApi from '../../../devfileApi';
-import * as DwtApi from '../../../dashboard-backend-client/devWorkspaceTemplateApi';
+import * as DwtApi from '../../../backend-client/devWorkspaceTemplateApi';
 
 describe('DevWorkspace client editor update', () => {
   const namespace = 'admin-che';

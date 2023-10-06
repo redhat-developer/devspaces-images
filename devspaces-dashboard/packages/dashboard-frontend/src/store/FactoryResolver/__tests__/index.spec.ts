@@ -16,7 +16,7 @@ import common from '@eclipse-che/common';
 import { AppState } from '../..';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import devfileApi from '../../../services/devfileApi';
-import * as factoryResolver from '../../../services/dashboard-backend-client/factoryResolverApi';
+import * as factoryResolver from '../../../services/backend-client/factoryApi';
 import * as factoryResolverStore from '..';
 import { AxiosError } from 'axios';
 import normalizeDevfileV1 from '../normalizeDevfileV1';
@@ -26,7 +26,7 @@ import {
   convertDevfileV1toDevfileV2,
 } from '../../../services/devfile/converters';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import * as yamlResolver from '../../../services/dashboard-backend-client/yamlResolverApi';
+import * as yamlResolver from '../../../services/backend-client/yamlResolverApi';
 
 jest.mock('../normalizeDevfileV1.ts');
 (normalizeDevfileV1 as jest.Mock).mockImplementation(devfile => {

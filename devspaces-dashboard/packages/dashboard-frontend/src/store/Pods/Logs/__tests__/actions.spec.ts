@@ -19,7 +19,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import * as testStore from '..';
 import { AppState } from '../../..';
 import { container } from '../../../../inversify.config';
-import { WebsocketClient } from '../../../../services/dashboard-backend-client/websocketClient';
+import { WebsocketClient } from '../../../../services/backend-client/websocketClient';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 
 describe('Pod logs store, actions', () => {

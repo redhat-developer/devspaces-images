@@ -50,7 +50,9 @@ export function getMessage(error: unknown): string {
   if (includesAxiosResponse(error)) {
     const response = error.response;
     if (typeof response.data === 'string') {
-      return response.data;
+      if (response.data.toLowerCase().trim().indexOf('<!doctype') !== 0) {
+        return response.data;
+      }
     } else if (response.data.message) {
       return response.data.message;
     } else if (response.config.url) {

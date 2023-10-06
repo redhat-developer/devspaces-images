@@ -37,8 +37,9 @@ export class NoResourceComponent extends React.Component {
 // mute the outputs
 console.error = jest.fn();
 
+const mockOnError = jest.fn();
 function wrapComponent(componentToWrap: React.ReactNode) {
-  return <ErrorBoundary>{componentToWrap}</ErrorBoundary>;
+  return <ErrorBoundary onError={mockOnError}>{componentToWrap}</ErrorBoundary>;
 }
 
 describe('Error boundary', () => {
@@ -66,6 +67,7 @@ describe('Error boundary', () => {
       const showDetailsAction = screen.getByRole('button', { name: 'View stack' });
       userEvent.click(showDetailsAction);
 
+      expect(mockOnError).not.toHaveBeenCalled();
       expect(screen.queryByText('in BadComponent', { exact: false })).toBeTruthy();
       expect(screen.queryByText('in ErrorBoundary', { exact: false })).toBeTruthy();
 
@@ -98,6 +100,7 @@ describe('Error boundary', () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(
         screen.queryByText('The application has been likely updated on the server.', {
           exact: false,
@@ -111,6 +114,7 @@ describe('Error boundary', () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(
         screen.queryByText('Refreshing a page to get newer resources in', { exact: false }),
       ).toBeTruthy();
@@ -127,6 +131,7 @@ describe('Error boundary', () => {
       const stopCountdownAction = screen.getByRole('button', { name: 'Stop countdown' });
       userEvent.click(stopCountdownAction);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(
         screen.queryByText('Refreshing a page to get newer resources in', { exact: false }),
       ).toBeFalsy();
@@ -148,6 +153,7 @@ describe('Error boundary', () => {
 
       jest.advanceTimersByTime(35000);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(window.location.reload).toHaveBeenCalled();
       expect(window.location.reload).toHaveBeenCalledTimes(1);
     });
@@ -161,6 +167,7 @@ describe('Error boundary', () => {
       userEvent.click(reloadNowAction);
       userEvent.click(reloadNowAction);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(window.location.reload).toHaveBeenCalled();
       expect(window.location.reload).toHaveBeenCalledTimes(3);
     });
@@ -185,6 +192,7 @@ describe('Error boundary', () => {
       window.dispatchEvent(new Event('beforeunload'));
       render(errorBoundary);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(
         screen.queryByText(
           'Contact an administrator if refreshing continues after the next load.',
@@ -225,6 +233,7 @@ describe('Error boundary', () => {
       window.dispatchEvent(new Event('beforeunload'));
       render(goodComponent);
 
+      expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(sessionStorage.getItem(STORAGE_KEY_RELOAD_NUMBER)).toBeNull();
     });
   });

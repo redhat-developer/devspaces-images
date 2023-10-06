@@ -13,14 +13,16 @@
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
 import { helpers } from '@eclipse-che/common';
-import { container } from '../../inversify.config';
 import { getDefer } from '../../services/helpers/deferred';
 import { delay } from '../../services/helpers/delay';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
-import { isForbidden, isUnauthorized } from '../../services/workspace-client/helpers';
+import {
+  getErrorMessage,
+  hasLoginPage,
+  isForbidden,
+  isUnauthorized,
+} from '../../services/workspace-client/helpers';
 import { createObject } from '../helpers';
-
-const WorkspaceClient = container.get(CheWorkspaceClient);
+import { provisionKubernetesNamespace } from '../../services/backend-client/kubernetesNamespaceApi';
 
 const secToStale = 5;
 const timeToStale = secToStale * 1000;
@@ -93,7 +95,7 @@ export const actionCreators: ActionCreators = {
 
         for (let attempt = 1; attempt <= maxAttemptsNumber; attempt++) {
           try {
-            await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
+            await provisionKubernetesNamespace();
 
             deferred.resolve(true);
             dispatch({
@@ -105,20 +107,19 @@ export const actionCreators: ActionCreators = {
             if (attempt === maxAttemptsNumber) {
               throw e;
             }
-            delay(1000);
+            await delay(1000);
           }
         }
       } catch (e) {
-        let errorMessage =
-          'Backend is not available. Try to refresh the page or re-login to the Dashboard.';
-        if (isUnauthorized(e) || isForbidden(e)) {
-          errorMessage = 'User session has expired. You need to re-login to the Dashboard.';
+        if (isUnauthorized(e) || (isForbidden(e) && hasLoginPage(e))) {
+          window.location.reload();
         }
-        deferred.resolve(false);
+        const errorMessage = getErrorMessage(e);
         dispatch({
           type: Type.RECEIVED_BACKEND_CHECK_ERROR,
           error: errorMessage,
         });
+        deferred.resolve(false);
         console.error(helpers.errors.getMessage(e));
         if (
           helpers.errors.includesAxiosResponse(e) &&
@@ -148,15 +149,15 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_BACKEND_CHECK:
-      return createObject(state, {
+      return createObject<State>(state, {
         error: undefined,
         authorized: action.authorized,
         lastFetched: action.lastFetched,
       });
     case Type.RECEIVED_BACKEND_CHECK:
-      return createObject(state, {});
+      return createObject<State>(state, {});
     case Type.RECEIVED_BACKEND_CHECK_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         authorized: state.authorized,
         lastFetched: state.lastFetched,
         error: action.error,

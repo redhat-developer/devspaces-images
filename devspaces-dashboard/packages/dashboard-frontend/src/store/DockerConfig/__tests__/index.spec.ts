@@ -18,6 +18,7 @@ import * as dwDockerConfigStore from '..';
 import { AppState } from '../..';
 import { AnyAction } from 'redux';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
+import { Type } from '..';
 
 // mute the outputs
 console.error = jest.fn();
@@ -48,11 +49,11 @@ describe('dwDockerConfig store', () => {
 
       const expectedActions: dwDockerConfigStore.KnownAction[] = [
         {
-          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS,
           check: AUTHORIZED,
         },
         {
-          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          type: Type.SET_DEVWORKSPACE_CREDENTIALS,
           registries: [
             {
               password: 'XXXXXXXXXXXXXXX',
@@ -93,11 +94,11 @@ describe('dwDockerConfig store', () => {
 
       const expectedActions: dwDockerConfigStore.KnownAction[] = [
         {
-          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS,
           check: AUTHORIZED,
         },
         {
-          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          type: Type.SET_DEVWORKSPACE_CREDENTIALS,
           registries: [
             {
               password: 'YYYYYYYYYYYY',
@@ -115,7 +116,7 @@ describe('dwDockerConfig store', () => {
     describe('reducers', () => {
       it('should return initial state', () => {
         const incomingAction: dwDockerConfigStore.RequestCredentialsAction = {
-          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS,
           check: AUTHORIZED,
         };
         const initialState = dwDockerConfigStore.reducer(undefined, incomingAction);
@@ -180,7 +181,7 @@ describe('dwDockerConfig store', () => {
           error: undefined,
         };
         const incomingAction: dwDockerConfigStore.RequestCredentialsAction = {
-          type: 'REQUEST_DEVWORKSPACE_CREDENTIALS',
+          type: Type.REQUEST_DEVWORKSPACE_CREDENTIALS,
           check: AUTHORIZED,
         };
 
@@ -216,7 +217,7 @@ describe('dwDockerConfig store', () => {
           error: undefined,
         };
         const incomingAction: dwDockerConfigStore.SetCredentialsAction = {
-          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          type: Type.SET_DEVWORKSPACE_CREDENTIALS,
           registries: [],
           resourceVersion: '345',
         };
@@ -241,7 +242,7 @@ describe('dwDockerConfig store', () => {
           error: undefined,
         };
         const incomingAction: dwDockerConfigStore.ReceiveErrorAction = {
-          type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
+          type: Type.RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR,
           error: 'unexpected error',
         };
 

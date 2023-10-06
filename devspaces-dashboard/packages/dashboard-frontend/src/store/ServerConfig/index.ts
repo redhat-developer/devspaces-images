@@ -14,7 +14,7 @@ import { Action, Reducer } from 'redux';
 import common, { api } from '@eclipse-che/common';
 import { AppThunk } from '../';
 import { createObject } from '../helpers';
-import * as ServerConfigApi from '../../services/dashboard-backend-client/serverConfigApi';
+import * as ServerConfigApi from '../../services/backend-client/serverConfigApi';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
@@ -112,17 +112,17 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_DW_SERVER_CONFIG':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
       });
     case 'RECEIVE_DW_SERVER_CONFIG':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         config: action.config,
         error: undefined,
       });
     case 'RECEIVE_DW_SERVER_CONFIG_ERROR':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

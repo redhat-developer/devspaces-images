@@ -15,8 +15,8 @@ import { V1Pod } from '@kubernetes/client-node';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
-import { WebsocketClient } from '../../../services/dashboard-backend-client/websocketClient';
-import { ChannelListener } from '../../../services/dashboard-backend-client/websocketClient/messageHandler';
+import { WebsocketClient } from '../../../services/backend-client/websocketClient';
+import { ChannelListener } from '../../../services/backend-client/websocketClient/messageHandler';
 import { createObject } from '../../helpers';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
 import { selectAllPods } from '../selectors';
@@ -193,11 +193,11 @@ export const reducer: Reducer<State> = (
       const _containers = _pod?.containers;
       const _containerLogs = _containers?.[action.containerName];
       const _logs = action.failure === _containerLogs?.failure ? _containerLogs.logs : '';
-      return createObject(state, {
+      return createObject<State>(state, {
         logs: createObject(state.logs, {
-          [action.podName]: createObject(_pod, {
+          [action.podName]: createObject<typeof _pod>(_pod, {
             error: undefined,
-            containers: createObject(_containers, {
+            containers: createObject<typeof _containers>(_containers, {
               [action.containerName]: {
                 logs: _logs + action.logs,
                 failure: action.failure,
@@ -208,7 +208,7 @@ export const reducer: Reducer<State> = (
       });
     }
     case Type.DELETE_LOGS:
-      return createObject(state, {
+      return createObject<State>(state, {
         logs: createObject(state.logs, {
           [action.podName]: undefined,
         }),

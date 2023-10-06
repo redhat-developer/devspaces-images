@@ -138,31 +138,6 @@ describe('StoreErrorAlert component', () => {
     const workspacesSettingsAlert = screen.queryByRole('heading', { name: /expected error 7/i });
     expect(workspacesSettingsAlert).toBeFalsy();
   });
-
-  it('should show sanity check error after bootstrap', () => {
-    const store = new FakeStoreBuilder().build();
-    const { rerender } = renderComponent(store);
-
-    // no alerts at this point
-    const alertHeading = screen.queryByRole('heading', { name: /danger alert/i });
-    expect(alertHeading).toBeFalsy();
-
-    const nextStore = new FakeStoreBuilder()
-      .withSanityCheck({
-        error: 'expected error',
-      })
-      .build();
-    rerender(
-      <Provider store={nextStore}>
-        <AppAlertGroup />
-        <StoreErrorsAlert />
-      </Provider>,
-    );
-
-    const nextAlertHeading = screen.queryByRole('heading', { name: /danger alert/i });
-    expect(nextAlertHeading).toBeTruthy();
-    expect(nextAlertHeading).toHaveTextContent('expected error');
-  });
 });
 
 function renderComponent(store: Store): RenderResult {

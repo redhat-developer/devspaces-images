@@ -300,7 +300,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
   switch (action.type) {
     case 'REQUEST_WORKSPACES':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
       });
     case 'RECEIVE_ERROR':
@@ -308,25 +308,25 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'ADD_WORKSPACE':
     case 'DELETE_WORKSPACE':
     case 'RECEIVE_WORKSPACES':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
       });
     case 'SET_WORKSPACE_NAME':
-      return createObject(state, {
+      return createObject<State>(state, {
         namespace: action.namespace,
         workspaceName: action.workspaceName,
       });
     case 'CLEAR_WORKSPACE_NAME':
-      return createObject(state, {
+      return createObject<State>(state, {
         namespace: '',
         workspaceName: '',
       });
     case 'SET_WORKSPACE_UID':
-      return createObject(state, {
+      return createObject<State>(state, {
         workspaceUID: action.workspaceUID,
       });
     case 'CLEAR_WORKSPACE_UID':
-      return createObject(state, {
+      return createObject<State>(state, {
         workspaceUID: '',
       });
     default:

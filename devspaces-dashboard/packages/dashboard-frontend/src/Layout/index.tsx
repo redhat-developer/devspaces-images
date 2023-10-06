@@ -30,6 +30,8 @@ import { selectBranding } from '../store/Branding/selectors';
 import { ToggleBarsContext } from '../contexts/ToggleBars';
 import { signOut } from '../services/helpers/login';
 import { selectDashboardLogo } from '../store/ServerConfig/selectors';
+import * as SanityCheckStore from '../store/SanityCheck';
+import { selectSanityCheckError } from '../store/SanityCheck/selectors';
 
 const IS_MANAGED_SIDEBAR = false;
 
@@ -86,6 +88,14 @@ export class Layout extends React.PureComponent<Props, State> {
       this.hideAllBars();
     }
   }
+  private testBackends(error?: string): void {
+    this.props.testBackends().catch(() => {
+      if (error) {
+        console.error(error);
+      }
+      console.error('Error testing backends:', this.props.sanityCheckError);
+    });
+  }
 
   public render(): React.ReactElement {
     /* check for startup issues */
@@ -135,7 +145,7 @@ export class Layout extends React.PureComponent<Props, State> {
           }
           isManagedSidebar={IS_MANAGED_SIDEBAR}
         >
-          <ErrorBoundary>
+          <ErrorBoundary onError={error => this.testBackends(error)}>
             <StoreErrorsAlert />
             <BannerAlert />
             {this.props.children}
@@ -149,9 +159,10 @@ export class Layout extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
   dashboardLogo: selectDashboardLogo(state),
+  sanityCheckError: selectSanityCheckError(state),
 });
 
-const connector = connect(mapStateToProps);
+const connector = connect(mapStateToProps, SanityCheckStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(Layout);

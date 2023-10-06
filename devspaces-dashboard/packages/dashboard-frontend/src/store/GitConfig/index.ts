@@ -12,13 +12,11 @@
 
 import common, { api, helpers } from '@eclipse-che/common';
 import { AppThunk } from '..';
-import {
-  fetchGitConfig,
-  patchGitConfig,
-} from '../../services/dashboard-backend-client/gitConfigApi';
+import { fetchGitConfig, patchGitConfig } from '../../services/backend-client/gitConfigApi';
 import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
 import { AUTHORIZED } from '../sanityCheckMiddleware';
 import { GitConfigUser, KnownAction, Type } from './types';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
 export * from './reducer';
 export * from './types';
 
@@ -31,11 +29,14 @@ export const actionCreators: ActionCreators = {
   requestGitConfig:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_GITCONFIG, check: AUTHORIZED });
-
       const state = getState();
       const namespace = selectDefaultNamespace(state).name;
       try {
+        await dispatch({ type: Type.REQUEST_GITCONFIG, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const config = await fetchGitConfig(namespace);
         dispatch({
           type: Type.RECEIVE_GITCONFIG,
@@ -62,16 +63,20 @@ export const actionCreators: ActionCreators = {
   updateGitConfig:
     (changedGitConfig: GitConfigUser): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_GITCONFIG, check: AUTHORIZED });
-
-      const namespace = selectDefaultNamespace(getState()).name;
-      const { gitConfig } = getState();
+      const state = getState();
+      const namespace = selectDefaultNamespace(state).name;
+      const { gitConfig } = state;
       const gitconfig = Object.assign(gitConfig.config || {}, {
         gitconfig: {
           user: changedGitConfig,
         },
       } as api.IGitConfig);
       try {
+        await dispatch({ type: Type.REQUEST_GITCONFIG, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const updated = await patchGitConfig(namespace, gitconfig);
         dispatch({
           type: Type.RECEIVE_GITCONFIG,

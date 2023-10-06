@@ -28,7 +28,9 @@ export const STORAGE_KEY_RELOAD_NUMBER = 'UD:ErrorBoundary:reloaded';
 const RELOAD_TIMEOUT_SEC = 30;
 const RELOADS_FOR_EXTENDED_MESSAGE = 2;
 
-type Props = PropsWithChildren;
+type Props = PropsWithChildren & {
+  onError: (error?: string) => void;
+};
 type State = {
   hasError: boolean;
   error?: Error;
@@ -74,6 +76,7 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
     });
 
     if (this.testResourceNotFound(error)) {
+      this.props.onError(error.message);
       this.setState({
         shouldReload: true,
       });

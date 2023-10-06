@@ -15,17 +15,19 @@ import common, { api } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
 import { AUTHORIZED } from '../sanityCheckMiddleware';
-import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { IGitOauth } from './types';
+import {
+  deleteOAuthToken,
+  getOAuthProviders,
+  getOAuthToken,
+} from '../../services/backend-client/oAuthApi';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
 
 export interface State {
   isLoading: boolean;
   gitOauth: IGitOauth[];
   error: string | undefined;
 }
-
-const cheWorkspaceClient = container.get(CheWorkspaceClient);
 
 export enum Type {
   REQUEST_GIT_OAUTH_CONFIG = 'REQUEST_GIT_OAUTH_CONFIG',
@@ -67,21 +69,31 @@ export type ActionCreators = {
 export const actionCreators: ActionCreators = {
   requestGitOauthConfig:
     (): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({
+    async (dispatch, getState): Promise<void> => {
+      dispatch({
         type: Type.REQUEST_GIT_OAUTH_CONFIG,
         check: AUTHORIZED,
       });
+      if (!(await selectAsyncIsAuthorized(getState()))) {
+        const error = selectSanityCheckError(getState());
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR,
+          error,
+        });
+        throw new Error(error);
+      }
+
       const gitOauth: IGitOauth[] = [];
       try {
-        const oAuthProviders = await cheWorkspaceClient.restApiClient.getOAuthProviders();
+        const oAuthProviders = await getOAuthProviders();
         const promises: Promise<void>[] = [];
-        for (const { name, endpointUrl } of oAuthProviders) {
+        for (const { name, endpointUrl, links } of oAuthProviders) {
           promises.push(
-            cheWorkspaceClient.restApiClient.getOAuthToken(name).then(() => {
+            getOAuthToken(name).then(() => {
               gitOauth.push({
                 name: name as api.GitOauthProvider,
                 endpointUrl,
+                links,
               });
             }),
           );
@@ -104,13 +116,22 @@ export const actionCreators: ActionCreators = {
 
   revokeOauth:
     (oauthProvider: api.GitOauthProvider): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({
+    async (dispatch, getState): Promise<void> => {
+      dispatch({
         type: Type.REQUEST_GIT_OAUTH_CONFIG,
         check: AUTHORIZED,
       });
+      if (!(await selectAsyncIsAuthorized(getState()))) {
+        const error = selectSanityCheckError(getState());
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR,
+          error,
+        });
+        throw new Error(error);
+      }
+
       try {
-        await cheWorkspaceClient.restApiClient.deleteOAuthToken(oauthProvider);
+        await deleteOAuthToken(oauthProvider);
         dispatch({
           type: Type.DELETE_OAUTH,
           provider: oauthProvider,
@@ -143,22 +164,22 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_GIT_OAUTH_CONFIG:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_GIT_OAUTH_CONFIG:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         gitOauth: action.gitOauth,
       });
     case Type.DELETE_OAUTH:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         gitOauth: state.gitOauth.filter(v => v.name !== action.provider),
       });
     case Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

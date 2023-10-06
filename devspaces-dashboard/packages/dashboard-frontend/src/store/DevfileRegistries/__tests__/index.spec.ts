@@ -63,6 +63,14 @@ describe('Devfile registries', () => {
           check: AUTHORIZED,
         },
         {
+          type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+          check: AUTHORIZED,
+        },
+        {
+          type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+          check: AUTHORIZED,
+        },
+        {
           type: devfileRegistriesStore.Type.RECEIVE_REGISTRY_METADATA,
           url: location1,
           metadata: expect.arrayContaining([
@@ -116,6 +124,14 @@ describe('Devfile registries', () => {
       const actions = store.getActions();
 
       const expectedActions: devfileRegistriesStore.KnownAction[] = [
+        {
+          type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+          check: AUTHORIZED,
+        },
+        {
+          type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
+          check: AUTHORIZED,
+        },
         {
           type: devfileRegistriesStore.Type.REQUEST_REGISTRY_METADATA,
           check: AUTHORIZED,

@@ -13,7 +13,7 @@
 import { container } from '../../../../inversify.config';
 import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
 import { DevWorkspaceClient } from '../devWorkspaceClient';
-import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
+import * as DwApi from '../../../backend-client/devWorkspaceApi';
 
 describe('DevWorkspace client, changeWorkspaceStatus', () => {
   let client: DevWorkspaceClient;

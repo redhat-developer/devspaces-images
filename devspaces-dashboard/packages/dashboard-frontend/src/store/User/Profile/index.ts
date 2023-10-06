@@ -14,10 +14,11 @@
 
 import common, { api } from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
-import { fetchUserProfile } from '../../../services/dashboard-backend-client/userProfileApi';
+import { fetchUserProfile } from '../../../services/backend-client/userProfileApi';
 import { createObject } from '../../helpers';
 import { AppThunk } from '../../index';
 import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
 
 export interface State {
   userProfile: api.IUserProfile;
@@ -57,10 +58,13 @@ export type ActionCreators = {
 export const actionCreators: ActionCreators = {
   requestUserProfile:
     (namespace: string): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_USER_PROFILE, check: AUTHORIZED });
-
+    async (dispatch, getState): Promise<void> => {
       try {
+        await dispatch({ type: Type.REQUEST_USER_PROFILE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const userProfile = await fetchUserProfile(namespace);
         dispatch({
           type: Type.RECEIVE_USER_PROFILE,
@@ -99,17 +103,17 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_USER_PROFILE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_USER_PROFILE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         userProfile: action.userProfile,
       });
     case Type.RECEIVE_USER_PROFILE_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

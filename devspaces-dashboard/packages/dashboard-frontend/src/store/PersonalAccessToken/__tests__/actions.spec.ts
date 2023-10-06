@@ -17,21 +17,23 @@ import { AppState } from '../..';
 import { AUTHORIZED } from '../../sanityCheckMiddleware';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import { token1, token2 } from './stub';
-import * as PersonalAccessTokenApi from '../../../services/dashboard-backend-client/personalAccessTokenApi';
-import { container } from '../../../inversify.config';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import * as PersonalAccessTokenApi from '../../../services/backend-client/personalAccessTokenApi';
+import * as KubernetesNamespaceApi from '../../../services/backend-client/kubernetesNamespaceApi';
 
-const cheWorkspaceClient = container.get(CheWorkspaceClient);
-jest
-  .spyOn(cheWorkspaceClient.restApiClient, 'provisionKubernetesNamespace')
-  .mockImplementation(() => Promise.resolve({} as che.KubernetesNamespace));
+jest.mock(
+  '../../../services/backend-client/kubernetesNamespaceApi',
+  () =>
+    ({
+      provisionKubernetesNamespace: () => Promise.resolve({} as che.KubernetesNamespace),
+    }) as typeof KubernetesNamespaceApi,
+);
 
 const mockFetchTokens = jest.fn();
 const mockAddToken = jest.fn();
 const mockUpdateToken = jest.fn();
 const mockRemoveToken = jest.fn();
 jest.mock(
-  '../../../services/dashboard-backend-client/personalAccessTokenApi',
+  '../../../services/backend-client/personalAccessTokenApi',
   () =>
     ({
       fetchTokens: (...args) => mockFetchTokens(...args),

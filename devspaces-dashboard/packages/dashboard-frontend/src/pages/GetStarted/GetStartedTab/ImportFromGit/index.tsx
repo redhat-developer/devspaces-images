@@ -11,36 +11,25 @@
  */
 
 import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import { Flex, FlexItem, FormGroup, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { AppState } from '../../../../store';
-import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
 import * as FactoryResolverStore from '../../../../store/FactoryResolver';
 import { GitRepoLocationInput } from './GitRepoLocationInput';
 import { FactoryLocationAdapter } from '../../../../services/factory-location-adapter';
 
-type Props = MappedProps & {
+type Props = {
   onDevfileResolve: (resolverState: FactoryResolverStore.ResolverState, location: string) => void;
 };
 type State = {
   isLoading: boolean;
 };
 
-export class ImportFromGit extends React.PureComponent<Props, State> {
-  private factoryResolver: FactoryResolverStore.State;
-  private readonly devfileLocationRef: React.RefObject<GitRepoLocationInput>;
-
+export default class ImportFromGit extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
       isLoading: false,
     };
-    this.devfileLocationRef = React.createRef();
-  }
-
-  public componentDidUpdate(): void {
-    this.factoryResolver = this.props.factoryResolver;
   }
 
   private async handleLocationChange(location: string): Promise<void> {
@@ -73,7 +62,6 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
             </FlexItem>
             <FlexItem grow={{ default: 'grow' }}>
               <GitRepoLocationInput
-                ref={this.devfileLocationRef}
                 isLoading={isLoading}
                 onChange={location => this.handleLocationChange(location)}
               />
@@ -84,14 +72,3 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: AppState) => ({
-  factoryResolver: state.factoryResolver,
-});
-
-const connector = connect(mapStateToProps, {
-  ...DevfileRegistriesStore.actionCreators,
-});
-
-type MappedProps = ConnectedProps<typeof connector>;
-export default connector(ImportFromGit);

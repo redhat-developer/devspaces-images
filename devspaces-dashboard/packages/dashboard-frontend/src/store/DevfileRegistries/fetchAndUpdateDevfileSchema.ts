@@ -11,7 +11,7 @@
  */
 
 import { JSONSchema7 } from 'json-schema';
-import { getDevfileSchema } from '../../services/dashboard-backend-client/devWorkspaceApi';
+import { getDevfileSchema } from '../../services/backend-client/devWorkspaceApi';
 
 export default async function fetchAndUpdateDevfileSchema(
   schemaVersion: string,

@@ -22,13 +22,15 @@ import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import normalizeDevfileV2 from './normalizeDevfileV2';
 import normalizeDevfileV1 from './normalizeDevfileV1';
 import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { getYamlResolver } from '../../services/dashboard-backend-client/yamlResolverApi';
+import { getYamlResolver } from '../../services/backend-client/yamlResolverApi';
 import { DEFAULT_REGISTRY } from '../DevfileRegistries';
 import { isOAuthResponse } from '../../services/oauth';
 import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client';
+import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client/helpers';
 import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
-import { getFactoryResolver } from '../../services/dashboard-backend-client/factoryResolverApi';
+import { getFactoryResolver } from '../../services/backend-client/factoryApi';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
+import * as cheApi from '@eclipse-che/api';
 
 export type OAuthResponse = {
   attributes: {
@@ -87,7 +89,7 @@ export type ActionCreators = {
 };
 
 export async function grabLink(
-  links: api.che.core.rest.Link,
+  links: cheApi.che.core.rest.Link[],
   filename: string,
 ): Promise<string | undefined> {
   // handle servers not yet providing links
@@ -95,8 +97,8 @@ export async function grabLink(
     return undefined;
   }
   // grab the one matching
-  const foundLink = links.find(link => link.href.includes(`file=${filename}`));
-  if (!foundLink) {
+  const foundLink = links.find(link => link.href?.includes(`file=${filename}`));
+  if (!foundLink || !foundLink.href) {
     return undefined;
   }
 
@@ -129,7 +131,6 @@ export const actionCreators: ActionCreators = {
       factoryParams: Partial<FactoryParams> = {},
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: 'REQUEST_FACTORY_RESOLVER', check: AUTHORIZED });
       const state = getState();
       const namespace = selectDefaultNamespace(state).name;
       const optionalFilesContent = {};
@@ -157,6 +158,11 @@ export const actionCreators: ActionCreators = {
       };
 
       try {
+        await dispatch({ type: 'REQUEST_FACTORY_RESOLVER', check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         let data: FactoryResolver;
         if (isDevfileRegistryLocation(location)) {
           data = await getYamlResolver(namespace, location);
@@ -245,18 +251,18 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_FACTORY_RESOLVER':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_FACTORY_RESOLVER':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         resolver: action.resolver,
         converted: action.converted,
       });
     case 'RECEIVE_FACTORY_RESOLVER_ERROR':
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });

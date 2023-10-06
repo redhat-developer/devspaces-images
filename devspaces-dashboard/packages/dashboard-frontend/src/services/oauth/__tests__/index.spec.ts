@@ -13,16 +13,10 @@
 import { AxiosError } from 'axios';
 import common from '@eclipse-che/common';
 import OAuthService from '..';
-import { container } from '../../../inversify.config';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { CheWorkspaceClient } from '../../workspace-client/cheworkspace/cheWorkspaceClient';
+import * as factoryApi from '../../backend-client/factoryApi';
 
-const cheWorkspaceClient = container.get(CheWorkspaceClient);
-
-const refreshFactoryOauthTokenSpy = jest.spyOn(
-  cheWorkspaceClient.restApiClient,
-  'refreshFactoryOauthToken',
-);
+const refreshFactoryOauthTokenSpy = jest.spyOn(factoryApi, 'refreshFactoryOauthToken');
 
 const mockOpenOAuthPage = jest.fn().mockImplementation();
 OAuthService.openOAuthPage = mockOpenOAuthPage;

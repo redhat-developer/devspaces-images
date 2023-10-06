@@ -12,7 +12,7 @@
 
 import { createSelector } from 'reselect';
 import { AppState } from '..';
-import { State } from './dockerConfigState';
+import { State } from './index';
 
 const selectState = (state: AppState) => state.dockerConfig;
 

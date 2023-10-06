@@ -16,12 +16,9 @@ import { Action, Reducer } from 'redux';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { FactoryParams } from '../../../services/helpers/factoryFlow/buildFactoryParams';
-import {
-  injectKubeConfig,
-  podmanLogin,
-} from '../../../services/dashboard-backend-client/devWorkspaceApi';
-import { fetchResources } from '../../../services/dashboard-backend-client/devworkspaceResourcesApi';
-import { WebsocketClient } from '../../../services/dashboard-backend-client/websocketClient';
+import { injectKubeConfig, podmanLogin } from '../../../services/backend-client/devWorkspaceApi';
+import { fetchResources } from '../../../services/backend-client/devworkspaceResourcesApi';
+import { WebsocketClient } from '../../../services/backend-client/websocketClient';
 import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
 import {
@@ -56,11 +53,12 @@ import {
 } from '../../ServerConfig/selectors';
 import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
 import { selectDevWorkspacesResourceVersion } from './selectors';
-import * as DwtApi from '../../../services/dashboard-backend-client/devWorkspaceTemplateApi';
+import * as DwtApi from '../../../services/backend-client/devWorkspaceTemplateApi';
 import { selectDefaultDevfile } from '../../DevfileRegistries/selectors';
-import * as DwApi from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import * as DwApi from '../../../services/backend-client/devWorkspaceApi';
 import { selectDefaultEditor } from '../../Plugins/devWorkspacePlugins/selectors';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../services/devfileApi/devWorkspace/spec/template';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -196,9 +194,12 @@ export const actionCreators: ActionCreators = {
   requestWorkspaces:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const defaultKubernetesNamespace = selectDefaultNamespace(getState());
         const defaultNamespace = defaultKubernetesNamespace.name;
         const { workspaces, resourceVersion } = defaultNamespace
@@ -242,10 +243,13 @@ export const actionCreators: ActionCreators = {
 
   requestWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
+    async (dispatch, getState): Promise<void> => {
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const namespace = workspace.metadata.namespace;
         const name = workspace.metadata.name;
         const update = await getDevWorkspaceClient().getWorkspaceByName(namespace, name);
@@ -290,8 +294,12 @@ export const actionCreators: ActionCreators = {
         return;
       }
       await OAuthService.refreshTokenIfNeeded(workspace);
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         checkRunningWorkspacesLimit(getState());
 
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
@@ -435,8 +443,13 @@ export const actionCreators: ActionCreators = {
 
   terminateWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
+    async (dispatch, getState): Promise<void> => {
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const namespace = workspace.metadata.namespace;
         const name = workspace.metadata.name;
         await getDevWorkspaceClient().delete(namespace, name);
@@ -461,10 +474,13 @@ export const actionCreators: ActionCreators = {
 
   updateWorkspaceAnnotation:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
+    async (dispatch, getState): Promise<void> => {
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const updated = await getDevWorkspaceClient().updateAnnotation(workspace);
         dispatch({
           type: Type.UPDATE_DEVWORKSPACE,
@@ -484,10 +500,13 @@ export const actionCreators: ActionCreators = {
 
   updateWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
+    async (dispatch, getState): Promise<void> => {
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const updated = await getDevWorkspaceClient().update(workspace);
         dispatch({
           type: Type.UPDATE_DEVWORKSPACE,
@@ -513,15 +532,18 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
-
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
       const defaultKubernetesNamespace = selectDefaultNamespace(state);
       const openVSXUrl = selectOpenVSXUrl(state);
       const pluginRegistryUrl = selectPluginRegistryUrl(state);
       const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
+
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         /* create a new DevWorkspace */
         const createResp = await getDevWorkspaceClient().createDevWorkspace(
           defaultNamespace,
@@ -592,9 +614,6 @@ export const actionCreators: ActionCreators = {
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
-
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
       const defaultsDevfile = selectDefaultDevfile(state);
       if (!defaultsDevfile) {
         throw new Error('Cannot define default devfile');
@@ -616,6 +635,11 @@ export const actionCreators: ActionCreators = {
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
 
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const response = await getEditor(defaultsEditor, dispatch, getState, pluginRegistryUrl);
         if (response.content) {
           editorContent = response.content;
@@ -796,9 +820,6 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
-
-      await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
-
       const pluginRegistryUrl = state.dwServerConfig.config.pluginRegistryURL;
       let devWorkspaceResource: devfileApi.DevWorkspace;
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
@@ -846,6 +867,11 @@ export const actionCreators: ActionCreators = {
       }
 
       try {
+        await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
+        if (!(await selectAsyncIsAuthorized(getState()))) {
+          const error = selectSanityCheckError(getState());
+          throw new Error(error);
+        }
         const resourcesContent = await fetchResources({
           pluginRegistryUrl,
           devfileContent: dump(devfile),
@@ -1019,23 +1045,23 @@ export const reducer: Reducer<State> = (
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case Type.REQUEST_DEVWORKSPACE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
     case Type.RECEIVE_DEVWORKSPACE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         workspaces: action.workspaces,
         resourceVersion: getNewerResourceVersion(action.resourceVersion, state.resourceVersion),
       });
     case Type.RECEIVE_DEVWORKSPACE_ERROR:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         error: action.error,
       });
     case Type.UPDATE_DEVWORKSPACE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace =>
           WorkspaceAdapter.getUID(workspace) === WorkspaceAdapter.getUID(action.workspace)
@@ -1048,7 +1074,7 @@ export const reducer: Reducer<State> = (
         ),
       });
     case Type.ADD_DEVWORKSPACE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         workspaces: state.workspaces
           .filter(
@@ -1062,7 +1088,7 @@ export const reducer: Reducer<State> = (
         ),
       });
     case Type.TERMINATE_DEVWORKSPACE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => {
           if (WorkspaceAdapter.getUID(workspace) === action.workspaceUID) {
@@ -1078,7 +1104,7 @@ export const reducer: Reducer<State> = (
         }),
       });
     case Type.DELETE_DEVWORKSPACE:
-      return createObject(state, {
+      return createObject<State>(state, {
         isLoading: false,
         workspaces: state.workspaces.filter(
           workspace =>
@@ -1090,7 +1116,7 @@ export const reducer: Reducer<State> = (
         ),
       });
     case Type.UPDATE_STARTED_WORKSPACES:
-      return createObject(state, {
+      return createObject<State>(state, {
         startedWorkspaces: action.workspaces.reduce((acc, workspace) => {
           if (workspace.spec.started === false) {
             delete acc[WorkspaceAdapter.getUID(workspace)];
@@ -1113,7 +1139,7 @@ export const reducer: Reducer<State> = (
         }, state.startedWorkspaces),
       });
     case Type.UPDATE_WARNING:
-      return createObject(state, {
+      return createObject<State>(state, {
         warnings: {
           [WorkspaceAdapter.getUID(action.workspace)]: action.warning,
         },
