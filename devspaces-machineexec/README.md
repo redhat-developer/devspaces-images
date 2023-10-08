@@ -1,4 +1,4 @@
-[![Next%20Build](https://github.com/eclipse-che/che-machine-exec/workflows/Machine%20Exec%20Next%20Build)](https://github.com/eclipse-che/che-machine-exec/actions)
+[![Next%20Build](https://github.com/eclipse-che/che-machine-exec/workflows/Machine%20Exec%20Next%20Build/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/next-build.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/eclipse-che/che-machine-exec)](https://github.com/eclipse-che/che-machine-exec/)
 # Che machine exec
 
