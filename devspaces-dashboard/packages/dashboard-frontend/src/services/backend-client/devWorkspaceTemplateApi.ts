@@ -10,17 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import common, { api } from '@eclipse-che/common';
 import devfileApi from '../devfileApi';
 import { dashboardBackendPrefix } from './const';
+import { AxiosWrapper } from './axiosWrapper';
 
 export async function createTemplate(
   template: devfileApi.DevWorkspaceTemplate,
 ): Promise<devfileApi.DevWorkspaceTemplate> {
   const url = `${dashboardBackendPrefix}/namespace/${template.metadata.namespace}/devworkspacetemplates`;
   try {
-    const response = await axios.post(url, { template });
+    const response = await AxiosWrapper.create().post(url, { template });
     return response.data;
   } catch (e) {
     throw new Error(
@@ -32,7 +32,7 @@ export async function createTemplate(
 export async function getTemplates(namespace: string): Promise<devfileApi.DevWorkspaceTemplate[]> {
   const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`;
   try {
-    const response = await axios.get(url);
+    const response = await AxiosWrapper.create().get(url);
     return response.data;
   } catch (e) {
     throw new Error(
@@ -48,7 +48,7 @@ export async function patchTemplate(
 ): Promise<devfileApi.DevWorkspace> {
   const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`;
   try {
-    const response = await axios.patch(url, patch);
+    const response = await AxiosWrapper.create().patch(url, patch);
     return response.data;
   } catch (e) {
     throw new Error(

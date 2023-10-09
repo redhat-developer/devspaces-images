@@ -10,13 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import { api, helpers } from '@eclipse-che/common';
 import { dashboardBackendPrefix } from './const';
+import { AxiosWrapper } from './axiosWrapper';
 
 export async function fetchPods(namespace: string): Promise<api.IPodList> {
   try {
-    const response = await axios.get(`${dashboardBackendPrefix}/namespace/${namespace}/pods`);
+    const response = await AxiosWrapper.create().get(
+      `${dashboardBackendPrefix}/namespace/${namespace}/pods`,
+    );
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch pods. ${helpers.errors.getMessage(e)}`);

@@ -11,8 +11,8 @@
  */
 
 import common, { api } from '@eclipse-che/common';
-import axios from 'axios';
 import { dashboardBackendPrefix } from './const';
+import { AxiosWrapper } from './axiosWrapper';
 
 /**
  * Returns object with user profile data.
@@ -20,7 +20,7 @@ import { dashboardBackendPrefix } from './const';
 export async function fetchUserProfile(namespace: string): Promise<api.IUserProfile> {
   const url = `${dashboardBackendPrefix}/userprofile/${namespace}`;
   try {
-    const response = await axios.get<api.IUserProfile>(url);
+    const response = await AxiosWrapper.create().get<api.IUserProfile>(url);
     return response.data;
   } catch (e) {
     throw new Error(

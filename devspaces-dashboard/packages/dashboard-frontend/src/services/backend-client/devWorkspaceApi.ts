@@ -11,10 +11,11 @@
  */
 
 import { api, helpers } from '@eclipse-che/common';
-import axios from 'axios';
 import { JSONSchema7 } from 'json-schema';
 import devfileApi, { IDevWorkspacesList } from '../devfileApi';
 import { dashboardBackendPrefix } from './const';
+import axios from 'axios';
+import { AxiosWrapper } from './axiosWrapper';
 
 export type Headers = { [key: string]: string };
 
@@ -22,7 +23,7 @@ export async function createWorkspace(
   devworkspace: devfileApi.DevWorkspace,
 ): Promise<{ devWorkspace: devfileApi.DevWorkspace; headers: Headers }> {
   try {
-    const response = await axios.post(
+    const response = await AxiosWrapper.create().post(
       `${dashboardBackendPrefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
       { devworkspace },
     );
@@ -40,7 +41,7 @@ export async function listWorkspacesInNamespace(
   defaultNamespace: string,
 ): Promise<IDevWorkspacesList> {
   try {
-    const response = await axios.get(
+    const response = await AxiosWrapper.create().get(
       `${dashboardBackendPrefix}/namespace/${defaultNamespace}/devworkspaces`,
     );
     return response.data;
@@ -54,7 +55,7 @@ export async function getWorkspaceByName(
   workspaceName: string,
 ): Promise<devfileApi.DevWorkspace> {
   try {
-    const response = await axios.get(
+    const response = await AxiosWrapper.create().get(
       `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
     );
     return response.data;
@@ -71,7 +72,7 @@ export async function patchWorkspace(
   patch: api.IPatch[],
 ): Promise<{ devWorkspace: devfileApi.DevWorkspace; headers: Headers }> {
   try {
-    const response = await axios.patch(
+    const response = await AxiosWrapper.create().patch(
       `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
       patch,
     );
@@ -85,7 +86,7 @@ export async function patchWorkspace(
 
 export async function deleteWorkspace(namespace: string, workspaceName: string): Promise<void> {
   try {
-    await axios.delete(
+    await AxiosWrapper.create().delete(
       `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
     );
   } catch (e) {
@@ -97,7 +98,7 @@ export async function deleteWorkspace(namespace: string, workspaceName: string):
 
 export async function getDockerConfig(namespace: string): Promise<api.IDockerConfig> {
   try {
-    const response = await axios.get(
+    const response = await AxiosWrapper.create().get(
       `${dashboardBackendPrefix}/namespace/${namespace}/dockerconfig`,
     );
     return response.data;
@@ -111,7 +112,7 @@ export async function putDockerConfig(
   dockerconfig: api.IDockerConfig,
 ): Promise<api.IDockerConfig> {
   try {
-    const response = await axios.put(
+    const response = await AxiosWrapper.create().put(
       `${dashboardBackendPrefix}/namespace/${namespace}/dockerconfig`,
       dockerconfig,
     );
@@ -123,7 +124,7 @@ export async function putDockerConfig(
 
 export async function injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void> {
   try {
-    await axios.post(
+    await AxiosWrapper.create().post(
       `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`,
     );
   } catch (e) {
@@ -133,7 +134,7 @@ export async function injectKubeConfig(namespace: string, devworkspaceId: string
 
 export async function podmanLogin(namespace: string, devworkspaceId: string): Promise<void> {
   try {
-    await axios.post(
+    await AxiosWrapper.create().post(
       `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/podmanlogin`,
     );
   } catch (e) {

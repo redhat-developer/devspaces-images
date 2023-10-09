@@ -11,11 +11,13 @@
  */
 
 import { api } from '@eclipse-che/common';
-import axios from 'axios';
 import { dashboardBackendPrefix } from './const';
+import { AxiosWrapper } from './axiosWrapper';
 
 export async function fetchGitConfig(namespace: string): Promise<api.IGitConfig> {
-  const response = await axios.get(`${dashboardBackendPrefix}/namespace/${namespace}/gitconfig`);
+  const response = await AxiosWrapper.create().get(
+    `${dashboardBackendPrefix}/namespace/${namespace}/gitconfig`,
+  );
   return response.data;
 }
 
@@ -23,7 +25,7 @@ export async function patchGitConfig(
   namespace: string,
   gitconfig: api.IGitConfig,
 ): Promise<api.IGitConfig> {
-  const response = await axios.patch(
+  const response = await AxiosWrapper.create().patch(
     `${dashboardBackendPrefix}/namespace/${namespace}/gitconfig`,
     gitconfig,
   );
