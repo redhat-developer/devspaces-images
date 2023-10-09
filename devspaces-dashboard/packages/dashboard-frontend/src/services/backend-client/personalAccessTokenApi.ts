@@ -16,7 +16,7 @@ import { AxiosWrapper } from './axiosWrapper';
 
 export async function fetchTokens(namespace: string): Promise<api.PersonalAccessToken[]> {
   try {
-    const response = await AxiosWrapper.create().get(
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(
       `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
     );
     return response.data;
@@ -30,7 +30,7 @@ export async function addToken(
   token: api.PersonalAccessToken,
 ): Promise<api.PersonalAccessToken> {
   try {
-    const response = await AxiosWrapper.create().post(
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().post(
       `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
       token,
     );
@@ -45,7 +45,7 @@ export async function updateToken(
   token: api.PersonalAccessToken,
 ): Promise<api.PersonalAccessToken> {
   try {
-    const response = await AxiosWrapper.create().patch(
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().patch(
       `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token`,
       token,
     );
@@ -60,7 +60,7 @@ export async function removeToken(
   token: api.PersonalAccessToken,
 ): Promise<api.PersonalAccessToken> {
   try {
-    const response = await AxiosWrapper.create().delete(
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().delete(
       `${dashboardBackendPrefix}/namespace/${namespace}/personal-access-token/${token.tokenName}`,
     );
     return response.data;

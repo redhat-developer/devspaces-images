@@ -16,7 +16,7 @@ import { AxiosWrapper } from './axiosWrapper';
 
 export async function fetchPods(namespace: string): Promise<api.IPodList> {
   try {
-    const response = await AxiosWrapper.create().get(
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(
       `${dashboardBackendPrefix}/namespace/${namespace}/pods`,
     );
     return response.data;

@@ -20,24 +20,20 @@ describe('Kubernetes namespace API', () => {
   const namespace: che.KubernetesNamespace = { name: 'test-name', attributes: { phase: 'Active' } };
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('fetch namespace', () => {
     it('should call "/api/kubernetes/namespace"', async () => {
-      mockGet.mockResolvedValueOnce({
-        data: expect.anything(),
-      });
+      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: expect.anything() })));
       await getKubernetesNamespace();
 
-      expect(mockGet).toBeCalledWith('/api/kubernetes/namespace');
+      expect(mockGet).toBeCalledWith('/api/kubernetes/namespace', undefined);
       expect(mockPost).not.toBeCalled();
     });
 
     it('should return a list of namespaces', async () => {
-      mockGet.mockResolvedValueOnce({
-        data: [namespace],
-      });
+      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: [namespace] })));
 
       const res = await getKubernetesNamespace();
 

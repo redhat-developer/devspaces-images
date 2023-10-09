@@ -16,7 +16,7 @@ import { AxiosWrapper } from './axiosWrapper';
 
 export async function fetchEvents(namespace: string): Promise<api.IEventList> {
   try {
-    const response = await AxiosWrapper.create().get(
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(
       `${dashboardBackendPrefix}/namespace/${namespace}/events`,
     );
     return response.data;

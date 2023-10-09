@@ -20,7 +20,9 @@ export async function createTemplate(
 ): Promise<devfileApi.DevWorkspaceTemplate> {
   const url = `${dashboardBackendPrefix}/namespace/${template.metadata.namespace}/devworkspacetemplates`;
   try {
-    const response = await AxiosWrapper.create().post(url, { template });
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().post(url, {
+      template,
+    });
     return response.data;
   } catch (e) {
     throw new Error(
@@ -32,7 +34,7 @@ export async function createTemplate(
 export async function getTemplates(namespace: string): Promise<devfileApi.DevWorkspaceTemplate[]> {
   const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`;
   try {
-    const response = await AxiosWrapper.create().get(url);
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(url);
     return response.data;
   } catch (e) {
     throw new Error(
@@ -48,7 +50,7 @@ export async function patchTemplate(
 ): Promise<devfileApi.DevWorkspace> {
   const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`;
   try {
-    const response = await AxiosWrapper.create().patch(url, patch);
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().patch(url, patch);
     return response.data;
   } catch (e) {
     throw new Error(

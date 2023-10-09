@@ -15,7 +15,7 @@ import { dashboardBackendPrefix } from './const';
 import { AxiosWrapper } from './axiosWrapper';
 
 export async function fetchGitConfig(namespace: string): Promise<api.IGitConfig> {
-  const response = await AxiosWrapper.create().get(
+  const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(
     `${dashboardBackendPrefix}/namespace/${namespace}/gitconfig`,
   );
   return response.data;
@@ -25,7 +25,7 @@ export async function patchGitConfig(
   namespace: string,
   gitconfig: api.IGitConfig,
 ): Promise<api.IGitConfig> {
-  const response = await AxiosWrapper.create().patch(
+  const response = await AxiosWrapper.createToRetryMissedBearerTokenError().patch(
     `${dashboardBackendPrefix}/namespace/${namespace}/gitconfig`,
     gitconfig,
   );

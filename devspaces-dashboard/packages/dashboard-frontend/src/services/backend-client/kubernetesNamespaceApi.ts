@@ -12,9 +12,12 @@
 
 import axios from 'axios';
 import { cheServerPrefix } from './const';
+import { AxiosWrapper } from './axiosWrapper';
 
 export async function getKubernetesNamespace(): Promise<che.KubernetesNamespace[]> {
-  const response = await axios.get(`${cheServerPrefix}/kubernetes/namespace`);
+  const response = await AxiosWrapper.createToRetryAnyErrors().get(
+    `${cheServerPrefix}/kubernetes/namespace`,
+  );
 
   return response.data;
 }

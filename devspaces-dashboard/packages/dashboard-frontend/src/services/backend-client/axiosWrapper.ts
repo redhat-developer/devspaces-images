@@ -13,21 +13,28 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { delay } from '../helpers/delay';
 
-const retryCount = 3;
-const retryDelay = 500;
-
 type AxiosFunc = (url: string, config?: AxiosRequestConfig) => Promise<any>;
 type AxiosFuncWithData = (url: string, data?: any, config?: AxiosRequestConfig) => Promise<any>;
 
-export class AxiosWrapper {
-  protected readonly axiosInstance: AxiosInstance;
+export const bearerTokenAuthorizationIsRequiredErrorMsg = 'Bearer Token Authorization is required';
 
-  constructor(axiosInstance?: AxiosInstance) {
-    this.axiosInstance = axiosInstance || axios.create();
+export class AxiosWrapper {
+  protected readonly retryCount = 3;
+  protected readonly retryDelay = 500;
+  protected readonly axiosInstance: AxiosInstance;
+  protected readonly errorMessagesToRetry?: string;
+
+  constructor(axiosInstance: AxiosInstance, errorMessagesToRetry?: string) {
+    this.axiosInstance = axiosInstance;
+    this.errorMessagesToRetry = errorMessagesToRetry;
   }
 
-  static create(): AxiosWrapper {
-    return new AxiosWrapper();
+  static createToRetryMissedBearerTokenError(): AxiosWrapper {
+    return new AxiosWrapper(axios.create(), bearerTokenAuthorizationIsRequiredErrorMsg);
+  }
+
+  static createToRetryAnyErrors(): AxiosWrapper {
+    return new AxiosWrapper(axios.create());
   }
 
   get<T = any, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
@@ -67,7 +74,7 @@ export class AxiosWrapper {
     url: string,
     config?: any,
   ): Promise<R> {
-    return this.doRetryFunc(() => axiosFunc(url, config), url, retryCount);
+    return this.doRetryFunc(() => axiosFunc(url, config), url, this.retryCount);
   }
 
   private retryAxiosFuncWithData<T = any, R = AxiosResponse<T>>(
@@ -76,7 +83,7 @@ export class AxiosWrapper {
     data?: string,
     config?: any,
   ): Promise<R> {
-    return this.doRetryFunc(() => axiosFunc(url, data, config), url, retryCount);
+    return this.doRetryFunc(() => axiosFunc(url, data, config), url, this.retryCount);
   }
 
   async doRetryFunc<T = any, R = AxiosResponse<T>>(
@@ -87,13 +94,16 @@ export class AxiosWrapper {
     try {
       return await fun();
     } catch (err) {
-      if (!retry || !(err as Error)?.message?.includes('Bearer Token Authorization is required')) {
+      if (
+        !retry ||
+        (this.errorMessagesToRetry && !(err as Error)?.message?.includes(this.errorMessagesToRetry))
+      ) {
         throw err;
       }
 
       // Retry the request after a delay.
-      console.warn(`Retrying request ${url}... ${retry} left`);
-      await delay(retryDelay);
+      console.warn(`Retrying request to ${url} in ${this.retryDelay} ms, ${retry} left`);
+      await delay(this.retryDelay);
 
       return await this.doRetryFunc(fun, url, --retry);
     }

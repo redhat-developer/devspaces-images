@@ -20,7 +20,8 @@ import { AxiosWrapper } from './axiosWrapper';
 export async function fetchUserProfile(namespace: string): Promise<api.IUserProfile> {
   const url = `${dashboardBackendPrefix}/userprofile/${namespace}`;
   try {
-    const response = await AxiosWrapper.create().get<api.IUserProfile>(url);
+    const response =
+      await AxiosWrapper.createToRetryMissedBearerTokenError().get<api.IUserProfile>(url);
     return response.data;
   } catch (e) {
     throw new Error(
