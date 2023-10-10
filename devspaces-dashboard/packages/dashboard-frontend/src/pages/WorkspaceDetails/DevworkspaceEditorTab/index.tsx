@@ -12,11 +12,12 @@
 
 import React from 'react';
 import { TextContent } from '@patternfly/react-core';
-import DevworkspaceEditor from '../../../components/WorkspaceEditor';
 import EditorTools from '../../../components/EditorTools';
 import { Workspace } from '../../../services/workspace-adapter';
+import DevfileViewer from '../../../components/DevfileViewer';
 
 import styles from './index.module.css';
+import { dump } from 'js-yaml';
 
 export type Props = {
   workspace: Workspace;
@@ -41,6 +42,7 @@ export class DevworkspaceEditorTab extends React.PureComponent<Props, State> {
     const { isExpanded } = this.state;
     const { workspace } = this.props;
     const editorTabStyle = isExpanded ? styles.editorTabExpanded : styles.editorTab;
+    const devWorkspaceStr = dump(workspace.ref);
 
     return (
       <>
@@ -52,7 +54,12 @@ export class DevworkspaceEditorTab extends React.PureComponent<Props, State> {
               this.setState({ isExpanded });
             }}
           />
-          <DevworkspaceEditor workspace={workspace.ref} isActive={this.props.isActive} />
+          <DevfileViewer
+            isActive={this.props.isActive}
+            isExpanded={isExpanded}
+            value={devWorkspaceStr}
+            id="devWorkspaceViewerId"
+          />
         </TextContent>
       </>
     );

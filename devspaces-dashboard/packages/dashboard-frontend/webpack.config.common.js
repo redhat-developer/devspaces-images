@@ -19,7 +19,6 @@ const config = {
   entry: {
     client: path.join(__dirname, 'src/index.tsx'),
     'service-worker': path.join(__dirname, 'src/service-worker.ts'),
-    'editor.worker': 'monaco-editor-core/esm/vs/editor/editor.worker.js',
     'accept-factory-link': path.join(__dirname, 'src/preload/index.ts'),
   },
   output: {
@@ -29,7 +28,7 @@ const config = {
       if (pathData.chunk.name === 'accept-factory-link') {
         return 'static/preload/[name].js';
       }
-      if (pathData.chunk.name === 'service-worker' || pathData.chunk.name === 'editor.worker') {
+      if (pathData.chunk.name === 'service-worker') {
         return '[name].js';
       }
       return '[name].[hash].js';
@@ -48,12 +47,6 @@ const config = {
       maxInitialRequests: 30,
       minChunks: 1,
       cacheGroups: {
-        monaco: {
-          name: 'monaco',
-          priority: 0,
-          test: /[\\/]monaco/,
-          reuseExistingChunk: true,
-        },
         vendors: {
           name: 'vendors',
           test: /[\\/]node_modules[\\/]/,
@@ -132,7 +125,7 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './index.html'),
-      chunks : ['client', 'service-worker', 'editor.worker'],
+      chunks : ['client', 'service-worker'],
       filename: 'index.html',
     }),
     new HtmlWebpackPlugin({

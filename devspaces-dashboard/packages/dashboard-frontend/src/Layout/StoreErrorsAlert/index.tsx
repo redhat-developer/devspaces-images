@@ -13,10 +13,7 @@
 import React from 'react';
 import { ConnectedProps, connect } from 'react-redux';
 import { AppState } from '../../store';
-import {
-  selectRegistriesErrors,
-  selectDevfileSchemaError,
-} from '../../store/DevfileRegistries/selectors';
+import { selectRegistriesErrors } from '../../store/DevfileRegistries/selectors';
 import { selectPluginsError } from '../../store/Plugins/chePlugins/selectors';
 import { selectDwDefaultEditorError } from '../../store/Plugins/devWorkspacePlugins/selectors';
 import { selectInfrastructureNamespacesError } from '../../store/InfrastructureNamespaces/selectors';
@@ -102,14 +99,6 @@ export class StoreErrorsAlert extends React.PureComponent<Props> {
         variant: AlertVariant.danger,
       });
     }
-    // devfile schema error
-    if (this.props.devfileSchemaError) {
-      this.appAlerts.showAlert({
-        key: 'devfile-schema-error',
-        title: this.props.devfileSchemaError,
-        variant: AlertVariant.danger,
-      });
-    }
     // user profile error
     if (this.props.userProfileError) {
       this.appAlerts.showAlert({
@@ -131,7 +120,6 @@ const mapStateToProps = (state: AppState) => ({
   sanityCheckError: selectSanityCheckError(state),
   dwDefaultEditorError: selectDwDefaultEditorError(state),
   infrastructureNamespacesError: selectInfrastructureNamespacesError(state),
-  devfileSchemaError: selectDevfileSchemaError(state),
   userProfileError: selectUserProfileError(state),
   workspacesError: selectWorkspacesError(state),
 });

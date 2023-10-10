@@ -189,53 +189,6 @@ describe('Devfile registries', () => {
 
       expect(actions).toEqual(expectedActions);
     });
-
-    it('should create REQUEST_SCHEMA and RECEIVE_SCHEMA when fetching all devfile schemas', async () => {
-      const schemaV1 = getSchemaV1();
-      const schemaV200 = getSchemaV200();
-      const schemaV210 = getSchemaV210();
-      const schemaV220 = getSchemaV220();
-      const schemav221alpha = getSchemaV221Alpha();
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: schemaV1,
-      });
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: schemaV200,
-      });
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: schemaV210,
-      });
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: schemaV220,
-      });
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: schemav221alpha,
-      });
-
-      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
-        AppState,
-        ThunkDispatch<AppState, undefined, devfileRegistriesStore.KnownAction>
-      >;
-
-      await store.dispatch(devfileRegistriesStore.actionCreators.requestJsonSchema());
-
-      const actions = store.getActions();
-
-      const expectedActions: devfileRegistriesStore.KnownAction[] = [
-        {
-          type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
-          check: AUTHORIZED,
-        },
-        {
-          type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
-          schema: {
-            oneOf: expect.arrayContaining([schemaV200, schemaV210, schemaV220]),
-          },
-        },
-      ];
-
-      expect(actions).toEqual(expectedActions);
-    });
   });
 
   describe('reducer', () => {
@@ -251,7 +204,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
 
@@ -264,7 +216,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       const incomingAction = {
@@ -277,7 +228,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       expect(newState).toEqual(expectedState);
@@ -289,7 +239,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       const incomingAction: devfileRegistriesStore.RequestRegistryMetadataAction = {
@@ -303,7 +252,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       expect(newState).toEqual(expectedState);
@@ -315,7 +263,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       const url = 'http://example.com/devfiles/registry';
@@ -334,7 +281,6 @@ describe('Devfile registries', () => {
         },
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       expect(newState).toEqual(expectedState);
@@ -346,7 +292,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       const url = 'http://example.com/devfiles/registry';
@@ -365,7 +310,6 @@ describe('Devfile registries', () => {
         },
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       expect(newState).toEqual(expectedState);
@@ -377,7 +321,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       const incomingAction: devfileRegistriesStore.RequestDevfileAction = {
@@ -391,7 +334,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       expect(newState).toEqual(expectedState);
@@ -403,7 +345,6 @@ describe('Devfile registries', () => {
         registries: {},
         devfiles: {},
         devWorkspaceResources: {},
-        schema: {},
         filter: '',
       };
       const url = 'http://example.com/devfile.yaml';
@@ -422,89 +363,6 @@ describe('Devfile registries', () => {
           [url]: { content },
         },
         devWorkspaceResources: {},
-        schema: {},
-        filter: '',
-      };
-      expect(newState).toEqual(expectedState);
-    });
-
-    it('should should handle REQUEST_SCHEMA', () => {
-      const initialState: devfileRegistriesStore.State = {
-        isLoading: false,
-        registries: {},
-        devfiles: {},
-        devWorkspaceResources: {},
-        schema: {},
-        filter: '',
-      };
-      const incomingAction: devfileRegistriesStore.RequestSchemaAction = {
-        type: devfileRegistriesStore.Type.REQUEST_SCHEMA,
-        check: AUTHORIZED,
-      };
-      const newState = devfileRegistriesStore.reducer(initialState, incomingAction);
-
-      const expectedState: devfileRegistriesStore.State = {
-        isLoading: true,
-        registries: {},
-        devfiles: {},
-        devWorkspaceResources: {},
-        schema: {},
-        filter: '',
-      };
-      expect(newState).toEqual(expectedState);
-    });
-
-    it('should should handle RECEIVE_SCHEMA', () => {
-      const initialState: devfileRegistriesStore.State = {
-        isLoading: true,
-        registries: {},
-        devfiles: {},
-        devWorkspaceResources: {},
-        schema: {},
-        filter: '',
-      };
-      const schema = getSchemaV1();
-      const incomingAction: devfileRegistriesStore.ReceiveSchemaAction = {
-        type: devfileRegistriesStore.Type.RECEIVE_SCHEMA,
-        schema,
-      };
-      const newState = devfileRegistriesStore.reducer(initialState, incomingAction);
-
-      const expectedState: devfileRegistriesStore.State = {
-        isLoading: false,
-        registries: {},
-        devfiles: {},
-        devWorkspaceResources: {},
-        schema: { schema },
-        filter: '',
-      };
-      expect(newState).toEqual(expectedState);
-    });
-
-    it('should should handle RECEIVE_SCHEMA_ERROR', () => {
-      const initialState: devfileRegistriesStore.State = {
-        isLoading: true,
-        registries: {},
-        devfiles: {},
-        devWorkspaceResources: {},
-        schema: {},
-        filter: '',
-      };
-      const error = 'error message';
-      const incomingAction: devfileRegistriesStore.ReceiveSchemaErrorAction = {
-        type: devfileRegistriesStore.Type.RECEIVE_SCHEMA_ERROR,
-        error,
-      };
-      const newState = devfileRegistriesStore.reducer(initialState, incomingAction);
-
-      const expectedState: devfileRegistriesStore.State = {
-        isLoading: false,
-        registries: {},
-        devfiles: {},
-        devWorkspaceResources: {},
-        schema: {
-          error,
-        },
         filter: '',
       };
       expect(newState).toEqual(expectedState);
@@ -542,103 +400,4 @@ function getMetadataV2(): che.DevfileMetaData[] {
       },
     },
   ];
-}
-
-function getSchemaV1() {
-  return {
-    $schema: 'http://json-schema.org/draft-07/schema#',
-    type: 'object',
-    title: 'Devfile object',
-    description: 'This schema describes the structure of the devfile object',
-    definitions: {
-      attributes: {
-        type: 'object',
-        additionalProperties: {
-          type: 'string',
-        },
-      },
-      selector: {
-        type: 'object',
-        additionalProperties: {
-          type: 'string',
-        },
-      },
-    },
-    additionalProperties: false,
-    properties: {},
-  };
-}
-
-function getSchemaV200() {
-  return {
-    description:
-      'Devfile describes the structure of a cloud-native workspace and development environment.',
-    type: 'object',
-    title: 'Devfile schema - Version 2.0.0',
-    required: ['schemaVersion'],
-    properties: {
-      schemaVersion: {
-        description: 'Devfile schema version',
-        type: 'string',
-        pattern: '^2\\.0\\.0$',
-      },
-    },
-    additionalProperties: false,
-  };
-}
-
-function getSchemaV210() {
-  return {
-    description:
-      'Devfile describes the structure of a cloud-native devworkspace and development environment.',
-    type: 'object',
-    title: 'Devfile schema - Version 2.1.0',
-    required: ['schemaVersion'],
-    properties: {
-      schemaVersion: {
-        description: 'Devfile schema version',
-        type: 'string',
-        pattern: '^2\\.1\\.0$',
-      },
-    },
-    additionalProperties: false,
-  };
-}
-
-function getSchemaV220() {
-  return {
-    description:
-      'Devfile describes the structure of a cloud-native devworkspace and development environment.',
-    type: 'object',
-    title: 'Devfile schema - Version 2.2.0',
-    required: ['schemaVersion'],
-    properties: {
-      schemaVersion: {
-        description: 'Devfile schema version',
-        type: 'string',
-        pattern:
-          '^([2-9])\\.([0-9]+)\\.([0-9]+)(\\-[0-9a-z-]+(\\.[0-9a-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$',
-      },
-    },
-    additionalProperties: false,
-  };
-}
-
-function getSchemaV221Alpha() {
-  return {
-    description:
-      'Devfile describes the structure of a cloud-native devworkspace and development environment.',
-    type: 'object',
-    title: 'Devfile schema - Version 2.2.1-alpha',
-    required: ['schemaVersion'],
-    properties: {
-      schemaVersion: {
-        description: 'Devfile schema version',
-        type: 'string',
-        pattern:
-          '^([2-9])\\.([0-9]+)\\.([0-9]+)(\\-[0-9a-z-]+(\\.[0-9a-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$',
-      },
-    },
-    additionalProperties: false,
-  };
 }

@@ -44,7 +44,7 @@ const config = {
                 auto: true,
                 localIdentName: '[local]_[hash]',
                 getLocalIdent: (context, localIdentName, localName) => {
-                  if (localName.startsWith('pf-') || localName.startsWith('monaco')) {
+                  if (localName.startsWith('pf-') || localName.startsWith('CodeMirror')) {
                     // preserve PatternFly class names
                     return localName;
                   }

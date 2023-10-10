@@ -19,10 +19,6 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|sass|scss|styl)$': 'identity-obj-proxy',
     '\\.(gif|ttf|eot|svg)$': '<rootDir>/__mocks__/fileMock.js',
-    'monaco-editor-core': 'monaco-editor-core/esm/vs/editor/editor.main',
-    'vscode-languageserver-protocol/lib/utils/is':
-      'vscode-languageserver-protocol/lib/common/utils/is',
-    'vscode-languageserver-protocol/lib/main': 'vscode-languageserver-protocol/lib/node/main',
   },
   modulePathIgnorePatterns: [
     '__mocks__/index.tsx',

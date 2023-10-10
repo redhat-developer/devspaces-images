@@ -128,7 +128,6 @@ export class FakeStoreBuilder {
       filter: '',
       registries: {},
       devWorkspaceResources: {},
-      schema: {},
     } as DevfileRegistriesState,
     userId: {
       cheUserId: '',
@@ -306,9 +305,6 @@ export class FakeStoreBuilder {
         {},
         options.devWorkspaceResources,
       );
-    }
-    if (options.schema) {
-      this.state.devfileRegistries.schema = Object.assign({}, options.schema);
     }
     this.state.devfileRegistries.isLoading = isLoading;
     return this;

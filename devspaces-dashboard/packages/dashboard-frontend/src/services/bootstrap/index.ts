@@ -89,7 +89,7 @@ export default class Bootstrap {
 
     const results = await Promise.allSettled([
       this.fetchUserProfile(),
-      this.fetchPlugins().then(() => this.fetchDevfileSchema()),
+      this.fetchPlugins(),
       this.fetchDwPlugins(),
       this.fetchDefaultDwPlugins(),
       this.fetchRegistriesMetadata().then(() => this.fetchEmptyWorkspace()),
@@ -393,11 +393,6 @@ export default class Bootstrap {
     if (emptyWorkspaceUrl) {
       await requestDevfile(emptyWorkspaceUrl)(this.store.dispatch, this.store.getState, undefined);
     }
-  }
-
-  private async fetchDevfileSchema(): Promise<void> {
-    const { requestJsonSchema } = DevfileRegistriesStore.actionCreators;
-    return requestJsonSchema()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchUserProfile(): Promise<void> {

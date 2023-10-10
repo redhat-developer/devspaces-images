@@ -29,7 +29,6 @@ export function registerStaticServer(publicFolder: string, server: FastifyInstan
     '/dashboard/',
     '/dashboard/index.html',
     '/dashboard/service-worker.js',
-    '/dashboard/editor.worker.js',
     '/dashboard/assets/branding/product.json',
   ];
   server.addHook(

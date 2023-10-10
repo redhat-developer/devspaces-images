@@ -11,8 +11,7 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { createHashHistory, History, Location } from 'history';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router';
@@ -78,19 +77,6 @@ describe('Workspace Details page', () => {
       expect(overviewTab).toBeTruthy();
       expect(devfileTab).toBeTruthy();
     });
-
-    it('should show the Devfile tab content', () => {
-      const workspace = constructWorkspace(devWorkspaceBuilder.build());
-      renderComponent({
-        workspace,
-      });
-
-      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
-      userEvent.click(devfileTab);
-
-      const fakeEditor = screen.queryByText('Fake Editor Tab');
-      expect(fakeEditor).toBeTruthy();
-    });
   });
 
   describe('Old workspace link', () => {
@@ -115,56 +101,6 @@ describe('Workspace Details page', () => {
         oldWorkspaceLocation: oldWorkspacePath,
       });
       expect(screen.queryByRole('link', { name: 'Show Original Devfile' })).toBeTruthy();
-    });
-  });
-
-  describe('Saving changes', () => {
-    test('successfully saved changes', async () => {
-      const workspace = constructWorkspace(devWorkspaceBuilder.build());
-
-      const spyHistoryReplace = jest.spyOn(history, 'replace');
-
-      renderComponent({
-        workspace,
-      });
-
-      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
-      userEvent.click(devfileTab);
-
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      userEvent.click(saveButton);
-
-      await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
-      await waitFor(() => expect(spyHistoryReplace).toHaveBeenCalled());
-
-      spyHistoryReplace.mockReset();
-    });
-
-    test('failure when saving changes', async () => {
-      const workspace = constructWorkspace(devWorkspaceBuilder.build());
-
-      const spyHistoryReplace = jest.spyOn(history, 'replace');
-      mockOnSave.mockImplementationOnce(() => {
-        throw new Error('Failed.');
-      });
-
-      renderComponent({
-        workspace,
-      });
-
-      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
-      userEvent.click(devfileTab);
-
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      userEvent.click(saveButton);
-
-      await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
-
-      const errorMessage = screen.queryByTestId('current-request-error');
-      await waitFor(() => expect(errorMessage).toHaveTextContent('Failed.'));
-
-      expect(spyHistoryReplace).not.toHaveBeenCalled();
-      spyHistoryReplace.mockReset();
     });
   });
 });

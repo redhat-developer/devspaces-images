@@ -108,10 +108,6 @@ function filterDevfileV2Metadata(metadata: Array<che.DevfileMetaData>): Array<ch
   return metadata.filter(metadata => metadata.links?.v2);
 }
 
-export const selectDevfileSchema = createSelector(selectState, state => state.schema.schema);
-
-export const selectDevfileSchemaError = createSelector(selectState, state => state.schema.error);
-
 export const selectDevWorkspaceResources = createSelector(
   selectState,
   state => state.devWorkspaceResources,

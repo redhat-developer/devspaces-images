@@ -21,7 +21,6 @@ import { registerSwagger } from './plugins/swagger';
 import { registerWebSocket } from './plugins/webSocket';
 import { registerClusterConfigRoute } from './routes/api/clusterConfig';
 import { registerClusterInfoRoute } from './routes/api/clusterInfo';
-import { registerDevfileSchemaRoute } from './routes/api/devfileSchema';
 import { registerDevworkspaceResourcesRoute } from './routes/api/devworkspaceResources';
 import { registerDevworkspacesRoutes } from './routes/api/devworkspaces';
 import { registerDevWorkspaceTemplates } from './routes/api/devworkspaceTemplates';
@@ -106,8 +105,6 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
   registerUserProfileRoute(server);
 
   registerYamlResolverRoute(server);
-
-  registerDevfileSchemaRoute(server);
 
   registerDevworkspaceResourcesRoute(server);
 

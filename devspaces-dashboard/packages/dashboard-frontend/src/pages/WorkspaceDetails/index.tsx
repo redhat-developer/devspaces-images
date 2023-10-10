@@ -175,9 +175,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   }
 
   private handleDiscardChanges(pathname: string): void {
-    if (this.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
-      this.editorTabPageRef.current?.cancelChanges();
-    } else if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
+    if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
       this.overviewTabPageRef.current?.cancelChanges();
     }
 
@@ -193,9 +191,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   }
 
   private hasUnsavedChanges(): boolean {
-    if (this.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
-      return this.editorTabPageRef.current?.state.hasChanges === true;
-    } else if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
+    if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
       return this.overviewTabPageRef.current?.hasChanges === true;
     }
     return false;
@@ -246,12 +242,8 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
             <Tab eventKey={WorkspaceDetailsTab.DEVFILE} title={WorkspaceDetailsTab.DEVFILE}>
               <ProgressIndicator isLoading={this.props.isLoading} />
               <DevfileEditorTab
-                ref={this.editorTabPageRef}
                 workspace={workspace}
-                isRunning={workspace.isRunning}
-                isReadonly={true}
-                onSave={workspace => this.handleOnSave(workspace)}
-                onDevWorkspaceWarning={() => this.handleRestartWarning()}
+                isActive={WorkspaceDetailsTab.DEVFILE === this.state.activeTabKey}
               />
             </Tab>
             <Tab
@@ -285,7 +277,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
     try {
       await this.props.onSave(workspace);
       this.showAlert(AlertVariant.success, 'Workspace has been updated');
-      this.editorTabPageRef.current?.cancelChanges();
 
       const location = buildDetailsLocation(workspace, this.state.activeTabKey);
       this.props.history.replace(location);
