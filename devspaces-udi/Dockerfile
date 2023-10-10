@@ -107,7 +107,7 @@ LABEL summary="$SUMMARY" \
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-COPY etc/docker.sh /usr/local/bin/docker
+RUN echo 'alias docker=podman' >> /home/user/.bashrc
 COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
