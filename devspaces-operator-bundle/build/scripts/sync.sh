@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021-22 Red Hat, Inc.
+# Copyright (c) 2021-23 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -157,7 +157,7 @@ find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
 # create dockerfile
 cat << EOT > "${TARGETDIR}"/Dockerfile
-# Copyright (c) 2020-2021 Red Hat, Inc.
+# Copyright (c) 2020-$(date +%Y) Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -180,6 +180,9 @@ ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}"
+# https://access.redhat.com/support/policy/updates/openshift#dates
+# support for 4.12 ends on January 17, 2025
+# support for 4.11 ends on February 10, 2024
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \\
       operators.operatorframework.io.bundle.metadata.v1=metadata/ \\
@@ -187,7 +190,7 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
       operators.operatorframework.io.bundle.channels.v1=stable \\
       operators.operatorframework.io.bundle.channel.default.v1=stable \\
       com.redhat.delivery.operator.bundle="true" \\
-      com.redhat.openshift.versions="v4.10" \\
+      com.redhat.openshift.versions="v4.11" \\
       com.redhat.delivery.backport=false \\
       summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
