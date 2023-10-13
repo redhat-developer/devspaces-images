@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getServiceAccountToken as helper } from '../getServiceAccountToken';
+import { getServiceAccountToken as helper } from '@/routes/api/helpers/getServiceAccountToken';
 
 export const stubToken = 'SA token';
 export function getServiceAccountToken(): ReturnType<typeof helper> {

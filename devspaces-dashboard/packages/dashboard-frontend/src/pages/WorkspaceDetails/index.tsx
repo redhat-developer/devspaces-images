@@ -10,8 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import common from '@eclipse-che/common';
 import {
   AlertVariant,
   Button,
@@ -20,25 +19,28 @@ import {
   Tab,
   Tabs,
 } from '@patternfly/react-core';
-import common from '@eclipse-che/common';
-import Head from '../../components/Head';
-import { WorkspaceDetailsTab } from '../../services/helpers/types';
-import Header from './Header';
-import ProgressIndicator from '../../components/Progress';
-import { HeaderActionSelect } from './Header/Actions';
-import { lazyInject } from '../../inversify.config';
-import { AppAlerts } from '../../services/alerts/appAlerts';
-import OverviewTab, { OverviewTab as Overview } from './OverviewTab';
-import DevfileEditorTab, { DevfileEditorTab as Editor } from './DevfileEditorTab';
-import DevworkspaceEditorTab from './DevworkspaceEditorTab';
-import { History, UnregisterCallback, Location } from 'history';
-import { Workspace } from '../../services/workspace-adapter';
-import UnsavedChangesModal from '../../components/UnsavedChangesModal';
-import { buildDetailsLocation } from '../../services/helpers/location';
-import WorkspaceEvents from '../../components/WorkspaceEvents';
+import { History, Location, UnregisterCallback } from 'history';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-import styles from './index.module.css';
-import WorkspaceLogs from '../../components/WorkspaceLogs';
+import Head from '@/components/Head';
+import ProgressIndicator from '@/components/Progress';
+import UnsavedChangesModal from '@/components/UnsavedChangesModal';
+import WorkspaceEvents from '@/components/WorkspaceEvents';
+import WorkspaceLogs from '@/components/WorkspaceLogs';
+import { lazyInject } from '@/inversify.config';
+import DevfileEditorTab, {
+  DevfileEditorTab as Editor,
+} from '@/pages/WorkspaceDetails/DevfileEditorTab';
+import DevworkspaceEditorTab from '@/pages/WorkspaceDetails/DevworkspaceEditorTab';
+import Header from '@/pages/WorkspaceDetails/Header';
+import { HeaderActionSelect } from '@/pages/WorkspaceDetails/Header/Actions';
+import styles from '@/pages/WorkspaceDetails/index.module.css';
+import OverviewTab, { OverviewTab as Overview } from '@/pages/WorkspaceDetails/OverviewTab';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { buildDetailsLocation } from '@/services/helpers/location';
+import { WorkspaceDetailsTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
 
 export const SECTION_THEME = PageSectionVariants.light;
 

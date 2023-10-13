@@ -11,11 +11,10 @@
  */
 
 import React from 'react';
+
+import getComponentRenderer, { fireEvent, screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { PersonalAccessTokenEmptyState } from '..';
-import getComponentRenderer, {
-  fireEvent,
-  screen,
-} from '../../../../../services/__mocks__/getComponentRenderer';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 

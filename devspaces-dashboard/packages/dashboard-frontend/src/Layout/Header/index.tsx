@@ -13,7 +13,8 @@
 import { PageHeader } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
-import HeaderTools from './Tools';
+
+import HeaderTools from '@/Layout/Header/Tools';
 
 type Props = {
   history: History;

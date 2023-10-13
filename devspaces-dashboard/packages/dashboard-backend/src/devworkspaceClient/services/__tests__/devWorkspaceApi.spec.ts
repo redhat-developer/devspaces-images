@@ -19,11 +19,11 @@ import {
   V1alpha2DevWorkspace,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
-import { IPatch } from '@eclipse-che/common/src/dto/api';
 import * as mockClient from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 import { IncomingMessage } from 'http';
-import { DevWorkspaceApiService } from '../devWorkspaceApi';
+
+import { DevWorkspaceApiService } from '@/devworkspaceClient/services/devWorkspaceApi';
 
 const namespace = 'user-che';
 const name = 'wksp-name';
@@ -138,7 +138,7 @@ describe('DevWorkspace API Service', () => {
   });
 
   test('patching', async () => {
-    const patches: IPatch[] = [
+    const patches: api.IPatch[] = [
       {
         op: 'replace',
         path: '/metadata/annotations',

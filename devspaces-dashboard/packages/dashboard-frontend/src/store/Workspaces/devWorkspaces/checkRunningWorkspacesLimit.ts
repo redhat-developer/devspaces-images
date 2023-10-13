@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { AppState } from '@/store';
+import { selectRunningWorkspacesLimit } from '@/store/ClusterConfig/selectors';
+import { selectRunningDevWorkspacesLimitExceeded } from '@/store/Workspaces/devWorkspaces/selectors';
+
 import { RunningWorkspacesExceededError } from '.';
-import { AppState } from '../..';
-import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
-import { selectRunningDevWorkspacesLimitExceeded } from './selectors';
 
 export function checkRunningWorkspacesLimit(state: AppState) {
   const runningLimitExceeded = selectRunningDevWorkspacesLimitExceeded(state);

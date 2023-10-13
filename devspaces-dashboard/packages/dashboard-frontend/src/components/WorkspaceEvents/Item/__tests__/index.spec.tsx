@@ -15,8 +15,10 @@
 import { CoreV1Event } from '@kubernetes/client-node';
 import { screen } from '@testing-library/react';
 import React from 'react';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+
 import { WorkspaceEventsItem } from '..';
-import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
 
 jest.mock('date-fns', () => ({
   format: jest.fn(() => '14:00:00'),

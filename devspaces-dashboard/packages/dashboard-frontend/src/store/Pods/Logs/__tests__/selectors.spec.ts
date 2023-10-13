@@ -12,10 +12,12 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectAllLogs, selectPodLogs } from '@/store/Pods/Logs/selectors';
+
 import * as store from '..';
-import { AppState } from '../../..';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
-import { selectAllLogs, selectPodLogs } from '../selectors';
 
 describe('Logs store, selectors', () => {
   let logs: store.State['logs'];

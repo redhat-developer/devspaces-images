@@ -13,10 +13,11 @@
 import { helpers } from '@eclipse-che/common';
 import { History } from 'history';
 import React from 'react';
-import { DisposableCollection } from '../../services/helpers/disposable';
-import { AlertItem, LoaderTab } from '../../services/helpers/types';
-import { Debounce } from '../../services/helpers/debounce';
-import { MIN_STEP_DURATION_MS } from './const';
+
+import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
+import { Debounce } from '@/services/helpers/debounce';
+import { DisposableCollection } from '@/services/helpers/disposable';
+import { AlertItem, LoaderTab } from '@/services/helpers/types';
 
 export type ProgressStepProps = {
   distance: -1 | 0 | 1 | undefined;

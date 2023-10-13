@@ -11,7 +11,8 @@
  */
 
 import fastify, { FastifyInstance } from 'fastify';
-import buildApp from '../../app';
+
+import buildApp from '@/app';
 
 jest.mock('args');
 

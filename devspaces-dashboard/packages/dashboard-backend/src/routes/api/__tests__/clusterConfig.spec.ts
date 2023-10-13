@@ -11,13 +11,14 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 import {
   stubAllWorkspacesLimit,
   stubDashboardWarning,
   stubRunningWorkspacesLimit,
-} from '../helpers/__mocks__/getDevWorkspaceClient';
+} from '@/routes/api/helpers/__mocks__/getDevWorkspaceClient';
 
 jest.mock('../helpers/getServiceAccountToken.ts');
 jest.mock('../helpers/getDevWorkspaceClient.ts');

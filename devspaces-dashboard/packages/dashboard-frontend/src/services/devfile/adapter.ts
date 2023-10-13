@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import devfileApi, { isDevfileV2 } from '../devfileApi';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../devfileApi/devWorkspace/spec/template';
-import { attributesToType } from '../storageTypes';
+import devfileApi, { isDevfileV2 } from '@/services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { attributesToType } from '@/services/storageTypes';
 
 export type Devfile = che.WorkspaceDevfile | devfileApi.Devfile;
 

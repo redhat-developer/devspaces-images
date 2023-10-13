@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,13 +23,15 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
-import WorkspaceStatusLabel from '../WorkspaceStatusLabel';
+import React from 'react';
+
+import WorkspaceStatusLabel from '@/components/WorkspaceStatusLabel';
+import styles from '@/pages/WorkspaceDetails/Header/index.module.css';
 import {
   DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceStatus,
-} from '../../services/helpers/types';
-import styles from '../../pages/WorkspaceDetails/Header/index.module.css';
+} from '@/services/helpers/types';
 
 const SECTION_THEME = PageSectionVariants.light;
 

@@ -10,25 +10,25 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
+  Badge,
   Brand,
   Card,
+  CardActions,
   CardBody,
   CardHeader,
   CardHeaderMain,
-  Badge,
-  CardActions,
   Dropdown,
-  KebabToggle,
   DropdownPosition,
+  KebabToggle,
 } from '@patternfly/react-core';
-import { TargetEditor, VISIBLE_TAGS } from '../SamplesListGallery';
-import DropdownEditors from '../DropdownEditors';
 import { CubesIcon } from '@patternfly/react-icons';
+import React from 'react';
 
-import styles from './index.module.css';
-import { convertIconToSrc } from '../../../../services/registry/devfiles';
+import DropdownEditors from '@/pages/GetStarted/GetStartedTab/DropdownEditors';
+import styles from '@/pages/GetStarted/GetStartedTab/SampleCard/index.module.css';
+import { TargetEditor, VISIBLE_TAGS } from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
+import { convertIconToSrc } from '@/services/registry/devfiles';
 
 type Props = {
   metadata: che.DevfileMetaData;

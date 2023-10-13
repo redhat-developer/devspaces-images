@@ -11,8 +11,9 @@
  */
 
 import { ThunkDispatch } from 'redux-thunk';
-import { AppState } from '../index';
-import { KnownAction, actionCreators } from './index';
+
+import { actionCreators, KnownAction } from '@/store/DevfileRegistries/index';
+import { AppState } from '@/store/index';
 
 export async function getEditor(
   editorIdOrPath: string,

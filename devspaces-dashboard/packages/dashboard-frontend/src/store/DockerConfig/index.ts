@@ -10,15 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import { api, helpers } from '@eclipse-che/common';
+import { Action, Reducer } from 'redux';
+
+import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import { RegistryEntry } from '@/store/DockerConfig/types';
+import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
-import * as DwApi from '../../services/backend-client/devWorkspaceApi';
-import { RegistryEntry } from './types';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
 
 export interface State {
   isLoading: boolean;

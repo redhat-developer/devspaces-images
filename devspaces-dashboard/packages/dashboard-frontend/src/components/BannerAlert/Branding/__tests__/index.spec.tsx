@@ -10,13 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import BannerAlertBranding from '..';
-import { Provider } from 'react-redux';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import { render, RenderResult } from '@testing-library/react';
+import React from 'react';
+import { Provider } from 'react-redux';
 import { Store } from 'redux';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import BannerAlertBranding from '..';
 
 const scheduledMaintenance = 'Scheduled maintenance.';
 

@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as React from 'react';
-import { Props, State } from '..';
 import { Button } from '@patternfly/react-core';
+import * as React from 'react';
+
+import { Props, State } from '..';
 
 export class InputGroupExtended extends React.PureComponent<Props, State> {
   render(): React.ReactElement {

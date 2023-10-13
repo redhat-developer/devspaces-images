@@ -11,13 +11,15 @@
  */
 
 import mockAxios from 'axios';
+import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as devfileRegistriesStore from '..';
-import { AppState } from '../..';
-import { AnyAction } from 'redux';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 // mute error outputs
 console.error = jest.fn();

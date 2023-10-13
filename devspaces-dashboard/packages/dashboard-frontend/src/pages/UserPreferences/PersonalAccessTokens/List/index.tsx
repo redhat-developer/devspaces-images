@@ -24,7 +24,8 @@ import {
   Tr,
 } from '@patternfly/react-table';
 import React from 'react';
-import { PersonalAccessTokenListToolbar } from './Toolbar';
+
+import { PersonalAccessTokenListToolbar } from '@/pages/UserPreferences/PersonalAccessTokens/List/Toolbar';
 
 const COLUMN_NAMES: Omit<
   Record<keyof api.PersonalAccessToken, string>,

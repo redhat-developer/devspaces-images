@@ -19,6 +19,7 @@ import {
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { IncomingHttpHeaders } from 'http';
+
 import {
   DevWorkspaceClient,
   IDevWorkspaceApi,
@@ -32,8 +33,8 @@ import {
   IPodApi,
   IServerConfigApi,
   IUserProfileApi,
-} from '../../../../devworkspaceClient';
-import { getDevWorkspaceClient as helper } from '../getDevWorkspaceClient';
+} from '@/devworkspaceClient';
+import { getDevWorkspaceClient as helper } from '@/routes/api/helpers/getDevWorkspaceClient';
 
 export const stubContainerBuild = {
   disableContainerBuildCapabilities: true,
@@ -148,7 +149,7 @@ export function getDevWorkspaceClient(
       update: (_namespace, _dockerCfg) => Promise.resolve(stubDockerConfig),
     } as IDockerConfigApi,
     kubeConfigApi: {
-      injectKubeConfig: (_namespace, _devworkspaceId) => Promise.resolve(undefined),
+      applyKubeConfigSecret: _namespace => Promise.resolve(undefined),
     } as IKubeConfigApi,
     devWorkspaceTemplateApi: {
       create: _template => Promise.resolve(stubDevWorkspaceTemplate),

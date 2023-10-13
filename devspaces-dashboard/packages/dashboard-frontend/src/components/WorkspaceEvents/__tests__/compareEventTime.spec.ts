@@ -11,7 +11,8 @@
  */
 
 import { CoreV1Event } from '@kubernetes/client-node';
-import sortEvents from '../compareEventTime';
+
+import sortEvents from '@/components/WorkspaceEvents/compareEventTime';
 
 describe('sortEvents', () => {
   let event1: CoreV1Event;

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FactoryResolver, FactoryResolverScmInfo } from '../../services/helpers/types';
+import { FactoryResolver, FactoryResolverScmInfo } from '@/services/helpers/types';
 
 export class FactoryResolverBuilder {
   private factoryResolver = {

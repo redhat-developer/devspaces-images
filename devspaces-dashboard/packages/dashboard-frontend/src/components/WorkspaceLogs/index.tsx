@@ -21,17 +21,18 @@ import {
 import { FileIcon } from '@patternfly/react-icons';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Workspace } from '../../services/workspace-adapter';
-import { AppState } from '../../store';
-import * as LogsStore from '../../store/Pods/Logs';
-import { selectPodLogs } from '../../store/Pods/Logs/selectors';
-import { selectAllPods } from '../../store/Pods/selectors';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
-import { WorkspaceLogsContainerSelector } from './ContainerSelector';
-import styles from './index.module.css';
-import { WorkspaceLogsToolsPanel } from './ToolsPanel';
-import { WorkspaceLogsViewer } from './Viewer';
-import { WorkspaceLogsViewerTools } from './ViewerTools';
+
+import { WorkspaceLogsContainerSelector } from '@/components/WorkspaceLogs/ContainerSelector';
+import styles from '@/components/WorkspaceLogs/index.module.css';
+import { WorkspaceLogsToolsPanel } from '@/components/WorkspaceLogs/ToolsPanel';
+import { WorkspaceLogsViewer } from '@/components/WorkspaceLogs/Viewer';
+import { WorkspaceLogsViewerTools } from '@/components/WorkspaceLogs/ViewerTools';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import * as LogsStore from '@/store/Pods/Logs';
+import { selectPodLogs } from '@/store/Pods/Logs/selectors';
+import { selectAllPods } from '@/store/Pods/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = {
   workspaceUID: string | undefined;

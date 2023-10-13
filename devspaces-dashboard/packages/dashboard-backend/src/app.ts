@@ -10,34 +10,36 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import 'reflect-metadata';
+
 import { helpers } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
-import 'reflect-metadata';
-import parseArgs from './helpers/parseArgs';
-import { isLocalRun, registerLocalRun } from './localRun';
-import { registerCors } from './plugins/cors';
-import { registerStaticServer } from './plugins/staticServer';
-import { registerSwagger } from './plugins/swagger';
-import { registerWebSocket } from './plugins/webSocket';
-import { registerClusterConfigRoute } from './routes/api/clusterConfig';
-import { registerClusterInfoRoute } from './routes/api/clusterInfo';
-import { registerDevworkspaceResourcesRoute } from './routes/api/devworkspaceResources';
-import { registerDevworkspacesRoutes } from './routes/api/devworkspaces';
-import { registerDevWorkspaceTemplates } from './routes/api/devworkspaceTemplates';
-import { registerDockerConfigRoutes } from './routes/api/dockerConfig';
-import { registerEventsRoutes } from './routes/api/events';
-import { registerKubeConfigRoute } from './routes/api/kubeConfig';
-import { registerPodmanLoginRoute } from './routes/api/podmanLogin';
-import { registerPersonalAccessTokenRoutes } from './routes/api/personalAccessToken';
-import { registerPodsRoutes } from './routes/api/pods';
-import { registerServerConfigRoute } from './routes/api/serverConfig';
-import { registerUserProfileRoute } from './routes/api/userProfile';
-import { registerWebsocket } from './routes/api/websocket';
-import { registerYamlResolverRoute } from './routes/api/yamlResolver';
-import { registerFactoryAcceptanceRedirect } from './routes/factoryAcceptanceRedirect';
-import { registerWorkspaceRedirect } from './routes/workspaceRedirect';
-import { registerGitConfigRoutes } from './routes/api/gitConfig';
-import { registerGettingStartedSamplesRoutes } from './routes/api/gettingStartedSample';
+
+import parseArgs from '@/helpers/parseArgs';
+import { isLocalRun, registerLocalRun } from '@/localRun';
+import { registerCors } from '@/plugins/cors';
+import { registerStaticServer } from '@/plugins/staticServer';
+import { registerSwagger } from '@/plugins/swagger';
+import { registerWebSocket } from '@/plugins/webSocket';
+import { registerClusterConfigRoute } from '@/routes/api/clusterConfig';
+import { registerClusterInfoRoute } from '@/routes/api/clusterInfo';
+import { registerDevworkspaceResourcesRoute } from '@/routes/api/devworkspaceResources';
+import { registerDevworkspacesRoutes } from '@/routes/api/devworkspaces';
+import { registerDevWorkspaceTemplates } from '@/routes/api/devworkspaceTemplates';
+import { registerDockerConfigRoutes } from '@/routes/api/dockerConfig';
+import { registerEventsRoutes } from '@/routes/api/events';
+import { registerGettingStartedSamplesRoutes } from '@/routes/api/gettingStartedSample';
+import { registerGitConfigRoutes } from '@/routes/api/gitConfig';
+import { registerKubeConfigRoute } from '@/routes/api/kubeConfig';
+import { registerPersonalAccessTokenRoutes } from '@/routes/api/personalAccessToken';
+import { registerPodmanLoginRoute } from '@/routes/api/podmanLogin';
+import { registerPodsRoutes } from '@/routes/api/pods';
+import { registerServerConfigRoute } from '@/routes/api/serverConfig';
+import { registerUserProfileRoute } from '@/routes/api/userProfile';
+import { registerWebsocket } from '@/routes/api/websocket';
+import { registerYamlResolverRoute } from '@/routes/api/yamlResolver';
+import { registerFactoryAcceptanceRedirect } from '@/routes/factoryAcceptanceRedirect';
+import { registerWorkspaceRedirect } from '@/routes/workspaceRedirect';
 
 export default async function buildApp(server: FastifyInstance): Promise<void> {
   const cheHost = process.env.CHE_HOST as string;

@@ -12,9 +12,11 @@
 
 import { cloneDeep } from 'lodash';
 import { AnyAction } from 'redux';
+
+import { pod1, pod2 } from '@/store/Pods/__tests__/stub';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import { pod1, pod2 } from './stub';
 
 describe('Pods store, reducers', () => {
   it('should return initial state', () => {

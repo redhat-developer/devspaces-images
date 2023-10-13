@@ -14,13 +14,14 @@ import { helpers } from '@eclipse-che/common';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { LoaderPage } from '../../pages/Loader';
-import { findTargetWorkspace } from '../../services/helpers/factoryFlow/findTargetWorkspace';
-import { getLoaderMode } from '../../services/helpers/factoryFlow/getLoaderMode';
-import { LoaderTab } from '../../services/helpers/types';
-import { Workspace } from '../../services/workspace-adapter';
-import { AppState } from '../../store';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
+
+import { LoaderPage } from '@/pages/Loader';
+import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
+import { getLoaderMode } from '@/services/helpers/factoryFlow/getLoaderMode';
+import { LoaderTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps & RouteComponentProps;
 export type State = {

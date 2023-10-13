@@ -16,8 +16,13 @@ import { api } from '@eclipse-che/common';
 import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, V1Secret, V1SecretList } from '@kubernetes/client-node';
 import { IncomingMessage } from 'http';
+
+import {
+  DUMMY_TOKEN_DATA,
+  PersonalAccessTokenSecret,
+} from '@/devworkspaceClient/services/personalAccessTokenApi/helpers';
+
 import { PersonalAccessTokenService } from '..';
-import { DUMMY_TOKEN_DATA, PersonalAccessTokenSecret } from '../helpers';
 
 const mockIsPatSecret = jest.fn();
 const mockToToken = jest.fn();

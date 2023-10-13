@@ -11,9 +11,11 @@
  */
 
 import { AnyAction } from 'redux';
+
+import * as unloadedState from '@/store/GitConfig/reducer';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as TestStore from '..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import * as unloadedState from '../reducer';
 
 describe('GitConfig store, reducer', () => {
   it('should return initial state', () => {

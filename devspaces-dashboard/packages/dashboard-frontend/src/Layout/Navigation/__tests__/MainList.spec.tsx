@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
 import { Nav } from '@patternfly/react-core';
-import NavigationMainList from '../MainList';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
 import { Provider } from 'react-redux';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import { MemoryRouter } from 'react-router';
 import { Store } from 'redux';
+
+import NavigationMainList from '@/Layout/Navigation/MainList';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 describe('Navigation Main List', () => {
   it('should have correct number of main navigation items', () => {

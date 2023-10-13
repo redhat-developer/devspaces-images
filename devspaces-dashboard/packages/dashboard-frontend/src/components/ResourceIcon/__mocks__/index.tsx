@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props } from '..';
 
 export class ResourceIcon extends React.PureComponent<Props> {

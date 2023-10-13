@@ -10,19 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
-import { AppThunk } from '..';
 import { helpers } from '@eclipse-che/common';
-import { getDefer } from '../../services/helpers/deferred';
-import { delay } from '../../services/helpers/delay';
+import { Action, Reducer } from 'redux';
+
+import { provisionKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
+import { getDefer } from '@/services/helpers/deferred';
+import { delay } from '@/services/helpers/delay';
 import {
   getErrorMessage,
   hasLoginPage,
   isForbidden,
   isUnauthorized,
-} from '../../services/workspace-client/helpers';
-import { createObject } from '../helpers';
-import { provisionKubernetesNamespace } from '../../services/backend-client/kubernetesNamespaceApi';
+} from '@/services/workspace-client/helpers';
+import { createObject } from '@/store/helpers';
+
+import { AppThunk } from '..';
 
 const secToStale = 5;
 const timeToStale = secToStale * 1000;

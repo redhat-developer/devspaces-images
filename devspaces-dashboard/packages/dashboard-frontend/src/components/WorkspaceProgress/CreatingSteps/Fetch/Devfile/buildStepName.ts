@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as FactoryResolverStore from '../../../../../store/FactoryResolver';
+import * as FactoryResolverStore from '@/store/FactoryResolver';
 
 export function buildStepName(
   sourceUrl: string,

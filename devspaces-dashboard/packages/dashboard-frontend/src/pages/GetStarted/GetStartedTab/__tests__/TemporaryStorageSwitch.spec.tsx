@@ -10,14 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import { RenderResult, render, screen } from '@testing-library/react';
-import TemporaryStorageSwitch from '../TemporaryStorageSwitch';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import mockMetadata from '../../__tests__/devfileMetadata.json';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+
+import mockMetadata from '@/pages/GetStarted/__tests__/devfileMetadata.json';
+import TemporaryStorageSwitch from '@/pages/GetStarted/GetStartedTab/TemporaryStorageSwitch';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 describe('Temporary Storage Switch', () => {
   const mockOnChange = jest.fn();

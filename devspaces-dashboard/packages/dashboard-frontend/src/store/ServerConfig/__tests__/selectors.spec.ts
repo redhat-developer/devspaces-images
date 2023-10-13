@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { AppState } from '../..';
-import { AnyAction } from 'redux';
-import { serverConfig } from './stubs';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { serverConfig } from '@/store/ServerConfig/__tests__/stubs';
 import {
   selectDashboardLogo,
   selectDefaultComponents,
@@ -24,7 +25,7 @@ import {
   selectOpenVSXUrl,
   selectPluginRegistryInternalUrl,
   selectPluginRegistryUrl,
-} from '../selectors';
+} from '@/store/ServerConfig/selectors';
 
 describe('serverConfig selectors', () => {
   describe('selectDefaultComponents', () => {

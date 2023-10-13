@@ -12,11 +12,10 @@
 
 import { Form } from '@patternfly/react-core';
 import React from 'react';
+
+import getComponentRenderer, { fireEvent, screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { TokenData } from '..';
-import getComponentRenderer, {
-  fireEvent,
-  screen,
-} from '../../../../../../../services/__mocks__/getComponentRenderer';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 

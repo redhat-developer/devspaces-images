@@ -30,15 +30,16 @@ import { FileIcon } from '@patternfly/react-icons';
 import React from 'react';
 import Pluralize from 'react-pluralize';
 import { connect, ConnectedProps } from 'react-redux';
-import { DevWorkspaceStatus } from '../../services/helpers/types';
-import { Workspace } from '../../services/workspace-adapter';
-import { AppState } from '../../store';
-import { selectAllEvents, selectEventsFromResourceVersion } from '../../store/Events/selectors';
-import { selectStartedWorkspaces } from '../../store/Workspaces/devWorkspaces/selectors';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
-import compareEventTime from './compareEventTime';
-import styles from './index.module.css';
-import { WorkspaceEventsItem } from './Item';
+
+import compareEventTime from '@/components/WorkspaceEvents/compareEventTime';
+import styles from '@/components/WorkspaceEvents/index.module.css';
+import { WorkspaceEventsItem } from '@/components/WorkspaceEvents/Item';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectAllEvents, selectEventsFromResourceVersion } from '@/store/Events/selectors';
+import { selectStartedWorkspaces } from '@/store/Workspaces/devWorkspaces/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = {
   workspaceUID: string | undefined;

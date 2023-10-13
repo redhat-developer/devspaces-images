@@ -15,27 +15,32 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+
+import ExpandableWarning from '@/components/ExpandableWarning';
+import { TIMEOUT_TO_RESOLVE_SEC } from '@/components/WorkspaceProgress/const';
+import { buildStepName } from '@/components/WorkspaceProgress/CreatingSteps/Fetch/Devfile/buildStepName';
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import {
   buildFactoryParams,
   FactoryParams,
   USE_DEFAULT_DEVFILE,
-} from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { AlertItem } from '../../../../../services/helpers/types';
-import OAuthService, { isOAuthResponse } from '../../../../../services/oauth';
-import SessionStorageService, { SessionStorageKey } from '../../../../../services/session-storage';
-import { AppState } from '../../../../../store';
-import * as FactoryResolverStore from '../../../../../store/FactoryResolver';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
+import OAuthService, { isOAuthResponse } from '@/services/oauth';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
+import { AppState } from '@/store';
+import * as FactoryResolverStore from '@/store/FactoryResolver';
 import {
   selectFactoryResolver,
   selectFactoryResolverConverted,
-} from '../../../../../store/FactoryResolver/selectors';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
-import ExpandableWarning from '../../../../ExpandableWarning';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../../ProgressStep';
-import { ProgressStepTitle } from '../../../StepTitle';
-import { TimeLimit } from '../../../TimeLimit';
-import { TIMEOUT_TO_RESOLVE_SEC } from '../../../const';
-import { buildStepName } from './buildStepName';
+} from '@/store/FactoryResolver/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export class ApplyingDevfileError extends Error {
   constructor(message: string) {

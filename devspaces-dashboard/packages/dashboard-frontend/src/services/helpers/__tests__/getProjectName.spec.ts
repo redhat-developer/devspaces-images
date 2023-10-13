@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getProjectName } from '../getProjectName';
+import { getProjectName } from '@/services/helpers/getProjectName';
 
 describe('Get a project name based on location', () => {
   it('should return a valid name less then 63 symbols', () => {

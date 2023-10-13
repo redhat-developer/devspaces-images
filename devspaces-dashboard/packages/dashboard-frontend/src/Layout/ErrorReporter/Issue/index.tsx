@@ -10,14 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { TextContent, Text, TextVariants, Button, ButtonVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { InfoIcon, WarningTriangleIcon } from '@patternfly/react-icons';
 import React from 'react';
-import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { Issue, WorkspaceData } from '../../../services/bootstrap/issuesReporter';
-import { signIn } from '../../../services/helpers/login';
 
-import styles from './index.module.css';
+import styles from '@/Layout/ErrorReporter/Issue/index.module.css';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { Issue, WorkspaceData } from '@/services/bootstrap/issuesReporter';
+import { signIn } from '@/services/helpers/login';
 
 type Props = {
   branding: BrandingData;

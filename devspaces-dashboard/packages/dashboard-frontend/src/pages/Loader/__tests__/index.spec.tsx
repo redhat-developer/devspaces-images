@@ -16,13 +16,15 @@ import { createMemoryHistory, History } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { LoaderTab } from '@/services/helpers/types';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import { LoaderPage, Props } from '..';
-import devfileApi from '../../../services/devfileApi';
-import { LoaderTab } from '../../../services/helpers/types';
-import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
-import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {

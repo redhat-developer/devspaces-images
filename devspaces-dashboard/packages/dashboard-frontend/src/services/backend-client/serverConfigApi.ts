@@ -12,7 +12,8 @@
 
 import { api } from '@eclipse-che/common';
 import axios from 'axios';
-import { dashboardBackendPrefix } from './const';
+
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
 
 /**
  * Returns an array of default plug-ins per editor

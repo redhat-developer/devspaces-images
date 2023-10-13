@@ -10,29 +10,28 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
-  FormGroup,
-  Button,
-  Modal,
-  ModalVariant,
-  TextVariants,
-  TextContent,
-  Text,
-  Radio,
   Alert,
   AlertVariant,
+  Button,
+  FormGroup,
+  Modal,
+  ModalVariant,
+  Radio,
+  Text,
+  TextContent,
+  TextVariants,
 } from '@patternfly/react-core';
-import { AppState } from '../../../../store';
-import { connect, ConnectedProps } from 'react-redux';
 import { OutlinedQuestionCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
-import * as storageTypeService from '../../../../services/storageTypes';
-import { selectBranding } from '../../../../store/Branding/selectors';
+import React from 'react';
+import { connect, ConnectedProps } from 'react-redux';
 
-import overviewStyles from '../index.module.css';
-import styles from './index.module.css';
-import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
-import * as storageTypesService from '../../../../services/storageTypes';
+import overviewStyles from '@/pages/WorkspaceDetails/OverviewTab/index.module.css';
+import styles from '@/pages/WorkspaceDetails/OverviewTab/StorageType/index.module.css';
+import * as storageTypeService from '@/services/storageTypes';
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
+import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 
 export type Props = MappedProps & {
   readonly: boolean;
@@ -58,7 +57,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
       isInfoOpen: false,
     };
 
-    const availableTypes = storageTypesService.getAvailable();
+    const availableTypes = storageTypeService.getAvailable();
 
     if (Array.isArray(availableTypes)) {
       this.storageTypes = availableTypes;

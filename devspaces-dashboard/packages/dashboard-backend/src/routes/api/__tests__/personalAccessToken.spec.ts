@@ -12,9 +12,10 @@
 
 import { api } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
-import { stubPersonalAccessTokenList } from '../helpers/__mocks__/getDevWorkspaceClient';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
+import { stubPersonalAccessTokenList } from '@/routes/api/helpers/__mocks__/getDevWorkspaceClient';
 
 jest.mock('../helpers/getToken.ts');
 jest.mock('../helpers/getDevWorkspaceClient.ts');

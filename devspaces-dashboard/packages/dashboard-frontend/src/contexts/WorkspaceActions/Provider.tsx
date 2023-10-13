@@ -10,9 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { History, Location } from 'history';
-import { connect, ConnectedProps } from 'react-redux';
 import {
   Button,
   ButtonVariant,
@@ -23,18 +20,23 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
+import { History, Location } from 'history';
+import React from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+
 import {
   buildDetailsLocation,
   buildIdeLoaderLocation,
   buildWorkspacesLocation,
   toHref,
-} from '../../services/helpers/location';
-import { LoaderTab, WorkspaceAction, WorkspaceDetailsTab } from '../../services/helpers/types';
-import { AppState } from '../../store';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
-import * as WorkspacesStore from '../../store/Workspaces';
+} from '@/services/helpers/location';
+import { LoaderTab, WorkspaceAction, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import * as WorkspacesStore from '@/store/Workspaces';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
+
 import { WorkspaceActionsContext } from '.';
-import { Workspace } from '../../services/workspace-adapter';
 
 type Deferred = {
   resolve: () => void;

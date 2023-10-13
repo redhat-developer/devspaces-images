@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ConditionType } from '../../../utils';
+import { ConditionType } from '@/components/WorkspaceProgress/utils';
 
 export const conditionChangedTo: {
   [key: string]: [condition: ConditionType, prevCondition: ConditionType | undefined];

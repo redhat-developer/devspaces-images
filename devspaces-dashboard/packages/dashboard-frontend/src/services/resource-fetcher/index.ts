@@ -11,7 +11,8 @@
  */
 
 import axios from 'axios';
-import { AppState } from '../../store';
+
+import { AppState } from '@/store';
 
 // source: https://github.com/eclipse/che-dashboard/blob/381ff548a9fff3537f1a29ce8e9b228f6c145338/src/components/service/resource-fetcher/resource-fetcher.service.ts
 

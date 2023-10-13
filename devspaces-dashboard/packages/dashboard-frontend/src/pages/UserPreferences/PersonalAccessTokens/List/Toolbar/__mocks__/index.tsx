@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props } from '..';
 
 export class PersonalAccessTokenListToolbar extends React.PureComponent<Props> {

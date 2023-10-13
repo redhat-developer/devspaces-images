@@ -19,10 +19,11 @@ import {
   ValidatedOptions,
 } from '@patternfly/react-core';
 import React from 'react';
-import { RegistryEntry } from '../../../../store/DockerConfig/types';
-import { RegistryPasswordFormGroup } from '../RegistryPassword';
-import { RegistryUrlFormGroup } from '../RegistryUrl';
-import { RegistryUsernameFormGroup } from '../RegistryUsername';
+
+import { RegistryPasswordFormGroup } from '@/pages/UserPreferences/ContainerRegistriesTab/RegistryPassword';
+import { RegistryUrlFormGroup } from '@/pages/UserPreferences/ContainerRegistriesTab/RegistryUrl';
+import { RegistryUsernameFormGroup } from '@/pages/UserPreferences/ContainerRegistriesTab/RegistryUsername';
+import { RegistryEntry } from '@/store/DockerConfig/types';
 
 type Props = {
   registry: RegistryEntry;

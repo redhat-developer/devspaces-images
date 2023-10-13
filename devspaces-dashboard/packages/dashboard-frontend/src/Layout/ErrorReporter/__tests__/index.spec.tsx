@@ -10,13 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { render, screen } from '@testing-library/react';
+
+import { IssueComponent } from '@/Layout/ErrorReporter/Issue';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { Issue } from '@/services/bootstrap/issuesReporter';
+
 import { ErrorReporter } from '..';
-import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { Issue } from '../../../services/bootstrap/issuesReporter';
-import { IssueComponent } from '../Issue';
 
 const brandingData = {
   name: 'Product Name',

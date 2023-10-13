@@ -11,7 +11,8 @@
  */
 
 import { V1alpha2DevWorkspaceSpec } from '@devfile/api';
-import { DevWorkspaceSpecTemplate } from './template';
+
+import { DevWorkspaceSpecTemplate } from '@/services/devfileApi/devWorkspace/spec/template';
 
 export type DevWorkspaceSpec = V1alpha2DevWorkspaceSpec & {
   template: DevWorkspaceSpecTemplate;

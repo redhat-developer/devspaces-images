@@ -21,7 +21,8 @@ import {
 } from '@patternfly/react-core';
 import { CompressIcon, DownloadIcon, ExpandIcon } from '@patternfly/react-icons';
 import React from 'react';
-import { ToggleBarsContext } from '../../../contexts/ToggleBars';
+
+import { ToggleBarsContext } from '@/contexts/ToggleBars';
 
 export type Props = {
   onToggle: (isExpand: boolean) => void;

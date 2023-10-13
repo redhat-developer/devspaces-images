@@ -11,12 +11,13 @@
  */
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { baseApiPath } from '../../constants/config';
-import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
-import { getToken } from './helpers/getToken';
-import { getSchema } from '../../services/helpers';
-import { restParams } from '../../models';
-import { namespacedKubeConfigSchema } from '../../constants/schemas';
+
+import { baseApiPath } from '@/constants/config';
+import { namespacedKubeConfigSchema } from '@/constants/schemas';
+import { restParams } from '@/models';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
+import { getToken } from '@/routes/api/helpers/getToken';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Podman Login'];
 

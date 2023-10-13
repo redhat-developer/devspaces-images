@@ -10,14 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import getComponentRenderer, { screen } from '../../../services/__mocks__/getComponentRenderer';
-import { Provider } from 'react-redux';
-import EditorTools from '..';
-import { Store } from 'redux';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import devfileApi from '../../../services/devfileApi';
 import { ApplicationId } from '@eclipse-che/common';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import EditorTools from '..';
 
 jest.mock('../../../contexts/ToggleBars');
 

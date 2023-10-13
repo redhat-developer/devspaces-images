@@ -11,6 +11,7 @@
  */
 
 import axios from 'axios';
+
 import { fetchCheUserId } from '..';
 
 jest.mock('axios');

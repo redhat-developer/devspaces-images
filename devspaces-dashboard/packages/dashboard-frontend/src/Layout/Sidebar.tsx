@@ -10,11 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { PageSidebar } from '@patternfly/react-core';
 import { History } from 'history';
+import React from 'react';
 
-import Navigation from './Navigation';
+import Navigation from '@/Layout/Navigation';
 
 type Props = {
   isManaged: boolean;

@@ -12,7 +12,8 @@
 
 import { api } from '@eclipse-che/common';
 import WebSocket from 'ws';
-import { NotificationMessage, Observer } from './types/Observer';
+
+import { NotificationMessage, Observer } from '@/services/types/Observer';
 
 /**
  * This class implements the Observer pattern. It reacts to the changes in the subject and sends messages to subscribers over WebSocket.

@@ -12,6 +12,7 @@
 
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
+
 import { devfileSchemaVersion, devfileToDevWorkspace, devWorkspaceToDevfile } from '..';
 
 describe('testing sample conversions', () => {

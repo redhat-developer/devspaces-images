@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Button } from '@patternfly/react-core';
-import { WorkspaceAction } from '../../../../services/helpers/types';
-import { ActionContextType } from '../../../../contexts/WorkspaceActions';
+import React from 'react';
+
+import { ActionContextType } from '@/contexts/WorkspaceActions';
+import { WorkspaceAction } from '@/services/helpers/types';
 
 type Props = {
   context: ActionContextType;

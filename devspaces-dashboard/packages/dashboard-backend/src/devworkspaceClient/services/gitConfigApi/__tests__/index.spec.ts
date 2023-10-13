@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, V1ConfigMap } from '@kubernetes/client-node';
 import { IncomingMessage } from 'http';
+
 import { GitConfigApiService } from '..';
-import { api } from '@eclipse-che/common';
 
 jest.mock('../../helpers/retryableExec');
 

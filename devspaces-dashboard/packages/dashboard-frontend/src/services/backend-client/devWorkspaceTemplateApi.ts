@@ -11,9 +11,10 @@
  */
 
 import common, { api } from '@eclipse-che/common';
-import devfileApi from '../devfileApi';
-import { dashboardBackendPrefix } from './const';
-import { AxiosWrapper } from './axiosWrapper';
+
+import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+import devfileApi from '@/services/devfileApi';
 
 export async function createTemplate(
   template: devfileApi.DevWorkspaceTemplate,

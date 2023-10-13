@@ -15,19 +15,24 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+
+import { TIMEOUT_TO_RESOLVE_SEC } from '@/components/WorkspaceProgress/const';
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import {
   buildFactoryParams,
   FactoryParams,
-} from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { AlertItem } from '../../../../../services/helpers/types';
-import { AppState } from '../../../../../store';
-import * as DevfileRegistriesStore from '../../../../../store/DevfileRegistries';
-import { selectDevWorkspaceResources } from '../../../../../store/DevfileRegistries/selectors';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
-import { TIMEOUT_TO_RESOLVE_SEC } from '../../../const';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../../ProgressStep';
-import { ProgressStepTitle } from '../../../StepTitle';
-import { TimeLimit } from '../../../TimeLimit';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
+import { AppState } from '@/store';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
+import { selectDevWorkspaceResources } from '@/store/DevfileRegistries/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {

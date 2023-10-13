@@ -13,9 +13,13 @@
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import * as ini from 'multi-ini';
-import { IGitConfigApi } from '../../types';
-import { createError } from '../helpers/createError';
-import { CoreV1API, prepareCoreV1API } from '../helpers/prepareCoreV1API';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
+import { IGitConfigApi } from '@/devworkspaceClient/types';
 
 const GITCONFIG_CONFIGMAP = 'workspace-userdata-gitconfig-configmap';
 const GITCONFIG_API_ERROR_LABEL = 'CORE_V1_API_ERROR';

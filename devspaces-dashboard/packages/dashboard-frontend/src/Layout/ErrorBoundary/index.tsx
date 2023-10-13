@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React, { ErrorInfo, PropsWithChildren } from 'react';
 import {
   Alert,
   AlertActionLink,
@@ -21,8 +20,10 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
+import React, { ErrorInfo, PropsWithChildren } from 'react';
 import Pluralize from 'react-pluralize';
-import { DisposableCollection } from '../../services/helpers/disposable';
+
+import { DisposableCollection } from '@/services/helpers/disposable';
 
 export const STORAGE_KEY_RELOAD_NUMBER = 'UD:ErrorBoundary:reloaded';
 const RELOAD_TIMEOUT_SEC = 30;

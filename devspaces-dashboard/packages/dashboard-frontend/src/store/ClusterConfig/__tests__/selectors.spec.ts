@@ -12,14 +12,16 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import * as store from '..';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import {
   selectClusterConfigError,
   selectDashboardWarning,
   selectRunningWorkspacesLimit,
-} from '../selectors';
+} from '@/store/ClusterConfig/selectors';
+
+import * as store from '..';
 
 describe('ClusterConfig', () => {
   it('should return an error', () => {

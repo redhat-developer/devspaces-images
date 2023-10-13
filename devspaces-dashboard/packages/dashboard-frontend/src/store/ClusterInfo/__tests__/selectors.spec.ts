@@ -12,10 +12,12 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectApplications, selectClusterInfoError } from '@/store/ClusterInfo/selectors';
+
 import * as store from '..';
-import { selectApplications, selectClusterInfoError } from '../selectors';
 
 const applications = [
   {

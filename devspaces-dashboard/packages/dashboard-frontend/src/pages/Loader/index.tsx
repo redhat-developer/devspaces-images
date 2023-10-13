@@ -13,18 +13,19 @@
 import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
-import Head from '../../components/Head';
-import Header from '../../components/Header';
-import WorkspaceEvents from '../../components/WorkspaceEvents';
-import WorkspaceLogs from '../../components/WorkspaceLogs';
-import WorkspaceProgress from '../../components/WorkspaceProgress';
-import { DevWorkspaceStatus, LoaderTab } from '../../services/helpers/types';
-import { Workspace } from '../../services/workspace-adapter';
-import styles from './index.module.css';
+
+import Head from '@/components/Head';
+import Header from '@/components/Header';
+import WorkspaceEvents from '@/components/WorkspaceEvents';
+import WorkspaceLogs from '@/components/WorkspaceLogs';
+import WorkspaceProgress from '@/components/WorkspaceProgress';
 import {
   getRestartInDebugModeLocation,
   getRestartInSafeModeLocation,
-} from '../../components/WorkspaceProgress/StartingSteps/StartWorkspace/prepareRestart';
+} from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace/prepareRestart';
+import styles from '@/pages/Loader/index.module.css';
+import { DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
 
 export type Props = {
   history: History;

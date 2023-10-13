@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { api as commonApi } from '@eclipse-che/common';
 import * as cheApi from '@eclipse-che/api';
+import { api as commonApi } from '@eclipse-che/common';
 
 export interface IGitOauth {
   name: commonApi.GitOauthProvider;

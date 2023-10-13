@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import normalizeDevfileV2 from '../normalizeDevfileV2';
-import devfileApi from '../../../services/devfileApi';
-import { FactoryResolver } from '../../../services/helpers/types';
 import { V221DevfileComponents } from '@devfile/api';
+
+import devfileApi from '@/services/devfileApi';
+import { FactoryResolver } from '@/services/helpers/types';
+import normalizeDevfileV2 from '@/store/FactoryResolver/normalizeDevfileV2';
 
 describe('Normalize Devfile V2', () => {
   let defaultComponents: V221DevfileComponents[];

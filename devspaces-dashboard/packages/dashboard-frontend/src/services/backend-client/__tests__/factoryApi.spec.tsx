@@ -11,9 +11,10 @@
  */
 
 import mockAxios from 'axios';
-import { getFactoryResolver, refreshFactoryOauthToken } from '../factoryApi';
-import { FactoryResolver } from '../../helpers/types';
-import devfileApi from '../../devfileApi';
+
+import { getFactoryResolver, refreshFactoryOauthToken } from '@/services/backend-client/factoryApi';
+import devfileApi from '@/services/devfileApi';
+import { FactoryResolver } from '@/services/helpers/types';
 
 describe('Factory API', () => {
   const mockPost = mockAxios.post as jest.Mock;

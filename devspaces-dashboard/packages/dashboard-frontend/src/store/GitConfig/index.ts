@@ -11,12 +11,15 @@
  */
 
 import common, { api, helpers } from '@eclipse-che/common';
+
+import { fetchGitConfig, patchGitConfig } from '@/services/backend-client/gitConfigApi';
+import { GitConfigUser, KnownAction, Type } from '@/store/GitConfig/types';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { fetchGitConfig, patchGitConfig } from '../../services/backend-client/gitConfigApi';
-import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { AUTHORIZED } from '../sanityCheckMiddleware';
-import { GitConfigUser, KnownAction, Type } from './types';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
+
 export * from './reducer';
 export * from './types';
 

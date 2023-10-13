@@ -11,24 +11,21 @@
  */
 
 import { Location } from 'history';
+import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { WorkspaceDetails } from '../../pages/WorkspaceDetails';
-import {
-  buildDetailsLocation,
-  toHref,
-  buildWorkspacesLocation,
-} from '../../services/helpers/location';
-import { WorkspaceDetailsTab } from '../../services/helpers/types';
-import { Workspace } from '../../services/workspace-adapter';
-import { AppState } from '../../store';
-import * as WorkspacesStore from '../../store/Workspaces';
-import { selectAllWorkspaces, selectIsLoading } from '../../store/Workspaces/selectors';
-import { isDevWorkspace } from '../../services/devfileApi';
-import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../services/devfileApi/devWorkspace/metadata';
-import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
-import { isEqual } from 'lodash';
+
+import { WorkspaceDetails } from '@/pages/WorkspaceDetails';
+import { isDevWorkspace } from '@/services/devfileApi';
+import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '@/services/devfileApi/devWorkspace/metadata';
+import { buildDetailsLocation, buildWorkspacesLocation, toHref } from '@/services/helpers/location';
+import { WorkspaceDetailsTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import * as WorkspacesStore from '@/store/Workspaces';
+import { selectAllWorkspaces, selectIsLoading } from '@/store/Workspaces/selectors';
 
 type Props = MappedProps &
   RouteComponentProps<{

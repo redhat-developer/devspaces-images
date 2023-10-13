@@ -10,17 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import mockAxios, { AxiosError } from 'axios';
-import { MockStoreEnhanced } from 'redux-mock-store';
-import { AnyAction } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
-import devfileApi from '../../../../services/devfileApi';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
-import * as dwPluginsStore from '..';
-import { AppState } from '../../..';
-import axios from 'axios';
-import { AUTHORIZED } from '../../../sanityCheckMiddleware';
 import { api } from '@eclipse-che/common';
+import mockAxios, { AxiosError } from 'axios';
+import { AnyAction } from 'redux';
+import { MockStoreEnhanced } from 'redux-mock-store';
+import { ThunkDispatch } from 'redux-thunk';
+
+import devfileApi from '@/services/devfileApi';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
+import * as dwPluginsStore from '..';
 
 // mute the outputs
 console.error = jest.fn();
@@ -193,7 +194,7 @@ describe('dwPlugins store', () => {
       expect(actions).toEqual(expectedActions);
 
       // check that we fetched the editor on axios
-      expect(axios.get).toBeCalledWith(editorLink);
+      expect(mockAxios.get).toBeCalledWith(editorLink);
     });
 
     it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR_ERROR when failed to fetch an editor', async () => {

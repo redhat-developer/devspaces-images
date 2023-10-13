@@ -12,12 +12,14 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import React from 'react';
-import { render, screen, RenderResult, fireEvent } from '@testing-library/react';
+import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+
 import WorkspacesListToolbar from '..';
-import { constructWorkspace, Workspace } from '../../../../services/workspace-adapter';
-import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
 
 let workspaces: Workspace[];
 let isSelectedAll: boolean;

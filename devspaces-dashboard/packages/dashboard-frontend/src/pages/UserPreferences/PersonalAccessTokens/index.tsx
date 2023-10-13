@@ -14,27 +14,28 @@ import { api, helpers } from '@eclipse-che/common';
 import { AlertVariant, pluralize } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import ProgressIndicator from '../../../components/Progress';
-import { lazyInject } from '../../../inversify.config';
-import { AppAlerts } from '../../../services/alerts/appAlerts';
-import { AppState } from '../../../store';
-import * as PersonalAccessTokenStore from '../../../store/PersonalAccessToken';
+
+import ProgressIndicator from '@/components/Progress';
+import { lazyInject } from '@/inversify.config';
+import { PersonalAccessTokenAddEditModal } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal';
+import { PersonalAccessTokenDeleteModal } from '@/pages/UserPreferences/PersonalAccessTokens/DeleteModal';
+import { PersonalAccessTokenEmptyState } from '@/pages/UserPreferences/PersonalAccessTokens/EmptyState';
+import { PersonalAccessTokenList } from '@/pages/UserPreferences/PersonalAccessTokens/List';
+import { EditTokenProps } from '@/pages/UserPreferences/PersonalAccessTokens/types';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AppState } from '@/store';
+import * as PersonalAccessTokenStore from '@/store/PersonalAccessToken';
 import {
-  selectPersonalAccessTokensIsLoading,
   selectPersonalAccessTokens,
   selectPersonalAccessTokensError,
-} from '../../../store/PersonalAccessToken/selectors';
-import * as UserIdStore from '../../../store/User/Id';
+  selectPersonalAccessTokensIsLoading,
+} from '@/store/PersonalAccessToken/selectors';
+import * as UserIdStore from '@/store/User/Id';
 import {
   selectCheUserId,
   selectCheUserIdError,
   selectCheUserIsLoading,
-} from '../../../store/User/Id/selectors';
-import { PersonalAccessTokenAddEditModal } from './AddEditModal';
-import { PersonalAccessTokenDeleteModal } from './DeleteModal';
-import { PersonalAccessTokenEmptyState } from './EmptyState';
-import { PersonalAccessTokenList } from './List';
-import { EditTokenProps } from './types';
+} from '@/store/User/Id/selectors';
 
 export type Props = MappedProps;
 export type State = {

@@ -10,10 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Label } from '@patternfly/react-core';
+import React from 'react';
 
-import styles from './index.module.css';
+import styles from '@/components/TagLabel/index.module.css';
 
 type Props = {
   version: string;

@@ -10,20 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Flex, FlexItem, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { load } from 'js-yaml';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Flex, FlexItem, PageSection, PageSectionVariants } from '@patternfly/react-core';
-import { AppState } from '../../../store';
-import { SamplesListHeader } from './SamplesListHeader';
-import SamplesListToolbar from './SamplesListToolbar';
-import SamplesListGallery from './SamplesListGallery';
-import { load } from 'js-yaml';
-import stringify from '../../../services/helpers/editor';
-import ImportFromGit from './ImportFromGit';
-import { ResolverState } from '../../../store/FactoryResolver';
-import { DevfileAdapter } from '../../../services/devfile/adapter';
-import { selectPvcStrategy } from '../../../store/ServerConfig/selectors';
-import devfileApi from '../../../services/devfileApi';
+
+import ImportFromGit from '@/pages/GetStarted/GetStartedTab/ImportFromGit';
+import SamplesListGallery from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
+import { SamplesListHeader } from '@/pages/GetStarted/GetStartedTab/SamplesListHeader';
+import SamplesListToolbar from '@/pages/GetStarted/GetStartedTab/SamplesListToolbar';
+import { DevfileAdapter } from '@/services/devfile/adapter';
+import devfileApi from '@/services/devfileApi';
+import stringify from '@/services/helpers/editor';
+import { AppState } from '@/store';
+import { ResolverState } from '@/store/FactoryResolver';
+import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 
 // At runtime, Redux will merge together...
 type Props = {

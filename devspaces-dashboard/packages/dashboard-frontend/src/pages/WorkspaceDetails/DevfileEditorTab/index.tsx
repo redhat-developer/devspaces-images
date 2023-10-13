@@ -10,21 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { TextContent } from '@patternfly/react-core';
-import EditorTools from '../../../components/EditorTools';
-import { Workspace } from '../../../services/workspace-adapter';
-import {
-  DEVWORKSPACE_METADATA_ANNOTATION,
-  DEVWORKSPACE_DEVFILE,
-} from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { load } from 'js-yaml';
+import React from 'react';
 
-import styles from './index.module.css';
-import DevfileViewer from '../../../components/DevfileViewer';
-import { DevfileAdapter } from '../../../services/devfile/adapter';
-import stringify from '../../../services/helpers/editor';
-import devfileApi from '../../../services/devfileApi';
+import DevfileViewer from '@/components/DevfileViewer';
+import EditorTools from '@/components/EditorTools';
+import styles from '@/pages/WorkspaceDetails/DevfileEditorTab/index.module.css';
+import { DevfileAdapter } from '@/services/devfile/adapter';
+import devfileApi from '@/services/devfileApi';
+import stringify from '@/services/helpers/editor';
+import { Workspace } from '@/services/workspace-adapter';
+import {
+  DEVWORKSPACE_DEVFILE,
+  DEVWORKSPACE_METADATA_ANNOTATION,
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 export type Props = {
   workspace: Workspace;

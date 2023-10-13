@@ -11,8 +11,9 @@
  */
 
 import { V221DevfileProjects } from '@devfile/api';
-import { FactoryLocationAdapter } from '../../../../../services/factory-location-adapter';
-import { getProjectName } from '../../../../../services/helpers/getProjectName';
+
+import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
+import { getProjectName } from '@/services/helpers/getProjectName';
 
 export function getProjectFromLocation(
   location: string,

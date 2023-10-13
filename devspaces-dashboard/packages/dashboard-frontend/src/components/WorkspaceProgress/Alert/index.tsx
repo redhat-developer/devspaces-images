@@ -12,9 +12,9 @@
 
 import { Alert, AlertActionLink, AlertGroup } from '@patternfly/react-core';
 import React from 'react';
-import { AlertItem } from '../../../services/helpers/types';
 
-import styles from './index.module.css';
+import styles from '@/components/WorkspaceProgress/Alert/index.module.css';
+import { AlertItem } from '@/services/helpers/types';
 
 export type Props = {
   isToast: boolean;

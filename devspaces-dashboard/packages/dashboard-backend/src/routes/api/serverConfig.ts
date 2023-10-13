@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../constants/config';
-import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
-import { getServiceAccountToken } from './helpers/getServiceAccountToken';
-import { getSchema } from '../../services/helpers';
 import { api } from '@eclipse-che/common';
+import { FastifyInstance } from 'fastify';
+
+import { baseApiPath } from '@/constants/config';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
+import { getServiceAccountToken } from '@/routes/api/helpers/getServiceAccountToken';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Server Config'];
 

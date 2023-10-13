@@ -15,16 +15,14 @@ import { screen, within } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { constructWorkspace, Workspace, WorkspaceAdapter } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import WorkspaceEvents from '..';
-import devfileApi from '../../../services/devfileApi';
-import {
-  constructWorkspace,
-  Workspace,
-  WorkspaceAdapter,
-} from '../../../services/workspace-adapter';
-import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('../Item');
 

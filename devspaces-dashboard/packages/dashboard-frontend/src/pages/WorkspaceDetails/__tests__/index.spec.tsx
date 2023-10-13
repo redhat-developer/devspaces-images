@@ -10,16 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { createHashHistory, History, Location } from 'history';
+import React from 'react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router';
-import { WorkspaceDetails, Props } from '..';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { constructWorkspace } from '../../../services/workspace-adapter';
-import devfileApi from '../../../services/devfileApi';
+
+import devfileApi from '@/services/devfileApi';
+import { constructWorkspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import { Props, WorkspaceDetails } from '..';
 
 const mockOnSave = jest.fn();
 

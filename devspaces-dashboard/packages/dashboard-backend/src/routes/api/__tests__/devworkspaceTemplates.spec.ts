@@ -10,14 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { IPatch } from '@eclipse-che/common/src/dto/api';
+import { api } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 import {
   stubDevWorkspaceTemplate,
   stubDevWorkspaceTemplatesList,
-} from '../helpers/__mocks__/getDevWorkspaceClient';
+} from '@/routes/api/helpers/__mocks__/getDevWorkspaceClient';
 
 jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');
@@ -64,7 +65,7 @@ describe('DevWorkspaceTemplates Routes', () => {
 
     test('PATCH ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
       const templateName = 'tmpl';
-      const patches: IPatch[] = [
+      const patches: api.IPatch[] = [
         {
           op: 'replace',
           path: '/metadata/annotations',

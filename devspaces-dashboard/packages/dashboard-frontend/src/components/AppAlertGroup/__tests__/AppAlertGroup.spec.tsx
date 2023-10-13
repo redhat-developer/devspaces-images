@@ -11,11 +11,13 @@
  */
 
 import { AlertVariant } from '@patternfly/react-core';
-import React from 'react';
 import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+
+import { container } from '@/inversify.config';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+
 import AppAlertGroup from '..';
-import { container } from '../../../inversify.config';
-import { AppAlerts } from '../../../services/alerts/appAlerts';
 
 const appAlerts = container.get(AppAlerts);
 

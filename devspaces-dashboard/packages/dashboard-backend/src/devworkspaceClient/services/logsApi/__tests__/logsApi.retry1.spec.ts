@@ -15,9 +15,11 @@
 import { api } from '@eclipse-che/common';
 import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, V1Pod } from '@kubernetes/client-node';
+
+import { RETRY_DELAY_SECONDS, RETRY_NUMBER } from '@/devworkspaceClient/services/logsApi/const';
+import * as helpers from '@/services/helpers';
+
 import { LogsApiService } from '..';
-import * as helpers from '../../../../services/helpers';
-import { RETRY_DELAY_SECONDS, RETRY_NUMBER } from '../const';
 
 jest.mock('../const', () => ({
   RETRY_DELAY_SECONDS: 0.1,

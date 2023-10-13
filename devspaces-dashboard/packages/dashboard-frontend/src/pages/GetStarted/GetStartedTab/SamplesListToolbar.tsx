@@ -10,24 +10,22 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { connect, ConnectedProps } from 'react-redux';
-import React from 'react';
-import Pluralize from 'react-pluralize';
 import {
-  TextContent,
   Flex,
   FlexItem,
   Text,
+  TextContent,
   TextInput,
   TextInputProps,
 } from '@patternfly/react-core';
-import TemporaryStorageSwitch from './TemporaryStorageSwitch';
-import * as DevfileRegistriesStore from '../../../store/DevfileRegistries';
-import { AppState } from '../../../store';
-import {
-  selectFilterValue,
-  selectMetadataFiltered,
-} from '../../../store/DevfileRegistries/selectors';
+import React from 'react';
+import Pluralize from 'react-pluralize';
+import { connect, ConnectedProps } from 'react-redux';
+
+import TemporaryStorageSwitch from '@/pages/GetStarted/GetStartedTab/TemporaryStorageSwitch';
+import { AppState } from '@/store';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
+import { selectFilterValue, selectMetadataFiltered } from '@/store/DevfileRegistries/selectors';
 
 type Props = MappedProps & {
   persistVolumesDefault: string;

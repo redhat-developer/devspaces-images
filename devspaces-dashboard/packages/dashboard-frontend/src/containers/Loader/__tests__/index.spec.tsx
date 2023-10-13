@@ -16,13 +16,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { Store } from 'redux';
+
+import { ROUTE } from '@/Routes/routes';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import { getMockRouterProps } from '@/services/__mocks__/router';
+import { constructWorkspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import LoaderContainer from '..';
-import { ROUTE } from '../../../Routes/routes';
-import { constructWorkspace } from '../../../services/workspace-adapter';
-import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
-import { getMockRouterProps } from '../../../services/__mocks__/router';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('../../../pages/Loader');
 

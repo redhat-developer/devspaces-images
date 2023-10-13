@@ -12,12 +12,14 @@
 
 import { api } from '@eclipse-che/common';
 import React from 'react';
-import { PersonalAccessTokenList } from '..';
+
 import getComponentRenderer, {
   fireEvent,
   screen,
   within,
-} from '../../../../../services/__mocks__/getComponentRenderer';
+} from '@/services/__mocks__/getComponentRenderer';
+
+import { PersonalAccessTokenList } from '..';
 
 jest.mock('../Toolbar');
 

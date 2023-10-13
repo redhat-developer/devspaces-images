@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import RevokeRegistriesModal from '../RevokeGitServicesModal';
-import { api } from '@eclipse-che/common';
+
+import RevokeRegistriesModal from '@/pages/UserPreferences/GitServicesTab/Modals/RevokeGitServicesModal';
 
 describe('Revoke Registries Modal', () => {
   const mockOnRevoke = jest.fn();

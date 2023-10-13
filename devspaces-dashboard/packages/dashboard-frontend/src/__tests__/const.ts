@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FactoryResolver } from '../services/helpers/types';
-import devfileApi from '../services/devfileApi';
-import normalizeDevfileV2 from '../store/FactoryResolver/normalizeDevfileV2';
 import { dump } from 'js-yaml';
+
+import devfileApi from '@/services/devfileApi';
+import { FactoryResolver } from '@/services/helpers/types';
+import normalizeDevfileV2 from '@/store/FactoryResolver/normalizeDevfileV2';
 
 export const FACTORY_RESOLVER_DELAY = 600;
 export const DEVWORKSPACE_RESOURSES_DELAY = 600;

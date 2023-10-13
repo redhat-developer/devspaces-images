@@ -10,16 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
 import { Store } from 'redux';
+
+import { FakeRegistryBuilder } from '@/pages/UserPreferences/ContainerRegistriesTab/__tests__/__mocks__/registryRowBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectIsLoading, selectRegistries } from '@/store/DockerConfig/selectors';
+
 import { ContainerRegistries } from '..';
-import { selectIsLoading, selectRegistries } from '../../../../store/DockerConfig/selectors';
-import { FakeRegistryBuilder } from './__mocks__/registryRowBuilder';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 
 describe('ContainerRegistries', () => {
   const mockRequestCredentials = jest.fn();

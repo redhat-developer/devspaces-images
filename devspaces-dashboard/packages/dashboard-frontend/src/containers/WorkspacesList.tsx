@@ -10,19 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { History } from 'history';
-import { AppState } from '../store';
-import { selectAllWorkspaces, selectIsLoading } from '../store/Workspaces/selectors';
-import * as WorkspacesStore from '../store/Workspaces';
-import Fallback from '../components/Fallback';
-import WorkspacesList from '../pages/WorkspacesList';
-import WorkspaceActionsProvider from '../contexts/WorkspaceActions/Provider';
-import { WorkspaceActionsConsumer } from '../contexts/WorkspaceActions';
-import { lazyInject } from '../inversify.config';
-import { AppAlerts } from '../services/alerts/appAlerts';
-import { selectBranding } from '../store/Branding/selectors';
+
+import Fallback from '@/components/Fallback';
+import { WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
+import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
+import { lazyInject } from '@/inversify.config';
+import WorkspacesList from '@/pages/WorkspacesList';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
+import * as WorkspacesStore from '@/store/Workspaces';
+import { selectAllWorkspaces, selectIsLoading } from '@/store/Workspaces/selectors';
 
 type Props = MappedProps & { history: History };
 

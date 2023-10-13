@@ -12,8 +12,9 @@
 
 import { AlertVariant } from '@patternfly/react-core';
 import React from 'react';
-import { AlertItem } from '../../../services/helpers/types';
-import { ProgressStepProps, ProgressStepState } from '../ProgressStep';
+
+import { ProgressStepProps, ProgressStepState } from '@/components/WorkspaceProgress/ProgressStep';
+import { AlertItem } from '@/services/helpers/types';
 
 export class ProgressStep extends React.Component<ProgressStepProps, ProgressStepState> {
   protected readonly name: string;

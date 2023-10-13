@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React, { FormEvent } from 'react';
 import { Switch, Text, Tooltip, TooltipPosition } from '@patternfly/react-core';
-import { connect, ConnectedProps } from 'react-redux';
-import { AppState } from '../../../store';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { selectBranding } from '../../../store/Branding/selectors';
+import React, { FormEvent } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
 
 type Props = MappedProps & {
   persistVolumesDefault: string;

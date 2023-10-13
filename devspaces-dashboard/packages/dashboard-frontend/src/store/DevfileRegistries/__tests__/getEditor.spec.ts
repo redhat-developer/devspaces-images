@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { dump } from 'js-yaml';
-import mockAxios from 'axios';
 import common from '@eclipse-che/common';
-import devfileApi from '../../../services/devfileApi';
-import { getEditor } from '../getEditor';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+import mockAxios from 'axios';
+import { dump } from 'js-yaml';
+
+import devfileApi from '@/services/devfileApi';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { getEditor } from '@/store/DevfileRegistries/getEditor';
 
 describe('Get Devfile by URL', () => {
   let editor: devfileApi.Devfile;

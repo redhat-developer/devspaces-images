@@ -12,9 +12,12 @@
 
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
-import { IPersonalAccessTokenApi } from '../../types';
-import { createError } from '../helpers/createError';
-import { CoreV1API, prepareCoreV1API } from '../helpers/prepareCoreV1API';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
 import {
   buildLabelSelector,
   DUMMY_TOKEN_DATA,
@@ -23,7 +26,8 @@ import {
   toSecret,
   toSecretName,
   toToken,
-} from './helpers';
+} from '@/devworkspaceClient/services/personalAccessTokenApi/helpers';
+import { IPersonalAccessTokenApi } from '@/devworkspaceClient/types';
 
 const API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 

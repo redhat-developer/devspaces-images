@@ -10,17 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
-
-import NavigationRecentItem from '../RecentItem';
-import { NavigationRecentItemObject } from '..';
 import { createHashHistory } from 'history';
+import React from 'react';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router';
 import renderer from 'react-test-renderer';
-import { WorkspaceStatus } from '../../../services/helpers/types';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+
+import NavigationRecentItem from '@/Layout/Navigation/RecentItem';
+import { WorkspaceStatus } from '@/services/helpers/types';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import { NavigationRecentItemObject } from '..';
 
 jest.mock('../../../components/Workspace/Indicator', () => {
   return function DummyWorkspaceIndicator(): React.ReactElement {

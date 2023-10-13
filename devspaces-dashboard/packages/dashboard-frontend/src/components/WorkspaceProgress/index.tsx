@@ -15,32 +15,35 @@ import { History } from 'history';
 import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+
+import { ProgressAlert } from '@/components/WorkspaceProgress/Alert';
+import CommonStepCheckRunningWorkspacesLimit from '@/components/WorkspaceProgress/CommonSteps/CheckRunningWorkspacesLimit';
+import CreatingStepApplyDevfile from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile';
+import CreatingStepApplyResources from '@/components/WorkspaceProgress/CreatingSteps/Apply/Resources';
+import CreatingStepCheckExistingWorkspaces from '@/components/WorkspaceProgress/CreatingSteps/CheckExistingWorkspaces';
+import CreatingStepCreateWorkspace from '@/components/WorkspaceProgress/CreatingSteps/CreateWorkspace';
+import CreatingStepFetchDevfile from '@/components/WorkspaceProgress/CreatingSteps/Fetch/Devfile';
+import CreatingStepFetchResources from '@/components/WorkspaceProgress/CreatingSteps/Fetch/Resources';
+import CreatingStepInitialize from '@/components/WorkspaceProgress/CreatingSteps/Initialize';
+import StartingStepInitialize from '@/components/WorkspaceProgress/StartingSteps/Initialize';
+import StartingStepOpenWorkspace from '@/components/WorkspaceProgress/StartingSteps/OpenWorkspace';
+import StartingStepStartWorkspace from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace';
+import StartingStepWorkspaceConditions from '@/components/WorkspaceProgress/StartingSteps/WorkspaceConditions';
+import { ConditionType, isWorkspaceStatusCondition } from '@/components/WorkspaceProgress/utils';
+import WorkspaceProgressWizard, {
+  WorkspaceProgressWizardStep,
+} from '@/components/WorkspaceProgress/Wizard';
 import {
   buildFactoryParams,
   FactoryParams,
-} from '../../services/helpers/factoryFlow/buildFactoryParams';
-import { findTargetWorkspace } from '../../services/helpers/factoryFlow/findTargetWorkspace';
-import { getLoaderMode, LoaderMode } from '../../services/helpers/factoryFlow/getLoaderMode';
-import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../services/helpers/types';
-import { Workspace } from '../../services/workspace-adapter';
-import { AppState } from '../../store';
-import * as WorkspaceStore from '../../store/Workspaces';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
-import { ProgressAlert } from './Alert';
-import CommonStepCheckRunningWorkspacesLimit from './CommonSteps/CheckRunningWorkspacesLimit';
-import CreatingStepApplyDevfile from './CreatingSteps/Apply/Devfile';
-import CreatingStepApplyResources from './CreatingSteps/Apply/Resources';
-import CreatingStepCheckExistingWorkspaces from './CreatingSteps/CheckExistingWorkspaces';
-import CreatingStepCreateWorkspace from './CreatingSteps/CreateWorkspace';
-import CreatingStepFetchDevfile from './CreatingSteps/Fetch/Devfile';
-import CreatingStepFetchResources from './CreatingSteps/Fetch/Resources';
-import CreatingStepInitialize from './CreatingSteps/Initialize';
-import StartingStepInitialize from './StartingSteps/Initialize';
-import StartingStepOpenWorkspace from './StartingSteps/OpenWorkspace';
-import StartingStepStartWorkspace from './StartingSteps/StartWorkspace';
-import StartingStepWorkspaceConditions from './StartingSteps/WorkspaceConditions';
-import { ConditionType, isWorkspaceStatusCondition } from './utils';
-import WorkspaceProgressWizard, { WorkspaceProgressWizardStep } from './Wizard';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
+import { getLoaderMode, LoaderMode } from '@/services/helpers/factoryFlow/getLoaderMode';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import * as WorkspaceStore from '@/store/Workspaces';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps & {
   history: History;

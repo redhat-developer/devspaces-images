@@ -18,6 +18,10 @@ module.exports = {
   moduleDirectories: [
     'node_modules',
   ],
+  moduleNameMapper: {
+    // mapping for absolute imports (see tsconfig.json)
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
   collectCoverageFrom: [
     ...base.collectCoverageFrom,
 

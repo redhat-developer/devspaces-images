@@ -11,8 +11,9 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 
 jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');
@@ -29,11 +30,10 @@ describe('Kube Config Route', () => {
     teardown(app);
   });
 
-  test('POST ${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/kubeconfig', async () => {
-    const devworkspaceId = 'wksp-id';
+  test('POST ${baseApiPath}/namespace/:namespace/kubeconfig', async () => {
     const res = await app
       .inject()
-      .post(`${baseApiPath}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`)
+      .post(`${baseApiPath}/namespace/${namespace}/kubeconfig`)
       .payload({});
 
     expect(res.statusCode).toEqual(204);

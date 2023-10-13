@@ -11,18 +11,19 @@
  */
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { baseApiPath } from '../../constants/config';
+
+import { baseApiPath } from '@/constants/config';
 import {
+  dwTemplatePatchSchema,
   namespacedSchema,
   namespacedTemplateSchema,
-  dwTemplatePatchSchema,
   templateStartedSchema,
-} from '../../constants/schemas';
-import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
-import { getToken } from './helpers/getToken';
-import { getSchema } from '../../services/helpers';
-import { restParams } from '../../models';
-import { isLocalRun } from '../../localRun';
+} from '@/constants/schemas';
+import { isLocalRun } from '@/localRun';
+import { restParams } from '@/models';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
+import { getToken } from '@/routes/api/helpers/getToken';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Devworkspace Template'];
 

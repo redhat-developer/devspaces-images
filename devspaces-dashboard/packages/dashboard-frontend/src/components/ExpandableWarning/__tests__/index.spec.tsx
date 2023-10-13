@@ -10,11 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
 import renderer from 'react-test-renderer';
 
-import ExpandableWarningItems, { ERROR_MESSAGE_ID } from '../';
-import { render, RenderResult, screen } from '@testing-library/react';
+import ExpandableWarningItems, { ERROR_MESSAGE_ID } from '@/components/ExpandableWarning';
 
 describe('Expandable warning items', () => {
   it('should correctly render the component', () => {

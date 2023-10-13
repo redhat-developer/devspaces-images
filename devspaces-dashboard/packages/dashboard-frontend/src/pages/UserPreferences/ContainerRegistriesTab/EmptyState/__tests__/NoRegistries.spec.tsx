@@ -12,7 +12,8 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
-import NoRegistriesEmptyState from '../NoRegistries';
+
+import NoRegistriesEmptyState from '@/pages/UserPreferences/ContainerRegistriesTab/EmptyState/NoRegistries';
 
 describe('No registries component for empty state', () => {
   const onAdd = jest.fn();

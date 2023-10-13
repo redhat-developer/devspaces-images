@@ -11,8 +11,9 @@
  */
 
 import axios from 'axios';
-import { cheServerPrefix } from './const';
-import { FactoryResolver } from '../helpers/types';
+
+import { cheServerPrefix } from '@/services/backend-client/const';
+import { FactoryResolver } from '@/services/helpers/types';
 
 export async function getFactoryResolver(
   url: string,

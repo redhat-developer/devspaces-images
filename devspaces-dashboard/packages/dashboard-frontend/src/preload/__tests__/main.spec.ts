@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { REMOTES_ATTR } from '../../services/helpers/factoryFlow/buildFactoryParams';
-import SessionStorageService, { SessionStorageKey } from '../../services/session-storage';
-import { redirectToDashboard, buildFactoryLoaderPath, storePathIfNeeded } from '../main';
+import { buildFactoryLoaderPath, redirectToDashboard, storePathIfNeeded } from '@/preload/main';
+import { REMOTES_ATTR } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
 
 describe('test buildFactoryLoaderPath()', () => {
   describe('SSHLocation', () => {

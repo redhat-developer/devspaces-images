@@ -10,17 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Store } from 'redux';
-import { render, screen, RenderResult, fireEvent } from '@testing-library/react';
+import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import mockAxios from 'axios';
-import SamplesListGallery from '../SamplesListGallery';
+import React from 'react';
 import { Provider } from 'react-redux';
-import mockMetadata from '../../__tests__/devfileMetadata.json';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
-import { ConvertedState } from '../../../../store/FactoryResolver';
-import devfileApi from '../../../../services/devfileApi';
+import { Store } from 'redux';
+
+import mockMetadata from '@/pages/GetStarted/__tests__/devfileMetadata.json';
+import SamplesListGallery from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import devfileApi from '@/services/devfileApi';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ConvertedState } from '@/store/FactoryResolver';
 
 const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
 

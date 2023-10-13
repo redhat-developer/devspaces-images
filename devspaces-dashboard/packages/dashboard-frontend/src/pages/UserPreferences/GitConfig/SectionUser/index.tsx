@@ -12,9 +12,10 @@
 
 import { Form, FormSection, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
 import * as React from 'react';
-import { GitConfigUser } from '../../../../store/GitConfig';
-import { GitConfigUserName } from './Name';
-import { GitConfigUserEmail } from './Email';
+
+import { GitConfigUserEmail } from '@/pages/UserPreferences/GitConfig/SectionUser/Email';
+import { GitConfigUserName } from '@/pages/UserPreferences/GitConfig/SectionUser/Name';
+import { GitConfigUser } from '@/store/GitConfig';
 
 export type Props = {
   config: GitConfigUser;

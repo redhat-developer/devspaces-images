@@ -11,14 +11,15 @@
  */
 
 import common from '@eclipse-che/common';
-import devfileApi, { isDevfileV2 } from '../devfileApi';
-import { load, dump } from 'js-yaml';
-import { ICheEditorYaml } from './devworkspace/devWorkspaceClient';
-import { AppState } from '../../store';
-import { ThunkDispatch } from 'redux-thunk';
-import { KnownAction } from '../../store/DevfileRegistries';
-import { getEditor } from '../../store/DevfileRegistries/getEditor';
 import { includesAxiosResponse } from '@eclipse-che/common/lib/helpers/errors';
+import { dump, load } from 'js-yaml';
+import { ThunkDispatch } from 'redux-thunk';
+
+import devfileApi, { isDevfileV2 } from '@/services/devfileApi';
+import { ICheEditorYaml } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { AppState } from '@/store';
+import { KnownAction } from '@/store/DevfileRegistries';
+import { getEditor } from '@/store/DevfileRegistries/getEditor';
 
 /**
  * Returns an error message for the sanity check service

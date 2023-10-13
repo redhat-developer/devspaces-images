@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import { helpers } from '@eclipse-che/common';
-import { dashboardBackendPrefix } from './const';
+import axios from 'axios';
 import * as yaml from 'js-yaml';
-import devfileApi from '../devfileApi';
-import { FactoryResolver } from '../helpers/types';
+
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+import devfileApi from '@/services/devfileApi';
+import { FactoryResolver } from '@/services/helpers/types';
 
 export async function getYamlResolver(
   namespace: string,

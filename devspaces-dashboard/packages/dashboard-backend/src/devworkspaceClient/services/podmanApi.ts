@@ -10,11 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as k8s from '@kubernetes/client-node';
-import { IPodmanApi } from '../types';
 import { helpers } from '@eclipse-che/common';
-import { exec, ServerConfig } from './helpers/exec';
-import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
+import * as k8s from '@kubernetes/client-node';
+
+import { exec, ServerConfig } from '@/devworkspaceClient/services/helpers/exec';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
+import { IPodmanApi } from '@/devworkspaceClient/types';
 
 const EXCLUDED_CONTAINERS = ['che-gateway', 'che-machine-exec'];
 

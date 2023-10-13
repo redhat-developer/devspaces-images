@@ -11,8 +11,10 @@
  */
 
 import { createSelector } from 'reselect';
+
+import { State } from '@/store/GitOauthConfig/index';
+
 import { AppState } from '..';
-import { State } from './index';
 
 const selectState = (state: AppState) => state.gitOauthConfig;
 

@@ -12,9 +12,13 @@
 
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
-import { IUserProfileApi } from '../types';
-import { createError } from './helpers/createError';
-import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
+import { IUserProfileApi } from '@/devworkspaceClient/types';
 
 const ERROR_LABEL = 'CORE_V1_API_ERROR';
 const USER_PROFILE_SECRET_NAME = 'user-profile';

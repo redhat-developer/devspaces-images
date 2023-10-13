@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { createObject } from '../helpers';
+import { createObject } from '@/store/helpers';
 
 describe('Store helpers', () => {
   describe('Creates a new state object', () => {

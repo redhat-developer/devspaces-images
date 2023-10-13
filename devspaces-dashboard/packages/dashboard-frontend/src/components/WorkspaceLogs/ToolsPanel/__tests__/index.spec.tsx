@@ -11,8 +11,10 @@
  */
 
 import React from 'react';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+
 import { WorkspaceLogsToolsPanel } from '..';
-import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
 
 const { createSnapshot } = getComponentRenderer(getComponent);
 

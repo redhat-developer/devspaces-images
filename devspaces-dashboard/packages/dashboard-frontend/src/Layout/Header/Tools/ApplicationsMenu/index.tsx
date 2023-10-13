@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
+import { ApplicationInfo } from '@eclipse-che/common';
 import {
   ApplicationLauncher,
   ApplicationLauncherGroup,
   ApplicationLauncherItem,
 } from '@patternfly/react-core';
-import { ApplicationInfo } from '@eclipse-che/common';
+import React from 'react';
 
 type Props = {
   applications: ApplicationInfo[];

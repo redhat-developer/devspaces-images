@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as mockClient from '@kubernetes/client-node';
-import { GettingStartedSamplesApiService } from '../gettingStartedSamplesApi';
 import { api } from '@eclipse-che/common';
+import * as mockClient from '@kubernetes/client-node';
+
+import { GettingStartedSamplesApiService } from '@/devworkspaceClient/services/gettingStartedSamplesApi';
 
 describe('Getting Started Samples API Service', () => {
   const env = process.env;

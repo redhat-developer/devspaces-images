@@ -11,9 +11,14 @@
  */
 
 import { createSelector } from 'reselect';
+
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import {
+  selectDevWorkspacesError,
+  selectRunningDevWorkspaces,
+} from '@/store/Workspaces/devWorkspaces/selectors';
+
 import { AppState } from '..';
-import { constructWorkspace, Workspace } from '../../services/workspace-adapter';
-import { selectRunningDevWorkspaces, selectDevWorkspacesError } from './devWorkspaces/selectors';
 
 const selectState = (state: AppState) => state.workspaces;
 const selectDevWorkspacesState = (state: AppState) => state.devWorkspaces;

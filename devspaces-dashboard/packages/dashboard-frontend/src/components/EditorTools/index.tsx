@@ -21,18 +21,19 @@ import {
 } from '@patternfly/react-icons';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { ConnectedProps, connect } from 'react-redux';
-import { ToggleBarsContext } from '../../contexts/ToggleBars';
-import { lazyInject } from '../../inversify.config';
-import { AppAlerts } from '../../services/alerts/appAlerts';
-import devfileApi, { isDevWorkspace, isDevfileV2 } from '../../services/devfileApi';
-import stringify from '../../services/helpers/editor';
-import { AlertItem } from '../../services/helpers/types';
-import { AppState } from '../../store';
-import { actionCreators } from '../../store/BannerAlert';
-import { selectApplications } from '../../store/ClusterInfo/selectors';
-import styles from './index.module.css';
-import { WorkspaceAdapter } from '../../services/workspace-adapter';
+import { connect, ConnectedProps } from 'react-redux';
+
+import styles from '@/components/EditorTools/index.module.css';
+import { ToggleBarsContext } from '@/contexts/ToggleBars';
+import { lazyInject } from '@/inversify.config';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import devfileApi, { isDevfileV2, isDevWorkspace } from '@/services/devfileApi';
+import stringify from '@/services/helpers/editor';
+import { AlertItem } from '@/services/helpers/types';
+import { WorkspaceAdapter } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { actionCreators } from '@/store/BannerAlert';
+import { selectApplications } from '@/store/ClusterInfo/selectors';
 
 type Props = MappedProps & {
   devfileOrDevWorkspace: devfileApi.DevWorkspace | devfileApi.Devfile;

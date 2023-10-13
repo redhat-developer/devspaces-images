@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Form, PageSection, PageSectionVariants } from '@patternfly/react-core';
-import StorageTypeFormGroup from './StorageType';
-import { WorkspaceNameFormGroup } from './WorkspaceName';
-import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
-import ProjectsFormGroup from './Projects';
-import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
 import { cloneDeep } from 'lodash';
-import { DevWorkspaceStatus } from '../../../services/helpers/types';
+import React from 'react';
+
+import InfrastructureNamespaceFormGroup from '@/pages/WorkspaceDetails/OverviewTab/InfrastructureNamespace';
+import ProjectsFormGroup from '@/pages/WorkspaceDetails/OverviewTab/Projects';
+import StorageTypeFormGroup from '@/pages/WorkspaceDetails/OverviewTab/StorageType';
+import { WorkspaceNameFormGroup } from '@/pages/WorkspaceDetails/OverviewTab/WorkspaceName';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
 
 type Props = {
   onSave: (workspace: Workspace) => Promise<void>;

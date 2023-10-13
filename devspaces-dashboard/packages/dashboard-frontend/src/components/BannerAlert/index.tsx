@@ -11,9 +11,10 @@
  */
 
 import React from 'react';
-import BannerAlertBranding from './Branding';
-import BannerAlertWebSocket from './WebSocket';
-import BannerAlertCustomWarning from './Custom';
+
+import BannerAlertBranding from '@/components/BannerAlert/Branding';
+import BannerAlertCustomWarning from '@/components/BannerAlert/Custom';
+import BannerAlertWebSocket from '@/components/BannerAlert/WebSocket';
 
 type Props = unknown;
 

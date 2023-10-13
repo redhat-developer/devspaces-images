@@ -19,24 +19,26 @@ import { dump } from 'js-yaml';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import CreatingStepApplyDevfile, { State } from '..';
-import ExpandableWarning from '../../../../../ExpandableWarning';
-import { ROUTE } from '../../../../../../Routes/routes';
-import devfileApi from '../../../../../../services/devfileApi';
+
+import ExpandableWarning from '@/components/ExpandableWarning';
+import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
+import { prepareDevfile } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/prepareDevfile';
+import { ROUTE } from '@/Routes/routes';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { getDefer } from '@/services/helpers/deferred';
 import {
   buildFactoryParams,
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
-} from '../../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { getDefer } from '../../../../../../services/helpers/deferred';
-import { AlertItem } from '../../../../../../services/helpers/types';
-import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
-import { AppThunk } from '../../../../../../store';
-import { ActionCreators } from '../../../../../../store/Workspaces';
-import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
-import { MIN_STEP_DURATION_MS } from '../../../../const';
-import { prepareDevfile } from '../prepareDevfile';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators } from '@/store/Workspaces';
+
+import CreatingStepApplyDevfile, { State } from '..';
 
 jest.mock('../../../../TimeLimit');
 jest.mock('../prepareDevfile.ts');

@@ -15,21 +15,23 @@ import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import CreatingStepCheckExistingWorkspaces from '..';
-import { ROUTE } from '../../../../../Routes/routes';
-import devfileApi from '../../../../../services/devfileApi';
+
+import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
+import { ROUTE } from '@/Routes/routes';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { getDefer } from '@/services/helpers/deferred';
 import {
   DEV_WORKSPACE_ATTR,
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
-} from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { getDefer } from '../../../../../services/helpers/deferred';
-import { AlertItem } from '../../../../../services/helpers/types';
-import getComponentRenderer from '../../../../../services/__mocks__/getComponentRenderer';
-import { DevWorkspaceResources } from '../../../../../store/DevfileRegistries';
-import { DevWorkspaceBuilder } from '../../../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { MIN_STEP_DURATION_MS } from '../../../const';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { DevWorkspaceResources } from '@/store/DevfileRegistries';
+
+import CreatingStepCheckExistingWorkspaces from '..';
 
 const { renderComponent } = getComponentRenderer(getComponent);
 let history: MemoryHistory;

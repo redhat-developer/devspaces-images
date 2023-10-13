@@ -10,19 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
+import { dump } from 'js-yaml';
+
+import devfileApi from '@/services/devfileApi';
 import {
+  CHE_EDITOR_YAML_PATH,
   getCustomEditor,
-  hasLoginPage,
   getErrorMessage,
+  hasLoginPage,
   isForbidden,
   isInternalServerError,
   isUnauthorized,
-} from '../helpers';
-import { CHE_EDITOR_YAML_PATH } from '../helpers';
-import { dump } from 'js-yaml';
-import common from '@eclipse-che/common';
-import devfileApi from '../../devfileApi';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+} from '@/services/workspace-client/helpers';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 describe('Workspace-client helpers', () => {
   describe('get an error message', () => {

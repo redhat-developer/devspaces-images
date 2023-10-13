@@ -12,8 +12,9 @@
 
 import common from '@eclipse-che/common';
 import { loadAll } from 'js-yaml';
-import devfileApi from '../devfileApi';
-import { fetchData } from './fetchData';
+
+import devfileApi from '@/services/devfileApi';
+import { fetchData } from '@/services/registry/fetchData';
 
 export type PreBuiltResources = Array<devfileApi.DevWorkspace | devfileApi.DevWorkspaceTemplate>;
 

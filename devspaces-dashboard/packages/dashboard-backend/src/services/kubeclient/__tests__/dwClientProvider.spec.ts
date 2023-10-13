@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DwClientProvider } from '../dwClientProvider';
+import { DwClientProvider } from '@/services/kubeclient/dwClientProvider';
 
 jest.mock('../../../devworkspaceClient');
 jest.mock('../kubeConfigProvider.ts');

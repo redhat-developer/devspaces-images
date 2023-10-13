@@ -13,8 +13,9 @@
 import { api } from '@eclipse-che/common';
 import { Button, ButtonVariant, Modal, ModalVariant } from '@patternfly/react-core';
 import React from 'react';
-import { AddEditModalForm } from './Form';
-import { EditTokenProps } from '../types';
+
+import { AddEditModalForm } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form';
+import { EditTokenProps } from '@/pages/UserPreferences/PersonalAccessTokens/types';
 
 export type Props = EditTokenProps & {
   cheUserId: string;

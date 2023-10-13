@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { container } from '../../../../inversify.config';
-import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
 import mockAxios from 'axios';
-import { DevWorkspaceClient } from '../devWorkspaceClient';
+
+import { container } from '@/inversify.config';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 describe('DevWorkspace client', () => {
   let client: DevWorkspaceClient;

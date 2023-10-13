@@ -15,11 +15,14 @@
 import { api } from '@eclipse-che/common';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+
+import {
+  token1,
+  token2,
+} from '@/pages/UserPreferences/PersonalAccessTokens/DeleteModal/__tests__/stub';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { PersonalAccessTokenDeleteModal } from '..';
-import getComponentRenderer, {
-  screen,
-} from '../../../../../services/__mocks__/getComponentRenderer';
-import { token1, token2 } from './stub';
 
 const { renderComponent } = getComponentRenderer(getComponent);
 

@@ -16,15 +16,14 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
 import { Action, Store } from 'redux';
+
+import { BRANDING_DEFAULT, BrandingData } from '@/services/bootstrap/branding.constant';
+import { AppThunk } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectBranding } from '@/store/Branding/selectors';
+import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces';
+
 import UserMenu from '..';
-import {
-  BrandingData,
-  BRANDING_DEFAULT,
-} from '../../../../../services/bootstrap/branding.constant';
-import { AppThunk } from '../../../../../store';
-import { selectBranding } from '../../../../../store/Branding/selectors';
-import * as InfrastructureNamespacesStore from '../../../../../store/InfrastructureNamespaces';
-import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 
 jest.mock('../../../../../store/InfrastructureNamespaces', () => {
   return {

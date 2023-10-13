@@ -10,19 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { History } from 'history';
-import React from 'react';
 import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';
+import { History } from 'history';
+import React from 'react';
+
+import { ActionContextType } from '@/contexts/WorkspaceActions';
+import styles from '@/pages/WorkspaceDetails/Header/Actions/Dropdown/index.module.css';
 import {
-  WorkspaceStatus,
+  DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceAction,
-  DeprecatedWorkspaceStatus,
-} from '../../../../../services/helpers/types';
-import { ActionContextType } from '../../../../../contexts/WorkspaceActions';
-
-import styles from './index.module.css';
+  WorkspaceStatus,
+} from '@/services/helpers/types';
 
 type Props = {
   context: ActionContextType;

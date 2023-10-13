@@ -10,14 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import common, { ClusterConfig } from '@eclipse-che/common';
+import { Action, Reducer } from 'redux';
+
+import { fetchClusterConfig } from '@/services/backend-client/clusterConfigApi';
+import * as BannerAlertStore from '@/store/BannerAlert';
+import { AddBannerAction } from '@/store/BannerAlert';
+import { createObject } from '@/store/helpers';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
-import * as BannerAlertStore from '../BannerAlert';
-import { fetchClusterConfig } from '../../services/backend-client/clusterConfigApi';
-import { AddBannerAction } from '../BannerAlert';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;

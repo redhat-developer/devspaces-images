@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import BannerAlertNotSupportedBrowser from '..';
 
 const mockIsSupportedBrowser = jest.fn();

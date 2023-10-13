@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props, State } from '..';
 
 export const mockShowAlert = jest.fn();

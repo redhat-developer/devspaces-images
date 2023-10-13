@@ -10,14 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { NavItem } from '@patternfly/react-core';
-import { NavigationRecentItemObject } from '.';
-import getActivity from './isActive';
-import WorkspaceIndicator from '../../components/Workspace/Indicator';
 import { History } from 'history';
-import styles from './index.module.css';
-import NavigationItemWorkspaceActions from './RecentItemWorkspaceActions';
+import React from 'react';
+
+import WorkspaceIndicator from '@/components/Workspace/Indicator';
+import styles from '@/Layout/Navigation/index.module.css';
+import getActivity from '@/Layout/Navigation/isActive';
+import NavigationItemWorkspaceActions from '@/Layout/Navigation/RecentItemWorkspaceActions';
+
+import { NavigationRecentItemObject } from '.';
 
 function NavigationRecentItem(props: {
   item: NavigationRecentItemObject;

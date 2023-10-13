@@ -14,13 +14,21 @@ import common from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
 import isEqual from 'lodash/isEqual';
 import React from 'react';
-import { WorkspaceParams } from '../../../../Routes/routes';
-import { AlertItem, LoaderTab } from '../../../../services/helpers/types';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
-import { ProgressStepTitle } from '../../StepTitle';
-import { ConditionType, isConditionError, isConditionReady } from '../../utils';
 
-import styles from './index.module.css';
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import styles from '@/components/WorkspaceProgress/StartingSteps/WorkspaceConditions/index.module.css';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import {
+  ConditionType,
+  isConditionError,
+  isConditionReady,
+} from '@/components/WorkspaceProgress/utils';
+import { WorkspaceParams } from '@/Routes/routes';
+import { AlertItem, LoaderTab } from '@/services/helpers/types';
 
 export type Props = ProgressStepProps & {
   condition: ConditionType;

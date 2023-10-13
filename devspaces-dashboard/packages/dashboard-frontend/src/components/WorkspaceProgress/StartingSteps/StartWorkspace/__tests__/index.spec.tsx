@@ -17,16 +17,18 @@ import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
+
+import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
+import { WorkspaceParams } from '@/Routes/routes';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import { getDefer } from '@/services/helpers/deferred';
+import { AlertItem } from '@/services/helpers/types';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators } from '@/store/Workspaces';
+
 import StartingStepStartWorkspace from '..';
-import { WorkspaceParams } from '../../../../../Routes/routes';
-import { getDefer } from '../../../../../services/helpers/deferred';
-import { AlertItem } from '../../../../../services/helpers/types';
-import getComponentRenderer from '../../../../../services/__mocks__/getComponentRenderer';
-import { AppThunk } from '../../../../../store';
-import { ActionCreators } from '../../../../../store/Workspaces';
-import { DevWorkspaceBuilder } from '../../../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { MIN_STEP_DURATION_MS } from '../../../const';
 
 jest.mock('../../../TimeLimit');
 

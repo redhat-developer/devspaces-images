@@ -13,10 +13,15 @@
 import { api } from '@eclipse-che/common';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import * as TestStore from '..';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { selectGitConfigError, selectGitConfigIsLoading, selectGitConfigUser } from '../selectors';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import * as TestStore from '@/store/GitConfig';
+import {
+  selectGitConfigError,
+  selectGitConfigIsLoading,
+  selectGitConfigUser,
+} from '@/store/GitConfig/selectors';
 
 describe('GitConfig store, selectors', () => {
   afterEach(() => {

@@ -10,14 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { TextContent } from '@patternfly/react-core';
-import EditorTools from '../../../components/EditorTools';
-import { Workspace } from '../../../services/workspace-adapter';
-import DevfileViewer from '../../../components/DevfileViewer';
-
-import styles from './index.module.css';
 import { dump } from 'js-yaml';
+import React from 'react';
+
+import DevfileViewer from '@/components/DevfileViewer';
+import EditorTools from '@/components/EditorTools';
+import styles from '@/pages/WorkspaceDetails/DevworkspaceEditorTab/index.module.css';
+import { Workspace } from '@/services/workspace-adapter';
 
 export type Props = {
   workspace: Workspace;

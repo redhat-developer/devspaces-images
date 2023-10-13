@@ -11,7 +11,8 @@
  */
 
 import { api } from '@eclipse-che/common';
-import { WebSocketSubscriptionsManager } from '../subscriptionsManager';
+
+import { WebSocketSubscriptionsManager } from '@/services/backend-client/websocketClient/subscriptionsManager';
 
 describe('subscriptionsManager', () => {
   let subscriptionsManager: WebSocketSubscriptionsManager;

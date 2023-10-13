@@ -10,11 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { AxiosError } from 'axios';
 import common from '@eclipse-che/common';
+import { AxiosError } from 'axios';
+
+import * as factoryApi from '@/services/backend-client/factoryApi';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+
 import OAuthService from '..';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import * as factoryApi from '../../backend-client/factoryApi';
 
 const refreshFactoryOauthTokenSpy = jest.spyOn(factoryApi, 'refreshFactoryOauthToken');
 

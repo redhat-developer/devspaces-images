@@ -14,8 +14,10 @@
 
 import { V1Pod } from '@kubernetes/client-node';
 import React from 'react';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { NO_CONTAINERS, WorkspaceLogsContainerSelector } from '..';
-import getComponentRenderer, { screen } from '../../../../services/__mocks__/getComponentRenderer';
 
 jest.mock('../../../../components/ResourceIcon');
 

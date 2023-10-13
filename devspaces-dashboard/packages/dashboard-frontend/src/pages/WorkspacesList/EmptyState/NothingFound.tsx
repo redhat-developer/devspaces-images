@@ -10,15 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
-  Title,
   EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
   EmptyStateBody,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Title,
 } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
+import React from 'react';
 
 export default class NothingFoundEmptyState extends React.PureComponent {
   public render(): React.ReactElement {

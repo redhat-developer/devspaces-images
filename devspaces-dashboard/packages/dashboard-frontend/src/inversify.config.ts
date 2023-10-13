@@ -11,14 +11,16 @@
  */
 
 import 'reflect-metadata';
+
 import { Container } from 'inversify';
 import getDecorators from 'inversify-inject-decorators';
-import { AppAlerts } from './services/alerts/appAlerts';
-import { IssuesReporterService } from './services/bootstrap/issuesReporter';
-import { DevWorkspaceClient } from './services/workspace-client/devworkspace/devWorkspaceClient';
-import { DevWorkspaceDefaultPluginsHandler } from './services/workspace-client/devworkspace/DevWorkspaceDefaultPluginsHandler';
-import { WorkspaceStoppedDetector } from './services/bootstrap/workspaceStoppedDetector';
-import { WebsocketClient } from './services/backend-client/websocketClient';
+
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { IssuesReporterService } from '@/services/bootstrap/issuesReporter';
+import { WorkspaceStoppedDetector } from '@/services/bootstrap/workspaceStoppedDetector';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { DevWorkspaceDefaultPluginsHandler } from '@/services/workspace-client/devworkspace/DevWorkspaceDefaultPluginsHandler';
 
 const container = new Container();
 const { lazyInject } = getDecorators(container);

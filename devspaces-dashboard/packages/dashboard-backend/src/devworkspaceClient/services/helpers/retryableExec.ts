@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { delay } from '../../../services/helpers';
 import { helpers } from '@eclipse-che/common';
+
+import { delay } from '@/services/helpers';
 
 export async function retryableExec<T>(callback: () => Promise<T>, maxAttempt = 5): Promise<T> {
   let error: unknown;

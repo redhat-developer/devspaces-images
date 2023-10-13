@@ -11,7 +11,8 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { setup, teardown } from '../../helpers/tests/appBuilder';
+
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 
 describe('Factory Acceptance Redirect', () => {
   let app: FastifyInstance;

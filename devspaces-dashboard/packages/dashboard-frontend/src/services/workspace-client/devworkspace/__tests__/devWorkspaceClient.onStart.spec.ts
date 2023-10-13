@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { container } from '../../../../inversify.config';
-import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
-import { DevWorkspaceClient } from '../devWorkspaceClient';
-import * as DwApi from '../../../backend-client/devWorkspaceApi';
 import mockAxios from 'axios';
+
+import { container } from '@/inversify.config';
+import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 describe('DevWorkspace client, start', () => {

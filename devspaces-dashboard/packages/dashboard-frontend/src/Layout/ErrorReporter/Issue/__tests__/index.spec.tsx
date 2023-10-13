@@ -12,9 +12,11 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { Issue } from '@/services/bootstrap/issuesReporter';
+
 import { IssueComponent } from '..';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
-import { Issue } from '../../../../services/bootstrap/issuesReporter';
 
 const brandingData = {
   name: 'Product Name',

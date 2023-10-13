@@ -10,44 +10,54 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Store } from 'redux';
 import common, { api, ApplicationId } from '@eclipse-che/common';
-import { lazyInject } from '../../inversify.config';
-import { AppState } from '../../store';
-import * as BannerAlertStore from '../../store/BannerAlert';
-import * as BrandingStore from '../../store/Branding';
-import * as ClusterConfigStore from '../../store/ClusterConfig';
-import * as ClusterInfoStore from '../../store/ClusterInfo';
-import * as ServerConfigStore from '../../store/ServerConfig';
-import * as DevfileRegistriesStore from '../../store/DevfileRegistries';
-import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamespaces';
-import * as PluginsStore from '../../store/Plugins/chePlugins';
-import * as SanityCheckStore from '../../store/SanityCheck';
-import * as DwPluginsStore from '../../store/Plugins/devWorkspacePlugins';
-import * as UserProfileStore from '../../store/User/Profile';
-import * as WorkspacesStore from '../../store/Workspaces';
-import * as EventsStore from '../../store/Events';
-import * as PodsStore from '../../store/Pods';
-import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
-import { ResourceFetcherService } from '../resource-fetcher';
-import { IssuesReporterService, IssueType, WorkspaceData } from './issuesReporter';
-import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspaceClient';
-import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlugins/selectors';
-import devfileApi from '../devfileApi';
-import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
-import { selectDevWorkspacesResourceVersion } from '../../store/Workspaces/devWorkspaces/selectors';
-import { buildDetailsLocation, buildIdeLoaderLocation } from '../helpers/location';
-import { Workspace } from '../workspace-adapter';
-import { WorkspaceRunningError, WorkspaceStoppedDetector } from './workspaceStoppedDetector';
-import { selectOpenVSXUrl } from '../../store/ServerConfig/selectors';
-import { selectEmptyWorkspaceUrl } from '../../store/DevfileRegistries/selectors';
-import { WebsocketClient } from '../backend-client/websocketClient';
-import { selectEventsResourceVersion } from '../../store/Events/selectors';
-import { selectPodsResourceVersion } from '../../store/Pods/selectors';
-import { ChannelListener } from '../backend-client/websocketClient/messageHandler';
-import { selectApplications } from '../../store/ClusterInfo/selectors';
-import { isAvailableEndpoint } from '../helpers/api-ping';
-import { DEFAULT_REGISTRY } from '../../store/DevfileRegistries';
+import { Store } from 'redux';
+
+import { lazyInject } from '@/inversify.config';
+import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { ChannelListener } from '@/services/backend-client/websocketClient/messageHandler';
+import {
+  IssuesReporterService,
+  IssueType,
+  WorkspaceData,
+} from '@/services/bootstrap/issuesReporter';
+import {
+  WorkspaceRunningError,
+  WorkspaceStoppedDetector,
+} from '@/services/bootstrap/workspaceStoppedDetector';
+import devfileApi from '@/services/devfileApi';
+import { isAvailableEndpoint } from '@/services/helpers/api-ping';
+import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
+import { ResourceFetcherService } from '@/services/resource-fetcher';
+import { Workspace } from '@/services/workspace-adapter';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { AppState } from '@/store';
+import * as BannerAlertStore from '@/store/BannerAlert';
+import * as BrandingStore from '@/store/Branding';
+import * as ClusterConfigStore from '@/store/ClusterConfig';
+import * as ClusterInfoStore from '@/store/ClusterInfo';
+import { selectApplications } from '@/store/ClusterInfo/selectors';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
+import { DEFAULT_REGISTRY } from '@/store/DevfileRegistries';
+import { selectEmptyWorkspaceUrl } from '@/store/DevfileRegistries/selectors';
+import * as EventsStore from '@/store/Events';
+import { selectEventsResourceVersion } from '@/store/Events/selectors';
+import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import * as PluginsStore from '@/store/Plugins/chePlugins';
+import * as DwPluginsStore from '@/store/Plugins/devWorkspacePlugins';
+import { selectDwEditorsPluginsList } from '@/store/Plugins/devWorkspacePlugins/selectors';
+import * as PodsStore from '@/store/Pods';
+import { selectPodsResourceVersion } from '@/store/Pods/selectors';
+import * as SanityCheckStore from '@/store/SanityCheck';
+import * as ServerConfigStore from '@/store/ServerConfig';
+import { selectOpenVSXUrl } from '@/store/ServerConfig/selectors';
+import * as UserProfileStore from '@/store/User/Profile';
+import * as WorkspacesStore from '@/store/Workspaces';
+import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
+import { selectDevWorkspacesResourceVersion } from '@/store/Workspaces/devWorkspaces/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -105,6 +115,7 @@ export default class Bootstrap {
         this.watchWebSocketPods();
       }),
       this.fetchClusterConfig(),
+      this.createKubeConfigSecret(),
     ]);
 
     const errors = results
@@ -244,6 +255,13 @@ export default class Bootstrap {
     this.websocketClient.subscribeToChannel(api.webSocket.Channel.POD, namespace, {
       getResourceVersion,
     });
+  }
+
+  private async createKubeConfigSecret(): Promise<void> {
+    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
+    await AxiosWrapper.createToRetryMissedBearerTokenError().post(
+      `${dashboardBackendPrefix}/namespace/${defaultKubernetesNamespace.name}/kubeconfig`,
+    );
   }
 
   private async fetchWorkspaces(): Promise<void> {

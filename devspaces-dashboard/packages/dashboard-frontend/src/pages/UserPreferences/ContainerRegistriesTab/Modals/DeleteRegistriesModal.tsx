@@ -10,17 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
   Button,
   ButtonVariant,
-  ModalVariant,
-  Modal,
-  TextContent,
-  Text,
   Checkbox,
+  Modal,
+  ModalVariant,
+  Text,
+  TextContent,
 } from '@patternfly/react-core';
-import { RegistryEntry } from '../../../../store/DockerConfig/types';
+import React from 'react';
+
+import { RegistryEntry } from '@/store/DockerConfig/types';
 
 type Props = {
   registry?: RegistryEntry;

@@ -13,16 +13,18 @@
 import { api, helpers } from '@eclipse-che/common';
 import { V1Pod } from '@kubernetes/client-node';
 import { Action, Reducer } from 'redux';
+
+import { container } from '@/inversify.config';
+import { fetchPods } from '@/services/backend-client/podsApi';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { getNewerResourceVersion } from '@/services/helpers/resourceVersion';
+import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import isSamePod from '@/store/Pods/isSamePod';
+import { selectPodsResourceVersion } from '@/store/Pods/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { container } from '../../inversify.config';
-import { fetchPods } from '../../services/backend-client/podsApi';
-import { WebsocketClient } from '../../services/backend-client/websocketClient';
-import { getNewerResourceVersion } from '../../services/helpers/resourceVersion';
-import { createObject } from '../helpers';
-import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import isSamePod from './isSamePod';
-import { selectPodsResourceVersion } from './selectors';
 
 export interface State {
   isLoading: boolean;

@@ -10,8 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   Button,
   FormGroup,
@@ -19,6 +17,8 @@ import {
   TextInput,
   ValidatedOptions,
 } from '@patternfly/react-core';
+import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
+import React from 'react';
 
 const MAX_LENGTH = 10000;
 const ERROR_REQUIRED_VALUE = 'A value is required.';

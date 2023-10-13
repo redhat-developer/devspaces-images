@@ -1,0 +1,9 @@
+{
+ "editor.tabSize": 2,
+  "search.exclude": {
+    "**/lib": true,
+    "**/coverage": true
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative"
+}

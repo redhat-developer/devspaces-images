@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as React from 'react';
-import { GitConfigUserName } from '..';
-import getComponentRenderer, {
-  screen,
-} from '../../../../../../services/__mocks__/getComponentRenderer';
 import { ValidatedOptions } from '@patternfly/react-core';
 import userEvent from '@testing-library/user-event';
+import * as React from 'react';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
+import { GitConfigUserName } from '..';
 
 jest.mock('../../../../../../components/InputGroupExtended');
 

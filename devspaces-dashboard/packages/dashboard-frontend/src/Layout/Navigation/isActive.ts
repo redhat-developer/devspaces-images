@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ROUTE } from '../../Routes/routes';
+import { ROUTE } from '@/Routes/routes';
 
 export default function isActive(itemPath: string, activePath: string | undefined): boolean {
   if (itemPath === activePath) {

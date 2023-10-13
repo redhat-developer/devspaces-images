@@ -11,8 +11,9 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 
 jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');

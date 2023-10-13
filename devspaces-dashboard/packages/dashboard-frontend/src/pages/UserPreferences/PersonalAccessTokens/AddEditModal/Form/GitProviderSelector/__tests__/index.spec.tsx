@@ -14,10 +14,10 @@ import { api } from '@eclipse-che/common';
 import { Form } from '@patternfly/react-core';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { GitProviderSelector } from '..';
-import getComponentRenderer, {
-  screen,
-} from '../../../../../../../services/__mocks__/getComponentRenderer';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 

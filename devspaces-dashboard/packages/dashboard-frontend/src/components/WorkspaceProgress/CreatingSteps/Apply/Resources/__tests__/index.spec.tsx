@@ -16,24 +16,26 @@ import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import CreatingStepApplyResources from '..';
-import { ROUTE } from '../../../../../../Routes/routes';
-import devfileApi from '../../../../../../services/devfileApi';
+
+import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '@/components/WorkspaceProgress/const';
+import prepareResources from '@/components/WorkspaceProgress/CreatingSteps/Apply/Resources/prepareResources';
+import { ROUTE } from '@/Routes/routes';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { getDefer } from '@/services/helpers/deferred';
 import {
   DEV_WORKSPACE_ATTR,
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
-} from '../../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { getDefer } from '../../../../../../services/helpers/deferred';
-import { AlertItem } from '../../../../../../services/helpers/types';
-import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
-import { AppThunk } from '../../../../../../store';
-import { DevWorkspaceResources } from '../../../../../../store/DevfileRegistries';
-import { ActionCreators } from '../../../../../../store/Workspaces/devWorkspaces';
-import { DevWorkspaceBuilder } from '../../../../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '../../../../const';
-import prepareResources from '../prepareResources';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { DevWorkspaceResources } from '@/store/DevfileRegistries';
+import { ActionCreators } from '@/store/Workspaces/devWorkspaces';
+
+import CreatingStepApplyResources from '..';
 
 jest.mock('../../../../TimeLimit');
 jest.mock('../prepareResources.ts');

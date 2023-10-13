@@ -14,20 +14,22 @@ import { StateMock } from '@react-mock/state';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import PersonalAccessTokens, { State } from '..';
-import { container } from '../../../../inversify.config';
-import { AppAlerts } from '../../../../services/alerts/appAlerts';
-import { AlertItem } from '../../../../services/helpers/types';
+
+import { container } from '@/inversify.config';
+import { token1, token2 } from '@/pages/UserPreferences/PersonalAccessTokens/__tests__/stub';
 import getComponentRenderer, {
   fireEvent,
   screen,
   waitFor,
   within,
-} from '../../../../services/__mocks__/getComponentRenderer';
-import { AppThunk } from '../../../../store';
-import { ActionCreators } from '../../../../store/PersonalAccessToken';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { token1, token2 } from './stub';
+} from '@/services/__mocks__/getComponentRenderer';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AlertItem } from '@/services/helpers/types';
+import { AppThunk } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators } from '@/store/PersonalAccessToken';
+
+import PersonalAccessTokens, { State } from '..';
 
 jest.mock('../AddEditModal');
 jest.mock('../DeleteModal');

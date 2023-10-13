@@ -10,8 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import devfileApi from '../../../../../../services/devfileApi';
-import { configureProjectRemotes, getGitRemotes, GitRemote, sanitizeValue } from '../getGitRemotes';
+import {
+  configureProjectRemotes,
+  getGitRemotes,
+  GitRemote,
+  sanitizeValue,
+} from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getGitRemotes';
+import devfileApi from '@/services/devfileApi';
 
 describe('getGitRemotes functions', () => {
   describe('getGitRemotes()', () => {

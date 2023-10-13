@@ -10,23 +10,25 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
+import { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import common from '@eclipse-che/common';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import devfileApi from '../../../services/devfileApi';
-import * as factoryResolver from '../../../services/backend-client/factoryApi';
-import * as factoryResolverStore from '..';
-import { AxiosError } from 'axios';
-import normalizeDevfileV1 from '../normalizeDevfileV1';
-import normalizeDevfileV2 from '../normalizeDevfileV2';
+
+import * as factoryResolver from '@/services/backend-client/factoryApi';
+import * as yamlResolver from '@/services/backend-client/yamlResolverApi';
 import {
-  convertDevfileV2toDevfileV1,
   convertDevfileV1toDevfileV2,
-} from '../../../services/devfile/converters';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import * as yamlResolver from '../../../services/backend-client/yamlResolverApi';
+  convertDevfileV2toDevfileV1,
+} from '@/services/devfile/converters';
+import devfileApi from '@/services/devfileApi';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import normalizeDevfileV1 from '@/store/FactoryResolver/normalizeDevfileV1';
+import normalizeDevfileV2 from '@/store/FactoryResolver/normalizeDevfileV2';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
+import * as factoryResolverStore from '..';
 
 jest.mock('../normalizeDevfileV1.ts');
 (normalizeDevfileV1 as jest.Mock).mockImplementation(devfile => {

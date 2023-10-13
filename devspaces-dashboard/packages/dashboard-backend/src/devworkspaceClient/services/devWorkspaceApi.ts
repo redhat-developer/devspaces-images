@@ -20,11 +20,15 @@ import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { V1Status } from '@kubernetes/client-node';
 import http, { IncomingHttpHeaders } from 'http';
-import { MessageListener } from '../../services/types/Observer';
-import { IDevWorkspaceApi } from '../types';
-import { createError } from './helpers/createError';
-import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
-import { prepareCustomObjectWatch } from './helpers/prepareCustomObjectWatch';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CustomObjectAPI,
+  prepareCustomObjectAPI,
+} from '@/devworkspaceClient/services/helpers/prepareCustomObjectAPI';
+import { prepareCustomObjectWatch } from '@/devworkspaceClient/services/helpers/prepareCustomObjectWatch';
+import { IDevWorkspaceApi } from '@/devworkspaceClient/types';
+import { MessageListener } from '@/services/types/Observer';
 
 const DEV_WORKSPACE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 

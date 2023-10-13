@@ -10,11 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DEVWORKSPACE_DEBUG_START_ANNOTATION, DevWorkspaceClient } from '../devWorkspaceClient';
-import { container } from '../../../../inversify.config';
-import devfileApi from '../../../devfileApi';
 import mockAxios from 'axios';
-import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
+
+import { container } from '@/inversify.config';
+import devfileApi from '@/services/devfileApi';
+import {
+  DEVWORKSPACE_DEBUG_START_ANNOTATION,
+  DevWorkspaceClient,
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 describe('DevWorkspaceClient debug mode', () => {
   const devWorkspaceClient = container.get(DevWorkspaceClient);

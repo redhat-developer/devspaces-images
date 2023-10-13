@@ -16,35 +16,36 @@ import {
   V1alpha2DevWorkspaceTemplateSpecComponents,
   V221DevfileComponentsItemsContainer,
 } from '@devfile/api';
-import { api } from '@eclipse-che/common';
-import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
+import { api, KUBECONFIG_MOUNT_PATH } from '@eclipse-che/common';
 import { inject, injectable } from 'inversify';
 import { load } from 'js-yaml';
 import { cloneDeep, isEqual } from 'lodash';
-import * as DwApi from '../../backend-client/devWorkspaceApi';
-import * as DwtApi from '../../backend-client/devWorkspaceTemplateApi';
-import devfileApi from '../../devfileApi';
+
+import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
+import devfileApi from '@/services/devfileApi';
+import { DevWorkspacePlugin } from '@/services/devfileApi/devWorkspace';
 import {
   DEVWORKSPACE_CHE_EDITOR,
   DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
-} from '../../devfileApi/devWorkspace/metadata';
+} from '@/services/devfileApi/devWorkspace/metadata';
 import {
   DEVWORKSPACE_CONFIG_ATTR,
   DEVWORKSPACE_CONTAINER_BUILD_ATTR,
   DEVWORKSPACE_STORAGE_TYPE_ATTR,
-} from '../../devfileApi/devWorkspace/spec/template';
-import { delay } from '../../helpers/delay';
-import { isWebTerminal } from '../../helpers/devworkspace';
-import { DevWorkspaceStatus } from '../../helpers/types';
-import { fetchData } from '../../registry/fetchData';
-import { WorkspaceAdapter } from '../../workspace-adapter';
+} from '@/services/devfileApi/devWorkspace/spec/template';
+import { delay } from '@/services/helpers/delay';
+import { isWebTerminal } from '@/services/helpers/devworkspace';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { fetchData } from '@/services/registry/fetchData';
+import { WorkspaceAdapter } from '@/services/workspace-adapter';
 import {
   devWorkspaceApiGroup,
   devWorkspaceSingularSubresource,
   devWorkspaceVersion,
-} from './converters';
-import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
-import { DevWorkspacePlugin } from '../../devfileApi/devWorkspace';
+} from '@/services/workspace-client/devworkspace/converters';
+import { DevWorkspaceDefaultPluginsHandler } from '@/services/workspace-client/devworkspace/DevWorkspaceDefaultPluginsHandler';
+import { WorkspacesDefaultPlugins } from '@/store/Plugins/devWorkspacePlugins';
 
 export const COMPONENT_UPDATE_POLICY = 'che.eclipse.org/components-update-policy';
 export const REGISTRY_URL = 'che.eclipse.org/plugin-registry-url';
@@ -84,6 +85,7 @@ export class DevWorkspaceClient {
   private readonly clusterConsoleTitleEnvName: string;
   private readonly openVSXUrlEnvName: string;
   private readonly dashboardUrlEnvName: string;
+  private readonly kubeconfigEnvName: string;
   private readonly defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler;
 
   constructor(
@@ -97,6 +99,7 @@ export class DevWorkspaceClient {
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
     this.clusterConsoleUrlEnvName = 'CLUSTER_CONSOLE_URL';
     this.clusterConsoleTitleEnvName = 'CLUSTER_CONSOLE_TITLE';
+    this.kubeconfigEnvName = 'KUBECONFIG';
     this.defaultPluginsHandler = defaultPluginsHandler;
   }
 
@@ -264,11 +267,16 @@ export class DevWorkspaceClient {
           env.name !== this.pluginRegistryInternalUrlEnvName &&
           env.name !== this.clusterConsoleUrlEnvName &&
           env.name !== this.clusterConsoleTitleEnvName &&
-          env.name !== this.openVSXUrlEnvName,
+          env.name !== this.openVSXUrlEnvName &&
+          env.name !== this.kubeconfigEnvName,
       );
       envs.push({
         name: this.dashboardUrlEnvName,
         value: dashboardUrl,
+      });
+      envs.push({
+        name: this.kubeconfigEnvName,
+        value: `${KUBECONFIG_MOUNT_PATH}/config`,
       });
       if (pluginRegistryUrl !== undefined) {
         envs.push({

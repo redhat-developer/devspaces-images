@@ -12,16 +12,18 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import React from 'react';
-import { createMemoryHistory } from 'history';
-import { render, screen, RenderResult, waitFor } from '@testing-library/react';
-import { Router } from 'react-router';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import { Router } from 'react-router';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { WorkspaceAction } from '@/services/helpers/types';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+
 import WorkspacesList from '..';
-import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { WorkspaceAction } from '../../../services/helpers/types';
-import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 
 jest.mock('../../../components/Head', () => {
   const FakeHead = () => {

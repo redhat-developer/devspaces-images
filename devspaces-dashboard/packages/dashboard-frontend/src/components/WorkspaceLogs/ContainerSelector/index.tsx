@@ -13,7 +13,8 @@
 import { V1Pod } from '@kubernetes/client-node';
 import { Dropdown, DropdownItem, DropdownSeparator, DropdownToggle } from '@patternfly/react-core';
 import React from 'react';
-import { ResourceIcon } from '../../ResourceIcon';
+
+import { ResourceIcon } from '@/components/ResourceIcon';
 
 export type Props = {
   pod: V1Pod | undefined;

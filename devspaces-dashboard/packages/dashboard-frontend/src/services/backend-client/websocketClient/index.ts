@@ -13,10 +13,17 @@
 import { api } from '@eclipse-che/common';
 import { injectable } from 'inversify';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { getDefer, IDeferred } from '../../helpers/deferred';
-import { dashboardBackendPrefix } from '../const';
-import { ChannelListener, WebSocketMessageHandler } from './messageHandler';
-import { SubscriptionArgs, WebSocketSubscriptionsManager } from './subscriptionsManager';
+
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+import {
+  ChannelListener,
+  WebSocketMessageHandler,
+} from '@/services/backend-client/websocketClient/messageHandler';
+import {
+  SubscriptionArgs,
+  WebSocketSubscriptionsManager,
+} from '@/services/backend-client/websocketClient/subscriptionsManager';
+import { getDefer, IDeferred } from '@/services/helpers/deferred';
 
 export enum ConnectionEvent {
   OPEN = 'open',

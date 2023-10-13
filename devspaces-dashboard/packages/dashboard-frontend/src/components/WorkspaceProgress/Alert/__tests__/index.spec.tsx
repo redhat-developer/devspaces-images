@@ -13,9 +13,11 @@
 import { AlertVariant } from '@patternfly/react-core';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import { AlertItem } from '@/services/helpers/types';
+
 import { ProgressAlert } from '..';
-import { AlertItem } from '../../../../services/helpers/types';
-import getComponentRenderer, { screen } from '../../../../services/__mocks__/getComponentRenderer';
 
 const { renderComponent, createSnapshot } = getComponentRenderer(getComponent);
 

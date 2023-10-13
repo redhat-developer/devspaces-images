@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { helpers } from '@eclipse-che/common';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fetch from 'node-fetch';
-import { baseApiPath } from '../../constants/config';
-import { yamlResolverSchema, namespacedSchema } from '../../constants/schemas';
-import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
-import { getToken } from './helpers/getToken';
-import { restParams } from '../../models';
-import { getSchema } from '../../services/helpers';
-import { helpers } from '@eclipse-che/common';
+
+import { baseApiPath } from '@/constants/config';
+import { namespacedSchema, yamlResolverSchema } from '@/constants/schemas';
+import { restParams } from '@/models';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
+import { getToken } from '@/routes/api/helpers/getToken';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Yaml Resolver'];
 

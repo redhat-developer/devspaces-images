@@ -10,16 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
-  Title,
   Button,
   EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
   EmptyStateBody,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Title,
 } from '@patternfly/react-core';
 import { CubesIcon } from '@patternfly/react-icons';
+import React from 'react';
 
 type Props = {
   onAddWorkspace: () => void;

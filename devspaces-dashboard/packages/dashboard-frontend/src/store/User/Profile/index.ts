@@ -14,11 +14,12 @@
 
 import common, { api } from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
-import { fetchUserProfile } from '../../../services/backend-client/userProfileApi';
-import { createObject } from '../../helpers';
-import { AppThunk } from '../../index';
-import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
+
+import { fetchUserProfile } from '@/services/backend-client/userProfileApi';
+import { createObject } from '@/store/helpers';
+import { AppThunk } from '@/store/index';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 export interface State {
   userProfile: api.IUserProfile;

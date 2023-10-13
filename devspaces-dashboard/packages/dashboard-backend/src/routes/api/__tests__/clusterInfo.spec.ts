@@ -12,8 +12,9 @@
 
 import { ApplicationId } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 
 describe('Cluster Info Route', () => {
   let app: FastifyInstance;

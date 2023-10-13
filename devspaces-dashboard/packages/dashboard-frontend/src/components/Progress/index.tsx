@@ -10,10 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Progress, ProgressMeasureLocation, ProgressSize } from '@patternfly/react-core';
+import React from 'react';
 
-import styles from './index.module.css';
+import styles from '@/components/Progress/index.module.css';
 
 type Props = {
   isLoading: boolean;

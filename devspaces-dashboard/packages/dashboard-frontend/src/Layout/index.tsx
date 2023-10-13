@@ -10,28 +10,29 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import { Brand, Page } from '@patternfly/react-core';
 import { History } from 'history';
+import React from 'react';
+import { connect, ConnectedProps } from 'react-redux';
 import { matchPath } from 'react-router';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import StoreErrorsAlert from './StoreErrorsAlert';
-import { AppState } from '../store';
-import { lazyInject } from '../inversify.config';
-import { IssuesReporterService } from '../services/bootstrap/issuesReporter';
-import { ErrorReporter } from './ErrorReporter';
-import { IssueComponent } from './ErrorReporter/Issue';
-import { BannerAlert } from '../components/BannerAlert';
-import { ErrorBoundary } from './ErrorBoundary';
-import { ROUTE } from '../Routes/routes';
-import { selectBranding } from '../store/Branding/selectors';
-import { ToggleBarsContext } from '../contexts/ToggleBars';
-import { signOut } from '../services/helpers/login';
-import { selectDashboardLogo } from '../store/ServerConfig/selectors';
-import * as SanityCheckStore from '../store/SanityCheck';
-import { selectSanityCheckError } from '../store/SanityCheck/selectors';
+
+import { BannerAlert } from '@/components/BannerAlert';
+import { ToggleBarsContext } from '@/contexts/ToggleBars';
+import { lazyInject } from '@/inversify.config';
+import { ErrorBoundary } from '@/Layout/ErrorBoundary';
+import { ErrorReporter } from '@/Layout/ErrorReporter';
+import { IssueComponent } from '@/Layout/ErrorReporter/Issue';
+import Header from '@/Layout/Header';
+import Sidebar from '@/Layout/Sidebar';
+import StoreErrorsAlert from '@/Layout/StoreErrorsAlert';
+import { ROUTE } from '@/Routes/routes';
+import { IssuesReporterService } from '@/services/bootstrap/issuesReporter';
+import { signOut } from '@/services/helpers/login';
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
+import * as SanityCheckStore from '@/store/SanityCheck';
+import { selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { selectDashboardLogo } from '@/store/ServerConfig/selectors';
 
 const IS_MANAGED_SIDEBAR = false;
 

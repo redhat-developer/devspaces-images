@@ -10,19 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { baseApiPath } from '../../constants/config';
+
+import { baseApiPath } from '@/constants/config';
 import {
   devworkspacePatchSchema,
+  devworkspaceSchema,
   namespacedSchema,
   namespacedWorkspaceSchema,
-  devworkspaceSchema,
-} from '../../constants/schemas';
-import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
-import { getToken } from './helpers/getToken';
-import { restParams } from '../../models';
-import { getSchema } from '../../services/helpers';
-import { api } from '@eclipse-che/common';
+} from '@/constants/schemas';
+import { restParams } from '@/models';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
+import { getToken } from '@/routes/api/helpers/getToken';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Devworkspace'];
 

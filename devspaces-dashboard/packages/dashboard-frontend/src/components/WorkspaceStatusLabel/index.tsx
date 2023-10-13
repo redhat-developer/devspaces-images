@@ -19,12 +19,13 @@ import {
 } from '@patternfly/react-icons';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
+
+import styles from '@/components/WorkspaceStatusLabel/index.module.css';
 import {
   DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceStatus,
-} from '../../services/helpers/types';
-import styles from './index.module.css';
+} from '@/services/helpers/types';
 
 // stopped icon color
 const grey = window

@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
 import { load } from 'js-yaml';
 import { Action, Reducer } from 'redux';
-import common from '@eclipse-che/common';
-import devfileApi from '../../../services/devfileApi';
-import { AppThunk } from '../..';
-import { fetchDevfile } from '../../../services/registry/devfiles';
-import { fetchData } from '../../../services/registry/fetchData';
-import { createObject } from '../../helpers';
-import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
+
+import devfileApi from '@/services/devfileApi';
+import { fetchDevfile } from '@/services/registry/devfiles';
+import { fetchData } from '@/services/registry/fetchData';
+import { AppThunk } from '@/store';
+import { createObject } from '@/store/helpers';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 export interface PluginDefinition {
   plugin?: devfileApi.Devfile;

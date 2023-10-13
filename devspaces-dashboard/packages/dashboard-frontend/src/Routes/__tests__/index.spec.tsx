@@ -10,24 +10,26 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React, { Suspense } from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Location } from 'history';
+import React, { Suspense } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
-import { render, screen, waitFor } from '@testing-library/react';
-import Routes from '..';
-import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
-import Fallback from '../../components/Fallback';
-import { ROUTE } from '../routes';
+
+import Fallback from '@/components/Fallback';
+import { ROUTE } from '@/Routes/routes';
 import {
   buildDetailsLocation,
   buildGettingStartedLocation,
   buildIdeLoaderLocation,
   buildWorkspacesLocation,
-} from '../../services/helpers/location';
-import { LoaderTab, WorkspaceDetailsTab } from '../../services/helpers/types';
-import { constructWorkspace, Workspace } from '../../services/workspace-adapter';
-import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
+} from '@/services/helpers/location';
+import { LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import Routes from '..';
 
 jest.mock('../../pages/GetStarted', () => {
   return function GetStarted() {

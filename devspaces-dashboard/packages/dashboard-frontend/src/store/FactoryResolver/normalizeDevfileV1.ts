@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DevfileAdapter } from '../../services/devfile/adapter';
 import { cloneDeep } from 'lodash';
+
+import { DevfileAdapter } from '@/services/devfile/adapter';
 
 export default function normalizeDevfileV1(
   devfile: che.WorkspaceDevfile,

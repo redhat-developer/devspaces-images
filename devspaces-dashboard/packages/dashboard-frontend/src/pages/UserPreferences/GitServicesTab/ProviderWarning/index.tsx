@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Tooltip, TooltipPosition } from '@patternfly/react-core';
 import { WarningTriangleIcon } from '@patternfly/react-icons';
+import React from 'react';
 
 type Props = {
   warning: React.ReactNode;

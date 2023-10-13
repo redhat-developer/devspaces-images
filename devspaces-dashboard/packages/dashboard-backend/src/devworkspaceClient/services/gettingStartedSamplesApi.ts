@@ -10,14 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { IGettingStartedSampleApi } from '../types';
-import * as k8s from '@kubernetes/client-node';
 import { api } from '@eclipse-che/common';
-import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
-import { createError } from './helpers/createError';
-import { getIcon } from './helpers/getSampleIcon';
-import http from 'http';
+import * as k8s from '@kubernetes/client-node';
 import { V1ConfigMapList } from '@kubernetes/client-node/dist/gen/model/v1ConfigMapList';
+import http from 'http';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import { getIcon } from '@/devworkspaceClient/services/helpers/getSampleIcon';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
+import { IGettingStartedSampleApi } from '@/devworkspaceClient/types';
 
 const API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 const DEVFILE_METADATA_LABEL_SELECTOR =

@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import * as cheApi from '@eclipse-che/api';
 import { AlertVariant } from '@patternfly/react-core';
 import * as React from 'react';
-import devfileApi from '../devfileApi';
-import * as cheApi from '@eclipse-che/api';
+
+import devfileApi from '@/services/devfileApi';
 
 export type ActionCallback = {
   title: string;

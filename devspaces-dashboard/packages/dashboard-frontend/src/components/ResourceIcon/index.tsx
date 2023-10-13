@@ -12,7 +12,8 @@
 
 import { Tooltip } from '@patternfly/react-core';
 import React from 'react';
-import styles from './index.module.css';
+
+import styles from '@/components/ResourceIcon/index.module.css';
 
 export type Props = {
   kind: string;

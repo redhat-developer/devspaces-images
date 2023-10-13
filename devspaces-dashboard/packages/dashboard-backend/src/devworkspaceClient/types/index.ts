@@ -17,8 +17,9 @@ import {
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
-import { MessageListener } from '../../services/types/Observer';
 import { IncomingHttpHeaders } from 'http';
+
+import { MessageListener } from '@/services/types/Observer';
 
 /**
  * Holds the methods for working with dockerconfig for devworkspace
@@ -261,9 +262,9 @@ export interface IServerConfigApi {
 
 export interface IKubeConfigApi {
   /**
-   * Inject the kubeconfig into all containers with the given devworkspaceId in a namespace.
+   * Creates or replaces kubeconfig Secret to be mounted into all containers in a namespace.
    */
-  injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void>;
+  applyKubeConfigSecret(namespace: string): Promise<void>;
 }
 
 export interface IPodmanApi {

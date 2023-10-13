@@ -10,10 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React, { Suspense } from 'react';
-import { History } from 'history';
-import { connect, ConnectedProps } from 'react-redux';
-import { load } from 'js-yaml';
+import common from '@eclipse-che/common';
 import {
   AlertVariant,
   PageSection,
@@ -22,22 +19,26 @@ import {
   Tabs,
   Title,
 } from '@patternfly/react-core';
-import common from '@eclipse-che/common';
-import Fallback from '../../components/Fallback';
-import Head from '../../components/Head';
-import { lazyInject } from '../../inversify.config';
-import { AppAlerts } from '../../services/alerts/appAlerts';
-import * as WorkspaceStore from '../../store/Workspaces';
-import { AppState } from '../../store';
-import { AlertItem, CreateWorkspaceTab } from '../../services/helpers/types';
-import { ROUTE } from '../../Routes/routes';
-import { Workspace, isCheDevfile } from '../../services/workspace-adapter';
-import { selectRegistriesErrors } from '../../store/DevfileRegistries/selectors';
-import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors';
-import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
-import getRandomString from '../../services/helpers/random';
-import devfileApi from '../../services/devfileApi';
-import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
+import { History } from 'history';
+import { load } from 'js-yaml';
+import React, { Suspense } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+
+import Fallback from '@/components/Fallback';
+import Head from '@/components/Head';
+import { lazyInject } from '@/inversify.config';
+import { ROUTE } from '@/Routes/routes';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import devfileApi from '@/services/devfileApi';
+import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import getRandomString from '@/services/helpers/random';
+import { AlertItem, CreateWorkspaceTab } from '@/services/helpers/types';
+import { isCheDevfile, Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectRegistriesErrors } from '@/store/DevfileRegistries/selectors';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import * as WorkspaceStore from '@/store/Workspaces';
+import { selectWorkspaceByQualifiedName } from '@/store/Workspaces/selectors';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 

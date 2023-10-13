@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { TargetEditor } from '../SamplesListGallery';
-import { CheckIcon } from '@patternfly/react-icons';
 import { DropdownGroup, DropdownItem } from '@patternfly/react-core';
-import TagLabel from '../../../../components/TagLabel';
+import { CheckIcon } from '@patternfly/react-icons';
+import React from 'react';
 
-import styles from './index.module.css';
+import TagLabel from '@/components/TagLabel';
+import styles from '@/pages/GetStarted/GetStartedTab/DropdownEditors/index.module.css';
+import { TargetEditor } from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
 
 type Props = {
   targetEditors: TargetEditor[];

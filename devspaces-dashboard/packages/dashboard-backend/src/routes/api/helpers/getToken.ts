@@ -11,7 +11,8 @@
  */
 
 import { FastifyRequest } from 'fastify';
-import { createFastifyError } from '../../../services/helpers';
+
+import { createFastifyError } from '@/services/helpers';
 
 const authorizationBearerPrefix = /^Bearer /;
 

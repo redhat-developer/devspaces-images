@@ -10,11 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DevfileBuilder } from '../../../store/__mocks__/devfile';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../devfileApi/devWorkspace/spec/template';
-import { DevfileAdapter } from '../adapter';
-import { convertDevfileV1toDevfileV2 } from '../converters';
-import devfileApi from '../../devfileApi';
+import { DevfileAdapter } from '@/services/devfile/adapter';
+import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
+import devfileApi from '@/services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { DevfileBuilder } from '@/store/__mocks__/devfile';
 
 describe('DevfileAdapter Service', () => {
   describe('getAttributesFromDevfileV2', () => {

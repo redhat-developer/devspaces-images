@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
-import WorkspaceConversionButton from '..';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
+
+import WorkspaceConversionButton from '..';
 
 const mockOnConvert = jest.fn();
 

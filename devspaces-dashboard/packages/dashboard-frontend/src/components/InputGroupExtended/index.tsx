@@ -14,7 +14,7 @@ import { Button, Form, InputGroup, ValidatedOptions } from '@patternfly/react-co
 import { CheckIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
 import * as React from 'react';
 
-import styles from './index.module.css';
+import styles from '@/components/InputGroupExtended/index.module.css';
 
 export type Props = React.PropsWithChildren & {
   readonly: boolean;

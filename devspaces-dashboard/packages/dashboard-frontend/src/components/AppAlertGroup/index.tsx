@@ -12,9 +12,10 @@
 
 import { Alert, AlertActionCloseButton, AlertGroup, AlertVariant } from '@patternfly/react-core';
 import React from 'react';
-import { lazyInject } from '../../inversify.config';
-import { AppAlerts } from '../../services/alerts/appAlerts';
-import { AlertItem } from '../../services/helpers/types';
+
+import { lazyInject } from '@/inversify.config';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AlertItem } from '@/services/helpers/types';
 
 type Props = unknown;
 

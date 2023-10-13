@@ -12,12 +12,13 @@
 
 import { api } from '@eclipse-che/common';
 import { FastifyInstance, FastifyRequest } from 'fastify';
-import { baseApiPath } from '../../constants/config';
-import { gitConfigSchema, namespacedSchema } from '../../constants/schemas';
-import { restParams } from '../../models';
-import { getSchema } from '../../services/helpers';
-import { getDevWorkspaceClient } from './helpers/getDevWorkspaceClient';
-import { getToken } from './helpers/getToken';
+
+import { baseApiPath } from '@/constants/config';
+import { gitConfigSchema, namespacedSchema } from '@/constants/schemas';
+import { restParams } from '@/models';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
+import { getToken } from '@/routes/api/helpers/getToken';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Gitconfig'];
 

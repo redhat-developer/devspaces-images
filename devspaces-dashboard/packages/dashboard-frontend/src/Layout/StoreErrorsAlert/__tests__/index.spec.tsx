@@ -10,14 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Store } from 'redux';
-import { Provider } from 'react-redux';
 import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+
+import AppAlertGroup from '@/components/AppAlertGroup';
+import { container } from '@/inversify.config';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import StoreErrorsAlert from '..';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import AppAlertGroup from '../../../components/AppAlertGroup';
-import { container } from '../../../inversify.config';
 
 describe('StoreErrorAlert component', () => {
   beforeEach(() => {

@@ -12,7 +12,8 @@
 
 import { api } from '@eclipse-che/common';
 import { Action } from 'redux';
-import { SanityCheckAction } from '../sanityCheckMiddleware';
+
+import { SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 export type GitConfigUser = api.IGitConfig['gitconfig']['user'];
 

@@ -8,14 +8,21 @@
     "preserveConstEnums": true,
     "removeComments": true,
     "target": "ES2021",
-    "lib": ["ES2021", "dom"],
+    "lib": [
+      "ES2021",
+      "dom"
+    ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
     "allowJs": true,
     "resolveJsonModule": true,
+    "baseUrl": "./",
+    "moduleResolution": "node",
     "paths": {
-      "@eclipse-che/common": ["../common/src"]
+      "@/*": [
+        "./src/*",
+      ],
     },
     "outDir": "lib",
     "rootDir": "src"
@@ -28,7 +35,4 @@
     "node_modules",
     "lib",
   ],
-  "references": [
-    { "path": "../common" }
-  ]
 }

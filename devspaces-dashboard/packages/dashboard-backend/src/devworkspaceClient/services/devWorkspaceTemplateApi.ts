@@ -10,17 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as k8s from '@kubernetes/client-node';
 import {
   devworkspacetemplateGroup,
   devworkspacetemplateLatestVersion,
   devworkspacetemplatePlural,
   V1alpha2DevWorkspaceTemplate,
 } from '@devfile/api';
-import { IDevWorkspaceTemplateApi } from '../types';
-import { createError } from './helpers/createError';
 import { api } from '@eclipse-che/common';
-import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
+import * as k8s from '@kubernetes/client-node';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CustomObjectAPI,
+  prepareCustomObjectAPI,
+} from '@/devworkspaceClient/services/helpers/prepareCustomObjectAPI';
+import { IDevWorkspaceTemplateApi } from '@/devworkspaceClient/types';
 
 export type DevWorkspaceTemplateList = {
   items?: V1alpha2DevWorkspaceTemplate[];

@@ -11,8 +11,10 @@
  */
 
 import { Action, Reducer } from 'redux';
+
+import { createObject } from '@/store/helpers';
+
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
 
 export interface State {
   messages: string[];

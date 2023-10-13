@@ -15,33 +15,38 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+
+import { TIMEOUT_TO_CREATE_SEC } from '@/components/WorkspaceProgress/const';
+import prepareResources from '@/components/WorkspaceProgress/CreatingSteps/Apply/Resources/prepareResources';
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import {
   buildFactoryParams,
   FactoryParams,
-} from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { findTargetWorkspace } from '../../../../../services/helpers/factoryFlow/findTargetWorkspace';
-import { buildIdeLoaderLocation } from '../../../../../services/helpers/location';
-import { AlertItem } from '../../../../../services/helpers/types';
-import { Workspace } from '../../../../../services/workspace-adapter';
-import { AppState } from '../../../../../store';
-import * as DevfileRegistriesStore from '../../../../../store/DevfileRegistries';
-import { DevWorkspaceResources } from '../../../../../store/DevfileRegistries';
-import { selectDevWorkspaceResources } from '../../../../../store/DevfileRegistries/selectors';
-import * as FactoryResolverStore from '../../../../../store/FactoryResolver';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
+import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { AlertItem } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
+import { DevWorkspaceResources } from '@/store/DevfileRegistries';
+import { selectDevWorkspaceResources } from '@/store/DevfileRegistries/selectors';
+import * as FactoryResolverStore from '@/store/FactoryResolver';
 import {
   selectFactoryResolver,
   selectFactoryResolverConverted,
-} from '../../../../../store/FactoryResolver/selectors';
-import { selectDefaultNamespace } from '../../../../../store/InfrastructureNamespaces/selectors';
-import * as WorkspacesStore from '../../../../../store/Workspaces';
-import * as DevWorkspacesStore from '../../../../../store/Workspaces/devWorkspaces';
-import { selectDevWorkspaceWarnings } from '../../../../../store/Workspaces/devWorkspaces/selectors';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
-import { TIMEOUT_TO_CREATE_SEC } from '../../../const';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../../ProgressStep';
-import { ProgressStepTitle } from '../../../StepTitle';
-import { TimeLimit } from '../../../TimeLimit';
-import prepareResources from './prepareResources';
+} from '@/store/FactoryResolver/selectors';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import * as WorkspacesStore from '@/store/Workspaces';
+import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
+import { selectDevWorkspaceWarnings } from '@/store/Workspaces/devWorkspaces/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {

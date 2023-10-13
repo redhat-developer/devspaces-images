@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 // eslint-disable-next-line notice/notice
-import { retryableExec } from '../retryableExec';
+import { retryableExec } from '@/devworkspaceClient/services/helpers/retryableExec';
 
 describe('Retryable Exec', () => {
   let attempt: number;

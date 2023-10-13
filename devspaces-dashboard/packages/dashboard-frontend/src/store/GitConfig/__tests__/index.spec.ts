@@ -13,10 +13,12 @@
 import { api } from '@eclipse-che/common';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as TestStore from '..';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 const mockFetchGitConfig = jest.fn().mockResolvedValue({ gitconfig: {} } as api.IGitConfig);
 const mockPatchGitConfig = jest.fn().mockResolvedValue({ gitconfig: {} } as api.IGitConfig);

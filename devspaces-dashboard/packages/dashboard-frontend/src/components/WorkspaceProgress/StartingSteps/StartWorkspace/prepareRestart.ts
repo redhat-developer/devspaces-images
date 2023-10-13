@@ -11,10 +11,11 @@
  */
 
 import { Location } from 'history';
+
 import {
   DEBUG_WORKSPACE_START,
   USE_DEFAULT_DEVFILE,
-} from '../../../../services/helpers/factoryFlow/buildFactoryParams';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
 
 export function applyRestartDefaultLocation(location: Location): void {
   const searchParams = new URLSearchParams(location.search);

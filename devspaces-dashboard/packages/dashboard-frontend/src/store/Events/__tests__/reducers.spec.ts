@@ -13,9 +13,11 @@
 import { CoreV1Event } from '@kubernetes/client-node';
 import { cloneDeep } from 'lodash';
 import { AnyAction } from 'redux';
+
+import * as stub from '@/store/Events/__tests__/stubs';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import * as stub from './stubs';
 
 describe('Events store, reducers', () => {
   let event1: CoreV1Event;

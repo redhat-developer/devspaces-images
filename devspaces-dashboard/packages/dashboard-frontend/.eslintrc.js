@@ -13,20 +13,23 @@
 module.exports = {
   env: {
     browser: true,
-    es2020: true
+    es2020: true,
   },
-  extends: [
-    'plugin:react-hooks/recommended',
-    'plugin:react/recommended',
-    '../../.eslintrc.js',
-  ],
+  extends: ['plugin:react-hooks/recommended', 'plugin:react/recommended', '../../.eslintrc.js'],
   parserOptions: {
     ecmaFeatures: {
-      jsx: true
+      jsx: true,
     },
+    sourceType: 'module',
+  },
+  env: {
+    es6: true,
   },
   plugins: [
+    'import',
+    'no-relative-import-paths',
     'react',
+    'simple-import-sort',
   ],
   rules: {
     'notice/notice': [
@@ -39,6 +42,16 @@ module.exports = {
         },
       },
     ],
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+
+    "no-relative-import-paths/no-relative-import-paths": [
+      "error",
+      { "allowSameFolder": false, 'prefix': '@', 'rootDir': 'src' }
+    ]
   },
   settings: {
     react: {

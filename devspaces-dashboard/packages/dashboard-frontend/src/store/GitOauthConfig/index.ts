@@ -10,18 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import common, { api } from '@eclipse-che/common';
-import { AppThunk } from '..';
-import { createObject } from '../helpers';
-import { AUTHORIZED } from '../sanityCheckMiddleware';
-import { IGitOauth } from './types';
+import { Action, Reducer } from 'redux';
+
 import {
   deleteOAuthToken,
   getOAuthProviders,
   getOAuthToken,
-} from '../../services/backend-client/oAuthApi';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
+} from '@/services/backend-client/oAuthApi';
+import { IGitOauth } from '@/store/GitOauthConfig/types';
+import { createObject } from '@/store/helpers';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
+import { AppThunk } from '..';
 
 export interface State {
   isLoading: boolean;

@@ -11,8 +11,9 @@
  */
 
 import { api, helpers } from '@eclipse-che/common';
-import { dashboardBackendPrefix } from './const';
-import { AxiosWrapper } from './axiosWrapper';
+
+import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
 
 export async function fetchTokens(namespace: string): Promise<api.PersonalAccessToken[]> {
   try {

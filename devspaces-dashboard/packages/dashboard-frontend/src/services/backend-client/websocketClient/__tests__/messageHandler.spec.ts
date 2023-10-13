@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { WebSocketMessageHandler } from '../messageHandler';
 import { api } from '@eclipse-che/common';
 import { CoreV1Event } from '@kubernetes/client-node';
+
+import { WebSocketMessageHandler } from '@/services/backend-client/websocketClient/messageHandler';
 
 describe('messageHandler', () => {
   afterEach(() => {

@@ -16,35 +16,40 @@ import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import devfileApi from '../../../../../services/devfileApi';
+
+import ExpandableWarning from '@/components/ExpandableWarning';
+import { TIMEOUT_TO_CREATE_SEC } from '@/components/WorkspaceProgress/const';
+import { configureProjectRemotes } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getGitRemotes';
+import { getProjectFromLocation } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getProjectFromLocation';
+import { prepareDevfile } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/prepareDevfile';
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import devfileApi from '@/services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
 import {
   buildFactoryParams,
   FactoryParams,
   USE_DEFAULT_DEVFILE,
-} from '../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { findTargetWorkspace } from '../../../../../services/helpers/factoryFlow/findTargetWorkspace';
-import { buildIdeLoaderLocation } from '../../../../../services/helpers/location';
-import { AlertItem } from '../../../../../services/helpers/types';
-import { Workspace } from '../../../../../services/workspace-adapter';
-import { AppState } from '../../../../../store';
-import { selectDefaultDevfile } from '../../../../../store/DevfileRegistries/selectors';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
+import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { AlertItem } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
 import {
   selectFactoryResolver,
   selectFactoryResolverConverted,
-} from '../../../../../store/FactoryResolver/selectors';
-import { selectDefaultNamespace } from '../../../../../store/InfrastructureNamespaces/selectors';
-import * as WorkspacesStore from '../../../../../store/Workspaces';
-import { selectDevWorkspaceWarnings } from '../../../../../store/Workspaces/devWorkspaces/selectors';
-import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
-import ExpandableWarning from '../../../../ExpandableWarning';
-import { TIMEOUT_TO_CREATE_SEC } from '../../../const';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../../ProgressStep';
-import { ProgressStepTitle } from '../../../StepTitle';
-import { TimeLimit } from '../../../TimeLimit';
-import { configureProjectRemotes } from './getGitRemotes';
-import { getProjectFromLocation } from './getProjectFromLocation';
-import { prepareDevfile } from './prepareDevfile';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../services/devfileApi/devWorkspace/spec/template';
+} from '@/store/FactoryResolver/selectors';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import * as WorkspacesStore from '@/store/Workspaces';
+import { selectDevWorkspaceWarnings } from '@/store/Workspaces/devWorkspaces/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {

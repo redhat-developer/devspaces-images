@@ -19,6 +19,8 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|sass|scss|styl)$': 'identity-obj-proxy',
     '\\.(gif|ttf|eot|svg)$': '<rootDir>/__mocks__/fileMock.js',
+    // mapping for absolute imports (see tsconfig.json)
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   modulePathIgnorePatterns: [
     '__mocks__/index.tsx',

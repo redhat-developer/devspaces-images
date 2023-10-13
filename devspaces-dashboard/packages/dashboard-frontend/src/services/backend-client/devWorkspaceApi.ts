@@ -11,11 +11,12 @@
  */
 
 import { api, helpers } from '@eclipse-che/common';
-import { JSONSchema7 } from 'json-schema';
-import devfileApi, { IDevWorkspacesList } from '../devfileApi';
-import { dashboardBackendPrefix } from './const';
 import axios from 'axios';
-import { AxiosWrapper } from './axiosWrapper';
+import { JSONSchema7 } from 'json-schema';
+
+import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+import devfileApi, { IDevWorkspacesList } from '@/services/devfileApi';
 
 export type Headers = { [key: string]: string };
 
@@ -119,16 +120,6 @@ export async function putDockerConfig(
     return response.data;
   } catch (e) {
     throw new Error(`Failed to put dockerconfig. ${helpers.errors.getMessage(e)}`);
-  }
-}
-
-export async function injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void> {
-  try {
-    await AxiosWrapper.createToRetryMissedBearerTokenError().post(
-      `${dashboardBackendPrefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`,
-    );
-  } catch (e) {
-    throw new Error(`Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`);
   }
 }
 

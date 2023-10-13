@@ -10,8 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ERROR_CODE_ATTR, FACTORY_LINK_ATTR } from '@eclipse-che/common';
-import { sanitizeSearchParams } from '@eclipse-che/common/src/helpers/sanitize';
+import { ERROR_CODE_ATTR, FACTORY_LINK_ATTR, helpers } from '@eclipse-che/common';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import querystring from 'querystring';
 
@@ -33,7 +32,7 @@ export function registerFactoryAcceptanceRedirect(instance: FastifyInstance): vo
           params.append(ERROR_CODE_ATTR, querystring.unescape(query[ERROR_CODE_ATTR] as string));
         }
 
-        const sanitizedQueryParams = sanitizeSearchParams(params);
+        const sanitizedQueryParams = helpers.sanitizeSearchParams(params);
 
         return reply.redirect('/dashboard/#/load-factory?' + sanitizedQueryParams.toString());
       });

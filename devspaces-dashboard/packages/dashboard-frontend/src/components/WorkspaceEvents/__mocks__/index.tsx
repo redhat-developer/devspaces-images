@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props } from '..';
 
 export default class WorkspaceEvents extends React.PureComponent<Props> {

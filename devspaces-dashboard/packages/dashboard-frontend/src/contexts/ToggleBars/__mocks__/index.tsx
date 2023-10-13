@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { ToggleBarsType } from '..';
 
 /* istanbul ignore next */

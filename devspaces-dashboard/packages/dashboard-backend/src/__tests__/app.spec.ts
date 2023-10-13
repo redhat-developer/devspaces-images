@@ -11,7 +11,8 @@
  */
 
 import process from 'process';
-import { setup, teardown } from '../helpers/tests/appBuilder';
+
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 
 const mockProcessExit = jest.fn();
 (process as any).exit = mockProcessExit.mockImplementation(code => {

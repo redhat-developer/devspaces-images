@@ -17,6 +17,11 @@ module.exports = {
   extends: [
     '../../.eslintrc.js',
   ],
+  plugins: [
+    'import',
+    'no-relative-import-paths',
+    'simple-import-sort',
+  ],
   rules: {
     'notice/notice': [
       'error',
@@ -28,5 +33,16 @@ module.exports = {
         },
       },
     ],
+
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+
+    "no-relative-import-paths/no-relative-import-paths": [
+      "error",
+      { "allowSameFolder": false, 'prefix': '@', 'rootDir': 'src' }
+    ]
   },
 };

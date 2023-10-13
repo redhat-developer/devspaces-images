@@ -11,9 +11,11 @@
  */
 
 import React from 'react';
+
+import { ToggleBarsContext } from '@/contexts/ToggleBars';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { WorkspaceLogsViewerTools } from '..';
-import { ToggleBarsContext } from '../../../../contexts/ToggleBars';
-import getComponentRenderer, { screen } from '../../../../services/__mocks__/getComponentRenderer';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 

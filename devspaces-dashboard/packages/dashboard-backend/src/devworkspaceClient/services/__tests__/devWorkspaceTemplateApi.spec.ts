@@ -18,13 +18,14 @@ import {
   devworkspacetemplatePlural,
   V1alpha2DevWorkspaceTemplate,
 } from '@devfile/api';
-import { IPatch } from '@eclipse-che/common/src/dto/api';
+import { api } from '@eclipse-che/common';
 import * as mockClient from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
+
 import {
   DevWorkspaceTemplateApiService,
   DevWorkspaceTemplateList,
-} from '../devWorkspaceTemplateApi';
+} from '@/devworkspaceClient/services/devWorkspaceTemplateApi';
 
 const namespace = 'user-che';
 const name = 'tmpl-name';
@@ -128,7 +129,7 @@ describe('DevWorkspaceTemplate API Service', () => {
   });
 
   test('patching', async () => {
-    const patches: IPatch[] = [
+    const patches: api.IPatch[] = [
       {
         op: 'replace',
         path: '/metadata/annotations',

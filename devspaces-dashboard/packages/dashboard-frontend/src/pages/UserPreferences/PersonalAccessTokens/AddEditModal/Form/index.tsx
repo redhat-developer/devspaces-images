@@ -13,13 +13,14 @@
 import { api } from '@eclipse-che/common';
 import { Form } from '@patternfly/react-core';
 import React from 'react';
-import { DEFAULT_GIT_PROVIDER, PROVIDER_ENDPOINTS } from '../../../const';
-import { EditTokenProps } from '../../types';
-import { GitProviderEndpoint } from './GitProviderEndpoint';
-import { GitProviderOrganization } from './GitProviderOrganization';
-import { GitProviderSelector } from './GitProviderSelector';
-import { TokenData } from './TokenData';
-import { TokenName } from './TokenName';
+
+import { DEFAULT_GIT_PROVIDER, PROVIDER_ENDPOINTS } from '@/pages/UserPreferences/const';
+import { GitProviderEndpoint } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderEndpoint';
+import { GitProviderOrganization } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderOrganization';
+import { GitProviderSelector } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderSelector';
+import { TokenData } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/TokenData';
+import { TokenName } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/TokenName';
+import { EditTokenProps } from '@/pages/UserPreferences/PersonalAccessTokens/types';
 
 export type Props = EditTokenProps & {
   cheUserId: string;

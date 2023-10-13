@@ -11,8 +11,9 @@
  */
 
 import { api } from '@eclipse-che/common';
-import { IWatcherService } from '../devworkspaceClient';
-import { NotificationMessage, Observer, SubjectWatcher } from './types/Observer';
+
+import { IWatcherService } from '@/devworkspaceClient';
+import { NotificationMessage, Observer, SubjectWatcher } from '@/services/types/Observer';
 
 /**
  * This class implements the Observer pattern. It allows to manage subscribers and notify them.

@@ -10,20 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
   Button,
   CodeBlock,
   CodeBlockAction,
   CodeBlockCode,
   ExpandableSectionToggle,
-  TextContent,
   Text,
+  TextContent,
   TextVariants,
 } from '@patternfly/react-core';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import { CopyIcon } from '@patternfly/react-icons';
-import styles from './index.module.css';
+import React from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
+
+import styles from '@/components/ExpandableWarning/index.module.css';
 
 export const ERROR_MESSAGE_ID = 'expandable-warning-error-message';
 

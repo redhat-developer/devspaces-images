@@ -10,14 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isConditionReady, isConditionError } from '../../../utils';
 import {
   conditionChangedTo,
   conditionError,
   conditionStatusFalse,
   conditionStatusTrue,
   conditionStatusUnknown,
-} from './fixtures';
+} from '@/components/WorkspaceProgress/StartingSteps/WorkspaceConditions/__tests__/fixtures';
+import { isConditionError, isConditionReady } from '@/components/WorkspaceProgress/utils';
 
 describe('utils', () => {
   test('isReady', () => {

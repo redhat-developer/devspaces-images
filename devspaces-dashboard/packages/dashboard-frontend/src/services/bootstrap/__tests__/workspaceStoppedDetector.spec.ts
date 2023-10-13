@@ -10,12 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import SessionStorageService, { SessionStorageKey } from '../../session-storage';
-import { WorkspaceRunningError, WorkspaceStoppedDetector } from '../workspaceStoppedDetector';
-import { constructWorkspace } from '../../workspace-adapter';
-import { IssueType } from '../issuesReporter';
+import { IssueType } from '@/services/bootstrap/issuesReporter';
+import {
+  WorkspaceRunningError,
+  WorkspaceStoppedDetector,
+} from '@/services/bootstrap/workspaceStoppedDetector';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
+import { constructWorkspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 describe('WorkspaceStoppedDetector', () => {
   describe('checkWorkspaceStopped()', () => {

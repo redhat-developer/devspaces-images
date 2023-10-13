@@ -14,8 +14,9 @@ import { Banner } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import sanitizeHtml from 'sanitize-html';
-import { AppState } from '../../../store';
-import { selectBranding } from '../../../store/Branding/selectors';
+
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
 
 type Props = MappedProps;
 

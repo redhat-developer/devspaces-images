@@ -11,9 +11,9 @@
  */
 
 import React, { PropsWithChildren } from 'react';
-import { ProgressStepTitleIcon } from './Icon';
 
-import styles from './index.module.css';
+import { ProgressStepTitleIcon } from '@/components/WorkspaceProgress/StepTitle/Icon';
+import styles from '@/components/WorkspaceProgress/StepTitle/index.module.css';
 
 export type Props = PropsWithChildren<{
   className?: string;

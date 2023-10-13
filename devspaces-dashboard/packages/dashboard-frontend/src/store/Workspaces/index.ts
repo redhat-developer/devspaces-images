@@ -11,12 +11,14 @@
  */
 
 import { Reducer } from 'redux';
+
+import devfileApi from '@/services/devfileApi';
+import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { Workspace } from '@/services/workspace-adapter';
+import { createObject } from '@/store/helpers';
+import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
+
 import { AppThunk } from '..';
-import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
-import devfileApi from '../../services/devfileApi';
-import { Workspace } from '../../services/workspace-adapter';
-import { createObject } from '../helpers';
-import * as DevWorkspacesStore from './devWorkspaces';
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {

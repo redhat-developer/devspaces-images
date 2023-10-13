@@ -18,14 +18,16 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators, State } from '@/store/Pods/Logs';
+
 import WorkspaceLogs from '..';
-import devfileApi from '../../../services/devfileApi';
-import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
-import getComponentRenderer from '../../../services/__mocks__/getComponentRenderer';
-import { AppThunk } from '../../../store';
-import { ActionCreators, State } from '../../../store/Pods/Logs';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('../ContainerSelector');
 jest.mock('../ViewerTools');

@@ -11,8 +11,9 @@
  */
 
 import { Action, Reducer } from 'redux';
-import { createObject } from '../helpers';
-import { KnownAction, State, Type } from './types';
+
+import { KnownAction, State, Type } from '@/store/GitConfig/types';
+import { createObject } from '@/store/helpers';
 
 const unloadedState: State = {
   isLoading: false,

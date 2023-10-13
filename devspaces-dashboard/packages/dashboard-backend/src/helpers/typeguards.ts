@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1Status, HttpError } from '@kubernetes/client-node';
+import { HttpError, V1Status } from '@kubernetes/client-node';
 import { Response } from 'request';
 
 /**

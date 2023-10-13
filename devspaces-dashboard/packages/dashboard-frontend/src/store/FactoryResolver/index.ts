@@ -10,27 +10,28 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
-import axios from 'axios';
-import common from '@eclipse-che/common';
-import { FactoryResolver } from '../../services/helpers/types';
-import { AppThunk } from '../index';
-import { createObject } from '../helpers';
-import { selectDefaultComponents, selectPvcStrategy } from '../ServerConfig/selectors';
-import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
-import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
-import normalizeDevfileV2 from './normalizeDevfileV2';
-import normalizeDevfileV1 from './normalizeDevfileV1';
-import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { getYamlResolver } from '../../services/backend-client/yamlResolverApi';
-import { DEFAULT_REGISTRY } from '../DevfileRegistries';
-import { isOAuthResponse } from '../../services/oauth';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { CHE_EDITOR_YAML_PATH } from '../../services/workspace-client/helpers';
-import { FactoryParams } from '../../services/helpers/factoryFlow/buildFactoryParams';
-import { getFactoryResolver } from '../../services/backend-client/factoryApi';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
 import * as cheApi from '@eclipse-che/api';
+import common from '@eclipse-che/common';
+import axios from 'axios';
+import { Action, Reducer } from 'redux';
+
+import { getFactoryResolver } from '@/services/backend-client/factoryApi';
+import { getYamlResolver } from '@/services/backend-client/yamlResolverApi';
+import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
+import devfileApi, { isDevfileV2 } from '@/services/devfileApi';
+import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { FactoryResolver } from '@/services/helpers/types';
+import { isOAuthResponse } from '@/services/oauth';
+import { CHE_EDITOR_YAML_PATH } from '@/services/workspace-client/helpers';
+import { DEFAULT_REGISTRY } from '@/store/DevfileRegistries';
+import normalizeDevfileV1 from '@/store/FactoryResolver/normalizeDevfileV1';
+import normalizeDevfileV2 from '@/store/FactoryResolver/normalizeDevfileV2';
+import { createObject } from '@/store/helpers';
+import { AppThunk } from '@/store/index';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+import { selectDefaultComponents, selectPvcStrategy } from '@/store/ServerConfig/selectors';
 
 export type OAuthResponse = {
   attributes: {

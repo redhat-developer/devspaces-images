@@ -10,13 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
 import axios from 'axios';
 import { Action, Reducer } from 'redux';
-import common from '@eclipse-che/common';
-import { AppThunk } from '../..';
-import { createObject } from '../../helpers';
-import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
+
+import { AppThunk } from '@/store';
+import { createObject } from '@/store/helpers';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 // create new instance of `axios` to avoid adding an authorization header
 const axiosInstance = axios.create();

@@ -12,7 +12,8 @@
 
 import { Banner } from '@patternfly/react-core';
 import React from 'react';
-import { isSupportedBrowser } from './isSupportedBrowser';
+
+import { isSupportedBrowser } from '@/components/BannerAlert/NotSupportedBrowser/isSupportedBrowser';
 
 type Props = unknown;
 

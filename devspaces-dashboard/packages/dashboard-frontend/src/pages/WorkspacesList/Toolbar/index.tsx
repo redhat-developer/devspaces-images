@@ -10,22 +10,22 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
-  ToolbarContent,
-  ToolbarItem,
-  Checkbox,
-  Toolbar,
   Button,
+  Checkbox,
   InputGroup,
   TextInput,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
   ToolbarToggleGroup,
 } from '@patternfly/react-core';
 import { EllipsisVIcon, PlusCircleIcon, SearchIcon } from '@patternfly/react-icons';
-import match from '../../../services/helpers/filter';
+import React from 'react';
 
-import styles from './index.module.css';
-import { Workspace } from '../../../services/workspace-adapter';
+import styles from '@/pages/WorkspacesList/Toolbar/index.module.css';
+import match from '@/services/helpers/filter';
+import { Workspace } from '@/services/workspace-adapter';
 
 type Props = {
   selectedAll: boolean;

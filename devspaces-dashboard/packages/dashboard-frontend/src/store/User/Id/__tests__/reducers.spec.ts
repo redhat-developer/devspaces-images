@@ -11,8 +11,10 @@
  */
 
 import { AnyAction } from 'redux';
+
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AUTHORIZED } from '../../../sanityCheckMiddleware';
 
 const cheUserId = 'che-user-id';
 

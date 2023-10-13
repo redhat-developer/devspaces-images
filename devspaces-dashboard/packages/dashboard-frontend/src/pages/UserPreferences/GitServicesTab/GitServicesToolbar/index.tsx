@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api, helpers } from '@eclipse-che/common';
 import {
   AlertVariant,
   Button,
@@ -18,17 +19,17 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from '@patternfly/react-core';
+import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { lazyInject } from '../../../../inversify.config';
-import { AppAlerts } from '../../../../services/alerts/appAlerts';
-import { AlertItem } from '../../../../services/helpers/types';
-import RevokeGitServicesModal from '../Modals/RevokeGitServicesModal';
-import { api, helpers } from '@eclipse-che/common';
-import * as GitOauthConfig from '../../../../store/GitOauthConfig';
-import { isEqual } from 'lodash';
-import { AppState } from '../../../../store';
-import { selectGitOauth } from '../../../../store/GitOauthConfig/selectors';
+
+import { lazyInject } from '@/inversify.config';
+import RevokeGitServicesModal from '@/pages/UserPreferences/GitServicesTab/Modals/RevokeGitServicesModal';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AlertItem } from '@/services/helpers/types';
+import { AppState } from '@/store';
+import * as GitOauthConfig from '@/store/GitOauthConfig';
+import { selectGitOauth } from '@/store/GitOauthConfig/selectors';
 
 type Props = MappedProps & {
   callbacks: {

@@ -10,16 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import '@/app.css';
+
 import { ConnectedRouter } from 'connected-react-router';
 import { History } from 'history';
 import React, { Suspense } from 'react';
-import AppAlertGroup from './components/AppAlertGroup';
-import Fallback from './components/Fallback';
-import Head from './components/Head';
-import Layout from './Layout';
-import Routes from './Routes';
 
-import './app.css';
+import AppAlertGroup from '@/components/AppAlertGroup';
+import Fallback from '@/components/Fallback';
+import Head from '@/components/Head';
+import Layout from '@/Layout';
+import Routes from '@/Routes';
 
 function AppComponent(props: { history: History }): React.ReactElement {
   return (

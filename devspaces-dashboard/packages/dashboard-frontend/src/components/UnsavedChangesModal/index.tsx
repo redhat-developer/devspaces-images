@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React, { useEffect, useState } from 'react';
-import { Button, Modal, ModalVariant, TextContent, Text } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
 import { History, UnregisterCallback } from 'history';
+import React, { useEffect, useState } from 'react';
 
 type Props = {
   hasUnsavedChanges: () => boolean;

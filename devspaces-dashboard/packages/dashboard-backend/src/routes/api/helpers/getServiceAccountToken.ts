@@ -11,7 +11,8 @@
  */
 
 import { existsSync, readFileSync } from 'fs';
-import { isLocalRun } from '../../../localRun';
+
+import { isLocalRun } from '@/localRun';
 
 export const SERVICE_ACCOUNT_TOKEN_PATH = '/run/secrets/kubernetes.io/serviceaccount/token';
 

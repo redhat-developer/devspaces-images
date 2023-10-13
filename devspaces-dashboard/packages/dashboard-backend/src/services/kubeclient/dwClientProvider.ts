@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DevWorkspaceClient } from '../../devworkspaceClient';
-import { KubeConfigProvider } from './kubeConfigProvider';
+import { DevWorkspaceClient } from '@/devworkspaceClient';
+import { KubeConfigProvider } from '@/services/kubeclient/kubeConfigProvider';
 
 export class DwClientProvider {
   private kubeconfigProvider: KubeConfigProvider;

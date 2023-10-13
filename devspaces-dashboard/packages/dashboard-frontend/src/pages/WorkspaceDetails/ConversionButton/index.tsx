@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Button } from '@patternfly/react-core';
+import React from 'react';
 
 type Props = {
   onConvert: () => Promise<void>;

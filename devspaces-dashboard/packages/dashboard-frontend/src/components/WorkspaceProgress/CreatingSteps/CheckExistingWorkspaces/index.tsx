@@ -15,22 +15,27 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import {
   buildFactoryParams,
   FactoryParams,
-} from '../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { buildIdeLoaderLocation } from '../../../../services/helpers/location';
-import { AlertItem } from '../../../../services/helpers/types';
-import { Workspace } from '../../../../services/workspace-adapter';
-import { AppState } from '../../../../store';
-import { selectDevWorkspaceResources } from '../../../../store/DevfileRegistries/selectors';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { AlertItem } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectDevWorkspaceResources } from '@/store/DevfileRegistries/selectors';
 import {
   selectFactoryResolver,
   selectFactoryResolverConverted,
-} from '../../../../store/FactoryResolver/selectors';
-import { selectAllWorkspaces } from '../../../../store/Workspaces/selectors';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
-import { ProgressStepTitle } from '../../StepTitle';
+} from '@/store/FactoryResolver/selectors';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {

@@ -12,9 +12,11 @@
 
 import { api } from '@eclipse-che/common';
 import { AnyAction } from 'redux';
+
+import { token1, token2 } from '@/store/PersonalAccessToken/__tests__/stub';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import { token1, token2 } from './stub';
 
 describe('Personal Access Token store', () => {
   afterEach(() => {

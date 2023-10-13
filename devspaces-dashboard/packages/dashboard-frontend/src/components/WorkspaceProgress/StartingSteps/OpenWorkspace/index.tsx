@@ -15,22 +15,27 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { WorkspaceParams } from '../../../../Routes/routes';
-import { isAvailableEndpoint } from '../../../../services/helpers/api-ping';
-import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
-import { AlertItem, LoaderTab } from '../../../../services/helpers/types';
-import { Workspace } from '../../../../services/workspace-adapter';
-import { AppState } from '../../../../store';
-import * as WorkspaceStore from '../../../../store/Workspaces';
-import { selectAllWorkspaces } from '../../../../store/Workspaces/selectors';
-import { TIMEOUT_TO_GET_URL_SEC } from '../../const';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
-import { ProgressStepTitle } from '../../StepTitle';
-import { TimeLimit } from '../../TimeLimit';
+
+import { TIMEOUT_TO_GET_URL_SEC } from '@/components/WorkspaceProgress/const';
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
 import {
   applyRestartDefaultLocation,
   applyRestartInSafeModeLocation,
-} from '../StartWorkspace/prepareRestart';
+} from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace/prepareRestart';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import { WorkspaceParams } from '@/Routes/routes';
+import { isAvailableEndpoint } from '@/services/helpers/api-ping';
+import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
+import { AlertItem, LoaderTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import * as WorkspaceStore from '@/store/Workspaces';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {

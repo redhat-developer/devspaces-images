@@ -10,14 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { fromTextArea as CMEditor } from 'codemirror';
 import 'codemirror/mode/yaml/yaml';
-
 import 'codemirror/lib/codemirror.css';
-import './theme/eclipse-che.css';
+import '@/components/DevfileViewer/theme/eclipse-che.css';
 
-import styles from './index.module.css';
+import { fromTextArea as CMEditor } from 'codemirror';
+import React from 'react';
+
+import styles from '@/components/DevfileViewer/index.module.css';
 
 type Props = {
   isActive: boolean;

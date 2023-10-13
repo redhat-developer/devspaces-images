@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import match from '../filter';
+import match from '@/services/helpers/filter';
 
 describe('filter/match', () => {
   const value = 'Lorem ipsum dolor sit amet';

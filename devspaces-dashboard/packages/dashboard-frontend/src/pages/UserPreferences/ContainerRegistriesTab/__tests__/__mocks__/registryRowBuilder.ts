@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { RegistryEntry } from '../../../../../store/DockerConfig/types';
+import { RegistryEntry } from '@/store/DockerConfig/types';
 
 export class FakeRegistryBuilder {
   private registry: RegistryEntry = { url: '', password: '', username: '' };

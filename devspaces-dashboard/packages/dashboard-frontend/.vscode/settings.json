@@ -5,4 +5,6 @@
     "**/coverage": true
   },
   "jest.jestCommandLine": "yarn test",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
 }

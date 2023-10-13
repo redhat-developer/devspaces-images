@@ -11,8 +11,10 @@
  */
 
 import axios from 'axios';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../bootstrap/branding.constant';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import { ResourceFetcherService } from '..';
 
 jest.mock('axios');

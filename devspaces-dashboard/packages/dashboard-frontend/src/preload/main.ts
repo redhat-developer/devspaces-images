@@ -11,12 +11,13 @@
  */
 
 import { helpers } from '@eclipse-che/common';
-import { FactoryLocation, FactoryLocationAdapter } from '../services/factory-location-adapter';
+
+import { FactoryLocation, FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import {
   PROPAGATE_FACTORY_ATTRS,
   REMOTES_ATTR,
-} from '../services/helpers/factoryFlow/buildFactoryParams';
-import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
 
 export function redirectToDashboard(): void {
   if (window.location.pathname.startsWith('/dashboard/')) {

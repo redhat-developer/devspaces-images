@@ -12,8 +12,10 @@
 
 import { AnyAction } from 'redux';
 import { ThunkMiddleware } from 'redux-thunk';
+
+import * as AuthorizationStore from '@/store/SanityCheck';
+
 import { AppState } from '.';
-import * as AuthorizationStore from './SanityCheck';
 
 export const AUTHORIZED = Symbol('Authorized resource');
 

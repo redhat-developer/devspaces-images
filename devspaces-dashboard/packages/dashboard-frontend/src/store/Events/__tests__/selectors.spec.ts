@@ -14,16 +14,18 @@ import { CoreV1Event } from '@kubernetes/client-node';
 import { cloneDeep } from 'lodash';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import * as store from '..';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import * as stub from '@/store/Events/__tests__/stubs';
 import {
   selectAllEvents,
   selectEventsError,
   selectEventsFromResourceVersion,
   selectEventsResourceVersion,
-} from '../selectors';
-import * as stub from './stubs';
+} from '@/store/Events/selectors';
+
+import * as store from '..';
 
 describe('Events store, selectors', () => {
   let event1: CoreV1Event;

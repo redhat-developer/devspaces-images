@@ -16,11 +16,13 @@ import { api } from '@eclipse-che/common';
 import { CoreV1Event, V1Pod, V1Status } from '@kubernetes/client-node';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { container } from '@/inversify.config';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import * as testStore from '..';
-import { AppState } from '../../..';
-import { container } from '../../../../inversify.config';
-import { WebsocketClient } from '../../../../services/backend-client/websocketClient';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 
 describe('Pod logs store, actions', () => {
   const podName = 'pod1';

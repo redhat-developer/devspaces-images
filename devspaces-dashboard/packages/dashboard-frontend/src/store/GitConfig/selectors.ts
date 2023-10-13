@@ -11,8 +11,10 @@
  */
 
 import { createSelector } from 'reselect';
+
+import { State } from '@/store/GitConfig/types';
+
 import { AppState } from '..';
-import { State } from './types';
 
 const selectState = (state: AppState) => state.gitConfig;
 

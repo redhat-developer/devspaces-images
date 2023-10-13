@@ -11,13 +11,14 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { authenticateApiRequestsHook } from './hooks/authenticateApiRequests';
-import { addAuthorizationHooks } from './hooks/authorizationHooks';
-import { registerOauth2Plugin } from './plugins/oauth2';
-import { registerCheApiProxy } from './proxies/cheServerApi';
-import { registerDexProxies } from './proxies/dexProxies';
-import { registerDexCallback } from './routes/dexCallback';
-import { registerSignOut } from './routes/signOut';
+
+import { authenticateApiRequestsHook } from '@/localRun/hooks/authenticateApiRequests';
+import { addAuthorizationHooks } from '@/localRun/hooks/authorizationHooks';
+import { registerOauth2Plugin } from '@/localRun/plugins/oauth2';
+import { registerCheApiProxy } from '@/localRun/proxies/cheServerApi';
+import { registerDexProxies } from '@/localRun/proxies/dexProxies';
+import { registerDexCallback } from '@/localRun/routes/dexCallback';
+import { registerSignOut } from '@/localRun/routes/signOut';
 
 export function isLocalRun(): boolean {
   const isLocalRun = process.env['LOCAL_RUN'] === 'true';

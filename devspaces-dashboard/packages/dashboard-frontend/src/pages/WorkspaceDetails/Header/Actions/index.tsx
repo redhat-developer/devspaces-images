@@ -10,23 +10,24 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { AlertVariant } from '@patternfly/react-core';
-import React from 'react';
-import { History } from 'history';
 import common from '@eclipse-che/common';
-import WorkspaceActionsProvider from '../../../../contexts/WorkspaceActions/Provider';
+import { AlertVariant } from '@patternfly/react-core';
+import { History } from 'history';
+import React from 'react';
+
+import { ActionContextType, WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
+import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
+import { lazyInject } from '@/inversify.config';
+import ButtonAction from '@/pages/WorkspaceDetails/Header/Actions/Button';
+import DropdownActions from '@/pages/WorkspaceDetails/Header/Actions/Dropdown';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import getRandomString from '@/services/helpers/random';
 import {
+  DeprecatedWorkspaceStatus,
+  DevWorkspaceStatus,
   WorkspaceAction,
   WorkspaceStatus,
-  DevWorkspaceStatus,
-  DeprecatedWorkspaceStatus,
-} from '../../../../services/helpers/types';
-import { ActionContextType, WorkspaceActionsConsumer } from '../../../../contexts/WorkspaceActions';
-import { lazyInject } from '../../../../inversify.config';
-import { AppAlerts } from '../../../../services/alerts/appAlerts';
-import getRandomString from '../../../../services/helpers/random';
-import DropdownActions from './Dropdown';
-import ButtonAction from './Button';
+} from '@/services/helpers/types';
 
 type Props = {
   workspaceUID: string;

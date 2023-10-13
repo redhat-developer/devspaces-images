@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { redirectToDashboard } from './main';
+import { redirectToDashboard } from '@/preload/main';
 
 (function (): void {
   redirectToDashboard();

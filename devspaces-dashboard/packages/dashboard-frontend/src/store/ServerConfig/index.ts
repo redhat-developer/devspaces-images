@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import common, { api } from '@eclipse-che/common';
-import { AppThunk } from '../';
-import { createObject } from '../helpers';
-import * as ServerConfigApi from '../../services/backend-client/serverConfigApi';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
+import { Action, Reducer } from 'redux';
+
+import * as ServerConfigApi from '@/services/backend-client/serverConfigApi';
+import { AppThunk } from '@/store';
+import { createObject } from '@/store/helpers';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;

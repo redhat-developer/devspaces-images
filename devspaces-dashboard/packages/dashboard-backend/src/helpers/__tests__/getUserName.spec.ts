@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getUserName } from '../getUserName';
+import { getUserName } from '@/helpers/getUserName';
 
 describe('helpers', () => {
   afterEach(() => {

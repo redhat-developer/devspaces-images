@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
+  Breadcrumb,
+  BreadcrumbItem,
   Flex,
   FlexItem,
   PageSection,
@@ -22,15 +23,15 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
-import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
-import WorkspaceStatusLabel from '../../../components/WorkspaceStatusLabel';
+import React from 'react';
 
-import styles from './index.module.css';
+import WorkspaceStatusLabel from '@/components/WorkspaceStatusLabel';
+import styles from '@/pages/WorkspaceDetails/Header/index.module.css';
 import {
   DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceStatus,
-} from '../../../services/helpers/types';
+} from '@/services/helpers/types';
 
 type Props = {
   workspacesLink: string;

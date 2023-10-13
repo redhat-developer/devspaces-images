@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Title, EmptyState, EmptyStateVariant, EmptyStateIcon } from '@patternfly/react-core';
+import { EmptyState, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
 import { RegistryIcon } from '@patternfly/react-icons';
+import React from 'react';
 
 type Props = {
   text: string;

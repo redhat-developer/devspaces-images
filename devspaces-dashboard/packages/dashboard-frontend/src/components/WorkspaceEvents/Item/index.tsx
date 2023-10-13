@@ -23,8 +23,9 @@ import {
 } from '@patternfly/react-core';
 import { format } from 'date-fns';
 import React from 'react';
-import { ResourceIcon } from '../../ResourceIcon';
-import styles from './index.module.css';
+
+import { ResourceIcon } from '@/components/ResourceIcon';
+import styles from '@/components/WorkspaceEvents/Item/index.module.css';
 
 export type Props = {
   event: CoreV1Event;

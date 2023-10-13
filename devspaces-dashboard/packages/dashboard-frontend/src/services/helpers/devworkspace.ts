@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as devfileApi from '../devfileApi/devfileApi';
+import * as devfileApi from '@/services/devfileApi/devfileApi';
 
 /**
  * Check to see if the workspace is a web terminal

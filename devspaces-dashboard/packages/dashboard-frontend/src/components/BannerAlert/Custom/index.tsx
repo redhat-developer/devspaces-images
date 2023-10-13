@@ -14,10 +14,10 @@ import { Banner } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import sanitizeHtml from 'sanitize-html';
-import { AppState } from '../../../store';
-import { selectBannerAlertMessages } from '../../../store/BannerAlert/selectors';
 
-import styles from './index.module.css';
+import styles from '@/components/BannerAlert/Custom/index.module.css';
+import { AppState } from '@/store';
+import { selectBannerAlertMessages } from '@/store/BannerAlert/selectors';
 
 type Props = MappedProps;
 

@@ -10,14 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { NavList } from '@patternfly/react-core';
-import NavigationMainItem from './MainItem';
-import { NavigationItemObject } from '.';
-import { ROUTE } from '../../Routes/routes';
-import { AppState } from '../../store';
+import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
+
+import NavigationMainItem from '@/Layout/Navigation/MainItem';
+import { ROUTE } from '@/Routes/routes';
+import { AppState } from '@/store';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
+
+import { NavigationItemObject } from '.';
 
 type Props = MappedProps & {
   activePath: string;

@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { AppState } from '../..';
-import { selectIsLoading, selectRegistries, selectError } from '../selectors';
-import { AnyAction } from 'redux';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectError, selectIsLoading, selectRegistries } from '@/store/DockerConfig/selectors';
 
 describe('dockerConfig selectors', () => {
   const registries = [

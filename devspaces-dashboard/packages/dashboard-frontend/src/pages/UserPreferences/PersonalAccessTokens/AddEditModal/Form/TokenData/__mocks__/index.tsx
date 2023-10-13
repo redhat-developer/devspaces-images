@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props, State } from '..';
 
 export const NEW_TOKEN_DATA_BUTTON = 'Submit Valid Token Data';

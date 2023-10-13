@@ -16,23 +16,25 @@ import { createMemoryHistory, History, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import Progress, { State, Step } from '..';
-import { ROUTE } from '../../../Routes/routes';
-import devfileApi from '../../../services/devfileApi';
-import {
-  buildFactoryParams,
-  DEV_WORKSPACE_ATTR,
-  FACTORY_URL_ATTR,
-} from '../../../services/helpers/factoryFlow/buildFactoryParams';
-import { buildIdeLoaderLocation } from '../../../services/helpers/location';
-import { constructWorkspace } from '../../../services/workspace-adapter';
+
+import { ROUTE } from '@/Routes/routes';
 import getComponentRenderer, {
   screen,
   waitFor,
   within,
-} from '../../../services/__mocks__/getComponentRenderer';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+} from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import {
+  buildFactoryParams,
+  DEV_WORKSPACE_ATTR,
+  FACTORY_URL_ATTR,
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { constructWorkspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import Progress, { State, Step } from '..';
 
 jest.mock('../CommonSteps/CheckRunningWorkspacesLimit');
 jest.mock('../CreatingSteps/Apply/Devfile');

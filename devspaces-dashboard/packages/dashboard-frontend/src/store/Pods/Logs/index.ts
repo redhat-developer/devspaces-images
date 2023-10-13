@@ -13,13 +13,14 @@
 import { api } from '@eclipse-che/common';
 import { V1Pod } from '@kubernetes/client-node';
 import { Action, Reducer } from 'redux';
-import { AppThunk } from '../..';
-import { container } from '../../../inversify.config';
-import { WebsocketClient } from '../../../services/backend-client/websocketClient';
-import { ChannelListener } from '../../../services/backend-client/websocketClient/messageHandler';
-import { createObject } from '../../helpers';
-import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
-import { selectAllPods } from '../selectors';
+
+import { container } from '@/inversify.config';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { ChannelListener } from '@/services/backend-client/websocketClient/messageHandler';
+import { AppThunk } from '@/store';
+import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { selectAllPods } from '@/store/Pods/selectors';
 
 export type ContainerLogs = {
   logs: string;

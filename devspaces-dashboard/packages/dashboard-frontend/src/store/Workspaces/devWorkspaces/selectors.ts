@@ -11,9 +11,10 @@
  */
 
 import { createSelector } from 'reselect';
-import { AppState } from '../..';
-import { DevWorkspaceStatus } from '../../../services/helpers/types';
-import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
+
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { AppState } from '@/store';
+import { selectRunningWorkspacesLimit } from '@/store/ClusterConfig/selectors';
 
 const selectState = (state: AppState) => state.devWorkspaces;
 export const selectDevWorkspacesState = selectState;

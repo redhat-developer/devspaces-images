@@ -18,8 +18,8 @@ import {
 } from '@patternfly/react-icons';
 import React from 'react';
 
-import styles from './index.module.css';
-import workspaceStatusLabelStyles from '../../../WorkspaceStatusLabel/index.module.css';
+import styles from '@/components/WorkspaceProgress/StepTitle/Icon/index.module.css';
+import workspaceStatusLabelStyles from '@/components/WorkspaceStatusLabel/index.module.css';
 
 type Props = {
   distance: -1 | 0 | 1 | undefined;

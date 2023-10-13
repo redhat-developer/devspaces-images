@@ -10,15 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import common from '@eclipse-che/common';
+import { Action, Reducer } from 'redux';
+
+import devfileApi from '@/services/devfileApi';
+import { fetchDevfile, fetchRegistryMetadata } from '@/services/registry/devfiles';
+import { fetchResources, loadResourcesContent } from '@/services/registry/resources';
+import { createObject } from '@/store/helpers';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { fetchRegistryMetadata, fetchDevfile } from '../../services/registry/devfiles';
-import { createObject } from '../helpers';
-import devfileApi from '../../services/devfileApi';
-import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
 
 export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
 

@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common from '@eclipse-che/common';
-import devfileApi from '../../../../../services/devfileApi';
 import { V221DevfileProjects, V221DevfileProjectsItemsGit } from '@devfile/api';
-import { getProjectName } from '../../../../../services/helpers/getProjectName';
-import { getProjectFromLocation } from './getProjectFromLocation';
+import common from '@eclipse-che/common';
+
+import { getProjectFromLocation } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getProjectFromLocation';
+import devfileApi from '@/services/devfileApi';
+import { getProjectName } from '@/services/helpers/getProjectName';
 
 export interface GitRemote {
   name: string;

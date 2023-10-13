@@ -15,26 +15,28 @@
 import { FACTORY_LINK_ATTR } from '@eclipse-che/common';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryHistory, createMemoryHistory } from 'history';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import CreatingStepFetchDevfile from '..';
-import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
-import devfileApi from '../../../../../../services/devfileApi';
-import { getDefer } from '../../../../../../services/helpers/deferred';
+
+import ExpandableWarning from '@/components/ExpandableWarning';
+import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RESOLVE_SEC } from '@/components/WorkspaceProgress/const';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import devfileApi from '@/services/devfileApi';
+import { getDefer } from '@/services/helpers/deferred';
 import {
   FACTORY_URL_ATTR,
   OVERRIDE_ATTR_PREFIX,
   REMOTES_ATTR,
-} from '../../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { AlertItem } from '../../../../../../services/helpers/types';
-import OAuthService from '../../../../../../services/oauth';
-import { AppThunk } from '../../../../../../store';
-import { ActionCreators, OAuthResponse } from '../../../../../../store/FactoryResolver';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
-import ExpandableWarning from '../../../../../ExpandableWarning';
-import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RESOLVE_SEC } from '../../../../const';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
+import OAuthService from '@/services/oauth';
+import { AppThunk } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators, OAuthResponse } from '@/store/FactoryResolver';
+
+import CreatingStepFetchDevfile from '..';
 
 jest.mock('../../../../TimeLimit');
 

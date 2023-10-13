@@ -12,8 +12,10 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
+
+import { WorkspaceStatus } from '@/services/helpers/types';
+
 import Header from '..';
-import { WorkspaceStatus } from '../../../services/helpers/types';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {

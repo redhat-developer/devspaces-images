@@ -13,15 +13,17 @@
 import { api, helpers } from '@eclipse-che/common';
 import { CoreV1Event } from '@kubernetes/client-node';
 import { Action, Reducer } from 'redux';
+
+import { container } from '@/inversify.config';
+import { fetchEvents } from '@/services/backend-client/eventsApi';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { getNewerResourceVersion } from '@/services/helpers/resourceVersion';
+import { selectEventsResourceVersion } from '@/store/Events/selectors';
+import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { container } from '../../inversify.config';
-import { fetchEvents } from '../../services/backend-client/eventsApi';
-import { WebsocketClient } from '../../services/backend-client/websocketClient';
-import { getNewerResourceVersion } from '../../services/helpers/resourceVersion';
-import { createObject } from '../helpers';
-import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { selectEventsResourceVersion } from './selectors';
 
 export interface State {
   isLoading: boolean;

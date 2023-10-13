@@ -12,15 +12,16 @@
 
 import { dump, load } from 'js-yaml';
 import { cloneDeep } from 'lodash';
-import { DevfileAdapter } from '../../../../../services/devfile/adapter';
-import devfileApi from '../../../../../services/devfileApi';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../services/devfileApi/devWorkspace/spec/template';
-import { generateWorkspaceName } from '../../../../../services/helpers/generateName';
-import sanitizeName from '../../../../../services/helpers/sanitizeName';
+
+import { DevfileAdapter } from '@/services/devfile/adapter';
+import devfileApi from '@/services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { generateWorkspaceName } from '@/services/helpers/generateName';
+import sanitizeName from '@/services/helpers/sanitizeName';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
-} from '../../../../../services/workspace-client/devworkspace/devWorkspaceClient';
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 export type FactorySource = { factory?: { params: string } };
 

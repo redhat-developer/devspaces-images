@@ -10,9 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { AxiosInstance } from 'axios';
-import { AxiosWrapper, bearerTokenAuthorizationIsRequiredErrorMsg } from '../axiosWrapper';
-import mockAxios from 'axios';
+import mockAxios, { AxiosInstance } from 'axios';
+
+import {
+  AxiosWrapper,
+  bearerTokenAuthorizationIsRequiredErrorMsg,
+} from '@/services/backend-client/axiosWrapper';
 
 // mute console logs
 console.log = jest.fn();

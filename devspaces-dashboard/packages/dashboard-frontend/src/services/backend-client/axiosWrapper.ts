@@ -11,7 +11,8 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { delay } from '../helpers/delay';
+
+import { delay } from '@/services/helpers/delay';
 
 type AxiosFunc = (url: string, config?: AxiosRequestConfig) => Promise<any>;
 type AxiosFuncWithData = (url: string, data?: any, config?: AxiosRequestConfig) => Promise<any>;

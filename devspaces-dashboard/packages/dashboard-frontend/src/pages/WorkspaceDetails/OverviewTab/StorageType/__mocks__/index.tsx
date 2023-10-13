@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props, State } from '..';
 
 export default class StorageTypeFormGroup extends React.PureComponent<Props, State> {

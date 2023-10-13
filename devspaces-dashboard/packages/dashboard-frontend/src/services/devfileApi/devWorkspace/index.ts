@@ -11,8 +11,9 @@
  */
 
 import { V1alpha2DevWorkspace } from '@devfile/api';
-import { DevWorkspaceMetadata } from './metadata';
-import { DevWorkspaceSpec } from './spec';
+
+import { DevWorkspaceMetadata } from '@/services/devfileApi/devWorkspace/metadata';
+import { DevWorkspaceSpec } from '@/services/devfileApi/devWorkspace/spec';
 
 export type DevWorkspaceKind = 'DevWorkspace';
 export type DevWorkspacePlugin = {

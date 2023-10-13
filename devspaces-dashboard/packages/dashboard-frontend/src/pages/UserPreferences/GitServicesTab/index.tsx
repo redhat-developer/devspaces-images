@@ -15,14 +15,17 @@ import { PageSection } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import ProgressIndicator from '../../../components/Progress';
-import { AppState } from '../../../store';
-import * as GitOauthConfig from '../../../store/GitOauthConfig';
-import { selectGitOauth, selectIsLoading } from '../../../store/GitOauthConfig/selectors';
-import { GIT_OAUTH_PROVIDERS } from '../const';
-import EmptyState from './EmptyState';
-import GitServicesToolbar, { GitServicesToolbar as Toolbar } from './GitServicesToolbar';
-import ProviderWarning from './ProviderWarning';
+
+import ProgressIndicator from '@/components/Progress';
+import { GIT_OAUTH_PROVIDERS } from '@/pages/UserPreferences/const';
+import EmptyState from '@/pages/UserPreferences/GitServicesTab/EmptyState';
+import GitServicesToolbar, {
+  GitServicesToolbar as Toolbar,
+} from '@/pages/UserPreferences/GitServicesTab/GitServicesToolbar';
+import ProviderWarning from '@/pages/UserPreferences/GitServicesTab/ProviderWarning';
+import { AppState } from '@/store';
+import * as GitOauthConfig from '@/store/GitOauthConfig';
+import { selectGitOauth, selectIsLoading } from '@/store/GitOauthConfig/selectors';
 
 export const enabledProviders: api.GitOauthProvider[] = ['github'];
 

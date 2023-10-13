@@ -10,11 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { container } from '../../../../inversify.config';
-import { DevWorkspaceClient } from '../devWorkspaceClient';
-import * as DwtApi from '../../../backend-client/devWorkspaceTemplateApi';
-import * as DwApi from '../../../backend-client/devWorkspaceApi';
-import devfileApi from '../../../devfileApi';
+import { container } from '@/inversify.config';
+import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
+import devfileApi from '@/services/devfileApi';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 describe('DevWorkspace client, create', () => {
   let client: DevWorkspaceClient;

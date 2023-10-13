@@ -12,6 +12,7 @@
 
 import React from 'react';
 import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
+
 import Fallback from '..';
 
 describe('React element that is rendered while waiting for the component to load', () => {

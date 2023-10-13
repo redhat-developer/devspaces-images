@@ -11,8 +11,9 @@
  */
 
 import { Context, KubeConfig, User } from '@kubernetes/client-node';
-import { getUserName } from '../../helpers/getUserName';
-import { isLocalRun } from '../../localRun';
+
+import { getUserName } from '@/helpers/getUserName';
+import { isLocalRun } from '@/localRun';
 
 export class KubeConfigProvider {
   private inClusterKubeConfig: KubeConfig | undefined;

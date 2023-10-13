@@ -11,7 +11,8 @@
  */
 
 import { dump } from 'js-yaml';
-import devfileApi from '../devfileApi';
+
+import devfileApi from '@/services/devfileApi';
 
 const sortOrder: Array<keyof che.WorkspaceDevfile | keyof devfileApi.Devfile> = [
   'apiVersion',

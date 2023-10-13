@@ -10,14 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { NavGroup, NavList } from '@patternfly/react-core';
-
-import NavigationRecentItem from './RecentItem';
-import { NavigationRecentItemObject } from '.';
-import { ROUTE } from '../../Routes/routes';
-import { Workspace } from '../../services/workspace-adapter';
 import { History } from 'history';
+import React from 'react';
+
+import NavigationRecentItem from '@/Layout/Navigation/RecentItem';
+import { ROUTE } from '@/Routes/routes';
+import { Workspace } from '@/services/workspace-adapter';
+
+import { NavigationRecentItemObject } from '.';
 
 function buildRecentWorkspacesItems(
   workspaces: Array<Workspace>,

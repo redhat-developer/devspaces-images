@@ -12,6 +12,7 @@
 
 import { Button } from '@patternfly/react-core';
 import React from 'react';
+
 import { Props, State } from '..';
 
 export class WorkspaceLogsViewerTools extends React.PureComponent<Props, State> {

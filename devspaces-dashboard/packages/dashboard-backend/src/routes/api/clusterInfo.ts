@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance } from 'fastify';
 import { ApplicationId, ApplicationInfo, ClusterInfo } from '@eclipse-che/common';
-import { baseApiPath } from '../../constants/config';
-import { getSchema } from '../../services/helpers';
+import { FastifyInstance } from 'fastify';
+
+import { baseApiPath } from '@/constants/config';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['Cluster Info'];
 

@@ -11,7 +11,8 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
-import { retryableExec } from './retryableExec';
+
+import { retryableExec } from '@/devworkspaceClient/services/helpers/retryableExec';
 
 export type CoreV1API = Pick<
   k8s.CoreV1Api,

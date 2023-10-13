@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Location } from 'history';
-import { WorkspaceAction } from '../../services/helpers/types';
+import React from 'react';
+
+import { WorkspaceAction } from '@/services/helpers/types';
 
 export type ActionContextType = {
   handleAction: (action: WorkspaceAction, uid: string) => Promise<Location | void>;

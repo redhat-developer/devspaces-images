@@ -13,8 +13,10 @@
 import { ValidatedOptions } from '@patternfly/react-core';
 import { StateMock } from '@react-mock/state';
 import * as React from 'react';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { InputGroupExtended, Props, State } from '..';
-import getComponentRenderer, { screen } from '../../../services/__mocks__/getComponentRenderer';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 

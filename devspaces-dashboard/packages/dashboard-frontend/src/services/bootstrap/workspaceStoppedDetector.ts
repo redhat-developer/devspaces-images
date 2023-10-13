@@ -10,14 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { AppState } from '../../store';
-import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 import { injectable } from 'inversify';
-import devfileApi from '../devfileApi';
-import { DevWorkspaceStatus } from '../helpers/types';
-import SessionStorageService, { SessionStorageKey } from '../session-storage';
-import { Workspace } from '../workspace-adapter';
-import { IssueType } from './issuesReporter';
+
+import { IssueType } from '@/services/bootstrap/issuesReporter';
+import devfileApi from '@/services/devfileApi';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export class WorkspaceRunningError extends Error {
   public workspace: Workspace;

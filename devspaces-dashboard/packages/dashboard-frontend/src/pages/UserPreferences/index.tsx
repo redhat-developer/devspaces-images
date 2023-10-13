@@ -13,17 +13,18 @@
 import { PageSection, PageSectionVariants, Tab, Tabs, Title } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
-import { ConnectedProps, connect } from 'react-redux';
-import { ROUTE } from '../../Routes/routes';
-import Head from '../../components/Head';
-import { UserPreferencesTab } from '../../services/helpers/types';
-import { AppState } from '../../store';
-import { actionCreators } from '../../store/GitOauthConfig';
-import { selectIsLoading } from '../../store/GitOauthConfig/selectors';
-import ContainerRegistries from './ContainerRegistriesTab';
-import GitConfig from './GitConfig';
-import GitServicesTab from './GitServicesTab';
-import PersonalAccessTokens from './PersonalAccessTokens';
+import { connect, ConnectedProps } from 'react-redux';
+
+import Head from '@/components/Head';
+import ContainerRegistries from '@/pages/UserPreferences/ContainerRegistriesTab';
+import GitConfig from '@/pages/UserPreferences/GitConfig';
+import GitServicesTab from '@/pages/UserPreferences/GitServicesTab';
+import PersonalAccessTokens from '@/pages/UserPreferences/PersonalAccessTokens';
+import { ROUTE } from '@/Routes/routes';
+import { UserPreferencesTab } from '@/services/helpers/types';
+import { AppState } from '@/store';
+import { actionCreators } from '@/store/GitOauthConfig';
+import { selectIsLoading } from '@/store/GitOauthConfig/selectors';
 
 const CONTAINER_REGISTRIES_TAB: UserPreferencesTab = 'container-registries';
 const GIT_SERVICES_TAB: UserPreferencesTab = 'git-services';

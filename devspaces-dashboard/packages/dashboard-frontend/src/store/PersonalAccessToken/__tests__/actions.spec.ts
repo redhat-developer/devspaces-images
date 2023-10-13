@@ -12,13 +12,15 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import * as KubernetesNamespaceApi from '@/services/backend-client/kubernetesNamespaceApi';
+import * as PersonalAccessTokenApi from '@/services/backend-client/personalAccessTokenApi';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { token1, token2 } from '@/store/PersonalAccessToken/__tests__/stub';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AppState } from '../..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { token1, token2 } from './stub';
-import * as PersonalAccessTokenApi from '../../../services/backend-client/personalAccessTokenApi';
-import * as KubernetesNamespaceApi from '../../../services/backend-client/kubernetesNamespaceApi';
 
 jest.mock(
   '../../../services/backend-client/kubernetesNamespaceApi',

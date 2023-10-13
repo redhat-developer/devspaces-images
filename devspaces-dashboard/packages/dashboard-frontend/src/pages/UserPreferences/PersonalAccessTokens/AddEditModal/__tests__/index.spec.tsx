@@ -15,12 +15,15 @@
 import { api } from '@eclipse-che/common';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+
+import {
+  SUBMIT_INVALID_FORM,
+  SUBMIT_VALID_FORM,
+} from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/__mocks__';
+import { EditTokenProps } from '@/pages/UserPreferences/PersonalAccessTokens/types';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { PersonalAccessTokenAddEditModal } from '..';
-import getComponentRenderer, {
-  screen,
-} from '../../../../../services/__mocks__/getComponentRenderer';
-import { SUBMIT_INVALID_FORM, SUBMIT_VALID_FORM } from '../Form/__mocks__';
-import { EditTokenProps } from '../../types';
 
 const { renderComponent } = getComponentRenderer(getComponent);
 

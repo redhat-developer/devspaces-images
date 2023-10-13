@@ -11,8 +11,10 @@
  */
 
 import { createSelector } from 'reselect';
+
+import { State } from '@/store/PersonalAccessToken/state';
+
 import { AppState } from '..';
-import { State } from './state';
 
 const selectState = (state: AppState) => state.personalAccessToken;
 

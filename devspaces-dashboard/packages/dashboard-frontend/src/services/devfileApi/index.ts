@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export * from './typeguards';
+import * as devfileApi from '@/services/devfileApi/devfileApi';
 
-import * as devfileApi from './devfileApi';
+export * from './typeguards';
 export default devfileApi;
 
 export interface IDevWorkspacesList {

@@ -10,26 +10,23 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Nav } from '@patternfly/react-core';
+import { History, Location, UnregisterCallback } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { History, Location, UnregisterCallback } from 'history';
-import { Nav } from '@patternfly/react-core';
 
-import { AppState } from '../../store';
-import NavigationMainList from './MainList';
-import NavigationRecentList from './RecentList';
-import * as WorkspacesStore from '../../store/Workspaces';
-import { selectAllWorkspaces, selectRecentWorkspaces } from '../../store/Workspaces/selectors';
-import { ROUTE } from '../../Routes/routes';
-import {
-  buildGettingStartedLocation,
-  buildWorkspacesLocation,
-} from '../../services/helpers/location';
+import NavigationMainList from '@/Layout/Navigation/MainList';
+import NavigationRecentList from '@/Layout/Navigation/RecentList';
+import { ROUTE } from '@/Routes/routes';
+import { buildGettingStartedLocation, buildWorkspacesLocation } from '@/services/helpers/location';
 import {
   DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceStatus,
-} from '../../services/helpers/types';
+} from '@/services/helpers/types';
+import { AppState } from '@/store';
+import * as WorkspacesStore from '@/store/Workspaces';
+import { selectAllWorkspaces, selectRecentWorkspaces } from '@/store/Workspaces/selectors';
 
 export interface NavigationItemObject {
   to: string;

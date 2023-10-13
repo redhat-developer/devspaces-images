@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import UnsavedChangesModal from '..';
 import { createHashHistory } from 'history';
+import React from 'react';
+
+import UnsavedChangesModal from '..';
 
 describe('Unsaved Changes modal window', () => {
   const hasUnsavedChanges = jest.fn();

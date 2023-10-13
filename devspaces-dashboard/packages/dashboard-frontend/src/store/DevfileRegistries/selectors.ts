@@ -10,12 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { createSelector } from 'reselect';
-import { AppState } from '..';
-import match from '../../services/helpers/filter';
 import { load } from 'js-yaml';
-import devfileApi from '../../services/devfileApi';
-import { selectDefaultComponents } from '../ServerConfig/selectors';
+import { createSelector } from 'reselect';
+
+import devfileApi from '@/services/devfileApi';
+import match from '@/services/helpers/filter';
+import { selectDefaultComponents } from '@/store/ServerConfig/selectors';
+
+import { AppState } from '..';
 
 export const EMPTY_WORKSPACE_TAG = 'Empty';
 

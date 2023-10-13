@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import { RenderResult, render, screen, fireEvent } from '@testing-library/react';
+
 import { WorkspaceNameFormGroup } from '..';
 
 describe('Overview Tab Workspace Name Input', () => {

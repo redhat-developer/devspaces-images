@@ -12,11 +12,17 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import devfileApi from '../../../../services/devfileApi';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
+
+import devfileApi from '@/services/devfileApi';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import {
+  selectDwDefaultEditorError,
+  selectDwPlugins,
+  selectDwPluginsList,
+} from '@/store/Plugins/devWorkspacePlugins/selectors';
+
 import * as store from '..';
-import { AppState } from '../../..';
-import { selectDwPlugins, selectDwPluginsList, selectDwDefaultEditorError } from '../selectors';
 
 const url = 'devworkspace-devfile-location';
 

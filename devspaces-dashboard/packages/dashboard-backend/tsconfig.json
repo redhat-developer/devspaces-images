@@ -2,10 +2,16 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2021",
-    "lib": ["ES2021"],
-    "module": "commonjs",
+    "lib": [
+      "ES2021"
+    ],
+    "module": "esnext",
+    "baseUrl": "./",
+    "moduleResolution": "node",
     "paths": {
-      "@eclipse-che/common": ["../common/src"]
+      "@/*": [
+        "./src/*",
+      ],
     },
     "resolveJsonModule": true,
     "outDir": "lib",
@@ -15,8 +21,8 @@
     "node_modules",
     "lib",
   ],
-  "include": ["src", "src/devfileSchemas/**/*.json"],
-  "references": [
-    { "path": "../common" },
-  ]
+  "include": [
+    "src",
+    "src/devfileSchemas/**/*.json"
+  ],
 }

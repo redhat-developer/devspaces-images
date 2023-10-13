@@ -21,28 +21,29 @@ import { MemoryRouter } from 'react-router';
 import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import Routes from '../Routes';
-import Fallback from '../components/Fallback';
-import devfileApi from '../services/devfileApi';
-import { AppState } from '../store';
-import { ConvertedState } from '../store/FactoryResolver';
-import { FakeStoreBuilder } from '../store/__mocks__/storeBuilder';
+
 import {
-  CREATE_DEVWORKSPACETEMPLATE_DELAY,
   CREATE_DEVWORKSPACE_DELAY,
-  DEVWORKSPACE_RESOURSES_DELAY,
-  FACTORY_RESOLVER_DELAY,
-  PATCH_DEVWORKSPACE_DELAY,
-  TIME_LIMIT,
+  CREATE_DEVWORKSPACETEMPLATE_DELAY,
   devfileV2,
+  DEVWORKSPACE_RESOURSES_DELAY,
   devworkspaceResources,
+  FACTORY_RESOLVER_DELAY,
   factoryResolver,
   namespace,
+  PATCH_DEVWORKSPACE_DELAY,
   plugins,
   targetDevWorkspace,
   targetDevWorkspaceTemplate,
+  TIME_LIMIT,
   url,
-} from './const';
+} from '@/__tests__/const';
+import Fallback from '@/components/Fallback';
+import Routes from '@/Routes';
+import devfileApi from '@/services/devfileApi';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ConvertedState } from '@/store/FactoryResolver';
 
 // mute the outputs
 console.error = jest.fn();

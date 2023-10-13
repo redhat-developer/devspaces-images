@@ -11,7 +11,8 @@
  */
 
 import React from 'react';
-import { Props, State } from '../';
+
+import { Props, State } from '@/components/WorkspaceLogs/ContainerSelector';
 
 export class WorkspaceLogsContainerSelector extends React.PureComponent<Props, State> {
   constructor(props: Props) {

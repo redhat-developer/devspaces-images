@@ -12,13 +12,13 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import devfileApi from '../../../../../../services/devfileApi';
-import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import { buildStepName } from '@/components/WorkspaceProgress/CreatingSteps/Fetch/Devfile/buildStepName';
+import devfileApi from '@/services/devfileApi';
 import {
   buildFactoryParams,
   FACTORY_URL_ATTR,
-} from '../../../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { buildStepName } from '../buildStepName';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 const factoryUrl = 'https://factory-url';
 

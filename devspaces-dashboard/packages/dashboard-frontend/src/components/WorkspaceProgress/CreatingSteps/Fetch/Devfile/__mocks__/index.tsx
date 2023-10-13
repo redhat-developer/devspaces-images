@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ProgressStep } from '../../../../__mocks__/ProgressStep';
+import { ProgressStep } from '@/components/WorkspaceProgress/__mocks__/ProgressStep';
 
 export default class CreatingStepFetchDevfile extends ProgressStep {
   protected readonly name = 'Creating step: Fetch devfile';

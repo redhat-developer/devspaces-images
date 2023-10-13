@@ -10,15 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import mockAxios, { AxiosError } from 'axios';
-import { MockStoreEnhanced } from 'redux-mock-store';
-import { AnyAction } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
 import { ClusterConfig } from '@eclipse-che/common';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { AppState } from '../..';
+import mockAxios, { AxiosError } from 'axios';
+import { AnyAction } from 'redux';
+import { MockStoreEnhanced } from 'redux-mock-store';
+import { ThunkDispatch } from 'redux-thunk';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
 
 describe('clusterConfig store', () => {
   const clusterConfig: ClusterConfig = {

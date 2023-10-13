@@ -21,7 +21,8 @@ import {
   TextContent,
 } from '@patternfly/react-core';
 import React from 'react';
-import { GIT_OAUTH_PROVIDERS } from '../../const';
+
+import { GIT_OAUTH_PROVIDERS } from '@/pages/UserPreferences/const';
 
 type Props = {
   gitOauth?: api.GitOauthProvider;

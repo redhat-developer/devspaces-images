@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { WorkspaceAdapter, constructWorkspace } from '..';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/devWorkspace/metadata';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../devfileApi/devWorkspace/spec/template';
-import { DevWorkspaceStatus } from '../../helpers/types';
-import { StorageTypeTitle } from '../../storageTypes';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '@/services/devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { StorageTypeTitle } from '@/services/storageTypes';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+
+import { constructWorkspace, WorkspaceAdapter } from '..';
 
 /**
  * @jest-environment node

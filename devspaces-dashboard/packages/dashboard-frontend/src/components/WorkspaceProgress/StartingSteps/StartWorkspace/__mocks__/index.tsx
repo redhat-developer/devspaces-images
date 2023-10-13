@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ProgressStep } from '../../../__mocks__/ProgressStep';
+import { ProgressStep } from '@/components/WorkspaceProgress/__mocks__/ProgressStep';
 
 export default class StartingStepStartWorkspace extends ProgressStep {
   protected readonly name = 'Starting step: Start workspace';

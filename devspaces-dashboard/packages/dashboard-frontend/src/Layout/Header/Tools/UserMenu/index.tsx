@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
-import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
-import { ROUTE } from '../../../../Routes/routes';
-import { lazyInject } from '../../../../inversify.config';
-import { AppAlerts } from '../../../../services/alerts/appAlerts';
-import * as InfrastructureNamespacesStore from '../../../../store/InfrastructureNamespaces';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+
+import { lazyInject } from '@/inversify.config';
+import { ROUTE } from '@/Routes/routes';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces';
 
 type Props = MappedProps & {
   branding: BrandingData;

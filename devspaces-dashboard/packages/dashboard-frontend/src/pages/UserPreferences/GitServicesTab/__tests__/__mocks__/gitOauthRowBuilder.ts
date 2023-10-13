@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { IGitOauth } from '../../../../../store/GitOauthConfig/types';
 import { api } from '@eclipse-che/common';
+
+import { IGitOauth } from '@/store/GitOauthConfig/types';
 
 export class FakeGitOauthBuilder {
   private gitOauth: IGitOauth = { name: 'github', endpointUrl: '-' };

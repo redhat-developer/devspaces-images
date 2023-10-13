@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isDevfileMetaData } from '../types';
+import { isDevfileMetaData } from '@/services/registry/types';
 
 describe('api.webSocket typeguards', () => {
   test('isWebSocketUnsubscribeParams', () => {

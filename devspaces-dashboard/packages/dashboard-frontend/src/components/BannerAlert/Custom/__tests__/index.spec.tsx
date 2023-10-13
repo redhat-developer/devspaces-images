@@ -10,12 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import BannerAlertCustomWarning from '..';
 import { Provider } from 'react-redux';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { render, screen, RenderResult } from '@testing-library/react';
 import { Store } from 'redux';
+
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import BannerAlertCustomWarning from '..';
 
 const issueWarning = 'Something happened.';
 

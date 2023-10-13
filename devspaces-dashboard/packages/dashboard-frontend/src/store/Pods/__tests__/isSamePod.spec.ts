@@ -12,8 +12,8 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import isSamePod from '../isSamePod';
-import { pod1, pod2 } from './stub';
+import { pod1, pod2 } from '@/store/Pods/__tests__/stub';
+import isSamePod from '@/store/Pods/isSamePod';
 
 describe('isSamePod', () => {
   it('should compare pods by uid', () => {

@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import { RenderResult, render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import SamplesListToolbar from '../SamplesListToolbar';
-import mockMetadata from '../../__tests__/devfileMetadata.json';
-import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+
+import mockMetadata from '@/pages/GetStarted/__tests__/devfileMetadata.json';
+import SamplesListToolbar from '@/pages/GetStarted/GetStartedTab/SamplesListToolbar';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
 
 describe('Samples List Toolbar', () => {
   function renderToolbar(): RenderResult {

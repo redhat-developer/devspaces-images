@@ -12,6 +12,7 @@
 
 import React from 'react';
 import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
+
 import CheProgress from '..';
 
 describe('Progress component', () => {

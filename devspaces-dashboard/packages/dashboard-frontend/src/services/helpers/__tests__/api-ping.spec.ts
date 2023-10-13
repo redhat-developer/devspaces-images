@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isAvailableEndpoint } from '../api-ping';
 import axios from 'axios';
+
+import { isAvailableEndpoint } from '@/services/helpers/api-ping';
 
 jest.mock('axios');
 

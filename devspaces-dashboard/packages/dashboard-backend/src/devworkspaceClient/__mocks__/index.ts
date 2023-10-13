@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { IDevWorkspaceClient } from '..';
 import {
   IDevWorkspaceApi,
   IDevWorkspaceTemplateApi,
@@ -22,7 +21,9 @@ import {
   IPodApi,
   IServerConfigApi,
   IUserProfileApi,
-} from '../types';
+} from '@/devworkspaceClient/types';
+
+import { IDevWorkspaceClient } from '..';
 
 export class DevWorkspaceClient implements IDevWorkspaceClient {
   get eventApi(): IEventApi {

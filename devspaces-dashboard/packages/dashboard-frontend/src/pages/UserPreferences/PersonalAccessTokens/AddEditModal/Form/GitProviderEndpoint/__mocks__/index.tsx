@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Props, State } from '..';
 
 export const NEW_GIT_PROVIDER_ENDPOINT_BUTTON = 'Submit Valid Git Provider Endpoint';

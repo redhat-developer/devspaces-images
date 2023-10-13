@@ -15,13 +15,15 @@ import { V1Status } from '@kubernetes/client-node';
 import mockAxios, { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { container } from '@/inversify.config';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { event1, event2 } from '@/store/Events/__tests__/stubs';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AppState } from '../..';
-import { container } from '../../../inversify.config';
-import { WebsocketClient } from '../../../services/backend-client/websocketClient';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { event1, event2 } from './stubs';
 
 describe('Events store, actions', () => {
   let appStore: MockStoreEnhanced<

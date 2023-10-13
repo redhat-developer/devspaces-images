@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import sanitizeName from '../sanitizeName';
+import sanitizeName from '@/services/helpers/sanitizeName';
 
 describe('sanitizeName', () => {
   test('correct name', () => {

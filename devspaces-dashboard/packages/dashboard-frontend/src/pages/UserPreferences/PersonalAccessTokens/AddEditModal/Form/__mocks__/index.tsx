@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Props, State } from '..';
 import { api } from '@eclipse-che/common';
+import React from 'react';
+
+import { Props, State } from '..';
 
 export const SUBMIT_VALID_FORM = 'Submit Valid Form';
 export const SUBMIT_INVALID_FORM = 'Submit Invalid Form';

@@ -14,19 +14,21 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { createHashHistory, History } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { HeaderActionSelect } from '..';
+import { Store } from 'redux';
+
+import devfileApi from '@/services/devfileApi';
 import {
+  DeprecatedWorkspaceStatus,
   WorkspaceAction,
   WorkspaceStatus,
-  DeprecatedWorkspaceStatus,
-} from '../../../../../services/helpers/types';
-import { Workspace } from '../../../../../services/workspace-adapter';
-import { AppThunk } from '../../../../../store';
-import { ActionCreators, ResourceQueryParams } from '../../../../../store/Workspaces';
-import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../../../../store/__mocks__/devWorkspaceBuilder';
-import { Store } from 'redux';
-import devfileApi from '../../../../../services/devfileApi';
+} from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators, ResourceQueryParams } from '@/store/Workspaces';
+
+import { HeaderActionSelect } from '..';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 jest.mock('../../../../../store/Workspaces/index', () => {

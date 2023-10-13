@@ -11,9 +11,10 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
-import { stubPodsList } from '../helpers/__mocks__/getDevWorkspaceClient';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
+import { stubPodsList } from '@/routes/api/helpers/__mocks__/getDevWorkspaceClient';
 
 jest.mock('../helpers/getToken.ts');
 jest.mock('../helpers/getDevWorkspaceClient.ts');

@@ -12,7 +12,8 @@
 
 import { helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
-import { findApi } from '../../../helpers/findApi';
+
+import { findApi } from '@/helpers/findApi';
 
 const projectApiGroup = 'project.openshift.io';
 

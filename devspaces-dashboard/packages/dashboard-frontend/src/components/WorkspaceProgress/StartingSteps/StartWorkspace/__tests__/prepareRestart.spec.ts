@@ -11,14 +11,15 @@
  */
 
 import { Location } from 'history';
+
 import {
   applyRestartDefaultLocation,
   applyRestartInDebugModeLocation,
   applyRestartInSafeModeLocation,
-  getStartParams,
   getRestartInSafeModeLocation,
+  getStartParams,
   resetRestartInSafeModeLocation,
-} from '../prepareRestart';
+} from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace/prepareRestart';
 
 describe('Prepare workspace start', () => {
   test('apply Safe Mode location', () => {

@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { render, screen } from '@testing-library/react';
+
 import { ErrorBoundary, STORAGE_KEY_RELOAD_NUMBER } from '..';
-import userEvent from '@testing-library/user-event';
 
 class GoodComponent extends React.Component {
   render() {

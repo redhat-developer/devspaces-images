@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { KubeConfigProvider } from '../kubeConfigProvider';
 import * as mockClient from '@kubernetes/client-node';
+
+import { KubeConfigProvider } from '@/services/kubeclient/kubeConfigProvider';
 
 describe('K8s Configuration Provider', () => {
   const env = process.env;

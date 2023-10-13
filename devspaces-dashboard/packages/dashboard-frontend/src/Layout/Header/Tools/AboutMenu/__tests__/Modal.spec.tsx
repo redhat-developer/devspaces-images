@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { AboutModal } from '../Modal';
+import React from 'react';
+
+import { AboutModal } from '@/Layout/Header/Tools/AboutMenu/Modal';
 
 jest.mock('detect-browser/index.js', () => {
   return {

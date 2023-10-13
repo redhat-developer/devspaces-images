@@ -15,16 +15,18 @@
 import { screen, waitFor } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import React from 'react';
-import StartingStepWorkspaceConditions from '..';
-import { WorkspaceParams } from '../../../../../Routes/routes';
-import getComponentRenderer from '../../../../../services/__mocks__/getComponentRenderer';
-import { ConditionType } from '../../../utils';
+
 import {
   conditionChangedTo,
   conditionError,
   conditionStatusFalse,
   conditionStatusTrue,
-} from './fixtures';
+} from '@/components/WorkspaceProgress/StartingSteps/WorkspaceConditions/__tests__/fixtures';
+import { ConditionType } from '@/components/WorkspaceProgress/utils';
+import { WorkspaceParams } from '@/Routes/routes';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+
+import StartingStepWorkspaceConditions from '..';
 
 jest.mock('../../../TimeLimit');
 jest.mock('../../../StepTitle');

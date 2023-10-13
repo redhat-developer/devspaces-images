@@ -13,9 +13,13 @@
 import { api, helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { V1Secret } from '@kubernetes/client-node/dist/gen/model/v1Secret';
-import { IDockerConfigApi } from '../types';
-import { createError } from './helpers/createError';
-import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
+import { IDockerConfigApi } from '@/devworkspaceClient/types';
 
 export const SECRET_KEY = '.dockerconfigjson';
 export const SECRET_NAME = 'devworkspace-container-registry-dockercfg';

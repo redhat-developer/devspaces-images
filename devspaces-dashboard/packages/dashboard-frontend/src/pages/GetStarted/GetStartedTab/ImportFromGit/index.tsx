@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Flex, FlexItem, FormGroup, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import * as FactoryResolverStore from '../../../../store/FactoryResolver';
-import { GitRepoLocationInput } from './GitRepoLocationInput';
-import { FactoryLocationAdapter } from '../../../../services/factory-location-adapter';
+import React from 'react';
+
+import { GitRepoLocationInput } from '@/pages/GetStarted/GetStartedTab/ImportFromGit/GitRepoLocationInput';
+import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
+import * as FactoryResolverStore from '@/store/FactoryResolver';
 
 type Props = {
   onDevfileResolve: (resolverState: FactoryResolverStore.ResolverState, location: string) => void;

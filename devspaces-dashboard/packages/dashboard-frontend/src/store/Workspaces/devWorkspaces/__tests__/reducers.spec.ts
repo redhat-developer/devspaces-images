@@ -12,12 +12,14 @@
 
 import { cloneDeep } from 'lodash';
 import { AnyAction } from 'redux';
+
+import devfileApi from '@/services/devfileApi';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { WorkspaceAdapter } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import devfileApi from '../../../../services/devfileApi';
-import { DevWorkspaceStatus } from '../../../../services/helpers/types';
-import { WorkspaceAdapter } from '../../../../services/workspace-adapter';
-import { AUTHORIZED } from '../../../sanityCheckMiddleware';
-import { DevWorkspaceBuilder } from '../../../__mocks__/devWorkspaceBuilder';
 
 describe('DevWorkspace, reducers', () => {
   let devWorkspace: devfileApi.DevWorkspace;

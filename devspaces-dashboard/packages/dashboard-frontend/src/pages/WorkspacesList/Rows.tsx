@@ -10,17 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Button } from '@patternfly/react-core';
+import { IRow, SortByDirection } from '@patternfly/react-table';
+import { Location } from 'history';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Location } from 'history';
-import { IRow, SortByDirection } from '@patternfly/react-table';
-import { Button } from '@patternfly/react-core';
-import WorkspaceIndicator from '../../components/Workspace/Indicator';
-import { formatDate, formatRelativeDate } from '../../services/helpers/date';
-import { buildDetailsLocation, buildIdeLoaderLocation } from '../../services/helpers/location';
-import { Workspace } from '../../services/workspace-adapter';
-import devfileApi from '../../services/devfileApi';
-import { DevWorkspaceStatus, WorkspaceDetailsTab } from '../../services/helpers/types';
+
+import WorkspaceIndicator from '@/components/Workspace/Indicator';
+import devfileApi from '@/services/devfileApi';
+import { formatDate, formatRelativeDate } from '@/services/helpers/date';
+import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
+import { DevWorkspaceStatus, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
 
 export interface RowData extends IRow {
   props: {

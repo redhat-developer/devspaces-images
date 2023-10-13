@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, FastifyRequest } from 'fastify';
-import { baseApiPath } from '../../constants/config';
-import { getSchema } from '../../services/helpers';
-import { devWorkspaceResourcesSchema } from '../../constants/schemas';
-import { dump } from 'js-yaml';
-import { Main as DevworkspaceGenerator } from '@eclipse-che/che-devworkspace-generator/lib/main';
 import { V1alpha2DevWorkspaceTemplate } from '@devfile/api';
-import { axiosInstance } from './helpers/getCertificateAuthority';
+import { Main as DevworkspaceGenerator } from '@eclipse-che/che-devworkspace-generator/lib/main';
 import { api } from '@eclipse-che/common';
+import { FastifyInstance, FastifyRequest } from 'fastify';
+import { dump } from 'js-yaml';
+
+import { baseApiPath } from '@/constants/config';
+import { devWorkspaceResourcesSchema } from '@/constants/schemas';
+import { axiosInstance } from '@/routes/api/helpers/getCertificateAuthority';
+import { getSchema } from '@/services/helpers';
 
 const tags = ['DevWorkspace Resources'];
 

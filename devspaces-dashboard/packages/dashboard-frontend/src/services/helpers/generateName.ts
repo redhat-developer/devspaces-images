@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import getRandomString from './random';
+import getRandomString from '@/services/helpers/random';
 
 export function generateWorkspaceName(generateName: string): string {
   return generateName + generateSuffix();

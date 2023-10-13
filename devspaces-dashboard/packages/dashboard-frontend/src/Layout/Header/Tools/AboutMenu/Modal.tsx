@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
   AboutModal as PatternflyAboutModal,
   TextContent,
@@ -18,6 +17,7 @@ import {
   TextListItem,
 } from '@patternfly/react-core';
 import { detect } from 'detect-browser';
+import React from 'react';
 
 type Props = {
   productName: string | undefined;

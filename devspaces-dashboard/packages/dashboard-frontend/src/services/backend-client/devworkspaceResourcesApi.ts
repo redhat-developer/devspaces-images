@@ -12,7 +12,8 @@
 
 import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
-import { dashboardBackendPrefix } from './const';
+
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
 
 export async function fetchResources(params: api.IDevWorkspaceResources): Promise<string> {
   try {

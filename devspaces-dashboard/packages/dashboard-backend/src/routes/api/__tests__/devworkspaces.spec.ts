@@ -10,14 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { IPatch } from '@eclipse-che/common/src/dto/api';
+import { api } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 import {
   stubDevWorkspace,
   stubDevWorkspacesList,
-} from '../helpers/__mocks__/getDevWorkspaceClient';
+} from '@/routes/api/helpers/__mocks__/getDevWorkspaceClient';
 
 jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');
@@ -68,7 +69,7 @@ describe('DevWorkspaces Routes', () => {
   });
 
   test('PATCH ${baseApiPath}/namespace/:namespace/devworkspaces/:workspaceName', async () => {
-    const patches: IPatch[] = [
+    const patches: api.IPatch[] = [
       {
         op: 'replace',
         path: '/metadata/annotations',

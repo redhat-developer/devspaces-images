@@ -10,12 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import common, { ClusterInfo } from '@eclipse-che/common';
+import { Action, Reducer } from 'redux';
+
+import { fetchClusterInfo } from '@/services/backend-client/clusterInfoApi';
+import { createObject } from '@/store/helpers';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
-import { fetchClusterInfo } from '../../services/backend-client/clusterInfoApi';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;

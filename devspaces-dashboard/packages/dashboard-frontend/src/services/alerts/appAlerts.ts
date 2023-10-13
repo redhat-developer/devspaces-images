@@ -11,8 +11,10 @@
  */
 
 import 'reflect-metadata';
+
 import { injectable } from 'inversify';
-import { AlertItem } from '../helpers/types';
+
+import { AlertItem } from '@/services/helpers/types';
 
 type Handler = (alerts: AlertItem[]) => void;
 

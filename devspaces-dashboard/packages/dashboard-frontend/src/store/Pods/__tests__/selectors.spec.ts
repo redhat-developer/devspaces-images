@@ -12,11 +12,13 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { pod1, pod2 } from '@/store/Pods/__tests__/stub';
+import { selectAllPods, selectPodsError, selectPodsResourceVersion } from '@/store/Pods/selectors';
+
 import * as store from '..';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { selectAllPods, selectPodsError, selectPodsResourceVersion } from '../selectors';
-import { pod1, pod2 } from './stub';
 
 describe('Pods store, selectors', () => {
   it('should return the error', () => {

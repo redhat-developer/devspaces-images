@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { helpers } from '@eclipse-che/common';
 import {
   AlertVariant,
   Button,
@@ -23,18 +24,18 @@ import { PlusCircleIcon } from '@patternfly/react-icons';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import ProgressIndicator from '../../../components/Progress';
-import { lazyInject } from '../../../inversify.config';
-import { AppAlerts } from '../../../services/alerts/appAlerts';
-import { AlertItem } from '../../../services/helpers/types';
-import { AppState } from '../../../store';
-import * as DockerConfigStore from '../../../store/DockerConfig';
-import { RegistryEntry } from '../../../store/DockerConfig/types';
-import { selectIsLoading, selectRegistries } from '../../../store/DockerConfig/selectors';
-import NoRegistriesEmptyState from './EmptyState/NoRegistries';
-import DeleteRegistriesModal from './Modals/DeleteRegistriesModal';
-import EditRegistryModal from './Modals/EditRegistryModal';
-import { helpers } from '@eclipse-che/common';
+
+import ProgressIndicator from '@/components/Progress';
+import { lazyInject } from '@/inversify.config';
+import NoRegistriesEmptyState from '@/pages/UserPreferences/ContainerRegistriesTab/EmptyState/NoRegistries';
+import DeleteRegistriesModal from '@/pages/UserPreferences/ContainerRegistriesTab/Modals/DeleteRegistriesModal';
+import EditRegistryModal from '@/pages/UserPreferences/ContainerRegistriesTab/Modals/EditRegistryModal';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AlertItem } from '@/services/helpers/types';
+import { AppState } from '@/store';
+import * as DockerConfigStore from '@/store/DockerConfig';
+import { selectIsLoading, selectRegistries } from '@/store/DockerConfig/selectors';
+import { RegistryEntry } from '@/store/DockerConfig/types';
 
 type Props = MappedProps;
 

@@ -13,14 +13,15 @@
 import { Banner } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { container } from '../../../inversify.config';
-import { AppState } from '../../../store';
-import { selectBranding } from '../../../store/Branding/selectors';
+
+import { container } from '@/inversify.config';
 import {
   ConnectionEvent,
   ConnectionListener,
   WebsocketClient,
-} from '../../../services/backend-client/websocketClient';
+} from '@/services/backend-client/websocketClient';
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
 
 type Props = MappedProps;
 

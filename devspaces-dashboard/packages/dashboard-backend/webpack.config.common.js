@@ -28,10 +28,7 @@ module.exports = () => {
           enforce: 'pre',
           test: /\.(ts|js)$/,
           use: ['source-map-loader'],
-          include: [
-            path.resolve(__dirname, '../common'),
-            path.resolve(__dirname, 'src'),
-          ],
+          include: [path.resolve(__dirname, '../common'), path.resolve(__dirname, 'src')],
         },
         {
           test: /\.ts$/,
@@ -40,10 +37,14 @@ module.exports = () => {
             transpileOnly: true,
           },
         },
-      ]
+      ],
     },
     resolve: {
       extensions: ['.ts', '.js'],
+      alias: {
+        // alias for absolute imports (see tsconfig.json)
+        '@': path.resolve(__dirname, 'src/'),
+      },
     },
     resolveLoader: {},
     plugins: [
@@ -51,10 +52,17 @@ module.exports = () => {
       new CopyPlugin({
         patterns: [
           {
-            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger-ui', 'static', 'logo.svg'),
+            from: path.resolve(
+              '..',
+              '..',
+              'node_modules',
+              '@fastify/swagger-ui',
+              'static',
+              'logo.svg',
+            ),
             to: 'server/static',
-          }
-        ]
+          },
+        ],
       }),
       new CopyPlugin({
         patterns: [
@@ -68,18 +76,14 @@ module.exports = () => {
               }
               return content.toString();
             },
-          }
-        ]
+          },
+        ],
       }),
     ],
     node: {
       __dirname: false,
     },
     target: 'node',
-    externals: [
-      'long',
-      'pino-pretty',
-    ],
+    externals: ['long', 'pino-pretty'],
   };
-
 };

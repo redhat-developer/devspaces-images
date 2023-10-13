@@ -10,10 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Bullseye, Page, PageSection, Stack, StackItem } from '@patternfly/react-core';
+import React from 'react';
 
-import styles from './index.module.css';
+import styles from '@/Layout/ErrorReporter/index.module.css';
 
 type Props = {
   children?: React.ReactElement;

@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+
 import { Props } from '..';
 
 export class GitConfigSectionUser extends React.PureComponent<Props> {

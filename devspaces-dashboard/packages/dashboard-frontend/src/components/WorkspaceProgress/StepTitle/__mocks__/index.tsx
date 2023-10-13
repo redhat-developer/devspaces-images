@@ -11,7 +11,8 @@
  */
 
 import React from 'react';
-import { Props } from '../';
+
+import { Props } from '@/components/WorkspaceProgress/StepTitle';
 
 export class ProgressStepTitle extends React.Component<Props> {
   render(): React.ReactElement {

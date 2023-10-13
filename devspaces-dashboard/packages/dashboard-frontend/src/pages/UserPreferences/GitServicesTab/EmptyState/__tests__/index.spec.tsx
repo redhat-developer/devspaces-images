@@ -12,7 +12,8 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
-import EmptyState from '../index';
+
+import EmptyState from '@/pages/UserPreferences/GitServicesTab/EmptyState/index';
 
 describe('No git services component for empty state', () => {
   it('should render title correctly', () => {

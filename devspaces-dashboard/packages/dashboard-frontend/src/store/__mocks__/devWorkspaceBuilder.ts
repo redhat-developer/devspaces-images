@@ -11,10 +11,11 @@
  */
 
 import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
-import devfileApi from '../../services/devfileApi';
-import getRandomString from '../../services/helpers/random';
-import { DevWorkspaceStatus } from '../../services/helpers/types';
-import { DevWorkspacePlugin } from '../../services/devfileApi/devWorkspace';
+
+import devfileApi from '@/services/devfileApi';
+import { DevWorkspacePlugin } from '@/services/devfileApi/devWorkspace';
+import getRandomString from '@/services/helpers/random';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
 
 export class DevWorkspaceBuilder {
   private workspace: devfileApi.DevWorkspace = {

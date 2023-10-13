@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DisposableCollection } from '../../../services/helpers/disposable';
 import React from 'react';
+
+import { DisposableCollection } from '@/services/helpers/disposable';
 
 export type Props = {
   timeLimitSec: number;

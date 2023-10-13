@@ -12,6 +12,7 @@
 
 import { api } from '@eclipse-che/common';
 import k8s from '@kubernetes/client-node';
+
 import {
   buildLabelSelector,
   DUMMY_TOKEN_DATA,
@@ -20,7 +21,7 @@ import {
   toSecret,
   toSecretName,
   toToken,
-} from '../helpers';
+} from '@/devworkspaceClient/services/personalAccessTokenApi/helpers';
 
 describe('Helpers for Personal Access Token API', () => {
   test('buildLabelSelector', () => {

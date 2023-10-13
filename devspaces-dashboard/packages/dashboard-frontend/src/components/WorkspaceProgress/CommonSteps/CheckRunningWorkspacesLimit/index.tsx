@@ -15,27 +15,29 @@ import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { ToggleBarsContext } from '../../../../contexts/ToggleBars';
-import { WorkspaceParams } from '../../../../Routes/routes';
-import { findTargetWorkspace } from '../../../../services/helpers/factoryFlow/findTargetWorkspace';
-import { buildHomeLocation, buildIdeLoaderLocation } from '../../../../services/helpers/location';
-import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../services/helpers/types';
-import { Workspace } from '../../../../services/workspace-adapter';
-import { AppState } from '../../../../store';
-import { selectRunningWorkspacesLimit } from '../../../../store/ClusterConfig/selectors';
-import * as WorkspaceStore from '../../../../store/Workspaces';
-import { RunningWorkspacesExceededError } from '../../../../store/Workspaces/devWorkspaces';
-import { throwRunningWorkspacesExceededError } from '../../../../store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
-import { selectRunningDevWorkspacesLimitExceeded } from '../../../../store/Workspaces/devWorkspaces/selectors';
+
+import { TIMEOUT_TO_STOP_SEC } from '@/components/WorkspaceProgress/const';
 import {
-  selectAllWorkspaces,
-  selectRunningWorkspaces,
-} from '../../../../store/Workspaces/selectors';
-import { TIMEOUT_TO_STOP_SEC } from '../../const';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
-import { ProgressStepTitle } from '../../StepTitle';
-import { TimeLimit } from '../../TimeLimit';
-import workspaceStatusIs from '../../workspaceStatusIs';
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import workspaceStatusIs from '@/components/WorkspaceProgress/workspaceStatusIs';
+import { ToggleBarsContext } from '@/contexts/ToggleBars';
+import { WorkspaceParams } from '@/Routes/routes';
+import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
+import { buildHomeLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppState } from '@/store';
+import { selectRunningWorkspacesLimit } from '@/store/ClusterConfig/selectors';
+import * as WorkspaceStore from '@/store/Workspaces';
+import { RunningWorkspacesExceededError } from '@/store/Workspaces/devWorkspaces';
+import { throwRunningWorkspacesExceededError } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
+import { selectRunningDevWorkspacesLimitExceeded } from '@/store/Workspaces/devWorkspaces/selectors';
+import { selectAllWorkspaces, selectRunningWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {

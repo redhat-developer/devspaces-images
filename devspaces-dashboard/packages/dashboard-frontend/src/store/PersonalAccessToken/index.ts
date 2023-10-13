@@ -12,19 +12,21 @@
 
 import { api, helpers } from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
-import { AppThunk } from '..';
+
+import { provisionKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
 import {
   addToken,
   fetchTokens,
   removeToken,
   updateToken,
-} from '../../services/backend-client/personalAccessTokenApi';
-import { createObject } from '../helpers';
-import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { State } from './state';
-import { provisionKubernetesNamespace } from '../../services/backend-client/kubernetesNamespaceApi';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
+} from '@/services/backend-client/personalAccessTokenApi';
+import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { State } from '@/store/PersonalAccessToken/state';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
+import { AppThunk } from '..';
 
 export * from './state';
 

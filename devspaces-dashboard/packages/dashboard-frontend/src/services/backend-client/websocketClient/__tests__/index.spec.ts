@@ -12,8 +12,10 @@
 
 import { api } from '@eclipse-che/common';
 import WS from 'jest-websocket-mock';
+
+import { delay } from '@/services/helpers/delay';
+
 import { ConnectionEvent, WebsocketClient } from '..';
-import { delay } from '../../../helpers/delay';
 
 // mute console logs
 console.log = jest.fn();

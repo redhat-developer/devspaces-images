@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Workspace } from '../../workspace-adapter';
+import { Workspace } from '@/services/workspace-adapter';
 
 export function findTargetWorkspace(
   workspaces: Workspace[],

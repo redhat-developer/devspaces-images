@@ -11,9 +11,11 @@
  */
 
 import React from 'react';
+
+import { Step, StepId } from '@/components/WorkspaceProgress';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import WorkspaceProgressWizard, { WorkspaceProgressWizardStep } from '..';
-import { Step, StepId } from '../..';
-import getComponentRenderer, { screen } from '../../../../services/__mocks__/getComponentRenderer';
 
 const mockGoToNext = jest.fn();
 

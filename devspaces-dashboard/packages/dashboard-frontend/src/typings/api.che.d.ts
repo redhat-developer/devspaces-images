@@ -12,6 +12,7 @@
 
 declare namespace api {
   import { che } from '@eclipse-che/api';
+
   export { che };
 }
 

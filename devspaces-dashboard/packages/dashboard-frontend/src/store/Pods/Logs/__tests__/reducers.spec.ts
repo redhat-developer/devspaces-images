@@ -11,6 +11,7 @@
  */
 
 import { AnyAction } from 'redux';
+
 import * as testStore from '..';
 
 describe('Logs store, reducers', () => {

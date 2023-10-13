@@ -11,8 +11,10 @@
  */
 
 import React from 'react';
+
+import { LoaderTab } from '@/services/helpers/types';
+
 import { Props } from '..';
-import { LoaderTab } from '../../../services/helpers/types';
 
 export class LoaderPage extends React.PureComponent<Props> {
   render(): React.ReactNode {

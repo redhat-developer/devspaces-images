@@ -11,7 +11,8 @@
  */
 
 import { V221Devfile } from '@devfile/api';
-import { DevfileMetadata, DevfileMetadataLike } from './metadata';
+
+import { DevfileMetadata, DevfileMetadataLike } from '@/services/devfileApi/devfile/metadata';
 
 export type DevfileLike = V221Devfile & {
   metadata?: DevfileMetadataLike;

@@ -11,7 +11,9 @@
  */
 
 import React from 'react';
-import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+
 import { TimeLimit } from '..';
 
 const { renderComponent } = getComponentRenderer(getComponent);

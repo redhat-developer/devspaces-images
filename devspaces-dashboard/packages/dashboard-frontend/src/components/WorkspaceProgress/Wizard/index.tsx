@@ -13,8 +13,10 @@
 import * as PF from '@patternfly/react-core';
 import wizardStyles from '@patternfly/react-styles/css/components/Wizard/wizard';
 import React from 'react';
+
+import styles from '@/components/WorkspaceProgress/Wizard/index.module.css';
+
 import { StepId } from '..';
-import styles from './index.module.css';
 
 export interface WorkspaceProgressWizardStep extends PF.WizardStep {
   id: StepId;

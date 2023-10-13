@@ -11,9 +11,11 @@
  */
 
 import React from 'react';
+
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
+import { ContainerLogs } from '@/store/Pods/Logs';
+
 import { WorkspaceLogsViewer } from '..';
-import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
-import { ContainerLogs } from '../../../../store/Pods/Logs';
 
 const { createSnapshot } = getComponentRenderer(getComponent);
 

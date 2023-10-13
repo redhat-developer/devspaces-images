@@ -12,11 +12,12 @@
 
 import common from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
-import { fetchCheUserId } from '../../../services/che-user-id';
-import { createObject } from '../../helpers';
-import { AppThunk } from '../../index';
-import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
+
+import { fetchCheUserId } from '@/services/che-user-id';
+import { createObject } from '@/store/helpers';
+import { AppThunk } from '@/store/index';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 export interface State {
   cheUserId: string;

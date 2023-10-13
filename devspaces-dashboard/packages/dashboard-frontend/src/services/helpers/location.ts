@@ -11,9 +11,10 @@
  */
 
 import { History, Location } from 'history';
-import { ROUTE } from '../../Routes/routes';
-import { CreateWorkspaceTab, LoaderTab, WorkspaceDetailsTab } from './types';
-import { Workspace } from '../workspace-adapter';
+
+import { ROUTE } from '@/Routes/routes';
+import { CreateWorkspaceTab, LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 

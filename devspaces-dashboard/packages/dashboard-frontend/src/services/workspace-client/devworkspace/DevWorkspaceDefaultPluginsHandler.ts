@@ -10,17 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as DwApi from '../../backend-client/devWorkspaceApi';
-import devfileApi from '../../devfileApi';
-import { api } from '@eclipse-che/common';
-import { createHash } from 'crypto';
-import { injectable } from 'inversify';
 import {
   V1alpha2DevWorkspaceSpecContributions,
   V1alpha2DevWorkspaceSpecTemplateComponents,
 } from '@devfile/api';
-import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
-import { DevWorkspacePlugin } from '../../devfileApi/devWorkspace';
+import { api } from '@eclipse-che/common';
+import { createHash } from 'crypto';
+import { injectable } from 'inversify';
+
+import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import devfileApi from '@/services/devfileApi';
+import { DevWorkspacePlugin } from '@/services/devfileApi/devWorkspace';
+import { WorkspacesDefaultPlugins } from '@/store/Plugins/devWorkspacePlugins';
 
 const DEFAULT_PLUGIN_ATTRIBUTE = 'che.eclipse.org/default-plugin';
 

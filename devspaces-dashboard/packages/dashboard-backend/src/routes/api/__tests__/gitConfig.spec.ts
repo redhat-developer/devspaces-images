@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance } from 'fastify';
-import { baseApiPath } from '../../../constants/config';
-import { setup, teardown } from '../../../helpers/tests/appBuilder';
 import { api } from '@eclipse-che/common';
+import { FastifyInstance } from 'fastify';
+
+import { baseApiPath } from '@/constants/config';
+import { setup, teardown } from '@/helpers/tests/appBuilder';
 
 const mockRead = jest.fn().mockResolvedValue({});
 const mockPatch = jest.fn().mockResolvedValue({});

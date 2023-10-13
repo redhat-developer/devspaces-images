@@ -11,19 +11,20 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
-import { DevWorkspaceApiService } from './services/devWorkspaceApi';
-import { DevWorkspaceTemplateApiService } from './services/devWorkspaceTemplateApi';
-import { DockerConfigApiService } from './services/dockerConfigApi';
-import { EventApiService } from './services/eventApi';
-import { GettingStartedSamplesApiService } from './services/gettingStartedSamplesApi';
-import { GitConfigApiService } from './services/gitConfigApi';
-import { KubeConfigApiService } from './services/kubeConfigApi';
-import { LogsApiService } from './services/logsApi';
-import { PersonalAccessTokenService } from './services/personalAccessTokenApi';
-import { PodApiService } from './services/podApi';
-import { PodmanApiService } from './services/podmanApi';
-import { ServerConfigApiService } from './services/serverConfigApi';
-import { UserProfileApiService } from './services/userProfileApi';
+
+import { DevWorkspaceApiService } from '@/devworkspaceClient/services/devWorkspaceApi';
+import { DevWorkspaceTemplateApiService } from '@/devworkspaceClient/services/devWorkspaceTemplateApi';
+import { DockerConfigApiService } from '@/devworkspaceClient/services/dockerConfigApi';
+import { EventApiService } from '@/devworkspaceClient/services/eventApi';
+import { GettingStartedSamplesApiService } from '@/devworkspaceClient/services/gettingStartedSamplesApi';
+import { GitConfigApiService } from '@/devworkspaceClient/services/gitConfigApi';
+import { KubeConfigApiService } from '@/devworkspaceClient/services/kubeConfigApi';
+import { LogsApiService } from '@/devworkspaceClient/services/logsApi';
+import { PersonalAccessTokenService } from '@/devworkspaceClient/services/personalAccessTokenApi';
+import { PodApiService } from '@/devworkspaceClient/services/podApi';
+import { PodmanApiService } from '@/devworkspaceClient/services/podmanApi';
+import { ServerConfigApiService } from '@/devworkspaceClient/services/serverConfigApi';
+import { UserProfileApiService } from '@/devworkspaceClient/services/userProfileApi';
 import {
   IDevWorkspaceApi,
   IDevWorkspaceClient,
@@ -39,7 +40,7 @@ import {
   IPodmanApi,
   IServerConfigApi,
   IUserProfileApi,
-} from './types';
+} from '@/devworkspaceClient/types';
 
 export * from './types';
 

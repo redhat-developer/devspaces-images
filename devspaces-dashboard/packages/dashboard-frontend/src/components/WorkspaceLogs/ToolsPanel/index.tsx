@@ -13,7 +13,7 @@
 import { Split, SplitItem } from '@patternfly/react-core';
 import React from 'react';
 
-import styles from './index.module.css';
+import styles from '@/components/WorkspaceLogs/ToolsPanel/index.module.css';
 
 type Props = {
   isExpanded: boolean;

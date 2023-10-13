@@ -14,7 +14,12 @@
 
 import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, V1Secret } from '@kubernetes/client-node';
-import { DockerConfigApiService, SECRET_KEY, SECRET_NAME } from '../dockerConfigApi';
+
+import {
+  DockerConfigApiService,
+  SECRET_KEY,
+  SECRET_NAME,
+} from '@/devworkspaceClient/services/dockerConfigApi';
 
 describe('Docker Config API Service', () => {
   let dockerConfigService: DockerConfigApiService;

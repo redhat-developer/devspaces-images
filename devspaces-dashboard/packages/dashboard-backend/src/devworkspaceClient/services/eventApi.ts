@@ -14,11 +14,15 @@ import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { CoreV1Event, V1Status } from '@kubernetes/client-node';
 import { Request } from 'request';
-import { MessageListener } from '../../services/types/Observer';
-import { IEventApi } from '../types';
-import { createError } from './helpers/createError';
-import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
-import { prepareCustomObjectWatch } from './helpers/prepareCustomObjectWatch';
+
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CoreV1API,
+  prepareCoreV1API,
+} from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
+import { prepareCustomObjectWatch } from '@/devworkspaceClient/services/helpers/prepareCustomObjectWatch';
+import { IEventApi } from '@/devworkspaceClient/types';
+import { MessageListener } from '@/services/types/Observer';
 
 const EVENT_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 

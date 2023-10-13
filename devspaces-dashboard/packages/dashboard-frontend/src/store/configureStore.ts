@@ -14,8 +14,10 @@ import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { History } from 'history';
 import { applyMiddleware, combineReducers, compose, createStore, Store } from 'redux';
 import thunk from 'redux-thunk';
+
+import { sanityCheckMiddleware } from '@/store/sanityCheckMiddleware';
+
 import { AppState, reducers } from '.';
-import { sanityCheckMiddleware } from './sanityCheckMiddleware';
 
 export default function configureStore(history: History, initialState?: AppState): Store<AppState> {
   const rootReducer = combineReducers({

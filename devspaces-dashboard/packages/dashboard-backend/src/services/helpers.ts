@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { authenticationHeaderSchema } from '../constants/schemas';
-import { restParams } from '../models';
 import createError from '@fastify/error';
 import { FastifyError } from 'fastify';
+
+import { authenticationHeaderSchema } from '@/constants/schemas';
+import { restParams } from '@/models';
 
 export async function delay(ms = 500): Promise<void> {
   await new Promise(resolve => {

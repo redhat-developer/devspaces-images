@@ -14,7 +14,8 @@
 
 import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, V1Secret } from '@kubernetes/client-node';
-import { UserProfileApiService } from '../userProfileApi';
+
+import { UserProfileApiService } from '@/devworkspaceClient/services/userProfileApi';
 
 jest.mock('../../../helpers/getUserName.ts');
 

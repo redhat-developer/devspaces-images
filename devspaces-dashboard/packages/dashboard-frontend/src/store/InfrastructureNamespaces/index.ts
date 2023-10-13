@@ -10,13 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Action, Reducer } from 'redux';
 import common from '@eclipse-che/common';
+import { Action, Reducer } from 'redux';
+
+import { getKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
+import { createObject } from '@/store/helpers';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
-import { AUTHORIZED, SanityCheckAction } from '../sanityCheckMiddleware';
-import { getKubernetesNamespace } from '../../services/backend-client/kubernetesNamespaceApi';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../SanityCheck/selectors';
 
 export interface State {
   isLoading: boolean;

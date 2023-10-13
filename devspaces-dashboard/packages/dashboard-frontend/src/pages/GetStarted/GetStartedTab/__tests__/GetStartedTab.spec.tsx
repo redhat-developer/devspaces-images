@@ -10,15 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
+import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { RenderResult, render, screen } from '@testing-library/react';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import devfileApi from '@/services/devfileApi';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
+
 import { SamplesListTab } from '..';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
-import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
-import { api } from '@eclipse-che/common';
-import devfileApi from '../../../../services/devfileApi';
 
 const onDevfileMock: (
   devfileContent: string,

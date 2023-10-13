@@ -165,6 +165,7 @@
 | [`@types/jest@29.5.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/jsdom@20.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/json-schema@7.0.12`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/json5@0.0.29`](https://www.github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/jsonfile@6.1.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/less@3.0.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/lodash@4.14.197`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #4131 |
@@ -241,6 +242,7 @@
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify.git) | MIT | clearlydefined |
 | [`array-includes@3.1.6`](git://github.com/es-shims/array-includes.git) | MIT | #4577 |
 | [`array-union@2.1.0`](https://github.com/sindresorhus/array-union.git) | MIT | clearlydefined |
+| [`array.prototype.findlastindex@1.2.3`](git+https://github.com/es-shims/Array.prototype.findLastIndex.git) | MIT | #9900 |
 | [`array.prototype.flat@1.3.1`](git://github.com/es-shims/Array.prototype.flat.git) | MIT | #4574 |
 | [`array.prototype.flatmap@1.3.1`](git://github.com/es-shims/Array.prototype.flatMap.git) | MIT | #4651 |
 | [`array.prototype.tosorted@1.1.1`](git+https://github.com/es-shims/Array.prototype.toSorted.git) | MIT | #5051 |
@@ -354,6 +356,7 @@
 | [`default-browser-id@3.0.0`](https://github.com/sindresorhus/default-browser-id.git) | MIT | clearlydefined |
 | [`default-browser@4.0.0`](https://github.com/sindresorhus/default-browser.git) | MIT | clearlydefined |
 | [`defaults@1.0.4`](git://github.com/sindresorhus/node-defaults.git) | MIT | clearlydefined |
+| [`define-data-property@1.1.0`](git+https://github.com/ljharb/define-data-property.git) | MIT | #10591 |
 | [`define-lazy-prop@2.0.0`](https://github.com/sindresorhus/define-lazy-prop.git) | MIT | clearlydefined |
 | [`define-properties@1.2.0`](git://github.com/ljharb/define-properties.git) | MIT | #7116 |
 | [`del@6.1.1`](https://github.com/sindresorhus/del.git) | MIT | clearlydefined |
@@ -397,10 +400,15 @@
 | [`escalade@3.1.1`](https://github.com/lukeed/escalade.git) | MIT | clearlydefined |
 | [`escodegen@2.1.0`](http://github.com/estools/escodegen.git) | BSD-2-Clause | #9306 |
 | [`eslint-config-prettier@9.0.0`](https://github.com/prettier/eslint-config-prettier.git) | MIT | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/eslint-config-prettier/9.0.0] |
+| [`eslint-import-resolver-node@0.3.9`](https://github.com/import-js/eslint-plugin-import) | MIT | #9923 |
+| [`eslint-module-utils@2.8.0`](git+https://github.com/import-js/eslint-plugin-import.git) | MIT | #8209 |
+| [`eslint-plugin-import@2.28.1`](https://github.com/import-js/eslint-plugin-import) | MIT | #9927 |
+| [`eslint-plugin-no-relative-import-paths@1.5.2`](https://github.com/MelvinVermeer/eslint-plugin-no-relative-import-paths) | ISC | clearlydefined |
 | [`eslint-plugin-notice@0.9.10`](https://github.com/nickdeis/eslint-plugin-notice) | MIT | clearlydefined |
 | [`eslint-plugin-prettier@5.0.0`](git+https://github.com/prettier/eslint-plugin-prettier.git) | MIT | clearlydefined |
 | [`eslint-plugin-react-hooks@4.6.0`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`eslint-plugin-react@7.33.2`](https://github.com/jsx-eslint/eslint-plugin-react) | MIT | #9877 |
+| [`eslint-plugin-simple-import-sort@10.0.0`](https://github.com/lydell/eslint-plugin-simple-import-sort.git) | MIT | clearlydefined |
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
 | [`eslint-visitor-keys@3.4.3`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | #7729 |
 | [`eslint-webpack-plugin@4.0.1`](https://github.com/webpack-contrib/eslint-webpack-plugin.git) | MIT | clearlydefined |
@@ -682,6 +690,7 @@
 | [`object.assign@4.1.4`](git://github.com/ljharb/object.assign.git) | MIT | #3232 |
 | [`object.entries@1.1.6`](git://github.com/es-shims/Object.entries.git) | MIT | #4671 |
 | [`object.fromentries@2.0.6`](git://github.com/es-shims/Object.fromEntries.git) | MIT | #4600 |
+| [`object.groupby@1.0.1`](git+https://github.com/es-shims/Object.groupBy.git) | MIT | #10360 |
 | [`object.hasown@1.1.2`](https://github.com/es-shims/Object.hasOwn.git) | MIT | #4667 |
 | [`object.values@1.1.6`](git://github.com/es-shims/Object.values.git) | MIT | #4665 |
 | [`onetime@5.1.2`](https://github.com/sindresorhus/onetime.git) | MIT | clearlydefined |
@@ -809,6 +818,7 @@
 | [`schema-utils@4.2.0`](https://github.com/webpack/schema-utils.git) | MIT | #8986 |
 | [`serialize-javascript@6.0.1`](git+https://github.com/yahoo/serialize-javascript.git) | BSD-3-Clause | clearlydefined |
 | [`set-blocking@2.0.0`](git+https://github.com/yargs/set-blocking.git) | ISC | #5899 |
+| [`set-function-name@2.0.1`](git+https://github.com/ljharb/set-function-name.git) | MIT | #10590 |
 | [`shallow-clone@3.0.1`](https://github.com/jonschlinkert/shallow-clone.git) | MIT | clearlydefined |
 | [`shebang-command@2.0.0`](https://github.com/kevva/shebang-command.git) | MIT | clearlydefined |
 | [`shebang-regex@3.0.0`](https://github.com/sindresorhus/shebang-regex.git) | MIT | clearlydefined |
@@ -889,7 +899,7 @@
 | [`ts-api-utils@1.0.1`](https://github.com/JoshuaKGoldberg/ts-api-utils) | MIT | clearlydefined |
 | [`ts-jest@29.1.1`](git+https://github.com/kulshekhar/ts-jest.git) | MIT | clearlydefined |
 | [`ts-loader@9.4.4`](https://github.com/TypeStrong/ts-loader.git) | MIT | #5028 |
-| [`tsconfig-paths@4.2.0`](https://github.com/dividab/tsconfig-paths) | MIT | #7709 |
+| [`tsconfig-paths@3.14.2`](https://github.com/dividab/tsconfig-paths) | MIT | clearlydefined |
 | [`tuf-js@1.1.7`](git+https://github.com/theupdateframework/tuf-js.git) | MIT | #7585 |
 | [`type-check@0.4.0`](git://github.com/gkz/type-check.git) | MIT | clearlydefined |
 | [`type-detect@4.0.8`](git+ssh://git@github.com/chaijs/type-detect.git) | MIT | clearlydefined |

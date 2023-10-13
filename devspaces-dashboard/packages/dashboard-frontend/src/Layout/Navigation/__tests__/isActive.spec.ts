@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ROUTE } from '../../../Routes/routes';
-import isActive from '../isActive';
+import isActive from '@/Layout/Navigation/isActive';
+import { ROUTE } from '@/Routes/routes';
 
 describe('Active navigation item', () => {
   it('should match equal paths', () => {

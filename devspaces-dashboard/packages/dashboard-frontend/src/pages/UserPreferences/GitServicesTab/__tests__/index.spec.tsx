@@ -10,17 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
 import { Store } from 'redux';
+
+import { FakeGitOauthBuilder } from '@/pages/UserPreferences/GitServicesTab/__tests__/__mocks__/gitOauthRowBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { actionCreators } from '@/store/GitOauthConfig';
+import { selectGitOauth, selectIsLoading } from '@/store/GitOauthConfig/selectors';
+
 import { GitServices } from '..';
-import { FakeGitOauthBuilder } from './__mocks__/gitOauthRowBuilder';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { selectIsLoading, selectGitOauth } from '../../../../store/GitOauthConfig/selectors';
-import { actionCreators } from '../../../../store/GitOauthConfig';
 
 // mute the outputs
 console.error = jest.fn();

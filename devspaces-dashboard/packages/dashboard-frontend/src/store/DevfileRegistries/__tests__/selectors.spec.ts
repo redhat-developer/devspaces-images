@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
+import { dump } from 'js-yaml';
+import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { AppState } from '../..';
-import { selectDefaultDevfile } from '../selectors';
-import { AnyAction } from 'redux';
-import { dump } from 'js-yaml';
-import devfileApi from '../../../services/devfileApi';
-import { api } from '@eclipse-che/common';
+
+import devfileApi from '@/services/devfileApi';
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
 
 describe('devfileRegistries selectors', () => {
   const registryUrl = 'https://registry-url';

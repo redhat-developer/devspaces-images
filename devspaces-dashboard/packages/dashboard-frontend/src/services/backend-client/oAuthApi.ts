@@ -10,10 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
-import { cheServerPrefix } from './const';
 import { api } from '@eclipse-che/common';
-import { IGitOauth } from '../../store/GitOauthConfig/types';
+import axios from 'axios';
+
+import { cheServerPrefix } from '@/services/backend-client/const';
+import { IGitOauth } from '@/store/GitOauthConfig/types';
 
 export async function getOAuthProviders(): Promise<IGitOauth[]> {
   const response = await axios.get(`${cheServerPrefix}/oauth`);

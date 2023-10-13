@@ -11,16 +11,17 @@
  */
 
 import '@patternfly/react-core/dist/styles/base.css';
+import 'reflect-metadata';
+import '@/overrides.css';
+
 import { createHashHistory } from 'history';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import 'reflect-metadata';
-import App from './App';
-import PreloadData from './services/bootstrap';
-import configureStore from './store/configureStore';
 
-import './overrides.css';
+import App from '@/App';
+import PreloadData from '@/services/bootstrap';
+import configureStore from '@/store/configureStore';
 
 startApp();
 

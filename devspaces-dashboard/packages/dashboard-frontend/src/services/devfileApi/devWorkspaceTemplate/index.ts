@@ -11,7 +11,8 @@
  */
 
 import { V1alpha2DevWorkspaceTemplate } from '@devfile/api';
-import { DevWorkspaceTemplateMetadata } from './metadata';
+
+import { DevWorkspaceTemplateMetadata } from '@/services/devfileApi/devWorkspaceTemplate/metadata';
 
 export type DevWorkspaceTemplateLike = V1alpha2DevWorkspaceTemplate &
   Required<Pick<V1alpha2DevWorkspaceTemplate, 'apiVersion' | 'kind'>>;

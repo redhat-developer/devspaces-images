@@ -13,19 +13,20 @@
 import { helpers } from '@eclipse-che/common';
 import { AlertVariant, PageSection } from '@patternfly/react-core';
 import React from 'react';
-import { ConnectedProps, connect } from 'react-redux';
-import ProgressIndicator from '../../../components/Progress';
-import { lazyInject } from '../../../inversify.config';
-import { AppAlerts } from '../../../services/alerts/appAlerts';
-import { AppState } from '../../../store';
-import * as GitConfigStore from '../../../store/GitConfig';
+import { connect, ConnectedProps } from 'react-redux';
+
+import ProgressIndicator from '@/components/Progress';
+import { lazyInject } from '@/inversify.config';
+import { GitConfigEmptyState } from '@/pages/UserPreferences/GitConfig/EmptyState';
+import { GitConfigSectionUser } from '@/pages/UserPreferences/GitConfig/SectionUser';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AppState } from '@/store';
+import * as GitConfigStore from '@/store/GitConfig';
 import {
   selectGitConfigError,
   selectGitConfigIsLoading,
   selectGitConfigUser,
-} from '../../../store/GitConfig/selectors';
-import { GitConfigEmptyState } from './EmptyState';
-import { GitConfigSectionUser } from './SectionUser';
+} from '@/store/GitConfig/selectors';
 
 export type Props = MappedProps;
 

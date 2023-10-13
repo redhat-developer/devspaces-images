@@ -10,18 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { createHashHistory } from 'history';
-import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Store } from 'redux';
+import { createHashHistory } from 'history';
 import React from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import devfileApi from '@/services/devfileApi';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { devfileToDevWorkspace } from '@/services/workspace-client/devworkspace/converters';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import GetStarted from '..';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
-import { devfileToDevWorkspace } from '../../../services/workspace-client/devworkspace/converters';
-import devfileApi from '../../../services/devfileApi';
 
 const setWorkspaceQualifiedName = jest.fn();
 const createWorkspaceFromDevfileMock = jest.fn().mockResolvedValue(undefined);

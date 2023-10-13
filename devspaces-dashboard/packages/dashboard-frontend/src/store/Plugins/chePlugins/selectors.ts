@@ -11,7 +11,8 @@
  */
 
 import { createSelector } from 'reselect';
-import { AppState } from '../..';
+
+import { AppState } from '@/store';
 
 const CHE_EDITOR = 'Che Editor';
 

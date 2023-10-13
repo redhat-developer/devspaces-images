@@ -10,10 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import fastify from 'fastify';
 import 'reflect-metadata';
-import buildApp from './app';
-import { isLocalRun } from './localRun';
+
+import fastify from 'fastify';
+
+import buildApp from '@/app';
+import { isLocalRun } from '@/localRun';
 
 const server = fastify({
   logger: false,

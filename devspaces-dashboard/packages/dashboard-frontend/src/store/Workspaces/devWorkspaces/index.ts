@@ -13,52 +13,53 @@
 import common, { api, ApplicationId } from '@eclipse-che/common';
 import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
-import { AppThunk } from '../..';
-import { container } from '../../../inversify.config';
-import { FactoryParams } from '../../../services/helpers/factoryFlow/buildFactoryParams';
-import { injectKubeConfig, podmanLogin } from '../../../services/backend-client/devWorkspaceApi';
-import { fetchResources } from '../../../services/backend-client/devworkspaceResourcesApi';
-import { WebsocketClient } from '../../../services/backend-client/websocketClient';
-import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
-import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
+
+import { container } from '@/inversify.config';
+import { podmanLogin } from '@/services/backend-client/devWorkspaceApi';
+import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import { fetchResources } from '@/services/backend-client/devworkspaceResourcesApi';
+import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import devfileApi, { isDevWorkspace } from '@/services/devfileApi';
+import { devWorkspaceKind } from '@/services/devfileApi/devWorkspace';
 import {
   DEVWORKSPACE_CHE_EDITOR,
   DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
-} from '../../../services/devfileApi/devWorkspace/metadata';
-import { getDefer, IDeferred } from '../../../services/helpers/deferred';
-import { delay } from '../../../services/helpers/delay';
-import { DisposableCollection } from '../../../services/helpers/disposable';
-import { getNewerResourceVersion } from '../../../services/helpers/resourceVersion';
-import { DevWorkspaceStatus } from '../../../services/helpers/types';
-import OAuthService from '../../../services/oauth';
-import { loadResourcesContent } from '../../../services/registry/resources';
-import { WorkspaceAdapter } from '../../../services/workspace-adapter';
+} from '@/services/devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { getDefer, IDeferred } from '@/services/helpers/deferred';
+import { delay } from '@/services/helpers/delay';
+import { DisposableCollection } from '@/services/helpers/disposable';
+import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { getNewerResourceVersion } from '@/services/helpers/resourceVersion';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
+import OAuthService from '@/services/oauth';
+import { loadResourcesContent } from '@/services/registry/resources';
+import { WorkspaceAdapter } from '@/services/workspace-adapter';
 import {
-  DevWorkspaceClient,
-  DEVWORKSPACE_NEXT_START_ANNOTATION,
   COMPONENT_UPDATE_POLICY,
+  DEVWORKSPACE_NEXT_START_ANNOTATION,
+  DevWorkspaceClient,
   REGISTRY_URL,
-} from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { getCustomEditor } from '../../../services/workspace-client/helpers';
-import { selectApplications } from '../../ClusterInfo/selectors';
-import { getEditor } from '../../DevfileRegistries/getEditor';
-import { createObject } from '../../helpers';
-import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
-import { AUTHORIZED, SanityCheckAction } from '../../sanityCheckMiddleware';
-import * as DwServerConfigStore from '../../ServerConfig';
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { getCustomEditor } from '@/services/workspace-client/helpers';
+import { AppThunk } from '@/store';
+import { selectApplications } from '@/store/ClusterInfo/selectors';
+import { getEditor } from '@/store/DevfileRegistries/getEditor';
+import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
+import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
+import { selectDefaultEditor } from '@/store/Plugins/devWorkspacePlugins/selectors';
+import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
+import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+import * as DwServerConfigStore from '@/store/ServerConfig';
 import {
   selectOpenVSXUrl,
   selectPluginRegistryInternalUrl,
   selectPluginRegistryUrl,
-} from '../../ServerConfig/selectors';
-import { checkRunningWorkspacesLimit } from './checkRunningWorkspacesLimit';
-import { selectDevWorkspacesResourceVersion } from './selectors';
-import * as DwtApi from '../../../services/backend-client/devWorkspaceTemplateApi';
-import { selectDefaultDevfile } from '../../DevfileRegistries/selectors';
-import * as DwApi from '../../../services/backend-client/devWorkspaceApi';
-import { selectDefaultEditor } from '../../Plugins/devWorkspacePlugins/selectors';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../services/devfileApi/devWorkspace/spec/template';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '../../SanityCheck/selectors';
+} from '@/store/ServerConfig/selectors';
+import { checkRunningWorkspacesLimit } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
+import { selectDevWorkspacesResourceVersion } from '@/store/Workspaces/devWorkspaces/selectors';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -1014,8 +1015,6 @@ export const actionCreators: ActionCreators = {
           devworkspaceId !== undefined
         ) {
           try {
-            // inject the kube config
-            await injectKubeConfig(workspace.metadata.namespace, devworkspaceId);
             // inject the 'podman login'
             await podmanLogin(workspace.metadata.namespace, devworkspaceId);
           } catch (e) {

@@ -11,10 +11,10 @@
  */
 
 import * as React from 'react';
+
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
 import { GitConfigSectionUser, Props } from '..';
-import getComponentRenderer, {
-  screen,
-} from '../../../../../services/__mocks__/getComponentRenderer';
 
 jest.mock('../Email');
 jest.mock('../Name');

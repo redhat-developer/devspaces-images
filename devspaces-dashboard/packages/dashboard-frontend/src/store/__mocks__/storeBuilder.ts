@@ -15,20 +15,26 @@ import { CoreV1Event, V1Pod } from '@kubernetes/client-node';
 import { AnyAction } from 'redux';
 import createMockStore, { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import devfileApi from '@/services/devfileApi';
+import mockThunk from '@/store/__mocks__/thunk';
+import { State as BrandingState } from '@/store/Branding';
+import { DevWorkspaceResources, State as DevfileRegistriesState } from '@/store/DevfileRegistries';
+import { RegistryEntry } from '@/store/DockerConfig/types';
+import {
+  ConvertedState,
+  ResolverState,
+  State as FactoryResolverState,
+} from '@/store/FactoryResolver';
+import { IGitOauth } from '@/store/GitOauthConfig/types';
+import { State as InfrastructureNamespaceState } from '@/store/InfrastructureNamespaces';
+import { State as PluginsState } from '@/store/Plugins/chePlugins';
+import { State as LogsState } from '@/store/Pods/Logs';
+import { State as UserProfileState } from '@/store/User/Profile';
+import { State as WorkspacesState } from '@/store/Workspaces';
+
 import { AppState } from '..';
-import { BrandingData } from '../../services/bootstrap/branding.constant';
-import devfileApi from '../../services/devfileApi';
-import { State as BrandingState } from '../Branding';
-import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries';
-import { RegistryEntry } from '../DockerConfig/types';
-import { ConvertedState, ResolverState, State as FactoryResolverState } from '../FactoryResolver';
-import { IGitOauth } from '../GitOauthConfig/types';
-import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';
-import { State as PluginsState } from '../Plugins/chePlugins';
-import { State as LogsState } from '../Pods/Logs';
-import { State as UserProfileState } from '../User/Profile';
-import { State as WorkspacesState } from '../Workspaces';
-import mockThunk from './thunk';
 
 export class FakeStoreBuilder {
   private state: AppState = {

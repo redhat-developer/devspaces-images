@@ -11,11 +11,15 @@
  */
 
 import { V1alpha2DevWorkspaceSpecTemplateComponents } from '@devfile/api';
-import devfileApi, { isDevfileV2 } from '../../../devfileApi';
-import { DevWorkspaceSpecTemplateAttribute } from '../../../devfileApi/devWorkspace/spec/template';
-import { DEVWORKSPACE_DEVFILE, DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
-import { load } from 'js-yaml';
 import { helpers } from '@eclipse-che/common';
+import { load } from 'js-yaml';
+
+import devfileApi, { isDevfileV2 } from '@/services/devfileApi';
+import { DevWorkspaceSpecTemplateAttribute } from '@/services/devfileApi/devWorkspace/spec/template';
+import {
+  DEVWORKSPACE_DEVFILE,
+  DEVWORKSPACE_METADATA_ANNOTATION,
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 export const devfileSchemaVersion = '2.2.0';
 

@@ -10,18 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { MemoryRouter } from 'react-router';
 import { Nav } from '@patternfly/react-core';
-import { Provider } from 'react-redux';
-import { RenderResult, render, screen } from '@testing-library/react';
-import { Store } from 'redux';
-import devfileApi from '../../../services/devfileApi';
-import NavigationRecentList from '../RecentList';
-import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { createHashHistory } from 'history';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router';
+import { Store } from 'redux';
+
+import NavigationRecentList from '@/Layout/Navigation/RecentList';
+import devfileApi from '@/services/devfileApi';
+import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {

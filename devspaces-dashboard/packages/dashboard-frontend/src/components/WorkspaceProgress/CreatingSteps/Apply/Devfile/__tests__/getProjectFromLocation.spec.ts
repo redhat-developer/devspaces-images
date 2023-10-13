@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getProjectFromLocation } from '../getProjectFromLocation';
 import common from '@eclipse-che/common';
+
+import { getProjectFromLocation } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getProjectFromLocation';
 
 describe('FactoryLoaderContainer/getProjectFromLocation', () => {
   describe('unsupported location', () => {

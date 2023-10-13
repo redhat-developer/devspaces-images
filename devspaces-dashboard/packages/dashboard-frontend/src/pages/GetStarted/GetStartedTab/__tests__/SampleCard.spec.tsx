@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
-import { render, screen, RenderResult, fireEvent } from '@testing-library/react';
-import { SampleCard } from '../SampleCard';
+
+import { SampleCard } from '@/pages/GetStarted/GetStartedTab/SampleCard';
 
 describe('Devfile Metadata Card', () => {
   const onCardClick = jest.fn();

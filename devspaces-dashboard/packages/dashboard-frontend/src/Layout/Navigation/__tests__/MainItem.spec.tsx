@@ -10,16 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { render, screen, RenderResult } from '@testing-library/react';
 import { HomeIcon } from '@patternfly/react-icons';
+import { render, RenderResult, screen } from '@testing-library/react';
+import React from 'react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 
-import NavigationMainItem from '../MainItem';
+import NavigationMainItem from '@/Layout/Navigation/MainItem';
+import devfileApi from '@/services/devfileApi';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import { NavigationItemObject } from '..';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { Provider } from 'react-redux';
-import devfileApi from '../../../services/devfileApi';
 
 describe('Navigation Item', () => {
   let activeItem = '';

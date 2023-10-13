@@ -11,14 +11,15 @@
  */
 
 import { dump } from 'js-yaml';
-import devfileApi from '../../../../../../services/devfileApi';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../../services/devfileApi/devWorkspace/spec/template';
-import { generateWorkspaceName } from '../../../../../../services/helpers/generateName';
+
+import { prepareDevfile } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/prepareDevfile';
+import devfileApi from '@/services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { generateWorkspaceName } from '@/services/helpers/generateName';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
-} from '../../../../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { prepareDevfile } from '../prepareDevfile';
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 jest.mock('../../../../../../services/helpers/generateName');
 (generateWorkspaceName as jest.Mock).mockImplementation(name => name + '1234');

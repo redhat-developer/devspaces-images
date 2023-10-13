@@ -11,8 +11,9 @@
  */
 
 import React from 'react';
-import { ContainerLogs } from '../../../store/Pods/Logs';
-import styles from './index.module.css';
+
+import styles from '@/components/WorkspaceLogs/Viewer/index.module.css';
+import { ContainerLogs } from '@/store/Pods/Logs';
 
 const LOGS_CONTAINER_ID = 'output-logs';
 

@@ -15,18 +15,17 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
+
+import { container } from '@/inversify.config';
+import { mockShowAlert } from '@/pages/WorkspaceDetails/__mocks__';
+import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { AlertItem } from '@/services/helpers/types';
+import { AppThunk } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators } from '@/store/GitConfig';
+
 import GitConfig from '..';
-import { container } from '../../../../inversify.config';
-import getComponentRenderer, {
-  screen,
-  waitFor,
-} from '../../../../services/__mocks__/getComponentRenderer';
-import { AppAlerts } from '../../../../services/alerts/appAlerts';
-import { AlertItem } from '../../../../services/helpers/types';
-import { AppThunk } from '../../../../store';
-import { ActionCreators } from '../../../../store/GitConfig';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { mockShowAlert } from '../../../WorkspaceDetails/__mocks__';
 
 jest.mock('../SectionUser');
 

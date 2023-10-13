@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import common from '@eclipse-che/common';
+import axios from 'axios';
 
 export async function fetchData<T>(url: string): Promise<T> {
   try {

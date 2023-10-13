@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import DropdownEditors from '../DropdownEditors';
-import { fireEvent, render, RenderResult, screen, within } from '@testing-library/react';
-import { TargetEditor } from '../SamplesListGallery';
 import { Dropdown, KebabToggle } from '@patternfly/react-core';
+import { fireEvent, render, RenderResult, screen, within } from '@testing-library/react';
+import React from 'react';
+
+import DropdownEditors from '@/pages/GetStarted/GetStartedTab/DropdownEditors';
+import { TargetEditor } from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
 
 const onItemClick = jest.fn();
 

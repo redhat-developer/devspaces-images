@@ -12,15 +12,17 @@
 
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import * as store from '..';
-import { AppState } from '../..';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { token1, token2 } from '@/store/PersonalAccessToken/__tests__/stub';
 import {
+  selectPersonalAccessTokens,
   selectPersonalAccessTokensError,
   selectPersonalAccessTokensIsLoading,
-  selectPersonalAccessTokens,
-} from '../selectors';
-import { token1, token2 } from './stub';
+} from '@/store/PersonalAccessToken/selectors';
+
+import * as store from '..';
 
 describe('Personal Access Token store, selectors', () => {
   afterEach(() => {

@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import common, { helpers } from '@eclipse-che/common';
-import { delay } from './delay';
+import axios from 'axios';
+
+import { delay } from '@/services/helpers/delay';
 
 const MAX_ATTEMPT_QUANTITY = 12;
 const DELAY_TIME = 2500;

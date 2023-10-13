@@ -10,14 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { NavItem } from '@patternfly/react-core';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { NavItem } from '@patternfly/react-core';
+
+import styles from '@/Layout/Navigation/index.module.css';
+import isActive from '@/Layout/Navigation/isActive';
 
 import { NavigationItemObject } from '.';
-import isActive from './isActive';
-
-import styles from './index.module.css';
 
 function NavigationMainItem(props: {
   item: NavigationItemObject;

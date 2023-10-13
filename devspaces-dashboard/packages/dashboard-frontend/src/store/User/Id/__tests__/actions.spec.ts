@@ -13,10 +13,12 @@
 import mockAxios, { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+
 import * as testStore from '..';
-import { AppState } from '../../..';
-import { AUTHORIZED } from '../../../sanityCheckMiddleware';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 
 const cheUserId = 'che-user-id';
 

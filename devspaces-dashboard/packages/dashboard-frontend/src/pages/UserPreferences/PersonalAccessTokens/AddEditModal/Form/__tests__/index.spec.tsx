@@ -13,35 +13,35 @@
 import { api } from '@eclipse-che/common';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { AddEditModalForm } from '..';
-import getComponentRenderer, {
-  screen,
-} from '../../../../../../services/__mocks__/getComponentRenderer';
-import { EditTokenProps } from '../../../types';
+
 import {
-  NEW_GIT_PROVIDER_ENDPOINT,
   INVALID_GIT_PROVIDER_ENDPOINT,
   INVALID_GIT_PROVIDER_ENDPOINT_BUTTON,
+  NEW_GIT_PROVIDER_ENDPOINT,
   NEW_GIT_PROVIDER_ENDPOINT_BUTTON,
-} from '../GitProviderEndpoint/__mocks__';
+} from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderEndpoint/__mocks__';
 import {
-  NEW_GIT_PROVIDER_ORGANIZATION,
   INVALID_GIT_PROVIDER_ORGANIZATION,
-  NEW_GIT_PROVIDER_ORGANIZATION_BUTTON,
   INVALID_GIT_PROVIDER_ORGANIZATION_BUTTON,
-} from '../GitProviderOrganization/__mocks__';
+  NEW_GIT_PROVIDER_ORGANIZATION,
+  NEW_GIT_PROVIDER_ORGANIZATION_BUTTON,
+} from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderOrganization/__mocks__';
 import {
   INVALID_TOKEN_DATA,
   INVALID_TOKEN_DATA_BUTTON,
   NEW_TOKEN_DATA,
   NEW_TOKEN_DATA_BUTTON,
-} from '../TokenData/__mocks__';
+} from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/TokenData/__mocks__';
 import {
   INVALID_TOKEN_NAME,
   INVALID_TOKEN_NAME_BUTTON,
   NEW_TOKEN_NAME,
   NEW_TOKEN_NAME_BUTTON,
-} from '../TokenName/__mocks__';
+} from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/TokenName/__mocks__';
+import { EditTokenProps } from '@/pages/UserPreferences/PersonalAccessTokens/types';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
+import { AddEditModalForm } from '..';
 
 jest.mock('../GitProviderEndpoint');
 jest.mock('../GitProviderOrganization');

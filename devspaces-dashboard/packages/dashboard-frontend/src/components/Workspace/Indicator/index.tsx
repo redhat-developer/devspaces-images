@@ -12,20 +12,20 @@
 
 import {
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
   InProgressIcon,
   ResourcesFullIcon,
-  ExclamationTriangleIcon,
 } from '@patternfly/react-icons';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
+
+import styles from '@/components/Workspace/Indicator/index.module.css';
+import { ColorType, StoppedIcon } from '@/components/WorkspaceStatusLabel';
 import {
+  DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceStatus,
-  DeprecatedWorkspaceStatus,
-} from '../../../services/helpers/types';
-import { ColorType, StoppedIcon } from '../../WorkspaceStatusLabel';
-
-import styles from './index.module.css';
+} from '@/services/helpers/types';
 
 type Props = {
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;

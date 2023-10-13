@@ -11,17 +11,19 @@
  */
 
 import 'reflect-metadata';
+
+import { render, RenderResult, screen } from '@testing-library/react';
+import { createHashHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { RenderResult, render, screen } from '@testing-library/react';
-import { createHashHistory } from 'history';
-import { AppThunk } from '../../store';
 import { Action, Store } from 'redux';
-import { ActionCreators } from '../../store/Workspaces';
-import WorkspacesList from '../WorkspacesList';
-import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
-import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
-import { Workspace } from '../../services/workspace-adapter';
+
+import WorkspacesList from '@/containers/WorkspacesList';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators } from '@/store/Workspaces';
 
 jest.mock('../../store/Workspaces/index', () => {
   return {

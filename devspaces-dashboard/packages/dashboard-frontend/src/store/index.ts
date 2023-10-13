@@ -12,28 +12,29 @@
 
 import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
-import * as BannerAlertStore from './BannerAlert';
-import * as BrandingStore from './Branding';
-import * as ClusterConfig from './ClusterConfig';
-import * as ClusterInfo from './ClusterInfo';
-import * as DevWorkspacesStore from './Workspaces/devWorkspaces';
-import * as DevfileRegistriesStore from './DevfileRegistries';
-import * as DockerConfigStore from './DockerConfig';
-import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
-import * as DwServerConfigStore from './ServerConfig';
-import * as EventsStore from './Events';
-import * as FactoryResolverStore from './FactoryResolver';
-import * as GitConfigStore from './GitConfig';
-import * as GitOauthConfigStore from './GitOauthConfig';
-import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
-import * as LogsStore from './Pods/Logs';
-import * as PersonalAccessToken from './PersonalAccessToken';
-import * as PluginsStore from './Plugins/chePlugins';
-import * as PodsStore from './Pods';
-import * as SanityCheckStore from './SanityCheck';
-import * as UserIdStore from './User/Id';
-import * as UserProfileStore from './User/Profile';
-import * as WorkspacesStore from './Workspaces';
+
+import * as BannerAlertStore from '@/store/BannerAlert';
+import * as BrandingStore from '@/store/Branding';
+import * as ClusterConfig from '@/store/ClusterConfig';
+import * as ClusterInfo from '@/store/ClusterInfo';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
+import * as DockerConfigStore from '@/store/DockerConfig';
+import * as EventsStore from '@/store/Events';
+import * as FactoryResolverStore from '@/store/FactoryResolver';
+import * as GitConfigStore from '@/store/GitConfig';
+import * as GitOauthConfigStore from '@/store/GitOauthConfig';
+import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces';
+import * as PersonalAccessToken from '@/store/PersonalAccessToken';
+import * as PluginsStore from '@/store/Plugins/chePlugins';
+import * as DwPluginsStore from '@/store/Plugins/devWorkspacePlugins';
+import * as PodsStore from '@/store/Pods';
+import * as LogsStore from '@/store/Pods/Logs';
+import * as SanityCheckStore from '@/store/SanityCheck';
+import * as DwServerConfigStore from '@/store/ServerConfig';
+import * as UserIdStore from '@/store/User/Id';
+import * as UserProfileStore from '@/store/User/Profile';
+import * as WorkspacesStore from '@/store/Workspaces';
+import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
 
 // the top-level state object
 export interface AppState {

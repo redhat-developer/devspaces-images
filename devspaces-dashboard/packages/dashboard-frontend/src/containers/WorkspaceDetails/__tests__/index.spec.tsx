@@ -10,21 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import { Provider } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
+
+import { ROUTE } from '@/Routes/routes';
+import { getMockRouterProps } from '@/services/__mocks__/router';
+import { constructWorkspace, WorkspaceAdapter } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators, actionCreators as workspacesActionCreators } from '@/store/Workspaces';
+
 import WorkspaceDetailsContainer from '..';
-import { getMockRouterProps } from '../../../services/__mocks__/router';
-import { ROUTE } from '../../../Routes/routes';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { constructWorkspace, WorkspaceAdapter } from '../../../services/workspace-adapter';
-import {
-  ActionCreators,
-  actionCreators as workspacesActionCreators,
-} from '../../../store/Workspaces';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 
 const mockUpdateWorkspace = jest.fn();
 

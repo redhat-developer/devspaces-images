@@ -18,20 +18,22 @@ import { dump } from 'js-yaml';
 import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
+
+import { container } from '@/inversify.config';
+import { fetchServerConfig } from '@/services/backend-client/serverConfigApi';
+import { WebsocketClient } from '@/services/backend-client/websocketClient';
+import devfileApi from '@/services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import { AppState } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+import * as ServerConfigStore from '@/store/ServerConfig';
+import { checkRunningWorkspacesLimit } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
+
 import * as testStore from '..';
-import { AppState } from '../../..';
-import { container } from '../../../../inversify.config';
-import { FactoryParams } from '../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { fetchServerConfig } from '../../../../services/backend-client/serverConfigApi';
-import { WebsocketClient } from '../../../../services/backend-client/websocketClient';
-import devfileApi from '../../../../services/devfileApi';
-import { DevWorkspaceClient } from '../../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { AUTHORIZED } from '../../../sanityCheckMiddleware';
-import * as ServerConfigStore from '../../../ServerConfig';
-import { DevWorkspaceBuilder } from '../../../__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
-import { checkRunningWorkspacesLimit } from '../checkRunningWorkspacesLimit';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../services/devfileApi/devWorkspace/spec/template';
 
 jest.mock('../../../../services/backend-client/serverConfigApi');
 jest.mock('../../../../services/helpers/delay', () => ({
@@ -535,6 +537,10 @@ describe('DevWorkspace store, actions', () => {
                     {
                       name: 'CHE_DASHBOARD_URL',
                       value: 'http://localhost',
+                    },
+                    {
+                      name: 'KUBECONFIG',
+                      value: '/tmp/.kube/config',
                     },
                     {
                       name: 'CHE_PLUGIN_REGISTRY_URL',

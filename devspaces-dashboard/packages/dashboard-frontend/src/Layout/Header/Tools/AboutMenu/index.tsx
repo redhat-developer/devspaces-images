@@ -10,15 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import {
   ApplicationLauncher,
   ApplicationLauncherGroup,
   ApplicationLauncherItem,
 } from '@patternfly/react-core';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
-import { AboutModal } from './Modal';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+import React from 'react';
+
+import { AboutModal } from '@/Layout/Header/Tools/AboutMenu/Modal';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
 
 type Props = {
   branding: BrandingData;

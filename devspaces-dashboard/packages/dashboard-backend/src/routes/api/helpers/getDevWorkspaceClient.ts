@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DwClientProvider } from '../../../services/kubeclient/dwClientProvider';
-import { DevWorkspaceClient } from '../../../devworkspaceClient';
+import { DevWorkspaceClient } from '@/devworkspaceClient';
+import { DwClientProvider } from '@/services/kubeclient/dwClientProvider';
 
 /**
  * Creates DevWorkspace Client depending on the context for the specified request.

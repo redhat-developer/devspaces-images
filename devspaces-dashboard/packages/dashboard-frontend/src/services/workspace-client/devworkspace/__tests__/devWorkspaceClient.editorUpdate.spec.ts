@@ -10,13 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { container } from '../../../../inversify.config';
-import { DevWorkspaceClient } from '../devWorkspaceClient';
 import mockAxios from 'axios';
-import { dashboardBackendPrefix } from '../../../backend-client/const';
-import getDevWorkspaceTemplate from './__mocks__/devWorkspaceSpecTemplates';
-import devfileApi from '../../../devfileApi';
-import * as DwtApi from '../../../backend-client/devWorkspaceTemplateApi';
+
+import { container } from '@/inversify.config';
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
+import devfileApi from '@/services/devfileApi';
+import getDevWorkspaceTemplate from '@/services/workspace-client/devworkspace/__tests__/__mocks__/devWorkspaceSpecTemplates';
+import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 describe('DevWorkspace client editor update', () => {
   const namespace = 'admin-che';

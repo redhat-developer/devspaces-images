@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DevWorkspaceStatus, isDevWorkspaceStatus } from '../types';
+import { DevWorkspaceStatus, isDevWorkspaceStatus } from '@/services/helpers/types';
 
 describe('typeguards', () => {
   describe('isDevWorkspaceStatus', () => {

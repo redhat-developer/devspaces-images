@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { FormGroup, TextInput, ValidatedOptions } from '@patternfly/react-core';
+import React from 'react';
 
 const MAX_LENGTH = 100;
 const ERROR_MAX_LENGTH = `The username is too long. The maximum length is ${MAX_LENGTH} characters.`;

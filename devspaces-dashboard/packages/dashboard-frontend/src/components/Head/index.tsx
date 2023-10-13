@@ -13,8 +13,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect, ConnectedProps } from 'react-redux';
-import { AppState } from '../../store';
-import { selectBranding } from '../../store/Branding/selectors';
+
+import { AppState } from '@/store';
+import { selectBranding } from '@/store/Branding/selectors';
 
 type Props = MappedProps & {
   pageName?: string;

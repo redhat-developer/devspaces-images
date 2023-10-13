@@ -13,18 +13,22 @@
 import { V221DevfileComponents } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
+import { readFileSync } from 'fs';
+import path from 'path';
+
+import { startTimeoutSeconds } from '@/constants/server-config';
+import { createError } from '@/devworkspaceClient/services/helpers/createError';
+import {
+  CustomObjectAPI,
+  prepareCustomObjectAPI,
+} from '@/devworkspaceClient/services/helpers/prepareCustomObjectAPI';
 import {
   CustomResourceDefinition,
   CustomResourceDefinitionList,
   CustomResourceDefinitionSpecDevEnvironments,
   IServerConfigApi,
-} from '../types';
-import { createError } from './helpers/createError';
-import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
-import { startTimeoutSeconds } from '../../constants/server-config';
-import { isLocalRun } from '../../localRun';
-import { readFileSync } from 'fs';
-import path from 'path';
+} from '@/devworkspaceClient/types';
+import { isLocalRun } from '@/localRun';
 
 const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 

@@ -10,20 +10,22 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Action, Store } from 'redux';
-import { Provider } from 'react-redux';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import WorkspaceActionsProvider from '../Provider';
-import { WorkspaceAction } from '../../../services/helpers/types';
-import { ActionContextType, WorkspaceActionsConsumer } from '..';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { ActionCreators } from '../../../store/Workspaces';
-import { AppThunk } from '../../../store';
-import { Workspace } from '../../../services/workspace-adapter';
 import { createHashHistory } from 'history';
-import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Action, Store } from 'redux';
+
+import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
+import { WorkspaceAction } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
+import { AppThunk } from '@/store';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators } from '@/store/Workspaces';
+
+import { ActionContextType, WorkspaceActionsConsumer } from '..';
 
 jest.mock('../../../store/Workspaces/index', () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */

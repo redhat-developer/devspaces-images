@@ -13,7 +13,8 @@
 import { FormGroup, TextInput, ValidatedOptions } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import React from 'react';
-import { InputGroupExtended } from '../../../../../components/InputGroupExtended';
+
+import { InputGroupExtended } from '@/components/InputGroupExtended';
 
 const ERROR_REQUIRED_VALUE = 'A value is required.';
 const MAX_LENGTH = 128;

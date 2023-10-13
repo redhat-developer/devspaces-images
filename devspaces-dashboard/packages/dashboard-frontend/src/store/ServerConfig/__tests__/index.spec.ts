@@ -13,11 +13,12 @@
 import mockAxios from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { AppState } from '../..';
-import { AUTHORIZED } from '../../sanityCheckMiddleware';
-import * as dwServerConfigStore from '../../ServerConfig';
-import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
-import { serverConfig } from './stubs';
+
+import { AppState } from '@/store';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
+import * as dwServerConfigStore from '@/store/ServerConfig';
+import { serverConfig } from '@/store/ServerConfig/__tests__/stubs';
 
 // mute the outputs
 console.error = jest.fn();

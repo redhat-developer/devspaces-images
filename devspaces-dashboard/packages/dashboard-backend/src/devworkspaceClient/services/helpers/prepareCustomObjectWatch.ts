@@ -11,7 +11,8 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
-import { retryableExec } from './retryableExec';
+
+import { retryableExec } from '@/devworkspaceClient/services/helpers/retryableExec';
 
 export function prepareCustomObjectWatch(kc: k8s.KubeConfig): k8s.Watch {
   const customObjectWatch = new k8s.Watch(kc);

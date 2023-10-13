@@ -11,7 +11,8 @@
  */
 
 import * as devfileConverter from '@eclipse-che/devfile-converter';
-import devfileApi from '../devfileApi';
+
+import devfileApi from '@/services/devfileApi';
 
 export async function convertDevfileV2toDevfileV1(
   devfile: devfileApi.Devfile,

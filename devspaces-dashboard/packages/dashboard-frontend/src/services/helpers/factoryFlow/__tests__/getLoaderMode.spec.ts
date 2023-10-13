@@ -11,7 +11,8 @@
  */
 
 import { Location } from 'history';
-import { getLoaderMode, LoaderMode } from '../getLoaderMode';
+
+import { getLoaderMode, LoaderMode } from '@/services/helpers/factoryFlow/getLoaderMode';
 
 describe('getLoaderMode', () => {
   const namespace = 'user-che';

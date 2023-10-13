@@ -19,8 +19,8 @@ import {
 } from '@patternfly/react-icons';
 import React from 'react';
 
-import overviewStyles from '../index.module.css';
-import workspaceNameStyles from './index.module.css';
+import overviewStyles from '@/pages/WorkspaceDetails/OverviewTab/index.module.css';
+import workspaceNameStyles from '@/pages/WorkspaceDetails/OverviewTab/WorkspaceName/index.module.css';
 
 const MIN_LENGTH = 3;
 const MAX_LENGTH = 100;

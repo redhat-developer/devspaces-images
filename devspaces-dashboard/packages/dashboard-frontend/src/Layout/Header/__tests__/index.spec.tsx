@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Brand } from '@patternfly/react-core';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { createHashHistory } from 'history';
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { fireEvent, render, screen } from '@testing-library/react';
+
 import Header from '..';
-import { Brand } from '@patternfly/react-core';
 
 jest.mock('../Tools', () => {
   const FakeTools = (props: { logout: () => void; changeTheme: () => void }) => (

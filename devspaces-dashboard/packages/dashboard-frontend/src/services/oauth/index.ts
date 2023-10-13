@@ -11,9 +11,10 @@
  */
 
 import common, { helpers } from '@eclipse-che/common';
-import { OAuthResponse } from '../../store/FactoryResolver';
-import devfileApi from '../devfileApi';
-import { refreshFactoryOauthToken } from '../backend-client/factoryApi';
+
+import { refreshFactoryOauthToken } from '@/services/backend-client/factoryApi';
+import devfileApi from '@/services/devfileApi';
+import { OAuthResponse } from '@/store/FactoryResolver';
 
 export default class OAuthService {
   static openOAuthPage(authenticationUrl: string, redirectUrl: string): void {

@@ -10,13 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import renderer from 'react-test-renderer';
-import { RegistryEntry } from '../../../../../store/DockerConfig/types';
-import EditRegistryModal from '../EditRegistryModal';
-import { FakeRegistryBuilder } from '../../__tests__/__mocks__/registryRowBuilder';
+
+import { FakeRegistryBuilder } from '@/pages/UserPreferences/ContainerRegistriesTab/__tests__/__mocks__/registryRowBuilder';
+import EditRegistryModal from '@/pages/UserPreferences/ContainerRegistriesTab/Modals/EditRegistryModal';
+import { RegistryEntry } from '@/store/DockerConfig/types';
 
 describe('Edit Registry Modal', () => {
   const mockOnChange = jest.fn();

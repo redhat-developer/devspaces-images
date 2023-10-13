@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { dockerConfigExample, devWorkspaceResourcesExample } from './examples';
 import { JSONSchema7 } from 'json-schema';
+
+import { devWorkspaceResourcesExample, dockerConfigExample } from '@/constants/examples';
 
 export const authenticationHeaderSchema: JSONSchema7 = {
   type: 'object',
@@ -28,11 +29,8 @@ export const namespacedKubeConfigSchema: JSONSchema7 = {
     namespace: {
       type: 'string',
     },
-    devworkspaceId: {
-      type: 'string',
-    },
   },
-  required: ['namespace', 'devworkspaceId'],
+  required: ['namespace'],
 };
 
 export const namespacedWorkspaceSchema: JSONSchema7 = {

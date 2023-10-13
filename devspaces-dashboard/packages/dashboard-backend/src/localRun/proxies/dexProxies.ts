@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance } from 'fastify';
 import fastifyHttpProxy from '@fastify/http-proxy';
+import { FastifyInstance } from 'fastify';
 
 export function registerDexProxies(server: FastifyInstance, dexIngress: string) {
   server.register(fastifyHttpProxy, {

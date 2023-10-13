@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isDevfileMetaData } from './types';
+import common from '@eclipse-che/common';
+
+import { fetchData } from '@/services/registry/fetchData';
+import { isDevfileMetaData } from '@/services/registry/types';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
 
 const EXPIRATION_TIME_FOR_STORED_METADATA = 60 * 60 * 1000; // expiration time in milliseconds
-
-import { fetchData } from './fetchData';
-import SessionStorageService, { SessionStorageKey } from '../session-storage';
-import common from '@eclipse-che/common';
 
 export class DevfileMetaDataIsNotArrayError extends Error {
   public location: string;

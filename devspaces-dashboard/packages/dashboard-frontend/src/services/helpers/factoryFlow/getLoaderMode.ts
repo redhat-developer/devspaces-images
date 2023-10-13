@@ -12,7 +12,8 @@
 
 import { Location } from 'history';
 import { matchPath } from 'react-router-dom';
-import { ROUTE, WorkspaceParams } from '../../../Routes/routes';
+
+import { ROUTE, WorkspaceParams } from '@/Routes/routes';
 
 export type LoaderMode =
   | { mode: 'factory' }

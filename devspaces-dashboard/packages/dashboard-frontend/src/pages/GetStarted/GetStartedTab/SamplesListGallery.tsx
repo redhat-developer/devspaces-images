@@ -10,12 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import {
   Alert,
   AlertActionCloseButton,
   AlertGroup,
+  AlertVariant,
   Button,
   EmptyState,
   EmptyStateBody,
@@ -24,20 +23,19 @@ import {
   EmptyStateVariant,
   Gallery,
   Title,
-  AlertVariant,
 } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
-import { AppState } from '../../../store';
-import * as DevfileRegistriesStore from '../../../store/DevfileRegistries';
-import { SampleCard } from './SampleCard';
-import { AlertItem } from '../../../services/helpers/types';
-import {
-  EMPTY_WORKSPACE_TAG,
-  selectMetadataFiltered,
-} from '../../../store/DevfileRegistries/selectors';
-import * as FactoryResolverStore from '../../../store/FactoryResolver';
-import { selectDefaultEditor } from '../../../store/Plugins/devWorkspacePlugins/selectors';
-import { selectEditors } from '../../../store/Plugins/chePlugins/selectors';
+import React from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+
+import { SampleCard } from '@/pages/GetStarted/GetStartedTab/SampleCard';
+import { AlertItem } from '@/services/helpers/types';
+import { AppState } from '@/store';
+import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
+import { EMPTY_WORKSPACE_TAG, selectMetadataFiltered } from '@/store/DevfileRegistries/selectors';
+import * as FactoryResolverStore from '@/store/FactoryResolver';
+import { selectEditors } from '@/store/Plugins/chePlugins/selectors';
+import { selectDefaultEditor } from '@/store/Plugins/devWorkspacePlugins/selectors';
 
 export type TargetEditor = {
   id: string;

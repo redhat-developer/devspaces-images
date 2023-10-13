@@ -10,10 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { FormGroup } from '@patternfly/react-core';
+import React from 'react';
 
-import overviewStyles from './index.module.css';
+import overviewStyles from '@/pages/WorkspaceDetails/OverviewTab/index.module.css';
 
 type Props = {
   namespace: string;

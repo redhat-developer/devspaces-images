@@ -11,13 +11,18 @@
  */
 
 import React from 'react';
+
+import {
+  ProgressStep,
+  ProgressStepProps,
+  ProgressStepState,
+} from '@/components/WorkspaceProgress/ProgressStep';
+import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import {
   buildFactoryParams,
   FactoryParams,
-} from '../../../../services/helpers/factoryFlow/buildFactoryParams';
-import { AlertItem } from '../../../../services/helpers/types';
-import { ProgressStep, ProgressStepProps, ProgressStepState } from '../../ProgressStep';
-import { ProgressStepTitle } from '../../StepTitle';
+} from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { AlertItem } from '@/services/helpers/types';
 
 export type Props = ProgressStepProps & {
   searchParams: URLSearchParams;

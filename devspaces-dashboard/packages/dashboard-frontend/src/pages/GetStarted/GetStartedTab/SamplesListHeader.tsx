@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
 import { Text, TextContent, TextVariants } from '@patternfly/react-core';
+import React from 'react';
 
 const TITLE = 'Select a Sample';
 const DESCRIPTION = 'Select a sample to create your first workspace.';

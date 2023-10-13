@@ -10,9 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { fetchRegistryMetadata, resolveLinks, resolveTags, updateObjectLinks } from '../devfiles';
-import SessionStorageService, { SessionStorageKey } from '../../session-storage';
 import common from '@eclipse-che/common';
+
+import {
+  fetchRegistryMetadata,
+  resolveLinks,
+  resolveTags,
+  updateObjectLinks,
+} from '@/services/registry/devfiles';
+import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
 
 const mockFetchData = jest.fn();
 jest.mock('../fetchData', () => {

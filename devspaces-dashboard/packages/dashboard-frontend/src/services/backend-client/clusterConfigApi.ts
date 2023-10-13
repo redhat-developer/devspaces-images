@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
 import common, { ClusterConfig } from '@eclipse-che/common';
-import { dashboardBackendPrefix } from './const';
+import axios from 'axios';
+
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
 
 export async function fetchClusterConfig(): Promise<ClusterConfig> {
   try {

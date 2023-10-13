@@ -13,9 +13,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
+
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
 import Head from '..';
-import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 
 jest.mock('react-helmet', () => {
   const Helmet = (props: { children: React.ReactElement[] }) => {

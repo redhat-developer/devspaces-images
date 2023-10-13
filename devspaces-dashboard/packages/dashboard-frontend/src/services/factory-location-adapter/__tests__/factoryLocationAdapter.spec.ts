@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FactoryLocation, FactoryLocationAdapter } from '../';
 import common from '@eclipse-che/common';
+
+import { FactoryLocation, FactoryLocationAdapter } from '@/services/factory-location-adapter';
 
 describe('FactoryLocationAdapter Service', () => {
   let factoryLocation: FactoryLocation;

@@ -11,7 +11,17 @@
  */
 
 import 'reflect-metadata';
-import React from 'react';
+
+import common from '@eclipse-che/common';
+import {
+  AlertVariant,
+  Divider,
+  PageSection,
+  PageSectionVariants,
+  Text,
+  TextContent,
+} from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import {
   classNames,
   IAction,
@@ -26,30 +36,21 @@ import {
   Visibility,
 } from '@patternfly/react-table';
 import { History, Location } from 'history';
-import {
-  AlertVariant,
-  Divider,
-  PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
-} from '@patternfly/react-core';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
-import common from '@eclipse-che/common';
-import { BrandingData } from '../../services/bootstrap/branding.constant';
-import { DevWorkspaceStatus, WorkspaceAction } from '../../services/helpers/types';
-import Head from '../../components/Head';
-import { buildGettingStartedLocation } from '../../services/helpers/location';
-import { AppAlerts } from '../../services/alerts/appAlerts';
-import getRandomString from '../../services/helpers/random';
-import WorkspacesListToolbar from './Toolbar';
-import { lazyInject } from '../../inversify.config';
-import NoWorkspacesEmptyState from './EmptyState/NoWorkspaces';
-import NothingFoundEmptyState from './EmptyState/NothingFound';
-import { buildRows, RowData } from './Rows';
-import { Workspace } from '../../services/workspace-adapter';
+import React from 'react';
 
-import styles from './index.module.css';
+import Head from '@/components/Head';
+import { lazyInject } from '@/inversify.config';
+import NothingFoundEmptyState from '@/pages/WorkspacesList/EmptyState/NothingFound';
+import NoWorkspacesEmptyState from '@/pages/WorkspacesList/EmptyState/NoWorkspaces';
+import styles from '@/pages/WorkspacesList/index.module.css';
+import { buildRows, RowData } from '@/pages/WorkspacesList/Rows';
+import WorkspacesListToolbar from '@/pages/WorkspacesList/Toolbar';
+import { AppAlerts } from '@/services/alerts/appAlerts';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { buildGettingStartedLocation } from '@/services/helpers/location';
+import getRandomString from '@/services/helpers/random';
+import { DevWorkspaceStatus, WorkspaceAction } from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
 
 type Props = {
   branding: BrandingData;

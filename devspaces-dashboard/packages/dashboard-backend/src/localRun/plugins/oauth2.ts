@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance } from 'fastify';
 import oauth2Plugin, { OAuth2Namespace } from '@fastify/oauth2';
+import { FastifyInstance } from 'fastify';
 
 declare module 'fastify' {
   interface FastifyInstance {
