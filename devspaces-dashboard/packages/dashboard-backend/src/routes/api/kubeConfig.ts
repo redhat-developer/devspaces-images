@@ -24,7 +24,7 @@ const tags = ['Kube Config'];
 export function registerKubeConfigRoute(instance: FastifyInstance) {
   instance.register(async server => {
     server.post(
-      `${baseApiPath}/namespace/:namespace/kubeconfig`,
+      `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/kubeconfig`,
       getSchema({
         tags,
         params: namespacedKubeConfigSchema,
@@ -38,8 +38,8 @@ export function registerKubeConfigRoute(instance: FastifyInstance) {
       async function (request: FastifyRequest, reply: FastifyReply) {
         const token = getToken(request);
         const { kubeConfigApi } = getDevWorkspaceClient(token);
-        const { namespace } = request.params as restParams.INamespacedPodParams;
-        await kubeConfigApi.applyKubeConfigSecret(namespace);
+        const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
+        await kubeConfigApi.injectKubeConfig(namespace, devworkspaceId);
         reply.code(204);
         return reply.send();
       },

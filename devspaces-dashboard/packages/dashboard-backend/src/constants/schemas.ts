@@ -29,8 +29,11 @@ export const namespacedKubeConfigSchema: JSONSchema7 = {
     namespace: {
       type: 'string',
     },
+    devworkspaceId: {
+      type: 'string',
+    },
   },
-  required: ['namespace'],
+  required: ['namespace', 'devworkspaceId'],
 };
 
 export const namespacedWorkspaceSchema: JSONSchema7 = {

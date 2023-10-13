@@ -16,7 +16,7 @@ import {
   V1alpha2DevWorkspaceTemplateSpecComponents,
   V221DevfileComponentsItemsContainer,
 } from '@devfile/api';
-import { api, KUBECONFIG_MOUNT_PATH } from '@eclipse-che/common';
+import { api } from '@eclipse-che/common';
 import { inject, injectable } from 'inversify';
 import { load } from 'js-yaml';
 import { cloneDeep, isEqual } from 'lodash';
@@ -85,7 +85,6 @@ export class DevWorkspaceClient {
   private readonly clusterConsoleTitleEnvName: string;
   private readonly openVSXUrlEnvName: string;
   private readonly dashboardUrlEnvName: string;
-  private readonly kubeconfigEnvName: string;
   private readonly defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler;
 
   constructor(
@@ -99,7 +98,6 @@ export class DevWorkspaceClient {
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
     this.clusterConsoleUrlEnvName = 'CLUSTER_CONSOLE_URL';
     this.clusterConsoleTitleEnvName = 'CLUSTER_CONSOLE_TITLE';
-    this.kubeconfigEnvName = 'KUBECONFIG';
     this.defaultPluginsHandler = defaultPluginsHandler;
   }
 
@@ -267,16 +265,11 @@ export class DevWorkspaceClient {
           env.name !== this.pluginRegistryInternalUrlEnvName &&
           env.name !== this.clusterConsoleUrlEnvName &&
           env.name !== this.clusterConsoleTitleEnvName &&
-          env.name !== this.openVSXUrlEnvName &&
-          env.name !== this.kubeconfigEnvName,
+          env.name !== this.openVSXUrlEnvName,
       );
       envs.push({
         name: this.dashboardUrlEnvName,
         value: dashboardUrl,
-      });
-      envs.push({
-        name: this.kubeconfigEnvName,
-        value: `${KUBECONFIG_MOUNT_PATH}/config`,
       });
       if (pluginRegistryUrl !== undefined) {
         envs.push({

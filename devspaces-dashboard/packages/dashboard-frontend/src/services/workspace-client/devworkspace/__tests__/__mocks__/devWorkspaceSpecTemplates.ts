@@ -45,10 +45,6 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
                 value: 'http://localhost',
               },
               {
-                name: 'KUBECONFIG',
-                value: '/tmp/.kube/config',
-              },
-              {
                 name: 'CHE_PLUGIN_REGISTRY_URL',
                 value: 'plugin-registry-url',
               },
@@ -88,10 +84,6 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
                 value: 'http://localhost',
               },
               {
-                name: 'KUBECONFIG',
-                value: '/tmp/.kube/config',
-              },
-              {
                 name: 'CHE_PLUGIN_REGISTRY_URL',
                 value: 'plugin-registry-url',
               },
@@ -119,10 +111,6 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
               {
                 name: 'CHE_DASHBOARD_URL',
                 value: 'http://localhost',
-              },
-              {
-                name: 'KUBECONFIG',
-                value: '/tmp/.kube/config',
               },
               {
                 name: 'CHE_PLUGIN_REGISTRY_URL',

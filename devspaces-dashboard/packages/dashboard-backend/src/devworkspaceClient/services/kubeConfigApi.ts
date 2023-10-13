@@ -10,18 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { helpers, KUBECONFIG_MOUNT_PATH } from '@eclipse-che/common';
+import { helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
-import { V1Secret } from '@kubernetes/client-node';
 
-import { ServerConfig } from '@/devworkspaceClient/services/helpers/exec';
+import { exec, ServerConfig } from '@/devworkspaceClient/services/helpers/exec';
 import {
   CoreV1API,
   prepareCoreV1API,
 } from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
 import { IKubeConfigApi } from '@/devworkspaceClient/types';
 
-const KUBECONFIG_SECRET_NAME = 'kubeconfig';
+const EXCLUDED_CONTAINERS = ['che-gateway', 'che-machine-exec'];
 
 export class KubeConfigApiService implements IKubeConfigApi {
   private readonly corev1API: CoreV1API;
@@ -40,46 +39,156 @@ export class KubeConfigApiService implements IKubeConfigApi {
   }
 
   /**
-   * Creates or replaces kubeconfig Secret to be mounted into all containers in a namespace.
+   * Inject the kubeconfig into all containers with the given name in the namespace
    * @param namespace The namespace where the pod lives
+   * @param devworkspaceId The id of the devworkspace
    */
-  async applyKubeConfigSecret(namespace: string): Promise<void> {
-    const kubeConfig = this.setNamespaceInContext(this.kubeConfig, namespace);
-    const kubeConfigSecret = {
-      apiVersion: 'v1',
-      data: { config: Buffer.from(kubeConfig, 'binary').toString('base64') },
-      metadata: {
-        name: KUBECONFIG_SECRET_NAME,
-        labels: {
-          'controller.devfile.io/mount-to-devworkspace': 'true',
-          'controller.devfile.io/watch-secret': 'true',
-        },
-        annotations: {
-          'controller.devfile.io/mount-as': 'file',
-          'controller.devfile.io/mount-path': KUBECONFIG_MOUNT_PATH,
-        },
-      },
-      kind: 'Secret',
-    } as V1Secret;
+  async injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void> {
+    const currentPod = await this.getPodByDevWorkspaceId(namespace, devworkspaceId);
+    const podName = currentPod.metadata?.name || '';
+    const currentPodContainers = currentPod.spec?.containers || [];
 
-    try {
-      await this.corev1API.readNamespacedSecret(KUBECONFIG_SECRET_NAME, namespace);
-      await this.corev1API.replaceNamespacedSecret(
-        KUBECONFIG_SECRET_NAME,
-        namespace,
-        kubeConfigSecret,
-      );
-    } catch (error) {
-      if (helpers.errors.isKubeClientError(error) && error.statusCode === 404) {
-        await this.corev1API.createNamespacedSecret(namespace, kubeConfigSecret);
-        return;
+    let resolved = false;
+    for (const container of currentPodContainers) {
+      const containerName = container.name;
+      if (EXCLUDED_CONTAINERS.indexOf(containerName) !== -1) {
+        continue;
       }
 
-      console.error('Failed to create kubeconfig Secret', error);
+      try {
+        // find the directory where we should create the kubeconfig
+        const kubeConfigDirectory = await this.resolveDirectory(podName, namespace, containerName);
+        if (kubeConfigDirectory === '') {
+          console.log(
+            `Could not find appropriate kubeconfig directory for ${namespace}/${podName}/${containerName}`,
+          );
+          continue;
+        }
+
+        // then create the directory if it doesn't exist
+        await exec(
+          podName,
+          namespace,
+          containerName,
+          ['sh', '-c', `mkdir -p ${kubeConfigDirectory}`],
+          this.getServerConfig(),
+        );
+
+        // if -f ${kubeConfigDirectory}/config is not found then sync kubeconfig to the container
+        const kubeConfig = this.setNamespaceInContext(this.kubeConfig, namespace);
+        await exec(
+          podName,
+          namespace,
+          containerName,
+          [
+            'sh',
+            '-c',
+            `[ -f ${kubeConfigDirectory}/config ] || echo '${kubeConfig}' > ${kubeConfigDirectory}/config`,
+          ],
+          this.getServerConfig(),
+        );
+
+        if (!resolved) {
+          resolved = true;
+        }
+      } catch (e) {
+        console.warn(helpers.errors.getMessage(e));
+      }
+    }
+    if (!resolved) {
+      throw new Error(`Could not add kubeconfig into containers in ${namespace}`);
+    }
+  }
+
+  /**
+   * Given a namespace, find a pod that has the label controller.devfile.io/devworkspace_id=${devworkspaceId}
+   * @param namespace The namespace to look in
+   * @param devworkspaceId The id of the devworkspace
+   * @returns The containers for the first pod with given devworkspaceId
+   */
+  private async getPodByDevWorkspaceId(
+    namespace: string,
+    devworkspaceId: string,
+  ): Promise<k8s.V1Pod> {
+    try {
+      const resp = await this.corev1API.listNamespacedPod(
+        namespace,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        `controller.devfile.io/devworkspace_id=${devworkspaceId}`,
+      );
+      if (resp.body.items.length === 0) {
+        throw new Error(
+          `Could not find requested devworkspace with id ${devworkspaceId} in ${namespace}`,
+        );
+      }
+      return resp.body.items[0];
+    } catch (e: any) {
       throw new Error(
-        `Could not create ${KUBECONFIG_SECRET_NAME} Secret in ${namespace} namespace`,
+        `Error occurred when attempting to retrieve pod. ${helpers.errors.getMessage(e)}`,
       );
     }
+  }
+
+  /**
+   * Resolve the directory where the kubeconfig is going to live. First it looks for the $KUBECONFIG env variable if
+   * that is found then use that. If that is not found then the default directory is $HOME/.kube
+   * @param name The name of the pod
+   * @param namespace The namespace where the pod lives
+   * @param containerName The name of the container to resolve the directory for
+   * @returns A promise of the directory where the kubeconfig is going to live
+   */
+  private async resolveDirectory(
+    name: string,
+    namespace: string,
+    containerName: string,
+  ): Promise<string> {
+    try {
+      // attempt to resolve the kubeconfig env variable
+      const kubeConfigEnvResolver = await exec(
+        name,
+        namespace,
+        containerName,
+        ['sh', '-c', 'printenv KUBECONFIG'],
+        this.getServerConfig(),
+      );
+
+      if (kubeConfigEnvResolver.stdOut) {
+        return kubeConfigEnvResolver.stdOut.replace(new RegExp('/config$'), '');
+      }
+    } catch (e) {
+      const message = helpers.errors.getMessage(e);
+      console.error(
+        `Failed to run command 'printenv KUBECONFIG' in '${namespace}/${name}/${containerName}' with message: '${message}'`,
+      );
+    }
+
+    try {
+      // attempt to resolve the home directory
+      const homeEnvResolution = await exec(
+        name,
+        namespace,
+        containerName,
+        ['sh', '-c', 'printenv HOME'],
+        this.getServerConfig(),
+      );
+
+      if (homeEnvResolution.stdOut) {
+        if (homeEnvResolution.stdOut.substr(-1) === '/') {
+          return homeEnvResolution.stdOut + '.kube';
+        } else {
+          return homeEnvResolution.stdOut + '/.kube';
+        }
+      }
+    } catch (e) {
+      const message = helpers.errors.getMessage(e);
+      console.error(
+        `Failed to run command 'printenv HOME' in '${namespace}/${name}/${containerName}' with message: '${message}'`,
+      );
+    }
+    return '';
   }
 
   private setNamespaceInContext(kubeConfig: string, namespace: string): string {

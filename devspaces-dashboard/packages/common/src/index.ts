@@ -20,7 +20,6 @@ export { helpers, api };
 
 export const FACTORY_LINK_ATTR = 'factoryLink';
 export const ERROR_CODE_ATTR = 'error_code';
-export const KUBECONFIG_MOUNT_PATH = '/tmp/.kube';
 
 const common = {
   helpers,

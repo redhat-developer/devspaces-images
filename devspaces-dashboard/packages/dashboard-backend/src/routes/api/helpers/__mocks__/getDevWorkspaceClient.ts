@@ -149,7 +149,7 @@ export function getDevWorkspaceClient(
       update: (_namespace, _dockerCfg) => Promise.resolve(stubDockerConfig),
     } as IDockerConfigApi,
     kubeConfigApi: {
-      applyKubeConfigSecret: _namespace => Promise.resolve(undefined),
+      injectKubeConfig: (_namespace, _devworkspaceId) => Promise.resolve(undefined),
     } as IKubeConfigApi,
     devWorkspaceTemplateApi: {
       create: _template => Promise.resolve(stubDevWorkspaceTemplate),

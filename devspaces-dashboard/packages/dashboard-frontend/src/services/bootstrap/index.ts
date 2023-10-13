@@ -14,8 +14,6 @@ import common, { api, ApplicationId } from '@eclipse-che/common';
 import { Store } from 'redux';
 
 import { lazyInject } from '@/inversify.config';
-import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
-import { dashboardBackendPrefix } from '@/services/backend-client/const';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
 import { ChannelListener } from '@/services/backend-client/websocketClient/messageHandler';
 import {
@@ -115,7 +113,6 @@ export default class Bootstrap {
         this.watchWebSocketPods();
       }),
       this.fetchClusterConfig(),
-      this.createKubeConfigSecret(),
     ]);
 
     const errors = results
@@ -255,13 +252,6 @@ export default class Bootstrap {
     this.websocketClient.subscribeToChannel(api.webSocket.Channel.POD, namespace, {
       getResourceVersion,
     });
-  }
-
-  private async createKubeConfigSecret(): Promise<void> {
-    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
-    await AxiosWrapper.createToRetryMissedBearerTokenError().post(
-      `${dashboardBackendPrefix}/namespace/${defaultKubernetesNamespace.name}/kubeconfig`,
-    );
   }
 
   private async fetchWorkspaces(): Promise<void> {

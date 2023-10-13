@@ -539,10 +539,6 @@ describe('DevWorkspace store, actions', () => {
                       value: 'http://localhost',
                     },
                     {
-                      name: 'KUBECONFIG',
-                      value: '/tmp/.kube/config',
-                    },
-                    {
                       name: 'CHE_PLUGIN_REGISTRY_URL',
                       value: 'https://dummy.registry',
                     },
