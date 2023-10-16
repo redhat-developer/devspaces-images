@@ -146,7 +146,12 @@ if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "${tmpfile}"
+		gitbranch="$(git rev-parse --abbrev-ref HEAD)"
+		if [[ $scratchFlag == "--scratch" ]]; then gitbranch="devspaces-3-rhel-8"; fi
+		target=${gitbranch}-containers-candidate
+		repo="$(git remote -v | grep origin | head -1 | sed -r -e "s#.+/containers/(.+) \(fetch.+#\1#")"
+		sha="$(git rev-parse HEAD)"
+		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
 		taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
 		ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
@@ -159,7 +164,12 @@ else
 	if [[ ${forceBuild} -eq 1 ]]; then
 		log "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "${tmpfile}"
+		gitbranch="$(git rev-parse --abbrev-ref HEAD)"
+		if [[ $scratchFlag == "--scratch" ]]; then gitbranch="devspaces-3-rhel-8"; fi
+		target=${gitbranch}-containers-candidate
+		repo="$(git remote -v | grep origin | head -1 | sed -r -e "s#.+/containers/(.+) \(fetch.+#\1#")"
+		sha="$(git rev-parse HEAD)"
+		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
 		taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
 		ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
