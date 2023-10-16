@@ -93,9 +93,7 @@ export interface IServerConfig {
     disableInternalRegistry: boolean;
     externalDevfileRegistries: IExternalDevfileRegistry[];
   };
-  pluginRegistry: {
-    openVSXURL: string;
-  };
+  pluginRegistry: IPluginRegistry;
   timeouts: {
     inactivityTimeout: number;
     runTimeout: number;
@@ -107,6 +105,12 @@ export interface IServerConfig {
   devfileRegistryURL: string;
   devfileRegistryInternalURL: string;
   dashboardLogo?: { base64data: string; mediatype: string };
+}
+
+export interface IPluginRegistry {
+  disableInternalRegistry?: boolean;
+  externalPluginRegistries?: { url: string }[];
+  openVSXURL: string;
 }
 
 export interface IUserProfile {

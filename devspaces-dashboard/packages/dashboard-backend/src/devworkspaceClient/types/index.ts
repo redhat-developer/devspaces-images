@@ -160,9 +160,7 @@ export type CustomResourceDefinitionSpecComponents = {
   devWorkspace?: {
     runningLimit?: number;
   };
-  pluginRegistry?: {
-    openVSXURL?: string;
-  };
+  pluginRegistry?: api.IPluginRegistry;
   devfileRegistry: {
     disableInternalRegistry?: boolean;
     externalDevfileRegistries?: api.IExternalDevfileRegistry[];
@@ -205,9 +203,9 @@ export interface IServerConfigApi {
    */
   getDefaultComponents(cheCustomResource: CustomResourceDefinition): V221DevfileComponents[];
   /**
-   * Returns the openVSX URL.
+   * Returns the plugin registry.
    */
-  getOpenVSXURL(cheCustomResource: CustomResourceDefinition): string;
+  getPluginRegistry(cheCustomResource: CustomResourceDefinition): api.IPluginRegistry;
   /**
    * Returns the internal registry disable status.
    */

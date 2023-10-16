@@ -821,7 +821,7 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
-      const pluginRegistryUrl = state.dwServerConfig.config.pluginRegistryURL;
+      const pluginRegistryUrl = selectPluginRegistryUrl(state);
       let devWorkspaceResource: devfileApi.DevWorkspace;
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
       let editorContent: string | undefined;

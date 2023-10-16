@@ -497,7 +497,7 @@ export class DevWorkspaceClient {
       }
     }
 
-    const openVSXURL = config.pluginRegistry.openVSXURL;
+    const openVSXURL = config.pluginRegistry?.openVSXURL || '';
     const components = cloneDeep(workspace.spec.template.components);
     if (components) {
       let shouldUpdate = false;

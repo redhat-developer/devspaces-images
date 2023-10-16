@@ -32,10 +32,12 @@ export const selectDefaultPlugins = createSelector(
   state => state.config.defaults?.plugins || [],
 );
 
-export const selectPluginRegistryUrl = createSelector(
-  selectState,
-  state => state.config.pluginRegistryURL,
-);
+export const selectPluginRegistryUrl = createSelector(selectState, state => {
+  const pluginRegistryUrl = !state.config.pluginRegistry.disableInternalRegistry
+    ? state.config.pluginRegistryURL
+    : state.config.pluginRegistry.externalPluginRegistries?.[0]?.url;
+  return pluginRegistryUrl || '';
+});
 
 export const selectPluginRegistryInternalUrl = createSelector(
   selectState,

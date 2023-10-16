@@ -80,9 +80,9 @@ describe('Server Config API Service', () => {
     expect(res).toEqual([{ container: { image: 'component-image' }, name: 'component-name' }]);
   });
 
-  test('getting openVSXURL', () => {
-    const res = serverConfigService.getOpenVSXURL(buildCustomResource());
-    expect(res).toEqual('https://open-vsx.org');
+  test('getting pluginRegistry', () => {
+    const res = serverConfigService.getPluginRegistry(buildCustomResource());
+    expect(res).toEqual({ openVSXURL: 'https://open-vsx.org' });
   });
 
   test('getting PVC strategy', () => {

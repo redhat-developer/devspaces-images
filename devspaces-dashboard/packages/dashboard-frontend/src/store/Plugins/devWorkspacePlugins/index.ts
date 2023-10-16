@@ -20,6 +20,7 @@ import { fetchData } from '@/services/registry/fetchData';
 import { AppThunk } from '@/store';
 import { createObject } from '@/store/helpers';
 import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+import { selectPluginRegistryUrl } from '@/store/ServerConfig/selectors';
 
 export interface PluginDefinition {
   plugin?: devfileApi.Devfile;
@@ -161,7 +162,7 @@ export const actionCreators: ActionCreators = {
       if (editorName.startsWith('https://')) {
         editorUrl = editorName;
       } else {
-        const pluginRegistryUrl = getState().dwServerConfig.config.pluginRegistryURL;
+        const pluginRegistryUrl = selectPluginRegistryUrl(getState());
         editorUrl = `${pluginRegistryUrl}/plugins/${editorName}/devfile.yaml`;
 
         if (!pluginRegistryUrl) {
@@ -224,9 +225,10 @@ export const actionCreators: ActionCreators = {
         throw errorMessage;
       }
 
+      const pluginRegistryURL = selectPluginRegistryUrl(getState());
       const defaultEditorUrl = (defaultEditor as string).startsWith('https://')
         ? defaultEditor
-        : `${config.pluginRegistryURL}/plugins/${defaultEditor}/devfile.yaml`;
+        : `${pluginRegistryURL}/plugins/${defaultEditor}/devfile.yaml`;
 
       // request default editor
       await dispatch(actionCreators.requestDwEditor(defaultEditor));

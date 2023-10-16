@@ -60,7 +60,7 @@ export const actionCreators: ActionCreators = {
         }
         const response = await axiosInstance.request<che.Plugin[]>({
           method: 'GET',
-          url: `${registryUrl}/plugins/`,
+          url: `${registryUrl}/plugins/index.json`,
         });
         const plugins = response.data;
 

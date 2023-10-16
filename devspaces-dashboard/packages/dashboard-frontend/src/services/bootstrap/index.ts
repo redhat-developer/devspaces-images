@@ -51,7 +51,7 @@ import * as PodsStore from '@/store/Pods';
 import { selectPodsResourceVersion } from '@/store/Pods/selectors';
 import * as SanityCheckStore from '@/store/SanityCheck';
 import * as ServerConfigStore from '@/store/ServerConfig';
-import { selectOpenVSXUrl } from '@/store/ServerConfig/selectors';
+import { selectOpenVSXUrl, selectPluginRegistryUrl } from '@/store/ServerConfig/selectors';
 import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
 import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
@@ -271,7 +271,8 @@ export default class Bootstrap {
 
   private async fetchPlugins(): Promise<void> {
     const { requestPlugins } = PluginsStore.actionCreators;
-    const pluginRegistryURL = this.store.getState().dwServerConfig.config.pluginRegistryURL;
+    const state = this.store.getState();
+    const pluginRegistryURL = selectPluginRegistryUrl(state);
     await requestPlugins(pluginRegistryURL)(this.store.dispatch, this.store.getState, undefined);
   }
 
@@ -307,7 +308,7 @@ export default class Bootstrap {
         pluginsByUrl[dwEditor.url] = dwEditor.devfile;
       });
       const openVSXUrl = selectOpenVSXUrl(state);
-      const pluginRegistryUrl = state.dwServerConfig.config.pluginRegistryURL;
+      const pluginRegistryUrl = selectPluginRegistryUrl(state);
       const pluginRegistryInternalUrl = state.dwServerConfig.config.pluginRegistryInternalURL;
       const clusterConsole = selectApplications(state).find(
         app => app.id === ApplicationId.CLUSTER_CONSOLE,

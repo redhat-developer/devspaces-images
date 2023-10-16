@@ -148,15 +148,25 @@ export class ServerConfigApiService implements IServerConfigApi {
     return [];
   }
 
-  getOpenVSXURL(cheCustomResource: CustomResourceDefinition): string {
+  getPluginRegistry(cheCustomResource: CustomResourceDefinition): api.IPluginRegistry {
     // Undefined and empty value are treated in a different ways:
     //   - empty value forces to use embedded registry
     //   - undefined value means that the default value should be used
-    if (cheCustomResource.spec.components?.pluginRegistry?.openVSXURL !== undefined) {
-      return cheCustomResource.spec.components.pluginRegistry.openVSXURL;
+
+    const pluginRegistry = cheCustomResource.spec.components?.pluginRegistry
+      ? cheCustomResource.spec.components.pluginRegistry
+      : ({ openVSXURL: '' } as api.IPluginRegistry);
+
+    const openVSXURL =
+      cheCustomResource.spec.components?.pluginRegistry?.openVSXURL !== undefined
+        ? pluginRegistry.openVSXURL
+        : process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'];
+
+    if (openVSXURL) {
+      pluginRegistry.openVSXURL = openVSXURL;
     }
 
-    return process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'] || '';
+    return pluginRegistry;
   }
 
   getPvcStrategy(cheCustomResource: CustomResourceDefinition): string | undefined {

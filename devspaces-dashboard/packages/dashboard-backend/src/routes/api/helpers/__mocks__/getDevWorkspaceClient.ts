@@ -43,7 +43,7 @@ export const stubDashboardWarning = 'Dashboard warning';
 export const stubDefaultComponents: V221DevfileComponents[] = [];
 export const stubDefaultEditor = undefined;
 export const stubDefaultPlugins: api.IWorkspacesDefaultPlugins[] = [];
-export const stubOpenVSXURL = 'openvsx-url';
+export const stubPluginRegistry = { openVSXURL: 'openvsx-url' };
 export const stubPvcStrategy = '';
 export const stubRunningWorkspacesLimit = 2;
 export const stubAllWorkspacesLimit = 1;
@@ -122,7 +122,7 @@ export function getDevWorkspaceClient(
       getDefaultComponents: _cheCustomResource => stubDefaultComponents,
       getDefaultEditor: _cheCustomResource => stubDefaultEditor,
       getDefaultPlugins: _cheCustomResource => stubDefaultPlugins,
-      getOpenVSXURL: _cheCustomResource => stubOpenVSXURL,
+      getPluginRegistry: _cheCustomResource => stubPluginRegistry,
       getPvcStrategy: _cheCustomResource => stubPvcStrategy,
       getRunningWorkspacesLimit: _cheCustomResource => stubRunningWorkspacesLimit,
       getAllWorkspacesLimit: _cheCustomResource => stubAllWorkspacesLimit,

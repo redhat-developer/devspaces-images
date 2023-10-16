@@ -39,7 +39,7 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
       const inactivityTimeout = serverConfigApi.getWorkspaceInactivityTimeout(cheCustomResource);
       const runTimeout = serverConfigApi.getWorkspaceRunTimeout(cheCustomResource);
       const startTimeout = serverConfigApi.getWorkspaceStartTimeout(cheCustomResource);
-      const openVSXURL = serverConfigApi.getOpenVSXURL(cheCustomResource);
+      const pluginRegistry = serverConfigApi.getPluginRegistry(cheCustomResource);
       const pvcStrategy = serverConfigApi.getPvcStrategy(cheCustomResource);
       const pluginRegistryURL = serverConfigApi.getDefaultPluginRegistryUrl(cheCustomResource);
       const devfileRegistryURL = serverConfigApi.getDefaultDevfileRegistryUrl(cheCustomResource);
@@ -66,9 +66,7 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
           disableInternalRegistry,
           externalDevfileRegistries,
         },
-        pluginRegistry: {
-          openVSXURL,
-        },
+        pluginRegistry,
         cheNamespace,
         pluginRegistryURL,
         pluginRegistryInternalURL,
