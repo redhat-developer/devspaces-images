@@ -13,6 +13,8 @@ def MIDSTM_BRANCH = 'devspaces-3-rhel-8'
 def errorOccurred = false
 def String nodeLabel = 'x86_64-rhel8'  // ppc64le-rhel8 disabled with cffi error; s390x-rhel8-perm disabled as rust compilation sometimes fails
 def JIRA_EMAIL = "jiralint-codeready@redhat.com"
+def UNASSIGNED_JIRA_EMAIL = "oskutka@redhat.com" // if no assignee can be computed (eg., no component set), fall back to a default assignee
+
 timeout(120) {
     node(nodeLabel){
         try {
@@ -36,7 +38,7 @@ timeout(120) {
                         if (!TO_EMAIL.equals("")) {
                             JIRALINT_OPTIONS += " --toemail " + TO_EMAIL + " --unassignedjiraemail " + TO_EMAIL
                         } else {
-                            JIRALINT_OPTIONS += " --unassignedjiraemail " + JIRA_EMAIL
+                            JIRALINT_OPTIONS += " --unassignedjiraemail " + UNASSIGNED_JIRA_EMAIL
                         }
                         print "Using JIRALINT_OPTIONS = " + JIRALINT_OPTIONS
                         sh '''#!/bin/bash -xe
