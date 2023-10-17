@@ -68,7 +68,8 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
               // prestage #1 for building lang servers - delete previous GitHub release if present
               sh('''#!/bin/bash -xe
 pushd sources/''' + SYNC_REPOi + '''
-if [[ -f get-sources.sh ]]; then 
+# TODO when we're full migrated to cachito, remove all references to get-sources.sh in midstream and downstream.
+if [[ -f get-sources.sh ]]; then
   ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
 
   # in case API is running slow, sleep for a bit before trying to push files into the freshly created release
@@ -122,6 +123,7 @@ echo "<<<############### df -h before building #################"
                   util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
                     pushd sources/''' + SYNC_REPOi + '''
+                    # TODO when we're full migrated to cachito, remove all references to get-sources.sh in midstream and downstream.
                     if [[ -f get-sources.sh ]]; then
                       ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
                     else
@@ -342,7 +344,13 @@ cp ${yaml} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
               // push to dist-git
               sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
-git add Dockerfile get-sources.sh container.yaml || true
+git add Dockerfile container.yaml || true
+
+# TODO when we're full migrated to cachito, remove all references to get-sources.sh in midstream and downstream.
+if [[ ! -f get-sources.sh ]]; then 
+  git rm get-sources.sh || true
+fi
+
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   export KRB5CCNAME=/var/tmp/devspaces-build_ccache
@@ -356,10 +364,11 @@ fi
               sh('''#!/bin/bash -xe
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+# TODO when we're full migrated to cachito, remove all references to get-sources.sh in midstream and downstream.
 if [[ -f get-sources.sh ]]; then
   ./get-sources.sh --pull-assets --nobuild -v ''' + CSV_VERSION + ''' | tee get-sources.sh.log.txt
-else 
-  echo "[ERROR] Could not run get-sources.sh!"; exit 1
+# else 
+#   echo "[ERROR] Could not run get-sources.sh!"; exit 1
 fi
 COMMIT_SHA="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%H)"
 COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
@@ -390,6 +399,7 @@ fi
               // check for errors in log to add to the build desc
               def buildLogErrors = sh(script: '''#!/bin/bash
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+# TODO when we're full migrated to cachito, remove all references to get-sources.sh in midstream and downstream.
 if [[ -f get-sources.sh.log.txt ]]; then 
   grep -A1 -E "FAIL - not in allowed" get-sources.sh.log.txt
   rm -f get-sources.sh.log.txt
