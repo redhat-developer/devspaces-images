@@ -10,8 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
-
 import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
 import { cheServerPrefix } from '@/services/backend-client/const';
 
@@ -24,7 +22,9 @@ export async function getKubernetesNamespace(): Promise<che.KubernetesNamespace[
 }
 
 export async function provisionKubernetesNamespace(): Promise<che.KubernetesNamespace> {
-  const response = await axios.post(`${cheServerPrefix}/kubernetes/namespace/provision`);
+  const response = await AxiosWrapper.createToRetryAnyErrors().post(
+    `${cheServerPrefix}/kubernetes/namespace/provision`,
+  );
 
   return response.data;
 }
