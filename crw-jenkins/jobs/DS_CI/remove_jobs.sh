@@ -54,7 +54,6 @@ else
   exit 1
 fi
 
-#  TODO remove theia jobs after 3.6 is live
 for d in \
     code\
     configbump\
@@ -66,9 +65,8 @@ for d in \
     operator-bundle\
     operator\
     pluginregistry\
+    pluginregistry-plugins\
     server\
-    theia-akamai\
-    theia-sources\
     traefik\
     udi\
     dsc\
@@ -78,6 +76,7 @@ for d in \
     update-digests\
     Releng/job/build-all-images\
     Releng/job/send-email-qe-build-list\
+    Releng/job/send-slack-message\
     ; do 
     result=$(curl -sSL -X DELETE "${JENKINSURL}/job/DS_CI/job/${d}_${DS_VERSION}/" --user "${USERTOKEN}" | grep -E "Unauthorized|Authentization|401|URI")
     if [[ $result ]]; then

@@ -110,7 +110,9 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                 slackText = '''
 Latest dsc binaries:
 
-https://github.com/redhat-developer/devspaces-chectl/releases/tag/''' + CSV_VERSION + '''-CI-dsc-assets
+  https://quay.io/devspaces/dsc:''' + DS_VERSION + '''
+
+  To install, see https://quay.io/repository/devspaces/dsc?tab=info
 
 Quay Images:
 ''' + NEW_QUAY_L

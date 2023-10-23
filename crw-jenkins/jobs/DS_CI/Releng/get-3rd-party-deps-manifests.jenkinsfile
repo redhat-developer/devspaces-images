@@ -25,6 +25,7 @@ timeout(240) {
 
 # TODO this should move into a dockerfile so we can run the manifest collection w/o installing anything locally
 sudo dnf -y install tree php-devel php-json || sudo dnf -y update tree php-devel php-json
+sudo dnf -y module enable maven:3.8; sudo dnf -y -q install maven
 
 . ~/node_env ''' + DS_VERSION + '''
 echo "Node: $(node --version) ( $(which node) )"

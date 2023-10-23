@@ -59,21 +59,18 @@ export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 
 set -x
 # generate binaries and sources and publish
-./build/scripts/build.sh --gh -v ''' + DSC_VERSION + ''' --ds-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
+./build/scripts/build.sh --quay -v ''' + DSC_VERSION + ''' --ds-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/devspaces-images ''' +
   (versionSuffix.equals("GA") ? " --publish --desthost " + util.getStagingHost() : "") +
   (versionSuffix.equals("") ? "" : " --suffix "+versionSuffix)
           )
 
           if (versionSuffix.equals("GA")){
-            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + "GA"          + "-dsc-" + 
-              "assets>" + DSC_VERSION + " GA</a>"
+            currentBuild.description = "<a href=https://quay.io/devspaces/dsc:"+DSC_VERSION+"-" + "GA"          + ">" + DSC_VERSION + "-GA</a>"
           } else if (!versionSuffix.equals("")) {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + versionSuffix + "-dsc-" + 
-              "assets>" + DSC_VERSION + " " + versionSuffix + "</a>"
+            currentBuild.description = "<a href=https://quay.io/devspaces/dsc:"+DSC_VERSION+"-" + versionSuffix + ">" + DSC_VERSION + "-" + versionSuffix + "</a>"
           } else {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + "CI"          + "-dsc-" +  
-              "assets>" + DSC_VERSION + " CI</a>"
+            currentBuild.description = "<a href=https://quay.io/devspaces/dsc:"+DSC_VERSION+"-" + "CI"          + ">" + DSC_VERSION + "-CI</a>"
           }
           if (versionSuffix.equals("GA")) {
             currentBuild.description += "; published to spmm-util"

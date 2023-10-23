@@ -143,7 +143,12 @@ touch ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly ${WORKSPACE}/LATEST_IMAGES.nvr.ta
                     mailBody = mailBody + '''
 Latest dsc binaries:
 
-https://github.com/redhat-developer/devspaces-chectl/releases/tag/''' + CSV_VERSION + '''-CI-dsc-assets
+  https://quay.io/devspaces/dsc:''' + DS_VERSION + '''
+
+  To install from container image:
+
+    cd /tmp; curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces-chectl/''' + MIDSTM_BRANCH + '''/build/scripts/installDscFromContainer.sh; chmod +x installDscFromContainer.sh
+    ./build/scripts/installDscFromContainer.sh quay.io/devspaces/dsc:'''+DS_VERSION+'''
 
 Quay Images:
 ''' + NEW_QUAY_L
