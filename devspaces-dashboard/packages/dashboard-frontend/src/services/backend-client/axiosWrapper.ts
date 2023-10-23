@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common from '@eclipse-che/common';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { delay } from '@/services/helpers/delay';
@@ -97,7 +98,8 @@ export class AxiosWrapper {
     } catch (err) {
       if (
         !retry ||
-        (this.errorMessagesToRetry && !(err as Error)?.message?.includes(this.errorMessagesToRetry))
+        (this.errorMessagesToRetry &&
+          !common.helpers.errors.getMessage(err).includes(this.errorMessagesToRetry))
       ) {
         throw err;
       }

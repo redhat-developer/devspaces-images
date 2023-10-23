@@ -10,7 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import mockAxios, { AxiosInstance } from 'axios';
+import common from '@eclipse-che/common';
+import mockAxios, { AxiosInstance, AxiosResponse } from 'axios';
 
 import {
   AxiosWrapper,
@@ -46,7 +47,7 @@ describe('axiosWrapper', () => {
     expect(axiosGetSpy).toBeCalledTimes(1);
   });
 
-  it('should retry 0 time without specifi error message', async () => {
+  it('should retry 0 time without specific error message', async () => {
     const expectedData = { data: 'some-data' };
     axiosGetMock.mockReturnValue(new Promise(resolve => resolve(expectedData)));
 
@@ -71,7 +72,22 @@ describe('axiosWrapper', () => {
     expect(axiosGetSpy).toBeCalledTimes(2);
   });
 
-  it('should retry 1 time without specif error message', async () => {
+  it('should retry 1 time with Bearer Token Authorization is required axios response error message', async () => {
+    const expectedData = { data: 'some-data' };
+    axiosGetMock
+      .mockRejectedValueOnce(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg))
+      .mockReturnValue(new Promise(resolve => resolve(expectedData)));
+
+    const result = await new AxiosWrapper(
+      axiosInstance,
+      bearerTokenAuthorizationIsRequiredErrorMsg,
+    ).get('some-url');
+
+    expect(result).toEqual(expectedData);
+    expect(axiosGetSpy).toBeCalledTimes(2);
+  });
+
+  it('should retry 1 time without specifc error message', async () => {
     const expectedData = { data: 'some-data' };
     axiosGetMock
       .mockRejectedValueOnce(new Error('some error message'))
@@ -88,6 +104,22 @@ describe('axiosWrapper', () => {
     axiosGetMock
       .mockRejectedValueOnce(new Error(bearerTokenAuthorizationIsRequiredErrorMsg))
       .mockRejectedValueOnce(new Error(bearerTokenAuthorizationIsRequiredErrorMsg))
+      .mockReturnValue(new Promise(resolve => resolve(expectedData)));
+
+    const result = await new AxiosWrapper(
+      axiosInstance,
+      bearerTokenAuthorizationIsRequiredErrorMsg,
+    ).get('some-url');
+
+    expect(result).toEqual(expectedData);
+    expect(axiosGetSpy).toBeCalledTimes(3);
+  });
+
+  it('should retry 2 times with Bearer Token Authorization is required axios response error message', async () => {
+    const expectedData = { data: 'some-data' };
+    axiosGetMock
+      .mockRejectedValueOnce(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg))
+      .mockRejectedValueOnce(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg))
       .mockReturnValue(new Promise(resolve => resolve(expectedData)));
 
     const result = await new AxiosWrapper(
@@ -130,6 +162,25 @@ describe('axiosWrapper', () => {
     }
   });
 
+  it('should fail after 3 times with Bearer Token Authorization is required axios response error message', async () => {
+    axiosGetMock
+      .mockRejectedValueOnce(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg))
+      .mockRejectedValueOnce(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg))
+      .mockRejectedValueOnce(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg))
+      .mockRejectedValue(createAxiosResponseError(bearerTokenAuthorizationIsRequiredErrorMsg));
+
+    try {
+      await new AxiosWrapper(axiosInstance, bearerTokenAuthorizationIsRequiredErrorMsg).get(
+        'some-url',
+      );
+      fail('should fail');
+    } catch (e: any) {
+      expect(common.helpers.errors.includesAxiosResponse(e)).toBeTruthy();
+      expect(e.response.data).toEqual(bearerTokenAuthorizationIsRequiredErrorMsg);
+      expect(axiosGetSpy).toBeCalledTimes(4);
+    }
+  });
+
   it('should fail after 3 times without specific error message', async () => {
     axiosGetMock
       .mockRejectedValueOnce(new Error('error 1'))
@@ -146,3 +197,15 @@ describe('axiosWrapper', () => {
     }
   });
 });
+
+function createAxiosResponseError(message: string): { response: AxiosResponse } {
+  return {
+    response: {
+      data: message,
+      status: 401,
+      statusText: 'Unauthorized',
+      headers: {},
+      config: {},
+    },
+  };
+}
