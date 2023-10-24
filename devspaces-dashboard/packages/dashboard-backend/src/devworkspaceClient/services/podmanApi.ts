@@ -19,6 +19,7 @@ import {
   prepareCoreV1API,
 } from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
 import { IPodmanApi } from '@/devworkspaceClient/types';
+import { logger } from '@/utils/logger';
 
 const EXCLUDED_CONTAINERS = ['che-gateway', 'che-machine-exec'];
 
@@ -84,7 +85,7 @@ export class PodmanApiService implements IPodmanApi {
           resolved = true;
         }
       } catch (e) {
-        console.warn(helpers.errors.getMessage(e));
+        logger.warn(e);
       }
     }
     if (!resolved) {

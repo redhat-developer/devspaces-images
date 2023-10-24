@@ -13,7 +13,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { baseApiPath } from '@/constants/config';
-import { setup, teardown } from '@/helpers/tests/appBuilder';
+import { setup, teardown } from '@/utils/appBuilder';
 
 jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');

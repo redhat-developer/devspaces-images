@@ -46,7 +46,7 @@
 | [`@types/js-yaml@4.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/node@20.5.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/prop-types@15.7.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/react-redux@7.1.25`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/react-redux@7.1.25`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10970 |
 | [`@types/react@18.2.20`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8234 |
 | [`@types/request@2.48.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/scheduler@0.16.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #7582 |
@@ -109,6 +109,7 @@
 | [`codemirror@5.65.15`](https://github.com/codemirror/CodeMirror.git) | MIT | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/codemirror/5.65.15] |
 | [`color-convert@1.9.3`](https://github.com/Qix-/color-convert.git) | MIT | clearlydefined |
 | [`color-name@1.1.3`](git@github.com:dfcreative/color-name.git) | MIT | clearlydefined |
+| [`colorette@2.0.20`](https://github.com/jorgebucaran/colorette.git) | MIT | clearlydefined |
 | [`combined-stream@1.0.8`](git://github.com/felixge/node-combined-stream.git) | MIT | clearlydefined |
 | [`concat-map@0.0.1`](git://github.com/substack/node-concat-map.git) | MIT | clearlydefined |
 | [`connected-react-router@6.9.3`](https://github.com/supasate/connected-react-router.git) | MIT | clearlydefined |
@@ -125,6 +126,7 @@
 | [`csstype@3.1.2`](https://github.com/frenic/csstype) | MIT | clearlydefined |
 | [`dashdash@1.14.1`](git://github.com/trentm/node-dashdash.git) | MIT | clearlydefined |
 | [`date-fns@2.30.0`](https://github.com/date-fns/date-fns) | MIT | clearlydefined |
+| [`dateformat@4.6.3`](https://github.com/felixge/node-dateformat.git) | MIT | clearlydefined |
 | [`debug@4.3.4`](git://github.com/debug-js/debug.git) | MIT | clearlydefined |
 | [`deepmerge@4.3.1`](git://github.com/TehShrike/deepmerge.git) | MIT | #7032 |
 | [`delayed-stream@1.0.0`](git://github.com/felixge/node-delayed-stream.git) | MIT | clearlydefined |
@@ -150,12 +152,14 @@
 | [`extend@3.0.2`](https://github.com/justmoon/node-extend.git) | MIT | clearlydefined |
 | [`extsprintf@1.3.0`](git://github.com/davepacheco/node-extsprintf.git) | MIT | #1813 |
 | [`fast-content-type-parse@1.0.0`](https://github.com/fastify/fast-content-type-parse.git) | MIT | clearlydefined |
+| [`fast-copy@3.0.1`](git+https://github.com/planttheidea/fast-copy.git) | MIT | clearlydefined |
 | [`fast-decode-uri-component@1.0.1`](git+https://github.com/delvedor/fast-decode-uri-component.git) | MIT | clearlydefined |
 | [`fast-deep-equal@3.1.3`](git+https://github.com/epoberezkin/fast-deep-equal.git) | MIT | clearlydefined |
 | [`fast-json-stable-stringify@2.1.0`](git://github.com/epoberezkin/fast-json-stable-stringify.git) | MIT | clearlydefined |
 | [`fast-json-stringify@5.8.0`](git+https://github.com/fastify/fast-json-stringify.git) | MIT | clearlydefined |
 | [`fast-querystring@1.1.2`](git+https://github.com/anonrig/fast-querystring.git) | MIT | clearlydefined |
 | [`fast-redact@3.3.0`](git+https://github.com/davidmarkclements/fast-redact.git) | MIT | clearlydefined |
+| [`fast-safe-stringify@2.1.1`](git+https://github.com/davidmarkclements/fast-safe-stringify.git) | MIT | clearlydefined |
 | [`fast-uri@2.2.0`](https://github.com/fastify/fast-uri) | MIT | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/fast-uri/2.2.0] |
 | [`fastify-plugin@4.5.1`](git+https://github.com/fastify/fastify-plugin.git) | MIT | clearlydefined |
 | [`fastify@4.21.0`](git+https://github.com/fastify/fastify.git) | MIT | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/fastify/4.21.0] |
@@ -186,6 +190,7 @@
 | [`has@1.0.3`](git://github.com/tarruda/has.git) | MIT | #10930 |
 | [`hash-base@3.1.0`](https://github.com/crypto-browserify/hash-base.git) | MIT | clearlydefined |
 | [`hash.js@1.1.7`](git@github.com:indutny/hash.js) | MIT | #1044 |
+| [`help-me@4.2.0`](https://github.com/mcollina/help-me.git) | MIT | clearlydefined |
 | [`history@4.10.1`](https://github.com/ReactTraining/history.git) | MIT | clearlydefined |
 | [`hmac-drbg@1.0.1`](git+ssh://git@github.com/indutny/hmac-drbg.git) | MIT | clearlydefined |
 | [`hoist-non-react-statics@3.3.2`](git://github.com/mridgway/hoist-non-react-statics.git) | BSD-3-Clause | clearlydefined |
@@ -211,6 +216,7 @@
 | [`isstream@0.1.2`](https://github.com/rvagg/isstream.git) | MIT | clearlydefined |
 | [`joi@17.9.2`](git://github.com/hapijs/joi) | BSD-3-Clause | #7488 |
 | [`jose@4.14.4`](https://github.com/panva/jose.git) | MIT | clearlydefined |
+| [`joycon@3.1.1`](https://github.com/egoist/joycon.git) | MIT | clearlydefined |
 | [`js-tokens@4.0.0`](https://github.com/lydell/js-tokens.git) | MIT | #2401 |
 | [`js-yaml@4.1.0`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT | clearlydefined |
@@ -269,9 +275,10 @@
 | [`pbkdf2@3.1.2`](https://github.com/crypto-browserify/pbkdf2.git) | MIT | clearlydefined |
 | [`performance-now@2.1.0`](git://github.com/braveg1rl/performance-now.git) | MIT | clearlydefined |
 | [`picocolors@1.0.0`](https://github.com/alexeyraspopov/picocolors.git) | ISC | clearlydefined |
-| [`pino-abstract-transport@1.0.0`](git+https://github.com/pinojs/pino-abstract-transport.git) | MIT | clearlydefined |
+| [`pino-abstract-transport@1.1.0`](git+https://github.com/pinojs/pino-abstract-transport.git) | MIT | clearlydefined |
+| [`pino-pretty@10.2.0`](git+ssh://git@github.com/pinojs/pino-pretty.git) | MIT | clearlydefined |
 | [`pino-std-serializers@6.2.2`](git+ssh://git@github.com/pinojs/pino-std-serializers.git) | MIT | clearlydefined |
-| [`pino@8.15.0`](git+https://github.com/pinojs/pino.git) | MIT | clearlydefined |
+| [`pino@8.15.1`](git+https://github.com/pinojs/pino.git) | MIT | clearlydefined |
 | [`popper.js@1.16.1`](git+https://github.com/FezVrasta/popper.js.git) | MIT | [CQ22353](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22353) |
 | [`postcss@8.4.28`](https://github.com/postcss/postcss.git) | MIT | #3545 |
 | [`private@0.1.8`](git://github.com/benjamn/private.git) | MIT | clearlydefined |
@@ -348,6 +355,7 @@
 | [`streamsearch@1.1.0`](http://github.com/mscdex/streamsearch.git) | MIT | clearlydefined |
 | [`string_decoder@1.3.0`](git://github.com/nodejs/string_decoder.git) | MIT | clearlydefined |
 | [`strip-ansi@3.0.1`](https://github.com/chalk/strip-ansi.git) | MIT | clearlydefined |
+| [`strip-json-comments@3.1.1`](https://github.com/sindresorhus/strip-json-comments.git) | MIT | clearlydefined |
 | [`supports-color@5.5.0`](https://github.com/chalk/supports-color.git) | MIT | clearlydefined |
 | [`tabbable@5.3.3`](git+https://github.com/focus-trap/tabbable.git) | MIT | clearlydefined |
 | [`tar@6.1.15`](https://github.com/isaacs/node-tar.git) | ISC | #4566 |

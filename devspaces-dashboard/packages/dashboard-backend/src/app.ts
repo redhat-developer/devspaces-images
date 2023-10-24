@@ -41,10 +41,10 @@ import { registerYamlResolverRoute } from '@/routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from '@/routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from '@/routes/workspaceRedirect';
 
-export default async function buildApp(server: FastifyInstance): Promise<void> {
+export default async function buildApp(server: FastifyInstance): Promise<unknown> {
   const cheHost = process.env.CHE_HOST as string;
   if (!cheHost) {
-    console.error('CHE_HOST environment variable is required');
+    server.log.fatal('CHE_HOST environment variable is required');
     process.exit(1);
   }
 
@@ -59,60 +59,60 @@ export default async function buildApp(server: FastifyInstance): Promise<void> {
         done(null, json);
       } catch (e) {
         const error = new Error(helpers.errors.getMessage(e));
-        console.warn(`[WARN] Can't parse the JSON payload:`, body);
+        server.log.warn(`Can't parse the JSON payload: %s`, body);
         done(error, undefined);
       }
     },
   );
 
-  registerWebSocket(server);
+  return Promise.allSettled([
+    registerWebSocket(server),
 
-  if (isLocalRun()) {
-    registerLocalRun(server);
-  }
+    isLocalRun() ? registerLocalRun(server) : Promise.resolve(),
 
-  registerCors(isLocalRun(), server);
+    registerCors(isLocalRun(), server),
 
-  registerStaticServer(publicFolder, server);
+    registerStaticServer(publicFolder, server),
 
-  registerFactoryAcceptanceRedirect(server);
+    registerFactoryAcceptanceRedirect(server),
 
-  registerWorkspaceRedirect(server);
+    registerWorkspaceRedirect(server),
 
-  registerWebsocket(server);
+    registerWebsocket(server),
 
-  // swagger and API
-  registerSwagger(server);
+    // swagger and API
+    registerSwagger(server),
 
-  registerClusterConfigRoute(server);
+    registerClusterConfigRoute(server),
 
-  registerClusterInfoRoute(server);
+    registerClusterInfoRoute(server),
 
-  registerDevWorkspaceTemplates(server);
+    registerDevWorkspaceTemplates(server),
 
-  registerDevworkspacesRoutes(server);
+    registerDevworkspacesRoutes(server),
 
-  registerDockerConfigRoutes(server);
+    registerDockerConfigRoutes(server),
 
-  registerEventsRoutes(server);
+    registerEventsRoutes(server),
 
-  registerPodsRoutes(server);
+    registerPodsRoutes(server),
 
-  registerKubeConfigRoute(server);
+    registerKubeConfigRoute(server),
 
-  registerPodmanLoginRoute(server);
+    registerPodmanLoginRoute(server),
 
-  registerServerConfigRoute(server);
+    registerServerConfigRoute(server),
 
-  registerUserProfileRoute(server);
+    registerUserProfileRoute(server),
 
-  registerYamlResolverRoute(server);
+    registerYamlResolverRoute(server),
 
-  registerDevworkspaceResourcesRoute(server);
+    registerDevworkspaceResourcesRoute(server),
 
-  registerPersonalAccessTokenRoutes(server);
+    registerPersonalAccessTokenRoutes(server),
 
-  registerGitConfigRoutes(server);
+    registerGitConfigRoutes(server),
 
-  registerGettingStartedSamplesRoutes(isLocalRun(), server);
+    registerGettingStartedSamplesRoutes(isLocalRun(), server),
+  ]);
 }

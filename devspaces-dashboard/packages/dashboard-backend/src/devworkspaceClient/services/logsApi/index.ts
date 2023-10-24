@@ -24,6 +24,7 @@ import { ILogsApi } from '@/devworkspaceClient/types';
 import { isHttpError, isResponse, isV1Status } from '@/helpers/typeguards';
 import { delay } from '@/services/helpers';
 import { MessageListener } from '@/services/types/Observer';
+import { logger } from '@/utils/logger';
 
 type StopWatchCallback = () => void;
 type ContainerName = string;
@@ -68,7 +69,7 @@ export class LogsApiService implements ILogsApi {
         params,
       });
 
-      console.warn(`Unable to watch logs in pod "${params.podName}". Error:`, e);
+      logger.warn(e, `Unable to watch logs in pod "${params.podName}".`);
     }
 
     await Promise.all(
@@ -183,7 +184,6 @@ export class LogsApiService implements ILogsApi {
       this.storeStopWatchCallback(params, containerName, () => request.destroy());
     } catch (e) {
       const status = this.buildStatus(e);
-      console.warn(status.message);
 
       listener({
         eventPhase: api.webSocket.EventPhase.ERROR,
@@ -191,7 +191,7 @@ export class LogsApiService implements ILogsApi {
         params: { ...params, containerName },
       });
 
-      console.warn(`Unable to watch logs of ${containerName} in ${podName}: ${status.message}`);
+      logger.warn(e, `Unable to watch logs of ${containerName} in ${podName}.`);
       throw e;
     }
   }

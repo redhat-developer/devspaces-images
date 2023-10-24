@@ -12,15 +12,16 @@
 
 import fastifyHttpProxy from '@fastify/http-proxy';
 import { FastifyInstance } from 'fastify';
-// to workaround the issue with TextEncoder
 import { TextEncoder } from 'util';
 
 import { stubCheServerOptionsRequests } from '@/localRun/hooks/stubCheServerOptionsRequests';
+import { logger } from '@/utils/logger';
 
+// to workaround the issue with TextEncoder
 (global as any).TextEncoder = TextEncoder;
 
 export function registerCheApiProxy(server: FastifyInstance, upstream: string, origin: string) {
-  console.log(`Dashboard proxies requests to Che Server API on ${upstream}/api.`);
+  logger.info(`Dashboard proxies requests to Che Server API on ${upstream}/api.`);
   // server api
   server.register(fastifyHttpProxy, {
     upstream,

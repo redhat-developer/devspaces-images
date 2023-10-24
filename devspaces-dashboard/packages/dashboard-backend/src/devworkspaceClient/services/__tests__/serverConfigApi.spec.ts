@@ -15,7 +15,7 @@
 import * as mockClient from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 
-import { CustomResourceDefinition, CustomResourceDefinitionList } from '@/devworkspaceClient';
+import { CheClusterCustomResource, CustomResourceDefinitionList } from '@/devworkspaceClient';
 import { ServerConfigApiService } from '@/devworkspaceClient/services/serverConfigApi';
 
 jest.mock('../../../helpers/getUserName.ts');
@@ -149,7 +149,7 @@ function buildCustomResourceList(): { body: CustomResourceDefinitionList } {
   };
 }
 
-function buildCustomResource(): CustomResourceDefinition {
+function buildCustomResource(): CheClusterCustomResource {
   return {
     apiVersion: 'org.eclipse.che/v2',
     kind: 'CheCluster',
@@ -198,5 +198,5 @@ function buildCustomResource(): CustomResourceDefinition {
       devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc/devfile-registry',
       pluginRegistryURL: 'http://plugin-registry.eclipse-che.svc/v3',
     },
-  } as CustomResourceDefinition;
+  } as CheClusterCustomResource;
 }

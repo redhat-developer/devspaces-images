@@ -14,6 +14,8 @@ import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import { FastifyInstance } from 'fastify';
 
+import { logger } from '@/utils/logger';
+
 const ROUTE_PREFIX = '/dashboard/api/swagger';
 
 type MySchema = {
@@ -25,7 +27,7 @@ type MySchema = {
 };
 
 export function registerSwagger(server: FastifyInstance) {
-  console.log(`Che Dashboard swagger is running on "${ROUTE_PREFIX}".`);
+  logger.info(`Che Dashboard swagger is running on "${ROUTE_PREFIX}".`);
 
   server.register(fastifySwagger, {
     mode: 'dynamic',

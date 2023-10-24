@@ -13,6 +13,7 @@
 import { existsSync, readFileSync } from 'fs';
 
 import { isLocalRun } from '@/localRun';
+import { logger } from '@/utils/logger';
 
 export const SERVICE_ACCOUNT_TOKEN_PATH = '/run/secrets/kubernetes.io/serviceaccount/token';
 
@@ -21,7 +22,7 @@ export function getServiceAccountToken(): string {
     return process.env.SERVICE_ACCOUNT_TOKEN as string;
   }
   if (!existsSync(SERVICE_ACCOUNT_TOKEN_PATH)) {
-    console.error('SERVICE_ACCOUNT_TOKEN is required');
+    logger.fatal('SERVICE_ACCOUNT_TOKEN is required');
     process.exit(1);
   }
   return readFileSync(SERVICE_ACCOUNT_TOKEN_PATH).toString();

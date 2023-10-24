@@ -171,7 +171,7 @@
 | [`@types/lodash@4.14.197`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #4131 |
 | [`@types/minimatch@3.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minimist@1.2.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10839 |
-| [`@types/node-fetch@2.6.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/node-fetch@2.6.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #11004 |
 | [`@types/normalize-package-data@2.4.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10792 |
 | [`@types/parse-json@4.0.0`](https://www.github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/qs@6.9.7`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -308,7 +308,6 @@
 | [`color-name@1.1.4`](git@github.com:colorjs/color-name.git) | MIT | clearlydefined |
 | [`color-support@1.1.3`](git+https://github.com/isaacs/color-support.git) | ISC | clearlydefined |
 | [`colord@2.9.3`](https://github.com/omgovich/colord.git) | MIT | clearlydefined |
-| [`colorette@2.0.20`](https://github.com/jorgebucaran/colorette.git) | MIT | clearlydefined |
 | [`columnify@1.6.0`](git://github.com/timoxley/columnify.git) | MIT | clearlydefined |
 | [`commander@7.2.0`](https://github.com/tj/commander.js.git) | MIT | clearlydefined |
 | [`common-ancestor-path@1.0.1`](git+https://github.com/isaacs/common-ancestor-path) | ISC | clearlydefined |
@@ -859,7 +858,6 @@
 | [`strip-bom@3.0.0`](https://github.com/sindresorhus/strip-bom.git) | MIT | clearlydefined |
 | [`strip-final-newline@2.0.0`](https://github.com/sindresorhus/strip-final-newline.git) | MIT | clearlydefined |
 | [`strip-indent@3.0.0`](https://github.com/sindresorhus/strip-indent.git) | MIT | clearlydefined |
-| [`strip-json-comments@3.1.1`](https://github.com/sindresorhus/strip-json-comments.git) | MIT | clearlydefined |
 | [`strong-log-transformer@2.1.0`](git://github.com/strongloop/strong-log-transformer) | Apache-2.0 | #1138 |
 | [`style-loader@3.3.3`](https://github.com/webpack-contrib/style-loader.git) | MIT | clearlydefined |
 | [`style-search@0.1.0`](git+https://github.com/davidtheclark/style-search.git) | ISC | clearlydefined |

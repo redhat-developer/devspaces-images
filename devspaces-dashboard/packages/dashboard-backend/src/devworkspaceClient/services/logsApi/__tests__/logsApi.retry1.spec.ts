@@ -41,9 +41,6 @@ jest.mock('@kubernetes/client-node', () => {
   };
 });
 
-// mute console.error
-console.warn = jest.fn();
-
 describe('Logs API Service, retry watching logs (fake timers used)', () => {
   let logsApiService: LogsApiService;
 

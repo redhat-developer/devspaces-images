@@ -10,6 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { logger } from '@/utils/logger';
+
 // currently, it works on minikube only (decode from Base64 format)
 export function getUserName(token: string): string {
   const tokenPayload = token.split('.')[1];
@@ -18,7 +20,7 @@ export function getUserName(token: string): string {
     const parsedTokenPayload = JSON.parse(decodedTokenPayload);
     return parsedTokenPayload.name;
   } catch (e) {
-    console.warn(`[WARN] Can't parse the token payload.`);
+    logger.warn(`Can't parse the token payload.`);
     throw e;
   }
 }

@@ -19,6 +19,7 @@ import { registerCheApiProxy } from '@/localRun/proxies/cheServerApi';
 import { registerDexProxies } from '@/localRun/proxies/dexProxies';
 import { registerDexCallback } from '@/localRun/routes/dexCallback';
 import { registerSignOut } from '@/localRun/routes/signOut';
+import { logger } from '@/utils/logger';
 
 export function isLocalRun(): boolean {
   const isLocalRun = process.env['LOCAL_RUN'] === 'true';
@@ -26,7 +27,7 @@ export function isLocalRun(): boolean {
 }
 
 export function registerLocalRun(server: FastifyInstance) {
-  console.log('Running locally, setting up stubs');
+  logger.info('Running locally, setting up stubs');
 
   const isNativeAuth = process.env['NATIVE_AUTH'] === 'true';
   const cheApiProxyUpstream = process.env['CHE_API_PROXY_UPSTREAM'] || '';

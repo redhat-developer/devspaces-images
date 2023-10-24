@@ -22,6 +22,7 @@ import {
   prepareCoreV1API,
 } from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
 import { IGettingStartedSampleApi } from '@/devworkspaceClient/types';
+import { logger } from '@/utils/logger';
 
 const API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 const DEVFILE_METADATA_LABEL_SELECTOR =
@@ -41,7 +42,7 @@ export class GettingStartedSamplesApiService implements IGettingStartedSampleApi
 
   async list(): Promise<Array<api.IGettingStartedSample>> {
     if (!this.env.NAMESPACE) {
-      console.warn('Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE');
+      logger.warn('Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE');
       return [];
     }
 
@@ -63,14 +64,16 @@ export class GettingStartedSamplesApiService implements IGettingStartedSampleApi
     const samples: api.IGettingStartedSample[] = [];
 
     for (const cm of response.body.items) {
-      if (cm.data) {
-        for (const key in cm.data) {
-          try {
-            const sample = JSON.parse(cm.data[key]);
-            Array.isArray(sample) ? samples.push(...sample) : samples.push(sample);
-          } catch (error) {
-            console.error(`Failed to parse getting started samples: ${error}`);
-          }
+      if (cm.data === undefined) {
+        continue;
+      }
+
+      for (const key in cm.data) {
+        try {
+          const sample = JSON.parse(cm.data[key]);
+          Array.isArray(sample) ? samples.push(...sample) : samples.push(sample);
+        } catch (error) {
+          logger.error(error, 'Failed to parse getting started sample: %s', cm.data[key]);
         }
       }
     }

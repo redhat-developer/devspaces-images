@@ -45,6 +45,8 @@
     "js-yaml": "^4.0.0",
     "multi-ini": "^2.3.2",
     "node-fetch": "^2.6.7",
+    "pino": "^8.15.1",
+    "pino-pretty": "^10.2.0",
     "querystring": "^0.2.1",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",

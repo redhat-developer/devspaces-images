@@ -26,8 +26,11 @@ module.exports = {
     ...base.collectCoverageFrom,
 
     '!src/localRun/**',
+    '!src/utils/**',
+    '!src/server.ts',
   ],
   testEnvironment: 'node',
+  setupFilesAfterEnv: ['./jest.setup.js'],
   coverageThreshold: {
     global: {
       statements: 81,

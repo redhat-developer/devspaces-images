@@ -11,6 +11,7 @@
  */
 
 import { getUserName } from '@/helpers/getUserName';
+import { logger } from '@/utils/logger';
 
 describe('helpers', () => {
   afterEach(() => {
@@ -47,10 +48,9 @@ describe('helpers', () => {
           ']]]{"iss":"https://dex.myhost","aud":"eclipse-che","exp":1234567890,"iat":1234567890,"email":"user1@che","email_verified":true,"name":"user1"}',
         ).toString('base64') +
         '.signature';
-      console.warn = jest.fn();
 
       expect(() => getUserName(token)).toThrow();
-      expect(console.warn).toHaveBeenCalledWith(`[WARN] Can't parse the token payload.`);
+      expect(logger.warn).toHaveBeenCalledWith(`Can't parse the token payload.`);
     });
   });
 });

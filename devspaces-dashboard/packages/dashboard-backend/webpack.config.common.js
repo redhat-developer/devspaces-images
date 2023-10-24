@@ -84,6 +84,5 @@ module.exports = () => {
       __dirname: false,
     },
     target: 'node',
-    externals: ['long', 'pino-pretty'],
   };
 };

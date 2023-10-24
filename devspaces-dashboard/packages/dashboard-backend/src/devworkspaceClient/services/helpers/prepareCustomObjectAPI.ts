@@ -16,6 +16,7 @@ import { retryableExec } from '@/devworkspaceClient/services/helpers/retryableEx
 
 export type CustomObjectAPI = Pick<
   k8s.CustomObjectsApi,
+  | 'getClusterCustomObject'
   | 'listClusterCustomObject'
   | 'listNamespacedCustomObject'
   | 'getNamespacedCustomObject'
@@ -26,28 +27,30 @@ export type CustomObjectAPI = Pick<
 >;
 
 export function prepareCustomObjectAPI(kc: k8s.KubeConfig): CustomObjectAPI {
-  const customObjectAPI = kc.makeApiClient(k8s.CustomObjectsApi);
+  const customObjectsApi = kc.makeApiClient(k8s.CustomObjectsApi);
   return {
+    getClusterCustomObject: (...args: Parameters<typeof customObjectsApi.getClusterCustomObject>) =>
+      retryableExec(() => customObjectsApi.getClusterCustomObject(...args)),
     listClusterCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.listClusterCustomObject>
-    ) => retryableExec(() => customObjectAPI.listClusterCustomObject(...args)),
+      ...args: Parameters<typeof customObjectsApi.listClusterCustomObject>
+    ) => retryableExec(() => customObjectsApi.listClusterCustomObject(...args)),
     listNamespacedCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.listNamespacedCustomObject>
-    ) => retryableExec(() => customObjectAPI.listNamespacedCustomObject(...args), 10),
+      ...args: Parameters<typeof customObjectsApi.listNamespacedCustomObject>
+    ) => retryableExec(() => customObjectsApi.listNamespacedCustomObject(...args)),
     getNamespacedCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.getNamespacedCustomObject>
-    ) => retryableExec(() => customObjectAPI.getNamespacedCustomObject(...args)),
+      ...args: Parameters<typeof customObjectsApi.getNamespacedCustomObject>
+    ) => retryableExec(() => customObjectsApi.getNamespacedCustomObject(...args)),
     createNamespacedCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.createNamespacedCustomObject>
-    ) => retryableExec(() => customObjectAPI.createNamespacedCustomObject(...args)),
+      ...args: Parameters<typeof customObjectsApi.createNamespacedCustomObject>
+    ) => retryableExec(() => customObjectsApi.createNamespacedCustomObject(...args)),
     replaceNamespacedCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.replaceNamespacedCustomObject>
-    ) => retryableExec(() => customObjectAPI.replaceNamespacedCustomObject(...args)),
+      ...args: Parameters<typeof customObjectsApi.replaceNamespacedCustomObject>
+    ) => retryableExec(() => customObjectsApi.replaceNamespacedCustomObject(...args)),
     deleteNamespacedCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.deleteNamespacedCustomObject>
-    ) => retryableExec(() => customObjectAPI.deleteNamespacedCustomObject(...args), 10),
+      ...args: Parameters<typeof customObjectsApi.deleteNamespacedCustomObject>
+    ) => retryableExec(() => customObjectsApi.deleteNamespacedCustomObject(...args)),
     patchNamespacedCustomObject: (
-      ...args: Parameters<typeof customObjectAPI.patchNamespacedCustomObject>
-    ) => retryableExec(() => customObjectAPI.patchNamespacedCustomObject(...args)),
+      ...args: Parameters<typeof customObjectsApi.patchNamespacedCustomObject>
+    ) => retryableExec(() => customObjectsApi.patchNamespacedCustomObject(...args)),
   };
 }
