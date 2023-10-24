@@ -4,7 +4,7 @@ tests:
 results:
   delivery_types:
     email:
-      - nboldt@redhat.com
-      - rhopp@redhat.com
+      - dnochevn@redhat.com
+      - sdawley@redhat.com
 cluster_version:
   - v4.x
