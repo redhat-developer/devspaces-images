@@ -139,7 +139,7 @@ RUN \
     chgrp -R 0 /var/lib/pgsql/15 /var/lib/pgsql/data /var/lib/pgsql/backups && \
     mv /var/lib/pgsql/15/data/database /var/lib/pgsql/15/data/old
 
-ARG DS_BRANCH=devspaces-3-rhel-8
+ARG DS_BRANCH=devspaces-3.10-rhel-8
 ENV DS_BRANCH=${DS_BRANCH}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
@@ -158,6 +158,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.10" \
       license="EPLv2" \
-      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Samantha Dawley <sdawley@redhat.com>" \
+      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
