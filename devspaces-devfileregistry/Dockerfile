@@ -113,7 +113,7 @@ RUN sed -i /etc/httpd/conf/httpd.conf \
     chmod a+rwX /etc/httpd/conf /run/httpd /etc/httpd/logs/
 STOPSIGNAL SIGWINCH
 
-ARG DS_BRANCH=devspaces-3-rhel-8
+ARG DS_BRANCH=devspaces-3.10-rhel-8
 ENV DS_BRANCH=${DS_BRANCH}
 
 WORKDIR /var/www/html
@@ -155,6 +155,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.10" \
       license="EPLv2" \
-      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Samantha Dawley <sdawley@redhat.com>" \
+      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
