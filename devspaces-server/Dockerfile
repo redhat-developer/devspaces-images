@@ -53,6 +53,6 @@ LABEL summary="$SUMMARY" \
       pnc_artifact_id="11361452" \
       pnc_build_id="A34YADTQQZQAA" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Samantha Dawley <sdawley@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
