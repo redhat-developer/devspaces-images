@@ -2,15 +2,6 @@
 abazko@redhat.com:
     - UNSTABLE
     - FAILURE
-nboldt@redhat.com:
-    - UNSTABLE
-    - FAILURE
-kcrane@redhat.com:
-    - UNSTABLE
-    - FAILURE
-aghatwal@redhat.com: 
-    - UNSTABLE
-    - FAILURE
 #qe
 dnochevn@redhat.com: 
     - UNSTABLE
