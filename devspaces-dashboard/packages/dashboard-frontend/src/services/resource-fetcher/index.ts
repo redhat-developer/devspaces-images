@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
-
+import { getAxiosInstance } from '@/services/axios-wrapper/getAxiosInstance';
+import { appendLink } from '@/services/resource-fetcher/appendLink';
 import { AppState } from '@/store';
 
 // source: https://github.com/eclipse/che-dashboard/blob/381ff548a9fff3537f1a29ce8e9b228f6c145338/src/components/service/resource-fetcher/resource-fetcher.service.ts
@@ -39,21 +39,22 @@ export class ResourceFetcherService {
     if (!url) {
       return;
     }
+    const axiosInstance = getAxiosInstance();
     try {
-      const response = await axios.get<ResourceEntry[]>(url, {
+      const response = await axiosInstance.get<ResourceEntry[]>(url, {
         headers: {
           'Cache-Control': 'no-cache',
           Expires: '0',
         },
       });
 
-      if (!response.data) {
+      if (!response.data || Array.isArray(response.data) === false) {
         return;
       }
       response.data.forEach(entry => {
         // load the url
         if (entry.cdn) {
-          this.appendLink(entry.cdn);
+          appendLink(entry.cdn);
         } else {
           console.error('Unable to find the Theia resource file to cache');
         }
@@ -71,18 +72,7 @@ export class ResourceFetcherService {
       return;
     }
     resources.forEach(resource => {
-      this.appendLink(resource);
+      appendLink(resource);
     });
-  }
-
-  /**
-   * Appends the `link` node linked to a resource
-   */
-  private appendLink(url: string): void {
-    console.log('Preloading resource', url);
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = url;
-    document.head.appendChild(link);
   }
 }

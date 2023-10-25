@@ -104,10 +104,13 @@ export class DevWorkspaceClient {
   async getAllWorkspaces(
     defaultNamespace: string,
   ): Promise<{ workspaces: devfileApi.DevWorkspace[]; resourceVersion: string }> {
+    const listWorkspaces = await DwApi.listWorkspacesInNamespace(defaultNamespace);
     const {
       items,
       metadata: { resourceVersion },
-    } = await DwApi.listWorkspacesInNamespace(defaultNamespace);
+    } = listWorkspaces?.metadata
+      ? listWorkspaces
+      : { items: [], metadata: { resourceVersion: '' } };
     const workspaces: devfileApi.DevWorkspace[] = [];
     for (const item of items) {
       if (!isWebTerminal(item)) {

@@ -51,11 +51,6 @@ export type Link = {
   href: string;
 };
 
-export enum TogglableFeature {
-  WORKSPACE_SHARING = 'workspaceSharing',
-  KUBERNETES_NAMESPACE_SELECTOR = 'kubernetesNamespaceSelector',
-}
-
 export const BRANDING_DEFAULT: BrandingData = {
   title: 'Eclipse Che',
   name: 'Eclipse Che',

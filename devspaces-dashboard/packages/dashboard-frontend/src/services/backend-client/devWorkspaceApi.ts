@@ -14,7 +14,7 @@ import { api, helpers } from '@eclipse-che/common';
 import axios from 'axios';
 import { JSONSchema7 } from 'json-schema';
 
-import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
 import { dashboardBackendPrefix } from '@/services/backend-client/const';
 import devfileApi, { IDevWorkspacesList } from '@/services/devfileApi';
 

@@ -113,7 +113,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.6.4",
-    "jest-websocket-mock": "^2.4.1",
+    "jest-websocket-mock": "2.4.1",
     "loader-utils": "^3.2.1",
     "mini-css-extract-plugin": "^2.7.6",
     "null-loader": "^4.0.1",

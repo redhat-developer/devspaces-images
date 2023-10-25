@@ -11,16 +11,14 @@
  */
 
 import common from '@eclipse-che/common';
-import axios from 'axios';
 import { Action, Reducer } from 'redux';
 
+import { getAxiosInstance } from '@/services/axios-wrapper/getAxiosInstance';
 import { AppThunk } from '@/store';
 import { createObject } from '@/store/helpers';
-import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
-import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
+import { SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
-// create new instance of `axios` to avoid adding an authorization header
-const axiosInstance = axios.create();
+const axiosInstance = getAxiosInstance();
 
 export interface State {
   isLoading: boolean;
@@ -51,17 +49,9 @@ export type ActionCreators = {
 export const actionCreators: ActionCreators = {
   requestPlugins:
     (registryUrl: string): AppThunk<KnownAction, Promise<che.Plugin[]>> =>
-    async (dispatch, getState): Promise<che.Plugin[]> => {
+    async (dispatch): Promise<che.Plugin[]> => {
       try {
-        await dispatch({ type: 'REQUEST_PLUGINS', check: AUTHORIZED });
-        if (!(await selectAsyncIsAuthorized(getState()))) {
-          const error = selectSanityCheckError(getState());
-          throw new Error(error);
-        }
-        const response = await axiosInstance.request<che.Plugin[]>({
-          method: 'GET',
-          url: `${registryUrl}/plugins/index.json`,
-        });
+        const response = await axiosInstance.get<che.Plugin[]>(`${registryUrl}/plugins/index.json`);
         const plugins = response.data;
 
         dispatch({

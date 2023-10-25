@@ -10,12 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
-import { BrandingData } from '../bootstrap/branding.constant';
+import { getAxiosInstance } from '@/services/axios-wrapper/getAxiosInstance';
+import { BrandingData } from '@/services/bootstrap/branding.constant';
 
 export async function fetchBranding(url: string): Promise<BrandingData> {
+  const axiosInstance = getAxiosInstance();
   try {
-    const response = await axios.get<BrandingData>(url);
+    const response = await axiosInstance.get<BrandingData>(url);
     return response.data;
   } catch (e) {
     throw new Error(`Failed to fetch branding data by URL: ${url}`);

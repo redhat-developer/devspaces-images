@@ -12,7 +12,7 @@
 
 import { api, helpers } from '@eclipse-che/common';
 
-import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
 import { dashboardBackendPrefix } from '@/services/backend-client/const';
 
 export async function fetchEvents(namespace: string): Promise<api.IEventList> {

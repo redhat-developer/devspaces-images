@@ -10,16 +10,27 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
-
 import { BrandingData } from '@/services/bootstrap/branding.constant';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import { ResourceFetcherService } from '..';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-mockedAxios.get = jest.fn();
+const mockedAppendLink = jest.fn();
+jest.mock('@/services/resource-fetcher/appendLink', () => {
+  return {
+    appendLink: (...args) => mockedAppendLink(...args),
+  };
+});
+const mockedGet = jest.fn();
+jest.mock('@/services/axios-wrapper/getAxiosInstance', () => {
+  return {
+    getAxiosInstance: () => ({
+      get: (...args) => mockedGet(...args),
+      post: (...args) => jest.fn(...args),
+      patch: (...args) => jest.fn(...args),
+    }),
+  };
+});
 
 // mute the outputs
 console.log = jest.fn();
@@ -31,8 +42,6 @@ describe('Resource fetcher', () => {
 
   it('should not request resources if nothing configured', () => {
     const service = new ResourceFetcherService();
-    jest.spyOn(service as any, 'appendLink');
-
     const store = new FakeStoreBuilder()
       .withBranding({
         configuration: {},
@@ -40,15 +49,14 @@ describe('Resource fetcher', () => {
       .build();
     service.prefetchResources(store.getState());
 
-    expect(mockedAxios.get).not.toHaveBeenCalled();
-    expect((service as any).appendLink).not.toHaveBeenCalled();
+    expect(mockedGet).not.toHaveBeenCalled();
+    expect(mockedAppendLink).not.toHaveBeenCalled();
   });
 
   it('should request CheCDN resources', async () => {
     const service = new ResourceFetcherService();
-    jest.spyOn(service as any, 'appendLink');
 
-    mockedAxios.get = jest.fn().mockResolvedValue({
+    mockedGet.mockResolvedValueOnce({
       data: [
         { cdn: 'che/resource/1', chunk: 'resource-1' },
         { cdn: 'che/resource/2', chunk: 'resource-2' },
@@ -67,18 +75,17 @@ describe('Resource fetcher', () => {
       .build();
     await service.prefetchResources(store.getState());
 
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockedAxios.get).toHaveBeenCalledWith('che/cdn', expect.anything());
+    expect(mockedGet).toHaveBeenCalledTimes(1);
+    expect(mockedGet).toHaveBeenCalledWith('che/cdn', expect.anything());
 
-    expect((service as any).appendLink).toHaveBeenCalledTimes(3);
-    expect((service as any).appendLink).toHaveBeenCalledWith('che/resource/1');
-    expect((service as any).appendLink).toHaveBeenCalledWith('che/resource/2');
-    expect((service as any).appendLink).toHaveBeenCalledWith('che/resource/3');
+    expect(mockedAppendLink).toHaveBeenCalledTimes(3);
+    expect(mockedAppendLink).toHaveBeenCalledWith('che/resource/1');
+    expect(mockedAppendLink).toHaveBeenCalledWith('che/resource/2');
+    expect(mockedAppendLink).toHaveBeenCalledWith('che/resource/3');
   });
 
   it('should request other resources', async () => {
     const service = new ResourceFetcherService();
-    jest.spyOn(service as any, 'appendLink');
 
     const store = new FakeStoreBuilder()
       .withBranding({
@@ -91,11 +98,11 @@ describe('Resource fetcher', () => {
       .build();
     await service.prefetchResources(store.getState());
 
-    expect(mockedAxios.get).not.toHaveBeenCalled();
+    expect(mockedGet).not.toHaveBeenCalled();
 
-    expect((service as any).appendLink).toHaveBeenCalledTimes(3);
-    expect((service as any).appendLink).toHaveBeenCalledWith('other/resource/1');
-    expect((service as any).appendLink).toHaveBeenCalledWith('other/resource/2');
-    expect((service as any).appendLink).toHaveBeenCalledWith('other/resource/3');
+    expect(mockedAppendLink).toHaveBeenCalledTimes(3);
+    expect(mockedAppendLink).toHaveBeenCalledWith('other/resource/1');
+    expect(mockedAppendLink).toHaveBeenCalledWith('other/resource/2');
+    expect(mockedAppendLink).toHaveBeenCalledWith('other/resource/3');
   });
 });
