@@ -16,6 +16,7 @@ import { Action, Reducer } from 'redux';
 import { provisionKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
 import { getDefer } from '@/services/helpers/deferred';
 import { delay } from '@/services/helpers/delay';
+import { signIn } from '@/services/helpers/login';
 import {
   getErrorMessage,
   hasLoginPage,
@@ -114,7 +115,7 @@ export const actionCreators: ActionCreators = {
         }
       } catch (e) {
         if (isUnauthorized(e) || (isForbidden(e) && hasLoginPage(e))) {
-          window.location.reload();
+          signIn();
         }
         const errorMessage = getErrorMessage(e);
         dispatch({
