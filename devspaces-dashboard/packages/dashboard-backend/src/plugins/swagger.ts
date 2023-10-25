@@ -63,6 +63,7 @@ export function registerSwagger(server: FastifyInstance) {
     uiConfig: {
       tryItOutEnabled: true,
       validatorUrl: null,
+      layout: 'BaseLayout',
     },
   });
 }
