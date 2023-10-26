@@ -46,8 +46,8 @@ RUN git init .
 # change network timeout (slow using multi-arch build)
 RUN yarn config set network-timeout 600000 -g
 
-# Grab dependencies (and force to rebuild them)
-RUN yarn install --force
+# Install node-gyp, then yarn dependencies (force update to yarn.lock)
+RUN yarn add -W -D node-gyp; yarn install --force
 
 RUN echo "$(ulimit -a)"
 
