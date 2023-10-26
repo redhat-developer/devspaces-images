@@ -71,6 +71,6 @@ LABEL com.redhat.delivery.appregistry="false" \
       name="$PRODNAME/$COMPNAME" \
       version="3.11" \
       license="EPLv2" \
-      maintainer="Anatolii Bazko <abazko@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>, Samantha Dawley <sdawley@redhat.com>" \
+      maintainer="Anatolii Bazko <abazko@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>, Samantha Dawley <sdawley@redhat.com>,  Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
