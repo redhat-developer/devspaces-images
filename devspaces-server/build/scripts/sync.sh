@@ -80,7 +80,7 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 
 # copy entrypoint.sh
-rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
+rsync -azrlt --checksum ${SOURCEDIR}/build/dockerfiles/entrypoint.sh ${TARGETDIR}
 
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
@@ -166,7 +166,7 @@ fi
 generateFetchArtifactsPNCYaml
 
 # NOTE: upstream Dockerfile is in non-standard path (not build/dockerfiles/Dockerfile) because project has multiple container builds
-sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
+sed ${SOURCEDIR}/build/dockerfiles/Dockerfile -r \
     -e 's@/home/user/eclipse-che@/home/user/devspaces@g' \
 	`# insert logic to unpack asset-*.tgz` \
     -e 's@ADD eclipse-che .+@# see fetch-artifacts-pnc.yaml\nCOPY artifacts/assembly-main.tar.gz /tmp/assembly-main.tar.gz\nRUN tar xzf /tmp/assembly-main.tar.gz --strip-components=1 -C /home/user/devspaces; rm -f /tmp/assembly-main.tar.gz\n@g' \
