@@ -902,7 +902,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:b19e754e68462a509f58d547b357e4b34957b55adbe3cf92f26cdece7ff6d2ef
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:ed9fde857161a64e001ca30ec142bc4342c2471c21c4b2e9f29ecf00f8d6779e
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:7aabe853985aaeda2620e17ab276337c46e8e275aca2ca95bb79c9a9e2c66133
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1281,4 +1281,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:b19e754e68462a509f58d547b357e4b34957b55adbe3cf92f26cdece7ff6d2ef
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:ed9fde857161a64e001ca30ec142bc4342c2471c21c4b2e9f29ecf00f8d6779e
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:7aabe853985aaeda2620e17ab276337c46e8e275aca2ca95bb79c9a9e2c66133
