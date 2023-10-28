@@ -12,7 +12,7 @@
 #
 
 # https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-29.1697652951
+FROM registry.redhat.io/rhel8/postgresql-15:1-29.1698060563
 USER 0
 WORKDIR /
 
