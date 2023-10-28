@@ -58,8 +58,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5d3fdb55ee9298c5924050cbdb8f78b6d4c2677096a813ec3f114f1a51577e96
-    createdAt: "2023-10-24T23:17:09+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:ac1dd8695aeb1220f1558b5969958aacd46fae8954e723c53a223b2fd4fc1ad1
+    createdAt: "2023-10-28T19:33:16+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -844,7 +844,7 @@ spec:
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_CONTAINERSECURITYCONTEXT
                   value: '{"allowPrivilegeEscalation": true,"capabilities": {"add": ["SETGID", "SETUID"]}}'
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
-                  value: '[{"name": "universal-developer-image", "container": {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:0058634a85d3da1c5b8d0f15897fd6ba354ebb541503ee91455580d1a73d8d5a"}}]'
+                  value: '[{"name": "universal-developer-image", "container": {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:a3a75995abaa4e0ac099051805900510ee0d6406472005efc0ffb8a282bc79ec"}}]'
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
                   value: che-incubator/che-code/latest
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -870,9 +870,9 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:19f5f8bc78550eeb86cca6ee242395474f653b35400ccc2f0eb670b878432465
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:ab080d5a636f40299260a8feb8c04dc40263b53ddbe2dee3d3ebd20b6d1ce1f5
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:a6a5f0193915c2534ce0e7535c458afcba077a4084c4b58710caef71e9921794
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:b809742fff849b2c70567a7a9dec76b4efd49015dfc6aea23f2402a5a454a216
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:22567de7cdeb175c7b13292f7675dd7611b3b0ca5870fbc31220444f9e3f01d2
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCMAK
@@ -884,9 +884,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMAK
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:31c6dbd7c2f8018bd8fac16f2b1e414edf797304c32718ca6967abee73e7435f
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:0058634a85d3da1c5b8d0f15897fd6ba354ebb541503ee91455580d1a73d8d5a
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:3b80a4595eb5c7eb5a62a8fc2096a2c26910eb8564f4949b2039db68452117cc
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:0058634a85d3da1c5b8d0f15897fd6ba354ebb541503ee91455580d1a73d8d5a
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:3b80a4595eb5c7eb5a62a8fc2096a2c26910eb8564f4949b2039db68452117cc
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
                   value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:dc43e5708090ba92e6777cab227289a79e2565a63df1b4d0ce194037669cca52
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
@@ -900,14 +900,14 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:b19e754e68462a509f58d547b357e4b34957b55adbe3cf92f26cdece7ff6d2ef
+                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:1fe487eb2bb891ae9f97446e248978cee0e4ce595de8c624b9a682ecce7cdaac
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:7aabe853985aaeda2620e17ab276337c46e8e275aca2ca95bb79c9a9e2c66133
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:842761491a59717bd928218a0877fcf29edcce2c2bc4a1a9d9929b00441e6432
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5d3fdb55ee9298c5924050cbdb8f78b6d4c2677096a813ec3f114f1a51577e96
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:ac1dd8695aeb1220f1558b5969958aacd46fae8954e723c53a223b2fd4fc1ad1
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1244,14 +1244,14 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.9.0
   relatedImages:
-  - name: devspaces-rhel8-operator-5d3fdb55ee9298c5924050cbdb8f78b6d4c2677096a813ec3f114f1a51577e96-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5d3fdb55ee9298c5924050cbdb8f78b6d4c2677096a813ec3f114f1a51577e96
+  - name: devspaces-rhel8-operator-ac1dd8695aeb1220f1558b5969958aacd46fae8954e723c53a223b2fd4fc1ad1-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:ac1dd8695aeb1220f1558b5969958aacd46fae8954e723c53a223b2fd4fc1ad1
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5d3fdb55ee9298c5924050cbdb8f78b6d4c2677096a813ec3f114f1a51577e96
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:ac1dd8695aeb1220f1558b5969958aacd46fae8954e723c53a223b2fd4fc1ad1
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:19f5f8bc78550eeb86cca6ee242395474f653b35400ccc2f0eb670b878432465
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:ab080d5a636f40299260a8feb8c04dc40263b53ddbe2dee3d3ebd20b6d1ce1f5
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:a6a5f0193915c2534ce0e7535c458afcba077a4084c4b58710caef71e9921794
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:b809742fff849b2c70567a7a9dec76b4efd49015dfc6aea23f2402a5a454a216
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:22567de7cdeb175c7b13292f7675dd7611b3b0ca5870fbc31220444f9e3f01d2
   - name: devspaces_code_devfile_registry_image_gmxdcmak
@@ -1263,9 +1263,9 @@ spec:
   - name: devspaces_idea_plugin_registry_image_gmxdcmak
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:31c6dbd7c2f8018bd8fac16f2b1e414edf797304c32718ca6967abee73e7435f
   - name: devspaces_udi_devfile_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:0058634a85d3da1c5b8d0f15897fd6ba354ebb541503ee91455580d1a73d8d5a
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:3b80a4595eb5c7eb5a62a8fc2096a2c26910eb8564f4949b2039db68452117cc
   - name: devspaces_udi_plugin_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:0058634a85d3da1c5b8d0f15897fd6ba354ebb541503ee91455580d1a73d8d5a
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:3b80a4595eb5c7eb5a62a8fc2096a2c26910eb8564f4949b2039db68452117cc
   - name: gateway_authentication_sidecar
     image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:dc43e5708090ba92e6777cab227289a79e2565a63df1b4d0ce194037669cca52
   - name: gateway_authorization_sidecar
@@ -1279,6 +1279,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_plugin_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:b19e754e68462a509f58d547b357e4b34957b55adbe3cf92f26cdece7ff6d2ef
+    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:1fe487eb2bb891ae9f97446e248978cee0e4ce595de8c624b9a682ecce7cdaac
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:7aabe853985aaeda2620e17ab276337c46e8e275aca2ca95bb79c9a9e2c66133
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:842761491a59717bd928218a0877fcf29edcce2c2bc4a1a9d9929b00441e6432
