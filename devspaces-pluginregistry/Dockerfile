@@ -12,7 +12,7 @@
 #
 
 # https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-29.1697652951
+FROM registry.redhat.io/rhel8/postgresql-15:1-29.1698060563
 USER 0
 WORKDIR /
 
@@ -158,6 +158,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.11" \
       license="EPLv2" \
-      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Samantha Dawley <sdawley@redhat.com>" \
+      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
