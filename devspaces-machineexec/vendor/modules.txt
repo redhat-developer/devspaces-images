@@ -9,7 +9,7 @@ github.com/eclipse/che-go-jsonrpc/jsonrpcws
 # github.com/gin-contrib/sse v0.1.0 => github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7
 ## explicit
 github.com/gin-contrib/sse
-# github.com/gin-gonic/gin v1.8.2 => github.com/gin-gonic/gin v1.8.2
+# github.com/gin-gonic/gin v1.9.1 => github.com/gin-gonic/gin v1.8.2
 ## explicit; go 1.18
 github.com/gin-gonic/gin
 github.com/gin-gonic/gin/binding
