@@ -27,7 +27,7 @@ import { AppState } from '@/store';
 import * as GitOauthConfig from '@/store/GitOauthConfig';
 import { selectGitOauth, selectIsLoading } from '@/store/GitOauthConfig/selectors';
 
-export const enabledProviders: api.GitOauthProvider[] = ['github'];
+export const enabledProviders: api.GitOauthProvider[] = ['github', 'github_2'];
 
 type Props = MappedProps;
 

@@ -14,8 +14,14 @@ import { api } from '@eclipse-che/common';
 
 export const GIT_OAUTH_PROVIDERS: Record<api.GitOauthProvider, string> = {
   'azure-devops': 'Microsoft Azure DevOps',
-  bitbucket: 'Bitbucket Server',
+  // Either Bitbucket Cloud or Bitbucket Server
+  // https://github.com/eclipse-che/che-server/blob/main/wsmaster/che-core-api-auth-bitbucket/src/main/java/org/eclipse/che/security/oauth/BitbucketOAuthAuthenticator.java
+  'bitbucket-server': 'Bitbucket',
+  // Bitbucket Server only
+  // https://github.com/eclipse-che/che-server/blob/main/wsmaster/che-core-api-auth-bitbucket/src/main/java/org/eclipse/che/security/oauth1/BitbucketServerOAuthAuthenticator.java
+  bitbucket: 'Bitbucket Server (OAuth 1.0)',
   github: 'GitHub',
+  github_2: 'GitHub (The second provider)',
   gitlab: 'GitLab',
 } as const;
 
@@ -35,5 +41,6 @@ export const PROVIDER_ENDPOINTS: Record<api.GitOauthProvider | api.GitProvider, 
   'bitbucket-server': '',
   bitbucket: '',
   github: 'https://github.com',
+  github_2: 'https://github.com',
   gitlab: 'https://gitlab.com',
 } as const;
