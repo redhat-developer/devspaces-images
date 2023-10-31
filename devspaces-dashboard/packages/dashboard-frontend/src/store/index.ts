@@ -31,6 +31,7 @@ import * as PodsStore from '@/store/Pods';
 import * as LogsStore from '@/store/Pods/Logs';
 import * as SanityCheckStore from '@/store/SanityCheck';
 import * as DwServerConfigStore from '@/store/ServerConfig';
+import * as SshKeysStore from '@/store/SshKeys';
 import * as UserIdStore from '@/store/User/Id';
 import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
@@ -57,6 +58,7 @@ export interface AppState {
   plugins: PluginsStore.State;
   pods: PodsStore.State;
   sanityCheck: SanityCheckStore.State;
+  sshKeys: SshKeysStore.State;
   userId: UserIdStore.State;
   userProfile: UserProfileStore.State;
   workspaces: WorkspacesStore.State;
@@ -82,6 +84,7 @@ export const reducers = {
   plugins: PluginsStore.reducer,
   pods: PodsStore.reducer,
   sanityCheck: SanityCheckStore.reducer,
+  sshKeys: SshKeysStore.reducer,
   userId: UserIdStore.reducer,
   userProfile: UserProfileStore.reducer,
   workspaces: WorkspacesStore.reducer,

@@ -24,6 +24,7 @@ import { PersonalAccessTokenService } from '@/devworkspaceClient/services/person
 import { PodApiService } from '@/devworkspaceClient/services/podApi';
 import { PodmanApiService } from '@/devworkspaceClient/services/podmanApi';
 import { ServerConfigApiService } from '@/devworkspaceClient/services/serverConfigApi';
+import { SshKeysService } from '@/devworkspaceClient/services/sshKeysApi';
 import { UserProfileApiService } from '@/devworkspaceClient/services/userProfileApi';
 import {
   IDevWorkspaceApi,
@@ -39,6 +40,7 @@ import {
   IPodApi,
   IPodmanApi,
   IServerConfigApi,
+  IShhKeysApi,
   IUserProfileApi,
 } from '@/devworkspaceClient/types';
 
@@ -101,5 +103,9 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   get gettingStartedSampleApi(): IGettingStartedSampleApi {
     return new GettingStartedSamplesApiService(this.kubeConfig);
+  }
+
+  get sshKeysApi(): IShhKeysApi {
+    return new SshKeysService(this.kubeConfig);
   }
 }

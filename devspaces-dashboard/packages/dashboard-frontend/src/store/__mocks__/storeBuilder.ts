@@ -170,6 +170,11 @@ export class FakeStoreBuilder {
       isLoading: false,
       error: undefined,
     },
+    sshKeys: {
+      isLoading: false,
+      keys: [],
+      error: undefined,
+    },
   };
 
   constructor(store?: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>) {
@@ -452,6 +457,20 @@ export class FakeStoreBuilder {
     this.state.gitConfig.error = options.error;
 
     this.state.gitConfig.isLoading = isLoading;
+    return this;
+  }
+
+  public withSshKeys(
+    options: {
+      keys?: api.SshKey[];
+      error?: string;
+    },
+    isLoading = false,
+  ) {
+    this.state.sshKeys.keys = options.keys || [];
+    this.state.sshKeys.error = options.error;
+
+    this.state.sshKeys.isLoading = isLoading;
     return this;
   }
 

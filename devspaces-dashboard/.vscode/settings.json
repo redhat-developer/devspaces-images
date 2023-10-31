@@ -3,7 +3,8 @@
     "**/.yarn": true,
     "**/.pnp.*": true,
     "**/lib": true,
-    "**/coverage": true
+    "**/coverage": true,
+    "**/node_modules": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
 }

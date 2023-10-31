@@ -20,6 +20,7 @@ import ContainerRegistries from '@/pages/UserPreferences/ContainerRegistriesTab'
 import GitConfig from '@/pages/UserPreferences/GitConfig';
 import GitServicesTab from '@/pages/UserPreferences/GitServicesTab';
 import PersonalAccessTokens from '@/pages/UserPreferences/PersonalAccessTokens';
+import SshKeys from '@/pages/UserPreferences/SshKeys';
 import { ROUTE } from '@/Routes/routes';
 import { UserPreferencesTab } from '@/services/helpers/types';
 import { AppState } from '@/store';
@@ -30,6 +31,7 @@ const CONTAINER_REGISTRIES_TAB: UserPreferencesTab = 'container-registries';
 const GIT_SERVICES_TAB: UserPreferencesTab = 'git-services';
 const PERSONAL_ACCESS_TOKENS_TAB: UserPreferencesTab = 'personal-access-tokens';
 const GITCONFIG_TAB: UserPreferencesTab = 'gitconfig';
+const SSH_KEYS_TAB: UserPreferencesTab = 'ssh-keys';
 
 export type Props = {
   history: History;
@@ -61,7 +63,8 @@ export class UserPreferences extends React.PureComponent<Props, State> {
         (tab === CONTAINER_REGISTRIES_TAB ||
           tab === GITCONFIG_TAB ||
           tab === GIT_SERVICES_TAB ||
-          tab === PERSONAL_ACCESS_TOKENS_TAB)
+          tab === PERSONAL_ACCESS_TOKENS_TAB ||
+          tab === SSH_KEYS_TAB)
       ) {
         return searchParam.get('tab') as UserPreferencesTab;
       }
@@ -109,6 +112,9 @@ export class UserPreferences extends React.PureComponent<Props, State> {
           </Tab>
           <Tab eventKey={GITCONFIG_TAB} title="Gitconfig">
             <GitConfig />
+          </Tab>
+          <Tab eventKey={SSH_KEYS_TAB} title="SSH Keys">
+            <SshKeys />
           </Tab>
         </Tabs>
       </React.Fragment>

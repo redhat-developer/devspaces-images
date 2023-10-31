@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SshPrivateKey snapshot 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+>
+  <div
+    className="pf-c-form__group"
+    required={true}
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="ssh-private-key"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          Private Key
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <input
+        data-testid="ssh-private-key"
+        id="ssh-private-key"
+        onChange={[Function]}
+        placeholder="Paste the PRIVATE key here."
+      />
+      
+    </div>
+  </div>
+</form>
+`;

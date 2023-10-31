@@ -47,6 +47,21 @@ export type PersonalAccessToken = {
     }
 );
 
+export type SshKey = {
+  creationTimestamp?: Date;
+  name: string;
+  /**
+   * base64 encoded public key.
+   */
+  keyPub: string;
+};
+export type NewSshKey = Omit<SshKey, 'creationTimestamp'> & {
+  /**
+   * base64 encoded private key.
+   */
+  key: string;
+};
+
 export interface IPatch {
   op: string;
   path: string;

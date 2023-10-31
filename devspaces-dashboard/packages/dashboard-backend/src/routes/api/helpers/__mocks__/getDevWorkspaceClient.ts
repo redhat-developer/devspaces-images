@@ -32,6 +32,7 @@ import {
   IPersonalAccessTokenApi,
   IPodApi,
   IServerConfigApi,
+  IShhKeysApi,
   IUserProfileApi,
 } from '@/devworkspaceClient';
 import { getDevWorkspaceClient as helper } from '@/routes/api/helpers/getDevWorkspaceClient';
@@ -111,6 +112,19 @@ export const stubPodsList: api.IPodList = {
 
 export const stubPersonalAccessTokenList: api.PersonalAccessToken[] = [];
 
+export const stubSshKeysList: api.SshKey[] = [
+  {
+    name: 'key-1',
+    creationTimestamp: undefined,
+    keyPub: 'ssh-key-pub-data-1',
+  },
+  {
+    name: 'key-2',
+    creationTimestamp: undefined,
+    keyPub: 'ssh-key-pub-data-2',
+  },
+];
+
 export function getDevWorkspaceClient(
   ..._args: Parameters<typeof helper>
 ): ReturnType<typeof helper> {
@@ -184,5 +198,10 @@ export function getDevWorkspaceClient(
       read: _namespace => Promise.resolve({} as api.IGitConfig),
       patch: (_namespace, _gitconfig) => Promise.resolve({} as api.IGitConfig),
     } as IGitConfigApi,
+    sshKeysApi: {
+      add: (_namespace, _sshKey) => Promise.resolve({} as api.SshKey),
+      delete: (_namespace, _name) => Promise.resolve(),
+      list: _namespace => Promise.resolve(stubSshKeysList),
+    } as IShhKeysApi,
   } as DevWorkspaceClient;
 }

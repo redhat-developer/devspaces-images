@@ -21,3 +21,25 @@ export function formatDate(date: Ms | Date): string {
 export function formatRelativeDate(date: Ms | Date): string {
   return formatDistanceToNow(date, { addSuffix: true });
 }
+
+/**
+ * Returns formatted date. If the date is within an hour, it will be formatted as relative date.
+ */
+export function getFormattedDate(date?: Ms | Date): string {
+  if (date === undefined) {
+    return '';
+  }
+
+  const dateMs = new Date(date).getTime();
+  const nowMs = Date.now();
+
+  let formattedDate = '';
+  // show relative date if distance is withing an hour
+  if (nowMs - dateMs < 60 * 60 * 1000) {
+    formattedDate = formatRelativeDate(dateMs);
+  } else {
+    formattedDate = formatDate(dateMs);
+  }
+
+  return formattedDate;
+}
