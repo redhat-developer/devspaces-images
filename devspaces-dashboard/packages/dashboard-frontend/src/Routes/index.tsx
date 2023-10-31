@@ -13,14 +13,14 @@
 import React from 'react';
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router';
 
+import WorkspaceDetailsContainer from '@/containers/WorkspaceDetails';
+import WorkspacesListContainer from '@/containers/WorkspacesList';
+import CreateWorkspace from '@/pages/GetStarted';
+import UserPreferences from '@/pages/UserPreferences';
 import { buildFactoryLoaderPath } from '@/preload/main';
 import { ROUTE } from '@/Routes/routes';
 
-const CreateWorkspace = React.lazy(() => import('../pages/GetStarted'));
-const WorkspacesListContainer = React.lazy(() => import('../containers/WorkspacesList'));
-const WorkspaceDetailsContainer = React.lazy(() => import('../containers/WorkspaceDetails'));
 const LoaderContainer = React.lazy(() => import('../containers/Loader'));
-const UserPreferences = React.lazy(() => import('../pages/UserPreferences'));
 // temporary hidden, https://github.com/eclipse/che/issues/21595
 // const UserAccount = React.lazy(() => import('../pages/UserAccount'));
 
