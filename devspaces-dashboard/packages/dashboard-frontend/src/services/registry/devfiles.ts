@@ -178,10 +178,7 @@ export async function fetchRegistryMetadata(
           throw new DevfileMetaDataIsNotArrayError(location);
         }
       } catch (e) {
-        if (
-          e instanceof DevfileMetaDataIsNotArrayError ||
-          index === registryIndexLocations.length - 1
-        ) {
+        if (index === registryIndexLocations.length - 1) {
           throw e;
         }
       }
