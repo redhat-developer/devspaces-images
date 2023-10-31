@@ -59,15 +59,7 @@ commands:
       commandLine: "yarn --cwd packages/dashboard-backend build:watch"
       group:
         kind: build
-  - id: prepare
-    exec:
-      label: "[UD] prepare"
-      component: tools
-      workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn start:prepare"
-      group:
-        kind: build
-  - id: dogfoodingprepare
+  - id: dogfoodingstart
     exec:
       label: "[UD] dogfooding start"
       component: tools
