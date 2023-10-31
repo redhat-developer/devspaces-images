@@ -63,3 +63,8 @@ export interface PersonalAccessTokenNamespacedParams extends INamespacedParams {
   namespace: string;
   tokenName: string;
 }
+
+export interface ShhKeyNamespacedParams extends INamespacedParams {
+  namespace: string;
+  name: string;
+}

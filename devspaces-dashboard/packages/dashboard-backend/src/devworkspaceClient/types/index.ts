@@ -387,6 +387,9 @@ export interface IDevWorkspaceClient {
   podApi: IPodApi;
   serverConfigApi: IServerConfigApi;
   userProfileApi: IUserProfileApi;
+  gitConfigApi: IGitConfigApi;
+  gettingStartedSampleApi: IGettingStartedSampleApi;
+  sshKeysApi: IShhKeysApi;
 }
 
 export interface IWatcherService<T = Record<string, unknown>> {
@@ -408,4 +411,10 @@ export interface IGettingStartedSampleApi {
    * Reads all the Getting Started Samples ConfigMaps.
    */
   list(): Promise<Array<api.IGettingStartedSample>>;
+}
+
+export interface IShhKeysApi {
+  list(namespace: string): Promise<Array<api.SshKey>>;
+  add(namespace: string, sshKey: api.SshKey): Promise<api.SshKey>;
+  delete(namespace: string, name: string): Promise<void>;
 }

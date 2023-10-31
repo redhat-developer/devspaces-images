@@ -109,5 +109,6 @@ export enum WorkspaceAction {
 export type UserPreferencesTab =
   | 'container-registries'
   | 'git-services'
+  | 'gitconfig'
   | 'personal-access-tokens'
-  | 'gitconfig';
+  | 'ssh-keys';

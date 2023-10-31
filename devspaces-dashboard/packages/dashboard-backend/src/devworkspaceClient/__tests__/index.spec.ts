@@ -23,6 +23,7 @@ import { KubeConfigApiService } from '@/devworkspaceClient/services/kubeConfigAp
 import { LogsApiService } from '@/devworkspaceClient/services/logsApi';
 import { PodApiService } from '@/devworkspaceClient/services/podApi';
 import { ServerConfigApiService } from '@/devworkspaceClient/services/serverConfigApi';
+import { SshKeysService } from '@/devworkspaceClient/services/sshKeysApi';
 import { UserProfileApiService } from '@/devworkspaceClient/services/userProfileApi';
 
 import { DevWorkspaceClient } from '..';
@@ -55,5 +56,6 @@ describe('DevWorkspace client', () => {
     expect(client.userProfileApi).toBeInstanceOf(UserProfileApiService);
     expect(client.gitConfigApi).toBeInstanceOf(GitConfigApiService);
     expect(client.gettingStartedSampleApi).toBeInstanceOf(GettingStartedSamplesApiService);
+    expect(client.sshKeysApi).toBeInstanceOf(SshKeysService);
   });
 });

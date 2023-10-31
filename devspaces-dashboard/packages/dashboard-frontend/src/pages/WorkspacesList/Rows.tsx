@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom';
 
 import WorkspaceIndicator from '@/components/Workspace/Indicator';
 import devfileApi from '@/services/devfileApi';
-import { formatDate, formatRelativeDate } from '@/services/helpers/date';
+import { formatDate, formatRelativeDate } from '@/services/helpers/dates';
 import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
 import { DevWorkspaceStatus, WorkspaceDetailsTab } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';

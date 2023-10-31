@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyState snapshot 1`] = `
+<div
+  className="pf-c-empty-state pf-m-sm pf-m-full-height"
+>
+  <div
+    className="pf-c-empty-state__content"
+  >
+    <svg
+      aria-hidden="true"
+      aria-labelledby={null}
+      className="pf-c-empty-state__icon"
+      fill="currentColor"
+      height="1em"
+      role="img"
+      style={
+        {
+          "verticalAlign": "-0.125em",
+        }
+      }
+      viewBox="0 0 1024 1024"
+      width="1em"
+    >
+      <path
+        d="M802,320 C748.980664,320 706,277.019336 706,224 C706,170.980664 748.980664,128 802,128 C855.019336,128 898,170.980664 898,224 C898,277.019336 855.019336,320 802,320 M704,0 C527.3,0 384,143.3 384,320 C383.937788,357.490503 390.505571,394.696657 403.4,429.9 L0,824.1 L0,1024 L192,1024 L192,896 L320,896 L320,768 L448,768 L597,622 C596.906403,621.881923 596.838304,621.745723 596.8,621.6 C631.220126,633.811107 667.47802,640.034477 704,640 C880.7,640 1024,496.7 1024,320 C1024,143.3 880.7,0 704,0"
+      />
+    </svg>
+    <h4
+      className="pf-c-title pf-m-lg"
+      data-ouia-component-id="OUIA-Generated-Title-1"
+      data-ouia-component-type="PF4/Title"
+      data-ouia-safe={true}
+    >
+      No SSH Keys
+    </h4>
+    <div
+      className="pf-c-empty-state__body"
+    >
+      <button
+        aria-disabled={false}
+        aria-label="Add SSH Key"
+        className="pf-c-button pf-m-link"
+        data-ouia-component-id="OUIA-Generated-Button-link-1"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={false}
+        onClick={[Function]}
+        role={null}
+        type="button"
+      >
+        <span
+          className="pf-c-button__icon pf-m-start"
+        >
+          <svg
+            aria-hidden={true}
+            aria-labelledby={null}
+            fill="currentColor"
+            height="1em"
+            role="img"
+            style={
+              {
+                "verticalAlign": "-0.125em",
+              }
+            }
+            viewBox="0 0 512 512"
+            width="1em"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+            />
+          </svg>
+        </span>
+        Add SSH Key
+      </button>
+    </div>
+  </div>
+</div>
+`;

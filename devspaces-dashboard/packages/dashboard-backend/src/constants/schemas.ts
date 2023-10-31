@@ -302,3 +302,32 @@ export const personalAccessTokenParamsSchema: JSONSchema7 = {
   },
   required: ['namespace', 'tokenName'],
 };
+
+export const sshKeyBodySchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string',
+    },
+    key: {
+      type: 'string',
+    },
+    keyPub: {
+      type: 'string',
+    },
+  },
+  required: ['name', 'key', 'keyPub'],
+};
+
+export const sshKeyParamsSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    name: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'name'],
+};

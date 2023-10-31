@@ -15,11 +15,14 @@ import {
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEventApi,
+  IGettingStartedSampleApi,
+  IGitConfigApi,
   IKubeConfigApi,
   ILogsApi,
   IPersonalAccessTokenApi,
   IPodApi,
   IServerConfigApi,
+  IShhKeysApi,
   IUserProfileApi,
 } from '@/devworkspaceClient/types';
 
@@ -54,6 +57,15 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
     throw new Error('Method not implemented.');
   }
   get podApi(): IPodApi {
+    throw new Error('Method not implemented.');
+  }
+  get gettingStartedSampleApi(): IGettingStartedSampleApi {
+    throw new Error('Method not implemented.');
+  }
+  get gitConfigApi(): IGitConfigApi {
+    throw new Error('Method not implemented.');
+  }
+  get sshKeysApi(): IShhKeysApi {
     throw new Error('Method not implemented.');
   }
 }

@@ -1,0 +1,124 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SshKeysListEntry snapshot 1`] = `
+<article
+  className="pf-c-card"
+  data-ouia-component-id="OUIA-Generated-Card-1"
+  data-ouia-component-type="PF4/Card"
+  data-ouia-safe={true}
+  id=""
+>
+  <div
+    className="pf-c-card__header"
+  >
+    <div
+      className="pf-c-card__title"
+      data-testid="title"
+    >
+      sshKey1
+    </div>
+    <div
+      className="pf-c-card__actions"
+    >
+      <div>
+        <span>
+          Copy to clipboard
+        </span>
+        <button
+          aria-disabled={false}
+          aria-label={null}
+          className="pf-c-button pf-m-link"
+          data-ouia-component-id="OUIA-Generated-Button-link-1"
+          data-ouia-component-type="PF4/Button"
+          data-ouia-safe={true}
+          data-testid="copy-to-clipboard"
+          disabled={false}
+          name="Copy to Clipboard"
+          onClick={[Function]}
+          role={null}
+          type="button"
+        >
+          <span
+            className="pf-c-button__icon pf-m-start"
+          >
+            <svg
+              aria-hidden={true}
+              aria-labelledby={null}
+              fill="currentColor"
+              height="1em"
+              role="img"
+              style={
+                {
+                  "verticalAlign": "-0.125em",
+                }
+              }
+              viewBox="0 0 448 512"
+              width="1em"
+            >
+              <path
+                d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56h168zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24zm120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97z"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+      <div
+        className="pf-c-dropdown pf-m-align-right"
+        data-ouia-component-id="OUIA-Generated-Dropdown-1"
+        data-ouia-component-type="PF4/Dropdown"
+        data-ouia-safe={true}
+      >
+        <button
+          aria-expanded={false}
+          aria-haspopup={true}
+          aria-label="Actions"
+          className="pf-c-dropdown__toggle pf-m-plain"
+          disabled={false}
+          id="pf-dropdown-toggle-id-0"
+          onClick={[Function]}
+          onKeyDown={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden={true}
+            aria-labelledby={null}
+            fill="currentColor"
+            height="1em"
+            role="img"
+            style={
+              {
+                "verticalAlign": "-0.125em",
+              }
+            }
+            viewBox="0 0 192 512"
+            width="1em"
+          >
+            <path
+              d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    className="pf-c-card__footer"
+  >
+    <div
+      className="pf-c-content"
+    >
+      <small
+        className=""
+        data-ouia-component-id="OUIA-Generated-Text-1"
+        data-ouia-component-type="PF4/Text"
+        data-ouia-safe={true}
+        data-pf-content={true}
+        data-testid="added-on"
+      >
+        Added: 
+        Aug 27, 4:17 p.m.
+      </small>
+    </div>
+  </div>
+</article>
+`;

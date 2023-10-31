@@ -35,6 +35,7 @@ import { registerPersonalAccessTokenRoutes } from '@/routes/api/personalAccessTo
 import { registerPodmanLoginRoute } from '@/routes/api/podmanLogin';
 import { registerPodsRoutes } from '@/routes/api/pods';
 import { registerServerConfigRoute } from '@/routes/api/serverConfig';
+import { registerSShKeysRoutes } from '@/routes/api/sshKeys';
 import { registerUserProfileRoute } from '@/routes/api/userProfile';
 import { registerWebsocket } from '@/routes/api/websocket';
 import { registerYamlResolverRoute } from '@/routes/api/yamlResolver';
@@ -114,5 +115,7 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
     registerGitConfigRoutes(server),
 
     registerGettingStartedSamplesRoutes(isLocalRun(), server),
+
+    registerSShKeysRoutes(server),
   ]);
 }
