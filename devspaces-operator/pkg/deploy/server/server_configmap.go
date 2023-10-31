@@ -1,4 +1,3 @@
-//
 // Copyright (c) 2019-2023 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
@@ -7,8 +6,8 @@
 // SPDX-License-Identifier: EPL-2.0
 //
 // Contributors:
-//   Red Hat, Inc. - initial API and implementation
 //
+//	Red Hat, Inc. - initial API and implementation
 package server
 
 import (
@@ -258,7 +257,7 @@ func (s *CheServerReconciler) getCheConfigMapData(ctx *chetypes.DeployContext) (
 
 	s.updateUserClusterRoles(ctx, cheEnv)
 
-	for _, oauthProvider := range []string{"bitbucket", "gitlab", "github", constants.AzureDevOpsOAuth} {
+	for _, oauthProvider := range []string{"bitbucket", "gitlab", constants.AzureDevOpsOAuth} {
 		err := s.updateIntegrationServerEndpoints(ctx, cheEnv, oauthProvider)
 		if err != nil {
 			return nil, err
