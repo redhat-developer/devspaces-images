@@ -17,13 +17,12 @@ import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, CoreV1Event, V1Status } from '@kubernetes/client-node';
 
 import { EventApiService } from '@/devworkspaceClient/services/eventApi';
+import { logger } from '@/utils/logger';
 
 jest.mock('../helpers/prepareCustomObjectWatch');
+jest.mock('../helpers/retryableExec');
 
 const namespace = 'user-che';
-
-// mute console.error
-console.error = jest.fn();
 
 describe('Event API Service', () => {
   let eventApiService: EventApiService;
@@ -45,6 +44,7 @@ describe('Event API Service', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    spyListNamespacedEvent.mockClear();
   });
 
   it('should list events', async () => {
@@ -57,9 +57,10 @@ describe('Event API Service', () => {
     const failureReason = 'failed to get events list';
     spyListNamespacedEvent.mockRejectedValue(new Error(failureReason));
 
-    const list = async () => await eventApiService.listInNamespace(namespace);
+    expect.assertions(1);
 
-    expect(list).rejects.toThrowError(failureReason);
+    const list = async () => await eventApiService.listInNamespace(namespace);
+    await expect(list()).rejects.toThrow(failureReason);
   });
 
   it('should watch events', async () => {
@@ -174,7 +175,10 @@ describe('Event API Service', () => {
     const error = new Error('watch error');
 
     (eventApiService as any).handleWatchError(error, path);
-    expect(console.error).toHaveBeenCalledWith(`[ERROR] Stopped watching ${path}. Reason:`, error);
+    expect(logger.warn).toHaveBeenCalledWith(
+      error,
+      'Stopped watching /api/v1/namespaces/user-che/events.',
+    );
   });
 });
 

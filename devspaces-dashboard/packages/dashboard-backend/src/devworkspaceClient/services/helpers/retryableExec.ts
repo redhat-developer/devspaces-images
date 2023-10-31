@@ -13,6 +13,7 @@
 import { helpers } from '@eclipse-che/common';
 
 import { delay } from '@/services/helpers';
+import { logger } from '@/utils/logger';
 
 export async function retryableExec<T>(callback: () => Promise<T>, maxAttempt = 5): Promise<T> {
   let error: unknown;
@@ -21,12 +22,19 @@ export async function retryableExec<T>(callback: () => Promise<T>, maxAttempt = 
       return await callback();
     } catch (e) {
       error = e;
-      if (helpers.errors.isKubeClientError(error) && error.statusCode === 404) {
-        return Promise.reject(error);
+
+      const message = helpers.errors.getMessage(e);
+      logger.warn(`Attempt ${attempt + 1} failed: ${message}`);
+
+      if (helpers.errors.isKubeClientError(e) && e.statusCode === 404) {
+        break;
       }
-      console.error(e);
+
+      logger.debug(e);
     }
     await delay(1000);
   }
-  return Promise.reject(error);
+
+  logger.error(error);
+  throw error;
 }

@@ -13,18 +13,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import * as k8s from '@kubernetes/client-node';
-import * as request from 'request';
+import { FastifyInstance } from 'fastify';
 
-export function prepareCoreV1API(_kc: k8s.KubeConfig): k8s.Watch {
-  const watch = async (..._args: Parameters<k8s.Watch['watch']>) => {
-    return {
-      body: {},
-      destroy: () => {
-        /* no-op */
-      },
-    } as request.Request;
-  };
-  return {
-    watch: (...args: Parameters<k8s.Watch['watch']>) => watch(...args),
-  } as k8s.Watch;
+export async function watchLogLevel(_server: FastifyInstance): Promise<void> {
+  // no-op
+}
+
+export async function readCR(_kubeConfig: k8s.KubeConfig, _server: FastifyInstance): Promise<void> {
+  // no-op
+}
+
+export async function watchCR(
+  _kubeConfig: k8s.KubeConfig,
+  _server: FastifyInstance,
+): Promise<void> {
+  // no-op
 }

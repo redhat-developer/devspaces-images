@@ -17,13 +17,11 @@ import * as mockClient from '@kubernetes/client-node';
 import { CoreV1Api, V1Pod, V1Status } from '@kubernetes/client-node';
 
 import { PodApiService } from '@/devworkspaceClient/services/podApi';
+import { logger } from '@/utils/logger';
 
 jest.mock('../helpers/prepareCustomObjectWatch');
 
 const namespace = 'user-che';
-
-// mute console.error
-console.error = jest.fn();
 
 describe('Pod API Service', () => {
   let podApiService: PodApiService;
@@ -177,7 +175,7 @@ describe('Pod API Service', () => {
     const error = new Error('watch error');
 
     (podApiService as any).handleWatchError(error, path);
-    expect(console.error).toHaveBeenCalledWith(`[ERROR] Stopped watching ${path}. Reason:`, error);
+    expect(logger.error).toHaveBeenCalledWith(error, `Stopped watching ${path}.`);
   });
 });
 

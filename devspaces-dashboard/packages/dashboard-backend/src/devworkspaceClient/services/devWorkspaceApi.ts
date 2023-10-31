@@ -29,6 +29,7 @@ import {
 import { prepareCustomObjectWatch } from '@/devworkspaceClient/services/helpers/prepareCustomObjectWatch';
 import { IDevWorkspaceApi } from '@/devworkspaceClient/types';
 import { MessageListener } from '@/services/types/Observer';
+import { logger } from '@/utils/logger';
 
 const DEV_WORKSPACE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
@@ -193,7 +194,7 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
         }
       },
       (error: unknown) => {
-        console.error(`[ERROR] Stopped watching ${path}. Reason:`, error);
+        logger.warn(error, `Stopped watching ${path}.`);
       },
     );
 

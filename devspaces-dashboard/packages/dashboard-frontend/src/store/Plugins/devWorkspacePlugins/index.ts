@@ -250,7 +250,7 @@ export const actionCreators: ActionCreators = {
 
       const defaultPlugins = {};
       const defaults = getState().dwServerConfig.config.defaults;
-      defaults.plugins.forEach(item => {
+      (defaults.plugins || []).forEach(item => {
         if (!defaultPlugins[item.editor]) {
           defaultPlugins[item.editor] = [];
         }

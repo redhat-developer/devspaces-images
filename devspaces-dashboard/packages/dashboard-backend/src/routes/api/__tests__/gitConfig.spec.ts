@@ -14,7 +14,7 @@ import { api } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
 
 import { baseApiPath } from '@/constants/config';
-import { setup, teardown } from '@/helpers/tests/appBuilder';
+import { setup, teardown } from '@/utils/appBuilder';
 
 const mockRead = jest.fn().mockResolvedValue({});
 const mockPatch = jest.fn().mockResolvedValue({});

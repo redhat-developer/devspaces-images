@@ -20,6 +20,7 @@ import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClien
 import { getToken } from '@/routes/api/helpers/getToken';
 import { ObjectsWatcher } from '@/services/ObjectsWatcher';
 import { SubscriptionManager } from '@/services/SubscriptionManager';
+import { logger } from '@/utils/logger';
 
 export function registerWebsocket(instance: FastifyInstance) {
   instance.register(async server => {
@@ -76,11 +77,11 @@ function webSocketHandler(connection: SocketStream, request: FastifyRequest): vo
   }
 
   ws.on('close', (code: number, reason: string) => {
-    console.warn(`[WARN] The WebSocket connection closed. Code: ${code}, reason: ${reason}`);
+    logger.warn(`The WebSocket connection closed. Code: ${code}, reason: ${reason}`);
     handleUnsubscribeAll();
   });
   ws.on('error', (error: Error) => {
-    console.error(`[ERROR] The WebSocket connection error:`, error);
+    logger.error(error, `The WebSocket connection error:`);
     handleUnsubscribeAll();
   });
   ws.on('message', async (messageStr: WebSocket.Data) => {
@@ -90,15 +91,15 @@ function webSocketHandler(connection: SocketStream, request: FastifyRequest): vo
       if (api.webSocket.isWebSocketSubscriptionMessage(obj)) {
         message = obj;
       } else {
-        console.warn(`[WARN] Unexpected WS message payload:`, messageStr.toString());
+        logger.warn(`Unexpected WS message payload: %s`, messageStr.toString());
         return;
       }
     } catch (e) {
-      console.warn(`[WARN] Can't parse the WS message payload:`, messageStr.toString());
+      logger.warn(`Can't parse the WS message payload: %s`, messageStr.toString());
       throw e;
     }
 
-    console.log(`[INFO] WS message:`, message);
+    logger.info(`WS message: %s`, message);
 
     switch (message.method) {
       case 'UNSUBSCRIBE': {

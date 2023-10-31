@@ -12,15 +12,12 @@
 
 import process from 'process';
 
-import { setup, teardown } from '@/helpers/tests/appBuilder';
+import { setup, teardown } from '@/utils/appBuilder';
 
 const mockProcessExit = jest.fn();
 (process as any).exit = mockProcessExit.mockImplementation(code => {
   throw new Error('exit code ' + code);
 });
-
-// mute the output
-console.error = jest.fn();
 
 describe('App', () => {
   afterEach(() => {

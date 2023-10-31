@@ -69,13 +69,6 @@ module.exports = () => {
           {
             from: path.resolve('..', '..', 'node_modules', '@fastify/swagger-ui', 'static'),
             to: 'static',
-            transform(content, absoluteFrom) {
-              // it needs to hide the top bar(the definition URL path)
-              if (absoluteFrom.split('/').reverse()[0] === 'index.html') {
-                return content.toString().replace('layout: "StandaloneLayout"', '');
-              }
-              return content.toString();
-            },
           },
         ],
       }),
@@ -84,6 +77,5 @@ module.exports = () => {
       __dirname: false,
     },
     target: 'node',
-    externals: ['long', 'pino-pretty'],
   };
 };

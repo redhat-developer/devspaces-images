@@ -11,8 +11,9 @@
  */
 
 import common from '@eclipse-che/common';
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import { getAxiosInstance } from '@/services/axios-wrapper/getAxiosInstance';
 import { delay } from '@/services/helpers/delay';
 
 type AxiosFunc = (url: string, config?: AxiosRequestConfig) => Promise<any>;
@@ -32,11 +33,11 @@ export class AxiosWrapper {
   }
 
   static createToRetryMissedBearerTokenError(): AxiosWrapper {
-    return new AxiosWrapper(axios.create(), bearerTokenAuthorizationIsRequiredErrorMsg);
+    return new AxiosWrapper(getAxiosInstance(), bearerTokenAuthorizationIsRequiredErrorMsg);
   }
 
   static createToRetryAnyErrors(): AxiosWrapper {
-    return new AxiosWrapper(axios.create());
+    return new AxiosWrapper(getAxiosInstance());
   }
 
   get<T = any, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {

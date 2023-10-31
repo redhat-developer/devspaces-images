@@ -15,7 +15,7 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `@sigstore/bundle@1.1.0` | transitive dependency |
 | `@sigstore/sign@1.0.0` | transitive dependency |
 | `@sigstore/sign@1.0.0` | transitive dependency |
-| `@testing-library/dom@7.31.2` | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.2] |
+| `@testing-library/dom@7.31.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.2) |
 | `@typescript-eslint/eslint-plugin@6.4.0` | transitive dependency |
 | `@typescript-eslint/parser@6.4.0` | transitive dependency |
 | `@typescript-eslint/scope-manager@6.4.0` | transitive dependency |
@@ -28,14 +28,14 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `asynciterator.prototype@1.0.0` | transitive dependency |
 | `es-iterator-helpers@1.0.12` | transitive dependency |
 | `es-iterator-helpers@1.0.12` | transitive dependency |
-| `eslint-config-prettier@9.0.0` | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/eslint-config-prettier/9.0.0] |
-| `eslint@8.47.0` | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/eslint/8.47.0] |
+| `eslint-config-prettier@9.0.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint-config-prettier/9.0.0) |
+| `eslint@8.47.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint/8.47.0) |
 | `fsevents@2.3.2` | transitive dependency |
 | `inquirer@8.2.6` | transitive dependency |
 | `jackspeak@2.3.0` | transitive dependency |
 | `npm-install-checks@6.2.0` | transitive dependency |
 | `postcss-reduce-initial@6.0.0` | transitive dependency |
-| `prettier@3.0.2` | (clearlydefined)[https://clearlydefined.io/definitions/npm/npmjs/-/prettier/3.0.2] |
+| `prettier@3.0.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/prettier/3.0.2) |
 | `sigstore@1.9.0` | transitive dependency |
 | `string-width-cjs@4.2.3` | transitive dependency |
 | `strip-ansi-cjs@6.0.1` | transitive dependency |

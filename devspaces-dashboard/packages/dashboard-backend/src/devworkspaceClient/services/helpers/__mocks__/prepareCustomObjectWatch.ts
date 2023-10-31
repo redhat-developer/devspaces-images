@@ -22,6 +22,9 @@ export function prepareCustomObjectWatch(_kc: k8s.KubeConfig): k8s.Watch {
       destroy: () => {
         /* no-op */
       },
+      on: (_event: string, _callback: (data: unknown) => void) => {
+        /* no-op */
+      },
     } as request.Request;
   };
   return {

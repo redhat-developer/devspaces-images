@@ -14,16 +14,13 @@
 
 import * as k8s from '@kubernetes/client-node';
 
-const { KubeConfig } = k8s;
-const config = new KubeConfig();
+export const config = {} as k8s.KubeConfig;
 config.makeApiClient = jest.fn();
 
 export function KubeConfigProvider() {
   return {
     getSAKubeConfig: () => config,
-    getKubeConfig: (_token: string) => {
-      return new KubeConfig();
-    },
+    getKubeConfig: (_token: string) => config,
     inClusterKubeConfig: config,
   };
 }

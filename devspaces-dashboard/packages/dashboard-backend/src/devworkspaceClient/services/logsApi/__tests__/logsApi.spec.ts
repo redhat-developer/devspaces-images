@@ -43,10 +43,6 @@ jest.mock('@kubernetes/client-node', () => {
   };
 });
 
-// mute console.error
-console.warn = jest.fn();
-console.error = jest.fn();
-
 describe('Logs API Service', () => {
   let logsApiService: LogsApiService;
 

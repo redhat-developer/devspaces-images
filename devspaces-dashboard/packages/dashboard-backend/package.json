@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-backend",
-  "version": "7.76.1",
+  "version": "7.76.0",
   "description": "Dashboard backend for Eclipse Che",
   "scripts": {
     "build": "webpack --color --config webpack.config.prod.js",
@@ -27,7 +27,7 @@
   "license": "EPL-2.0",
   "dependencies": {
     "@devfile/api": "^2.2.1-alpha-1667236163",
-    "@eclipse-che/che-devworkspace-generator": "7.76.0",
+    "@eclipse-che/che-devworkspace-generator": "next",
     "@fastify/cors": "^8.3.0",
     "@fastify/error": "^3.3.0",
     "@fastify/http-proxy": "^9.2.1",
@@ -45,6 +45,8 @@
     "js-yaml": "^4.0.0",
     "multi-ini": "^2.3.2",
     "node-fetch": "^2.6.7",
+    "pino": "^8.15.1",
+    "pino-pretty": "^10.2.0",
     "querystring": "^0.2.1",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { AxiosWrapper } from '@/services/backend-client/axiosWrapper';
+import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
 import { cheServerPrefix } from '@/services/backend-client/const';
 
 export async function getKubernetesNamespace(): Promise<che.KubernetesNamespace[]> {

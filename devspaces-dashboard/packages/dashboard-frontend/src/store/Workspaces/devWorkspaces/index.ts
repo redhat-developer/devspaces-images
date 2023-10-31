@@ -219,7 +219,6 @@ export const actionCreators: ActionCreators = {
           type: Type.UPDATE_STARTED_WORKSPACES,
           workspaces,
         });
-
         const promises = workspaces
           .filter(
             workspace =>

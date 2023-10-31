@@ -18,10 +18,14 @@ export { webSocket };
 
 export type GitOauthProvider =
   | 'github'
+  | 'github_2'
   | 'gitlab'
   | 'bitbucket'
+  | 'bitbucket-server'
   | 'azure-devops';
 
+// The list of available Git providers for PAT
+// https://eclipse.dev/che/docs/stable/end-user-guide/using-a-git-provider-access-token/
 export type GitProvider =
   | 'github'
   | 'gitlab'

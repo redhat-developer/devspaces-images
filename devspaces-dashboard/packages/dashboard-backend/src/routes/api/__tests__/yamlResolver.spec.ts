@@ -14,7 +14,7 @@ import { FastifyInstance } from 'fastify';
 import * as mockNodeFetch from 'node-fetch';
 
 import { baseApiPath } from '@/constants/config';
-import { setup, teardown } from '@/helpers/tests/appBuilder';
+import { setup, teardown } from '@/utils/appBuilder';
 
 const { Response } = jest.requireActual<typeof mockNodeFetch>('node-fetch');
 

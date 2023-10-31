@@ -16,7 +16,7 @@ import mockAxios, { AxiosInstance, AxiosResponse } from 'axios';
 import {
   AxiosWrapper,
   bearerTokenAuthorizationIsRequiredErrorMsg,
-} from '@/services/backend-client/axiosWrapper';
+} from '@/services/axios-wrapper/axiosWrapper';
 
 // mute console logs
 console.log = jest.fn();

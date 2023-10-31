@@ -42,7 +42,6 @@ export class UserProfileApiService implements IUserProfileApi {
         email: Buffer.from(data.email, 'base64').toString(),
       };
     } catch (e) {
-      console.error('Unable to get user profile data:', e);
       throw createError(e, ERROR_LABEL, 'Unable to get user profile data');
     }
   }

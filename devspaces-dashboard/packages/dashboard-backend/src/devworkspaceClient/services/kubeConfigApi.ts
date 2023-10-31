@@ -19,6 +19,7 @@ import {
   prepareCoreV1API,
 } from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
 import { IKubeConfigApi } from '@/devworkspaceClient/types';
+import { logger } from '@/utils/logger';
 
 const EXCLUDED_CONTAINERS = ['che-gateway', 'che-machine-exec'];
 
@@ -59,7 +60,7 @@ export class KubeConfigApiService implements IKubeConfigApi {
         // find the directory where we should create the kubeconfig
         const kubeConfigDirectory = await this.resolveDirectory(podName, namespace, containerName);
         if (kubeConfigDirectory === '') {
-          console.log(
+          logger.info(
             `Could not find appropriate kubeconfig directory for ${namespace}/${podName}/${containerName}`,
           );
           continue;
@@ -92,7 +93,7 @@ export class KubeConfigApiService implements IKubeConfigApi {
           resolved = true;
         }
       } catch (e) {
-        console.warn(helpers.errors.getMessage(e));
+        logger.warn(e);
       }
     }
     if (!resolved) {
@@ -159,9 +160,9 @@ export class KubeConfigApiService implements IKubeConfigApi {
         return kubeConfigEnvResolver.stdOut.replace(new RegExp('/config$'), '');
       }
     } catch (e) {
-      const message = helpers.errors.getMessage(e);
-      console.error(
-        `Failed to run command 'printenv KUBECONFIG' in '${namespace}/${name}/${containerName}' with message: '${message}'`,
+      logger.error(
+        e,
+        `Failed to run command "printenv KUBECONFIG" in "${namespace}/${name}/${containerName}"`,
       );
     }
 
@@ -183,9 +184,9 @@ export class KubeConfigApiService implements IKubeConfigApi {
         }
       }
     } catch (e) {
-      const message = helpers.errors.getMessage(e);
-      console.error(
-        `Failed to run command 'printenv HOME' in '${namespace}/${name}/${containerName}' with message: '${message}'`,
+      logger.error(
+        e,
+        `Failed to run command "printenv HOME" in "${namespace}/${name}/${containerName}"`,
       );
     }
     return '';
@@ -199,7 +200,7 @@ export class KubeConfigApiService implements IKubeConfigApi {
       }
       return JSON.stringify(kubeConfigJson, undefined, '  ');
     } catch (e) {
-      console.error('Failed to parse kubeconfig', e);
+      logger.error(e, 'Failed to parse kubeconfig');
       return kubeConfig;
     }
   }
