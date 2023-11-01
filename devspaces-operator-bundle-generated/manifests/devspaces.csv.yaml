@@ -889,9 +889,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDSCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:571ceed7b4b886b7f989ba193fa74ec863600f56f7c0045f3a1af6dadf09f85b
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:dc43e5708090ba92e6777cab227289a79e2565a63df1b4d0ce194037669cca52
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:9bb4499578e7f4b4312512014bc65ef03f4a480e4cfab894ce78eae3067720d0
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:9952a765377b26cff594dcedf97c28414e54ace8af3d52d5470238217b9ce213
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:796753816645b35cd08da53d925df5e4fb12df8b2a14db98db361f0ff787a028
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:4e3001becf136bf175a04229e3012a5e49a13cafa76ff7a706305f14f9d2f8d6
                 - name: RELATED_IMAGE_pvc_jobs
@@ -1268,9 +1268,9 @@ spec:
   - name: devspaces_udi_plugin_registry_image_gmxdscq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:571ceed7b4b886b7f989ba193fa74ec863600f56f7c0045f3a1af6dadf09f85b
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:dc43e5708090ba92e6777cab227289a79e2565a63df1b4d0ce194037669cca52
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:9bb4499578e7f4b4312512014bc65ef03f4a480e4cfab894ce78eae3067720d0
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:9952a765377b26cff594dcedf97c28414e54ace8af3d52d5470238217b9ce213
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:796753816645b35cd08da53d925df5e4fb12df8b2a14db98db361f0ff787a028
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:4e3001becf136bf175a04229e3012a5e49a13cafa76ff7a706305f14f9d2f8d6
   - name: pvc_jobs
