@@ -125,7 +125,7 @@ if unset, version is DS_VERSION-YYYYmmdd-commitSHA<br/>
 * push all CI and RC bits to GH<br/>
 * for GA suffix, push to GH and spmm-util; run <tt>stage-mw-release devspaces-3.yy.z.yyyy-mm-dd</tt> 
 ''')
-                stringParam("nodeVersion", config."Management-Jobs".dsc[JB].node_version, "Custom node version used to build dsc")
+                stringParam("nodeVersion", config.Other.NODE_VERSION[JB], "Custom node version used to build dsc")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
             
