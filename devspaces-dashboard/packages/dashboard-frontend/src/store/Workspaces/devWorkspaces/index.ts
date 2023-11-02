@@ -15,8 +15,8 @@ import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
 
 import { container } from '@/inversify.config';
-import { injectKubeConfig, podmanLogin } from '@/services/backend-client/devWorkspaceApi';
 import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import { injectKubeConfig, podmanLogin } from '@/services/backend-client/devWorkspaceApi';
 import { fetchResources } from '@/services/backend-client/devworkspaceResourcesApi';
 import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
@@ -26,7 +26,6 @@ import {
   DEVWORKSPACE_CHE_EDITOR,
   DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
 } from '@/services/devfileApi/devWorkspace/metadata';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
 import { getDefer, IDeferred } from '@/services/helpers/deferred';
 import { delay } from '@/services/helpers/delay';
 import { DisposableCollection } from '@/services/helpers/disposable';
@@ -689,13 +688,6 @@ export const actionCreators: ActionCreators = {
 
         // add projects from the origin workspace
         devWorkspaceResource.spec.template.projects = workspace.spec.template.projects;
-
-        // sets ephemeral storage type
-        const storageType: che.WorkspaceStorageType = 'ephemeral';
-        if (!devWorkspaceResource.spec.template.attributes) {
-          devWorkspaceResource.spec.template.attributes = {};
-        }
-        devWorkspaceResource.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = storageType;
 
         devWorkspaceTemplateResource = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
