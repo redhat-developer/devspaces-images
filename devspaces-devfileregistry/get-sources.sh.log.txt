@@ -1,0 +1,370 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 5b45d785268
+STEP 3/23: ARG BOOTSTRAP=true
+--> 5f12048a830
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> dee4a399eb7
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 846a2b1b1f8
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> c7ce1f22387
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 3cedddc4e4f
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 8f0a9a39a5b
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> c820afad959
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> bd12f0f1c74
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  findutils-1:4.6.0-20.el8_8.1.ppc64le                                          
+Installed:
+  containers-common-2:1-64.module+el8.8.0+19993+47c8ef84.ppc64le                
+  criu-3.15-4.module+el8.8.0+19993+47c8ef84.ppc64le                             
+  fuse-common-3.3.0-16.el8.ppc64le                                              
+  fuse-overlayfs-1.11-1.module+el8.8.0+19993+47c8ef84.ppc64le                   
+  fuse3-3.3.0-16.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-16.el8.ppc64le                                               
+  iptables-libs-1.8.4-24.el8_8.2.ppc64le                                        
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-6.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-44.0-2.el8.1.ppc64le                                               
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.8.0+19993+47c8ef84.ppc64le                        
+  mpdecimal-2.5.1-3.el8.ppc64le                                                 
+  nftables-1:0.9.3-26.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  python3.11-3.11.2-2.el8_8.2.ppc64le                                           
+  python3.11-devel-3.11.2-2.el8_8.2.ppc64le                                     
+  python3.11-libs-3.11.2-2.el8_8.2.ppc64le                                      
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+19993+47c8ef84.ppc64le                          
+  skopeo-2:1.11.2-0.2.module+el8.8.0+19993+47c8ef84.ppc64le                     
+  slirp4netns-1.2.0-2.module+el8.8.0+19993+47c8ef84.ppc64le                     
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.4-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.6/41.6 kB 5.2 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 56.8 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1.tar.gz (125 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.2/125.2 kB 258.5 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.2-py3-none-any.whl (37 kB)
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (pyproject.toml): started
+  Building wheel for PyYAML (pyproject.toml): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0.1-cp311-cp311-linux_ppc64le.whl size=45364 sha256=048175c5f6e07ed75460a1c7fd2741cbf8d7f2096c3c88f35e5617feabc9fd7d
+  Stored in directory: /tmp/pip-ephem-wheel-cache-esn6qa_o/wheels/9d/b8/03/596afac31be302ab459eb56558a9ee17cc947ffe6f85d67dcf
+Successfully built PyYAML
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.4 pip-23.3.1 tomlkit-0.12.2 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> db8470407aa
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 4f85aa33871
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 1f23f2380fb
+STEP 14/23: COPY ./VERSION /
+--> 78c46a34a12
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> c1508320d4c
+STEP 16/23: WORKDIR /build/
+--> 0bf37ce8578
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 120 packages from 187 contributors and audited 120 packages in 9.874s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 70edc237776
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 98c3c087587
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.11 PASS - 3.11 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.11 PASS - 3.11 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.11 PASS - 3.11 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 05987ecb0cc
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> c7441b2e158
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 10eb45aa3ff
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 469ba9dbe15
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> df61ed25906
+Successfully tagged localhost/devfileregistry:tmp
+df61ed259061bb826145dfe092901e90d3dbd6b845e343ebe66291a409c8d770
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete
+--- /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete	2023-11-01 22:26:29.000000000 +0000
++++ /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete	2023-11-02 23:05:21.430150888 +0000
+@@ -138,8 +138,10 @@
+         req_argv=( "" "${COMP_WORDS[@]:1}" )
+         __python_argcomplete_expand_tilde_by_ref executable
+     else
+-        # TODO: check if we should call _default or use a different condition here
+         if [[ "$service" != "-default-" ]]; then
++            # TODO: this may not be sufficient - see https://zsh.sourceforge.io/Doc/Release/Completion-System.html
++            # May need to call _complete with avoid-completer=_python-argcomplete or something like that
++            _default
+             return
+         fi
+         executable="${words[1]}"
+Only in /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages: argcomplete-3.1.3.dist-info
+Only in /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages: argcomplete-3.1.4.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/tomlkit/container.py	2023-11-01 22:26:29.000000000 +0000
++++ /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/tomlkit/container.py	2023-11-02 23:05:21.430150888 +0000
+@@ -44,6 +44,7 @@
+         return self._body
+ 
+     def unwrap(self) -> dict[str, Any]:
++        """Returns as pure python object (ppo)"""
+         unwrapped = {}
+         for k, v in self.items():
+             if k is None:
+@@ -64,6 +65,7 @@
+ 
+     @property
+     def value(self) -> dict[str, Any]:
++        """The wrapped dict value"""
+         d = {}
+         for k, v in self._body:
+             if k is None:
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-01 22:26:29.000000000 +0000
++++ /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-02 23:05:21.430150888 +0000
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.1"
++__version__ = "0.12.2"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages/tomlkit/items.py	2023-11-01 22:26:29.000000000 +0000
++++ /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages/tomlkit/items.py	2023-11-02 23:05:21.430150888 +0000
+@@ -667,12 +667,22 @@
+     __rpow__ = wrap_method(int.__rpow__)
+     __rrshift__ = wrap_method(int.__rrshift__)
+     __rshift__ = wrap_method(int.__rshift__)
+-    __rtruediv__ = wrap_method(int.__rtruediv__)
+     __rxor__ = wrap_method(int.__rxor__)
+-    __truediv__ = wrap_method(int.__truediv__)
+     __trunc__ = wrap_method(int.__trunc__)
+     __xor__ = wrap_method(int.__xor__)
+ 
++    def __rtruediv__(self, other):
++        result = int.__rtruediv__(self, other)
++        if result is NotImplemented:
++            return result
++        return Float._new(self, result)
++
++    def __truediv__(self, other):
++        result = int.__truediv__(self, other)
++        if result is NotImplemented:
++            return result
++        return Float._new(self, result)
++
+ 
+ class Float(Item, _CustomFloat):
+     """
+@@ -1655,6 +1665,7 @@
+         return self
+ 
+     def invalidate_display_name(self):
++        """Call ``invalidate_display_name`` on the contained tables"""
+         self.display_name = None
+ 
+         for child in self.values():
+@@ -1935,7 +1946,7 @@
+     """
+ 
+     def __init__(self) -> None:
+-        pass
++        super().__init__(Trivia(trail=""))
+ 
+     def unwrap(self) -> None:
+         return None
+Only in /tmp/tmp.nRo02hSSz0/lib/python3.11/site-packages: tomlkit-0.12.1.dist-info
+Only in /tmp/tmp.QsL8LHDSWr/lib/python3.11/site-packages: tomlkit-0.12.2.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: df61ed259061bb826145dfe092901e90d3dbd6b845e343ebe66291a409c8d770
+Deleted: 469ba9dbe1547c7710aa593eca7866f2ddca57aca39532d0c0be90b35afd3bab
+Deleted: 10eb45aa3ff01e1b7e964eea68c75e7960945d7de27704b3349797a252c8d525
+Deleted: c7441b2e1583e4305fb92a0e47d91698ff837a52a080350c2f9253b351a7062e
+Deleted: 05987ecb0ccaa27b6cf980e001e3f060ae41c7cc05360ba68afeba0d17f58fd1
+Deleted: 98c3c087587b9018e016cf34acc776719ed443d340984e754bd02f1419695859
+Deleted: 70edc237776e7d00187e4090b5eea0fc213975761722338e8040e2ec3cab018b
+Deleted: 0bf37ce85780db6f97e245901b1ea79cde00ce2752ea25e644e0ac6f12fa571c
+Deleted: c1508320d4c440a91b177a370236fe5fae8394ffd5196cecfd61485c2fb8e4a8
+Deleted: 78c46a34a12f2032d3a46b1456e49c4fff311271bd00e98c0469bb565895a6c3
+Deleted: 1f23f2380fbf5c0c6e94a707f9ee8e2b34a6cf48515dbbec702eccbe3a803e08
+Deleted: 4f85aa3387187bce0a6d7a60b8604f3f43e3e14b6c46b7cdfa9e413009ab89cf
+Deleted: db8470407aa4950964d9b32eb42f0647296056a52bda5c34a1bb855de9e1766b
+Deleted: bd12f0f1c74271c9ec54980a53940d2a5ad2c61e41ea1061ece2fdfba8abca3f
+Deleted: c820afad959a86339df559a6a6fdf736df035e71516ecdbc3c4fb0016e5abb9c
+Deleted: 8f0a9a39a5b8f17360d4ba7fcb0d12f77eb47e4a90d881b9894d1493aca316e3
+Deleted: 3cedddc4e4f556b3d725d5a98b8ff59e1346b98b64d2c4a1664e1b49fd25bdb7
+Deleted: c7ce1f22387e77992a895399390c28ffca8f32bf21b9689d4c1339ad6fb74889
+Deleted: 846a2b1b1f8efdde3c658d1b716e8e44dad9757fedb812518f18632c031ddad4
+Deleted: dee4a399eb75d656ada57154d708eec01af4f715c885764e590f1aac998bcb94
+Deleted: 5f12048a8307733f6fcc0addc161925aceaa37c11a8e31414b4ec157f8e64505
+Deleted: 5b45d7852685f7985a2d24b5ed2210c9529e04d5e3503ef24630dd426b5e706a
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
