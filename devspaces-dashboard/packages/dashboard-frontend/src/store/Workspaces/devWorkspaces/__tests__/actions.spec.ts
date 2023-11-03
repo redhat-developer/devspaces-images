@@ -572,9 +572,6 @@ describe('DevWorkspace store, actions', () => {
             routingClass: 'che',
             started: false,
             template: {
-              attributes: {
-                [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
-              },
               components: [],
               projects: undefined,
             },

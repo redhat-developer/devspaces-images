@@ -44,7 +44,6 @@ import { TimeLimit } from '../../../TimeLimit';
 import { configureProjectRemotes } from './getGitRemotes';
 import { getProjectFromLocation } from './getProjectFromLocation';
 import { prepareDevfile } from './prepareDevfile';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../services/devfileApi/devWorkspace/spec/template';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {
@@ -233,18 +232,16 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
     }
 
     // factory resolving failed in the previous step
-    // hence we have to proceed with default devfile
+    // hence we have to proceed with the default devfile
     if (factoryResolver === undefined) {
       if (devfile === undefined) {
         if (defaultDevfile === undefined) {
           throw new Error('Failed to resolve the default devfile.');
         }
         const _devfile = cloneDeep(defaultDevfile);
-        // sets ephemeral storage type
         if (!_devfile.attributes) {
           _devfile.attributes = {};
         }
-        _devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = 'ephemeral';
         this.updateCurrentDevfile(_devfile);
       } else {
         try {
@@ -258,21 +255,17 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
     }
 
     // the user devfile is invalid and caused creation error
-    // so we have to proceed with default devfile
+    // so we have to proceed with the default devfile
     if (continueWithDefaultDevfile === true) {
       if (defaultDevfile === undefined) {
         throw new Error('Failed to resolve the default devfile.');
       }
-
       if (devfile === undefined) {
         const _devfile = cloneDeep(defaultDevfile);
 
-        // sets ephemeral storage type
         if (!_devfile.attributes) {
           _devfile.attributes = {};
         }
-        _devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = 'ephemeral';
-
         if (factoryResolverConverted?.devfileV2 !== undefined) {
           const { metadata, projects } = factoryResolverConverted.devfileV2;
           _devfile.projects = projects;
@@ -284,7 +277,7 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
         return false;
       }
 
-      // proceed with default devfile
+      // proceed with the default devfile
       try {
         await this.createWorkspaceFromDevfile(devfile);
       } catch (e) {

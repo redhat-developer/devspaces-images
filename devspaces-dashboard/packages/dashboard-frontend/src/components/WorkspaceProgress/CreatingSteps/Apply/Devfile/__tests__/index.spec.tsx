@@ -225,7 +225,6 @@ describe('Creating steps, applying a devfile', () => {
         expect(prepareDevfile).toHaveBeenCalledWith(
           expect.objectContaining({
             attributes: {
-              'controller.devfile.io/storage-type': 'ephemeral',
               defaultDevfile: true,
             },
           }),
@@ -305,7 +304,6 @@ describe('Creating steps, applying a devfile', () => {
         expect(prepareDevfile).toHaveBeenCalledWith(
           expect.objectContaining({
             attributes: {
-              'controller.devfile.io/storage-type': 'ephemeral',
               defaultDevfile: true,
             },
           }),
