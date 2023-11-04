@@ -1,0 +1,493 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 7f0bb9e1335
+STEP 3/23: ARG BOOTSTRAP=true
+--> 8a975669c92
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 4b8bb3dfe9c
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 3b457385900
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 291649a314c
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 49596e24c7e
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> a638b4f4b39
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 39bc7b4ca89
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 38946d07fdb
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  findutils-1:4.6.0-20.el8_8.1.x86_64                                           
+Installed:
+  containers-common-2:1-64.module+el8.8.0+19993+47c8ef84.x86_64                 
+  criu-3.15-4.module+el8.8.0+19993+47c8ef84.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+19993+47c8ef84.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8_8.2.x86_64                                         
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+19993+47c8ef84.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  python3.11-3.11.2-2.el8_8.2.x86_64                                            
+  python3.11-devel-3.11.2-2.el8_8.2.x86_64                                      
+  python3.11-libs-3.11.2-2.el8_8.2.x86_64                                       
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+19993+47c8ef84.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+19993+47c8ef84.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+19993+47c8ef84.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.4-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.6/41.6 kB 5.3 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 59.5 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 259.5 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.2-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.4 pip-23.3.1 tomlkit-0.12.2 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> aefcacda131
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 89c336d97ff
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 51fc6f06bad
+STEP 14/23: COPY ./VERSION /
+--> d8644f22336
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> ac97e7f2cb6
+STEP 16/23: WORKDIR /build/
+--> 471f317de46
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 120 packages from 187 contributors and audited 120 packages in 12.75s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> ddfd87feb0e
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 7dc38019d40
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:5f8235b17caced952ebc663ffcf2398653aec4e72d93779a5e72021b549f0a9e PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.10 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.10 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.10 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ = quay.io/devspaces/ansible-creator-ee@sha256:5f8235b17caced952ebc663ffcf2398653aec4e72d93779a5e72021b549f0a9e PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.10 PASS - 3.10 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.10 PASS - 3.10 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.10 PASS - 3.10 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 01cfb766978
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 34d347d50bc
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> ee5ad91f68e
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 8701c10e281
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 57c340f6cc5
+Successfully tagged localhost/devfileregistry:tmp
+57c340f6cc51211ddea55a768a6455c5d77247d3bf4187254ffdac9dfa4be506
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/bin/activate-global-python-argcomplete /tmp/tmp.OH0hhCYzrW/bin/activate-global-python-argcomplete
+--- /tmp/tmp.ebBZoGZ4Pu/bin/activate-global-python-argcomplete	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/bin/activate-global-python-argcomplete	2023-11-04 14:56:21.730480753 -0400
+@@ -13,6 +13,7 @@
+ import shutil
+ import site
+ import sys
++import subprocess
+ 
+ import argcomplete
+ 
+@@ -29,15 +30,22 @@
+ """
+ 
+ 
++def get_local_dir():
++    try:
++        return subprocess.check_output(["brew", "--prefix"]).decode().strip()
++    except (FileNotFoundError, subprocess.CalledProcessError):
++        return "/usr/local"
++
++
+ def get_zsh_system_dir():
+-    return "/usr/local/share/zsh/site-functions"
++    return f"{get_local_dir()}/share/zsh/site-functions"
+ 
+ 
+ def get_bash_system_dir():
+     if "BASH_COMPLETION_COMPAT_DIR" in os.environ:
+         return os.environ["BASH_COMPLETION_COMPAT_DIR"]
+     elif sys.platform == "darwin":
+-        return "/usr/local/etc/bash_completion.d"  # created by homebrew
++        return f"{get_local_dir()}/etc/bash_completion.d"  # created by homebrew
+     else:
+         return "/etc/bash_completion.d"  # created by bash-completion
+ 
+@@ -117,8 +125,7 @@
+     destinations.append(args.dest)
+ elif site.ENABLE_USER_SITE and site.USER_SITE in argcomplete.__file__:
+     print(
+-        "Argcomplete was installed in the user site local directory. Defaulting to user installation.",
+-        file=sys.stderr
++        "Argcomplete was installed in the user site local directory. Defaulting to user installation.", file=sys.stderr
+     )
+     link_user_rcfiles()
+ elif sys.prefix != sys.base_prefix:
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete	2023-11-04 14:56:21.732480753 -0400
+@@ -138,8 +138,10 @@
+         req_argv=( "" "${COMP_WORDS[@]:1}" )
+         __python_argcomplete_expand_tilde_by_ref executable
+     else
+-        # TODO: check if we should call _default or use a different condition here
+         if [[ "$service" != "-default-" ]]; then
++            # TODO: this may not be sufficient - see https://zsh.sourceforge.io/Doc/Release/Completion-System.html
++            # May need to call _complete with avoid-completer=_python-argcomplete or something like that
++            _default
+             return
+         fi
+         executable="${words[1]}"
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/_check_console_script.py /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/_check_console_script.py
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/_check_console_script.py	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/_check_console_script.py	2023-11-04 14:56:21.731480753 -0400
+@@ -14,14 +14,8 @@
+ import os
+ import sys
+ 
+-try:
+-    from importlib.metadata import entry_points as importlib_entry_points
+-    from importlib.metadata import EntryPoint
+-    use_entry_points_backport = False
+-except ImportError:
+-    from importlib_metadata import entry_points as importlib_entry_points  # type:ignore
+-    from importlib_metadata import EntryPoint # type:ignore
+-    use_entry_points_backport = True
++from importlib.metadata import entry_points as importlib_entry_points
++from importlib.metadata import EntryPoint
+ 
+ from ._check_module import ArgcompleteMarkerNotFound, find
+ from typing import Iterable
+@@ -37,10 +31,9 @@
+ 
+     entry_points : Iterable[EntryPoint] = importlib_entry_points() # type:ignore
+ 
+-    # The importlib_metadata backport returns a tuple of entry point objects
+-    # whereas the official library returns a SelectableGroups object
+-    # Python 3.12+ behaves like the importlib_metadata backport
+-    if not use_entry_points_backport and sys.version_info < (3, 12):
++    # Python 3.12+ returns a tuple of entry point objects
++    # whereas <=3.11 returns a SelectableGroups object
++    if sys.version_info < (3, 12):
+         entry_points = entry_points["console_scripts"] # type:ignore
+ 
+     entry_points = [ep for ep in entry_points \
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/_check_module.py /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/_check_module.py
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/_check_module.py	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/_check_module.py	2023-11-04 14:56:21.731480753 -0400
+@@ -15,7 +15,7 @@
+ except ImportError:
+     import typing as t
+     from collections import namedtuple
+-    from imp import find_module
++    from imp import find_module  # type:ignore
+ 
+     ModuleSpec = namedtuple("ModuleSpec", ["origin", "has_location", "submodule_search_locations"])
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/shell_integration.py /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/shell_integration.py
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/argcomplete/shell_integration.py	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/argcomplete/shell_integration.py	2023-11-04 14:56:21.732480753 -0400
+@@ -32,6 +32,7 @@
+ 
+ _python_argcomplete%(function_suffix)s() {
+     local IFS=$'\013'
++    local script="%(argcomplete_script)s"
+     if [[ -n "${ZSH_VERSION-}" ]]; then
+         local completions
+         completions=($(IFS="$IFS" \
+@@ -40,7 +41,7 @@
+             _ARGCOMPLETE=1 \
+             _ARGCOMPLETE_SHELL="zsh" \
+             _ARGCOMPLETE_SUPPRESS_SPACE=1 \
+-            __python_argcomplete_run "${words[1]}") )
++            __python_argcomplete_run ${script:-${words[1]}}))
+         _describe "${words[1]}" completions -o nosort
+     else
+         local SUPPRESS_SPACE=0
+@@ -55,7 +56,7 @@
+             _ARGCOMPLETE=1 \
+             _ARGCOMPLETE_SHELL="bash" \
+             _ARGCOMPLETE_SUPPRESS_SPACE=$SUPPRESS_SPACE \
+-            __python_argcomplete_run "%(argcomplete_script)s"))
++            __python_argcomplete_run ${script:-$1}))
+         if [[ $? != 0 ]]; then
+             unset COMPREPLY
+         elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
+@@ -144,7 +145,7 @@
+         if script:
+             function_suffix = "_" + script
+         else:
+-            script = "$1"
++            script = ""
+             function_suffix = ""
+         code = bashcode % dict(
+             complete_opts=complete_options,
+Only in /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages: argcomplete-3.1.2.dist-info
+Only in /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages: argcomplete-3.1.4.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/tomlkit/container.py	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/tomlkit/container.py	2023-11-04 14:56:21.733480753 -0400
+@@ -44,6 +44,7 @@
+         return self._body
+ 
+     def unwrap(self) -> dict[str, Any]:
++        """Returns as pure python object (ppo)"""
+         unwrapped = {}
+         for k, v in self.items():
+             if k is None:
+@@ -64,6 +65,7 @@
+ 
+     @property
+     def value(self) -> dict[str, Any]:
++        """The wrapped dict value"""
+         d = {}
+         for k, v in self._body:
+             if k is None:
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/tomlkit/__init__.py	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-04 14:56:21.733480753 -0400
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.1"
++__version__ = "0.12.2"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages/tomlkit/items.py	2023-10-24 14:30:45.000000000 -0400
++++ /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages/tomlkit/items.py	2023-11-04 14:56:21.733480753 -0400
+@@ -667,12 +667,22 @@
+     __rpow__ = wrap_method(int.__rpow__)
+     __rrshift__ = wrap_method(int.__rrshift__)
+     __rshift__ = wrap_method(int.__rshift__)
+-    __rtruediv__ = wrap_method(int.__rtruediv__)
+     __rxor__ = wrap_method(int.__rxor__)
+-    __truediv__ = wrap_method(int.__truediv__)
+     __trunc__ = wrap_method(int.__trunc__)
+     __xor__ = wrap_method(int.__xor__)
+ 
++    def __rtruediv__(self, other):
++        result = int.__rtruediv__(self, other)
++        if result is NotImplemented:
++            return result
++        return Float._new(self, result)
++
++    def __truediv__(self, other):
++        result = int.__truediv__(self, other)
++        if result is NotImplemented:
++            return result
++        return Float._new(self, result)
++
+ 
+ class Float(Item, _CustomFloat):
+     """
+@@ -1655,6 +1665,7 @@
+         return self
+ 
+     def invalidate_display_name(self):
++        """Call ``invalidate_display_name`` on the contained tables"""
+         self.display_name = None
+ 
+         for child in self.values():
+@@ -1935,7 +1946,7 @@
+     """
+ 
+     def __init__(self) -> None:
+-        pass
++        super().__init__(Trivia(trail=""))
+ 
+     def unwrap(self) -> None:
+         return None
+Only in /tmp/tmp.ebBZoGZ4Pu/lib/python3.11/site-packages: tomlkit-0.12.1.dist-info
+Only in /tmp/tmp.OH0hhCYzrW/lib/python3.11/site-packages: tomlkit-0.12.2.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 57c340f6cc51211ddea55a768a6455c5d77247d3bf4187254ffdac9dfa4be506
+Deleted: 8701c10e281fd9313ad3d477c854d60ae2ca47edc9b1af93d88fbe82f5878919
+Deleted: ee5ad91f68e5c6d11ddc6b2dcd72cb3547f1e11155ee16071973173dfff63070
+Deleted: 34d347d50bc03f1b81253d5c4035b36da81e3f6b1950f9b3967c8fa4c34342bc
+Deleted: 01cfb7669788797ae0f1b0b8527203b585662fcd9ad386c13a253e1ed44b49d7
+Deleted: 7dc38019d4054458681dca15d38644a31f9f3e30f958cde1ade4a161e10c937d
+Deleted: ddfd87feb0ef04ac04bba03f2262a485a23447c2c0076497053f3555af5224ad
+Deleted: 471f317de466b382699313437271de60f5272e5e09acfd48142732f8e4f9d993
+Deleted: ac97e7f2cb6a02433c111f3a59d974de58b66b3c66c53f92847e78f505d3b55a
+Deleted: d8644f22336aa080c484baacf9997adf6aac328009d8e6d7a0c20b797381ac73
+Deleted: 51fc6f06badea3acdd5af6bdf3fc4055b1d57b21581e9988423287f6ad52a494
+Deleted: 89c336d97ff9693303a11b719822a121430ffb382dd7f709df0325b0d56caa6e
+Deleted: aefcacda131ee98df83e3e9359c228ae613ec2eddfa4a1a06d76b734de3dba11
+Deleted: 38946d07fdb5d3cc82d2431a1fa5c894fb4350e884b45c97a98aad53b17f17c8
+Deleted: 39bc7b4ca896453fbab22ce6c6d7e3f247bd2043cdd7aa727b2f04dc86e469ef
+Deleted: a638b4f4b392f1055a28cbabf6dfbbee215dc672503e067529a60a932d5b6847
+Deleted: 49596e24c7e5a3f0fb22d9e5c463190293b88db903045fad80c7913323fa5aed
+Deleted: 291649a314c3412154967db39cf6666d88eca79a17e89a812e4b93084dc8057c
+Deleted: 3b457385900755ebbdae99c7c3cca4745934e2ec4c93c875c5197d01572ca649
+Deleted: 4b8bb3dfe9cff0474bfb23ca91c0c0f7ee3ad235bb57a8125669e84d2f1587e7
+Deleted: 8a975669c923e40caab7cbedd529e2f92cb8d2bf109479a9f8ef9241da9ff314
+Deleted: 7f0bb9e13353fe195c3d785d02b82e52d76156f1e889914ec90e85967c237ad7
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
