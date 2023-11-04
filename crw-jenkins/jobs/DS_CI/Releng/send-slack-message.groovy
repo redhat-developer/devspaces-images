@@ -5,7 +5,7 @@ def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devs
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Management-Jobs"."slack_notification"?.keySet()
+def JOB_BRANCHES = config."Management-Jobs"."slack-notification"?.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -23,7 +23,7 @@ for (JB in JOB_BRANCHES) {
         CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
         OCP_VERSIONS="" + config.Other."OPENSHIFT_VERSIONS_SUPPORTED"[JB]?.join(" ")
         pipelineJob(jobPath){
-            disabled(config."Management-Jobs"."slack_notification"[JB].disabled) // on reload of job, disable to avoid churn 
+            disabled(config."Management-Jobs"."slack-notification"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''
 Send an email to QE announcing an ER or RC build, including a list of images. This job will also trigger <a href=../copyIIBsToQuay>copyIIBsToQuay</a> to refresh <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a> tags. 
             ''')
@@ -38,6 +38,8 @@ Send an email to QE announcing an ER or RC build, including a list of images. Th
                 maxPerNode(1)
                 maxTotal(1)
             }
+
+            quietPeriod(14400) // limit builds to 1 every 4 hrs (in sec)
 
             logRotator {
                 daysToKeep(5)

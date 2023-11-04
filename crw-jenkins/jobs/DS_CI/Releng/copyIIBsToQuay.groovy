@@ -53,7 +53,6 @@ Copy latest filtered IIBs to <a href=https://quay.io/devspaces/iib>https://quay.
                 stringParam("DS_VERSION", DS_VERSION, "Version of DS to use when copying IIBs to Quay")
                 stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
                 booleanParam("FORCE_BUILD", false, "If true and target image exists, will re-filter and re-push it; if false, avoid updating image timestamps")
-                booleanParam("SLACK_NOTIFICATION", false, "Send RC notification to #devspaces-ci channel in Slack")
             }
 
             // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.

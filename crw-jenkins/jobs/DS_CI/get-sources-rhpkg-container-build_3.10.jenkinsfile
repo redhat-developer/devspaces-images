@@ -51,7 +51,7 @@ echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
 set -x
 ./rhpkg-container-build.sh ''' + CSV_VERSION + 
-  (SCRATCH.equals("true") || SCRATCH == true ? " --scratch" : "") + 
+  (SCRATCH.equals("true") || SCRATCH == true ? " --scratch -d " + DWNSTM_BRANCH : "") + 
 ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
 ''')
             }

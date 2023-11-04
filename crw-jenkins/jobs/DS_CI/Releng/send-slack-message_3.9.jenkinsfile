@@ -33,7 +33,6 @@ def errorOccurred = ""
 
 def String nodeLabel = '(x86_64-rhel8||ppc64le-rhel8)'
 timeout(90) {
-    // trigger update_digests job if we have pushed new images that appear in the registry or metadata
     node(nodeLabel) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
@@ -44,8 +43,6 @@ timeout(90) {
             try { 
                 stage "Fetch latest image tags and send slack message"
                 cleanWs()
-
-                slackTitle = "New DS ${DS_VERSION} IIBs"
 
                 sh (
                     script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
@@ -174,6 +171,8 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
                     currentBuild.result = 'FAILURE'
                 }
 
+                imageName = (latestBundleImage.split("/"))[-1]
+                slackTitle = "New DS bundle " + imageName + " is available."
                 slackText = slackText + '''
 OSBS Index Images (IIB) by OCP Version:
 * ''' + IIBs.trim().replaceAll("\n", "\n* ")
