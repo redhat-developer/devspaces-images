@@ -145,10 +145,10 @@ RUN \
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.x86_64.rpm
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.s390x.rpm
         # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.ppc64le.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202310162347.p0.g7aa4009.assembly.stream.el8.x86_64.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202310162347.p0.g7aa4009.assembly.stream.el8.s390x.rpm
-        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202310162347.p0.g7aa4009.assembly.stream.el8.ppc64le.rpm
-        odo-3.9.0-1.el8 helm-3.10.1-2.el8 openshift-clients-4.12.0-202310162347.p0.g7aa4009.assembly.stream.el8 \
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202310180726.p0.ga55beda.assembly.stream.el8.x86_64.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202310180726.p0.ga55beda.assembly.stream.el8.s390x.rpm
+        # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.12/os/Packages/o/openshift-clients-4.12.0-202310180726.p0.ga55beda.assembly.stream.el8.ppc64le.rpm
+        odo-3.9.0-1.el8 helm-3.10.1-2.el8 openshift-clients-4.12.0-202310180726.p0.ga55beda.assembly.stream.el8 \
     && \
     dnf -y -q reinstall shadow-utils && \
     # fetch CVE updates (can exclude rpms to prevent update, eg., --exclude=odo)
