@@ -29,7 +29,10 @@ RUN adduser unprivilegeduser && \
 # https://registry.access.redhat.com/ubi8-minimal
 FROM registry.access.redhat.com/ubi8-minimal:8.8-1072 as runtime
 COPY --from=builder /rootfs /
-RUN microdnf install -y openssl; microdnf clean -y all
+RUN microdnf install -y openssl && \
+    microdnf -y update && \
+    microdnf clean -y all
+
 USER unprivilegeduser
 ENTRYPOINT ["/go/bin/che-machine-exec"]
 
