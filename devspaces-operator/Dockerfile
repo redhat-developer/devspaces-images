@@ -50,6 +50,9 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.8-1072
 
+RUN microdnf -y -q update && \
+    microdnf -y clean all && rm -rf /var/cache/yum
+
 COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator/che-operator /manager
