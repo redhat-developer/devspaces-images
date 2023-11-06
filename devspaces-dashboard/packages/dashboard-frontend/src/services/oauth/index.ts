@@ -65,6 +65,7 @@ export default class OAuthService {
           redirectUrl.toString(),
         );
       }
+      throw e;
     }
   }
 }

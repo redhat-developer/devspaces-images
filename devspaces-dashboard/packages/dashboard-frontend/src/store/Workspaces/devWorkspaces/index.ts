@@ -33,7 +33,7 @@ import { delay } from '../../../services/helpers/delay';
 import { DisposableCollection } from '../../../services/helpers/disposable';
 import { getNewerResourceVersion } from '../../../services/helpers/resourceVersion';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
-import OAuthService from '../../../services/oauth';
+import OAuthService, { isOAuthResponse } from '../../../services/oauth';
 import { loadResourcesContent } from '../../../services/registry/resources';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
@@ -288,9 +288,9 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
-      await OAuthService.refreshTokenIfNeeded(workspace);
       await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
       try {
+        await OAuthService.refreshTokenIfNeeded(workspace);
         checkRunningWorkspacesLimit(getState());
 
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
@@ -357,6 +357,10 @@ export const actionCreators: ActionCreators = {
 
         getDevWorkspaceClient().checkForDevWorkspaceError(startingWorkspace);
       } catch (e) {
+        // Skip unauthorised errors. The page is redirecting to an SCM authentication page.
+        if (common.helpers.errors.includesAxiosResponse(e) && isOAuthResponse(e.response.data)) {
+          return;
+        }
         const errorMessage =
           `Failed to start the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
