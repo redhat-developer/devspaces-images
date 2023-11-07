@@ -25,12 +25,14 @@ for (JB in JOB_BRANCHES) {
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."slack-notification"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''
-Send an email to QE announcing an ER or RC build, including a list of images. This job will also trigger <a href=../copyIIBsToQuay>copyIIBsToQuay</a> to refresh <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a> tags. 
+Send slack message to <a href="https://app.slack.com/client/E030G10V24F/C04U0J12FC7">#devspaces-ci</a> announcing an ER or RC build, including a list of images. 
+This job will also trigger <a href=../../push-latest-containers-to-quay_'''+JB+'''>push-latest-containers-to-quay</a> and <a href=../../update-digests_'''+JB+'''>update-digests</a>
+to refresh quay images. 
             ''')
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
             }
 
