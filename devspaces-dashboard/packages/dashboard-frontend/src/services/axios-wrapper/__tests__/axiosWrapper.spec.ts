@@ -17,6 +17,7 @@ import {
   AxiosWrapper,
   bearerTokenAuthorizationIsRequiredErrorMsg,
 } from '@/services/axios-wrapper/axiosWrapper';
+import * as helpers from '@/services/helpers/delay';
 
 // mute console logs
 console.log = jest.fn();
@@ -26,12 +27,18 @@ describe('axiosWrapper', () => {
   let axiosInstance: AxiosInstance;
   let axiosGetMock: jest.Mock;
   let axiosGetSpy: jest.SpyInstance;
+  let delaySpy: jest.SpyInstance;
 
   beforeEach(() => {
     axiosInstance = mockAxios;
     axiosGetMock = jest.fn();
     axiosInstance.get = axiosGetMock;
     axiosGetSpy = jest.spyOn(axiosInstance, 'get');
+    delaySpy = jest.spyOn(helpers, 'delay').mockResolvedValue();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should retry 0 time with Bearer Token Authorization is required error message', async () => {
@@ -194,6 +201,22 @@ describe('axiosWrapper', () => {
     } catch (e: any) {
       expect(e.message).toEqual('error 4');
       expect(axiosGetSpy).toBeCalledTimes(4);
+    }
+  });
+
+  it('should have retry delay increase exponentially', async () => {
+    axiosGetMock
+      .mockRejectedValueOnce(new Error('error 1'))
+      .mockRejectedValueOnce(new Error('error 2'))
+      .mockRejectedValueOnce(new Error('error 3'))
+      .mockRejectedValue(new Error('error 4'));
+
+    try {
+      await new AxiosWrapper(axiosInstance).get('some-url');
+      fail('should fail');
+    } catch (e: any) {
+      expect(delaySpy).toBeCalledTimes(3);
+      expect(delaySpy.mock.calls).toEqual([[500], [1000], [2000]]);
     }
   });
 });
