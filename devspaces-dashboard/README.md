@@ -98,15 +98,17 @@ kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
 
 Currently, Dashboard uses the following che-server API:
 
-| Method | Path                                |
-|--------|-------------------------------------|
-| POST    | /kubernetes/namespace/provision    |
-| GET   | /kubernetes/namespace                |
-| POST   | /factory/resolver/                  |
-| POST   | /factory/token/refresh              |
-| GET    | /oauth                              |
-| GET    | /oauth/token                        |
-| DELETE | /oauth/token                        |
+| Method | Path                            |
+|--------|---------------------------------|
+| POST   | /kubernetes/namespace/provision |
+| GET    | /kubernetes/namespace           |
+| POST   | /factory/resolver/              |
+| POST   | /factory/token/refresh          |
+| GET    | /oauth                          |
+| GET    | /oauth/token                    |
+| DELETE | /oauth/token                    |
+| GET    | /scm/resolve                    |
+
 
 # Builds
 
