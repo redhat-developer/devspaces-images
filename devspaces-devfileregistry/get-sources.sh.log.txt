@@ -1,0 +1,828 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 857a7b24b3f
+STEP 3/23: ARG BOOTSTRAP=true
+--> cf5d8281601
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 9af65f8b803
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 6d1d450775e
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> c3cce4eb469
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> a8e208a2f8c
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> ff4a3803a8f
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 1064c14eaea
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 4749f671669
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  findutils-1:4.6.0-20.el8_8.1.x86_64                                           
+Installed:
+  containers-common-2:1-64.module+el8.8.0+19993+47c8ef84.x86_64                 
+  criu-3.15-4.module+el8.8.0+19993+47c8ef84.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.11-1.module+el8.8.0+19993+47c8ef84.x86_64                    
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-24.el8_8.2.x86_64                                         
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-6.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-44.0-2.el8.1.x86_64                                                
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.8.0+19993+47c8ef84.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  python3.11-3.11.2-2.el8_8.2.x86_64                                            
+  python3.11-devel-3.11.2-2.el8_8.2.x86_64                                      
+  python3.11-libs-3.11.2-2.el8_8.2.x86_64                                       
+  python3.11-pip-22.3.1-2.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-2.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.4-1.module+el8.8.0+19993+47c8ef84.x86_64                           
+  skopeo-2:1.11.2-0.2.module+el8.8.0+19993+47c8ef84.x86_64                      
+  slirp4netns-1.2.0-2.module+el8.8.0+19993+47c8ef84.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.4-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.6/41.6 kB 6.3 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 62.3 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 348.4 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.2-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.4 pip-23.3.1 tomlkit-0.12.2 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> 7d8b78afc2a
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 5190b1a249f
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 53564a59ce1
+STEP 14/23: COPY ./VERSION /
+--> e10ba47c579
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 6881769507a
+STEP 16/23: WORKDIR /build/
+--> a3c6fac2031
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 120 packages from 187 contributors and audited 120 packages in 9.277s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 3 vulnerabilities (2 moderate, 1 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 9f9db5d31b6
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> be75def2bd3
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:5f8235b17caced952ebc663ffcf2398653aec4e72d93779a5e72021b549f0a9e PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.10 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.10 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.10 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ = quay.io/devspaces/ansible-creator-ee@sha256:5f8235b17caced952ebc663ffcf2398653aec4e72d93779a5e72021b549f0a9e PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.10 PASS - 3.10 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.10 PASS - 3.10 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.10 PASS - 3.10 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 7bac5910788
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> ef36a309517
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 058dc33ca6f
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 075268a8785
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 2dc6bde9ea9
+Successfully tagged localhost/devfileregistry:tmp
+2dc6bde9ea9ff05495dc00d92adcfd0a34a65b84efefaac0e614051783df12ff
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.909789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.910789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.910789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.907789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.907789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.ndlHx2s9au/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.VzNxt6TcNh/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ndlHx2s9au/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2023-10-24 14:30:47.000000000 -0400
++++ /tmp/tmp.VzNxt6TcNh/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2023-11-09 11:47:36.908789830 -0500
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 2dc6bde9ea9ff05495dc00d92adcfd0a34a65b84efefaac0e614051783df12ff
+Deleted: 075268a8785e6388603f56246355e3a9a48e8b90561e7f15a0734de1583f3baa
+Deleted: 058dc33ca6f1be30e18879f7d98d5e73ae0c44e423a0df670b03fc41e5fbeecc
+Deleted: ef36a309517f3e09b66b33d799b7ec2ea8b0d3602d7acbf5db4ecc0ef8afa575
+Deleted: 7bac5910788eea8b5a1bbf435e23aacc82c4107a4da00f3575ee96df5c34b2df
+Deleted: be75def2bd372aa85eec123505a919324502d669f2f3d734808646d20559555e
+Deleted: 9f9db5d31b694e662e7f85f52a47b9e1322187f08541c9d5a07d74773b8dff06
+Deleted: a3c6fac20314b99c1f3f35735623c97e845633f4ef68ba93befecdd48d2be5ca
+Deleted: 6881769507ad6342b704ac190f9352f422a5bff999e8fbcf3cacd3000f802cba
+Deleted: e10ba47c579b3b1b371798dadb5126c0a4d5fa1ba879e1f7068552a551afad62
+Deleted: 53564a59ce1d57cd0747f5b3acdd1e548e0a1547a85dd50d9a6d256a4d214448
+Deleted: 5190b1a249fd0f996ef41bca3771faa6912d1e3c33332b8a737e09ae4f7fab25
+Deleted: 7d8b78afc2a0a85dbc0162fd863046c41cc6d8fbb572a2c0c8ae2c576f2d966f
+Deleted: 4749f6716694696e59699269278f55d95e227d42e27a0fb83ac4545204911d25
+Deleted: 1064c14eaea8fd0a667aed046ccbde9d45c2462574e6044df6c5c58fd1a6cf8e
+Deleted: ff4a3803a8f7cea38d178442c7520c70c51fd6dcc388c525b4a7e349998d1138
+Deleted: a8e208a2f8c32ffad47a42a80905cc39cff931beb4650e86196efb6c65c3419a
+Deleted: c3cce4eb469a589935a7e6be9c930bb7a7ab5dc745775d382c45d6f9a1adeee6
+Deleted: 6d1d450775e5e013d78c5191b3f8665ac5bf45083fac1b70f5e3d2a559741551
+Deleted: 9af65f8b8032e4bc687f0d26a42db39997a53bee92f43d3b9eebcef440c79e50
+Deleted: cf5d8281601118a60a4a17fa60d74d14217f5d747e46d7faf9f3508e0fbc5f9b
+Deleted: 857a7b24b3ff838992812a96584fd31f9427389e4794f6f0c8db2404c0965342
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
