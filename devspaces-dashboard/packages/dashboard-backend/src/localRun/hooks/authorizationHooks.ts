@@ -30,7 +30,7 @@ export function addAuthorizationHooks(server: FastifyInstance) {
       request.url === '/dashboard/' &&
       request.method === 'GET'
     ) {
-      const url = server.localStart.generateAuthorizationUri(request, reply);
+      const url = server.localStart.generateAuthorizationUri(request);
       reply.redirect(url);
     }
     done();

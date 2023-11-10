@@ -15,7 +15,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 export function registerSignOut(server: FastifyInstance) {
   server.get('/oauth/sign_out', async function (request: FastifyRequest, reply: FastifyReply) {
     process.env.CLUSTER_ACCESS_TOKEN = '';
-    const url = server.localStart.generateAuthorizationUri(request, reply);
+    const url = server.localStart.generateAuthorizationUri(request);
     return reply.redirect(url);
   });
 }
