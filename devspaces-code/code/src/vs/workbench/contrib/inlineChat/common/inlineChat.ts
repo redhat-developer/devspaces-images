@@ -31,6 +31,7 @@ export interface IInlineChatSlashCommand {
 export interface IInlineChatSession {
 	id: number;
 	placeholder?: string;
+	input?: string;
 	message?: string;
 	slashCommands?: IInlineChatSlashCommand[];
 	wholeRange?: IRange;
@@ -63,6 +64,7 @@ export interface IInlineChatEditResponse {
 	id: number;
 	type: InlineChatResponseType.EditorEdit;
 	edits: TextEdit[];
+	message?: IMarkdownString;
 	placeholder?: string;
 	wholeRange?: IRange;
 }
@@ -71,6 +73,7 @@ export interface IInlineChatBulkEditResponse {
 	id: number;
 	type: InlineChatResponseType.BulkEdit;
 	edits: WorkspaceEdit;
+	message?: IMarkdownString;
 	placeholder?: string;
 	wholeRange?: IRange;
 }
@@ -84,7 +87,9 @@ export interface IInlineChatMessageResponse {
 }
 
 export interface IInlineChatProgressItem {
+	markdownFragment?: string;
 	edits?: TextEdit[];
+	editsShouldBeInstant?: boolean;
 	message?: string;
 	slashCommand?: string;
 }
@@ -120,6 +125,7 @@ export interface IInlineChatService {
 
 export const INLINE_CHAT_ID = 'interactiveEditor';
 export const INTERACTIVE_EDITOR_ACCESSIBILITY_HELP_ID = 'interactiveEditorAccessiblityHelp';
+export const INLINE_CHAT_DECORATIONS_ID = 'interactiveEditorDecorations';
 
 export const CTX_INLINE_CHAT_HAS_PROVIDER = new RawContextKey<boolean>('inlineChatHasProvider', false, localize('inlineChatHasProvider', "Whether a provider for interactive editors exists"));
 export const CTX_INLINE_CHAT_VISIBLE = new RawContextKey<boolean>('inlineChatVisible', false, localize('inlineChatVisible', "Whether the interactive editor input is visible"));
@@ -180,6 +186,12 @@ export const enum EditMode {
 	Preview = 'preview'
 }
 
+export const enum ShowGutterIcon {
+	Always = 'always',
+	MouseOver = 'mouseover',
+	Never = 'never'
+}
+
 Registry.as<IConfigurationMigrationRegistry>(ExtensionsMigration.ConfigurationMigration).registerConfigurationMigrations(
 	[{
 		key: 'interactiveEditor.editMode', migrateFn: (value: any) => {
@@ -206,6 +218,17 @@ Registry.as<IConfigurationRegistry>(Extensions.Configuration).registerConfigurat
 			description: localize('showDiff', "Enable/disable showing the diff when edits are generated. Works only with inlineChat.mode equal to live or livePreview."),
 			default: true,
 			type: 'boolean'
+		},
+		'inlineChat.showGutterIcon': {
+			description: localize('showGutterIcon', "Controls when the gutter icon for spawning inline chat is shown."),
+			default: ShowGutterIcon.Always,
+			type: 'string',
+			enum: [ShowGutterIcon.Always, ShowGutterIcon.MouseOver, ShowGutterIcon.Never],
+			markdownEnumDescriptions: [
+				localize('showGutterIcon.always', "Always show the gutter icon."),
+				localize('showGutterIcon.mouseover', "Show the gutter icon when the mouse is over the icon."),
+				localize('showGutterIcon.never', "Never show the gutter icon."),
+			]
 		}
 	}
 });

@@ -6,13 +6,13 @@
 import { SimpleFindWidget } from 'vs/workbench/contrib/codeEditor/browser/find/simpleFindWidget';
 import { IContextViewService } from 'vs/platform/contextview/browser/contextView';
 import { IContextKeyService, IContextKey } from 'vs/platform/contextkey/common/contextkey';
-import { ITerminalInstance, IXtermTerminal, XtermTerminalConstants } from 'vs/workbench/contrib/terminal/browser/terminal';
+import { IDetachedTerminalInstance, ITerminalInstance, IXtermTerminal, XtermTerminalConstants } from 'vs/workbench/contrib/terminal/browser/terminal';
 import { TerminalContextKeys } from 'vs/workbench/contrib/terminal/common/terminalContextKey';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { Event } from 'vs/base/common/event';
-import type { ISearchOptions } from 'xterm-addon-search';
+import type { ISearchOptions } from '@xterm/addon-search';
 import { TerminalCommandId } from 'vs/workbench/contrib/terminal/common/terminal';
 
 const TERMINAL_FIND_WIDGET_INITIAL_WIDTH = 419;
@@ -23,7 +23,7 @@ export class TerminalFindWidget extends SimpleFindWidget {
 	private _findWidgetVisible: IContextKey<boolean>;
 
 	constructor(
-		private _instance: ITerminalInstance,
+		private _instance: ITerminalInstance | IDetachedTerminalInstance,
 		@IContextViewService _contextViewService: IContextViewService,
 		@IKeybindingService keybindingService: IKeybindingService,
 		@IContextKeyService private readonly _contextKeyService: IContextKeyService,
