@@ -19,7 +19,7 @@ export function addAuthorizationHooks(server: FastifyInstance) {
       request.method === 'GET' &&
       reply.statusCode === 401
     ) {
-      process.env.CLUSTER_ACCESS_TOKEN = '';
+      reply.redirect('/oauth/sign_out');
     }
     done();
   });
@@ -30,8 +30,7 @@ export function addAuthorizationHooks(server: FastifyInstance) {
       request.url === '/dashboard/' &&
       request.method === 'GET'
     ) {
-      const url = server.localStart.generateAuthorizationUri(request);
-      reply.redirect(url);
+      reply.redirect('/oauth/sign_out');
     }
     done();
   });

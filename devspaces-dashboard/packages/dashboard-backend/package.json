@@ -31,7 +31,7 @@
     "@fastify/cors": "^8.3.0",
     "@fastify/error": "^3.3.0",
     "@fastify/http-proxy": "^9.2.1",
-    "@fastify/oauth2": "^6.1.0",
+    "@fastify/oauth2": "^7.2.2",
     "@fastify/static": "^6.10.2",
     "@fastify/swagger": "^8.8.0",
     "@fastify/swagger-ui": "1.9.2",

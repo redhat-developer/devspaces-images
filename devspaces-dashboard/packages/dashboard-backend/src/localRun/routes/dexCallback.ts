@@ -14,9 +14,13 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 export function registerDexCallback(server: FastifyInstance) {
   server.get('/oauth/callback', async function (request: FastifyRequest, reply: FastifyReply) {
-    const { token } = await server.localStart.getAccessTokenFromAuthorizationCodeFlow(request);
-    process.env.CLUSTER_ACCESS_TOKEN = token.access_token;
-    const authorizationUri = server.localStart.generateAuthorizationUri(request);
-    return reply.redirect(token ? '/dashboard/' : authorizationUri);
+    try {
+      const { token } = await server.localStart.getAccessTokenFromAuthorizationCodeFlow(request);
+      process.env.CLUSTER_ACCESS_TOKEN = token.access_token;
+      return reply.redirect('/dashboard/');
+    } catch (e) {
+      // handle an error that usually occurs during the authorization flow from an abandoned tab with outdated state
+      return reply.redirect('/oauth/sign_in');
+    }
   });
 }
