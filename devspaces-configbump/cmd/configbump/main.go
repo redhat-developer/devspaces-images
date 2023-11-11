@@ -35,7 +35,7 @@ type opts struct {
 
 // Version returns the version of the program
 func (opts) Version() string {
-	return "config-bump 7.77.0-next"
+	return "config-bump 7.77.1-next"
 }
 
 const controllerName = "config-bump"
