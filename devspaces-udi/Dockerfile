@@ -44,7 +44,7 @@ RUN \
      -X github.com/joyrex2001/kubedock/internal/config.Image=joyrex2001/kubedock:0.11.0" && \
     CGO_ENABLED=0 go build -ldflags "${LDFLAGS}" -o kubedock && \
     chmod +x ./kubedock && \
-    ./kubedock version
+    ./kubedock version && \
     # END Kubedock
 
     # CRW-3193 disable until we have a camel-k sample again
@@ -54,6 +54,17 @@ RUN \
     # make build-kamel && \
     # ./kamel version && \
     # END Kamel
+
+    # BEGIN stow
+    dnf -y -q install perl texinfo texinfo-tex git && \
+    cd $REMOTE_SOURCES_DIR/stow/app && \
+    mkdir -p $REMOTE_SOURCES_DIR/stow/app/build && \
+    autoreconf -iv && \
+    ./configure --prefix=$REMOTE_SOURCES_DIR/stow/app/build && \
+    make install && \
+    cd $REMOTE_SOURCES_DIR/stow/app/build/bin/ && \
+    ./stow --version
+    # END stow
 
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.8-1072
@@ -335,6 +346,8 @@ xdebug.log=\${HOME}/xdebug.log" >> /etc/php.ini && \
 # see container.yaml
 COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls $HOME/go/bin/gopls
 COPY --from=go-builder $REMOTE_SOURCES_DIR/kubedock/app/kubedock $HOME/go/bin/kubedock
+COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/bin/ /usr/bin/
+COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/share/ /usr/share/
 
 
     ########################################################################

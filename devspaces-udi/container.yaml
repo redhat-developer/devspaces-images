@@ -64,3 +64,10 @@ remote_sources:
     ref: 9d21955b52e4905d916d24e724dcad195aef3515
     pkg_managers:
       - gomod
+
+- name: stow
+  remote_source:
+    repo: https://github.com/aspiers/stow
+    ref: 4ef5eca4a9d107b24e712bb4c2c91f47e7e0fb85
+    pkg_managers: []
+    flags: ["include-git-dir"]
