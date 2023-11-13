@@ -81,6 +81,7 @@ ENV \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/usr/share/maven" \
     PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
+    PROFILE_EXT=/etc/profile.d/udi_environment.sh \
     # Rootless podman install #1:
     # Set up environment variables to note that this is
     # not starting with usernamespace and default to
@@ -107,7 +108,6 @@ LABEL summary="$SUMMARY" \
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN echo 'alias docker=podman' >> /home/user/.bashrc
 COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
@@ -158,8 +158,11 @@ RUN \
     mkdir -p /opt && \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
+    # $PROFILE_EXT contains all additions made to the bash environment
+    touch ${PROFILE_EXT} && \
     # Setup $PS1 for a consistent and reasonable prompt
-    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> "${HOME}"/.bashrc && \
+    touch /etc/profile.d/udi_prompt.sh && \
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /etc/profile.d/udi_prompt.sh && \
     # Change permissions to let any arbitrary user
     mkdir -p /projects && \
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
@@ -193,6 +196,8 @@ RUN \
     ## Rootless podman install #6: rename podman to allow the execution of 'podman run' using
     ##                             kubedock but 'podman build' using podman.orig
     mv /usr/bin/podman /usr/bin/podman.orig && \
+    # Docker alias
+    echo 'alias docker=podman' >> ${PROFILE_EXT} && \
     # set up go/bin folder
     mkdir /home/user/go/bin -p
 
