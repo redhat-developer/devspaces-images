@@ -125,7 +125,10 @@ fi
 #############################################################################
 
 # /home/user/ will be mounted to by a PVC if persistUserHome is enabled
-mountpoint -q /home/user/; HOME_USER_MOUNTED=$?
+# We need to override the `set -e` from this script by ensuring the mountpoint command returns 0,
+# but we also need to capture the exit code of mountpoint
+HOME_USER_MOUNTED=0
+mountpoint -q /home/user/ || HOME_USER_MOUNTED=$?
 
 # This file will be created after stowing, to guard from executing stow everytime the container is started
 STOW_COMPLETE=/home/user/.stow_completed
