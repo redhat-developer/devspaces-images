@@ -355,7 +355,9 @@ COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/bin/ /usr/bin/
 COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/share/ /usr/share/
 
 # Create symbolic links from /home/tooling/ -> /home/user/
-RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
+RUN stow . -t /home/user/ -d /home/tooling/ --no-folding && \
+    # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
+    cp /home/tooling/.viminfo /home/user/.viminfo
 
 
     ########################################################################
