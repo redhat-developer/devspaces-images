@@ -23,7 +23,7 @@ RUN \
     ########################################################################
     dnf -y -q install golang make gzip which openshift-clients && \
     # BEGIN Gopls
-    mkdir /home/user/go/bin -p && \
+    mkdir /home/tooling/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
     # gopls must refer to tools as local dependency, which is located one dir above in the project
     echo 'replace golang.org/x/tools => ../' >> go.mod && \
@@ -34,7 +34,7 @@ RUN \
     # END Gopls
 
     # BEGIN Kubedock
-    mkdir /home/user/go/bin -p && \
+    mkdir /home/tooling/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/kubedock/app && \
     # build kubedock application with dependencies resolved by Cachito
     source $REMOTE_SOURCES_DIR/kubedock/cachito.env && \
@@ -72,7 +72,8 @@ FROM ubi8-minimal:8.8-1072
 USER root
 
 ENV \
-    HOME=/home/user \
+    # We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
+    HOME=/home/tooling \
     NODEJS_VERSION="18" \
     PYTHON_VERSION="3.11" \
     PHP_VERSION="7.4" \
@@ -83,15 +84,16 @@ ENV \
     JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
-    JAVA_HOME="/home/user/.java/current" \
-    GOBIN="/home/user/go/bin/" \
-    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/user/go/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA_HOME="/home/tooling/.java/current" \
+    GOBIN="/home/tooling/go/bin/" \
+    PATH="/home/tooling/.local/bin:/home/tooling/.java/current/bin:/home/tooling/node_modules/.bin/:/home/tooling/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/tooling/go/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/usr/share/maven" \
     PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
+    KUBECONFIG=/home/user/.kube/config \
     PROFILE_EXT=/etc/profile.d/udi_environment.sh \
     # Rootless podman install #1:
     # Set up environment variables to note that this is
@@ -116,10 +118,13 @@ LABEL summary="$SUMMARY" \
       io.openshift.expose-services="" \
       usage=""
 
+RUN mkdir -p /home/tooling/
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
+RUN mkdir -p /home/tooling/
+COPY --chown=0:0 etc/.stow-local-ignore /home/tooling/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -210,7 +215,7 @@ RUN \
     # Docker alias
     echo 'alias docker=podman' >> ${PROFILE_EXT} && \
     # set up go/bin folder
-    mkdir /home/user/go/bin -p
+    mkdir /home/tooling/go/bin -p
 
 RUN \
     # configure runtimes
@@ -265,7 +270,7 @@ RUN \
     echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
-    mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
+    mkdir -p /home/tooling; cd /home/tooling; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
     # TODO: to enable flake8 as default linter, add this to project's .vscode/settings.json file
     # {
@@ -349,6 +354,9 @@ COPY --from=go-builder $REMOTE_SOURCES_DIR/kubedock/app/kubedock $HOME/go/bin/ku
 COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/bin/ /usr/bin/
 COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/share/ /usr/share/
 
+# Create symbolic links from /home/tooling/ -> /home/user/
+RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
+
 
     ########################################################################
     # Cleanup and Summaries
@@ -411,8 +419,9 @@ RUN \
     echo "========"
 
 # A last pass to make sure that an arbitrary user can write in $HOME
-RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /home
+RUN chgrp -R 0 /home && chmod -R g=u /home
 
+ENV HOME=/home/user
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null

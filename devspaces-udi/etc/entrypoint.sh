@@ -83,17 +83,17 @@ if [[ "${KUBEDOCK_ENABLED:-false}" == "true" ]]; then
     echo "Kubedock is enabled (env variable KUBEDOCK_ENABLED is set to true)."
 
     SECONDS=0
-    until [ -f /home/user/.kube/config ]; do
-        if (( SECONDS > 10 )); then
-            echo "Giving up..."
-            exit 1
+    KUBEDOCK_TIMEOUT=${KUBEDOCK_TIMEOUT:-10}
+    until [ -f $KUBECONFIG ]; do
+        if (( SECONDS > KUBEDOCK_TIMEOUT )); then
+            break
         fi
         echo "Kubeconfig doesn't exist yet. Waiting..."
         sleep 1
     done
     echo "Kubeconfig found."
 
-    KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy"}
+    KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy --kubeconfig $KUBECONFIG"}
 
     echo "Starting kubedock with params \"${KUBEDOCK_PARAMS}\"..."
     
@@ -103,8 +103,8 @@ if [[ "${KUBEDOCK_ENABLED:-false}" == "true" ]]; then
 
     echo "Replacing podman with podman-wrapper.sh..."
 
-    mkdir -p /home/user/.local/bin/
-    ln -f -s /usr/bin/podman-wrapper.sh /home/user/.local/bin/podman
+    mkdir -p /home/tooling/.local/bin/
+    ln -f -s /usr/bin/podman-wrapper.sh /home/tooling/.local/bin/podman
 
     export TESTCONTAINERS_RYUK_DISABLED="true"
     export TESTCONTAINERS_CHECKS_DISABLE="true"
@@ -116,8 +116,31 @@ else
     echo "Kubedock is disabled. It can be enabled with the env variable \"KUBEDOCK_ENABLED=true\""
     echo "set in the workspace Devfile or in a Kubernetes ConfigMap in the developer namespace."
     echo
-    mkdir -p /home/user/.local/bin/
-    ln -f -s /usr/bin/podman.orig /home/user/.local/bin/podman
+    mkdir -p /home/tooling/.local/bin/
+    ln -f -s /usr/bin/podman.orig /home/tooling/.local/bin/podman
+fi
+
+#############################################################################
+# Stow: If persistUserHome is enabled, then then the contents of /home/user/
+# will be mounted by a PVC and overwriten. In this case, we use stow to
+# create symbolic links from /home/tooling/ -> /home/user/.
+# Required for https://github.com/eclipse/che/issues/22412
+#############################################################################
+
+# /home/user/ will be mounted to by a PVC if persistUserHome is enabled
+mountpoint -q /home/user/; HOME_USER_MOUNTED=$?
+
+# This file will be created after stowing, to guard from executing stow everytime the container is started
+STOW_COMPLETE=/home/user/.stow_completed
+
+if [ $HOME_USER_MOUNTED -eq 0 ] && [ ! -f $STOW_COMPLETE ]; then
+    # Create symbolic links from /home/tooling/ -> /home/user/
+    stow . -t /home/user/ -d /home/tooling/ --no-folding -v 2 > /tmp/stow.log 2>&1
+    # We have to restore bash-related files back onto /home/user/ (since they will have been overwritten by the PVC)
+    # but we don't want them to be symbolic links (so that they persist on the PVC)
+    cp /home/tooling/.bashrc /home/user/.bashrc
+    cp /home/tooling/.bash_profile /home/user/.bash_profile
+    touch $STOW_COMPLETE
 fi
 
 exec "$@"
