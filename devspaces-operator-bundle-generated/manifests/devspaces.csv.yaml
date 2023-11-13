@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:cb12437ec1e6c36c75828df3ed655954da2d37dd1150d6d98852074f6b13e854
-    createdAt: "2023-11-11T18:21:22+00:00"
+    createdAt: "2023-11-13T18:38:26+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -880,9 +880,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMAK
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:8ac0dfdf30fefbd96d616c2723b9d719c8016533d709a3730a1b595fd6e35c95
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:9a50b910ecfca22d1d1a203543762329a3916c7d32f35a60a7e6ec243eea2ee7
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:7d7b38cb2e0f30a7572c481123f29999b968257db3ca0f94d307aa593b65f978
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMAK
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:9a50b910ecfca22d1d1a203543762329a3916c7d32f35a60a7e6ec243eea2ee7
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:7d7b38cb2e0f30a7572c481123f29999b968257db3ca0f94d307aa593b65f978
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCMAK
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:e2353316a330fca3999e60185b7b2798c0c6620fdb0b28035906c6ba08c750f6
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCMAK
@@ -1242,7 +1242,7 @@ spec:
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
-  replaces: devspacesoperator.v3.9.0
+  replaces: devspacesoperator.v3.9.1
   relatedImages:
   - name: devspaces-rhel8-operator-cb12437ec1e6c36c75828df3ed655954da2d37dd1150d6d98852074f6b13e854-annotation
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:cb12437ec1e6c36c75828df3ed655954da2d37dd1150d6d98852074f6b13e854
@@ -1259,9 +1259,9 @@ spec:
   - name: devspaces_code_plugin_registry_image_gmxdcmak
     image: registry.redhat.io/devspaces/code-rhel8@sha256:8ac0dfdf30fefbd96d616c2723b9d719c8016533d709a3730a1b595fd6e35c95
   - name: devspaces_idea_devfile_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:9a50b910ecfca22d1d1a203543762329a3916c7d32f35a60a7e6ec243eea2ee7
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:7d7b38cb2e0f30a7572c481123f29999b968257db3ca0f94d307aa593b65f978
   - name: devspaces_idea_plugin_registry_image_gmxdcmak
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:9a50b910ecfca22d1d1a203543762329a3916c7d32f35a60a7e6ec243eea2ee7
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:7d7b38cb2e0f30a7572c481123f29999b968257db3ca0f94d307aa593b65f978
   - name: devspaces_udi_devfile_registry_image_gmxdcmak
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:e2353316a330fca3999e60185b7b2798c0c6620fdb0b28035906c6ba08c750f6
   - name: devspaces_udi_plugin_registry_image_gmxdcmak
