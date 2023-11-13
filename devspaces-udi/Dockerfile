@@ -86,7 +86,7 @@ ENV \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/tooling/.java/current" \
     GOBIN="/home/tooling/go/bin/" \
-    PATH="/home/tooling/.local/bin:/home/tooling/.java/current/bin:/home/tooling/node_modules/.bin/:/home/tooling/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/tooling/go/bin:${PATH:-/bin:/usr/bin}" \
+    PATH="/home/user/.local/bin:/home/tooling/.local/bin:/home/tooling/.java/current/bin:/home/tooling/node_modules/.bin/:/home/tooling/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/tooling/go/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -194,7 +194,9 @@ RUN \
     > ${HOME}/passwd.template && \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
-    > ${HOME}/group.template
+    > ${HOME}/group.template && \
+    # Define user directory for binaries
+    mkdir -p /home/tooling/.local/bin
 
 RUN \
     ## Rootless podman install #2: install podman buildah skopeo e2fsprogs (above)

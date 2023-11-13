@@ -98,7 +98,6 @@ if [[ "${KUBEDOCK_ENABLED:-false}" == "true" ]]; then
 
       echo "Replacing podman with podman-wrapper.sh..."
 
-      mkdir -p /home/tooling/.local/bin/
       ln -f -s /usr/bin/podman-wrapper.sh /home/tooling/.local/bin/podman
 
       export TESTCONTAINERS_RYUK_DISABLED="true"
@@ -115,7 +114,6 @@ else
     echo "Kubedock is disabled. It can be enabled with the env variable \"KUBEDOCK_ENABLED=true\""
     echo "set in the workspace Devfile or in a Kubernetes ConfigMap in the developer namespace."
     echo
-    mkdir -p /home/tooling/.local/bin/
     ln -f -s /usr/bin/podman.orig /home/tooling/.local/bin/podman
 fi
 
