@@ -43,13 +43,6 @@ if [ -f "${HOME}"/.venv/bin/activate ]; then
 fi
 
 #############################################################################
-# Setup $PS1 for a consistent and reasonable prompt
-#############################################################################
-if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
-  echo "PS1='[\u@\h \W]\$ '" >> "${HOME}"/.bashrc
-fi
-
-#############################################################################
 # use java 8 if USE_JAVA8 is set to 'true', 
 # use java 17 if USE_JAVA17 is set to 'true', 
 # by default it is java 11
