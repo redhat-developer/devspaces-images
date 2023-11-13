@@ -140,8 +140,8 @@ if [ $HOME_USER_MOUNTED -eq 0 ] && [ ! -f $STOW_COMPLETE ]; then
     cp --no-clobber /home/tooling/.viminfo /home/user/.viminfo
     # We have to restore bash-related files back onto /home/user/ (since they will have been overwritten by the PVC)
     # but we don't want them to be symbolic links (so that they persist on the PVC)
-    cp /home/tooling/.bashrc /home/user/.bashrc
-    cp /home/tooling/.bash_profile /home/user/.bash_profile
+    cp --no-clobber /home/tooling/.bashrc /home/user/.bashrc
+    cp --no-clobber /home/tooling/.bash_profile /home/user/.bash_profile
     touch $STOW_COMPLETE
 fi
 
