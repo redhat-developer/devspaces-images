@@ -272,7 +272,7 @@ RUN \
     echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
-    mkdir -p /home/tooling; cd /home/tooling; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
+    cd /home/tooling; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
     # TODO: to enable flake8 as default linter, add this to project's .vscode/settings.json file
     # {
