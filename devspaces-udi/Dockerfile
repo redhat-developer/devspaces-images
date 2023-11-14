@@ -63,7 +63,7 @@ USER root
 ENV \
     HOME=/home/user \
     NODEJS_VERSION="18" \
-    PYTHON_VERSION="3.9" \
+    PYTHON_VERSION="3.11" \
     PHP_VERSION="7.4" \
     XDEBUG_VERSION="3.1.6" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
@@ -121,8 +121,8 @@ COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
 RUN \
     # install all the rpms and modules
     microdnf install -y dnf && \
-    dnf -y -q module reset   container-tools       maven     nodejs                 python39                   php; \
-    dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION python39:${PYTHON_VERSION} php:$PHP_VERSION && \
+    dnf -y -q module reset   container-tools       maven     nodejs                 python3.11                   php; \
+    dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION php:$PHP_VERSION && \
     dnf -y -q install --setopt=tsflags=nodocs \
         golang \
         java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
@@ -132,7 +132,7 @@ RUN \
         make cmake gcc gcc-c++ \
             llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb \
         php php-cli php-fpm php-opcache php-devel php-pear php-gd php-intl php-mysqli php-zlib php-curl \
-        python39 python39-devel python39-setuptools python39-pip python39-wheel \
+        python3.11 python3.11-devel python3.11-setuptools python3.11-pip python3.11-wheel \
         libssh-devel libffi-devel redhat-rpm-config cargo openssl-devel pkg-config jq \
         podman buildah skopeo fuse-overlayfs \
         e2fsprogs libatomic_ops git openssl-devel ca-certificates \
