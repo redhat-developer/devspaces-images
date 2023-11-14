@@ -222,6 +222,15 @@ RUN \
 RUN \
     # configure runtimes
     ########################################################################
+    # Common tooling configuration directories
+    ########################################################################
+    mkdir -p /home/tooling/.m2 && \
+    mkdir -p /home/tooling/.config/pip && \
+    mkdir -p /home/tooling/.cargo && \
+    mkdir -p /home/tooling/certs && \
+    mkdir -p /home/tooling/.composer && \
+    mkdir -p /home/tooling/.nuget && \
+    ########################################################################
     # Java
     ########################################################################
     mkdir -p ${HOME}/.java/current && \
