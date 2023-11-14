@@ -34,7 +34,6 @@ RUN \
     # END Gopls
 
     # BEGIN Kubedock
-    mkdir /home/tooling/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/kubedock/app && \
     # build kubedock application with dependencies resolved by Cachito
     source $REMOTE_SOURCES_DIR/kubedock/cachito.env && \
@@ -218,9 +217,7 @@ RUN \
     ##                             kubedock but 'podman build' using podman.orig
     mv /usr/bin/podman /usr/bin/podman.orig && \
     # Docker alias
-    echo 'alias docker=podman' >> ${PROFILE_EXT} && \
-    # set up go/bin folder
-    mkdir /home/tooling/go/bin -p
+    echo 'alias docker=podman' >> ${PROFILE_EXT}
 
 RUN \
     # configure runtimes
