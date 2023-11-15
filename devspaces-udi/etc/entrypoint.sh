@@ -119,7 +119,7 @@ fi
 
 #############################################################################
 # Stow: If persistUserHome is enabled, then the contents of /home/user/
-# will be mounted by a PVC and overwriten. In this case, we use stow to
+# will be mounted by a PVC and overwritten. In this case, we use stow to
 # create symbolic links from /home/tooling/ -> /home/user/.
 # Required for https://github.com/eclipse/che/issues/22412
 #############################################################################
