@@ -181,9 +181,7 @@ describe('OAuth service', () => {
     try {
       await OAuthService.refreshTokenIfNeeded(devWorkspace);
     } catch (e: any) {
-      expect(e.response.data.responseData.attributes.oauth_authentication_url).toBe(
-        'https://git-lub/oauth/url',
-      );
+      fail('it should not reach here');
     }
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
@@ -225,10 +223,53 @@ describe('OAuth service', () => {
     try {
       await OAuthService.refreshTokenIfNeeded(devWorkspace);
     } catch (e: any) {
-      expect(e.response.status).toBe(401);
+      fail('it should not reach here');
     }
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
     expect(mockOpenOAuthPage).not.toHaveBeenCalled();
+  });
+
+  it('should redirect to oauth window if error has OAuth response', async () => {
+    const status = { mainUrl: 'https://mainUrl' };
+    const projects = [
+      {
+        name: 'project',
+        git: {
+          remotes: {
+            origin: 'origin:project',
+          },
+        },
+      },
+    ];
+    const devWorkspace = new DevWorkspaceBuilder()
+      .withStatus(status)
+      .withProjects(projects)
+      .build();
+
+    refreshFactoryOauthTokenSpy.mockRejectedValueOnce({
+      isAxiosError: false,
+      code: '401',
+      response: {
+        status: 401,
+        data: {
+          attributes: {
+            oauth_provider: 'git-lab',
+            oauth_authentication_url: 'https://git-lub/oauth/url',
+          },
+        },
+      },
+    } as AxiosError);
+
+    jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
+
+    try {
+      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    } catch (e: any) {
+      expect(e.response.status).toBe(401);
+    }
+
+    expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
+    expect(mockOpenOAuthPage).toHaveBeenCalled();
   });
 });
