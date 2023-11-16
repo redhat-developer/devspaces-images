@@ -20,7 +20,6 @@ for (JB in JOB_BRANCHES) {
         JOB_BRANCH=""+JB
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-        SLACK_NOTIFICATION=config."Management-Jobs"."slack-notification"[JB].disabled
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."update-digests"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
@@ -71,7 +70,6 @@ are found in <a href=https://quay.io/devspaces/>quay.io/devspaces/</a> using
 
             parameters{
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-                booleanParam("SLACK_NOTIFICATION", SLACK_NOTIFICATION, "If false, don't send a notification to slack when there is a new stable operator bundle.")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 

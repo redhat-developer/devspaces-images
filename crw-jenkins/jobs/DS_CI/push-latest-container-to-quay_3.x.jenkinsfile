@@ -7,6 +7,7 @@ import groovy.transform.Field
 //   MIDSTM_BRANCH
 //   FLOATING_QUAY_TAGS
 //   OCP_VERSIONS
+//   SLACK_NOTIFICATION (passed on to copyIIBsToQuay)
 //   CLEAN_ON_FAILURE = "true"
 
 def checkFailureQuay(arrayLines,errorOccurred)
@@ -345,6 +346,11 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
                             name: 'OCP_VERSIONS',
                             value: OCP_VERSIONS
 
+                        ],
+                        [
+                            $class: 'BooleanParameterValue',
+                            name: 'SLACK_NOTIFICATION',
+                            value: SLACK_NOTIFICATION
                         ]
                     ]
                 )            
@@ -353,13 +359,6 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
                 currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
             }
         } // if 
-
-        // TODO when 3.6 is live (and theia is gone), enable util.commentOnPullRequestBuildDescription block here (?)
-        // comment on the PR with this job's build description
-        // if (util.globalVar({comments_url})?.trim()) {
-        //     println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-        // }
-
     } // with
     cleanWs(
         cleanWhenSuccess: true,

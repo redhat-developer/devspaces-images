@@ -6,8 +6,10 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // OCP_VERSIONS
 // MIDSTM_BRANCH
+// errataURL
+// epicURL
 
-def sendSlack(slackTitle,slackText) {
+def sendSlack(slackTitle,slackText,slackChannel) {
     def message = [
         title: slackTitle,
         text: slackText,
@@ -15,7 +17,7 @@ def sendSlack(slackTitle,slackText) {
         ts: System.currentTimeMillis() / 1000
     ]
 
-    slackSend(channel: "devspaces-ci", attachments: [message])
+    slackSend(channel: slackChannel, attachments: [message])
 }
 
 def checkFailure(arrayLines,serverName,errorOccurred)
@@ -171,14 +173,18 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
                     currentBuild.result = 'FAILURE'
                 }
 
-                imageName = (latestBundleImage.split("/"))[-1]
-                slackTitle = "New DS bundle " + imageName + " is available."
                 slackText = slackText + '''
 OSBS Index Images (IIB) by OCP Version:
 * ''' + IIBs.trim().replaceAll("\n", "\n* ")
 
-            sendSlack(slackTitle,slackText)
+                slackText = slackText + '''
+Advisory: ''' + errataURL + '''
+Epic: ''' + epicURL
 
+                imageName = (latestBundleImage.split("/"))[-1]
+                slackTitle = "New DS bundle " + imageName + " is available."
+
+                sendSlack(slackTitle,slackText,"devspaces-ci")
             } catch (e) {
                 if (!errorOccurred.equals("")) {
                     echo errorOccurred
