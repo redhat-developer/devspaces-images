@@ -36,11 +36,9 @@ export const GIT_PROVIDERS: Record<api.GitProvider, string> = {
 
 export const DEFAULT_GIT_PROVIDER: api.GitProvider = 'github';
 
-export const PROVIDER_ENDPOINTS: Record<api.GitOauthProvider | api.GitProvider, string> = {
+export const GIT_PROVIDER_ENDPOINTS: Record<api.GitProvider, string> = {
   'azure-devops': 'https://dev.azure.com',
-  'bitbucket-server': '',
-  bitbucket: '',
+  'bitbucket-server': 'https://bitbucket.org',
   github: 'https://github.com',
-  github_2: 'https://github.com',
   gitlab: 'https://gitlab.com',
 } as const;
