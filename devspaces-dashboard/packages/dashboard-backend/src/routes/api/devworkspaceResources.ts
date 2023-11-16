@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1alpha2DevWorkspaceTemplate } from '@devfile/api';
 import { Main as DevworkspaceGenerator } from '@eclipse-che/che-devworkspace-generator/lib/main';
 import { api } from '@eclipse-che/common';
 import { FastifyInstance, FastifyRequest } from 'fastify';
@@ -45,9 +44,7 @@ export function registerDevworkspaceResourcesRoute(instance: FastifyInstance) {
           axiosInstance,
         );
         // write templates and then DevWorkspace in a single file
-        const allContentArray = context.devWorkspaceTemplates.map(
-          (template: V1alpha2DevWorkspaceTemplate) => dump(template),
-        );
+        const allContentArray = context.devWorkspaceTemplates.map(template => dump(template));
         allContentArray.push(dump(context.devWorkspace));
 
         return allContentArray.join('---\n');
