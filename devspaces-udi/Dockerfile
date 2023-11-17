@@ -145,7 +145,7 @@ RUN \
     elif [[ "$(uname -m)" == 'ppc64le' ]]; then \
         dnf config-manager --set-disabled codeready-builder-for-rhel-8-ppc64le-rpms ; \
     fi && \
-    dnf -y -q module reset   container-tools       maven     nodejs                 python3.11                   php; \
+    dnf -y -q module reset   container-tools       maven     nodejs                 php; \
     dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION php:$PHP_VERSION && \
     dnf -y -q install --setopt=tsflags=nodocs \
         golang \
