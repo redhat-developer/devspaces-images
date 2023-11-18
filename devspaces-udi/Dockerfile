@@ -71,7 +71,7 @@ FROM ubi8-minimal:8.8-1072
 USER root
 
 ENV \
-    # We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
+    # We install everything to /home/tooling/ as /home/user/ may get overwritten, see github.com/eclipse/che/issues/22412
     HOME=/home/tooling \
     NODEJS_VERSION="18" \
     PYTHON_VERSION="3.11" \
