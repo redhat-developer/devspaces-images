@@ -182,7 +182,7 @@ RUN \
     mkdir -p /opt && \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
-    # Bash-related files are backed up to /home/tooling/ incase they are deleted when persistUserHome is enabled.
+    # Bash-related files are backed up to /home/tooling/ in case they are deleted when persistUserHome is enabled.
     cp /home/user/.bashrc /home/tooling/.bashrc && \
     cp /home/user/.bash_profile /home/tooling/.bash_profile && \
     # $PROFILE_EXT contains all additions made to the bash environment
