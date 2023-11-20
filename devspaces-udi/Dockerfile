@@ -57,7 +57,6 @@ RUN \
 
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.9-1029
-
 USER root
 
 ENV \
