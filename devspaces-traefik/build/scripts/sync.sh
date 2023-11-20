@@ -62,6 +62,7 @@ traefik.sample.toml
 traefik.sample.yml
 build/
 tests/
+/webui
 /container.yaml
 /content_sets.*
 /cvp.yml
@@ -81,6 +82,9 @@ make-release.sh
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
 rm -f /tmp/rsync-excludes
+
+# remove webui folder as we don't use it in dev spaces
+rm -fr "${TARGETDIR}"/webui
 
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
