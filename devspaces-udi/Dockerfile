@@ -139,12 +139,7 @@ RUN \
     microdnf install -y dnf && \
     # Disable code ready builder repo's to prevent accidentally installing incorrect packages
     dnf -y -q install 'dnf-command(config-manager)' && \
-    if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        dnf config-manager --set-disabled codeready-builder-for-rhel-8-x86_64-rpms ; \
-    elif [[ "$(uname -m)" == 's390x' ]]; then \
-        dnf config-manager --set-disabled codeready-builder-for-rhel-8-s390x-rpms ; \
-    elif [[ "$(uname -m)" == 'ppc64le' ]]; then \
-        dnf config-manager --set-disabled codeready-builder-for-rhel-8-ppc64le-rpms ; \
+    dnf config-manager --set-disabled codeready-* && \
     fi && \
     dnf -y -q module reset   container-tools       maven     nodejs                 php; \
     dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION php:$PHP_VERSION && \
