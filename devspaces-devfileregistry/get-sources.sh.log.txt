@@ -1,0 +1,1257 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 2bfcfe0e896f
+STEP 3/23: ARG BOOTSTRAP=true
+--> 232b8e119f60
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> d97ad7e6dfce
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 96a1ec4d8744
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 199c62e21b68
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 0fa499bf3233
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 83602bccd5d9
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> c46acbe9659f
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 446867a95572
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                 dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.ppc64le        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch                
+Installed:
+  containers-common-2:1-70.module+el8.9.0+20326+387084d0.ppc64le                
+  criu-3.18-4.module+el8.9.0+20326+387084d0.ppc64le                             
+  fuse-common-3.3.0-17.el8.ppc64le                                              
+  fuse-overlayfs-1.12-1.module+el8.9.0+20326+387084d0.ppc64le                   
+  fuse3-3.3.0-17.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-17.el8.ppc64le                                               
+  jq-1.6-7.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libslirp-4.4.0-1.module+el8.9.0+20326+387084d0.ppc64le                        
+  mpdecimal-2.5.1-3.el8.ppc64le                                                 
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-8.el8.ppc64le                                                
+  python3.11-3.11.5-1.el8_9.ppc64le                                             
+  python3.11-devel-3.11.5-1.el8_9.ppc64le                                       
+  python3.11-libs-3.11.5-1.el8_9.ppc64le                                        
+  python3.11-pip-22.3.1-4.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-4.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  rpm-plugin-systemd-inhibit-4.14.3-26.el8.ppc64le                              
+  runc-1:1.1.9-1.module+el8.9.0+20326+387084d0.ppc64le                          
+  skopeo-2:1.13.3-1.module+el8.9.0+20326+387084d0.ppc64le                       
+  slirp4netns-1.2.1-1.module+el8.9.0+20326+387084d0.ppc64le                     
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.6-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.7/41.7 kB 2.6 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 32.9 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1.tar.gz (125 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.2/125.2 kB 236.8 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.3-py3-none-any.whl (37 kB)
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (pyproject.toml): started
+  Building wheel for PyYAML (pyproject.toml): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0.1-cp311-cp311-linux_ppc64le.whl size=45364 sha256=38e620949898ad100019370572b7bf296eafa3644fd78e58f11ab14d003b6d4d
+  Stored in directory: /tmp/pip-ephem-wheel-cache-1kwn_0f8/wheels/9d/b8/03/596afac31be302ab459eb56558a9ee17cc947ffe6f85d67dcf
+Successfully built PyYAML
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.6 pip-23.3.1 tomlkit-0.12.3 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> ce498c1ffc27
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 0403538c67e9
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> ce7eb7b3171b
+STEP 14/23: COPY ./VERSION /
+--> 083c5f71fd98
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> af8d76ed3f19
+STEP 16/23: WORKDIR /build/
+--> 70a9a831881d
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 84 contributors and audited 31 packages in 6.113s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 37fb54768151
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> c3e09fb11ca8
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.11 PASS - 3.11 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.11 PASS - 3.11 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.11 PASS - 3.11 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 9b3b54113004
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> b76ede8e7c31
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 41558b0ec6bd
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> f3334e12f01a
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 7dff8bce2264
+Successfully tagged localhost/devfileregistry:tmp
+7dff8bce22645910074aff10a6c62d606fbec5df46ca1e909e98fccdef46f960
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.gf3HgYxYpS/bin/activate-global-python-argcomplete /tmp/tmp.ebO861lrVf/bin/activate-global-python-argcomplete
+--- /tmp/tmp.gf3HgYxYpS/bin/activate-global-python-argcomplete	2023-11-02 23:05:21.000000000 +0000
++++ /tmp/tmp.ebO861lrVf/bin/activate-global-python-argcomplete	2023-11-19 22:26:36.577533160 +0000
+@@ -12,8 +12,8 @@
+ import os
+ import shutil
+ import site
+-import sys
+ import subprocess
++import sys
+ 
+ import argcomplete
+ 
+@@ -96,7 +96,9 @@
+         print(f"argcomplete needs to append to the file {path}. The following code will be appended:", file=sys.stderr)
+         for line in shellcode.splitlines():
+             print(">", line, file=sys.stderr)
+-        get_consent()
++        if not get_consent():
++            print("Not added.", file=sys.stderr)
++            return
+     print(f"Adding shellcode to {path}...", file=sys.stderr)
+     with open(path, "a") as fh:
+         fh.write(shellcode)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/argcomplete/finders.py /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/argcomplete/finders.py
+--- /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/argcomplete/finders.py	2023-11-02 23:05:21.000000000 +0000
++++ /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/argcomplete/finders.py	2023-11-19 22:26:36.577533160 +0000
+@@ -525,19 +525,29 @@
+             special_chars = special_chars.replace('`', '')
+         else:
+             escape_char = "\\"
+-        for char in special_chars:
+-            completions = [c.replace(char, escape_char + char) for c in completions]
++            if os.environ.get("_ARGCOMPLETE_SHELL") == "zsh":
++                # zsh uses colon as a separator between a completion and its description.
++                special_chars += ":"
++
++        escaped_completions = []
++        for completion in completions:
++            escaped_completion = completion
++            for char in special_chars:
++                escaped_completion = escaped_completion.replace(char, escape_char + char)
++            escaped_completions.append(escaped_completion)
++            if completion in self._display_completions:
++                self._display_completions[escaped_completion] = self._display_completions[completion]
+ 
+         if self.append_space:
+             # Similar functionality in bash was previously turned off by supplying the "-o nospace" option to complete.
+             # Now it is conditionally disabled using "compopt -o nospace" if the match ends in a continuation character.
+             # This code is retained for environments where this isn't done natively.
+             continuation_chars = "=/:"
+-            if len(completions) == 1 and completions[0][-1] not in continuation_chars:
++            if len(escaped_completions) == 1 and escaped_completions[0][-1] not in continuation_chars:
+                 if cword_prequote == "":
+-                    completions[0] += " "
++                    escaped_completions[0] += " "
+ 
+-        return completions
++        return escaped_completions
+ 
+     def rl_complete(self, text, state):
+         """
+@@ -569,7 +579,7 @@
+ 
+     def get_display_completions(self):
+         """
+-        This function returns a mapping of option names to their help strings for displaying to the user.
++        This function returns a mapping of completions to their help strings for displaying to the user.
+         """
+         return self._display_completions
+ 
+Only in /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages: argcomplete-3.1.4.dist-info
+Only in /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages: argcomplete-3.1.6.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/container.py	2023-11-02 23:05:21.000000000 +0000
++++ /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/container.py	2023-11-19 22:26:36.587532926 +0000
+@@ -147,7 +147,19 @@
+             last_index = i
+         return last_index + 1
+ 
+-    def append(self, key: Key | str | None, item: Item) -> Container:
++    def _validate_out_of_order_table(self, key: SingleKey | None = None) -> None:
++        if key is None:
++            for k in self._map:
++                assert k is not None
++                self._validate_out_of_order_table(k)
++            return
++        if key not in self._map or not isinstance(self._map[key], tuple):
++            return
++        OutOfOrderTableProxy(self, self._map[key])
++
++    def append(
++        self, key: Key | str | None, item: Item, validate: bool = True
++    ) -> Container:
+         """Similar to :meth:`add` but both key and value must be given."""
+         if not isinstance(key, Key) and key is not None:
+             key = SingleKey(key)
+@@ -229,8 +241,8 @@
+                             else:
+                                 self._raw_append(key, item)
+ 
+-                            # Building a temporary proxy to check for errors
+-                            OutOfOrderTableProxy(self, self._map[key])
++                            if validate:
++                                self._validate_out_of_order_table(key)
+ 
+                             return self
+ 
+@@ -288,7 +300,7 @@
+         self._raw_append(key, item)
+         return self
+ 
+-    def _raw_append(self, key: Key, item: Item) -> None:
++    def _raw_append(self, key: Key | None, item: Item) -> None:
+         if key in self._map:
+             current_idx = self._map[key]
+             if not isinstance(current_idx, tuple):
+@@ -299,7 +311,7 @@
+                 raise KeyAlreadyPresent(key)
+ 
+             self._map[key] = current_idx + (len(self._body),)
+-        else:
++        elif key is not None:
+             self._map[key] = len(self._body)
+ 
+         self._body.append((key, item))
+@@ -607,21 +619,8 @@
+ 
+     # Dictionary methods
+     def __getitem__(self, key: Key | str) -> Item | Container:
+-        if not isinstance(key, Key):
+-            key = SingleKey(key)
+-
+-        idx = self._map.get(key)
+-        if idx is None:
+-            raise NonExistentKey(key)
+-
+-        if isinstance(idx, tuple):
+-            # The item we are getting is an out of order table
+-            # so we need a proxy to retrieve the proper objects
+-            # from the parent container
+-            return OutOfOrderTableProxy(self, idx)
+-
+-        item = self._body[idx][1]
+-        if item.is_boolean():
++        item = self.item(key)
++        if isinstance(item, Item) and item.is_boolean():
+             return item.value
+ 
+         return item
+@@ -702,12 +701,18 @@
+         if isinstance(value, Table):
+             # Insert a cosmetic new line for tables if:
+             # - it does not have it yet OR is not followed by one
+-            # - it is not the last item
++            # - it is not the last item, or
++            # - The table being replaced has a newline
+             last, _ = self._previous_item_with_index()
+             idx = last if idx < 0 else idx
+             has_ws = ends_with_whitespace(value)
++            replace_has_ws = (
++                isinstance(v, Table)
++                and v.value.body
++                and isinstance(v.value.body[-1][1], Whitespace)
++            )
+             next_ws = idx < last and isinstance(self._body[idx + 1][1], Whitespace)
+-            if idx < last and not (next_ws or has_ws):
++            if (idx < last or replace_has_ws) and not (next_ws or has_ws):
+                 value.append(None, Whitespace("\n"))
+ 
+             dict.__setitem__(self, new_key.key, value.value)
+@@ -794,11 +799,13 @@
+                 self._tables.append(item)
+                 table_idx = len(self._tables) - 1
+                 for k, v in item.value.body:
+-                    self._internal_container.append(k, v)
++                    self._internal_container.append(k, v, validate=False)
+                     self._tables_map[k] = table_idx
+                     if k is not None:
+                         dict.__setitem__(self, k.key, v)
+ 
++        self._internal_container._validate_out_of_order_table()
++
+     def unwrap(self) -> str:
+         return self._internal_container.unwrap()
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-02 23:05:21.000000000 +0000
++++ /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-19 22:26:36.587532926 +0000
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.2"
++__version__ = "0.12.3"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/items.py	2023-11-02 23:05:21.000000000 +0000
++++ /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/items.py	2023-11-19 22:26:36.587532926 +0000
+@@ -1617,7 +1617,7 @@
+         if not isinstance(_item, Item):
+             _item = item(_item)
+ 
+-        self._value.append(key, _item)
++        self._value.append(key, _item, validate=False)
+ 
+         if isinstance(key, Key):
+             key = next(iter(key)).key
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/parser.py /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/parser.py
+--- /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages/tomlkit/parser.py	2023-11-02 23:05:21.000000000 +0000
++++ /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages/tomlkit/parser.py	2023-11-19 22:26:36.587532926 +0000
+@@ -1030,7 +1030,7 @@
+                         InternalParserError,
+                         "_parse_item() returned None on a non-bracket character.",
+                     )
+-
++        table.value._validate_out_of_order_table()
+         if isinstance(result, Null):
+             result = table
+ 
+Only in /tmp/tmp.gf3HgYxYpS/lib/python3.11/site-packages: tomlkit-0.12.2.dist-info
+Only in /tmp/tmp.ebO861lrVf/lib/python3.11/site-packages: tomlkit-0.12.3.dist-info
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+@@ -93,7 +93,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++              quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -133,6 +133,21 @@
+               kind: run
+               isDefault: true
+             component: tooling-container
++        - id: ansible-navigator
++          exec:
++            label: 'Ansible-Navigator: Start ansible-navigator'
++            commandLine: >
++              if [ ! -d "$HOME/.cache/ansible-navigator" ]; then
++                mkdir -p "$HOME/.cache/ansible-navigator"
++              fi
++
++              cp
++              /usr/local/lib/python3.11/site-packages/ansible_navigator/data/catalog_collections.py
++              $HOME/.cache/ansible-navigator 
++
++              ansible-navigator --ee false
++            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
++            component: tooling-container
+       events:
+         postStart:
+           - oc-install
+@@ -148,7 +163,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++            quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -188,6 +203,21 @@
+             kind: run
+             isDefault: true
+           component: tooling-container
++      - id: ansible-navigator
++        exec:
++          label: 'Ansible-Navigator: Start ansible-navigator'
++          commandLine: >
++            if [ ! -d "$HOME/.cache/ansible-navigator" ]; then
++              mkdir -p "$HOME/.cache/ansible-navigator"
++            fi
++
++            cp
++            /usr/local/lib/python3.11/site-packages/ansible_navigator/data/catalog_collections.py
++            $HOME/.cache/ansible-navigator 
++
++            ansible-navigator --ee false
++          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
++          component: tooling-container
+     events:
+       postStart:
+         - oc-install
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+@@ -93,7 +93,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++              quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -133,6 +133,21 @@
+               kind: run
+               isDefault: true
+             component: tooling-container
++        - id: ansible-navigator
++          exec:
++            label: 'Ansible-Navigator: Start ansible-navigator'
++            commandLine: >
++              if [ ! -d "$HOME/.cache/ansible-navigator" ]; then
++                mkdir -p "$HOME/.cache/ansible-navigator"
++              fi
++
++              cp
++              /usr/local/lib/python3.11/site-packages/ansible_navigator/data/catalog_collections.py
++              $HOME/.cache/ansible-navigator 
++
++              ansible-navigator --ee false
++            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
++            component: tooling-container
+       events:
+         postStart:
+           - oc-install
+@@ -148,7 +163,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++            quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -188,6 +203,21 @@
+             kind: run
+             isDefault: true
+           component: tooling-container
++      - id: ansible-navigator
++        exec:
++          label: 'Ansible-Navigator: Start ansible-navigator'
++          commandLine: >
++            if [ ! -d "$HOME/.cache/ansible-navigator" ]; then
++              mkdir -p "$HOME/.cache/ansible-navigator"
++            fi
++
++            cp
++            /usr/local/lib/python3.11/site-packages/ansible_navigator/data/catalog_collections.py
++            $HOME/.cache/ansible-navigator 
++
++            ansible-navigator --ee false
++          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
++          component: tooling-container
+     events:
+       postStart:
+         - oc-install
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -112,7 +112,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++              quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -152,6 +152,21 @@
+               kind: run
+               isDefault: true
+             component: tooling-container
++        - id: ansible-navigator
++          exec:
++            label: 'Ansible-Navigator: Start ansible-navigator'
++            commandLine: >
++              if [ ! -d "$HOME/.cache/ansible-navigator" ]; then
++                mkdir -p "$HOME/.cache/ansible-navigator"
++              fi
++
++              cp
++              /usr/local/lib/python3.11/site-packages/ansible_navigator/data/catalog_collections.py
++              $HOME/.cache/ansible-navigator 
++
++              ansible-navigator --ee false
++            workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
++            component: tooling-container
+       events:
+         postStart:
+           - oc-install
+@@ -167,7 +182,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++            quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -207,6 +222,21 @@
+             kind: run
+             isDefault: true
+           component: tooling-container
++      - id: ansible-navigator
++        exec:
++          label: 'Ansible-Navigator: Start ansible-navigator'
++          commandLine: >
++            if [ ! -d "$HOME/.cache/ansible-navigator" ]; then
++              mkdir -p "$HOME/.cache/ansible-navigator"
++            fi
++
++            cp
++            /usr/local/lib/python3.11/site-packages/ansible_navigator/data/catalog_collections.py
++            $HOME/.cache/ansible-navigator 
++
++            ansible-navigator --ee false
++          workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
++          component: tooling-container
+     events:
+       postStart:
+         - oc-install
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/external_images_by_devfile.txt /tmp/tmp.moiHCtH0oA/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.mXZJiOx177/devfiles/external_images_by_devfile.txt	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/external_images_by_devfile.txt	2023-11-19 22:26:39.347468509 +0000
+@@ -1,6 +1,6 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.11	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.11	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.11	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/external_images.txt /tmp/tmp.moiHCtH0oA/devfiles/external_images.txt
+--- /tmp/tmp.mXZJiOx177/devfiles/external_images.txt	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/external_images.txt	2023-11-19 22:26:39.347468509 +0000
+@@ -1,4 +1,4 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:cffd700f8199306cec8d2d0eae202280d3fbf5e3f68c860b492de2eb511c25c0
++quay.io/devspaces/ansible-creator-ee@sha256:3781b800f9a91ee1e2d3fcfc0d50b3f09b60e880f82efa90a021d7e2ebe1d659
+ registry.redhat.io/devspaces/code-rhel8:3.11
+ registry.redhat.io/devspaces/idea-rhel8:3.11
+ registry.redhat.io/devspaces/udi-rhel8:3.11
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/java11-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/python__python-hello-world/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__php__php-hello-world/devworkspace-che-code-insiders.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.mXZJiOx177/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.moiHCtH0oA/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.mXZJiOx177/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2023-11-01 22:26:32.000000000 +0000
++++ /tmp/tmp.moiHCtH0oA/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2023-11-19 22:26:39.347468509 +0000
+@@ -46,21 +46,21 @@
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: code-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: che-code-runtime
+         app.kubernetes.io/part-of: che-code.eclipse.org
+Binary files /tmp/tmp.mXZJiOx177/resources/v2/ansible-devspaces-demo.zip and /tmp/tmp.moiHCtH0oA/resources/v2/ansible-devspaces-demo.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 7dff8bce22645910074aff10a6c62d606fbec5df46ca1e909e98fccdef46f960
+Deleted: f3334e12f01a322aba2ef633989a2ce11589c020162927f65a741226ec0503ef
+Deleted: 41558b0ec6bdead31abe277c9b1bbf8d96702916e0f1042e73c6e5f181accb69
+Deleted: b76ede8e7c31fb2867ee76f87766ef6d00733f3fd25ac9cf534815492e38017c
+Deleted: 9b3b541130047fdc48777f3b44cf35c7f91934695dcfbf6fe719e094d357418c
+Deleted: c3e09fb11ca873300d3af3c7929fda16dd4e8e8e9efdbff16aa6941e331d4afb
+Deleted: 37fb54768151cc6233bdb006b15538bc993e3683ca5f03da96084789c5120d22
+Deleted: 70a9a831881dddd35f7deb7db6031a74ad4162fedf1a6c3fa29ef9b63a284db9
+Deleted: af8d76ed3f190a1d391fd61a3e0bb3bee8e5f4b28eb8b1037cbe43869406cf88
+Deleted: 083c5f71fd9843a2093ce33517427e4ef55cd940cd3131d3e338705c6b1a5d20
+Deleted: ce7eb7b3171b9583cdd8498506da9466a1d8b202ca330fc6b79c104302fd9203
+Deleted: 0403538c67e964c2ffecd4979cfcb91a24de05165eb7172daa316a7a670f9dd0
+Deleted: ce498c1ffc27c0ff44f6a1d6f62ae398f4419308307ed00814408ab3892cffa0
+Deleted: 446867a9557216dce70a673b76959d2ad82ad81b8e24603f4dfe8876c6aa7f91
+Deleted: c46acbe9659f0d061371371cff0d80d8a7b7cd732b750aa600ff6800e4fc4475
+Deleted: 83602bccd5d94b437a80064e2b4b04747524eaa4a2a1d7c496218bb24afbf9da
+Deleted: 0fa499bf32337e8bbe2d61840687bc47ae2eefacd6e4c566f20eec0f694b47bd
+Deleted: 199c62e21b688a6a0f66e6b0b5f37abe49b41a3f0c7a840c38760cb7c7a4a3b5
+Deleted: 96a1ec4d8744f2454c5089e66a8d813f10d08f068db3f87a002c464dc9ebbf24
+Deleted: d97ad7e6dfce1ebbe2cd1384cca8d3e939378d14e71d41078a0efe935ea79587
+Deleted: 232b8e119f6090303273eb0b04f8a7c9999c8334e8f726874a9d8357a0b42ee6
+Deleted: 2bfcfe0e896f2c623849075120c6277774c589ac3bc700104065c066f1f00408
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'

@@ -5,7 +5,6 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
     // MIDSTM_BRANCH
     // CLEAN_ON_FAILURE = "true"
-    // SLACK_NOTIFICATION (Notify on new stable operator bundle)
 
 def errorOccurred = false
 def String nodeLabel = 'x86_64-rhel8||ppc64le-rhel8'
@@ -126,33 +125,6 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
                             currentBuild.description="No new images detected: nothing to do!"
                             echo currentBuild.description
                             currentBuild.result='UNSTABLE'
-
-                            // if previous build was successful (there were changes), run the slack-notification job (if enabled for this branch).
-                            println currentBuild.getPreviousBuild().result
-                            if (currentBuild.getPreviousBuild().result.equals("SUCCESS") && SLACK_NOTIFICATION) {
-                                println "Scheduling notification to the #devspaces-ci channel in Slack."
-                                jobPath='/job/DS_CI/job/Releng/send-slack-message_' + JOB_BRANCH
-                                build(
-                                    job: jobPath.replaceAll("/job/","/"),
-                                    wait: false,
-                                    propagate: false,
-                                    quietPeriod: 0,
-                                    parameters: [
-                                        [
-                                            $class: 'StringParameterValue',
-                                            name: 'OCP_VERSIONS',
-                                            value: OCP_VERSIONS
-                                        ],
-                                        [
-                                            $class: 'StringParameterValue',
-                                            name: 'MIDSTM_BRANCH',
-                                            value: MIDSTM_BRANCH
-                                        ]
-                                    ]
-                                )
-                                println("Job ${JENKINS_URL}${jobPath} triggered.")
-                                currentBuild.description+="<br/><a href=${jobPath}/>" + jobPath + "</a> triggered" 
-                            }
                         } else {
                             currentBuild.description="Detected new images: rebuild operator-bundle<br/>* " + DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE.replaceAll('\n',"<br/>* ")
                             echo currentBuild.description
