@@ -51,9 +51,9 @@ to refresh quay images.
             parameters{
                 stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
-                stringParam("errataURL","https://errata.devel.redhat.com/advisory/"+config.Other.Errata[JB],
+                stringParam("errataURL",(config.Other.Errata[JB].equals("n/a")?"":"https://errata.devel.redhat.com/advisory/"+config.Other.Errata[JB]),
                     '''<a href=https://errata.devel.redhat.com/filter/2410>Find an Errata</a>''')
-                stringParam("epicURL", "https://issues.redhat.com/browse/"+config.Other.Epic[JB],
+                stringParam("epicURL", (config.Other.Epic[JB].equals("n/a")?"":"https://issues.redhat.com/browse/"+config.Other.Epic[JB]),
                     '''<a href=https://issues.redhat.com/issues/?jql=project%20%3D%20CRW%20AND%20issuetype%20%3D%20Epic%20and%20text%20~%20%22overall%20epic%22%20order%20by%20key%20desc>Find an Epic</a>''')
             }
             
