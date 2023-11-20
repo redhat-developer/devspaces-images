@@ -83,9 +83,10 @@ ENV \
     JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
-    JAVA_HOME="/home/tooling/.java/current" \
-    GOBIN="/home/tooling/go/bin/" \
-    PATH="/home/user/.local/bin:/home/tooling/.local/bin:/home/tooling/.java/current/bin:/home/tooling/node_modules/.bin/:/home/tooling/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/tooling/go/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA_HOME="/home/user/.java/current" \
+    GOBIN="/home/user/go/bin/" \
+    # We have $PATH entries in /home/tooling/ (in addition to /home/user/) to ensure binaries can be found in case /home/user/ has been ovewritten and stow has not yet run in the entrypoint
+    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/user/go/bin::/home/tooling/.local/bin:/home/tooling/.java/current/bin:/home/tooling/node_modules/.bin/:/home/tooling/.npm-global/bin/:/home/tooling/go/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
