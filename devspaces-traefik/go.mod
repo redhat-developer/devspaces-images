@@ -41,7 +41,7 @@ require (
 	github.com/kvtools/redis v1.0.2
 	github.com/kvtools/valkeyrie v1.0.0
 	github.com/kvtools/zookeeper v1.0.2
-	github.com/lucas-clemente/quic-go v0.28.1
+	github.com/quic-go/quic-go v0.40.0
 	github.com/mailgun/ttlmap v0.0.0-20170619185759-c1c17f74874f
 	github.com/miekg/dns v1.1.50
 	github.com/mitchellh/copystructure v1.0.0
