@@ -23,7 +23,7 @@ RUN \
     ########################################################################
     dnf -y -q install golang make gzip which openshift-clients && \
     # BEGIN Gopls
-    mkdir /home/user/go/bin -p && \
+    mkdir /home/tooling/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
     # gopls must refer to tools as local dependency, which is located one dir above in the project
     echo 'replace golang.org/x/tools => ../' >> go.mod && \
@@ -34,7 +34,6 @@ RUN \
     # END Gopls
 
     # BEGIN Kubedock
-    mkdir /home/user/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/kubedock/app && \
     # build kubedock application with dependencies resolved by Cachito
     source $REMOTE_SOURCES_DIR/kubedock/cachito.env && \
@@ -44,7 +43,7 @@ RUN \
      -X github.com/joyrex2001/kubedock/internal/config.Image=joyrex2001/kubedock:0.11.0" && \
     CGO_ENABLED=0 go build -ldflags "${LDFLAGS}" -o kubedock && \
     chmod +x ./kubedock && \
-    ./kubedock version
+    ./kubedock version && \
     # END Kubedock
 
     # CRW-3193 disable until we have a camel-k sample again
@@ -55,13 +54,25 @@ RUN \
     # ./kamel version && \
     # END Kamel
 
+    # BEGIN stow
+    dnf -y -q install perl texinfo texinfo-tex git && \
+    cd $REMOTE_SOURCES_DIR/stow/app && \
+    mkdir -p $REMOTE_SOURCES_DIR/stow/app/build && \
+    autoreconf -iv && \
+    ./configure --prefix=$REMOTE_SOURCES_DIR/stow/app/build && \
+    make install && \
+    cd $REMOTE_SOURCES_DIR/stow/app/build/bin/ && \
+    ./stow --version
+    # END stow
+
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.9-1029
 
 USER root
 
 ENV \
-    HOME=/home/user \
+    # We install everything to /home/tooling/ as /home/user/ may get overwritten, see github.com/eclipse/che/issues/22412
+    HOME=/home/tooling \
     NODEJS_VERSION="18" \
     PYTHON_VERSION="3.11" \
     PHP_VERSION="7.4" \
@@ -74,13 +85,16 @@ ENV \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/user/.java/current" \
     GOBIN="/home/user/go/bin/" \
-    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/user/go/bin:${PATH:-/bin:/usr/bin}" \
+    # We have $PATH entries in /home/tooling/ (in addition to /home/user/) to ensure binaries can be found in case /home/user/ has been ovewritten and stow has not yet run in the entrypoint
+    PATH="/home/user/.local/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:/home/user/go/bin::/home/tooling/.local/bin:/home/tooling/.java/current/bin:/home/tooling/node_modules/.bin/:/home/tooling/.npm-global/bin/:/home/tooling/go/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/usr/share/maven" \
     PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
+    KUBECONFIG=/home/user/.kube/config \
+    PROFILE_EXT=/etc/profile.d/udi_environment.sh \
     # Rootless podman install #1:
     # Set up environment variables to note that this is
     # not starting with usernamespace and default to
@@ -104,11 +118,13 @@ LABEL summary="$SUMMARY" \
       io.openshift.expose-services="" \
       usage=""
 
+RUN mkdir -p /home/tooling/
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 ADD etc/entrypoint.sh /entrypoint.sh
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN echo 'alias docker=podman' >> /home/user/.bashrc
 COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
+RUN mkdir -p /home/tooling/
+COPY --chown=0:0 etc/.stow-local-ignore /home/tooling/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -121,7 +137,10 @@ COPY --chown=0:0 etc/podman-wrapper.sh /usr/bin/
 RUN \
     # install all the rpms and modules
     microdnf install -y dnf && \
-    dnf -y -q module reset   container-tools       maven     nodejs                 python3.11                   php; \
+    # Disable codeready-builder repos to prevent accidentally installing incorrect packages
+    dnf -y -q install 'dnf-command(config-manager)' && \
+    dnf config-manager --set-disabled codeready-* && \
+    dnf -y -q module reset container-tools maven nodejs php; \
     dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION php:$PHP_VERSION && \
     dnf -y -q install --setopt=tsflags=nodocs \
         golang \
@@ -136,7 +155,7 @@ RUN \
         libssh-devel libffi-devel redhat-rpm-config cargo openssl-devel pkg-config jq \
         podman buildah skopeo fuse-overlayfs \
         e2fsprogs libatomic_ops git openssl-devel ca-certificates \
-        bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree \
+        bash bash-completion tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree vim \
         # For OpenShift Client 4 (oc): rhocp-4.12-for-rhel-8-x86_64-rpms
         # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.12/os/Packages/o/odo-3.9.0-1.el8.x86_64.rpm
@@ -158,8 +177,14 @@ RUN \
     mkdir -p /opt && \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
+    # Bash-related files are backed up to /home/tooling/ in case they are deleted when persistUserHome is enabled.
+    cp /home/user/.bashrc /home/tooling/.bashrc && \
+    cp /home/user/.bash_profile /home/tooling/.bash_profile && \
+    # $PROFILE_EXT contains all additions made to the bash environment
+    touch ${PROFILE_EXT} && \
     # Setup $PS1 for a consistent and reasonable prompt
-    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> "${HOME}"/.bashrc && \
+    touch /etc/profile.d/udi_prompt.sh && \
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /etc/profile.d/udi_prompt.sh && \
     # Change permissions to let any arbitrary user
     mkdir -p /projects && \
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
@@ -172,7 +197,9 @@ RUN \
     > ${HOME}/passwd.template && \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
-    > ${HOME}/group.template
+    > ${HOME}/group.template && \
+    # Define user directory for binaries
+    mkdir -p /home/tooling/.local/bin
 
 RUN \
     ## Rootless podman install #2: install podman buildah skopeo e2fsprogs (above)
@@ -193,11 +220,20 @@ RUN \
     ## Rootless podman install #6: rename podman to allow the execution of 'podman run' using
     ##                             kubedock but 'podman build' using podman.orig
     mv /usr/bin/podman /usr/bin/podman.orig && \
-    # set up go/bin folder
-    mkdir /home/user/go/bin -p
+    # Docker alias
+    echo 'alias docker=podman' >> ${PROFILE_EXT}
 
 RUN \
     # configure runtimes
+    ########################################################################
+    # Common tooling configuration directories
+    ########################################################################
+    mkdir -p /home/tooling/.m2 && \
+    mkdir -p /home/tooling/.config/pip && \
+    mkdir -p /home/tooling/.cargo && \
+    mkdir -p /home/tooling/certs && \
+    mkdir -p /home/tooling/.composer && \
+    mkdir -p /home/tooling/.nuget && \
     ########################################################################
     # Java
     ########################################################################
@@ -249,7 +285,7 @@ RUN \
     echo -n "/usr/local/bin/pytest: "; /usr/local/bin/pytest --version && \
     echo -n "/usr/local/bin/yq:     "; /usr/local/bin/yq --version && \
     # set up ~/.venv
-    mkdir -p /home/user; cd /home/user; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
+    cd /home/tooling; /usr/bin/python${PYTHON_VERSION} -m venv .venv && \
     echo "<== Create python symlinks (or display existing ones)"
     # TODO: to enable flake8 as default linter, add this to project's .vscode/settings.json file
     # {
@@ -330,6 +366,13 @@ xdebug.log=\${HOME}/xdebug.log" >> /etc/php.ini && \
 # see container.yaml
 COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls $HOME/go/bin/gopls
 COPY --from=go-builder $REMOTE_SOURCES_DIR/kubedock/app/kubedock $HOME/go/bin/kubedock
+COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/bin/ /usr/bin/
+COPY --from=go-builder $REMOTE_SOURCES_DIR/stow/app/build/share/ /usr/share/
+
+# Create symbolic links from /home/tooling/ -> /home/user/
+RUN stow . -t /home/user/ -d /home/tooling/ --no-folding && \
+    # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
+    cp /home/tooling/.viminfo /home/user/.viminfo
 
 
     ########################################################################
@@ -393,8 +436,9 @@ RUN \
     echo "========"
 
 # A last pass to make sure that an arbitrary user can write in $HOME
-RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /home
+RUN chgrp -R 0 /home && chmod -R g=u /home
 
+ENV HOME=/home/user
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null
