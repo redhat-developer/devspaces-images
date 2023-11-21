@@ -275,11 +275,17 @@ export class ContainerRegistries extends React.PureComponent<Props, State> {
     const actions = [
       {
         title: 'Edit registry',
-        onClick: (event, rowIndex) => this.showOnEditRegistryModal(rowIndex),
+        onClick: (event, rowIndex) => {
+          event.stopPropagation();
+          this.showOnEditRegistryModal(rowIndex);
+        },
       },
       {
         title: 'Delete registry',
-        onClick: (event, rowIndex) => this.showOnDeleteRegistryModal(rowIndex),
+        onClick: (event, rowIndex) => {
+          event.stopPropagation();
+          this.showOnDeleteRegistryModal(rowIndex);
+        },
       },
     ];
 
@@ -342,6 +348,7 @@ export class ContainerRegistries extends React.PureComponent<Props, State> {
                 actions={actions}
                 rows={rows}
                 onSelect={(event, isSelected, rowIndex) => {
+                  event.stopPropagation();
                   this.onChangeRegistrySelection(isSelected, rowIndex);
                 }}
                 canSelectAll={true}

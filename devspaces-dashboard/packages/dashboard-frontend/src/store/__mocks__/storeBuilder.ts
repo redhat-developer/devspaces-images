@@ -126,6 +126,8 @@ export class FakeStoreBuilder {
     gitOauthConfig: {
       isLoading: false,
       gitOauth: [],
+      providersWithToken: [],
+      skipOauthProviders: [],
       error: undefined,
     },
     devfileRegistries: {
@@ -198,12 +200,16 @@ export class FakeStoreBuilder {
 
   public withGitOauthConfig(
     gitOauth: IGitOauth[],
+    providersWithToken: api.GitOauthProvider[],
+    skipOauthProviders: api.GitOauthProvider[],
     isLoading = false,
     error?: string,
   ): FakeStoreBuilder {
     this.state.gitOauthConfig.gitOauth = gitOauth;
-    this.state.dockerConfig.isLoading = isLoading;
-    this.state.dockerConfig.error = error;
+    this.state.gitOauthConfig.providersWithToken = providersWithToken;
+    this.state.gitOauthConfig.skipOauthProviders = skipOauthProviders;
+    this.state.gitOauthConfig.isLoading = isLoading;
+    this.state.gitOauthConfig.error = error;
     return this;
   }
 

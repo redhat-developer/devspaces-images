@@ -10,120 +10,152 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
-import renderer from 'react-test-renderer';
 import { Store } from 'redux';
 
 import { FakeGitOauthBuilder } from '@/pages/UserPreferences/GitServicesTab/__tests__/__mocks__/gitOauthRowBuilder';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { actionCreators } from '@/store/GitOauthConfig';
-import { selectGitOauth, selectIsLoading } from '@/store/GitOauthConfig/selectors';
+import {
+  selectGitOauth,
+  selectIsLoading,
+  selectProvidersWithToken,
+  selectSkipOauthProviders,
+} from '@/store/GitOauthConfig/selectors';
 
 import { GitServices } from '..';
 
 // mute the outputs
 console.error = jest.fn();
-jest.mock('../ProviderWarning', () => {
-  return function ProviderWarning(props: { warning: React.ReactNode }): React.ReactElement {
-    return <span>{props.warning}</span>;
-  };
-});
 
 describe('GitServices', () => {
   const mockRevokeOauth = jest.fn();
   const requestGitOauthConfig = jest.fn();
+  const requestSkipAuthorizationProviders = jest.fn();
+  const deleteSkipOauth = jest.fn();
 
-  const getComponent = (store: Store): React.ReactElement => {
+  const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
+
+  function getComponent(store: Store): React.ReactElement {
     const state = store.getState();
     const gitOauth = selectGitOauth(state);
     const isLoading = selectIsLoading(state);
+    const providersWithToken = selectProvidersWithToken(state);
+    const skipOauthProviders = selectSkipOauthProviders(state);
     return (
       <Provider store={store}>
         <GitServices
           gitOauth={gitOauth}
           isLoading={isLoading}
           revokeOauth={mockRevokeOauth}
+          deleteSkipOauth={deleteSkipOauth}
           requestGitOauthConfig={requestGitOauthConfig}
+          requestSkipAuthorizationProviders={requestSkipAuthorizationProviders}
+          providersWithToken={providersWithToken}
+          skipOauthProviders={skipOauthProviders}
         />
       </Provider>
     );
-  };
+  }
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should correctly render the component without git services', () => {
-    const component = getComponent(new FakeStoreBuilder().build());
-    render(component);
+  describe('without git services', () => {
+    let store: Store;
 
-    const emptyStateText = screen.queryByText('No Git Services');
-    expect(emptyStateText).toBeTruthy();
+    beforeEach(() => {
+      store = new FakeStoreBuilder().build();
+    });
 
-    const json = renderer.create(component).toJSON();
+    test('snapshot', () => {
+      const snapshot = createSnapshot(store);
 
-    expect(json).toMatchSnapshot();
+      expect(snapshot.toJSON()).toMatchSnapshot();
+    });
+
+    test('empty state text', () => {
+      renderComponent(store);
+
+      const emptyStateText = screen.queryByText('No Git Services');
+      expect(emptyStateText).toBeTruthy();
+    });
   });
 
-  it('should correctly render the component which contains four git services', () => {
-    const component = getComponent(
-      new FakeStoreBuilder()
-        .withGitOauthConfig([
-          new FakeGitOauthBuilder()
-            .withName('github')
-            .withEndpointUrl('https://github.dummy.endpoint.com')
-            .build(),
-          new FakeGitOauthBuilder()
-            .withName('gitlab')
-            .withEndpointUrl('https://gitlab.dummy.endpoint.com')
-            .build(),
-          new FakeGitOauthBuilder()
-            .withName('bitbucket')
-            .withEndpointUrl('https://bitbucket.dummy.endpoint.org')
-            .build(),
-          new FakeGitOauthBuilder()
-            .withName('azure-devops')
-            .withEndpointUrl('https://azure.dummy.endpoint.com/')
-            .build(),
-        ])
-        .build(),
-    );
-    render(component);
+  describe('with 4 git services', () => {
+    let store: Store;
 
-    const emptyStateText = screen.queryByText('No Git Services');
-    expect(emptyStateText).not.toBeTruthy();
+    beforeEach(() => {
+      store = new FakeStoreBuilder()
+        .withGitOauthConfig(
+          [
+            new FakeGitOauthBuilder()
+              .withName('github')
+              .withEndpointUrl('https://github.dummy.endpoint.com')
+              .build(),
+            new FakeGitOauthBuilder()
+              .withName('gitlab')
+              .withEndpointUrl('https://gitlab.dummy.endpoint.com')
+              .build(),
+            new FakeGitOauthBuilder()
+              .withName('bitbucket')
+              .withEndpointUrl('https://bitbucket.dummy.endpoint.org')
+              .build(),
+            new FakeGitOauthBuilder()
+              .withName('azure-devops')
+              .withEndpointUrl('https://azure.dummy.endpoint.com/')
+              .build(),
+          ],
+          ['github'],
+          [],
+        )
+        .build();
+    });
 
-    const actions = screen.queryAllByRole('button', { name: /actions/i });
+    test('providers actions depending on authorization state', () => {
+      renderComponent(store);
 
-    expect(actions.length).toEqual(4);
-    expect(actions[0]).not.toBeDisabled();
-    expect(actions[1]).toBeDisabled();
-    expect(actions[2]).toBeDisabled();
-    expect(actions[3]).toBeDisabled();
+      const emptyStateText = screen.queryByText('No Git Services');
+      expect(emptyStateText).not.toBeTruthy();
 
-    const json = renderer.create(component).toJSON();
+      const actions = screen.queryAllByRole('button', { name: /actions/i });
 
-    expect(json).toMatchSnapshot();
+      expect(actions.length).toEqual(4);
+      expect(actions[0]).not.toBeDisabled();
+      expect(actions[1]).toBeDisabled();
+      expect(actions[2]).toBeDisabled();
+      expect(actions[3]).toBeDisabled();
+    });
+
+    test('snapshot', () => {
+      const snapshot = createSnapshot(store);
+
+      expect(snapshot.toJSON()).toMatchSnapshot();
+    });
   });
 
   it('should revoke a git service', () => {
     const spyRevokeOauth = jest.spyOn(actionCreators, 'revokeOauth');
-    const component = getComponent(
-      new FakeStoreBuilder()
-        .withGitOauthConfig([
+    const store = new FakeStoreBuilder()
+      .withGitOauthConfig(
+        [
           new FakeGitOauthBuilder()
             .withName('github')
             .withEndpointUrl('https://github.com')
             .build(),
-        ])
-        .build(),
-    );
-    render(component);
+        ],
+        ['github'],
+        [],
+      )
+      .build();
+    renderComponent(store);
 
     const menuButton = screen.getByLabelText('Actions');
+    expect(menuButton).not.toBeDisabled();
     userEvent.click(menuButton);
 
     const revokeItem = screen.getByRole('menuitem', { name: /Revoke/i });
@@ -140,6 +172,6 @@ describe('GitServices', () => {
     expect(revokeButton).toBeEnabled();
 
     userEvent.click(revokeButton);
-    expect(spyRevokeOauth).toBeCalledWith('github');
+    expect(spyRevokeOauth).toHaveBeenLastCalledWith('github');
   });
 });

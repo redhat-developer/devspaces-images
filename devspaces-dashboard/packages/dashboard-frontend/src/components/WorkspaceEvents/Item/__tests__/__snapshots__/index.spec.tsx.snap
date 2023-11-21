@@ -30,11 +30,29 @@ exports[`WorkspaceEventsItem component snapshot 1`] = `
             <span
               data-testid="event-involved-object"
             >
-              <span
-                className="icon"
+              <div
+                data-testid="patternfly-tooltip"
               >
-                P
-              </span>
+                <span
+                  data-testid="tooltip-props"
+                >
+                  {"aria":"none","aria-live":"polite"}
+                </span>
+                <div
+                  data-testid="tooltip-content"
+                >
+                  Pod
+                </div>
+                <div
+                  data-testid="tooltip-placed-to"
+                >
+                  <span
+                    className="icon"
+                  >
+                    P
+                  </span>
+                </div>
+              </div>
               pod-name
             </span>
             <div>
