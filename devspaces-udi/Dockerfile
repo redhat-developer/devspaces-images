@@ -137,7 +137,7 @@ COPY --chown=0:0 etc/.stow-local-ignore /home/tooling/
 RUN \
     # install all the rpms and modules
     microdnf install -y dnf && \
-    # Disable code ready builder repo's to prevent accidentally installing incorrect packages
+    # Disable codeready-builder repos to prevent accidentally installing incorrect packages
     dnf -y -q install 'dnf-command(config-manager)' && \
     dnf config-manager --set-disabled codeready-* && \
     fi && \
