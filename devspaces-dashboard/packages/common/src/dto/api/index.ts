@@ -136,15 +136,13 @@ export interface IUserProfile {
   email: string;
   username: string;
 }
+export interface IDevWorkspacePreferences {
+  'skip-authorisation': GitProvider[];
+  [key: string]: string | string[];
+}
 
 export type IEventList = CoreV1EventList;
 export type IPodList = V1PodList;
-export type PodLogs = {
-  [containerName: string]: {
-    logs: string;
-    failure: boolean;
-  };
-};
 
 export interface IDevWorkspaceList {
   apiVersion?: string;

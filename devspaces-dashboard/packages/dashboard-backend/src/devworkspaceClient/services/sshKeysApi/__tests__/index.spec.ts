@@ -66,12 +66,6 @@ describe('SSH Keys API', () => {
         response: {} as IncomingMessage,
       });
     },
-    // replaceNamespacedSecret: () => {
-    //   return Promise.resolve({
-    //     body: {} as V1Secret,
-    //     response: {} as IncomingMessage,
-    //   });
-    // },
     deleteNamespacedSecret: () => {
       return Promise.resolve({
         body: undefined,

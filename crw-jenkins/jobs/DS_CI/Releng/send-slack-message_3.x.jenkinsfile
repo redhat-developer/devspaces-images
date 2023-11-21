@@ -169,19 +169,23 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
                     currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
                     if (IIBs?.trim().split("\n").length > 0) { 
                         currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
-                        currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                        currentBuild.description+="<br/>* " + IIBs?.trim().replaceAll("\n", "<br/>* ")
                     }
                     currentBuild.result = 'FAILURE'
                 }
 
-                
                 slackText = slackText + '''
 OSBS Index Images (IIB) by OCP Version:
 * ''' + IIBs.trim().replaceAll("\n", "\n* ")
 
-                slackText = slackText + '''
-Advisory: ''' + errataURL + '''
+                if (errataURL?.trim()) {
+                    slackText = slackText + '''
+Advisory: ''' + errataURL
+                }
+                if (epicURL?.trim()) {
+                    slackText = slackText + '''
 Epic: ''' + epicURL
+                }
 
                 imageName = (latestBundleImage.split("/"))[-1]
                 slackTitle = "New DS bundle " + imageName + " is available."

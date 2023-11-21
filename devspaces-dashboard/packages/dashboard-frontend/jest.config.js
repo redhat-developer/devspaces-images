@@ -34,7 +34,7 @@ module.exports = {
       },
     ],
   },
-  setupFilesAfterEnv: ['./jest.setup.ts'],
+  setupFilesAfterEnv: ['./jest.setup.tsx'],
   setupFiles: ['./src/inversify.config.ts'],
   collectCoverageFrom: [
     ...base.collectCoverageFrom,

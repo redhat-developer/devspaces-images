@@ -11,7 +11,6 @@
  */
 
 import common from '@eclipse-che/common';
-import { includesAxiosResponse } from '@eclipse-che/common/lib/helpers/errors';
 import { dump, load } from 'js-yaml';
 import { ThunkDispatch } from 'redux-thunk';
 
@@ -50,7 +49,7 @@ export function getErrorMessage(error: unknown): string {
  * Checks for login page in the axios response data
  */
 export function hasLoginPage(error: unknown): boolean {
-  if (includesAxiosResponse(error)) {
+  if (common.helpers.errors.includesAxiosResponse(error)) {
     const response = error.response;
     if (typeof response.data === 'string') {
       try {

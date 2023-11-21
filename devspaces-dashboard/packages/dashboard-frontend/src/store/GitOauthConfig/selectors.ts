@@ -26,6 +26,14 @@ export const selectGitOauth = createSelector(selectState, (state: State) => {
   return state.gitOauth;
 });
 
+export const selectProvidersWithToken = createSelector(selectState, (state: State) => {
+  return state.providersWithToken;
+});
+
+export const selectSkipOauthProviders = createSelector(selectState, (state: State) => {
+  return state.skipOauthProviders;
+});
+
 export const selectError = createSelector(selectState, state => {
   return state.error;
 });

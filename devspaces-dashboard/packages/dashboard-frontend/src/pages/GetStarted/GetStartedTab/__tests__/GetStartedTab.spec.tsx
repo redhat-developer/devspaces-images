@@ -56,7 +56,7 @@ jest.mock('../SamplesListGallery', () => {
 
 describe('Samples list tab', () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   const renderComponent = (preferredStorageType: che.WorkspaceStorageType): RenderResult => {

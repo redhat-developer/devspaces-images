@@ -11,10 +11,10 @@
  */
 
 import * as cheApi from '@eclipse-che/api';
-import { api as commonApi } from '@eclipse-che/common';
+import { api } from '@eclipse-che/common';
 
 export interface IGitOauth {
-  name: commonApi.GitOauthProvider;
+  name: api.GitOauthProvider;
   endpointUrl: string;
   links?: cheApi.che.core.rest.Link[];
 }
