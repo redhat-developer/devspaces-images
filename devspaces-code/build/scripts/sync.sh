@@ -12,35 +12,6 @@
 
 set -e
 
-BASE_URL="https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements"
-
-generateFetchArtifactsURLYaml () {
-  SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-  if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
-  curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-manifest.json --output /tmp/plugin-manifest.json
-
-  PLUGINS=$(cat /tmp/plugin-manifest.json | jq -r '.Plugins | keys[]')
-
-  for PLUGIN in $PLUGINS; do
-
-    #filter out non built-in plugins
-    if [[ $PLUGIN != "ms-vscode"* ]]; then
-      continue
-    fi
-
-    PLUGIN_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"vsix\"]")
-    SOURCE_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"source\"]")
-
-    echo "#$PLUGIN
-- url: $BASE_URL/devspaces-$DS_VERSION-pluginregistry/plugins/$PLUGIN.vsix
-  sha256: $PLUGIN_SHA
-  source-url: $BASE_URL/devspaces-$DS_VERSION-pluginregistry/sources/$PLUGIN-sources.tar.gz
-  source-sha256: $SOURCE_SHA" >> ${TARGETDIR}/fetch-artifacts-url.yaml
-  
-  done
-  rm /tmp/plugin-manifest.json
-}
-
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 3.y
@@ -143,14 +114,13 @@ pushd "${TARGETDIR}"/ >/dev/null
   # remove leading new line from container yaml module list
   CONTAINER_YAML_MODULE_LIST=${CONTAINER_YAML_MODULE_LIST:2}
 
-  CONTAINER_YAML_MODULE_LIST+="\n        - path: devspaces-code/launcher
+  CONTAINER_YAML_MODULE_LIST+="\n        - path: devspaces-code/launcher"
 
   # remove trailing \
   DOCKERFILE_YAML_BUILD_COMMAND=${DOCKERFILE_YAML_BUILD_COMMAND%\\\\}
   # remove leading '\n    && '
   DOCKERFILE_YAML_BUILD_COMMAND=${DOCKERFILE_YAML_BUILD_COMMAND:9}
   DOCKERFILE_YAML_BUILD_COMMAND="RUN ${DOCKERFILE_YAML_BUILD_COMMAND}"
-
   # echo into the file to preserve formatting
   echo -e "$DOCKERFILE_YAML_BUILD_COMMAND" >> /tmp/dockerfile_command 
   # use comments in the beginning/end of the command, to delete the content between them and refresh it with new list of modules
@@ -168,10 +138,10 @@ pushd "${TARGETDIR}"/ >/dev/null
   # --- END update container.yaml and brew.Dockerfile
 
   # --- BEGIN fetch-artifacts-url.yaml - generate list checksums
+  "${TARGETDIR}"/build/scripts/sync-builtins.sh -v 
   # fetch artifacts yaml consists of two parts - ripgrep libraries (that are uploaded to rcm-tools manually),
   # and vscode builtin plugins, that are build and pushed (that are uploaded automatically with pluginregistry_plugins jenkins job).
   # Here we remove and regenerate only the built-in plugins (keep the ripgrep-related content)
-  sed_in_place '0,/# List of VS Code built-ins that are published through Jenkins job at rcm-tools/!d' ${TARGETDIR}/fetch-artifacts-url.yaml
   generateFetchArtifactsURLYaml
   # --- END fetch-artifacts-url.yaml
 popd >/dev/null
