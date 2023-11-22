@@ -31,3 +31,18 @@
   sha256: 1ee675d69bd206f7be15cf48bc4e0c4949d901cedd6641cdcfca5c5bc4f374ae
   source-url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.10-pluginregistry/sources/ms-vscode.vscode-js-profile-table-sources.tar.gz
   source-sha256: c864cfb89e9a3449fdfae1023874335952b916d1200053dc8a3f9611c85bcde3
+#ripgrep-s390x
+  - url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/13.0.0-4/ripgrep-13.0.0-4-s390x-unknown-linux-gnu.tar.gz
+    sha256: 0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5
+    source-url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.11-pluginregistry/sources/-sources.tar.gz
+    source-sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+#ripgrep-powerpc64le
+  - url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/13.0.0-10/ripgrep-13.0.0-10-powerpc64le-unknown-linux-gnu.tar.gz
+    sha256: "40979af23debe10e33432ff98a49e30217c0a53c55affc3b3331ab2b2bc99f3f"
+    source-url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.11-pluginregistry/sources/-sources.tar.gz
+    source-sha256: "9c5d369ab6ad9b1af75bc89489d3bd47a9d2bff69449cbc4d6f288d7d96d9940"
+#ripgrep-x86_64
+  - url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/13.0.0-10/ripgrep-13.0.0-10-x86_64-unknown-linux-musl.tar.gz
+    sha256: "ef820a62c1d6fdc396646762ff0f0e47e127947073ed8b5aa4ceea8b61cb1659"
+    source-url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.11-pluginregistry/sources/-sources.tar.gz
+    source-sha256: "9c5d369ab6ad9b1af75bc89489d3bd47a9d2bff69449cbc4d6f288d7d96d9940"
