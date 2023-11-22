@@ -458,23 +458,15 @@ export class DevWorkspaceClient {
     const cheNamespace = config.cheNamespace;
     let attributes = workspace.spec.template.attributes;
     if (cheNamespace) {
-      const devworkspaceConfig = { name: 'devworkspace-config', namespace: cheNamespace };
-      const devworkspaceConfigPath = `/spec/template/attributes/${this.escape(
-        DEVWORKSPACE_CONFIG_ATTR,
-      )}`;
-      if (attributes) {
-        if (attributes[DEVWORKSPACE_CONFIG_ATTR]) {
-          if (attributes[DEVWORKSPACE_CONFIG_ATTR] !== devworkspaceConfig) {
-            patch.push({ op: 'replace', path: devworkspaceConfigPath, value: devworkspaceConfig });
-          }
-        } else {
-          patch.push({ op: 'add', path: devworkspaceConfigPath, value: devworkspaceConfig });
-        }
-      } else {
+      if (attributes?.[DEVWORKSPACE_CONFIG_ATTR] === undefined) {
+        const devworkspaceConfig = { name: 'devworkspace-config', namespace: cheNamespace };
+        const devworkspaceConfigPath = `/spec/template/attributes/${this.escape(
+          DEVWORKSPACE_CONFIG_ATTR,
+        )}`;
         patch.push({
           op: 'add',
-          path: '/spec/template/attributes',
-          value: { [DEVWORKSPACE_CONFIG_ATTR]: devworkspaceConfig },
+          path: devworkspaceConfigPath,
+          value: devworkspaceConfig,
         });
         attributes = {};
       }
