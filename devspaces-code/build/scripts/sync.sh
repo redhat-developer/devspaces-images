@@ -139,9 +139,5 @@ pushd "${TARGETDIR}"/ >/dev/null
 
   # --- BEGIN fetch-artifacts-url.yaml - generate list checksums
   "${TARGETDIR}"/build/scripts/sync-builtins.sh -v 
-  # fetch artifacts yaml consists of two parts - ripgrep libraries (that are uploaded to rcm-tools manually),
-  # and vscode builtin plugins, that are build and pushed (that are uploaded automatically with pluginregistry_plugins jenkins job).
-  # Here we remove and regenerate only the built-in plugins (keep the ripgrep-related content)
-  generateFetchArtifactsURLYaml
   # --- END fetch-artifacts-url.yaml
 popd >/dev/null

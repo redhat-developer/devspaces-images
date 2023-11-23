@@ -196,10 +196,11 @@ addVscodePluginsToYaml () {
         echo "[info] source_sha: ${RG_SOURCE_SHA}"
         echo "################################################"
           if [[ $NO_OP != 1 ]]; then
+          curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/product/uploadBuildRequirementsToSpmmUtil.sh -o /tmp/uploadBuildRequirementsToSpmmUtil.sh
             #push updated manifest
+            ./copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
             git add plugin-manifest.json
             git commit -sm "ci: Update plugin-manifest"
-            ./copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
           else
             echo "[info] printing resulting manifest:"
             cat /tmp/manifest.json
