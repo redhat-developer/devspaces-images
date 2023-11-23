@@ -62,6 +62,19 @@ export const namespacedTemplateSchema: JSONSchema7 = {
   required: ['namespace', 'templateName'],
 };
 
+export const namespacedWorkspacePreferencesSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    provider: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'provider'],
+};
+
 export const namespacedSchema: JSONSchema7 = {
   type: 'object',
   properties: {

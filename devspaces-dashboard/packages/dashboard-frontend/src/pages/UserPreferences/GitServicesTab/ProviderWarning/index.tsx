@@ -10,29 +10,38 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Tooltip, TooltipPosition } from '@patternfly/react-core';
 import { WarningTriangleIcon } from '@patternfly/react-icons';
 import React from 'react';
 
-type Props = {
-  warning: React.ReactNode;
-};
+import { CheTooltip } from '@/components/CheTooltip';
 
+type Props = {
+  serverURI: string;
+};
 export default class ProviderWarning extends React.PureComponent<Props> {
   public render(): React.ReactElement {
+    const content = (
+      <>
+        Provided API does not support the automatic token revocation. You can revoke it manually on
+        &nbsp;
+        <a
+          href={this.props.serverURI}
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: 'var(--pf-global--info-color--100)' }}
+        >
+          {this.props.serverURI}
+        </a>
+        .
+      </>
+    );
+
     return (
-      <Tooltip
-        exitDelay={3000}
-        isContentLeftAligned={true}
-        position={TooltipPosition.right}
-        content={this.props.warning}
-        style={{ border: '1px solid', borderRadius: '3px', opacity: '0.9' }}
-      >
-        <WarningTriangleIcon
-          color="var(--pf-global--warning-color--100)"
-          style={{ verticalAlign: 'text-top', margin: '2px 5px' }}
-        />
-      </Tooltip>
+      <CheTooltip content={content}>
+        <span style={{ marginLeft: '5px' }}>
+          <WarningTriangleIcon color="var(--pf-global--warning-color--100)" />
+        </span>
+      </CheTooltip>
     );
   }
 }

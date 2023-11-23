@@ -12,6 +12,7 @@
 
 import {
   IDevWorkspaceApi,
+  IDevWorkspacePreferencesApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEventApi,
@@ -66,6 +67,9 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
     throw new Error('Method not implemented.');
   }
   get sshKeysApi(): IShhKeysApi {
+    throw new Error('Method not implemented.');
+  }
+  get devWorkspacePreferencesApi(): IDevWorkspacePreferencesApi {
     throw new Error('Method not implemented.');
   }
 }

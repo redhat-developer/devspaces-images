@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CheTooltip component snapshot 1`] = `
+<div
+  data-testid="patternfly-tooltip"
+>
+  <span
+    data-testid="tooltip-props"
+  >
+    {"isContentLeftAligned":true,"style":{"border":"1px solid","borderRadius":"3px","opacity":"0.9"}}
+  </span>
+  <div
+    data-testid="tooltip-content"
+  >
+    <span>
+      Tooltip text.
+    </span>
+  </div>
+  <div
+    data-testid="tooltip-placed-to"
+  >
+    <div>
+      some text
+    </div>
+  </div>
+</div>
+`;

@@ -39,7 +39,7 @@ are found in <a href=https://quay.io/devspaces/>quay.io/devspaces/</a> using
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
 
                 pipelineTriggers {

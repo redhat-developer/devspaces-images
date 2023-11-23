@@ -13,6 +13,7 @@
 import * as k8s from '@kubernetes/client-node';
 
 import { DevWorkspaceApiService } from '@/devworkspaceClient/services/devWorkspaceApi';
+import { DevWorkspacePreferencesApiService } from '@/devworkspaceClient/services/devWorkspacePreferencesApi';
 import { DevWorkspaceTemplateApiService } from '@/devworkspaceClient/services/devWorkspaceTemplateApi';
 import { DockerConfigApiService } from '@/devworkspaceClient/services/dockerConfigApi';
 import { EventApiService } from '@/devworkspaceClient/services/eventApi';
@@ -29,6 +30,7 @@ import { UserProfileApiService } from '@/devworkspaceClient/services/userProfile
 import {
   IDevWorkspaceApi,
   IDevWorkspaceClient,
+  IDevWorkspacePreferencesApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEventApi,
@@ -107,5 +109,9 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   get sshKeysApi(): IShhKeysApi {
     return new SshKeysService(this.kubeConfig);
+  }
+
+  get devWorkspacePreferencesApi(): IDevWorkspacePreferencesApi {
+    return new DevWorkspacePreferencesApiService(this.kubeConfig);
   }
 }

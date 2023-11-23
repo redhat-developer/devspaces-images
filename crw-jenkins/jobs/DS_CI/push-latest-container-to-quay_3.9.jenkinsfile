@@ -359,13 +359,6 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/devspac
                 currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
             }
         } // if 
-
-        // TODO when 3.6 is live (and theia is gone), enable util.commentOnPullRequestBuildDescription block here (?)
-        // comment on the PR with this job's build description
-        // if (util.globalVar({comments_url})?.trim()) {
-        //     println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-        // }
-
     } // with
     cleanWs(
         cleanWhenSuccess: true,

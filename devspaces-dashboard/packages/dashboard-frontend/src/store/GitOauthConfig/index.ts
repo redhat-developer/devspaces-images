@@ -15,11 +15,15 @@ import { Action, Reducer } from 'redux';
 
 import {
   deleteOAuthToken,
+  deleteSkipOauthProvider,
+  getDevWorkspacePreferences,
   getOAuthProviders,
   getOAuthToken,
 } from '@/services/backend-client/oAuthApi';
+import { fetchTokens } from '@/services/backend-client/personalAccessTokenApi';
 import { IGitOauth } from '@/store/GitOauthConfig/types';
 import { createObject } from '@/store/helpers';
+import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
 import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
 
@@ -28,88 +32,164 @@ import { AppThunk } from '..';
 export interface State {
   isLoading: boolean;
   gitOauth: IGitOauth[];
+  providersWithToken: api.GitOauthProvider[];
+  skipOauthProviders: api.GitOauthProvider[];
   error: string | undefined;
 }
 
 export enum Type {
-  REQUEST_GIT_OAUTH_CONFIG = 'REQUEST_GIT_OAUTH_CONFIG',
-  DELETE_OAUTH = 'DELETE_OAUTH',
-  RECEIVE_GIT_OAUTH_CONFIG = 'RECEIVE_GIT_OAUTH_CONFIG',
-  RECEIVE_GIT_OAUTH_CONFIG_ERROR = 'RECEIVE_GIT_OAUTH_CONFIG_ERROR',
+  REQUEST_GIT_OAUTH = 'REQUEST_GIT_OAUTH',
+  DELETE_GIT_OAUTH_TOKEN = 'DELETE_GIT_OAUTH_TOKEN',
+  RECEIVE_GIT_OAUTH_PROVIDERS = 'RECEIVE_GIT_OAUTH_PROVIDERS',
+  RECEIVE_SKIP_OAUTH_PROVIDERS = 'RECEIVE_SKIP_OAUTH_PROVIDERS',
+  DELETE_SKIP_OAUTH = 'DELETE_SKIP_OAUTH',
+  RECEIVE_GIT_OAUTH_ERROR = 'RECEIVE_GIT_OAUTH_ERROR',
 }
 
-export interface RequestGitOauthConfigAction extends Action {
-  type: Type.REQUEST_GIT_OAUTH_CONFIG;
+export interface RequestGitOAuthAction extends Action {
+  type: Type.REQUEST_GIT_OAUTH;
 }
 
 export interface DeleteOauthAction extends Action {
-  type: Type.DELETE_OAUTH;
+  type: Type.DELETE_GIT_OAUTH_TOKEN;
   provider: api.GitOauthProvider;
 }
 
-export interface ReceiveGitOauthConfigAction extends Action {
-  type: Type.RECEIVE_GIT_OAUTH_CONFIG;
-  gitOauth: IGitOauth[];
+export interface ReceiveGitOAuthConfigAction extends Action {
+  type: Type.RECEIVE_GIT_OAUTH_PROVIDERS;
+  supportedGitOauth: IGitOauth[];
+  providersWithToken: api.GitOauthProvider[];
 }
 
-export interface ReceivedGitOauthConfigErrorAction extends Action {
-  type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR;
+export interface ReceivedGitOauthErrorAction extends Action {
+  type: Type.RECEIVE_GIT_OAUTH_ERROR;
   error: string;
 }
 
+export interface ReceiveSkipOauthProvidersAction extends Action {
+  type: Type.RECEIVE_SKIP_OAUTH_PROVIDERS;
+  skipOauthProviders: api.GitOauthProvider[];
+}
+
 export type KnownAction =
-  | RequestGitOauthConfigAction
+  | RequestGitOAuthAction
+  | ReceiveGitOAuthConfigAction
+  | ReceiveSkipOauthProvidersAction
   | DeleteOauthAction
-  | ReceiveGitOauthConfigAction
-  | ReceivedGitOauthConfigErrorAction;
+  | ReceivedGitOauthErrorAction;
 
 export type ActionCreators = {
+  requestSkipAuthorizationProviders: () => AppThunk<KnownAction, Promise<void>>;
   requestGitOauthConfig: () => AppThunk<KnownAction, Promise<void>>;
   revokeOauth: (oauthProvider: api.GitOauthProvider) => AppThunk<KnownAction, Promise<void>>;
+  deleteSkipOauth: (oauthProvider: api.GitOauthProvider) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
-  requestGitOauthConfig:
+  requestSkipAuthorizationProviders:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({
-        type: Type.REQUEST_GIT_OAUTH_CONFIG,
+        type: Type.REQUEST_GIT_OAUTH,
         check: AUTHORIZED,
       });
       if (!(await selectAsyncIsAuthorized(getState()))) {
         const error = selectSanityCheckError(getState());
         dispatch({
-          type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR,
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
           error,
         });
         throw new Error(error);
       }
 
-      const gitOauth: IGitOauth[] = [];
+      const defaultKubernetesNamespace = selectDefaultNamespace(getState());
       try {
-        const oAuthProviders = await getOAuthProviders();
-        const promises: Promise<void>[] = [];
-        for (const { name, endpointUrl, links } of oAuthProviders) {
-          promises.push(
-            getOAuthToken(name).then(() => {
-              gitOauth.push({
-                name: name as api.GitOauthProvider,
-                endpointUrl,
-                links,
-              });
-            }),
-          );
-        }
-        await Promise.allSettled(promises);
+        const devWorkspacePreferences = await getDevWorkspacePreferences(
+          defaultKubernetesNamespace.name,
+        );
 
+        const skipOauthProviders = devWorkspacePreferences['skip-authorisation'] || [];
         dispatch({
-          type: Type.RECEIVE_GIT_OAUTH_CONFIG,
-          gitOauth,
+          type: Type.RECEIVE_SKIP_OAUTH_PROVIDERS,
+          skipOauthProviders,
         });
       } catch (e) {
         const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
-          type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR,
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
+          error: errorMessage,
+        });
+        throw e;
+      }
+    },
+
+  requestGitOauthConfig:
+    (): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      dispatch({
+        type: Type.REQUEST_GIT_OAUTH,
+        check: AUTHORIZED,
+      });
+      if (!(await selectAsyncIsAuthorized(getState()))) {
+        const error = selectSanityCheckError(getState());
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
+          error,
+        });
+        throw new Error(error);
+      }
+
+      const providersWithToken: api.GitOauthProvider[] = [];
+      try {
+        const supportedGitOauth = await getOAuthProviders();
+
+        const defaultKubernetesNamespace = selectDefaultNamespace(getState());
+        const tokens = await fetchTokens(defaultKubernetesNamespace.name);
+
+        const promises: Promise<void>[] = [];
+        for (const gitOauth of supportedGitOauth) {
+          promises.push(
+            getOAuthToken(gitOauth.name)
+              .then(() => {
+                providersWithToken.push(gitOauth.name);
+              })
+
+              // if `api/oauth/token` doesn't return a user's token,
+              // then check if there is the user's token in a Kubernetes Secret
+              .catch(() => {
+                const normalizedGitOauthEndpoint = gitOauth.endpointUrl.endsWith('/')
+                  ? gitOauth.endpointUrl.slice(0, -1)
+                  : gitOauth.endpointUrl;
+
+                for (const token of tokens) {
+                  const normalizedTokenGitProviderEndpoint = token.gitProviderEndpoint.endsWith('/')
+                    ? token.gitProviderEndpoint.slice(0, -1)
+                    : token.gitProviderEndpoint;
+
+                  // compare Git OAuth Endpoint url ONLY with OAuth tokens
+                  if (
+                    token.gitProvider.startsWith('oauth2') &&
+                    normalizedGitOauthEndpoint === normalizedTokenGitProviderEndpoint
+                  ) {
+                    providersWithToken.push(gitOauth.name);
+                    break;
+                  }
+                }
+              }),
+          );
+        }
+        promises.push(dispatch(actionCreators.requestSkipAuthorizationProviders()));
+        await Promise.allSettled(promises);
+
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_PROVIDERS,
+          supportedGitOauth,
+          providersWithToken,
+        });
+      } catch (e) {
+        const errorMessage = common.helpers.errors.getMessage(e);
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
           error: errorMessage,
         });
         throw e;
@@ -120,13 +200,13 @@ export const actionCreators: ActionCreators = {
     (oauthProvider: api.GitOauthProvider): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({
-        type: Type.REQUEST_GIT_OAUTH_CONFIG,
+        type: Type.REQUEST_GIT_OAUTH,
         check: AUTHORIZED,
       });
       if (!(await selectAsyncIsAuthorized(getState()))) {
         const error = selectSanityCheckError(getState());
         dispatch({
-          type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR,
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
           error,
         });
         throw new Error(error);
@@ -135,13 +215,43 @@ export const actionCreators: ActionCreators = {
       try {
         await deleteOAuthToken(oauthProvider);
         dispatch({
-          type: Type.DELETE_OAUTH,
+          type: Type.DELETE_GIT_OAUTH_TOKEN,
           provider: oauthProvider,
         });
       } catch (e) {
         const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
-          type: Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR,
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
+          error: errorMessage,
+        });
+        throw e;
+      }
+    },
+
+  deleteSkipOauth:
+    (oauthProvider: api.GitOauthProvider): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      dispatch({
+        type: Type.REQUEST_GIT_OAUTH,
+        check: AUTHORIZED,
+      });
+      if (!(await selectAsyncIsAuthorized(getState()))) {
+        const error = selectSanityCheckError(getState());
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
+          error,
+        });
+        throw new Error(error);
+      }
+
+      const defaultKubernetesNamespace = selectDefaultNamespace(getState());
+      try {
+        await deleteSkipOauthProvider(defaultKubernetesNamespace.name, oauthProvider);
+        await dispatch(actionCreators.requestSkipAuthorizationProviders());
+      } catch (e) {
+        const errorMessage = common.helpers.errors.getMessage(e);
+        dispatch({
+          type: Type.RECEIVE_GIT_OAUTH_ERROR,
           error: errorMessage,
         });
         throw e;
@@ -152,6 +262,8 @@ export const actionCreators: ActionCreators = {
 const unloadedState: State = {
   isLoading: false,
   gitOauth: [],
+  providersWithToken: [],
+  skipOauthProviders: [],
   error: undefined,
 };
 
@@ -165,22 +277,30 @@ export const reducer: Reducer<State> = (
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case Type.REQUEST_GIT_OAUTH_CONFIG:
+    case Type.REQUEST_GIT_OAUTH:
       return createObject<State>(state, {
         isLoading: true,
         error: undefined,
       });
-    case Type.RECEIVE_GIT_OAUTH_CONFIG:
+    case Type.RECEIVE_GIT_OAUTH_PROVIDERS:
       return createObject<State>(state, {
         isLoading: false,
-        gitOauth: action.gitOauth,
+        gitOauth: action.supportedGitOauth,
+        providersWithToken: action.providersWithToken,
       });
-    case Type.DELETE_OAUTH:
+    case Type.RECEIVE_SKIP_OAUTH_PROVIDERS:
       return createObject<State>(state, {
         isLoading: false,
-        gitOauth: state.gitOauth.filter(v => v.name !== action.provider),
+        skipOauthProviders: action.skipOauthProviders,
       });
-    case Type.RECEIVE_GIT_OAUTH_CONFIG_ERROR:
+    case Type.DELETE_GIT_OAUTH_TOKEN:
+      return createObject<State>(state, {
+        isLoading: false,
+        providersWithToken: state.providersWithToken.filter(
+          provider => provider !== action.provider,
+        ),
+      });
+    case Type.RECEIVE_GIT_OAUTH_ERROR:
       return createObject<State>(state, {
         isLoading: false,
         error: action.error,

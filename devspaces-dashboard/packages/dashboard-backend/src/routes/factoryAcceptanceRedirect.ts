@@ -19,12 +19,17 @@ export function registerFactoryAcceptanceRedirect(instance: FastifyInstance): vo
   function redirectFactoryFlow(path: string) {
     instance.register(async server => {
       server.get(path, async (request: FastifyRequest, reply: FastifyReply) => {
-        let factoryLinkStr = request.url.replace(path, '').replace(/^\?/, '');
-
-        const query = querystring.parse(decodeURIComponent(factoryLinkStr));
+        let factoryLinkStr = request.url
+          .replace(path, '')
+          .replace(/^\?/, '')
+          .replace(`${FACTORY_LINK_ATTR}%3D`, `${FACTORY_LINK_ATTR}=`);
+        if (!factoryLinkStr.includes('=')) {
+          factoryLinkStr = decodeURIComponent(factoryLinkStr);
+        }
+        const query = querystring.parse(factoryLinkStr);
         if (query[FACTORY_LINK_ATTR] !== undefined) {
           // restore the factory link from the query string
-          factoryLinkStr = querystring.unescape(query[FACTORY_LINK_ATTR] as string);
+          factoryLinkStr = decodeURIComponent(query[FACTORY_LINK_ATTR] as string);
         }
 
         const params = new URLSearchParams(factoryLinkStr);

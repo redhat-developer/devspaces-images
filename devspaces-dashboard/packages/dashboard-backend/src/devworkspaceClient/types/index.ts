@@ -348,6 +348,21 @@ export interface IUserProfileApi {
   getUserProfile(namespace: string): Promise<api.IUserProfile | undefined>;
 }
 
+export interface IDevWorkspacePreferencesApi {
+  /**
+   * Returns workspace preferences object that contains skip-authorisation info.
+   */
+  getWorkspacePreferences(namespace: string): Promise<api.IDevWorkspacePreferences>;
+
+  /**
+   * Removes the target provider from skip-authorisation property from the workspace preferences object.
+   */
+  removeProviderFromSkipAuthorizationList(
+    namespace: string,
+    provider: api.GitProvider,
+  ): Promise<void>;
+}
+
 export interface IPersonalAccessTokenApi {
   /**
    * Reads all the PAT secrets from the specified namespace.
@@ -390,6 +405,7 @@ export interface IDevWorkspaceClient {
   gitConfigApi: IGitConfigApi;
   gettingStartedSampleApi: IGettingStartedSampleApi;
   sshKeysApi: IShhKeysApi;
+  devWorkspacePreferencesApi: IDevWorkspacePreferencesApi;
 }
 
 export interface IWatcherService<T = Record<string, unknown>> {

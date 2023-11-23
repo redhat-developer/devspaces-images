@@ -13,7 +13,8 @@
 import { api } from '@eclipse-che/common';
 import axios from 'axios';
 
-import { cheServerPrefix } from '@/services/backend-client/const';
+import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
+import { cheServerPrefix, dashboardBackendPrefix } from '@/services/backend-client/const';
 import { IGitOauth } from '@/store/GitOauthConfig/types';
 
 export async function getOAuthProviders(): Promise<IGitOauth[]> {
@@ -30,6 +31,27 @@ export async function getOAuthToken(provider: api.GitOauthProvider): Promise<{ t
 
 export async function deleteOAuthToken(provider: api.GitOauthProvider): Promise<void> {
   await axios.delete(`${cheServerPrefix}/oauth/token?oauth_provider=${provider}`);
+
+  return Promise.resolve();
+}
+
+export async function getDevWorkspacePreferences(
+  namespace: string,
+): Promise<api.IDevWorkspacePreferences> {
+  const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(
+    `${dashboardBackendPrefix}/workspace-preferences/namespace/${namespace}`,
+  );
+
+  return response.data;
+}
+
+export async function deleteSkipOauthProvider(
+  namespace: string,
+  provider: api.GitOauthProvider,
+): Promise<void> {
+  await AxiosWrapper.createToRetryMissedBearerTokenError().delete(
+    `${dashboardBackendPrefix}/workspace-preferences/namespace/${namespace}/skip-authorisation/${provider}`,
+  );
 
   return Promise.resolve();
 }

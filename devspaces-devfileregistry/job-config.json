@@ -508,7 +508,7 @@
         "disabled": false
       }
     },
-    "slack_notification": {
+    "slack-notification": {
       "3.9": {
         "disabled": false
       },
@@ -526,20 +526,20 @@
   "CSVs": {
     "operator-bundle": {
       "3.9": {
-        "CSV_VERSION": "3.9.0",
-        "CSV_VERSION_PREV": "3.8.0"
+        "CSV_VERSION": "3.9.1",
+        "CSV_VERSION_PREV": "3.9.0"
       },
       "3.10": {
         "CSV_VERSION": "3.10.0",
-        "CSV_VERSION_PREV": "3.9.0"
+        "CSV_VERSION_PREV": "3.9.1"
       },
       "3.11": {
         "CSV_VERSION": "3.11.0",
-        "CSV_VERSION_PREV": "3.9.0"
+        "CSV_VERSION_PREV": "3.9.1"
       },
       "3.x": {
         "CSV_VERSION": "3.11.0",
-        "CSV_VERSION_PREV": "3.9.0"
+        "CSV_VERSION_PREV": "3.9.1"
       }
     }
   },
@@ -591,6 +591,11 @@
       "3.10": "0.11.0",
       "3.11": "0.11.0",
       "3.x": "0.11.0"
+    },
+    "stow": {
+      "3.10": "4ef5eca4a9d107b24e712bb4c2c91f47e7e0fb85",
+      "3.11": "4ef5eca4a9d107b24e712bb4c2c91f47e7e0fb85",
+      "3.x": "4ef5eca4a9d107b24e712bb4c2c91f47e7e0fb85"
     },
     "DEV_WORKSPACE_OPERATOR_TAG": {
       "3.9": "0.21",
@@ -659,9 +664,6 @@
       "3.10": "1.22.19",
       "3.11": "1.22.19",
       "3.x": "1.22.19"
-    },
-    "slack_notification": {
-      "3.11": true
     }
   },
   "Copyright": [

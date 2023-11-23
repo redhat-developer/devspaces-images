@@ -15,8 +15,8 @@ import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
 
 import { container } from '@/inversify.config';
-import { injectKubeConfig, podmanLogin } from '@/services/backend-client/devWorkspaceApi';
 import * as DwApi from '@/services/backend-client/devWorkspaceApi';
+import { injectKubeConfig, podmanLogin } from '@/services/backend-client/devWorkspaceApi';
 import { fetchResources } from '@/services/backend-client/devworkspaceResourcesApi';
 import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
@@ -26,14 +26,13 @@ import {
   DEVWORKSPACE_CHE_EDITOR,
   DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
 } from '@/services/devfileApi/devWorkspace/metadata';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
 import { getDefer, IDeferred } from '@/services/helpers/deferred';
 import { delay } from '@/services/helpers/delay';
 import { DisposableCollection } from '@/services/helpers/disposable';
 import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { getNewerResourceVersion } from '@/services/helpers/resourceVersion';
 import { DevWorkspaceStatus } from '@/services/helpers/types';
-import OAuthService from '@/services/oauth';
+import OAuthService, { isOAuthResponse } from '@/services/oauth';
 import { loadResourcesContent } from '@/services/registry/resources';
 import { WorkspaceAdapter } from '@/services/workspace-adapter';
 import {
@@ -293,8 +292,8 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
-      await OAuthService.refreshTokenIfNeeded(workspace);
       try {
+        await OAuthService.refreshTokenIfNeeded(workspace);
         await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
         if (!(await selectAsyncIsAuthorized(getState()))) {
           const error = selectSanityCheckError(getState());
@@ -366,6 +365,10 @@ export const actionCreators: ActionCreators = {
 
         getDevWorkspaceClient().checkForDevWorkspaceError(startingWorkspace);
       } catch (e) {
+        // Skip unauthorised errors. The page is redirecting to an SCM authentication page.
+        if (common.helpers.errors.includesAxiosResponse(e) && isOAuthResponse(e.response.data)) {
+          return;
+        }
         const errorMessage =
           `Failed to start the workspace ${workspace.metadata.name}, reason: ` +
           common.helpers.errors.getMessage(e);
@@ -689,13 +692,6 @@ export const actionCreators: ActionCreators = {
 
         // add projects from the origin workspace
         devWorkspaceResource.spec.template.projects = workspace.spec.template.projects;
-
-        // sets ephemeral storage type
-        const storageType: che.WorkspaceStorageType = 'ephemeral';
-        if (!devWorkspaceResource.spec.template.attributes) {
-          devWorkspaceResource.spec.template.attributes = {};
-        }
-        devWorkspaceResource.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = storageType;
 
         devWorkspaceTemplateResource = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',

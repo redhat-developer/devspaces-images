@@ -8,11 +8,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -38,11 +38,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -68,11 +68,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -98,11 +98,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -128,11 +128,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -158,11 +158,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -188,11 +188,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -218,7 +218,7 @@
           "devspaces-3.9-rhel-8",
           "devspaces-3.9-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
@@ -248,7 +248,7 @@
           "devspaces-3.9-rhel-8",
           "devspaces-3.9-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
@@ -278,7 +278,7 @@
           "20221111",
           "20221111"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
@@ -308,7 +308,7 @@
           "v2.9.6",
           "v2.9.6"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
@@ -334,7 +334,7 @@
     },
     "build-all-images": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -352,7 +352,7 @@
           "devspaces-3.9-rhel-8",
           "devspaces-3.9-rhel-8"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
@@ -384,11 +384,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -414,11 +414,11 @@
           "7.74.x",
           "main"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "upstream_branch": [
-          "7.76.x",
+          "7.77.x",
           "main"
         ],
         "disabled": false
@@ -440,7 +440,7 @@
     },
     "get-sources-rhpkg-container-build": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -454,7 +454,7 @@
     },
     "push-latest-container-to-quay": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -468,7 +468,7 @@
     },
     "sync-to-downstream": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -482,7 +482,7 @@
     },
     "update-digests": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -496,7 +496,7 @@
     },
     "send-email-qe-build-list": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -505,12 +505,12 @@
         "disabled": false
       },
       "3.x": {
-        "disabled": true
+        "disabled": false
       }
     },
-    "slack_notification": {
+    "slack-notification": {
       "3.9": {
-        "disabled": true
+        "disabled": false
       },
       "3.10": {
         "disabled": false
@@ -519,27 +519,27 @@
         "disabled": false
       },
       "3.x": {
-        "disabled": true
+        "disabled": false
       }
     }
   },
   "CSVs": {
     "operator-bundle": {
       "3.9": {
-        "CSV_VERSION": "3.9.0",
-        "CSV_VERSION_PREV": "3.8.0"
+        "CSV_VERSION": "3.9.1",
+        "CSV_VERSION_PREV": "3.9.0"
       },
       "3.10": {
         "CSV_VERSION": "3.10.0",
-        "CSV_VERSION_PREV": "3.9.0"
+        "CSV_VERSION_PREV": "3.9.1"
       },
       "3.11": {
         "CSV_VERSION": "3.11.0",
-        "CSV_VERSION_PREV": "3.9.0"
+        "CSV_VERSION_PREV": "3.9.1"
       },
       "3.x": {
         "CSV_VERSION": "3.11.0",
-        "CSV_VERSION_PREV": "3.9.0"
+        "CSV_VERSION_PREV": "3.9.1"
       }
     }
   },
@@ -559,7 +559,7 @@
     "FLOATING_QUAY_TAGS": {
       "3.9": "3.9",
       "3.10": "latest",
-      "3.11": "latest",
+      "3.11": "next",
       "3.x": "next"
     },
     "DEV_WORKSPACE_CONTROLLER": {
@@ -599,9 +599,9 @@
       "3.x": "0.21"
     },
     "@eclipse-che/plugin-registry-generator": {
-      "3.9": "next",
-      "3.10": "next",
-      "3.11": "latest",
+      "3.9": "7.74.0",
+      "3.10": "latest",
+      "3.11": "next",
       "3.x": "next"
     },
     "OPENSHIFT_VERSIONS_SUPPORTED": {
@@ -659,9 +659,6 @@
       "3.10": "1.22.19",
       "3.11": "1.22.19",
       "3.x": "1.22.19"
-    },
-    "slack_notification": {
-      "3.11": true
     }
   },
   "Copyright": [

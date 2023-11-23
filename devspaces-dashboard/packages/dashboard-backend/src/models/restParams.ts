@@ -11,9 +11,14 @@
  */
 
 import { V1alpha2DevWorkspace, V1alpha2DevWorkspaceTemplate } from '@devfile/api';
+import { api } from '@eclipse-che/common';
 
 export interface INamespacedParams {
   namespace: string;
+}
+export interface IWorkspacePreferencesParams {
+  namespace: string;
+  provider: api.GitProvider;
 }
 
 export interface IDockerConfigParams {

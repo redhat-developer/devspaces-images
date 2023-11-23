@@ -1,4 +1,5 @@
-// Copyright (c) 2019-2021 Red Hat, Inc.
+//
+// Copyright (c) 2019-2023 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -6,8 +7,9 @@
 // SPDX-License-Identifier: EPL-2.0
 //
 // Contributors:
+//   Red Hat, Inc. - initial API and implementation
 //
-//	Red Hat, Inc. - initial API and implementation
+
 package deploy
 
 import (
@@ -281,7 +283,7 @@ func MountSecrets(specDeployment *appsv1.Deployment, deployContext *chetypes.Dep
 	for _, secretObj := range secrets.Items {
 		switch secretObj.Annotations[constants.CheEclipseOrgMountAs] {
 		case "file":
-			voluseSource := corev1.VolumeSource{
+			volumeSource := corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName: secretObj.Name,
 				},
@@ -289,17 +291,42 @@ func MountSecrets(specDeployment *appsv1.Deployment, deployContext *chetypes.Dep
 
 			volume := corev1.Volume{
 				Name:         secretObj.Name,
-				VolumeSource: voluseSource,
+				VolumeSource: volumeSource,
 			}
+			specDeployment.Spec.Template.Spec.Volumes = append(specDeployment.Spec.Template.Spec.Volumes, volume)
 
 			volumeMount := corev1.VolumeMount{
 				Name:      secretObj.Name,
 				MountPath: secretObj.Annotations[constants.CheEclipseOrgMountPath],
 			}
-
-			specDeployment.Spec.Template.Spec.Volumes = append(specDeployment.Spec.Template.Spec.Volumes, volume)
 			container.VolumeMounts = append(container.VolumeMounts, volumeMount)
+		case "subpath":
+			volumeSource := corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: secretObj.Name,
+				},
+			}
 
+			volume := corev1.Volume{
+				Name:         secretObj.Name,
+				VolumeSource: volumeSource,
+			}
+			specDeployment.Spec.Template.Spec.Volumes = append(specDeployment.Spec.Template.Spec.Volumes, volume)
+
+			for fileName, _ := range secretObj.Data {
+				mountPath := secretObj.Annotations[constants.CheEclipseOrgMountPath]
+				if strings.HasSuffix(mountPath, "/") {
+					mountPath += fileName
+				} else {
+					mountPath += "/" + fileName
+				}
+				volumeMount := corev1.VolumeMount{
+					Name:      secretObj.Name,
+					MountPath: mountPath,
+					SubPath:   fileName,
+				}
+				container.VolumeMounts = append(container.VolumeMounts, volumeMount)
+			}
 		case "env":
 			secret := &corev1.Secret{}
 			exists, err := GetNamespacedObject(deployContext, secretObj.Name, secret)
@@ -399,6 +426,36 @@ func MountConfigMaps(specDeployment *appsv1.Deployment, deployContext *chetypes.
 
 			specDeployment.Spec.Template.Spec.Volumes = append(specDeployment.Spec.Template.Spec.Volumes, volume)
 			container.VolumeMounts = append(container.VolumeMounts, volumeMount)
+
+		case "subpath":
+			volumeSource := corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: configMapObj.Name,
+					},
+				},
+			}
+
+			volume := corev1.Volume{
+				Name:         configMapObj.Name,
+				VolumeSource: volumeSource,
+			}
+			specDeployment.Spec.Template.Spec.Volumes = append(specDeployment.Spec.Template.Spec.Volumes, volume)
+
+			for fileName, _ := range configMapObj.Data {
+				mountPath := configMapObj.Annotations[constants.CheEclipseOrgMountPath]
+				if strings.HasSuffix(mountPath, "/") {
+					mountPath += fileName
+				} else {
+					mountPath += "/" + fileName
+				}
+				volumeMount := corev1.VolumeMount{
+					Name:      configMapObj.Name,
+					MountPath: mountPath,
+					SubPath:   fileName,
+				}
+				container.VolumeMounts = append(container.VolumeMounts, volumeMount)
+			}
 
 		case "env":
 			configmap := &corev1.ConfigMap{}

@@ -14,7 +14,7 @@ import { api } from '@eclipse-che/common';
 import { Form } from '@patternfly/react-core';
 import React from 'react';
 
-import { DEFAULT_GIT_PROVIDER, PROVIDER_ENDPOINTS } from '@/pages/UserPreferences/const';
+import { DEFAULT_GIT_PROVIDER, GIT_PROVIDER_ENDPOINTS } from '@/pages/UserPreferences/const';
 import { GitProviderEndpoint } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderEndpoint';
 import { GitProviderOrganization } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderOrganization';
 import { GitProviderSelector } from '@/pages/UserPreferences/PersonalAccessTokens/AddEditModal/Form/GitProviderSelector';
@@ -54,7 +54,7 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
 
     this.state = {
       gitProvider,
-      defaultGitProviderEndpoint: PROVIDER_ENDPOINTS[DEFAULT_GIT_PROVIDER],
+      defaultGitProviderEndpoint: GIT_PROVIDER_ENDPOINTS[DEFAULT_GIT_PROVIDER],
       gitProviderEndpoint,
       // next field is initially valid because a default value should be used instead of an empty string
       gitProviderEndpointIsValid: true,
@@ -115,7 +115,7 @@ export class AddEditModalForm extends React.PureComponent<Props, State> {
   private handleChangeGitProvider(gitProvider: api.GitProvider): void {
     this.updateChangeToken({
       gitProvider,
-      defaultGitProviderEndpoint: PROVIDER_ENDPOINTS[gitProvider],
+      defaultGitProviderEndpoint: GIT_PROVIDER_ENDPOINTS[gitProvider],
     });
   }
 

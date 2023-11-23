@@ -6,8 +6,10 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // OCP_VERSIONS
 // MIDSTM_BRANCH
+// errataURL
+// epicURL
 
-def sendSlack(slackTitle,slackText) {
+def sendSlack(slackTitle,slackText,slackChannel) {
     def message = [
         title: slackTitle,
         text: slackText,
@@ -15,7 +17,7 @@ def sendSlack(slackTitle,slackText) {
         ts: System.currentTimeMillis() / 1000
     ]
 
-    slackSend(channel: "devspaces-ci", attachments: [message])
+    slackSend(channel: slackChannel, attachments: [message])
 }
 
 def checkFailure(arrayLines,serverName,errorOccurred)
@@ -33,7 +35,6 @@ def errorOccurred = ""
 
 def String nodeLabel = '(x86_64-rhel8||ppc64le-rhel8)'
 timeout(90) {
-    // trigger update_digests job if we have pushed new images that appear in the registry or metadata
     node(nodeLabel) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
@@ -44,8 +45,6 @@ timeout(90) {
             try { 
                 stage "Fetch latest image tags and send slack message"
                 cleanWs()
-
-                slackTitle = "New DS ${DS_VERSION} IIBs"
 
                 sh (
                     script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
@@ -176,12 +175,18 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
                     currentBuild.result = 'FAILURE'
                 }
 
-                slackText = slackText + '''
+slackText = slackText + '''
 OSBS Index Images (IIB) by OCP Version:
 * ''' + IIBs.trim().replaceAll("\n", "\n* ")
 
-            sendSlack(slackTitle,slackText)
+                slackText = slackText + '''
+Advisory: ''' + errataURL + '''
+Epic: ''' + epicURL
 
+                imageName = (latestBundleImage.split("/"))[-1]
+                slackTitle = "New DS bundle " + imageName + " is available."
+
+                sendSlack(slackTitle,slackText,"devspaces-ci")
             } catch (e) {
                 if (!errorOccurred.equals("")) {
                     echo errorOccurred

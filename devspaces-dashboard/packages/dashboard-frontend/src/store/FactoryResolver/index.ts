@@ -104,10 +104,16 @@ export async function grabLink(
   }
 
   const url = new URL(foundLink.href);
+  let search = '?';
+  url.searchParams.forEach((value, key) => {
+    search += `${key}=${encodeURIComponent(encodeURI(value))}&`;
+  });
+  search = search.slice(0, -1);
+
   try {
     // load it in raw format
     // see https://github.com/axios/axios/issues/907
-    const response = await axios.get<string>(`${url.pathname}${url.search}`, {
+    const response = await axios.get<string>(`${url.pathname}${search}`, {
       responseType: 'text',
       transformResponse: [
         data => {

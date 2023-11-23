@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-71.1698060565 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-81 as builder
 
 USER root
 
@@ -28,7 +28,8 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi
 RUN yum -y -q update \
     && yum install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ python3.9 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
     && yum -y clean all && rm -rf /var/cache/yum \
-    && npm install -g yarn@1.22.17
+    && npm install -g yarn@1.22.17 \
+    && npm install -g node-gyp@9.4.1
 
 #########################################################
 #
@@ -78,5 +79,5 @@ RUN yarn \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.8-1072
+FROM registry.access.redhat.com/ubi8-minimal:8.9-1029
 COPY --from=builder --chown=0:0 /checode /checode-linux-libc

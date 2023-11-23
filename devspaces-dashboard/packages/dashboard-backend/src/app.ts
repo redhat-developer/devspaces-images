@@ -38,6 +38,7 @@ import { registerServerConfigRoute } from '@/routes/api/serverConfig';
 import { registerSShKeysRoutes } from '@/routes/api/sshKeys';
 import { registerUserProfileRoute } from '@/routes/api/userProfile';
 import { registerWebsocket } from '@/routes/api/websocket';
+import { registerWorkspacePreferencesRoute } from '@/routes/api/workspacePreferences';
 import { registerYamlResolverRoute } from '@/routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from '@/routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from '@/routes/workspaceRedirect';
@@ -117,5 +118,7 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
     registerGettingStartedSamplesRoutes(isLocalRun(), server),
 
     registerSShKeysRoutes(server),
+
+    registerWorkspacePreferencesRoute(server),
   ]);
 }

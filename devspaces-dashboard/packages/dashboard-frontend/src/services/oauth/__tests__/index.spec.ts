@@ -30,7 +30,7 @@ describe('OAuth service', () => {
   it('should not refresh token if no status section in devworkspace', async () => {
     const devWorkspace = new DevWorkspaceBuilder().build();
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -38,7 +38,7 @@ describe('OAuth service', () => {
     const status = {};
     const devWorkspace = new DevWorkspaceBuilder().withStatus(status).build();
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -46,7 +46,7 @@ describe('OAuth service', () => {
     const status = { mainUrl: 'https://mainUrl' };
     const devWorkspace = new DevWorkspaceBuilder().withStatus(status).build();
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -59,7 +59,7 @@ describe('OAuth service', () => {
       .withProjects(projects)
       .build();
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -79,7 +79,7 @@ describe('OAuth service', () => {
       .withProjects(projects)
       .build();
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -103,7 +103,7 @@ describe('OAuth service', () => {
 
     refreshFactoryOauthTokenSpy.mockResolvedValueOnce();
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
   });
@@ -137,7 +137,7 @@ describe('OAuth service', () => {
 
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => false);
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfNeeded(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
     expect(mockOpenOAuthPage).not.toHaveBeenCalled();
@@ -178,7 +178,11 @@ describe('OAuth service', () => {
 
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    try {
+      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    } catch (e: any) {
+      fail('it should not reach here');
+    }
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
     expect(mockOpenOAuthPage).not.toHaveBeenCalled();
@@ -216,9 +220,56 @@ describe('OAuth service', () => {
 
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
 
-    OAuthService.refreshTokenIfNeeded(devWorkspace);
+    try {
+      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    } catch (e: any) {
+      fail('it should not reach here');
+    }
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
     expect(mockOpenOAuthPage).not.toHaveBeenCalled();
+  });
+
+  it('should redirect to oauth window if error has OAuth response', async () => {
+    const status = { mainUrl: 'https://mainUrl' };
+    const projects = [
+      {
+        name: 'project',
+        git: {
+          remotes: {
+            origin: 'origin:project',
+          },
+        },
+      },
+    ];
+    const devWorkspace = new DevWorkspaceBuilder()
+      .withStatus(status)
+      .withProjects(projects)
+      .build();
+
+    refreshFactoryOauthTokenSpy.mockRejectedValueOnce({
+      isAxiosError: false,
+      code: '401',
+      response: {
+        status: 401,
+        data: {
+          attributes: {
+            oauth_provider: 'git-lab',
+            oauth_authentication_url: 'https://git-lub/oauth/url',
+          },
+        },
+      },
+    } as AxiosError);
+
+    jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
+
+    try {
+      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    } catch (e: any) {
+      expect(e.response.status).toBe(401);
+    }
+
+    expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
+    expect(mockOpenOAuthPage).toHaveBeenCalled();
   });
 });

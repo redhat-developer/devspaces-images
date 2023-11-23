@@ -12,7 +12,7 @@
 
 import { api } from '@eclipse-che/common';
 import { PageSection } from '@patternfly/react-core';
-import { Table, TableBody, TableHeader } from '@patternfly/react-table';
+import { IActionsResolver, Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
@@ -22,10 +22,16 @@ import EmptyState from '@/pages/UserPreferences/GitServicesTab/EmptyState';
 import GitServicesToolbar, {
   GitServicesToolbar as Toolbar,
 } from '@/pages/UserPreferences/GitServicesTab/GitServicesToolbar';
+import ProviderIcon from '@/pages/UserPreferences/GitServicesTab/ProviderIcon';
 import ProviderWarning from '@/pages/UserPreferences/GitServicesTab/ProviderWarning';
 import { AppState } from '@/store';
 import * as GitOauthConfig from '@/store/GitOauthConfig';
-import { selectGitOauth, selectIsLoading } from '@/store/GitOauthConfig/selectors';
+import {
+  selectGitOauth,
+  selectIsLoading,
+  selectProvidersWithToken,
+  selectSkipOauthProviders,
+} from '@/store/GitOauthConfig/selectors';
 
 export const enabledProviders: api.GitOauthProvider[] = ['github', 'github_2'];
 
@@ -71,77 +77,93 @@ export class GitServices extends React.PureComponent<Props, State> {
   public async componentDidMount(): Promise<void> {
     const { isLoading, requestGitOauthConfig } = this.props;
     if (!isLoading) {
-      requestGitOauthConfig();
+      await requestGitOauthConfig();
     }
   }
 
-  private buildGitOauthRow(gitOauth: api.GitOauthProvider, server: string): React.ReactNode[] {
-    const oauthRow: React.ReactNode[] = [];
-    const isDisabled = this.isDisabled(gitOauth);
+  private buildGitOauthRow(gitOauth: api.GitOauthProvider, serverUrl: string): React.ReactNode[] {
+    const hasWarningMessage = this.isDisabled(gitOauth) && this.hasOauthToken(gitOauth);
 
-    oauthRow.push(
+    const name = (
       <span key={gitOauth}>
         {GIT_OAUTH_PROVIDERS[gitOauth]}
-        {isDisabled && (
-          <ProviderWarning
-            warning={
-              <>
-                Provided API does not support the automatic token revocation. You can revoke it
-                manually on &nbsp;
-                <a
-                  href={server}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: 'var(--pf-global--info-color--100)' }}
-                >
-                  {server}
-                </a>
-                .
-              </>
-            }
-          />
-        )}
-      </span>,
+        {hasWarningMessage && <ProviderWarning serverURI={serverUrl} />}
+      </span>
     );
 
-    oauthRow.push(
-      <span key={server}>
-        <a href={server} target="_blank" rel="noreferrer">
-          {server}
+    const server = (
+      <span key={serverUrl}>
+        <a href={serverUrl} target="_blank" rel="noreferrer">
+          {serverUrl}
         </a>
-      </span>,
+      </span>
     );
 
-    return oauthRow;
-  }
+    const authorization = (
+      <span key="Token">
+        <ProviderIcon gitProvider={gitOauth} />
+      </span>
+    );
 
-  private showOnRevokeGitOauthModal(rowIndex: number): void {
-    this.gitServicesToolbarRef.current?.showOnRevokeGitOauthModal(rowIndex);
+    return [name, server, authorization];
   }
 
   private isDisabled(providerName: api.GitOauthProvider): boolean {
-    return !enabledProviders.includes(providerName);
+    return (
+      enabledProviders.includes(providerName) === false ||
+      this.hasOauthToken(providerName) === false
+    );
+  }
+
+  private isSkipOauth(providerName: api.GitOauthProvider): boolean {
+    return this.props.skipOauthProviders.includes(providerName);
+  }
+
+  private hasOauthToken(providerName: api.GitOauthProvider): boolean {
+    return this.props.providersWithToken.includes(providerName);
   }
 
   render(): React.ReactNode {
     const { isLoading, gitOauth } = this.props;
     const { selectedItems } = this.state;
-    const columns = ['Name', 'Server'];
-    const actions = [
-      {
-        title: 'Revoke',
-        onClick: (event, rowIndex) => this.showOnRevokeGitOauthModal(rowIndex),
-      },
-    ];
+    const columns = ['Name', 'Server', 'Authorization'];
     const rows =
       gitOauth.length > 0
-        ? gitOauth.map(provider => ({
-            cells: this.buildGitOauthRow(provider.name, provider.endpointUrl),
-            selected: selectedItems.includes(provider.name),
-            disableSelection: this.isDisabled(provider.name),
-            disableActions: this.isDisabled(provider.name),
-          }))
+        ? gitOauth.map(provider => {
+            const canRevoke = !this.isDisabled(provider.name);
+            const canClear = this.isSkipOauth(provider.name);
+            return {
+              cells: this.buildGitOauthRow(provider.name, provider.endpointUrl),
+              selected: selectedItems.includes(provider.name),
+              disableSelection: !canRevoke,
+              disableActions: !canRevoke && !canClear,
+              isValid: !this.isSkipOauth(provider.name),
+            };
+          })
         : [];
+
+    const actionResolver: IActionsResolver = rowData => {
+      if (!rowData.isValid) {
+        return [
+          {
+            title: 'Clear',
+            onClick: (event, rowIndex) => {
+              event.stopPropagation();
+              this.props.deleteSkipOauth(gitOauth[rowIndex].name);
+            },
+          },
+        ];
+      }
+      return [
+        {
+          title: 'Revoke',
+          onClick: (event, rowIndex) => {
+            event.stopPropagation();
+            this.gitServicesToolbarRef.current?.showOnRevokeGitOauthModal(rowIndex);
+          },
+        },
+      ];
+    };
 
     return (
       <React.Fragment>
@@ -158,10 +180,11 @@ export class GitServices extends React.PureComponent<Props, State> {
               />
               <Table
                 cells={columns}
-                actions={actions}
+                actionResolver={actionResolver}
                 areActionsDisabled={rowData => !!rowData.disableActions}
                 rows={rows}
                 onSelect={(event, isSelected, rowIndex) => {
+                  event.stopPropagation();
                   this.onChangeSelection(isSelected, rowIndex);
                 }}
                 canSelectAll={false}
@@ -181,6 +204,8 @@ export class GitServices extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   gitOauth: selectGitOauth(state),
+  providersWithToken: selectProvidersWithToken(state),
+  skipOauthProviders: selectSkipOauthProviders(state),
   isLoading: selectIsLoading(state),
 });
 

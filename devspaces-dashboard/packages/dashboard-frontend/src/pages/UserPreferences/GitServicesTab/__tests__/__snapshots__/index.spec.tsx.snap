@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GitServices should correctly render the component which contains four git services 1`] = `
+exports[`GitServices with 4 git services snapshot 1`] = `
 [
   <span
     className="progressLine"
@@ -107,9 +107,18 @@ exports[`GitServices should correctly render the component which contains four g
           >
             Server
           </th>
-          <td
+          <th
             className=""
             data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+            scope="col"
+          >
+            Authorization
+          </th>
+          <td
+            className=""
+            data-key={4}
             data-label=""
             onMouseEnter={[Function]}
             scope={null}
@@ -170,8 +179,38 @@ exports[`GitServices should correctly render the component which contains four g
             </a>
           </td>
           <td
-            className="pf-c-table__action"
+            className=""
             data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+          >
+            <div>
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="var(--pf-global--success-color--100)"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 512 512"
+                width="1em"
+              >
+                <path
+                  d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                />
+              </svg>
+              <span>
+                User has been authorized successfully.
+              </span>
+            </div>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={4}
             data-label={null}
             onMouseEnter={[Function]}
             style={
@@ -252,22 +291,6 @@ exports[`GitServices should correctly render the component which contains four g
             onMouseEnter={[Function]}
           >
             GitLab
-            <span>
-              Provided API does not support the automatic token revocation. You can revoke it manually on  
-              <a
-                href="https://gitlab.dummy.endpoint.com"
-                rel="noreferrer"
-                style={
-                  {
-                    "color": "var(--pf-global--info-color--100)",
-                  }
-                }
-                target="_blank"
-              >
-                https://gitlab.dummy.endpoint.com
-              </a>
-              .
-            </span>
           </td>
           <td
             className=""
@@ -284,8 +307,38 @@ exports[`GitServices should correctly render the component which contains four g
             </a>
           </td>
           <td
-            className="pf-c-table__action"
+            className=""
             data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+          >
+            <div>
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="var(--pf-global--disabled-color--100)"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.7,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 L512,896 Z M512.1,0 C229.7,0 0,229.8 0,512 C0,794.3 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0 L512.1,0 Z"
+                />
+              </svg>
+              <span>
+                User has not been authorized yet.
+              </span>
+            </div>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={4}
             data-label={null}
             onMouseEnter={[Function]}
             style={
@@ -366,22 +419,6 @@ exports[`GitServices should correctly render the component which contains four g
             onMouseEnter={[Function]}
           >
             Bitbucket Server (OAuth 1.0)
-            <span>
-              Provided API does not support the automatic token revocation. You can revoke it manually on  
-              <a
-                href="https://bitbucket.dummy.endpoint.org"
-                rel="noreferrer"
-                style={
-                  {
-                    "color": "var(--pf-global--info-color--100)",
-                  }
-                }
-                target="_blank"
-              >
-                https://bitbucket.dummy.endpoint.org
-              </a>
-              .
-            </span>
           </td>
           <td
             className=""
@@ -398,8 +435,38 @@ exports[`GitServices should correctly render the component which contains four g
             </a>
           </td>
           <td
-            className="pf-c-table__action"
+            className=""
             data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+          >
+            <div>
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="var(--pf-global--disabled-color--100)"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.7,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 L512,896 Z M512.1,0 C229.7,0 0,229.8 0,512 C0,794.3 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0 L512.1,0 Z"
+                />
+              </svg>
+              <span>
+                User has not been authorized yet.
+              </span>
+            </div>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={4}
             data-label={null}
             onMouseEnter={[Function]}
             style={
@@ -480,22 +547,6 @@ exports[`GitServices should correctly render the component which contains four g
             onMouseEnter={[Function]}
           >
             Microsoft Azure DevOps
-            <span>
-              Provided API does not support the automatic token revocation. You can revoke it manually on  
-              <a
-                href="https://azure.dummy.endpoint.com/"
-                rel="noreferrer"
-                style={
-                  {
-                    "color": "var(--pf-global--info-color--100)",
-                  }
-                }
-                target="_blank"
-              >
-                https://azure.dummy.endpoint.com/
-              </a>
-              .
-            </span>
           </td>
           <td
             className=""
@@ -512,8 +563,38 @@ exports[`GitServices should correctly render the component which contains four g
             </a>
           </td>
           <td
-            className="pf-c-table__action"
+            className=""
             data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+          >
+            <div>
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="var(--pf-global--disabled-color--100)"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.7,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 L512,896 Z M512.1,0 C229.7,0 0,229.8 0,512 C0,794.3 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0 L512.1,0 Z"
+                />
+              </svg>
+              <span>
+                User has not been authorized yet.
+              </span>
+            </div>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={4}
             data-label={null}
             onMouseEnter={[Function]}
             style={
@@ -567,7 +648,7 @@ exports[`GitServices should correctly render the component which contains four g
 ]
 `;
 
-exports[`GitServices should correctly render the component without git services 1`] = `
+exports[`GitServices without git services snapshot 1`] = `
 [
   <span
     className="progressLine"
@@ -604,7 +685,7 @@ exports[`GitServices should correctly render the component without git services 
         </svg>
         <h4
           className="pf-c-title pf-m-lg"
-          data-ouia-component-id="OUIA-Generated-Title-2"
+          data-ouia-component-id="OUIA-Generated-Title-1"
           data-ouia-component-type="PF4/Title"
           data-ouia-safe={true}
         >
