@@ -19,7 +19,7 @@ import React from 'react';
 
 import styles from '@/components/DevfileViewer/index.module.css';
 
-type Props = {
+export type Props = {
   isActive: boolean;
   isExpanded: boolean;
   value: string;
@@ -71,5 +71,3 @@ export class DevfileViewer extends React.PureComponent<Props> {
     );
   }
 }
-
-export default DevfileViewer;

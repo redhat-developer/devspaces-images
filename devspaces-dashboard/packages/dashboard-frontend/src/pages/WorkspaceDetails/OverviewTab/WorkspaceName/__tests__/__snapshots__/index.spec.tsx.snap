@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WorkspaceNameLink screenshot when cluster console is NOT available 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        Workspace
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <span
+      className="readonly"
+    >
+      my-project
+    </span>
+    
+  </div>
+</div>
+`;
+
+exports[`WorkspaceNameLink screenshot when cluster console is available 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        Workspace
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <span
+      className="readonly"
+    >
+      <a
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-link pf-m-inline"
+        data-ouia-component-id="OUIA-Generated-Button-link-1"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={null}
+        href="https://console-openshift-console.apps-crc.testing/k8s/ns//workspace.devfile.io~v1alpha2~DevWorkspace/my-project"
+        role={null}
+        target="_blank"
+        type={null}
+      >
+        my-project
+        <span
+          className="pf-c-button__icon pf-m-end"
+        >
+          <svg
+            aria-hidden={true}
+            aria-labelledby={null}
+            fill="currentColor"
+            height="1em"
+            role="img"
+            style={
+              {
+                "verticalAlign": "-0.125em",
+              }
+            }
+            viewBox="0 0 448 512"
+            width="1em"
+          >
+            <path
+              d="M448 80v352c0 26.51-21.49 48-48 48H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48zm-88 16H248.029c-21.313 0-32.08 25.861-16.971 40.971l31.984 31.987L67.515 364.485c-4.686 4.686-4.686 12.284 0 16.971l31.029 31.029c4.687 4.686 12.285 4.686 16.971 0l195.526-195.526 31.988 31.991C358.058 263.977 384 253.425 384 231.979V120c0-13.255-10.745-24-24-24z"
+            />
+          </svg>
+        </span>
+      </a>
+    </span>
+    
+  </div>
+</div>
+`;

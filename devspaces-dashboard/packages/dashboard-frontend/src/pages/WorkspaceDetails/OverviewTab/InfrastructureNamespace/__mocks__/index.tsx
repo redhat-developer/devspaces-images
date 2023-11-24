@@ -12,15 +12,8 @@
 
 import React from 'react';
 
-import { Props } from '@/pages/WorkspaceDetails/OverviewTab/StorageType';
-
-export default class StorageTypeFormGroup extends React.PureComponent<Props> {
-  render() {
-    return (
-      <div>
-        Mock Storage Type Form
-        <button onClick={() => this.props.onSave('per-workspace')}>Change storage type</button>
-      </div>
-    );
+export class InfrastructureNamespaceFormGroup extends React.PureComponent {
+  public render(): React.ReactElement {
+    return <div>Mock Infrastructure Namespace Form</div>;
   }
 }

@@ -65,6 +65,30 @@ describe('DevWorkspace client, managePvcStrategy', () => {
     ]);
   });
 
+  it('should add attributes with devWorkspace config', async () => {
+    const devWorkspace = devWorkspaceBuilder
+      .withSpec({
+        template: {},
+      })
+      .build();
+    const config = {
+      defaults: {},
+      cheNamespace: namespace,
+    } as api.IServerConfig;
+
+    await client.managePvcStrategy(devWorkspace, config);
+
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(namespace, name, [
+      {
+        op: 'add',
+        path: '/spec/template/attributes',
+        value: {
+          [DEVWORKSPACE_CONFIG_ATTR]: { name: 'devworkspace-config', namespace: 'user-che' },
+        },
+      },
+    ]);
+  });
+
   it('should update devWorkspace storage type', async () => {
     const devWorkspace = devWorkspaceBuilder
       .withSpec({

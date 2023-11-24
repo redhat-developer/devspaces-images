@@ -123,7 +123,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
         return this.handleLocation(buildIdeLoaderLocation(workspace), workspace);
       }
       case WorkspaceAction.WORKSPACE_DETAILS: {
-        return buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
+        return buildDetailsLocation(workspace);
       }
       case WorkspaceAction.START_DEBUG_AND_OPEN_LOGS: {
         await this.props.startWorkspace(workspace, {

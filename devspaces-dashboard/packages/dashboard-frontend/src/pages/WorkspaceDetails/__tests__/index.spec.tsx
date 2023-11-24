@@ -11,26 +11,24 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createHashHistory, History, Location } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router';
 
+import { Props, WorkspaceDetails } from '@/pages/WorkspaceDetails';
 import devfileApi from '@/services/devfileApi';
 import { constructWorkspace } from '@/services/workspace-adapter';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
-import { Props, WorkspaceDetails } from '..';
-
 const mockOnSave = jest.fn();
 
-jest.mock('../DevfileEditorTab');
-jest.mock('../OverviewTab/StorageType');
-
-jest.mock('../DevworkspaceEditorTab', () => {
-  return () => '';
-});
+jest.mock('@/pages/WorkspaceDetails/DevfileEditorTab');
+jest.mock('@/pages/WorkspaceDetails/OverviewTab');
+jest.mock('@/components/WorkspaceLogs');
+jest.mock('@/components/WorkspaceEvents');
 
 let history: History;
 
@@ -64,20 +62,40 @@ describe('Workspace Details page', () => {
       });
 
       const tabpanel = screen.queryByRole('tabpanel', { name: 'Overview' });
-      expect(tabpanel).toBeTruthy();
+      expect(tabpanel).not.toBeNull();
     });
 
-    it('should have two tabs visible', () => {
+    it('should have four tabs visible', () => {
       const workspace = constructWorkspace(devWorkspaceBuilder.build());
       renderComponent({
         workspace,
       });
 
+      const allTabs = screen.getAllByRole('tab');
+      expect(allTabs.length).toBe(4);
+
       const overviewTab = screen.queryByRole('tab', { name: 'Overview' });
       const devfileTab = screen.queryByRole('tab', { name: 'Devfile' });
+      const logsTab = screen.queryByRole('tab', { name: 'Logs' });
+      const eventsTab = screen.queryByRole('tab', { name: 'Events' });
 
-      expect(overviewTab).toBeTruthy();
-      expect(devfileTab).toBeTruthy();
+      expect(overviewTab).not.toBeNull();
+      expect(devfileTab).not.toBeNull();
+      expect(logsTab).not.toBeNull();
+      expect(eventsTab).not.toBeNull();
+    });
+
+    it('should switch to the Devfile tab', () => {
+      const workspace = constructWorkspace(devWorkspaceBuilder.build());
+      renderComponent({
+        workspace,
+      });
+
+      const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
+      userEvent.click(devfileTab);
+
+      const tabpanel = screen.getByRole('tabpanel', { name: 'Devfile' });
+      expect(tabpanel).not.toBeNull();
     });
   });
 
@@ -104,6 +122,18 @@ describe('Workspace Details page', () => {
       });
       expect(screen.queryByRole('link', { name: 'Show Original Devfile' })).toBeTruthy();
     });
+  });
+
+  it('should handle the onSave event', () => {
+    const workspace = constructWorkspace(devWorkspaceBuilder.build());
+    renderComponent({
+      workspace,
+    });
+
+    const saveButton = screen.getByRole('button', { name: 'Update workspace' });
+    userEvent.click(saveButton);
+
+    expect(mockOnSave).toHaveBeenCalledTimes(1);
   });
 });
 

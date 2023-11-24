@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InfrastructureNamespaceFormGroup screenshot 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+      htmlFor="infrastructure-namespace"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        Kubernetes Namespace
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <div
+      className="readonly"
+    >
+      user-namespace
+    </div>
+    
+  </div>
+</div>
+`;

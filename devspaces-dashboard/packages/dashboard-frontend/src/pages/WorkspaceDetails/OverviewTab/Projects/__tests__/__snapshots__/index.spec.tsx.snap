@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProjectsFormGroup screenshot 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+      htmlFor="projects"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        Projects
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <div
+      className="readonly"
+    >
+      project1, project2
+    </div>
+    
+  </div>
+</div>
+`;

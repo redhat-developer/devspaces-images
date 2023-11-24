@@ -138,8 +138,17 @@ describe('Routes', () => {
       expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
-    it('should handle "/workspace/namespace/name?tab=Devworkspace"', async () => {
-      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVWORKSPACE);
+    it('should handle "/workspace/namespace/name?tab=Logs"', async () => {
+      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.LOGS);
+      render(getComponent(location));
+
+      await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());
+
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
+    });
+
+    it('should handle "/workspace/namespace/name?tab=Events"', async () => {
+      const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.EVENTS);
       render(getComponent(location));
 
       await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());

@@ -25,18 +25,14 @@ import { Link } from 'react-router-dom';
 
 import Head from '@/components/Head';
 import ProgressIndicator from '@/components/Progress';
-import UnsavedChangesModal from '@/components/UnsavedChangesModal';
 import WorkspaceEvents from '@/components/WorkspaceEvents';
 import WorkspaceLogs from '@/components/WorkspaceLogs';
 import { lazyInject } from '@/inversify.config';
-import DevfileEditorTab, {
-  DevfileEditorTab as Editor,
-} from '@/pages/WorkspaceDetails/DevfileEditorTab';
-import DevworkspaceEditorTab from '@/pages/WorkspaceDetails/DevworkspaceEditorTab';
+import { DevfileEditorTab } from '@/pages/WorkspaceDetails/DevfileEditorTab';
 import Header from '@/pages/WorkspaceDetails/Header';
 import { HeaderActionSelect } from '@/pages/WorkspaceDetails/Header/Actions';
 import styles from '@/pages/WorkspaceDetails/index.module.css';
-import OverviewTab, { OverviewTab as Overview } from '@/pages/WorkspaceDetails/OverviewTab';
+import { OverviewTab } from '@/pages/WorkspaceDetails/OverviewTab';
 import { AppAlerts } from '@/services/alerts/appAlerts';
 import { buildDetailsLocation } from '@/services/helpers/location';
 import { WorkspaceDetailsTab } from '@/services/helpers/types';
@@ -69,17 +65,15 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   public showAlert: (variant: AlertVariant, title: string) => void;
   private readonly handleTabClick: (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-    tabIndex: React.ReactText,
+    tabIndex: string | number,
   ) => void;
 
-  private readonly editorTabPageRef: React.RefObject<Editor>;
-  private readonly overviewTabPageRef: React.RefObject<Overview>;
+  private readonly overviewTabPageRef: React.RefObject<OverviewTab>;
 
   constructor(props: Props) {
     super(props);
 
-    this.editorTabPageRef = React.createRef<Editor>();
-    this.overviewTabPageRef = React.createRef<Overview>();
+    this.overviewTabPageRef = React.createRef<OverviewTab>();
 
     this.state = {
       activeTabKey: this.getActiveTabKey(this.props.history.location.search),
@@ -88,16 +82,13 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
     // Toggle currently active tab
     this.handleTabClick = (
-      event: React.MouseEvent<HTMLElement, MouseEvent>,
+      _event: React.MouseEvent<HTMLElement, MouseEvent>,
       tabIndex: React.ReactText,
     ): void => {
       const searchParams = new window.URLSearchParams(this.props.history.location.search);
-      const { clickedTabIndex } = this.state;
       this.setState({ clickedTabIndex: tabIndex as WorkspaceDetailsTab });
-      const tab =
-        clickedTabIndex && this.hasUnsavedChanges()
-          ? clickedTabIndex
-          : (tabIndex as WorkspaceDetailsTab);
+
+      const tab = tabIndex as WorkspaceDetailsTab;
       searchParams.set('tab', tab);
       this.props.history.location.search = searchParams.toString();
       this.props.history.push(this.props.history.location);
@@ -109,24 +100,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
       ).slice(-4)}`;
       this.appAlerts.showAlert({ key, title, variant });
     };
-  }
-
-  private showConversionAlert(errorMessage: string): void {
-    this.setState({
-      inlineAlertConversionError: errorMessage,
-    });
-  }
-
-  private closeConversionAlert(): void {
-    this.setState({
-      inlineAlertConversionError: undefined,
-    });
-  }
-
-  private handleRestartWarning(): void {
-    this.setState({
-      showInlineAlertRestartWarning: true,
-    });
   }
 
   private handleCloseRestartWarning(): void {
@@ -144,8 +117,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
           return WorkspaceDetailsTab.OVERVIEW;
         case WorkspaceDetailsTab.DEVFILE:
           return WorkspaceDetailsTab.DEVFILE;
-        case WorkspaceDetailsTab.DEVWORKSPACE:
-          return WorkspaceDetailsTab.DEVWORKSPACE;
         case WorkspaceDetailsTab.EVENTS:
           return WorkspaceDetailsTab.EVENTS;
         case WorkspaceDetailsTab.LOGS:
@@ -176,31 +147,8 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
     }
   }
 
-  private handleDiscardChanges(pathname: string): void {
-    if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
-      this.overviewTabPageRef.current?.cancelChanges();
-    }
-
-    if (pathname.startsWith('/workspace/')) {
-      const tabIndex = this.state.clickedTabIndex;
-      const searchParams = new window.URLSearchParams(this.props.history.location.search);
-      searchParams.set('tab', tabIndex as WorkspaceDetailsTab);
-      this.props.history.location.search = searchParams.toString();
-      this.props.history.push(this.props.history.location);
-    } else {
-      this.props.history.push(pathname);
-    }
-  }
-
-  private hasUnsavedChanges(): boolean {
-    if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
-      return this.overviewTabPageRef.current?.hasChanges === true;
-    }
-    return false;
-  }
-
   public render(): React.ReactElement {
-    const { history, oldWorkspaceLocation, workspace, workspacesLink } = this.props;
+    const { oldWorkspaceLocation, workspace, workspacesLink } = this.props;
 
     if (!workspace) {
       return <div>Workspace not found.</div>;
@@ -248,16 +196,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
                 isActive={WorkspaceDetailsTab.DEVFILE === this.state.activeTabKey}
               />
             </Tab>
-            <Tab
-              eventKey={WorkspaceDetailsTab.DEVWORKSPACE}
-              title={WorkspaceDetailsTab.DEVWORKSPACE}
-            >
-              <ProgressIndicator isLoading={this.props.isLoading} />
-              <DevworkspaceEditorTab
-                workspace={workspace}
-                isActive={WorkspaceDetailsTab.DEVWORKSPACE === this.state.activeTabKey}
-              />
-            </Tab>
             <Tab eventKey={WorkspaceDetailsTab.LOGS} title={WorkspaceDetailsTab.LOGS}>
               <WorkspaceLogs workspaceUID={workspace.uid} />
             </Tab>
@@ -265,11 +203,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
               <WorkspaceEvents workspaceUID={workspace.uid} />
             </Tab>
           </Tabs>
-          <UnsavedChangesModal
-            hasUnsavedChanges={() => this.hasUnsavedChanges()}
-            onDiscardChanges={pathname => this.handleDiscardChanges(pathname)}
-            history={history}
-          />
         </PageSection>
       </React.Fragment>
     );

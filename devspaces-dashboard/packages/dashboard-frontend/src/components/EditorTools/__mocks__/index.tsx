@@ -10,16 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+// mock for the EditorTools component
 import React from 'react';
 
-import { Props } from '@/pages/WorkspaceDetails/OverviewTab/StorageType';
+import { Props } from '@/components/EditorTools';
 
-export default class StorageTypeFormGroup extends React.PureComponent<Props> {
-  render() {
+export default class EditorTools extends React.PureComponent<Props> {
+  public render(): React.ReactNode {
+    const { handleExpand } = this.props;
     return (
       <div>
-        Mock Storage Type Form
-        <button onClick={() => this.props.onSave('per-workspace')}>Change storage type</button>
+        Mock Editor Tools
+        <button onClick={() => handleExpand(true)}>Expand Editor</button>
       </div>
     );
   }

@@ -16,18 +16,15 @@ import React from 'react';
 import overviewStyles from '@/pages/WorkspaceDetails/OverviewTab/index.module.css';
 
 type Props = {
-  projects: string[];
+  namespace: string;
 };
 
-class ProjectsFormGroup extends React.PureComponent<Props> {
+export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const projects = this.props.projects.join(', ');
     return (
-      <FormGroup label="Projects" fieldId="projects">
-        <div className={overviewStyles.readonly}>{projects}</div>
+      <FormGroup label="Kubernetes Namespace" fieldId="infrastructure-namespace">
+        <div className={overviewStyles.readonly}>{this.props.namespace}</div>
       </FormGroup>
     );
   }
 }
-
-export default ProjectsFormGroup;

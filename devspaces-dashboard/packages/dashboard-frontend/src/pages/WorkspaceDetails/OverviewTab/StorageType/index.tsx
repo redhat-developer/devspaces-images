@@ -36,7 +36,7 @@ import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 export type Props = MappedProps & {
   readonly: boolean;
   storageType?: che.WorkspaceStorageType;
-  onSave?: (storageType: che.WorkspaceStorageType) => void;
+  onSave: (storageType: che.WorkspaceStorageType) => void;
 };
 export type State = {
   isSelectorOpen?: boolean;
@@ -44,7 +44,7 @@ export type State = {
   isInfoOpen?: boolean;
 };
 
-export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
+class StorageTypeFormGroup extends React.PureComponent<Props, State> {
   storageTypes: che.WorkspaceStorageType[] = [];
   options: string[] = [];
   preferredType: che.WorkspaceStorageType;
@@ -257,7 +257,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
         variant={ModalVariant.small}
         isOpen={isSelectorOpen}
         className={styles.modalEditStorageType}
-        title="Edit Storage Type"
+        title="Change Storage Type"
         onClose={() => this.handleCancelChanges()}
         actions={[
           <Button
@@ -293,9 +293,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
 
   private handleConfirmChanges(): void {
     const selection = this.state.selected as che.WorkspaceStorageType;
-    if (this.props.onSave) {
-      this.props.onSave(selection);
-    }
+    this.props.onSave(selection);
     this.setState({
       selected: selection,
       isSelectorOpen: false,
@@ -321,6 +319,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
             variant="plain"
             onClick={() => this.handleInfoToggle()}
             className={styles.labelIcon}
+            title="Storage Type Info"
           >
             <OutlinedQuestionCircleIcon />
           </Button>
@@ -334,6 +333,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
               data-testid="overview-storage-edit-toggle"
               variant="plain"
               onClick={() => this.handleEditToggle(true)}
+              title="Change Storage Type"
             >
               <PencilAltIcon />
             </Button>
@@ -341,7 +341,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
         )}
         {this.getSelectorModal()}
         <Modal
-          title="Storage Type info"
+          title="Storage Type Info"
           variant={ModalVariant.small}
           isOpen={isInfoOpen}
           onClose={() => {
@@ -360,7 +360,10 @@ const mapStateToProps = (state: AppState) => ({
   preferredStorageType: selectPvcStrategy(state),
 });
 
-const connector = connect(mapStateToProps);
+const connector = connect(mapStateToProps, null, null, {
+  // forwardRef is mandatory for using `@react-mock/state` in unit tests
+  forwardRef: true,
+});
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(StorageTypeFormGroup);

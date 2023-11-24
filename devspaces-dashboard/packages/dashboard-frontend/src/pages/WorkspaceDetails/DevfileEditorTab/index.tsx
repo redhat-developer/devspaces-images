@@ -14,7 +14,7 @@ import { TextContent } from '@patternfly/react-core';
 import { load } from 'js-yaml';
 import React from 'react';
 
-import DevfileViewer from '@/components/DevfileViewer';
+import { DevfileViewer } from '@/components/DevfileViewer';
 import EditorTools from '@/components/EditorTools';
 import styles from '@/pages/WorkspaceDetails/DevfileEditorTab/index.module.css';
 import { DevfileAdapter } from '@/services/devfile/adapter';
@@ -49,20 +49,8 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
     const { isExpanded } = this.state;
     const editorTabStyle = isExpanded ? styles.editorTabExpanded : styles.editorTab;
 
-    let originDevfileStr = this.props.workspace.ref.metadata?.annotations?.[DEVWORKSPACE_DEVFILE];
-    if (!originDevfileStr) {
-      originDevfileStr = stringify(this.props.workspace.devfile);
-    }
-    const devfile = load(originDevfileStr) as devfileApi.Devfile;
-    const attrs = DevfileAdapter.getAttributesFromDevfileV2(devfile);
-    if (attrs?.[DEVWORKSPACE_METADATA_ANNOTATION]) {
-      delete attrs[DEVWORKSPACE_METADATA_ANNOTATION];
-      if (Object.keys(attrs).length === 0) {
-        delete devfile.attributes;
-        delete devfile.metadata.attributes;
-      }
-      originDevfileStr = stringify(devfile);
-    }
+    const devfile = prepareDevfile(this.props.workspace);
+    const devfileStr = stringify(devfile);
 
     return (
       <React.Fragment>
@@ -77,7 +65,7 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
           <DevfileViewer
             isActive={this.props.isActive}
             isExpanded={isExpanded}
-            value={originDevfileStr}
+            value={devfileStr}
             id="devfileViewerId"
           />
         </TextContent>
@@ -86,4 +74,18 @@ export class DevfileEditorTab extends React.PureComponent<Props, State> {
   }
 }
 
-export default DevfileEditorTab;
+export function prepareDevfile(workspace: Workspace): devfileApi.Devfile {
+  const devfileStr = workspace.ref.metadata?.annotations?.[DEVWORKSPACE_DEVFILE];
+  const devfile = devfileStr ? (load(devfileStr) as devfileApi.Devfile) : workspace.devfile;
+
+  const attrs = DevfileAdapter.getAttributesFromDevfileV2(devfile);
+  if (attrs?.[DEVWORKSPACE_METADATA_ANNOTATION]) {
+    delete attrs[DEVWORKSPACE_METADATA_ANNOTATION];
+  }
+  if (Object.keys(attrs).length === 0) {
+    delete devfile.attributes;
+    delete devfile.metadata.attributes;
+  }
+
+  return devfile;
+}

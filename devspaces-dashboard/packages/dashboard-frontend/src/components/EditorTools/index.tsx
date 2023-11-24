@@ -35,7 +35,7 @@ import { AppState } from '@/store';
 import { actionCreators } from '@/store/BannerAlert';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
 
-type Props = MappedProps & {
+export type Props = MappedProps & {
   devfileOrDevWorkspace: devfileApi.DevWorkspace | devfileApi.Devfile;
   handleExpand: (isExpand: boolean) => void;
 };

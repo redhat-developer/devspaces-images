@@ -12,14 +12,15 @@
 
 import React from 'react';
 
-import { Props } from '@/pages/WorkspaceDetails/OverviewTab/StorageType';
+import { Props } from '@/pages/WorkspaceDetails/OverviewTab';
 
-export default class StorageTypeFormGroup extends React.PureComponent<Props> {
-  render() {
+export class OverviewTab extends React.PureComponent<Props> {
+  public render(): React.ReactElement {
+    const { workspace, onSave } = this.props;
     return (
       <div>
-        Mock Storage Type Form
-        <button onClick={() => this.props.onSave('per-workspace')}>Change storage type</button>
+        Mock Overview Tab
+        <button onClick={() => onSave(workspace)}>Update workspace</button>
       </div>
     );
   }

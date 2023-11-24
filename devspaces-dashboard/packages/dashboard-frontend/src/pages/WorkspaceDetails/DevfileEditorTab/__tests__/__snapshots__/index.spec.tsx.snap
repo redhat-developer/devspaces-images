@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DevfileEditorTab component snapshot 1`] = `
+[
+  <br />,
+  <div
+    className="pf-c-content editorTab"
+  >
+    <div>
+      Mock Editor Tools
+      <button
+        onClick={[Function]}
+      >
+        Expand Editor
+      </button>
+    </div>
+    <div>
+      Mock Devfile Viewer
+      <span
+        data-testid="devfile-viewer-is-active"
+      >
+        true
+      </span>
+      <span
+        data-testid="devfile-viewer-is-expanded"
+      >
+        false
+      </span>
+      <span
+        data-testid="devfile-viewer-value"
+      >
+        schemaVersion: 2.2.0
+metadata:
+  name: wksp
+  namespace: ''
+components: []
+
+      </span>
+    </div>
+  </div>,
+]
+`;
