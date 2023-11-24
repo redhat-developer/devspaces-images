@@ -204,7 +204,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
                 />
               </svg>
               <span>
-                User has been authorized successfully.
+                Authorized
               </span>
             </div>
           </td>
@@ -332,7 +332,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
                 />
               </svg>
               <span>
-                User has not been authorized yet.
+                Unauthorized
               </span>
             </div>
           </td>
@@ -460,7 +460,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
                 />
               </svg>
               <span>
-                User has not been authorized yet.
+                Unauthorized
               </span>
             </div>
           </td>
@@ -588,7 +588,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
                 />
               </svg>
               <span>
-                User has not been authorized yet.
+                Unauthorized
               </span>
             </div>
           </td>

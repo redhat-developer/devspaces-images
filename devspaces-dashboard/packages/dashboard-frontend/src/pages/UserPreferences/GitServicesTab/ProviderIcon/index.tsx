@@ -77,7 +77,7 @@ export class ProviderIcon extends React.PureComponent<Props, State> {
     const { hasOauthToken, isSkipOauth } = this.state;
     if (hasOauthToken) {
       return (
-        <CheTooltip content={<span>User has been authorized successfully.</span>}>
+        <CheTooltip content={<span>Authorized</span>}>
           <CheckCircleIcon color="var(--pf-global--success-color--100)" />
         </CheTooltip>
       );
@@ -90,7 +90,7 @@ export class ProviderIcon extends React.PureComponent<Props, State> {
     }
 
     return (
-      <CheTooltip content={<span>User has not been authorized yet.</span>}>
+      <CheTooltip content={<span>Unauthorized</span>}>
         <ResourcesEmptyIcon color="var(--pf-global--disabled-color--100)" />
       </CheTooltip>
     );

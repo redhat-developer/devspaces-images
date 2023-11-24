@@ -47,7 +47,7 @@ exports[`ProviderIcon component snapshot for the provider not authorized yet 1`]
     />
   </svg>
   <span>
-    User has not been authorized yet.
+    Unauthorized
   </span>
 </div>
 `;
@@ -73,7 +73,7 @@ exports[`ProviderIcon component snapshot for the successfully authorized provide
     />
   </svg>
   <span>
-    User has been authorized successfully.
+    Authorized
   </span>
 </div>
 `;
