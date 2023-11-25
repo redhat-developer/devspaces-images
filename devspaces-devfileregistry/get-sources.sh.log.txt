@@ -1,0 +1,475 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 8bc014d79d8
+STEP 3/23: ARG BOOTSTRAP=true
+--> f68107593f0
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> c436be15fdd
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> d9d7190416f
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 917a0921df8
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 0adc8547330
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 89bcc5a8287
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 936ac45b9ab
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> e080a1c4c49
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.x86_64        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch               
+Installed:
+  containers-common-2:1-70.module+el8.9.0+20326+387084d0.x86_64                 
+  criu-3.18-4.module+el8.9.0+20326+387084d0.x86_64                              
+  fuse-common-3.3.0-17.el8.x86_64                                               
+  fuse-overlayfs-1.12-1.module+el8.9.0+20326+387084d0.x86_64                    
+  fuse3-3.3.0-17.el8.x86_64                                                     
+  fuse3-libs-3.3.0-17.el8.x86_64                                                
+  jq-1.6-7.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-1.module+el8.9.0+20326+387084d0.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.5-1.el8_9.x86_64                                              
+  python3.11-devel-3.11.5-1.el8_9.x86_64                                        
+  python3.11-libs-3.11.5-1.el8_9.x86_64                                         
+  python3.11-pip-22.3.1-4.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-4.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.9-1.module+el8.9.0+20326+387084d0.x86_64                           
+  skopeo-2:1.13.3-1.module+el8.9.0+20326+387084d0.x86_64                        
+  slirp4netns-1.2.1-1.module+el8.9.0+20326+387084d0.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.1.6-py3-none-any.whl (41 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.7/41.7 kB 2.6 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 10.5 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 12.4 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.3-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.1.6 pip-23.3.1 tomlkit-0.12.3 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> b0aea178b1a
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 842a7dc80db
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> b14378503b5
+STEP 14/23: COPY ./VERSION /
+--> e9e8edc5721
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 69d06fcf5b6
+STEP 16/23: WORKDIR /build/
+--> fa2037b05b8
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 84 contributors and audited 31 packages in 4.897s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 7661e319561
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> d93d0fe7df5
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:04c7aa48f34ab28dc21f36acfe472b249f29c24d1a52d98b2c8da75dd6587d79 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.9 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.9 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.9 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ = quay.io/devspaces/ansible-creator-ee@sha256:04c7aa48f34ab28dc21f36acfe472b249f29c24d1a52d98b2c8da75dd6587d79 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.9 PASS - 3.9 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.9 PASS - 3.9 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.9 PASS - 3.9 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 7d3dd5ecac9
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java11-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java11-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 05d942545f4
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> fa046f7a901
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> deca9fc7be1
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> c7cde8d2e4c
+Successfully tagged localhost/devfileregistry:tmp
+c7cde8d2e4c7bac25498cc07247c8202aaa9c08926ab5dd88cde8b74a2a75b9a
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.k7WDgHLvxf/bin/activate-global-python-argcomplete /tmp/tmp.7W69TB9GLL/bin/activate-global-python-argcomplete
+--- /tmp/tmp.k7WDgHLvxf/bin/activate-global-python-argcomplete	2023-11-04 15:36:06.000000000 -0400
++++ /tmp/tmp.7W69TB9GLL/bin/activate-global-python-argcomplete	2023-11-25 15:04:17.938202213 -0500
+@@ -12,8 +12,8 @@
+ import os
+ import shutil
+ import site
+-import sys
+ import subprocess
++import sys
+ 
+ import argcomplete
+ 
+@@ -96,7 +96,9 @@
+         print(f"argcomplete needs to append to the file {path}. The following code will be appended:", file=sys.stderr)
+         for line in shellcode.splitlines():
+             print(">", line, file=sys.stderr)
+-        get_consent()
++        if not get_consent():
++            print("Not added.", file=sys.stderr)
++            return
+     print(f"Adding shellcode to {path}...", file=sys.stderr)
+     with open(path, "a") as fh:
+         fh.write(shellcode)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/argcomplete/finders.py /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/argcomplete/finders.py
+--- /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/argcomplete/finders.py	2023-11-04 15:36:06.000000000 -0400
++++ /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/argcomplete/finders.py	2023-11-25 15:04:17.947202213 -0500
+@@ -525,19 +525,29 @@
+             special_chars = special_chars.replace('`', '')
+         else:
+             escape_char = "\\"
+-        for char in special_chars:
+-            completions = [c.replace(char, escape_char + char) for c in completions]
++            if os.environ.get("_ARGCOMPLETE_SHELL") == "zsh":
++                # zsh uses colon as a separator between a completion and its description.
++                special_chars += ":"
++
++        escaped_completions = []
++        for completion in completions:
++            escaped_completion = completion
++            for char in special_chars:
++                escaped_completion = escaped_completion.replace(char, escape_char + char)
++            escaped_completions.append(escaped_completion)
++            if completion in self._display_completions:
++                self._display_completions[escaped_completion] = self._display_completions[completion]
+ 
+         if self.append_space:
+             # Similar functionality in bash was previously turned off by supplying the "-o nospace" option to complete.
+             # Now it is conditionally disabled using "compopt -o nospace" if the match ends in a continuation character.
+             # This code is retained for environments where this isn't done natively.
+             continuation_chars = "=/:"
+-            if len(completions) == 1 and completions[0][-1] not in continuation_chars:
++            if len(escaped_completions) == 1 and escaped_completions[0][-1] not in continuation_chars:
+                 if cword_prequote == "":
+-                    completions[0] += " "
++                    escaped_completions[0] += " "
+ 
+-        return completions
++        return escaped_completions
+ 
+     def rl_complete(self, text, state):
+         """
+@@ -569,7 +579,7 @@
+ 
+     def get_display_completions(self):
+         """
+-        This function returns a mapping of option names to their help strings for displaying to the user.
++        This function returns a mapping of completions to their help strings for displaying to the user.
+         """
+         return self._display_completions
+ 
+Only in /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages: argcomplete-3.1.4.dist-info
+Only in /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages: argcomplete-3.1.6.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/container.py	2023-11-04 15:36:06.000000000 -0400
++++ /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/container.py	2023-11-25 15:04:17.949202213 -0500
+@@ -147,7 +147,19 @@
+             last_index = i
+         return last_index + 1
+ 
+-    def append(self, key: Key | str | None, item: Item) -> Container:
++    def _validate_out_of_order_table(self, key: SingleKey | None = None) -> None:
++        if key is None:
++            for k in self._map:
++                assert k is not None
++                self._validate_out_of_order_table(k)
++            return
++        if key not in self._map or not isinstance(self._map[key], tuple):
++            return
++        OutOfOrderTableProxy(self, self._map[key])
++
++    def append(
++        self, key: Key | str | None, item: Item, validate: bool = True
++    ) -> Container:
+         """Similar to :meth:`add` but both key and value must be given."""
+         if not isinstance(key, Key) and key is not None:
+             key = SingleKey(key)
+@@ -229,8 +241,8 @@
+                             else:
+                                 self._raw_append(key, item)
+ 
+-                            # Building a temporary proxy to check for errors
+-                            OutOfOrderTableProxy(self, self._map[key])
++                            if validate:
++                                self._validate_out_of_order_table(key)
+ 
+                             return self
+ 
+@@ -288,7 +300,7 @@
+         self._raw_append(key, item)
+         return self
+ 
+-    def _raw_append(self, key: Key, item: Item) -> None:
++    def _raw_append(self, key: Key | None, item: Item) -> None:
+         if key in self._map:
+             current_idx = self._map[key]
+             if not isinstance(current_idx, tuple):
+@@ -299,7 +311,7 @@
+                 raise KeyAlreadyPresent(key)
+ 
+             self._map[key] = current_idx + (len(self._body),)
+-        else:
++        elif key is not None:
+             self._map[key] = len(self._body)
+ 
+         self._body.append((key, item))
+@@ -607,21 +619,8 @@
+ 
+     # Dictionary methods
+     def __getitem__(self, key: Key | str) -> Item | Container:
+-        if not isinstance(key, Key):
+-            key = SingleKey(key)
+-
+-        idx = self._map.get(key)
+-        if idx is None:
+-            raise NonExistentKey(key)
+-
+-        if isinstance(idx, tuple):
+-            # The item we are getting is an out of order table
+-            # so we need a proxy to retrieve the proper objects
+-            # from the parent container
+-            return OutOfOrderTableProxy(self, idx)
+-
+-        item = self._body[idx][1]
+-        if item.is_boolean():
++        item = self.item(key)
++        if isinstance(item, Item) and item.is_boolean():
+             return item.value
+ 
+         return item
+@@ -702,12 +701,18 @@
+         if isinstance(value, Table):
+             # Insert a cosmetic new line for tables if:
+             # - it does not have it yet OR is not followed by one
+-            # - it is not the last item
++            # - it is not the last item, or
++            # - The table being replaced has a newline
+             last, _ = self._previous_item_with_index()
+             idx = last if idx < 0 else idx
+             has_ws = ends_with_whitespace(value)
++            replace_has_ws = (
++                isinstance(v, Table)
++                and v.value.body
++                and isinstance(v.value.body[-1][1], Whitespace)
++            )
+             next_ws = idx < last and isinstance(self._body[idx + 1][1], Whitespace)
+-            if idx < last and not (next_ws or has_ws):
++            if (idx < last or replace_has_ws) and not (next_ws or has_ws):
+                 value.append(None, Whitespace("\n"))
+ 
+             dict.__setitem__(self, new_key.key, value.value)
+@@ -794,11 +799,13 @@
+                 self._tables.append(item)
+                 table_idx = len(self._tables) - 1
+                 for k, v in item.value.body:
+-                    self._internal_container.append(k, v)
++                    self._internal_container.append(k, v, validate=False)
+                     self._tables_map[k] = table_idx
+                     if k is not None:
+                         dict.__setitem__(self, k.key, v)
+ 
++        self._internal_container._validate_out_of_order_table()
++
+     def unwrap(self) -> str:
+         return self._internal_container.unwrap()
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-04 15:36:06.000000000 -0400
++++ /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/__init__.py	2023-11-25 15:04:17.949202213 -0500
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.2"
++__version__ = "0.12.3"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/items.py	2023-11-04 15:36:06.000000000 -0400
++++ /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/items.py	2023-11-25 15:04:17.949202213 -0500
+@@ -1617,7 +1617,7 @@
+         if not isinstance(_item, Item):
+             _item = item(_item)
+ 
+-        self._value.append(key, _item)
++        self._value.append(key, _item, validate=False)
+ 
+         if isinstance(key, Key):
+             key = next(iter(key)).key
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/parser.py /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/parser.py
+--- /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages/tomlkit/parser.py	2023-11-04 15:36:06.000000000 -0400
++++ /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages/tomlkit/parser.py	2023-11-25 15:04:17.949202213 -0500
+@@ -1030,7 +1030,7 @@
+                         InternalParserError,
+                         "_parse_item() returned None on a non-bracket character.",
+                     )
+-
++        table.value._validate_out_of_order_table()
+         if isinstance(result, Null):
+             result = table
+ 
+Only in /tmp/tmp.k7WDgHLvxf/lib/python3.11/site-packages: tomlkit-0.12.2.dist-info
+Only in /tmp/tmp.7W69TB9GLL/lib/python3.11/site-packages: tomlkit-0.12.3.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: c7cde8d2e4c7bac25498cc07247c8202aaa9c08926ab5dd88cde8b74a2a75b9a
+Deleted: deca9fc7be168dab96889248132ce2c6cf5ff760787e0240e930021393f159fd
+Deleted: fa046f7a901268b0ad3ee86cc5244822f04128aac2f65635c6c6f8b45f17f5b0
+Deleted: 05d942545f45dcce1790abe0610907f876e06a6d1c8fe915febddc6152a07ce0
+Deleted: 7d3dd5ecac977e7866158a05c5cf8ed03f3d3e291b163dc1c9b1b3d2913093eb
+Deleted: d93d0fe7df502929af6d96d2f8fee14e67e97c784556ffdca36c760f9e0554d0
+Deleted: 7661e3195616891a70eb30a7821f62372431a62367e2d1c825993c88329a1a37
+Deleted: fa2037b05b8a43e699ce7ba309c2341b7da1e1dc561be6d9d00dec756bd9dc0d
+Deleted: 69d06fcf5b647f0962fdc37ebee7fe621c455ece55d9ad90f704f4ddf12ed028
+Deleted: e9e8edc57210ed88287d7153ea2afb1ff879cccfe9a60c94220ced4beef60060
+Deleted: b14378503b5864c23e782c1923541e913ec522358d898abc8123914a63e787f7
+Deleted: 842a7dc80db4abf1de0a7e4dc339512b024e52e7c9016bc91d9615b92e60154c
+Deleted: b0aea178b1a7b2f0f812feead58a8c4f6dcf78b36a4d23ef3397cbf31c8cbb7a
+Deleted: e080a1c4c49c4a16ca70317a3fb977974ad0fc8448607ad072e92bff63162087
+Deleted: 936ac45b9abbb554165b447b5237a100b7cd3b5e8eec2a470234d4363feaad32
+Deleted: 89bcc5a8287138ff45daba1b3c80da9c5aaecf07496759b168d6900aa606417b
+Deleted: 0adc854733038c59af1969ff9abdedba22e5e77956715a33ec1012c0fa18c74b
+Deleted: 917a0921df88a8571f476ac83ad64cbf920c2e0656a4cb0b88b50899a38ad0bf
+Deleted: d9d7190416fd030d4170e1ea34bebcab5d1d3da2b6e593ca4f6b08daeef09f7c
+Deleted: c436be15fdd886e2ca1f85d596cde779ab92de8bdfe75c7dc4962f6ed1050fc7
+Deleted: f68107593f00268403b242622d205e492d557582af774d9f1b789adef291b9d5
+Deleted: 8bc014d79d876feaef17f6d606c859d9a25020bf8cc4f3eff02a2fc8da6585d1
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
