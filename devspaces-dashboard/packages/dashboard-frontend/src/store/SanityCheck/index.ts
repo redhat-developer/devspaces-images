@@ -27,7 +27,7 @@ import { createObject } from '@/store/helpers';
 
 import { AppThunk } from '..';
 
-const secToStale = 5;
+const secToStale = 15;
 const timeToStale = secToStale * 1000;
 const maxAttemptsNumber = 2;
 
