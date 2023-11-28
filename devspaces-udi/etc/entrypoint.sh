@@ -44,23 +44,20 @@ fi
 
 #############################################################################
 # use java 8 if USE_JAVA8 is set to 'true', 
-# use java 17 if USE_JAVA17 is set to 'true', 
-# by default it is java 11
+# use java 11 if USE_JAVA11 is set to 'true', 
+# by default it is java 17
 #############################################################################
 rm -rf /home/tooling/.java/current
 mkdir -p /home/tooling/.java/current
 if [ "${USE_JAVA8}" == "true" ] && [ ! -z "${JAVA_HOME_8}" ]; then
   ln -s "${JAVA_HOME_8}"/* /home/tooling/.java/current
   echo "Java environment set to ${JAVA_HOME_8}"
-elif [ "${USE_JAVA17}" == "true" ] && [ ! -z "${JAVA_HOME_17}" ]; then
-  ln -s "${JAVA_HOME_17}"/* /home/tooling/.java/current
-  echo "Java environment set to ${JAVA_HOME_17}"
-else
-  # End of Support for OpenJDK 11 in October 2024
-  # https://access.redhat.com/articles/1299013
-  echo "TODO: it needs to set JDK 17 as default before OpenJDK 11 hits EOL in October 2024"
+elif [ "${USE_JAVA11}" == "true" ] && [ ! -z "${JAVA_HOME_11}" ]; then
   ln -s "${JAVA_HOME_11}"/* /home/tooling/.java/current
   echo "Java environment set to ${JAVA_HOME_11}"
+else
+  ln -s "${JAVA_HOME_17}"/* /home/tooling/.java/current
+  echo "Java environment set to ${JAVA_HOME_17}"
 fi
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
