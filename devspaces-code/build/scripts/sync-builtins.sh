@@ -83,7 +83,7 @@ addRipGrepLibrary() {
     's390x') RG_ARCH_SUFFIX='s390x-unknown-linux-gnu';;
     'x86_64') RG_ARCH_SUFFIX='x86_64-unknown-linux-musl';;
   esac
-  RG_REMOTE_LOCATION="$BASE_URL/common/${RG_VERSION}/ripgrep-v${RG_VERSION}-${RG_ARCH_SUFFIX}.tar.gz"
+  RG_REMOTE_LOCATION="$BASE_URL/common/v${RG_VERSION}/ripgrep-v${RG_VERSION}-${RG_ARCH_SUFFIX}.tar.gz"
   if [[ $RG_SHA == "" ]]; then
     echo "[info] not found required ripgrep-prebuilt ${RG_VERSION} for ${platform} platform"
     echo "[info] downloading and publishing to rcm-tools now"
