@@ -164,6 +164,9 @@ addRipGrepToYaml() {
 }
 
 addVscodePluginsToYaml () {
+  # TODO better handling for git repo cleanup?
+  rm -rf /tmp/devspaces-vscode-extensions || true
+
   SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-manifest.json --output /tmp/plugin-manifest.json
   curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-config.json --output /tmp/plugin-config.json
