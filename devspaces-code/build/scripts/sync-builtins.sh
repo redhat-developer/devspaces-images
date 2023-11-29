@@ -13,6 +13,7 @@
 set -e
 
 NO_OP=0
+MODIFIED_RIPGREP_MANIFEST=0
 
 usage () {
 	echo "Usage:   ${0##*/} -v [DS_VERSION]  [-t /path/to/generated]"
@@ -110,6 +111,7 @@ addRipGrepLibrary() {
     echo "################################################"
     replaceField ".\"${RG_VERSION}\".\"${platform}\".sha" "\"$RG_SHA\"" /tmp/manifest.json
     replaceField ".\"${RG_VERSION}\".\"${platform}\".source_sha" "\"$RG_SOURCE_SHA\"" /tmp/manifest.json
+    MODIFIED_RIPGREP_MANIFEST=1
   fi
 
   # generate parts of fetch-artifacts for this platform
@@ -139,12 +141,14 @@ addRipGrepToYaml() {
   done
   # publish manifest only or print it if in no-op mode
   if [[ $NO_OP != 1 ]]; then
-    if [[ ! "${WORKSPACE}" ]]; then WORKSPACE=/tmp; fi
-    SYNC_DIR=/build-requirements/build-requirements/common/ripgrep-multiarch
-    rm -f ${WORKSPACE}/${SYNC_DIR} || true
-    mkdir -p ${WORKSPACE}/${SYNC_DIR}
-    mv /tmp/manifest.json ${WORKSPACE}/${SYNC_DIR}
-    rsync -rlP ${WORKSPACE}/${SYNC_DIR} ${REMOTE_USER_AND_HOST}:staging/devspaces/${SYNC_DIR}
+    if [[ $MODIFIED_RIPGREP_MANIFEST -eq 1 ]]; then
+      if [[ ! "${WORKSPACE}" ]]; then WORKSPACE=/tmp; fi
+      SYNC_DIR=/build-requirements/build-requirements/common/ripgrep-multiarch
+      rm -f ${WORKSPACE}/${SYNC_DIR} || true
+      mkdir -p ${WORKSPACE}/${SYNC_DIR}
+      mv /tmp/manifest.json ${WORKSPACE}/${SYNC_DIR}
+      rsync -rlP ${WORKSPACE}/${SYNC_DIR} ${REMOTE_USER_AND_HOST}:staging/devspaces/${SYNC_DIR}
+    fi
   else
     echo "[info] NO-OP mode - printing resulting manifest:"
     cat /tmp/manifest.json
