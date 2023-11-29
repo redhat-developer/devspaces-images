@@ -127,7 +127,8 @@ addRipGrepToYaml() {
   VSCODE_RIPGREP_VERSION=$(cat ${TARGETDIR}/code/package.json | jq -r '.dependencies."@vscode/ripgrep"' | tr -d ^ )
   POST_INSTALL_SCRIPT=$(curl -sSL https://raw.githubusercontent.com/microsoft/vscode-ripgrep/v${VSCODE_RIPGREP_VERSION}/lib/postinstall.js)
   VSIX_RIPGREP_PREBUILT_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const VERSION" | cut -d"'" -f 2 | tr -d v )
-  echo "[info] vscode-ripgrep dependency version: ${VSCODE_RIPGREP_VERSION} depends on ripgrep-prebuilt ${VSIX_RIPGREP_PREBUILT_VERSION}"
+  VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const MULTI_ARCH_LINUX_VERSION" | cut -d"'" -f 2 | tr -d v )
+  echo "[info] vscode-ripgrep dependency version: ${VSCODE_RIPGREP_VERSION} depends on ripgrep-prebuilt ${VSIX_RIPGREP_PREBUILT_VERSION}, multiarch - ${VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION}"
   # collect all current available versions on rcm-tools
   # TODO fix duplicate 'ripgrep-multiarch'
   curl -sSL https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/ripgrep-multiarch/manifest.json -o /tmp/manifest.json
@@ -137,7 +138,11 @@ addRipGrepToYaml() {
   fi
   readarray -d ' ' -t AVAILABLE_RG_VERSIONS < <(jq --raw-output "keys | @sh" /tmp/manifest.json | tr -d \')
   for platform in "s390x" "powerpc64le" "x86_64"; do
-    addRipGrepLibrary "${VSIX_RIPGREP_PREBUILT_VERSION}"
+    if [[ ${platform} == "s390x" || ${platform} == "powerpc64le" ]]; then
+      addRipGrepLibrary "${VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION}"
+    else
+      addRipGrepLibrary "${VSIX_RIPGREP_PREBUILT_VERSION}"
+    fi
   done
   # publish manifest only or print it if in no-op mode
   if [[ $NO_OP != 1 ]]; then
