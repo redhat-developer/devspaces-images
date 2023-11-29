@@ -117,7 +117,7 @@
 | [`@octokit/endpoint@7.0.6`](https://github.com/octokit/endpoint.js.git) | MIT | #3752 |
 | [`@octokit/graphql@5.0.6`](https://github.com/octokit/graphql.js.git) | MIT | #8728 |
 | [`@octokit/openapi-types@18.1.1`](https://github.com/octokit/openapi-types.ts.git) | MIT | #10810 |
-| [`@octokit/plugin-enterprise-rest@6.0.1`](https://github.com/octokit/plugin-enterprise-rest.js.git) | MIT |  |
+| [`@octokit/plugin-enterprise-rest@6.0.1`](https://github.com/octokit/plugin-enterprise-rest.js.git) | MIT | #11615 |
 | [`@octokit/plugin-paginate-rest@3.1.0`](https://github.com/octokit/plugin-paginate-rest.js.git) | MIT | clearlydefined |
 | [`@octokit/plugin-request-log@1.0.4`](https://github.com/octokit/plugin-request-log.js.git) | MIT | #1837 |
 | [`@octokit/plugin-rest-endpoint-methods@6.8.1`](https://github.com/octokit/plugin-rest-endpoint-methods.js.git) | MIT | clearlydefined |
@@ -171,7 +171,6 @@
 | [`@types/lodash@4.14.200`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #4131 |
 | [`@types/minimatch@3.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minimist@1.2.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10839 |
-| [`@types/node-fetch@2.6.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #11004 |
 | [`@types/normalize-package-data@2.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10792 |
 | [`@types/parse-json@4.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/qs@6.9.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -678,7 +677,7 @@
 | [`node-releases@2.0.13`](https://github.com/chicoxyzzy/node-releases.git) | MIT | #1954 |
 | [`nodemon@3.0.1`](https://github.com/remy/nodemon.git) | MIT | clearlydefined |
 | [`nopt@6.0.0`](https://github.com/npm/nopt.git) | ISC | clearlydefined |
-| [`normalize-package-data@3.0.3`](git://github.com/npm/normalize-package-data.git) | BSD-2-Clause |  |
+| [`normalize-package-data@3.0.3`](git://github.com/npm/normalize-package-data.git) | BSD-2-Clause | #11614 |
 | [`normalize-path@3.0.0`](https://github.com/jonschlinkert/normalize-path.git) | MIT | clearlydefined |
 | [`npm-bundled@1.1.2`](git+https://github.com/npm/npm-bundled.git) | ISC | clearlydefined |
 | [`npm-install-checks@6.3.0`](https://github.com/npm/npm-install-checks.git) | BSD-2-Clause | clearlydefined |

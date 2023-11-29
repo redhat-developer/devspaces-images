@@ -12,11 +12,11 @@
 
 import { helpers } from '@eclipse-che/common';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import fetch from 'node-fetch';
 
 import { baseApiPath } from '@/constants/config';
 import { namespacedSchema, yamlResolverSchema } from '@/constants/schemas';
 import { restParams } from '@/models';
+import { axiosInstance } from '@/routes/api/helpers/getCertificateAuthority';
 import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
 import { getToken } from '@/routes/api/helpers/getToken';
 import { getSchema } from '@/services/helpers';
@@ -41,14 +41,15 @@ export function registerYamlResolverRoute(instance: FastifyInstance) {
           throw new Error(`User permissions error. ${helpers.errors.getMessage(e)}`);
         }
 
-        const response = await fetch(url);
-        if (response.ok) {
-          return response.text();
-        } else {
-          reply.code(response.status);
-          reply.send(response.body);
-          return reply;
-        }
+        const response = await axiosInstance.get(url, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+          },
+        });
+        reply.code(response.status);
+        reply.send(response.data);
+        return reply;
       },
     );
   });

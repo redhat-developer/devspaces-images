@@ -258,7 +258,6 @@
 | [`ms@2.1.2`](https://github.com/zeit/ms.git) | MIT | #5895 |
 | [`multi-ini@2.3.2`](git://github.com/evangelion1204/multi-ini.git) | MIT | clearlydefined |
 | [`nanoid@3.3.7`](https://github.com/ai/nanoid.git) | MIT | #7571 |
-| [`node-fetch@2.7.0`](https://github.com/bitinn/node-fetch.git) | MIT | #10509 |
 | [`oauth-sign@0.9.0`](https://github.com/mikeal/oauth-sign) | Apache-2.0 | clearlydefined |
 | [`object-assign@4.1.1`](https://github.com/sindresorhus/object-assign.git) | MIT | clearlydefined |
 | [`object-hash@2.2.0`](https://github.com/puleos/object-hash) | MIT | clearlydefined |
@@ -375,7 +374,6 @@
 | [`toggle-selection@1.0.6`](git+https://github.com/sudodoki/toggle-selection) | MIT | clearlydefined |
 | [`toidentifier@1.0.1`](https://github.com/component/toidentifier.git) | MIT | clearlydefined |
 | [`tough-cookie@2.5.0`](git://github.com/salesforce/tough-cookie.git) | BSD-3-Clause | clearlydefined |
-| [`tr46@0.0.3`](git+https://github.com/Sebmaster/tr46.js.git) | MIT | clearlydefined |
 | [`trim-right@1.0.1`](https://github.com/sindresorhus/trim-right.git) | MIT | clearlydefined |
 | [`tslib@2.6.2`](https://github.com/Microsoft/tslib.git) | 0BSD | #9189 |
 | [`tunnel-agent@0.6.0`](https://github.com/mikeal/tunnel-agent) | Apache-2.0 | clearlydefined |
@@ -391,8 +389,6 @@
 | [`value-equal@1.0.1`](https://github.com/mjackson/value-equal.git) | MIT | clearlydefined |
 | [`verror@1.10.0`](git://github.com/davepacheco/node-verror.git) | MIT | clearlydefined |
 | [`warning@4.0.3`](https://github.com/BerkeleyTrue/warning.git) | MIT | [CQ22359](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22359) |
-| [`webidl-conversions@3.0.1`](https://github.com/jsdom/webidl-conversions.git) | BSD-2-Clause | clearlydefined |
-| [`whatwg-url@5.0.0`](https://github.com/jsdom/whatwg-url.git) | MIT | clearlydefined |
 | [`wrappy@1.0.2`](https://github.com/npm/wrappy) | ISC | clearlydefined |
 | [`ws@8.14.2`](git+https://github.com/websockets/ws.git) | MIT | #10503 |
 | [`yallist@4.0.0`](git+https://github.com/isaacs/yallist.git) | ISC | clearlydefined |

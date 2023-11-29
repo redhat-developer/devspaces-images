@@ -19,11 +19,9 @@
 6. `@nrwl/nx-linux-arm64-musl@15.9.7`
 7. `@nrwl/nx-win32-arm64-msvc@15.9.7`
 8. `@nrwl/nx-win32-x64-msvc@15.9.7`
-9. `@octokit/plugin-enterprise-rest@6.0.1`
-10. `@types/less@3.0.5`
-11. `@typescript-eslint/eslint-plugin@6.10.0`
-12. `@typescript-eslint/typescript-estree@6.10.0`
-13. `eslint@8.53.0`
-14. `fsevents@2.3.3`
-15. `normalize-package-data@3.0.3`
-16. `webpack-merge@5.10.0`
+9. `@types/less@3.0.5`
+10. `@typescript-eslint/eslint-plugin@6.10.0`
+11. `@typescript-eslint/typescript-estree@6.10.0`
+12. `eslint@8.53.0`
+13. `fsevents@2.3.3`
+14. `webpack-merge@5.10.0`

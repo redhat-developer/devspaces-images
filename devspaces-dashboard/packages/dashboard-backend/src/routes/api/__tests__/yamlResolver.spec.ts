@@ -11,15 +11,17 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import * as mockNodeFetch from 'node-fetch';
 
 import { baseApiPath } from '@/constants/config';
+import { axiosInstance } from '@/routes/api/helpers/getCertificateAuthority';
 import { setup, teardown } from '@/utils/appBuilder';
-
-const { Response } = jest.requireActual<typeof mockNodeFetch>('node-fetch');
 
 jest.mock('../helpers/getDevWorkspaceClient.ts');
 jest.mock('../helpers/getToken.ts');
+
+jest.mock('@/routes/api/helpers/getCertificateAuthority');
+const getAxiosInstanceMock = jest.fn();
+(axiosInstance.get as jest.Mock).mockImplementation(getAxiosInstanceMock);
 
 describe('Server Config Route', () => {
   let app: FastifyInstance;
@@ -36,9 +38,10 @@ describe('Server Config Route', () => {
   describe('POST ${baseApiPath}/namespace/:namespace/yaml/resolver', () => {
     test('file exists', async () => {
       const devfileContent = 'devfile content';
-      (mockNodeFetch.default as unknown as jest.Mock).mockReturnValue(
-        Promise.resolve(new Response(devfileContent)),
-      );
+      getAxiosInstanceMock.mockResolvedValue({
+        status: 200,
+        data: devfileContent,
+      });
 
       const res = await app
         .inject()
@@ -51,9 +54,10 @@ describe('Server Config Route', () => {
 
     test('file not found', async () => {
       const responseText = 'not found';
-      (mockNodeFetch.default as unknown as jest.Mock).mockResolvedValue(
-        new Response(responseText, { status: 404 }),
-      );
+      getAxiosInstanceMock.mockResolvedValue({
+        status: 404,
+        data: responseText,
+      });
 
       const res = await app
         .inject()
