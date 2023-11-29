@@ -208,22 +208,7 @@ export class DevWorkspaceClient {
 
   async updateDevWorkspace(
     devWorkspace: devfileApi.DevWorkspace,
-    pluginRegistryUrl: string | undefined,
-    pluginRegistryInternalUrl: string | undefined,
-    openVSXUrl: string | undefined,
-    clusterConsole?: {
-      url: string;
-      title: string;
-    },
   ): Promise<{ headers: DwApi.Headers; devWorkspace: devfileApi.DevWorkspace }> {
-    this.addEnvVarsToContainers(
-      devWorkspace.spec.template.components,
-      pluginRegistryUrl,
-      pluginRegistryInternalUrl,
-      openVSXUrl,
-      clusterConsole,
-    );
-
     return await DwApi.patchWorkspace(devWorkspace.metadata.namespace, devWorkspace.metadata.name, [
       {
         op: 'replace',

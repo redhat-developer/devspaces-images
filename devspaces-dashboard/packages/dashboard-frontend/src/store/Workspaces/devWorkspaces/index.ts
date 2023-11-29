@@ -584,10 +584,6 @@ export const actionCreators: ActionCreators = {
 
         const updateResp = await getDevWorkspaceClient().updateDevWorkspace(
           createResp.devWorkspace,
-          pluginRegistryUrl,
-          pluginRegistryInternalUrl,
-          openVSXUrl,
-          clusterConsole,
         );
 
         if (updateResp.headers.warning) {
