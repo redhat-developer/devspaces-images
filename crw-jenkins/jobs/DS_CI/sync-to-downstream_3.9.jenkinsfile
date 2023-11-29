@@ -26,7 +26,10 @@ def debugDiskUsage = true
 // CRW-2736 if an idea build, must run on x64 only (single arch for now; failed when tested on ppc64le - missing support for that arch)
 def String nodeLabelAnyArch = ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
     'x86_64-rhel8' : 
-    'x86_64-rhel8||ppc64le-rhel8'
+    'x86_64-rhel8'
+    // https://issues.redhat.com/browse/CRW-5358 - remove ppc64le until rhpkg works again
+    // this logic is clearly broken, but I don't have time to fix it right now so I'll make a JIRA
+    //'x86_64-rhel8||ppc64le-rhel8'
   )
 def String nodeLabelXArch = (REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
 
