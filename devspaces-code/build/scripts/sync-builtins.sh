@@ -199,7 +199,16 @@ addVscodePluginsToYaml () {
       echo "[info] not found required ripgrep prebuilt extension for ${REQUIRED_VSIX_VERSION}"
       echo "[info] downloading and publishing to rcm-tools now"
       if [ ! -d /tmp/devspaces-vscode-extensions ]; then
-        git clone git@github.com:redhat-developer/devspaces-vscode-extensions /tmp/devspaces-vscode-extensions
+        git clone https://github.com/redhat-developer/devspaces-vscode-extensions /tmp/devspaces-vscode-extensions  
+        pushd /tmp/devspaces-vscode-extensions >/dev/null
+          # configure repository for pushing from Jenkins
+          git config user.email "nickboldt+devstudio-release@gmail.com"
+          git config user.name "devstudio-release"
+          git config --global push.default matching
+          git config --global pull.rebase true
+          git config --global hub.protocol https
+          git remote set-url origin https://$GITHUB_TOKEN:x-oauth-basic@github.com/redhat-developer/devspaces.git
+        popd >/dev/null
       fi
       pushd /tmp/devspaces-vscode-extensions >/dev/null
         git checkout ${SCRIPTS_BRANCH}
