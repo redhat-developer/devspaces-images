@@ -57,6 +57,7 @@ branding/icons
 branding/product.json
 branding/workbench-config.json
 build/scripts/sync.sh
+build/scripts/sync-builtins.sh
 build/scripts/collect-assets.sh
 build/dockerfiles
 cachito
