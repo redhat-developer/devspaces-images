@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FormGroup, TextArea, TextInputTypes, ValidatedOptions } from '@patternfly/react-core';
+import { FormGroup, TextInput, TextInputTypes, ValidatedOptions } from '@patternfly/react-core';
 import React from 'react';
 
 const REQUIRED_ERROR = 'This field is required.';
@@ -71,12 +71,12 @@ export class TokenData extends React.PureComponent<Props, State> {
         label="Token"
         validated={validated}
       >
-        <TextArea
+        <TextInput
           aria-describedby="token-data-label"
           aria-label="Token"
           onChange={tokenData => this.onChange(tokenData)}
           placeholder={placeholder}
-          type={TextInputTypes.text}
+          type={TextInputTypes.password}
           value={tokenData}
         />
       </FormGroup>

@@ -53,7 +53,7 @@ describe('TokenData', () => {
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
-    const input = screen.getByRole('textbox');
+    const input = screen.getByPlaceholderText('Enter a Token');
 
     const tokenData = 'token-data';
     fireEvent.change(input, { target: { value: tokenData } });
@@ -67,7 +67,7 @@ describe('TokenData', () => {
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
-    const input = screen.getByRole('textbox');
+    const input = screen.getByPlaceholderText('Enter a Token');
 
     // fill the token data field
     const tokenData = 'token-data';

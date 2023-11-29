@@ -26,15 +26,21 @@ exports[`TokenData snapshot w/o token data 1`] = `
     <div
       className="pf-c-form__group-control"
     >
-      <textarea
+      <input
         aria-describedby="token-data-label"
         aria-invalid={false}
         aria-label="Token"
         className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
+        disabled={false}
+        onBlur={[Function]}
         onChange={[Function]}
+        onFocus={[Function]}
         placeholder="Enter a Token"
         required={false}
-        type="text"
+        type="password"
         value=""
       />
       
@@ -69,15 +75,21 @@ exports[`TokenData snapshot with token data 1`] = `
     <div
       className="pf-c-form__group-control"
     >
-      <textarea
+      <input
         aria-describedby="token-data-label"
         aria-invalid={false}
         aria-label="Token"
         className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
+        disabled={false}
+        onBlur={[Function]}
         onChange={[Function]}
+        onFocus={[Function]}
         placeholder="Replace Token"
         required={false}
-        type="text"
+        type="password"
         value=""
       />
       
