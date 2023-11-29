@@ -12,11 +12,10 @@
 schemaVersion: 2.2.0
 metadata:
   name: devspaces-images
-# add components:, unless basic udi component is good enough?
 components:
   - name: tools
     container:
-      image: quay.io/devspaces/devspaces-images-dev:latest
+      image: quay.io/devfile/universal-developer-image:ubi8-latest
       memoryRequest: 1Gi
       memoryLimit: 8Gi
       cpuLimit: '4'
@@ -27,15 +26,18 @@ commands:
     exec:
       label: Build Eclipse Che Operator binary
       component: tooling-container
-      commandLine: cd devspaces-operator && make build
+      commandLine: make build
+      workingDir: ${PROJECT_SOURCE}/devspaces-operator
   - id: operator-go-run
     exec:
       label: Run Eclipse Che Operator
       component: tooling-container
-      commandLine: cd devspaces-operator && make run
+      commandLine: make run
+      workingDir: ${PROJECT_SOURCE}/devspaces-operator
   - id: operator-go-test
     exec:
       label: Run unit tests
       component: tooling-container
-      commandLine: cd devspaces-operator && make test
+      commandLine: make test
+      workingDir: ${PROJECT_SOURCE}/devspaces-operator
   #devspaces-operator-bundle
