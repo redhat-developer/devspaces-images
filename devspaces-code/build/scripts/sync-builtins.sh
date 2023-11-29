@@ -228,8 +228,8 @@ addVscodePluginsToYaml () {
   source-url: $BASE_URL/devspaces-$DS_VERSION-pluginregistry/sources/$PLUGIN-sources.tar.gz
   source-sha256: $SOURCE_SHA" >> ${TARGETDIR}/fetch-artifacts-url.yaml
   done
-  #rm /tmp/plugin-manifest.json
-  #rm -rf /tmp/devspaces-vscode-extensions || true
+  rm /tmp/plugin-manifest.json
+  rm -rf /tmp/devspaces-vscode-extensions || true
 }
 
 # clear up everything except the top comment of the yaml
