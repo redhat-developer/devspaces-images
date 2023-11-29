@@ -1,10 +1,16 @@
-.stoppedLabel > span {
-  padding-right: 4px;
-}
 
 .statusLabel {
   text-transform: capitalize;
 }
+
+.statusIndicator {
+  margin-right: 10px;
+}
+
+.statusIndicator svg {
+  overflow: visible;
+}
+
 
 svg.rotate {
   width: 17px;

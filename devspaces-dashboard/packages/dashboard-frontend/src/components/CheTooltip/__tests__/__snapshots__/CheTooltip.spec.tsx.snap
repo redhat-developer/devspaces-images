@@ -7,7 +7,7 @@ exports[`CheTooltip component snapshot 1`] = `
   <span
     data-testid="tooltip-props"
   >
-    {"isContentLeftAligned":true,"style":{"border":"1px solid","borderRadius":"3px","opacity":"0.9"}}
+    {"isContentLeftAligned":true,"className":"tooltip"}
   </span>
   <div
     data-testid="tooltip-content"

@@ -47,7 +47,7 @@ describe('CheTooltip component', () => {
 
     const tooltipProps = screen.getByTestId('tooltip-props');
     expect(tooltipProps).toHaveTextContent(
-      '{"isContentLeftAligned":true,"style":{"border":"1px solid","borderRadius":"3px","opacity":"0.9"},"position":"right","exitDelay":500}',
+      '{"isContentLeftAligned":true,"className":"tooltip","position":"right","exitDelay":500}',
     );
 
     const tooltipContent = screen.getByTestId('tooltip-content');
@@ -55,8 +55,6 @@ describe('CheTooltip component', () => {
 
     const tooltipPlacedTo = screen.getByTestId('tooltip-placed-to');
     expect(tooltipPlacedTo).toHaveTextContent('some text');
-
-    screen.debug();
   });
 });
 

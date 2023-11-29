@@ -19,7 +19,8 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
       data-testid="recent-workspace-item"
     >
       <div>
-        Dummy Workspace Indicator
+        Mock Workspace status indicator, status: 
+        ERROR
       </div>
       workspace
     </span>
@@ -150,7 +151,8 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
       data-testid="recent-workspace-item"
     >
       <div>
-        Dummy Workspace Indicator
+        Mock Workspace status indicator, status: 
+        RUNNING
       </div>
       workspace
     </span>
@@ -281,7 +283,8 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
       data-testid="recent-workspace-item"
     >
       <div>
-        Dummy Workspace Indicator
+        Mock Workspace status indicator, status: 
+        STARTING
       </div>
       workspace
     </span>
@@ -412,7 +415,8 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
       data-testid="recent-workspace-item"
     >
       <div>
-        Dummy Workspace Indicator
+        Mock Workspace status indicator, status: 
+        STOPPED
       </div>
       workspace
     </span>
@@ -543,7 +547,8 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
       data-testid="recent-workspace-item"
     >
       <div>
-        Dummy Workspace Indicator
+        Mock Workspace status indicator, status: 
+        STOPPING
       </div>
       workspace
     </span>

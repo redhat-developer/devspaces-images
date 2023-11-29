@@ -76,6 +76,7 @@ describe('Starting steps, checking workspace conditions', () => {
     renderComponent(condition);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
   });
 
@@ -84,11 +85,13 @@ describe('Starting steps, checking workspace conditions', () => {
     const { reRenderComponent } = renderComponent(prevCondition!);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
 
     reRenderComponent(condition);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
   });
 
@@ -97,11 +100,13 @@ describe('Starting steps, checking workspace conditions', () => {
     const { reRenderComponent } = renderComponent(prevCondition!);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
 
     reRenderComponent(condition);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('1');
   });
 
@@ -110,11 +115,13 @@ describe('Starting steps, checking workspace conditions', () => {
     const { reRenderComponent } = renderComponent(prevCondition!);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     // expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
 
     reRenderComponent(condition);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('1');
   });
 
@@ -123,11 +130,13 @@ describe('Starting steps, checking workspace conditions', () => {
     const { reRenderComponent } = renderComponent(prevCondition!);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
 
     reRenderComponent(condition);
 
-    await waitFor(() => expect(screen.queryByTestId('isError')).toBeTruthy());
+    await waitFor(() => expect(screen.queryByTestId('isWarning')).toBeTruthy());
+    expect(screen.queryByTestId('isError')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('1');
   });
 
@@ -136,11 +145,13 @@ describe('Starting steps, checking workspace conditions', () => {
     const { reRenderComponent } = renderComponent(prevCondition!);
 
     expect(screen.queryByTestId('isError')).toBeFalsy();
+    expect(screen.queryByTestId('isWarning')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('0');
 
     reRenderComponent(condition);
 
-    await waitFor(() => expect(screen.queryByTestId('isError')).toBeTruthy());
+    await waitFor(() => expect(screen.queryByTestId('isWarning')).toBeTruthy());
+    expect(screen.queryByTestId('isError')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('1');
   });
 
@@ -149,7 +160,8 @@ describe('Starting steps, checking workspace conditions', () => {
 
     renderComponent(condition);
 
-    await waitFor(() => expect(screen.queryByTestId('isError')).toBeTruthy());
+    await waitFor(() => expect(screen.queryByTestId('isWarning')).toBeTruthy());
+    expect(screen.queryByTestId('isError')).toBeFalsy();
     expect(screen.queryByTestId('distance')?.textContent).toEqual('1');
   });
 });

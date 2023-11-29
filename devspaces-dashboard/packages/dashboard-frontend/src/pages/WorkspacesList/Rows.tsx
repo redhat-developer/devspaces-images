@@ -16,7 +16,7 @@ import { Location } from 'history';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import WorkspaceIndicator from '@/components/Workspace/Indicator';
+import { WorkspaceStatusIndicator } from '@/components/Workspace/Status/Indicator';
 import devfileApi from '@/services/devfileApi';
 import { formatDate, formatRelativeDate } from '@/services/helpers/dates';
 import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
@@ -105,7 +105,7 @@ export function buildRow(
   }
 
   /* workspace status indicator */
-  const statusIndicator = <WorkspaceIndicator status={workspace.status} />;
+  const statusIndicator = <WorkspaceStatusIndicator status={workspace.status} />;
   /* workspace name */
   const details = (
     <span>

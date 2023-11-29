@@ -18,8 +18,8 @@ import {
 } from '@patternfly/react-icons';
 import React from 'react';
 
+import workspaceStatusStyles from '@/components/Workspace/Status/index.module.css';
 import styles from '@/components/WorkspaceProgress/StepTitle/Icon/index.module.css';
-import workspaceStatusLabelStyles from '@/components/WorkspaceStatusLabel/index.module.css';
 
 type Props = {
   distance: -1 | 0 | 1 | undefined;
@@ -68,7 +68,7 @@ export class ProgressStepTitleIcon extends React.Component<Props> {
     return (
       <InProgressIcon
         data-testid="step-in-progress-icon"
-        className={`${styles.inProgressIcon} ${workspaceStatusLabelStyles.rotate} ${styles.stepIcon}`}
+        className={`${styles.inProgressIcon} ${workspaceStatusStyles.rotate} ${styles.stepIcon}`}
       />
     );
   }

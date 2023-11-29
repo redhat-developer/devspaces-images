@@ -25,7 +25,7 @@ import {
 } from '@patternfly/react-core';
 import React from 'react';
 
-import WorkspaceStatusLabel from '@/components/WorkspaceStatusLabel';
+import { WorkspaceStatusLabel } from '@/components/Workspace/Status/Label';
 import styles from '@/pages/WorkspaceDetails/Header/index.module.css';
 import {
   DeprecatedWorkspaceStatus,

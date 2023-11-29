@@ -3,7 +3,7 @@
 exports[`Starting steps, checking workspace conditions snapshot - condition failed 1`] = `
 <div>
   <div
-    data-testid="isError"
+    data-testid="isWarning"
   />
   <div
     data-testid="distance"

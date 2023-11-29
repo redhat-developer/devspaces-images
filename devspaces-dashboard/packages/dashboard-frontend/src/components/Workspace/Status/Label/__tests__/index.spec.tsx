@@ -13,15 +13,8 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 
+import { WorkspaceStatusLabel } from '@/components/Workspace/Status/Label';
 import { DevWorkspaceStatus, WorkspaceStatus } from '@/services/helpers/types';
-
-import WorkspaceStatusLabel from '..';
-
-jest.mock('react-tooltip', () => {
-  return function DummyTooltip(): React.ReactElement {
-    return <div>Dummy Tooltip</div>;
-  };
-});
 
 describe('The workspace status label component', () => {
   it('should render default status correctly', () => {

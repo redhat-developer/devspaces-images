@@ -10,15 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Tooltip, TooltipProps } from '@patternfly/react-core';
 import React from 'react';
 
-import styles from '@/components/CheTooltip/index.module.css';
+import { Props } from '@/components/Workspace/Status/Indicator';
 
-export type Props = Omit<TooltipProps, 'ref'>;
-
-export class CheTooltip extends React.PureComponent<Props> {
+export class WorkspaceStatusIndicator extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    return <Tooltip isContentLeftAligned={true} className={styles.tooltip} {...this.props} />;
+    return <div>Mock Workspace status indicator, status: {this.props.status}</div>;
   }
 }

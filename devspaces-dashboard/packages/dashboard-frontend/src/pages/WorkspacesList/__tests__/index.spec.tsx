@@ -32,15 +32,9 @@ jest.mock('../../../components/Head', () => {
   FakeHead.displayName = 'fake-Head';
   return FakeHead;
 });
+jest.mock('@/components/Workspace/Status/Indicator');
 
-jest.mock('react-tooltip', () => {
-  return function DummyTooltip(): React.ReactElement {
-    return <div>Dummy Tooltip</div>;
-  };
-});
-
-// mute the outputs
-// console.log = jest.fn();
+const history = createMemoryHistory();
 
 const brandingData = {
   docs: {
@@ -51,11 +45,14 @@ const brandingData = {
 let workspaces: Workspace[];
 let isDeleted: string[];
 
-let mockOnAction = jest.fn().mockResolvedValue(undefined);
-let mockShowConfirmation = jest.fn().mockResolvedValue(undefined);
+let mockOnAction = jest.fn();
+let mockShowConfirmation = jest.fn();
 
 describe('Workspaces List Page', () => {
   beforeEach(() => {
+    mockOnAction.mockResolvedValue(undefined);
+    mockShowConfirmation.mockResolvedValue(undefined);
+
     workspaces = [0, 1, 2, 3, 4]
       .map(i =>
         new DevWorkspaceBuilder()
@@ -69,7 +66,7 @@ describe('Workspaces List Page', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   it('should render correctly', () => {
@@ -425,7 +422,6 @@ describe('Workspaces List Page', () => {
 });
 
 function getComponent(_workspaces = workspaces): React.ReactElement {
-  const history = createMemoryHistory();
   return (
     <Router history={history}>
       <WorkspacesList

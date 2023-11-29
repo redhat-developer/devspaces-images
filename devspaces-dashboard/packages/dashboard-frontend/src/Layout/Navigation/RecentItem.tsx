@@ -14,7 +14,7 @@ import { NavItem } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
 
-import WorkspaceIndicator from '@/components/Workspace/Indicator';
+import { WorkspaceStatusIndicator } from '@/components/Workspace/Status/Indicator';
 import styles from '@/Layout/Navigation/index.module.css';
 import getActivity from '@/Layout/Navigation/isActive';
 import NavigationItemWorkspaceActions from '@/Layout/Navigation/RecentItemWorkspaceActions';
@@ -44,7 +44,7 @@ function NavigationRecentItem(props: {
       }
     >
       <span data-testid="recent-workspace-item">
-        <WorkspaceIndicator status={props.item.status} />
+        <WorkspaceStatusIndicator status={props.item.status} />
         {props.item.label}
       </span>
       <NavigationItemWorkspaceActions

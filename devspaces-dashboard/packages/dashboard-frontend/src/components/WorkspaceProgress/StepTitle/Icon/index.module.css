@@ -29,7 +29,7 @@
 }
 
 .inProgressIcon {
-  fill: #0e6fe0;
+  fill: var(--pf-global--primary-color--100);
 }
 
 .successIcon {

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common from '@eclipse-che/common';
+import common, { ApplicationId } from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
 import { isEqual } from 'lodash';
 import React from 'react';
@@ -33,8 +33,9 @@ import workspaceStatusIs from '@/components/WorkspaceProgress/workspaceStatusIs'
 import { WorkspaceParams } from '@/Routes/routes';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
-import { Workspace } from '@/services/workspace-adapter';
+import { Workspace, WorkspaceAdapter } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
+import { selectApplications } from '@/store/ClusterInfo/selectors';
 import { selectStartTimeout } from '@/store/ServerConfig/selectors';
 import * as WorkspaceStore from '@/store/Workspaces';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
@@ -215,28 +216,60 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
 
   protected buildAlertItem(error: Error): AlertItem {
     const key = this.name;
+    const actionCallbacks = [
+      {
+        title: 'Restart',
+        callback: () => {
+          applyRestartDefaultLocation(this.props.history.location);
+          this.handleRestart(key, LoaderTab.Progress);
+        },
+      },
+      {
+        title: 'Restart with default devfile',
+        callback: () => {
+          applyRestartInSafeModeLocation(this.props.history.location);
+          this.handleRestart(key, LoaderTab.Progress);
+        },
+      },
+    ];
+
+    const isOpenshift = this.props.applications.length === 1;
+    if (isOpenshift) {
+      actionCallbacks.push({
+        title: 'Edit the DevWorkspace spec',
+        callback: () => {
+          this.openDevWorkspaceClusterConsole();
+        },
+      });
+    }
+
     return {
       key,
       title: 'Failed to open the workspace',
-      variant: AlertVariant.danger,
+      variant: AlertVariant.warning,
       children: common.helpers.errors.getMessage(error),
-      actionCallbacks: [
-        {
-          title: 'Restart',
-          callback: () => {
-            applyRestartDefaultLocation(this.props.history.location);
-            this.handleRestart(key, LoaderTab.Progress);
-          },
-        },
-        {
-          title: 'Restart with default devfile',
-          callback: () => {
-            applyRestartInSafeModeLocation(this.props.history.location);
-            this.handleRestart(key, LoaderTab.Progress);
-          },
-        },
-      ],
+      actionCallbacks,
     };
+  }
+
+  private openDevWorkspaceClusterConsole(): void {
+    const { applications } = this.props;
+    const workspace = this.findTargetWorkspace(this.props);
+
+    const clusterConsole = applications.find(app => app.id === ApplicationId.CLUSTER_CONSOLE);
+
+    if (!clusterConsole || !workspace) {
+      return;
+    }
+
+    const devWorkspaceConsoleUrl = WorkspaceAdapter.buildClusterConsoleUrl(
+      workspace.ref,
+      clusterConsole.url,
+    );
+
+    const target = 'devWorkspaceSpec' + workspace.uid;
+
+    window.open(`${devWorkspaceConsoleUrl}/yaml`, target);
   }
 
   render(): React.ReactNode {
@@ -244,8 +277,8 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
     const { name, lastError } = this.state;
 
     const isActive = distance === 0;
-    const isError = lastError !== undefined;
-    const isWarning = false;
+    const isError = false;
+    const isWarning = lastError !== undefined;
 
     const workspace = this.findTargetWorkspace(this.props);
 
@@ -269,6 +302,7 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
+  applications: selectApplications(state),
   startTimeout: selectStartTimeout(state),
 });
 

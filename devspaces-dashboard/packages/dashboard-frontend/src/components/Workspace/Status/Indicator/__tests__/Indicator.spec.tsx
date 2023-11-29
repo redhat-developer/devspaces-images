@@ -13,9 +13,8 @@
 import React from 'react';
 import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
 
+import { WorkspaceStatusIndicator } from '@/components/Workspace/Status/Indicator';
 import { DevWorkspaceStatus, WorkspaceStatus } from '@/services/helpers/types';
-
-import WorkspaceIndicator from '..';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
@@ -25,62 +24,62 @@ jest.mock('react-tooltip', () => {
 
 describe('Workspace indicator component', () => {
   it('should render default status correctly', () => {
-    const element = <WorkspaceIndicator status={WorkspaceStatus.STOPPING} />;
+    const element = <WorkspaceStatusIndicator status={WorkspaceStatus.STOPPING} />;
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });
 
   describe('Che Workspaces', () => {
     it('should render STOPPED status correctly', () => {
-      const element = <WorkspaceIndicator status={WorkspaceStatus.STOPPED} />;
+      const element = <WorkspaceStatusIndicator status={WorkspaceStatus.STOPPED} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render STARTING status correctly', () => {
-      const element = <WorkspaceIndicator status={WorkspaceStatus.STARTING} />;
+      const element = <WorkspaceStatusIndicator status={WorkspaceStatus.STARTING} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render RUNNING status correctly', () => {
-      const element = <WorkspaceIndicator status={WorkspaceStatus.RUNNING} />;
+      const element = <WorkspaceStatusIndicator status={WorkspaceStatus.RUNNING} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render ERROR status correctly', () => {
-      const element = <WorkspaceIndicator status={WorkspaceStatus.ERROR} />;
+      const element = <WorkspaceStatusIndicator status={WorkspaceStatus.ERROR} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render STOPPING status correctly', () => {
-      const element = <WorkspaceIndicator status={WorkspaceStatus.STOPPING} />;
+      const element = <WorkspaceStatusIndicator status={WorkspaceStatus.STOPPING} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
   });
 
   describe('DevWorkspaces', () => {
     it('should render STOPPED status correctly', () => {
-      const element = <WorkspaceIndicator status={DevWorkspaceStatus.STOPPED} />;
+      const element = <WorkspaceStatusIndicator status={DevWorkspaceStatus.STOPPED} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render RUNNING status correctly', () => {
-      const element = <WorkspaceIndicator status={DevWorkspaceStatus.RUNNING} />;
+      const element = <WorkspaceStatusIndicator status={DevWorkspaceStatus.RUNNING} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render FAILED status correctly', () => {
-      const element = <WorkspaceIndicator status={DevWorkspaceStatus.FAILED} />;
+      const element = <WorkspaceStatusIndicator status={DevWorkspaceStatus.FAILED} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
 
     it('should render FAILING status correctly', () => {
-      const element = <WorkspaceIndicator status={DevWorkspaceStatus.FAILING} />;
+      const element = <WorkspaceStatusIndicator status={DevWorkspaceStatus.FAILING} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
   });
 
   describe('Deprecated workspaces', () => {
     it('should render "Deprecated" status correctly', () => {
-      const element = <WorkspaceIndicator status={'Deprecated'} />;
+      const element = <WorkspaceStatusIndicator status={'Deprecated'} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
   });

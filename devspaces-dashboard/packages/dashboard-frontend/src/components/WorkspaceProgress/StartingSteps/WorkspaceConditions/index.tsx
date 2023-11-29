@@ -35,7 +35,7 @@ export type Props = ProgressStepProps & {
   matchParams: WorkspaceParams;
 };
 export type State = ProgressStepState & {
-  isError: boolean;
+  isWarning: boolean;
   isReady: boolean;
   condition: ConditionType;
 };
@@ -64,7 +64,7 @@ export default class StartingStepWorkspaceConditions extends ProgressStep<Props,
 
     return {
       isReady: isConditionReady(condition, prevCondition),
-      isError: isConditionError(condition, prevCondition),
+      isWarning: isConditionError(condition, prevCondition),
       name,
       condition,
     };
@@ -124,10 +124,10 @@ export default class StartingStepWorkspaceConditions extends ProgressStep<Props,
 
   render() {
     const { hasChildren } = this.props;
-    const { isError, isReady } = this.state;
+    const { isWarning: isWarning, isReady } = this.state;
 
     const distance = isReady ? 1 : 0;
-    const isWarning = false;
+    const isError = false;
 
     return (
       <React.Fragment>

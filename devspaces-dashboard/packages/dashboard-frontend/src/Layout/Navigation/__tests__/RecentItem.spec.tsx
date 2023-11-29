@@ -23,11 +23,7 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import { NavigationRecentItemObject } from '..';
 
-jest.mock('../../../components/Workspace/Indicator', () => {
-  return function DummyWorkspaceIndicator(): React.ReactElement {
-    return <div>Dummy Workspace Indicator</div>;
-  };
-});
+jest.mock('@/components/Workspace/Status/Indicator');
 
 describe('Navigation Item', () => {
   const item: NavigationRecentItemObject = {
@@ -35,7 +31,7 @@ describe('Navigation Item', () => {
     label: 'workspace',
     to: '/namespace/workspace',
     isDevWorkspace: false,
-    workspaceUID: 'test-wrks-id',
+    workspaceUID: 'test-wksp-id',
   };
 
   afterEach(() => {
@@ -86,7 +82,7 @@ describe('Navigation Item', () => {
 
   it('should have workspace status icon', () => {
     render(buildElement(item));
-    const workspaceStatusIndicator = screen.getByText('Dummy Workspace Indicator');
+    const workspaceStatusIndicator = screen.getByText(/Mock Workspace status indicator/);
     expect(workspaceStatusIndicator).toBeDefined();
   });
 
