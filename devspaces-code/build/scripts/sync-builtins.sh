@@ -219,10 +219,11 @@ addVscodePluginsToYaml () {
               chmod +x /tmp/copyVSIXToStage.sh
             fi
             #push updated manifest
-            ./tmp/copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
+            /tmp/copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
             git add plugin-config.json
             git add plugin-manifest.json
             git commit -sm "ci: Update plugin-manifest data for ${PLUGIN}"
+            git push origin ${SCRIPTS_BRANCH}
           else
             echo "[info] show diff in resulting manifest:"
             git --no-pager diff
