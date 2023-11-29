@@ -221,6 +221,7 @@ addVscodePluginsToYaml () {
             /tmp/copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
             git add plugin-config.json
             git add plugin-manifest.json
+            export KRB5CCNAME=/var/tmp/devspaces-build_ccache
             git commit -sm "ci: Update plugin-manifest data for ${PLUGIN}"
             git push origin ${SCRIPTS_BRANCH}
           else
