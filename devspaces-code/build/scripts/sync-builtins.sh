@@ -83,7 +83,7 @@ addRipGrepLibrary() {
     's390x') RG_ARCH_SUFFIX='s390x-unknown-linux-gnu';;
     'x86_64') RG_ARCH_SUFFIX='x86_64-unknown-linux-musl';;
   esac
-  RG_REMOTE_LOCATION="$BASE_URL/common/ripgrep-multiarch/${RG_VERSION}/ripgrep-${RG_VERSION}-${RG_ARCH_SUFFIX}.tar.gz"
+  RG_REMOTE_LOCATION="$BASE_URL/common/${RG_VERSION}/ripgrep-v${RG_VERSION}-${RG_ARCH_SUFFIX}.tar.gz"
   if [[ $RG_SHA == "" ]]; then
     echo "[info] not found required ripgrep-prebuilt ${RG_VERSION} for ${platform} platform"
     echo "[info] downloading and publishing to rcm-tools now"
@@ -118,7 +118,7 @@ addRipGrepLibrary() {
   echo "#ripgrep-${platform}
 - url: $RG_REMOTE_LOCATION
   sha256: $RG_SHA
-  source-url: $BASE_URL/devspaces-$DS_VERSION-pluginregistry/sources/$PLUGIN-sources.tar.gz
+  source-url: https://github.com/microsoft/ripgrep-prebuilt/archive/refs/tags/v${RG_VERSION}.tar.gz
   source-sha256: $RG_SOURCE_SHA" >> ${TARGETDIR}/fetch-artifacts-url.yaml
 }
 
