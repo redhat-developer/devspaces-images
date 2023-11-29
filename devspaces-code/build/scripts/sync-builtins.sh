@@ -86,14 +86,16 @@ addRipGrepLibrary() {
   if [[ $RG_SHA == "" ]]; then
     echo "[info] not found required ripgrep-prebuilt ${RG_VERSION} for ${platform} platform"
     echo "[info] downloading and publishing to rcm-tools now"
-    curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/product/uploadBuildRequirementsToSpmmUtil.sh -o /tmp/uploadBuildRequirementsToSpmmUtil.sh
-    chmod +x /tmp/uploadBuildRequirementsToSpmmUtil.sh
-    if [[ NO_OP != 1 ]]; then
+    if [[ -f /tmp/uploadBuildRequirementsToSpmmUtil.sh ]]; then
+      curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/product/uploadBuildRequirementsToSpmmUtil.sh -o /tmp/uploadBuildRequirementsToSpmmUtil.sh
+      chmod +x /tmp/uploadBuildRequirementsToSpmmUtil.sh
+    fi
+    if [[ $NO_OP != 1 ]]; then
       RG_PUBLISH_FLAG="--publish"
     fi
     /tmp/uploadBuildRequirementsToSpmmUtil.sh -u https://github.com/microsoft/ripgrep-prebuilt/releases/download -ad ripgrep-multiarch -as ripgrep --arches "${RG_ARCH_SUFFIX}" --debug ${RG_PUBLISH_FLAG} -v ${RG_VERSION}
     RG_LOCAL_LOCATION=/tmp/build-requirements/common/ripgrep-multiarch/${RG_VERSION}/ripgrep-${RG_VERSION}-${RG_ARCH_SUFFIX}.tar.gz
-    if [[ NO_OP -eq 1 ]]; then
+    if [[ $NO_OP -eq 1 ]]; then
       echo "[info] NO-OP mode - showing file"
       echo "[info] $(ls -l ${RG_LOCAL_LOCATION})"
     fi
@@ -134,10 +136,6 @@ addRipGrepToYaml() {
   readarray -d ' ' -t AVAILABLE_RG_VERSIONS < <(jq --raw-output "keys | @sh" /tmp/manifest.json | tr -d \')
   for platform in "s390x" "powerpc64le" "x86_64"; do
     addRipGrepLibrary "${VSIX_RIPGREP_PREBUILT_VERSION}"
-    # CRW-4938 add additional versions of ripgrep here
-    if [[ $platform == "s390x" ]]; then
-      addRipGrepLibrary "13.0.0-4"
-    fi
   done
   # publish manifest only or print it if in no-op mode
   if [[ $NO_OP != 1 ]]; then
@@ -165,49 +163,61 @@ addVscodePluginsToYaml () {
   # check if vsix plugin version listed in synced sources as dependency
   # has corresponding version on rcm tools
   for PLUGIN in $PLUGINS; do
+    PLUGIN_SHA=""
+    SOURCE_SHA=""
     #filter out non built-in plugins
     if [[ $PLUGIN != "ms-vscode"* ]]; then
       continue
     fi
+    # plugin "version" in product.json can be different from 
     # match version in sources with version in manifest
     # if mismatch is found, then fill SHA values with undefined
     AVAILABLE_VSIX_VERSION=$(cat /tmp/plugin-config.json | jq -r ".Plugins.\"$PLUGIN\".revision")
-    AVAILABLE_VSIX_VERSION=${AVAILABLE_VSIX_VERSION#v}
+    AVAILABLE_VSIX_VERSION_NO_PREFIX=${AVAILABLE_VSIX_VERSION#v}
     echo "[info] looking for plugin \"${PLUGIN}\", version ${AVAILABLE_VSIX_VERSION}"
     REQUIRED_VSIX_VERSION=$(cat $TARGETDIR/code/product.json | jq -r ".builtInExtensions[] | select( .name==\"${PLUGIN}\") | .version")
-    if [[ $REQUIRED_VSIX_VERSION == ${AVAILABLE_VSIX_VERSION} ]]; then
+    if [[ $REQUIRED_VSIX_VERSION == ${AVAILABLE_VSIX_VERSION_NO_PREFIX} ]]; then
       echo "[info] found required vsix extension - ${PLUGIN}, version ${REQUIRED_VSIX_VERSION}"
       PLUGIN_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"vsix\"]")
       SOURCE_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"source\"]")
-      echo "[info] sha: ${RG_SHA}"
-      echo "[info] source_sha: ${RG_SOURCE_SHA}"
+      echo "[info] sha: ${PLUGIN_SHA}"
+      echo "[info] source_sha: ${SOURCE_SHA}"
       echo "################################################"
     else
       echo "[info] not found required ripgrep prebuilt extension for ${REQUIRED_VSIX_VERSION}"
-      echo "[info] downloading and publishing"
-      if [[ ! -f /tmp/redhat-vscode-extensions ]]; then
-        git clone git@github.com:redhat-developer/devspaces-vscode-extensions
+      echo "[info] downloading and publishing to rcm-tools now"
+      if [ ! -d /tmp/devspaces-vscode-extensions ]; then
+        git clone git@github.com:redhat-developer/devspaces-vscode-extensions /tmp/devspaces-vscode-extensions
       fi
-      pushd /tmp/redhat-vscode-extensions >/dev/null
+      pushd /tmp/devspaces-vscode-extensions >/dev/null
         git checkout ${SCRIPTS_BRANCH}
-        # build vsix plugin
+        git pull
+        
+        #####
+        replaceField ".Plugins.\"${PLUGIN}\".revision" "\"v${REQUIRED_VSIX_VERSION}\"" /tmp/devspaces-vscode-extensions/plugin-config.json
+
+        #build vsix plugin
         ./build/build.sh $PLUGIN
-        echo "[info] sha: ${RG_SHA}"
-        echo "[info] source_sha: ${RG_SOURCE_SHA}"
+
+        PLUGIN_SHA=$(sha256sum ${PLUGIN}.vsix)
+        SOURCE_SHA=$(sha256sum ${PLUGIN}-sources.tar.gz)
+        echo "[info] sha: ${PLUGIN_SHA}"
+        echo "[info] source_sha: ${SOURCE_SHA}"
         echo "################################################"
           if [[ $NO_OP != 1 ]]; then
-          curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/product/uploadBuildRequirementsToSpmmUtil.sh -o /tmp/uploadBuildRequirementsToSpmmUtil.sh
+            if [ ! -f /tmp/copyVSIXToStage.sh ]; then
+              curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/product/copyVSIXToStage.sh -o /tmp/copyVSIXToStage.sh
+              chmod +x /tmp/copyVSIXToStage.sh
+            fi
             #push updated manifest
-            ./copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
+            ./tmp/copyVSIXToStage.sh -b ${MIDSTM_BRANCH} -v ${DS_VERSION}
+            git add plugin-config.json
             git add plugin-manifest.json
-            git commit -sm "ci: Update plugin-manifest"
+            git commit -sm "ci: Update plugin-manifest data for ${PLUGIN}"
           else
-            echo "[info] printing resulting manifest:"
-            cat /tmp/manifest.json
+            echo "[info] show diff in resulting manifest:"
+            git --no-pager diff
           fi
-        #update plugin-manifest
-        # git add plugin-manifest.json
-        # git commit -sm "[update plugin-manifest"
       popd >/dev/null
 
       # TODO upload new version
@@ -219,10 +229,10 @@ addVscodePluginsToYaml () {
   source-sha256: $SOURCE_SHA" >> ${TARGETDIR}/fetch-artifacts-url.yaml
   done
   #rm /tmp/plugin-manifest.json
-  rm -r /tmp/redhat-vscode-extensions || true
+  #rm -rf /tmp/devspaces-vscode-extensions || true
 }
 
-### MAIN ###
+# clear up everything except the top comment of the yaml
 sed_in_place '0,/# This file is autogenerated by sync-builtins.sh/!d' ${TARGETDIR}/fetch-artifacts-url.yaml
 addRipGrepToYaml
 addVscodePluginsToYaml

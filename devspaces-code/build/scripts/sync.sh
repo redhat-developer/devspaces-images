@@ -138,6 +138,6 @@ pushd "${TARGETDIR}"/ >/dev/null
   # --- END update container.yaml and brew.Dockerfile
 
   # --- BEGIN fetch-artifacts-url.yaml - generate list checksums
-  "${TARGETDIR}"/build/scripts/sync-builtins.sh -v 
+  "${TARGETDIR}"/build/scripts/sync-builtins.sh -t ${TARGETDIR} -v ${DS_VERSION}
   # --- END fetch-artifacts-url.yaml
 popd >/dev/null
