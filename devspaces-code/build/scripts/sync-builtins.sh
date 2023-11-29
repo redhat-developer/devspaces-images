@@ -220,7 +220,11 @@ addVscodePluginsToYaml () {
         ./build/build.sh $PLUGIN --update-manifest
 
         PLUGIN_SHA=$(sha256sum ${PLUGIN}.vsix)
+        PLUGIN_SHA=${PLUGIN_SHA:0:64}
+
         SOURCE_SHA=$(sha256sum ${PLUGIN}-sources.tar.gz)
+        SOURCE_SHA=${SOURCE_SHA:0:64}
+
         echo "[info] sha: ${PLUGIN_SHA}"
         echo "[info] source_sha: ${SOURCE_SHA}"
         echo "################################################"
