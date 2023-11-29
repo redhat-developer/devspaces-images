@@ -200,12 +200,11 @@ addVscodePluginsToYaml () {
       fi
       pushd /tmp/devspaces-vscode-extensions >/dev/null
         git checkout ${SCRIPTS_BRANCH}
+        git stash
         git pull
-        
-        #####
-        replaceField ".Plugins.\"${PLUGIN}\".revision" "\"v${REQUIRED_VSIX_VERSION}\"" /tmp/devspaces-vscode-extensions/plugin-config.json
+        git stash pop || true
 
-        #build vsix plugin
+        replaceField ".Plugins.\"${PLUGIN}\".revision" "\"v${REQUIRED_VSIX_VERSION}\"" /tmp/devspaces-vscode-extensions/plugin-config.json
         ./build/build.sh $PLUGIN
 
         PLUGIN_SHA=$(sha256sum ${PLUGIN}.vsix)
