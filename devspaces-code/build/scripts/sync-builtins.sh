@@ -207,7 +207,7 @@ addVscodePluginsToYaml () {
           git config --global push.default matching
           git config --global pull.rebase true
           git config --global hub.protocol https
-          git remote set-url origin https://$GITHUB_TOKEN:x-oauth-basic@github.com/redhat-developer/devspaces.git
+          git remote set-url origin https://$GITHUB_TOKEN:x-oauth-basic@github.com/redhat-developer/devspaces-vscode-extensions.git
         popd >/dev/null
       fi
       pushd /tmp/devspaces-vscode-extensions >/dev/null
