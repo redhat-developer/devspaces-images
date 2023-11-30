@@ -321,44 +321,6 @@ Sent by ''' + mailSender + '''
                     {
                         sendMail(mailSubject,mailBody)
                     }
-
-                    // disable jobs
-                    if (doDisableJobs.equals("true") && errorOccurred.equals(""))
-                    {
-                        MIDSTM_REPO="redhat-developer/devspaces"
-                        util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "devspaces-next", "devspaces-3-rhel-8", false)
-                        sh '''#!/bin/bash
-# get versions
-DS_VERSION="''' + DS_VERSION + '''"
-DS_VERSION_NEXT="$(curl -sSLo- https://raw.githubusercontent.com/''' + MIDSTM_REPO + '''/devspaces-3-rhel-8/dependencies/VERSION)"
-
-# disable jobs
-cd ${WORKSPACE}/devspaces-next
-./product/updateVersionAndRegistryTags.sh -t ${DS_VERSION_NEXT} --disable-jobs ${DS_VERSION} --disable-management-jobs ${DS_VERSION}
-
-# wait 5 mins for the remote https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/job-config.json to be refreshed
-sleep 5m
-'''
-                        // trigger respin of job-configurator
-                        final jobResult = build(
-                            job: "/job-configurator",
-                            wait: true,
-                            propagate: true,
-                            quietPeriod: 0,
-                            parameters: [
-                                [
-                                    $class: 'StringParameterValue',
-                                    name: 'JOBDSL_INCLUDE',
-                                    value: ".*DS_CI.*"
-                                ],
-                                [
-                                    $class: 'BooleanParameterValue',
-                                    name: 'FAIL_ON_CASC_CHANGES',
-                                    value: false
-                                ]
-                            ]
-                        )
-                    }
                 }
                 if (!errorOccurred.equals("")) {
                     echo errorOccurred

@@ -62,7 +62,6 @@ Send an email to QE announcing an ER or RC build, including a list of images. Th
                 textParam("additionalNotes",'''(purpose of this build or respin goes here, if applicable)''',"Stuff to mention before the lists of images")
                 booleanParam("doCollectImages",true,'''if checked, collect lists of quay images and NVRs''')
                 booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
-                booleanParam("doDisableJobs",false,'''if checked, disable the _''' + JOB_BRANCH + ''' jobs for this release to avoid respins''')
                 stringParam("RECIPIENTS","devtools-che@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
             }
