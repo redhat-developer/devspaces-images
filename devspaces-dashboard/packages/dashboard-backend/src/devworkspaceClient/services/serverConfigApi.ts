@@ -155,17 +155,11 @@ export class ServerConfigApiService implements IServerConfigApi {
     //   - empty value forces to use embedded registry
     //   - undefined value means that the default value should be used
 
-    const pluginRegistry = cheCustomResource.spec.components?.pluginRegistry
-      ? cheCustomResource.spec.components.pluginRegistry
-      : ({ openVSXURL: '' } as api.IPluginRegistry);
+    const pluginRegistry = cheCustomResource.spec.components?.pluginRegistry || {};
 
-    const openVSXURL =
-      cheCustomResource.spec.components?.pluginRegistry?.openVSXURL !== undefined
-        ? pluginRegistry.openVSXURL
-        : process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'];
-
-    if (openVSXURL) {
-      pluginRegistry.openVSXURL = openVSXURL;
+    if (pluginRegistry?.openVSXURL === undefined) {
+      pluginRegistry.openVSXURL =
+        process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'];
     }
 
     return pluginRegistry;
