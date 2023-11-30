@@ -57,7 +57,7 @@ RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yar
 #
 # For each @vscode/ripgrep version VS Code currently depends on
 # create a cache folder with the required binary version.
-COPY artifacts/ripgrep-*.tar.gz /tmp/vscode-ripgrep-cache-1.15.5/
+COPY artifacts/ripgrep-*.tar.gz /tmp/vscode-ripgrep-cache-1.15.9/
 
 # See the required binary version in https://github.com/microsoft/vscode-ripgrep/blob/main/lib/postinstall.js#L21
 
