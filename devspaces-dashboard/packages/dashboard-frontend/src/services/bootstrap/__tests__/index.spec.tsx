@@ -104,17 +104,22 @@ describe('Dashboard bootstrap', () => {
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/events', undefined);
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/pods', undefined);
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/cluster-config');
-    // todo: figure out why ws tests fail on github actions
     // wait for all WS messages to be sent
-    // expect(server).toHaveReceivedMessages([
-    //   '{"method":"SUBSCRIBE","channel":"devWorkspace","params":{"namespace":"test-che","resourceVersion":"0"}}',
-    // ]);
-    // expect(server).toHaveReceivedMessages([
-    //   '{"method":"SUBSCRIBE","channel":"event","params":{"namespace":"test-che","resourceVersion":"0"}}',
-    // ]);
-    // expect(server).toHaveReceivedMessages([
-    //   '{"method":"SUBSCRIBE","channel":"pod","params":{"namespace":"test-che","resourceVersion":"0"}}',
-    // ]);
+    await waitFor(() =>
+      expect(server).toHaveReceivedMessages([
+        '{"method":"SUBSCRIBE","channel":"devWorkspace","params":{"namespace":"test-che","resourceVersion":"0"}}',
+      ]),
+    );
+    await waitFor(() =>
+      expect(server).toHaveReceivedMessages([
+        '{"method":"SUBSCRIBE","channel":"event","params":{"namespace":"test-che","resourceVersion":"0"}}',
+      ]),
+    );
+    await waitFor(() =>
+      expect(server).toHaveReceivedMessages([
+        '{"method":"SUBSCRIBE","channel":"pod","params":{"namespace":"test-che","resourceVersion":"0"}}',
+      ]),
+    );
 
     // wait for all appendLink calls
     expect(mockAppendLink.mock.calls).toEqual([
