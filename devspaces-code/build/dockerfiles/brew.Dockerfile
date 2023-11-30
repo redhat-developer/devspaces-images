@@ -31,7 +31,7 @@ COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 # Enable pulp content sets to resolve libsecret & libxkbfile as rpm
 COPY $REMOTE_SOURCES/devspaces-images-code/app/devspaces-code/build/dockerfiles/content_sets_pulp.repo /etc/yum.repos.d/
 
-# node-gyp 9 requires python 3.7 - 3.10
+# node-gyp 10 requires python 3.7 - 3.10
 # hadolint ignore=DL3040,DL3041
 RUN \
     dnf -y -q module reset   python39; dnf -y -q module install python39:3.9 && \
@@ -112,7 +112,7 @@ RUN sed -i -r -e '/function yarnInstall/ !s|^[^#]*yarnInstal|//&|' build/npm/pos
 
 # install node-gyp
 # '--userconfig .npmrc --global' is an essential part, when it comes to installing npm dependencies from Cachito
-RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/cachito && ls -l && npm install --userconfig .npmrc --global node-gyp@10.0.0 && node-gyp version
+RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/cachito && cat package-lock.json && npm install --userconfig .npmrc --global node-gyp@10.0.0 && node-gyp version
 
 # Cachito clears all project's '.yarnrc' files, To make sure yarn is configured to the local Nexus.
 # To avoid any possible issues, like failure of build because of missing 'ms_build_id', or 'target' properties,
