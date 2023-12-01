@@ -77,19 +77,21 @@ describe('Logs API Service, retry watching logs (real timers used)', () => {
     const spyWatchContainerLogs = jest.spyOn(logsApiService, '_watchContainerLogs');
     spyWatchContainerLogs.mockRejectedValue('some error');
 
-    const promiseFn = logsApiService._retryWatchContainerLogs(listener, params, containerName);
+    jest.useFakeTimers();
+
+    logsApiService._retryWatchContainerLogs(listener, params, containerName);
 
     // wait the time for five RETRY_DELAY_SECONDS
     // so there are six attempts to watch logs to be made
-    await delay(RETRY_DELAY_SECONDS * 5 * 1000);
+    await jest.advanceTimersByTimeAsync(RETRY_DELAY_SECONDS * 5 * 1000);
 
     // and stop watching all containers
     logsApiService.stopWatching();
 
-    await promiseFn;
-
     // six attempts to watch logs
     expect(spyWatchContainerLogs).toHaveBeenCalledTimes(6);
+
+    jest.useRealTimers();
   });
 });
 
