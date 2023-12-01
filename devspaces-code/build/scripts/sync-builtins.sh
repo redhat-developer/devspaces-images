@@ -41,6 +41,7 @@ done
 REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
 BASE_URL="https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements"
 
+SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
 
 replaceField()
@@ -125,6 +126,8 @@ addRipGrepLibrary() {
 addRipGrepToYaml() {
   #fetch post-install script for vscode ripgrep extension, in which we find the required version of ripgrep
   VSCODE_RIPGREP_VERSION=$(cat ${TARGETDIR}/code/package.json | jq -r '.dependencies."@vscode/ripgrep"' | tr -d ^ )
+  # cache directory in brew.Dockerfile must be updated according to this version
+  sed_in_place "s|COPY artifacts/ripgrep-*.tar.gz /tmp/vscode-ripgrep-cache-.*|\1${VSCODE_RIPGREP_VERSION}/|" ${TARGETDIR}/build/dockerfiles/brew.Dockerfile
   POST_INSTALL_SCRIPT=$(curl -sSL https://raw.githubusercontent.com/microsoft/vscode-ripgrep/v${VSCODE_RIPGREP_VERSION}/lib/postinstall.js)
   VSIX_RIPGREP_PREBUILT_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const VERSION" | cut -d"'" -f 2 | tr -d v )
   VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const MULTI_ARCH_LINUX_VERSION" | cut -d"'" -f 2 | tr -d v )
@@ -167,7 +170,6 @@ addVscodePluginsToYaml () {
   # TODO better handling for git repo cleanup?
   rm -rf /tmp/devspaces-vscode-extensions || true
 
-  SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-manifest.json --output /tmp/plugin-manifest.json
   curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-config.json --output /tmp/plugin-config.json
 
@@ -186,8 +188,8 @@ addVscodePluginsToYaml () {
     # if mismatch is found, then fill SHA values with undefined
     AVAILABLE_VSIX_VERSION=$(cat /tmp/plugin-config.json | jq -r ".Plugins.\"$PLUGIN\".revision")
     AVAILABLE_VSIX_VERSION_NO_PREFIX=${AVAILABLE_VSIX_VERSION#v}
-    echo "[info] looking for plugin \"${PLUGIN}\", version ${AVAILABLE_VSIX_VERSION}"
     REQUIRED_VSIX_VERSION=$(cat $TARGETDIR/code/product.json | jq -r ".builtInExtensions[] | select( .name==\"${PLUGIN}\") | .version")
+    echo "[info] looking for plugin \"${PLUGIN}\", version ${REQUIRED_VSIX_VERSION}" 
     if [[ $REQUIRED_VSIX_VERSION == ${AVAILABLE_VSIX_VERSION_NO_PREFIX} ]]; then
       echo "[info] found required vsix extension - ${PLUGIN}, version ${REQUIRED_VSIX_VERSION}"
       PLUGIN_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"vsix\"]")
