@@ -19,7 +19,7 @@ const projectApiGroup = 'project.openshift.io';
 
 export async function isOpenShift(apisApi: k8s.ApisApi): Promise<boolean> {
   try {
-    return findApi(apisApi, projectApiGroup);
+    return await findApi(apisApi, projectApiGroup);
   } catch (e) {
     throw new Error(`Can't evaluate target platform: ${helpers.errors.getMessage(e)}`);
   }

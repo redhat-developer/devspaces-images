@@ -29,7 +29,7 @@ export const STORAGE_KEY_RELOAD_NUMBER = 'UD:ErrorBoundary:reloaded';
 const RELOAD_TIMEOUT_SEC = 30;
 const RELOADS_FOR_EXTENDED_MESSAGE = 2;
 
-type Props = PropsWithChildren & {
+export type Props = PropsWithChildren & {
   onError: (error?: string) => void;
 };
 type State = {

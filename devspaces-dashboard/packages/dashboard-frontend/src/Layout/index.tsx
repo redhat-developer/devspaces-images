@@ -89,13 +89,15 @@ export class Layout extends React.PureComponent<Props, State> {
       this.hideAllBars();
     }
   }
-  private testBackends(error?: string): void {
-    this.props.testBackends().catch(() => {
+  private async testBackends(error?: string): Promise<void> {
+    try {
+      await this.props.testBackends();
+    } catch (e) {
       if (error) {
         console.error(error);
       }
       console.error('Error testing backends:', this.props.sanityCheckError);
-    });
+    }
   }
 
   public render(): React.ReactElement {

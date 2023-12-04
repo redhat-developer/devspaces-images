@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Layout component snapshot 1`] = `
+<div
+  className="pf-c-page"
+>
+  <div>
+    Mock Header component
+    <button
+      onClick={[Function]}
+    >
+      toggleNav
+    </button>
+    <button
+      onClick={[Function]}
+    >
+      logout
+    </button>
+  </div>
+  <div>
+    Mock Sidebar component
+    <span
+      data-testid="isManaged"
+    >
+      false
+    </span>
+    <span
+      data-testid="isNavOpen"
+    >
+      true
+    </span>
+  </div>
+  <main
+    className="pf-c-page__main"
+    tabIndex={-1}
+  >
+    <div>
+      Mock ErrorBoundary component
+      <button
+        onClick={[Function]}
+      >
+        onError
+      </button>
+      <div>
+        Mock StoreErrorsAlert component
+      </div>
+      <div>
+        Mock BannerAlert component
+      </div>
+      <div>
+        Test
+      </div>
+    </div>
+  </main>
+</div>
+`;
