@@ -24,9 +24,6 @@ RUN yarn config set unsafe-perm true && \
     npm run build:nc
 
 #GO BUILD
-ARG TRAEFIK_SHA="c9520"
-ENV TRAEFIK_SHA="${TRAEFIK_SHA}"
-
 RUN cp $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
 
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
