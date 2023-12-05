@@ -10,6 +10,8 @@ To Control the Number of Requests Going to a Service
 
 The RateLimit middleware ensures that services will receive a _fair_ amount of requests, and allows one to define what fair is.
 
+It is based on a [token bucket](https://en.wikipedia.org/wiki/Token_bucket) implementation. In this analogy, the [average](#average) parameter (defined below) is the rate at which the bucket refills, and the [burst](#burst) is the size (volume) of the bucket.
+
 ## Configuration Example
 
 ```yaml tab="Docker"
@@ -261,6 +263,8 @@ If none are set, the default is to use the request's remote address field (as an
 #### `sourceCriterion.ipStrategy`
 
 The `ipStrategy` option defines two parameters that configures how Traefik determines the client IP: `depth`, and `excludedIPs`.
+
+!!! important "As a middleware, rate-limiting happens before the actual proxying to the backend takes place. In addition, the previous network hop only gets appended to `X-Forwarded-For` during the last stages of proxying, i.e. after it has already passed through rate-limiting. Therefore, during rate-limiting, as the previous network hop is not yet present in `X-Forwarded-For`, it cannot be found and/or relied upon."
 
 ##### `ipStrategy.depth`
 

@@ -24,7 +24,7 @@ RUN yarn config set unsafe-perm true && \
     npm run build:nc
 
 #GO BUILD
-ARG TRAEFIK_SHA="d97d3"
+ARG TRAEFIK_SHA="4ed3"
 ENV TRAEFIK_SHA="${TRAEFIK_SHA}"
 
 RUN cp $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
@@ -51,7 +51,7 @@ ENTRYPOINT ["/traefik"]
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces traefik container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces traefik container" \
-    TRAEFIK_VERSION="v2.9.6" \
+    TRAEFIK_VERSION="v2.9.10" \
     PRODNAME="devspaces" \
     COMPNAME="traefik-rhel8"
 LABEL summary="$SUMMARY" \
