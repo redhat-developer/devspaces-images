@@ -14,3 +14,7 @@ sdawley@redhat.com:
 mkuznets@redhat.com:
     - UNSTABLE
     - FAILURE
+ibuziuk@redhat.com: 
+    - UNSTABLE
+    - FAILURE
+    - SUCCESS
