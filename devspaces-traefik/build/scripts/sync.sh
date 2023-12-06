@@ -71,9 +71,10 @@ README.md
 get-source*.sh
 tests/basic-test.yaml
 make-release.sh
-/rhel.Dockerfile
-/exp.Dockerfile
+/Dockerfile
 /build.Dockerfile
+/debug.Dockerfile
+/exp.Dockerfile
 /script/codegen.Dockerfile
 /script/code-gen.sh
 /Makefile
@@ -98,6 +99,9 @@ SOURCE_SHA=$(cd "${SOURCEDIR}"; git checkout "${TRAEFIK_VERSION}"; git rev-parse
 echo "Using $TRAEFIK_VERSION = $SOURCE_SHA"
 
 "${SCRIPT_DIR}/checkgoMod.sh" "${TARGETDIR}" || exit $?
+
+# nothing to transform, so just copy from rhel.Dockerfile into root to replace the upstream one
+cp -f "${TARGETDIR}"/build/rhel.Dockerfile "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
