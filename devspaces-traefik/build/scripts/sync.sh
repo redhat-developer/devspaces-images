@@ -95,16 +95,11 @@ if [[ ! $TRAEFIK_VERSION ]]; then
 fi
 
 SOURCE_SHA=$(cd "${SOURCEDIR}"; git checkout "${TRAEFIK_VERSION}"; git rev-parse --short=4 HEAD || true)
+echo "Using $TRAEFIK_VERSION = $SOURCE_SHA"
 
 "${SCRIPT_DIR}/checkgoMod.sh" "${TARGETDIR}" || exit $?
 
-sed -r \
-  `# Use the current SHA to build` \
-  -e "s#ARG TRAEFIK_SHA=\".*\"#ARG TRAEFIK_SHA=\"${SOURCE_SHA}\"#g" \
-  "${TARGETDIR}"/build/rhel.Dockerfile > "${TARGETDIR}"/Dockerfile
-
 cat << EOT >> "${TARGETDIR}"/Dockerfile
-
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     TRAEFIK_VERSION="${TRAEFIK_VERSION}" \\
