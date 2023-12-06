@@ -128,7 +128,7 @@ export async function getCustomEditor(
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
   getState: () => AppState,
 ): Promise<string | undefined> {
-  let editorsDevfile: devfileApi.Devfile | undefined = undefined;
+  let editorsDevfile: devfileApi.Devfile | undefined;
 
   // do we have a custom editor specified in the repository ?
   const cheEditorYaml = optionalFilesContent[CHE_EDITOR_YAML_PATH]
@@ -139,8 +139,8 @@ export async function getCustomEditor(
     // check the content of cheEditor file
     console.debug('Using the repository .che/che-editor.yaml file', cheEditorYaml);
 
-    let repositoryEditorYaml: devfileApi.Devfile | undefined = undefined;
-    let repositoryEditorYamlUrl: string | undefined = undefined;
+    let repositoryEditorYaml: devfileApi.Devfile | undefined;
+    let repositoryEditorYamlUrl: string | undefined;
     // it's an inlined editor, use the inline content
     if (cheEditorYaml.inline) {
       console.debug('Using the inline content of the repository editor');

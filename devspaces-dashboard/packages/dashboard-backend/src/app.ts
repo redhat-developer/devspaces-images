@@ -23,6 +23,7 @@ import { registerSwagger } from '@/plugins/swagger';
 import { registerWebSocket } from '@/plugins/webSocket';
 import { registerClusterConfigRoute } from '@/routes/api/clusterConfig';
 import { registerClusterInfoRoute } from '@/routes/api/clusterInfo';
+import { registerDataResolverRoute } from '@/routes/api/dataResolver';
 import { registerDevworkspaceResourcesRoute } from '@/routes/api/devworkspaceResources';
 import { registerDevworkspacesRoutes } from '@/routes/api/devworkspaces';
 import { registerDevWorkspaceTemplates } from '@/routes/api/devworkspaceTemplates';
@@ -39,7 +40,6 @@ import { registerSShKeysRoutes } from '@/routes/api/sshKeys';
 import { registerUserProfileRoute } from '@/routes/api/userProfile';
 import { registerWebsocket } from '@/routes/api/websocket';
 import { registerWorkspacePreferencesRoute } from '@/routes/api/workspacePreferences';
-import { registerYamlResolverRoute } from '@/routes/api/yamlResolver';
 import { registerFactoryAcceptanceRedirect } from '@/routes/factoryAcceptanceRedirect';
 import { registerWorkspaceRedirect } from '@/routes/workspaceRedirect';
 
@@ -107,7 +107,7 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
 
     registerUserProfileRoute(server),
 
-    registerYamlResolverRoute(server),
+    registerDataResolverRoute(server),
 
     registerDevworkspaceResourcesRoute(server),
 

@@ -32,6 +32,12 @@ export const dockerConfigExample = {
   },
 };
 
+export const dataResolverSchemaExample = {
+  get url() {
+    return 'http://127.0.0.1:8080/dashboard/devfile-registry/devfiles/index.json';
+  },
+};
+
 export const devWorkspaceResourcesExample = {
   get devfileContent() {
     const devfile = {

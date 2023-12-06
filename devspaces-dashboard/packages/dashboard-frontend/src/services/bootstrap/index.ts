@@ -417,7 +417,7 @@ export default class Bootstrap {
   }
 
   private checkWorkspaceStopped(): void {
-    let stoppedWorkspace: Workspace | undefined = undefined;
+    let stoppedWorkspace: Workspace | undefined;
 
     try {
       stoppedWorkspace = this.workspaceStoppedDetector.checkWorkspaceStopped(this.store.getState());

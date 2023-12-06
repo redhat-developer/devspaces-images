@@ -172,7 +172,7 @@ export const actionCreators: ActionCreators = {
         }
         let data: FactoryResolver;
         if (isDevfileRegistryLocation(location)) {
-          data = await getYamlResolver(namespace, location);
+          data = await getYamlResolver(location);
         } else {
           data = await getFactoryResolver(location, overrideParams);
           const cheEditor = await grabLink(data.links, CHE_EDITOR_YAML_PATH);
