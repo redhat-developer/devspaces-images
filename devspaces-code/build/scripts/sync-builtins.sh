@@ -127,16 +127,15 @@ addRipGrepToYaml() {
   #fetch post-install script for vscode ripgrep extension, in which we find the required version of ripgrep
   VSCODE_RIPGREP_VERSION=$(yarn list --frozen-lockfile --pattern vscode/ripgrep --depth=0 --flat | grep -o -E @vscode/ripgrep@\\S* | cut -d '@' -f 3)
   # cache directory in brew.Dockerfile must be updated according to this version
-  sed_in_place "s|COPY artifacts/ripgrep-*.tar.gz /tmp/vscode-ripgrep-cache-.*|\1${VSCODE_RIPGREP_VERSION}/|" ${TARGETDIR}/build/dockerfiles/brew.Dockerfile
+  sed_in_place "s|(COPY artifacts/ripgrep-*.tar.gz /tmp/vscode-ripgrep-cache-).*|\1${VSCODE_RIPGREP_VERSION}/|" "${TARGETDIR}/build/dockerfiles/brew.Dockerfile"
   POST_INSTALL_SCRIPT=$(curl -sSL https://raw.githubusercontent.com/microsoft/vscode-ripgrep/v${VSCODE_RIPGREP_VERSION}/lib/postinstall.js)
   VSIX_RIPGREP_PREBUILT_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const VERSION" | cut -d"'" -f 2 | tr -d v )
   VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const MULTI_ARCH_LINUX_VERSION" | cut -d"'" -f 2 | tr -d v )
   echo "[info] vscode-ripgrep dependency version: ${VSCODE_RIPGREP_VERSION} depends on ripgrep-prebuilt ${VSIX_RIPGREP_PREBUILT_VERSION}, multiarch - ${VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION}"
   # collect all current available versions on rcm-tools
-  # TODO fix duplicate 'ripgrep-multiarch'
-  curl -sSL https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/ripgrep-multiarch/manifest.json -o /tmp/manifest.json
+  curl -sSL https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/manifest.json -o /tmp/manifest.json
   if ! jq empty /tmp/manifest.json; then
-    echo "[error] could not download manifest.json from rcm-tools" 
+    echo "[error] could not download manifest.json from https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/" 
     exit 1
   fi
   readarray -d ' ' -t AVAILABLE_RG_VERSIONS < <(jq --raw-output "keys | @sh" /tmp/manifest.json | tr -d \')
