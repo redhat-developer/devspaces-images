@@ -100,6 +100,23 @@ echo "Using $TRAEFIK_VERSION = $SOURCE_SHA"
 
 "${SCRIPT_DIR}/checkgoMod.sh" "${TARGETDIR}" || exit $?
 
+# CRW-4966 - if a version newer than 4.2.2 comes out, should update this again
+# to get a new resolved & integrity SHA values, run 
+#   cd /tmp; mkdir foo; cd foo; yarn add browserify-sign@4.2.2
+# then look in generated yarn.lock for the correct hashes
+d=webui
+# collect existing .dependencies; add browserify-sign@4.2.2
+pairs="$(jq -M -c '.dependencies' "$d"/package.json | tr -d "{}")"
+pairs="$pairs,\"browserify-sign\": \"4.2.2\""
+jq '.dependencies|={'"$pairs"'}' "$d"/package.json > "$d"/package.json_; mv "$d"/package.json{_,}
+# replace resolution of browserify-sign 4.0.4 with 4.2.2
+sed -i "$d"/yarn.lock -r \
+  -e "/browserify-sign\@\^4\.[0-9.]+:/{s/(browserify-sign.+):/\1, browserify-sign@4.2.2:/;n;\
+  s/version \"4\.[0-9.]+\"/version \"4.2.2\"/;n;\
+  s/browserify-sign-4.+/browserify-sign-4.2.2.tgz#e78d4b69816d6e3dd1c747e64e9947f9ad79bc7e\"/;n;\
+  s/integrity .+/integrity sha512-1rudGyeYY42Dk6texmv7c4VcQ0EsvVbLwZkA+AQB7SxvXxmcD93jcHie8bzecJ+ChDlmAm2Qyu0+Ccg5uhZXCg==/}"
+echo "Patched package.json and yarn.lock to update browserify-sign to 4.2.2"
+
 # nothing to transform, so just copy from rhel.Dockerfile into root to replace the upstream one
 cp -f "${TARGETDIR}"/build/rhel.Dockerfile "${TARGETDIR}"/Dockerfile
 
