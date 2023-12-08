@@ -32,7 +32,7 @@ Sync job between midstream repo https://github.com/redhat-developer/devspaces-im
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
             }
 

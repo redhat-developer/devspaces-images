@@ -22,7 +22,7 @@ node(nodeLabel){
       }
 
       // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-      // NOTE: similar code in send-email-qe-build-list*.jenkinsfile
+      // NOTE: similar code in send-email-qe-build-list*.jenkinsfile and send-slack-message*.jenkinsfile
       // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 
       nodeLabelString = sh(script: '''

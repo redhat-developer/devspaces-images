@@ -25,7 +25,7 @@ job-config.json, VERSION file and registries, then committing changes.
 
         properties {
             ownership {
-                primaryOwnerId("nboldt")
+                primaryOwnerId("sdawley")
             }
         }
 

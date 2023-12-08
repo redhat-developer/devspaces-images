@@ -36,7 +36,7 @@ as part of a GA release.
 
         properties {
             ownership {
-                primaryOwnerId("nboldt")
+                primaryOwnerId("sdawley")
             }
         }
 

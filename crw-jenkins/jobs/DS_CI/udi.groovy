@@ -55,7 +55,7 @@ UDI image builder (including assets); triggers brew
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)

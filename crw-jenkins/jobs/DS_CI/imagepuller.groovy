@@ -58,7 +58,7 @@ Artifact builder + sync job; triggers brew after syncing
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)

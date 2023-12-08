@@ -39,7 +39,7 @@ Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they ca
 
         properties {
             ownership {
-                primaryOwnerId("nboldt")
+                primaryOwnerId("sdawley")
             }
         }
 

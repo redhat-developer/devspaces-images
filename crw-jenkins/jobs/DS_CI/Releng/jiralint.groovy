@@ -10,7 +10,7 @@ Use <b>dry run</b> flag and your own email address to control output before send
 
     properties {
         ownership {
-            primaryOwnerId("nboldt")
+            primaryOwnerId("sdawley")
         }
 
         pipelineTriggers {

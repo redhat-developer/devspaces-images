@@ -10,7 +10,7 @@ Sync DS_CI jobs in gitlab repo to github.
 
         properties {
             ownership {
-                primaryOwnerId("nboldt")
+                primaryOwnerId("sdawley")
             }
 
             pipelineTriggers {

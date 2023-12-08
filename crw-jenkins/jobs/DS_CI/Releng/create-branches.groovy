@@ -44,7 +44,7 @@ https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/ta
 
         properties {
             ownership {
-                primaryOwnerId("nboldt")
+                primaryOwnerId("sdawley")
             }
         }
 

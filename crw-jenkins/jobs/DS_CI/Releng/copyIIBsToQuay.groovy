@@ -28,7 +28,7 @@ Copy latest filtered IIBs to <a href=https://quay.io/devspaces/iib>https://quay.
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
 
                 disableResumeJobProperty()

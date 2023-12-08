@@ -39,8 +39,6 @@ for (JB in JOB_BRANCHES) {
                 SOURCE_BRANCH=""+config."Management-Jobs".dsc[JB].upstream_branch[1]
             }
 
-
-            // TODO once 3.10 is out, remove the if-else logic for <=3.9
             description('''
 Artifact builder + sync job; triggers cli build after syncing from upstream
 
@@ -49,7 +47,6 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 <li>Downstream: <a href=https://github.com/redhat-developer/devspaces-chectl/tree/''' + MIDSTM_BRANCH + '''>dsc</a></li>
 </ul>
 ''' + 
-((!JOB_BRANCH.equals("3.8") && !JOB_BRANCH.equals("3.9")) ? 
 '''
 Results: <ul><li> <a href=https://quay.io/repository/devspaces/dsc?tab=tags>quay.io/devspaces/dsc</a> </li></ul>
 <p><blockquote>
@@ -58,22 +55,7 @@ Results: <ul><li> <a href=https://quay.io/repository/devspaces/dsc?tab=tags>quay
     cd /tmp; curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces-chectl/''' + MIDSTM_BRANCH + '''/build/scripts/installDscFromContainer.sh; 
     chmod +x installDscFromContainer.sh; ./installDscFromContainer.sh quay.io/devspaces/dsc:'''+(JOB_BRANCH.equals("3.x")?"next":JOB_BRANCH+"")+''' -t \$HOME --delete-after -v </pre>
 </blockquote></p>
-''' : 
-'''
-Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/releases>chectl/releases</a> </li></ul>
-<p><blockquote>
-    To retrieve assets from github:
-    <pre>
-    cd /tmp
-    git clone git@github.com:redhat-developer/devspaces-chectl.git --depth=1 dsc && cd dsc
-
-    export GITHUB_TOKEN="github-token-here"
-
-    hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i LIST
-    ...
-    hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i "*dsc-linux-x64*"</pre>
-</blockquote></p>
-''') + 
+''' + 
 '''
 <p><blockquote>
     For GA builds only: if the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
@@ -87,7 +69,7 @@ Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/r
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)

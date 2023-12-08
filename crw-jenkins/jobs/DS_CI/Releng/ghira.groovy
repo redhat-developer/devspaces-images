@@ -4,7 +4,7 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
 
     properties {
         ownership {
-            primaryOwnerId("nboldt")
+            primaryOwnerId("sdawley")
         }
 
         pipelineTriggers {

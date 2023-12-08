@@ -37,7 +37,7 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
 
                 disableResumeJobProperty()

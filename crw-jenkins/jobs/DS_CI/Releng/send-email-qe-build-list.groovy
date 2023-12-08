@@ -30,7 +30,7 @@ Send an email to QE announcing an ER or RC build, including a list of images. Th
 
             properties {
                 ownership {
-                    primaryOwnerId("nboldt")
+                    primaryOwnerId("sdawley")
                 }
             }
 
