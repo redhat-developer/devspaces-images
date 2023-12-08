@@ -112,7 +112,7 @@ export default class Bootstrap {
       this.fetchPods().then(() => {
         this.watchWebSocketPods();
       }),
-      this.fetchClusterConfig(),
+      this.fetchClusterConfig().then(() => this.setFavicon()),
     ]);
 
     const errors = results
@@ -462,5 +462,20 @@ export default class Bootstrap {
       return this.store.getState().dwServerConfig.config.timeouts.runTimeout;
     }
     return -1;
+  }
+
+  private setFavicon() {
+    const base64data =
+      this.store.getState().clusterConfig.clusterConfig.dashboardFavicon?.base64data;
+    const mediaType = this.store.getState().clusterConfig.clusterConfig.dashboardFavicon?.mediatype;
+    if (base64data && mediaType) {
+      const hrefAttribute = `data:${mediaType};base64,${base64data}`;
+      if (window.document) {
+        const dashboardFavicon = window.document.getElementById('dashboardFavicon');
+        if (dashboardFavicon) {
+          dashboardFavicon.setAttribute('href', hrefAttribute);
+        }
+      }
+    }
   }
 }

@@ -14,6 +14,7 @@ import { FastifyInstance } from 'fastify';
 
 import { baseApiPath } from '@/constants/config';
 import {
+  dashboardLogo,
   stubAllWorkspacesLimit,
   stubDashboardWarning,
   stubRunningWorkspacesLimit,
@@ -41,6 +42,7 @@ describe('Cluster Config Route', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.json()).toEqual({
       dashboardWarning: stubDashboardWarning,
+      dashboardFavicon: dashboardLogo,
       runningWorkspacesLimit: stubRunningWorkspacesLimit,
       allWorkspacesLimit: stubAllWorkspacesLimit,
     });
