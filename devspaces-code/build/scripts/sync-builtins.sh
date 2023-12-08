@@ -54,21 +54,11 @@ replaceField()
   echo "${changed}" > $fileName
 }
 
-sed_in_place() {
-    SHORT_UNAME=$(uname -s)
-  if [ "$(uname)" == "Darwin" ]; then
-    sed -i '' "$@"
-  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-    sed -i "$@"
-  fi
-}
-
 addRipGrepLibrary() {
   RG_VERSION=$1
   RG_SHA=""
   RG_SOURCE_SHA=""
-  for rcm_version in "${AVAILABLE_RG_VERSIONS[@]}"
-  do
+  for rcm_version in "${AVAILABLE_RG_VERSIONS[@]}"; do
     if [[ "${rcm_version}" == "${RG_VERSION}" ]]; then
       echo "[info] found required ripgrep-prebuilt ${RG_VERSION} for ${platform} platform"
       RG_SHA=$(jq ".\"${rcm_version}\".\"${platform}\".sha" /tmp/manifest.json)
@@ -86,9 +76,9 @@ addRipGrepLibrary() {
   esac
   RG_REMOTE_LOCATION="$BASE_URL/common/v${RG_VERSION}/ripgrep-v${RG_VERSION}-${RG_ARCH_SUFFIX}.tar.gz"
   if [[ $RG_SHA == "" ]]; then
-    echo "[info] not found required ripgrep-prebuilt ${RG_VERSION} for ${platform} platform"
-    echo "[info] downloading and publishing to rcm-tools now"
-    if [[ -f /tmp/uploadBuildRequirementsToSpmmUtil.sh ]]; then
+    echo "[info] Did not find required ripgrep-prebuilt ${RG_VERSION} for ${platform} platform"
+    echo "[info] Download and push to rcm-tools: "
+    if [[ ! -f /tmp/uploadBuildRequirementsToSpmmUtil.sh ]]; then
       curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/product/uploadBuildRequirementsToSpmmUtil.sh -o /tmp/uploadBuildRequirementsToSpmmUtil.sh
       chmod +x /tmp/uploadBuildRequirementsToSpmmUtil.sh
     fi
@@ -120,23 +110,31 @@ addRipGrepLibrary() {
 - url: $RG_REMOTE_LOCATION
   sha256: $RG_SHA
   source-url: https://github.com/microsoft/ripgrep-prebuilt/archive/refs/tags/v${RG_VERSION}.tar.gz
-  source-sha256: $RG_SOURCE_SHA" >> ${TARGETDIR}/fetch-artifacts-url.yaml
+  source-sha256: $RG_SOURCE_SHA" >> "${TARGETDIR}/fetch-artifacts-url.yaml"
 }
 
 addRipGrepToYaml() {
   #fetch post-install script for vscode ripgrep extension, in which we find the required version of ripgrep
-  VSCODE_RIPGREP_VERSION=$(yarn list --frozen-lockfile --pattern vscode/ripgrep --depth=0 --flat | grep -o -E @vscode/ripgrep@\\S* | cut -d '@' -f 3)
+  VSCODE_RIPGREP_VERSION=$(cd "$TARGETDIR"/code; yarn list --frozen-lockfile --pattern vscode/ripgrep --depth=0 --flat | grep -o -E @vscode/ripgrep@\\S* | cut -d '@' -f 3)
   # cache directory in brew.Dockerfile must be updated according to this version
-  sed_in_place "s|COPY artifacts/ripgrep-*.tar.gz /tmp/vscode-ripgrep-cache-.*|\1${VSCODE_RIPGREP_VERSION}/|" ${TARGETDIR}/build/dockerfiles/brew.Dockerfile
+  sed -r -e "s|(COPY artifacts/ripgrep-\*.tar.gz /tmp/vscode-ripgrep-cache-).*|\1${VSCODE_RIPGREP_VERSION}/|" -i "${TARGETDIR}/build/dockerfiles/brew.Dockerfile"
   POST_INSTALL_SCRIPT=$(curl -sSL https://raw.githubusercontent.com/microsoft/vscode-ripgrep/v${VSCODE_RIPGREP_VERSION}/lib/postinstall.js)
   VSIX_RIPGREP_PREBUILT_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const VERSION" | cut -d"'" -f 2 | tr -d v )
   VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION=$(echo "${POST_INSTALL_SCRIPT}" | grep "const MULTI_ARCH_LINUX_VERSION" | cut -d"'" -f 2 | tr -d v )
-  echo "[info] vscode-ripgrep dependency version: ${VSCODE_RIPGREP_VERSION} depends on ripgrep-prebuilt ${VSIX_RIPGREP_PREBUILT_VERSION}, multiarch - ${VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION}"
+  if [[ $VSCODE_RIPGREP_VERSION ]] && [[ $VSIX_RIPGREP_PREBUILT_VERSION ]] && [[ $VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION ]]; then 
+    echo "[info] vscode-ripgrep ${VSCODE_RIPGREP_VERSION} depends on ripgrep-prebuilt ${VSIX_RIPGREP_PREBUILT_VERSION} and multiarch ${VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION}"
+  else
+    echo "[ERROR] One or more ripgrep version not defined! Must exit!
+        VSCODE_RIPGREP_VERSION: $VSCODE_RIPGREP_VERSION
+        VSIX_RIPGREP_PREBUILT_VERSION: $VSIX_RIPGREP_PREBUILT_VERSION
+        VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION: $ VSIX_RIPGREP_PREBUILT_MULTIARCH_VERSION
+"; exit 2
+  fi
+
   # collect all current available versions on rcm-tools
-  # TODO fix duplicate 'ripgrep-multiarch'
-  curl -sSL https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/ripgrep-multiarch/manifest.json -o /tmp/manifest.json
+  curl -sSL https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/ripgrep-multiarch/manifest.json -o /tmp/manifest.json
   if ! jq empty /tmp/manifest.json; then
-    echo "[error] could not download manifest.json from rcm-tools" 
+    echo "[error] could not download manifest.json from https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/common/" 
     exit 1
   fi
   readarray -d ' ' -t AVAILABLE_RG_VERSIONS < <(jq --raw-output "keys | @sh" /tmp/manifest.json | tr -d \')
@@ -152,10 +150,10 @@ addRipGrepToYaml() {
     if [[ $MODIFIED_RIPGREP_MANIFEST -eq 1 ]]; then
       if [[ ! "${WORKSPACE}" ]]; then WORKSPACE=/tmp; fi
       SYNC_DIR=/build-requirements/build-requirements/common/ripgrep-multiarch
-      rm -f ${WORKSPACE}/${SYNC_DIR} || true
-      mkdir -p ${WORKSPACE}/${SYNC_DIR}
-      mv /tmp/manifest.json ${WORKSPACE}/${SYNC_DIR}
-      rsync -rlP ${WORKSPACE}/${SYNC_DIR} ${REMOTE_USER_AND_HOST}:staging/devspaces/${SYNC_DIR}
+      rm -f "${WORKSPACE}"/${SYNC_DIR} || true
+      mkdir -p "${WORKSPACE}"/${SYNC_DIR}
+      mv /tmp/manifest.json "${WORKSPACE}"/${SYNC_DIR}
+      rsync -rlP "${WORKSPACE}"/${SYNC_DIR} ${REMOTE_USER_AND_HOST}:staging/devspaces/${SYNC_DIR}
     fi
   else
     echo "[info] NO-OP mode - printing resulting manifest:"
@@ -173,7 +171,7 @@ addVscodePluginsToYaml () {
   curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-manifest.json --output /tmp/plugin-manifest.json
   curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-vscode-extensions/${SCRIPTS_BRANCH}/plugin-config.json --output /tmp/plugin-config.json
 
-  PLUGINS=$(cat /tmp/plugin-manifest.json | jq -r '.Plugins | keys[]')
+  PLUGINS=$(jq -r '.Plugins | keys[]' /tmp/plugin-manifest.json)
   # check if vsix plugin version listed in synced sources as dependency
   # has corresponding version on rcm tools
   for PLUGIN in $PLUGINS; do
@@ -186,14 +184,14 @@ addVscodePluginsToYaml () {
     # plugin "version" in product.json can be different from 
     # match version in sources with version in manifest
     # if mismatch is found, then fill SHA values with undefined
-    AVAILABLE_VSIX_VERSION=$(cat /tmp/plugin-config.json | jq -r ".Plugins.\"$PLUGIN\".revision")
+    AVAILABLE_VSIX_VERSION=$(jq -r ".Plugins.\"$PLUGIN\".revision" /tmp/plugin-config.json)
     AVAILABLE_VSIX_VERSION_NO_PREFIX=${AVAILABLE_VSIX_VERSION#v}
-    REQUIRED_VSIX_VERSION=$(cat $TARGETDIR/code/product.json | jq -r ".builtInExtensions[] | select( .name==\"${PLUGIN}\") | .version")
+    REQUIRED_VSIX_VERSION=$(jq -r ".builtInExtensions[] | select( .name==\"${PLUGIN}\") | .version" "$TARGETDIR"/code/product.json)
     echo "[info] looking for plugin \"${PLUGIN}\", version ${REQUIRED_VSIX_VERSION}" 
-    if [[ $REQUIRED_VSIX_VERSION == ${AVAILABLE_VSIX_VERSION_NO_PREFIX} ]]; then
+    if [[ $REQUIRED_VSIX_VERSION == "${AVAILABLE_VSIX_VERSION_NO_PREFIX}" ]]; then
       echo "[info] found required vsix extension - ${PLUGIN}, version ${REQUIRED_VSIX_VERSION}"
-      PLUGIN_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"vsix\"]")
-      SOURCE_SHA=$(cat /tmp/plugin-manifest.json | jq -r ".Plugins[\"$PLUGIN\"][\"source\"]")
+      PLUGIN_SHA=$(jq -r ".Plugins[\"$PLUGIN\"][\"vsix\"]" "/tmp/plugin-manifest.json")
+      SOURCE_SHA=$(jq -r ".Plugins[\"$PLUGIN\"][\"source\"]" "/tmp/plugin-manifest.json")
       echo "[info] sha: ${PLUGIN_SHA}"
       echo "[info] source_sha: ${SOURCE_SHA}"
       echo "################################################"
@@ -213,18 +211,18 @@ addVscodePluginsToYaml () {
         popd >/dev/null
       fi
       pushd /tmp/devspaces-vscode-extensions >/dev/null
-        git checkout ${SCRIPTS_BRANCH}
+        git checkout "${SCRIPTS_BRANCH}"
         git stash
         git pull
         git stash pop || true
 
         replaceField ".Plugins.\"${PLUGIN}\".revision" "\"v${REQUIRED_VSIX_VERSION}\"" /tmp/devspaces-vscode-extensions/plugin-config.json
-        ./build/build.sh $PLUGIN --update-manifest
+        ./build/build.sh "$PLUGIN" --update-manifest
 
-        PLUGIN_SHA=$(sha256sum ${PLUGIN}.vsix)
+        PLUGIN_SHA=$(sha256sum "${PLUGIN}.vsix")
         PLUGIN_SHA=${PLUGIN_SHA:0:64}
 
-        SOURCE_SHA=$(sha256sum ${PLUGIN}-sources.tar.gz)
+        SOURCE_SHA=$(sha256sum "${PLUGIN}-sources.tar.gz")
         SOURCE_SHA=${SOURCE_SHA:0:64}
 
         echo "[info] sha: ${PLUGIN_SHA}"
@@ -241,7 +239,7 @@ addVscodePluginsToYaml () {
             git add plugin-manifest.json
             export KRB5CCNAME=/var/tmp/devspaces-build_ccache
             git commit -sm "ci: Update plugin-manifest data for ${PLUGIN}"
-            git push origin ${SCRIPTS_BRANCH}
+            git push origin "${SCRIPTS_BRANCH}"
           else
             echo "[info] show diff in resulting manifest:"
             git --no-pager diff
@@ -254,13 +252,13 @@ addVscodePluginsToYaml () {
 - url: $BASE_URL/devspaces-$DS_VERSION-pluginregistry/plugins/$PLUGIN.vsix
   sha256: $PLUGIN_SHA
   source-url: $BASE_URL/devspaces-$DS_VERSION-pluginregistry/sources/$PLUGIN-sources.tar.gz
-  source-sha256: $SOURCE_SHA" >> ${TARGETDIR}/fetch-artifacts-url.yaml
+  source-sha256: $SOURCE_SHA" >> "${TARGETDIR}/fetch-artifacts-url.yaml"
   done
   rm /tmp/plugin-manifest.json
   rm -rf /tmp/devspaces-vscode-extensions || true
 }
 
-# clear up everything except the top comment of the yaml
-sed_in_place '0,/# This file is autogenerated by sync-builtins.sh/!d' ${TARGETDIR}/fetch-artifacts-url.yaml
+# delete everything in fetch-artifacts-url.yaml except the first line
+echo "# This file is autogenerated by sync-builtins.sh" > "${TARGETDIR}/fetch-artifacts-url.yaml"
 addRipGrepToYaml
 addVscodePluginsToYaml
