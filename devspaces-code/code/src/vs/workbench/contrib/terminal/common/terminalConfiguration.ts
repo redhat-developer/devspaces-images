@@ -11,7 +11,6 @@ import { isMacintosh, isWindows } from 'vs/base/common/platform';
 import { Registry } from 'vs/platform/registry/common/platform';
 import { Codicon } from 'vs/base/common/codicons';
 import { terminalColorSchema, terminalIconSchema } from 'vs/platform/terminal/common/terminalPlatformConfiguration';
-import product from 'vs/platform/product/common/product';
 
 const terminalDescriptors = '\n- ' + [
 	'`\${cwd}`: ' + localize("cwd", "the terminal's current working directory"),
@@ -627,16 +626,19 @@ const terminalConfiguration: IConfigurationNode = {
 			default: false
 		},
 		[TerminalSettingId.StickyScrollEnabled]: {
-			markdownDescription: localize('terminal.integrated.stickyScroll.enabled', "Shows the current command at the top of the terminal."),
+			markdownDescription: localize('terminal.integrated.stickyScroll.enabled', "Experimental: Shows the current command at the top of the terminal."),
 			type: 'boolean',
-			default: product.quality !== 'stable'
+			default: false,
+			// TODO: Prevent setting at folder level after it becomes stable,
+			// scope: ConfigurationScope.APPLICATION
 		},
 		[TerminalSettingId.StickyScrollMaxLineCount]: {
-			markdownDescription: localize('terminal.integrated.stickyScroll.maxLineCount', "Defines the maximum number of sticky lines to show. Sticky scroll lines will never exceed 40% of the viewport regardless of this setting."),
+			markdownDescription: localize('terminal.integrated.stickyScroll.maxLineCount', "Defines the maximum number of sticky lines to show."),
 			type: 'number',
 			default: 5,
 			minimum: 1,
-			maximum: 10
+			maximum: 10,
+			scope: ConfigurationScope.APPLICATION
 		}
 	}
 };

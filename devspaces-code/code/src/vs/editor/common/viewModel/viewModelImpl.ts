@@ -806,8 +806,7 @@ export class ViewModel extends Disposable implements IViewModel {
 
 	public modifyPosition(position: Position, offset: number): Position {
 		const modelPosition = this.coordinatesConverter.convertViewPositionToModelPosition(position);
-		const resultModelPosition = this.model.modifyPosition(modelPosition, offset);
-		return this.coordinatesConverter.convertModelPositionToViewPosition(resultModelPosition);
+		return this.model.modifyPosition(modelPosition, offset);
 	}
 
 	public deduceModelPositionRelativeToViewPosition(viewAnchorPosition: Position, deltaOffset: number, lineFeedCnt: number): Position {

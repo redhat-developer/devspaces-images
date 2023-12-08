@@ -251,7 +251,13 @@ export class Code {
 	}
 
 	async whenWorkbenchRestored(): Promise<void> {
-		await this.poll(() => this.driver.whenWorkbenchRestored(), () => true, `when workbench restored`);
+		try {
+			await this.poll(() => this.driver.whenWorkbenchRestored(), () => true, `when workbench restored`);
+		} catch (error) {
+			// TODO: @sandy081 Remove this when 1.84.0 is out
+			// whenWorkbenchRestored was not implemented in the driver before 1.84.0
+			this.logger.log('whenWorkbenchRestored() timed out');
+		}
 	}
 
 	getLocaleInfo(): Promise<ILocaleInfo> {

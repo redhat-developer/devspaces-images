@@ -14,7 +14,6 @@ import { language } from 'vs/base/common/platform';
 import { WellDefinedPrefixTree } from 'vs/base/common/prefixTree';
 import { removeAnsiEscapeCodes } from 'vs/base/common/strings';
 import { localize } from 'vs/nls';
-import { IUriIdentityService } from 'vs/platform/uriIdentity/common/uriIdentity';
 import { IComputedStateAccessor, refreshComputedState } from 'vs/workbench/contrib/testing/common/getComputedState';
 import { TestCoverage } from 'vs/workbench/contrib/testing/common/testCoverage';
 import { TestId } from 'vs/workbench/contrib/testing/common/testId';
@@ -647,7 +646,6 @@ export class HydratedTestResult implements ITestResult {
 	private readonly testById = new Map<string, TestResultItem>();
 
 	constructor(
-		identity: IUriIdentityService,
 		private readonly serialized: ISerializedTestResults,
 		private readonly persist = true,
 	) {
@@ -665,7 +663,7 @@ export class HydratedTestResult implements ITestResult {
 		this.request = serialized.request;
 
 		for (const item of serialized.items) {
-			const de = TestResultItem.deserialize(identity, item);
+			const de = TestResultItem.deserialize(item);
 			this.counts[de.ownComputedState]++;
 			this.testById.set(item.item.extId, de);
 		}

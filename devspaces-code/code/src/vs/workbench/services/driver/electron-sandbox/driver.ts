@@ -7,7 +7,6 @@ import { mainWindow } from 'vs/base/browser/window';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { IFileService } from 'vs/platform/files/common/files';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { ILogService } from 'vs/platform/log/common/log';
 import { BrowserWindowDriver } from 'vs/workbench/services/driver/browser/driver';
 import { ILifecycleService } from 'vs/workbench/services/lifecycle/common/lifecycle';
 
@@ -21,10 +20,9 @@ class NativeWindowDriver extends BrowserWindowDriver {
 		private readonly helper: INativeWindowDriverHelper,
 		@IFileService fileService: IFileService,
 		@IEnvironmentService environmentService: IEnvironmentService,
-		@ILifecycleService lifecycleService: ILifecycleService,
-		@ILogService logService: ILogService
+		@ILifecycleService lifecycleService: ILifecycleService
 	) {
-		super(fileService, environmentService, lifecycleService, logService);
+		super(fileService, environmentService, lifecycleService);
 	}
 
 	override exitApplication(): Promise<void> {

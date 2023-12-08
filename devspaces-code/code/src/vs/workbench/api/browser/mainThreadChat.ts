@@ -28,6 +28,12 @@ export class MainThreadChat extends Disposable implements MainThreadChatShape {
 	) {
 		super();
 		this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChat);
+
+		this._register(this._chatService.onDidPerformUserAction(e => {
+			if (!e.agentId) {
+				this._proxy.$onDidPerformUserAction(e);
+			}
+		}));
 	}
 
 	$transferChatSession(sessionId: number, toWorkspace: UriComponents): void {

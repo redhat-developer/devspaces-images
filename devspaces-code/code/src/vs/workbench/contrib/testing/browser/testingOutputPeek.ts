@@ -242,14 +242,15 @@ export class TestingPeekOpener extends Disposable implements ITestingPeekOpener 
 			return false;
 		}
 
+		const message = candidate.message;
 		this.showPeekFromUri({
 			type: TestUriType.ResultMessage,
-			documentUri: candidate.location.uri,
+			documentUri: message.location!.uri,
 			taskIndex: candidate.taskId,
 			messageIndex: candidate.index,
 			resultId: result.id,
 			testExtId: test.item.extId,
-		}, undefined, { selection: candidate.location.range, ...options });
+		}, undefined, { selection: message.location!.range, ...options });
 		return true;
 	}
 
@@ -470,14 +471,9 @@ export class TestingPeekOpener extends Disposable implements ITestingPeekOpener 
 	 * Gets the first failed message that can be displayed from the result.
 	 */
 	private getFailedCandidateMessage(test: TestResultItem) {
-		const fallbackLocation = test.item.uri && test.item.range
-			? { uri: test.item.uri, range: test.item.range }
-			: undefined;
-
-		let best: { taskId: number; index: number; message: ITestMessage; location: IRichLocation } | undefined;
+		let best: { taskId: number; index: number; message: ITestMessage } | undefined;
 		mapFindTestMessage(test, (task, message, messageIndex, taskId) => {
-			const location = message.location || fallbackLocation;
-			if (!isFailedState(task.state) || !location) {
+			if (!isFailedState(task.state) || !message.location) {
 				return;
 			}
 
@@ -485,7 +481,7 @@ export class TestingPeekOpener extends Disposable implements ITestingPeekOpener 
 				return;
 			}
 
-			best = { taskId, index: messageIndex, message, location };
+			best = { taskId, index: messageIndex, message };
 		});
 
 		return best;
@@ -1094,10 +1090,6 @@ export class TestResultsView extends ViewPane {
 		}
 
 		this.content.reveal({ preserveFocus, subject: new TaskSubject(result, 0) });
-	}
-
-	public showMessage(result: ITestResult, test: TestResultItem, taskIndex: number, messageIndex: number) {
-		this.content.reveal({ preserveFocus: false, subject: new MessageSubject(result, test, taskIndex, messageIndex) });
 	}
 
 	protected override renderBody(container: HTMLElement): void {

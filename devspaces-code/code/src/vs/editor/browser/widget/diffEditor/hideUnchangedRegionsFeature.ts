@@ -5,18 +5,21 @@
 
 import { $, addDisposableListener, getWindow, h, reset } from 'vs/base/browser/dom';
 import { renderIcon, renderLabelWithIcons } from 'vs/base/browser/ui/iconLabel/iconLabels';
+import { compareBy, numberComparator, reverseOrder } from 'vs/base/common/arrays';
 import { Codicon } from 'vs/base/common/codicons';
+import { Event } from 'vs/base/common/event';
 import { MarkdownString } from 'vs/base/common/htmlContent';
-import { Disposable, IDisposable } from 'vs/base/common/lifecycle';
-import { IObservable, IReader, autorun, derived, derivedWithStore, observableFromEvent, observableValue, transaction } from 'vs/base/common/observable';
+import { Disposable } from 'vs/base/common/lifecycle';
+import { IObservable, IReader, autorun, autorunWithStore, derived, derivedWithStore, observableFromEvent, observableSignalFromEvent, observableValue, transaction } from 'vs/base/common/observable';
 import { derivedDisposable } from 'vs/base/common/observableInternal/derived';
 import { ThemeIcon } from 'vs/base/common/themables';
 import { isDefined } from 'vs/base/common/types';
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
-import { DiffEditorEditors } from 'vs/editor/browser/widget/diffEditor/components/diffEditorEditors';
+import { DiffEditorEditors } from 'vs/editor/browser/widget/diffEditor/diffEditorEditors';
 import { DiffEditorOptions } from 'vs/editor/browser/widget/diffEditor/diffEditorOptions';
 import { DiffEditorViewModel, UnchangedRegion } from 'vs/editor/browser/widget/diffEditor/diffEditorViewModel';
-import { IObservableViewZone, PlaceholderViewZone, ViewZoneOverlayWidget, applyObservableDecorations, applyStyle } from 'vs/editor/browser/widget/diffEditor/utils';
+import { OutlineModel } from 'vs/editor/browser/widget/diffEditor/outlineModel';
+import { DisposableCancellationTokenSource, IObservableViewZone, PlaceholderViewZone, ViewZoneOverlayWidget, applyObservableDecorations, applyStyle } from 'vs/editor/browser/widget/diffEditor/utils';
 import { EditorOption } from 'vs/editor/common/config/editorOptions';
 import { LineRange } from 'vs/editor/common/core/lineRange';
 import { Position } from 'vs/editor/common/core/position';
@@ -24,22 +27,16 @@ import { Range } from 'vs/editor/common/core/range';
 import { CursorChangeReason } from 'vs/editor/common/cursorEvents';
 import { SymbolKind, SymbolKinds } from 'vs/editor/common/languages';
 import { IModelDecorationOptions, IModelDeltaDecoration, ITextModel } from 'vs/editor/common/model';
+import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import { localize } from 'vs/nls';
-import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 
 /**
  * Make sure to add the view zones to the editor!
  */
 export class HideUnchangedRegionsFeature extends Disposable {
-	private static readonly _breadcrumbsSourceFactory = observableValue<((textModel: ITextModel, instantiationService: IInstantiationService) => IDiffEditorBreadcrumbsSource) | undefined>('breadcrumbsSourceFactory', undefined);
-	public static setBreadcrumbsSourceFactory(factory: (textModel: ITextModel, instantiationService: IInstantiationService) => IDiffEditorBreadcrumbsSource) {
-		this._breadcrumbsSourceFactory.set(factory, undefined);
-	}
-
-	private readonly _modifiedOutlineSource = derivedDisposable(this, (reader) => {
+	private readonly _modifiedOutlineSource = derivedDisposable(this, reader => {
 		const m = this._editors.modifiedModel.read(reader);
-		const factory = HideUnchangedRegionsFeature._breadcrumbsSourceFactory.read(reader);
-		return (!m || !factory) ? undefined : factory(m, this._instantiationService);
+		return !m ? undefined : new OutlineSource(this._languageFeaturesService, m);
 	});
 
 	public readonly viewZones: IObservable<{
@@ -54,7 +51,7 @@ export class HideUnchangedRegionsFeature extends Disposable {
 		private readonly _editors: DiffEditorEditors,
 		private readonly _diffModel: IObservable<DiffEditorViewModel | undefined>,
 		private readonly _options: DiffEditorOptions,
-		@IInstantiationService private readonly _instantiationService: IInstantiationService,
+		@ILanguageFeaturesService private readonly _languageFeaturesService: ILanguageFeaturesService,
 	) {
 		super();
 
@@ -243,7 +240,7 @@ class CollapsedCodeOverlayWidget extends ViewZoneOverlayWidget {
 		private readonly _unchangedRegion: UnchangedRegion,
 		private readonly _unchangedRegionRange: LineRange,
 		private readonly _hide: boolean,
-		private readonly _modifiedOutlineSource: IDiffEditorBreadcrumbsSource,
+		private readonly _modifiedOutlineSource: OutlineSource,
 		private readonly _revealModifiedHiddenLine: (lineNumber: number) => void,
 		private readonly _options: DiffEditorOptions,
 	) {
@@ -413,6 +410,47 @@ class CollapsedCodeOverlayWidget extends ViewZoneOverlayWidget {
 	}
 }
 
-export interface IDiffEditorBreadcrumbsSource extends IDisposable {
-	getBreadcrumbItems(startRange: LineRange, reader: IReader): { name: string; kind: SymbolKind; startLineNumber: number }[];
+class OutlineSource extends Disposable {
+	private readonly _currentModel = observableValue<OutlineModel | undefined>(this, undefined);
+
+	constructor(
+		@ILanguageFeaturesService private readonly _languageFeaturesService: ILanguageFeaturesService,
+		private readonly _textModel: ITextModel,
+	) {
+		super();
+
+		const documentSymbolProviderChanged = observableSignalFromEvent(
+			'documentSymbolProvider.onDidChange',
+			this._languageFeaturesService.documentSymbolProvider.onDidChange
+		);
+
+		const textModelChanged = observableSignalFromEvent(
+			'_textModel.onDidChangeContent',
+			Event.debounce<any>(e => this._textModel.onDidChangeContent(e), () => undefined, 100)
+		);
+
+		this._register(autorunWithStore(async (reader, store) => {
+			documentSymbolProviderChanged.read(reader);
+			textModelChanged.read(reader);
+
+			const src = store.add(new DisposableCancellationTokenSource());
+			const model = await OutlineModel.create(
+				this._languageFeaturesService.documentSymbolProvider,
+				this._textModel,
+				src.token,
+			);
+			if (store.isDisposed) { return; }
+
+			this._currentModel.set(model, undefined);
+		}));
+	}
+
+	public getBreadcrumbItems(startRange: LineRange, reader: IReader): { name: string; kind: SymbolKind; startLineNumber: number }[] {
+		const m = this._currentModel.read(reader);
+		if (!m) { return []; }
+		const symbols = m.asListOfDocumentSymbols()
+			.filter(s => startRange.contains(s.range.startLineNumber) && !startRange.contains(s.range.endLineNumber));
+		symbols.sort(reverseOrder(compareBy(s => s.range.endLineNumber - s.range.startLineNumber, numberComparator)));
+		return symbols.map(s => ({ name: s.name, kind: s.kind, startLineNumber: s.range.startLineNumber }));
+	}
 }

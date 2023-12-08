@@ -81,7 +81,6 @@ export function registerClearActions() {
 
 			announceChatCleared(accessor);
 			widget.clear();
-			widget.focusInput();
 		}
 	});
 }
@@ -111,7 +110,6 @@ export function getClearAction(viewId: string, providerId: string) {
 		async runInView(accessor: ServicesAccessor, view: ChatViewPane) {
 			announceChatCleared(accessor);
 			await view.clear();
-			view.widget.focusInput();
 		}
 	};
 }

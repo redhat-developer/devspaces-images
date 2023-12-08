@@ -74,11 +74,10 @@ export class SingleEditorTabsControl extends EditorTabsControl {
 
 		// Drag & Drop support
 		let lastDragEvent: DragEvent | undefined = undefined;
-		let isNewWindowOperation = false;
 		this._register(new DragAndDropObserver(titleContainer, {
-			onDragStart: e => { isNewWindowOperation = this.onGroupDragStart(e, titleContainer); },
+			onDragStart: e => this.onGroupDragStart(e, titleContainer),
 			onDrag: e => { lastDragEvent = e; },
-			onDragEnd: e => { this.onGroupDragEnd(e, lastDragEvent, titleContainer, isNewWindowOperation); },
+			onDragEnd: e => { this.onGroupDragEnd(e, lastDragEvent, titleContainer); },
 		}));
 
 		// Pin on double click

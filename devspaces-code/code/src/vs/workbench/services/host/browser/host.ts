@@ -63,7 +63,7 @@ export interface IHostService {
 	 * Emitted when the active window changes between main window
 	 * and auxiliary windows.
 	 */
-	readonly onDidChangeActiveWindow: Event<number>;
+	readonly onDidChangeActiveWindow: Event<void>;
 
 	/**
 	 * Opens an empty window. The optional parameter allows to define if

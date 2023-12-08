@@ -213,13 +213,4 @@ class LogOutputChannels extends Disposable implements IWorkbenchContribution {
 
 }
 
-class LogLevelMigration implements IWorkbenchContribution {
-	constructor(
-		@IDefaultLogLevelsService defaultLogLevelsService: IDefaultLogLevelsService
-	) {
-		defaultLogLevelsService.migrateLogLevels();
-	}
-}
-
 Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(LogOutputChannels, LifecyclePhase.Restored);
-Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(LogLevelMigration, LifecyclePhase.Eventually);

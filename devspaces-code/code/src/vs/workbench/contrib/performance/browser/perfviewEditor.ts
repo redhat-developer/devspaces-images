@@ -27,7 +27,6 @@ import { isWeb } from 'vs/base/common/platform';
 import { IFilesConfigurationService } from 'vs/workbench/services/filesConfiguration/common/filesConfigurationService';
 import { ITerminalService } from 'vs/workbench/contrib/terminal/browser/terminal';
 import * as perf from 'vs/base/common/performance';
-import { ITextResourceConfigurationService } from 'vs/editor/common/services/textResourceConfiguration';
 
 export class PerfviewContrib {
 
@@ -60,8 +59,7 @@ export class PerfviewInput extends TextResourceEditorInput {
 		@IEditorService editorService: IEditorService,
 		@IFileService fileService: IFileService,
 		@ILabelService labelService: ILabelService,
-		@IFilesConfigurationService filesConfigurationService: IFilesConfigurationService,
-		@ITextResourceConfigurationService textResourceConfigurationService: ITextResourceConfigurationService
+		@IFilesConfigurationService filesConfigurationService: IFilesConfigurationService
 	) {
 		super(
 			PerfviewInput.Uri,
@@ -74,8 +72,7 @@ export class PerfviewInput extends TextResourceEditorInput {
 			editorService,
 			fileService,
 			labelService,
-			filesConfigurationService,
-			textResourceConfigurationService
+			filesConfigurationService
 		);
 	}
 }

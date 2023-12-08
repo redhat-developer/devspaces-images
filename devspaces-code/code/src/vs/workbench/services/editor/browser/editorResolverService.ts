@@ -83,17 +83,13 @@ export class EditorResolverService extends Disposable implements IEditorResolver
 		});
 	}
 
-	private resolveUntypedInputAndGroup(editor: IUntypedEditorInput, preferredGroup: PreferredGroup | undefined): Promise<[IUntypedEditorInput, IEditorGroup, EditorActivation | undefined] | undefined> | [IUntypedEditorInput, IEditorGroup, EditorActivation | undefined] | undefined {
+	private resolveUntypedInputAndGroup(editor: IUntypedEditorInput, preferredGroup: PreferredGroup | undefined): [IUntypedEditorInput, IEditorGroup, EditorActivation | undefined] | undefined {
 		const untypedEditor = editor;
 
 		// Use the untyped editor to find a group
-		const findGroupResult = this.instantiationService.invokeFunction(findGroup, untypedEditor, preferredGroup);
-		if (findGroupResult instanceof Promise) {
-			return findGroupResult.then(([group, activation]) => [untypedEditor, group, activation]);
-		} else {
-			const [group, activation] = findGroupResult;
-			return [untypedEditor, group, activation];
-		}
+		const [group, activation] = this.instantiationService.invokeFunction(findGroup, untypedEditor, preferredGroup);
+
+		return [untypedEditor, group, activation];
 	}
 
 	async resolveEditor(editor: IUntypedEditorInput, preferredGroup: PreferredGroup | undefined): Promise<ResolvedEditor> {
@@ -107,14 +103,7 @@ export class EditorResolverService extends Disposable implements IEditorResolver
 			return this.doResolveSideBySideEditor(editor, preferredGroup);
 		}
 
-		let resolvedUntypedAndGroup: [IUntypedEditorInput, IEditorGroup, EditorActivation | undefined] | undefined;
-		const resolvedUntypedAndGroupResult = this.resolveUntypedInputAndGroup(editor, preferredGroup);
-		if (resolvedUntypedAndGroupResult instanceof Promise) {
-			resolvedUntypedAndGroup = await resolvedUntypedAndGroupResult;
-		} else {
-			resolvedUntypedAndGroup = resolvedUntypedAndGroupResult;
-		}
-
+		const resolvedUntypedAndGroup = this.resolveUntypedInputAndGroup(editor, preferredGroup);
 		if (!resolvedUntypedAndGroup) {
 			return ResolvedStatus.NONE;
 		}

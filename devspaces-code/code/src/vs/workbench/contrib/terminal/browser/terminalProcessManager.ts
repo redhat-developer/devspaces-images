@@ -39,7 +39,6 @@ import { INotificationService } from 'vs/platform/notification/common/notificati
 import { IEnvironmentVariableCollection, IMergedEnvironmentVariableCollection } from 'vs/platform/terminal/common/environmentVariable';
 import { generateUuid } from 'vs/base/common/uuid';
 import { getActiveWindow, runWhenWindowIdle } from 'vs/base/browser/dom';
-import { mainWindow } from 'vs/base/browser/window';
 
 const enum ProcessConstants {
 	/**
@@ -749,7 +748,7 @@ class SeamlessRelaunchDataFilter extends Disposable {
 			this.triggerSwap();
 		}
 
-		this._swapTimeout = mainWindow.setTimeout(() => this.triggerSwap(), SeamlessRelaunchConstants.SwapWaitMaximumDuration);
+		this._swapTimeout = getActiveWindow().setTimeout(() => this.triggerSwap(), SeamlessRelaunchConstants.SwapWaitMaximumDuration);
 
 		// Pause all outgoing data events
 		this._dataListener?.dispose();
@@ -774,7 +773,7 @@ class SeamlessRelaunchDataFilter extends Disposable {
 	triggerSwap() {
 		// Clear the swap timeout if it exists
 		if (this._swapTimeout) {
-			mainWindow.clearTimeout(this._swapTimeout);
+			getActiveWindow().clearTimeout(this._swapTimeout);
 			this._swapTimeout = undefined;
 		}
 

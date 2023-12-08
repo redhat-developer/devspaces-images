@@ -312,6 +312,12 @@ export interface BranchProtectionProvider {
 	provideBranchProtection(): BranchProtection[];
 }
 
+export interface CommitMessageProvider {
+	readonly title: string;
+	readonly icon?: Uri | { light: Uri, dark: Uri } | ThemeIcon;
+	provideCommitMessage(repository: Repository, changes: string[], cancellationToken?: CancellationToken): Promise<string | undefined>;
+}
+
 export type APIState = 'uninitialized' | 'initialized';
 
 export interface PublishEvent {
@@ -339,6 +345,7 @@ export interface API {
 	registerPostCommitCommandsProvider(provider: PostCommitCommandsProvider): Disposable;
 	registerPushErrorHandler(handler: PushErrorHandler): Disposable;
 	registerBranchProtectionProvider(root: Uri, provider: BranchProtectionProvider): Disposable;
+	registerCommitMessageProvider(provider: CommitMessageProvider): Disposable;
 }
 
 export interface GitExtension {

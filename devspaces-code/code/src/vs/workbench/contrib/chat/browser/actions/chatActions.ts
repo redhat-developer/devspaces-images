@@ -27,7 +27,7 @@ import { IChatEditorOptions } from 'vs/workbench/contrib/chat/browser/chatEditor
 import { ChatEditorInput } from 'vs/workbench/contrib/chat/browser/chatEditorInput';
 import { ChatViewPane } from 'vs/workbench/contrib/chat/browser/chatViewPane';
 import { IChatAgentService } from 'vs/workbench/contrib/chat/common/chatAgents';
-import { CONTEXT_CHAT_INPUT_CURSOR_AT_TOP, CONTEXT_IN_CHAT_INPUT, CONTEXT_IN_CHAT_SESSION, CONTEXT_PROVIDER_EXISTS, CONTEXT_REQUEST, CONTEXT_RESPONSE } from 'vs/workbench/contrib/chat/common/chatContextKeys';
+import { CONTEXT_IN_CHAT_INPUT, CONTEXT_IN_CHAT_SESSION, CONTEXT_PROVIDER_EXISTS, CONTEXT_REQUEST, CONTEXT_RESPONSE } from 'vs/workbench/contrib/chat/common/chatContextKeys';
 import { IChatContributionService } from 'vs/workbench/contrib/chat/common/chatContributionService';
 import { chatAgentLeader } from 'vs/workbench/contrib/chat/common/chatParserTypes';
 import { IChatDetail, IChatService } from 'vs/workbench/contrib/chat/common/chatService';
@@ -38,22 +38,11 @@ import { LifecyclePhase } from 'vs/workbench/services/lifecycle/common/lifecycle
 export const CHAT_CATEGORY = { value: localize('chat.category', "Chat"), original: 'Chat' };
 export const CHAT_OPEN_ACTION_ID = 'workbench.action.chat.open';
 
-export interface IChatViewOpenOptions {
-	/**
-	 * The query for quick chat.
-	 */
-	query: string;
-	/**
-	 * Whether the query is partial and will await more input from the user.
-	 */
-	isPartialQuery?: boolean;
-}
-
-class OpenChatGlobalAction extends Action2 {
+class QuickChatGlobalAction extends Action2 {
 	constructor() {
 		super({
 			id: CHAT_OPEN_ACTION_ID,
-			title: localize2('openChat', "Open Chat"),
+			title: { value: localize('quickChat', "Quick Chat"), original: 'Quick Chat' },
 			precondition: CONTEXT_PROVIDER_EXISTS,
 			icon: Codicon.commentDiscussion,
 			f1: false,
@@ -68,9 +57,7 @@ class OpenChatGlobalAction extends Action2 {
 		});
 	}
 
-	override async run(accessor: ServicesAccessor, opts?: string | IChatViewOpenOptions): Promise<void> {
-		opts = typeof opts === 'string' ? { query: opts } : opts;
-
+	override async run(accessor: ServicesAccessor, query?: string): Promise<void> {
 		const chatService = accessor.get(IChatService);
 		const chatWidgetService = accessor.get(IChatWidgetService);
 		const providers = chatService.getProviderInfos();
@@ -81,14 +68,9 @@ class OpenChatGlobalAction extends Action2 {
 		if (!chatWidget) {
 			return;
 		}
-		if (opts?.query) {
-			if (opts.isPartialQuery) {
-				chatWidget.setInput(opts.query);
-			} else {
-				chatWidget.acceptInput(opts.query);
-			}
+		if (query) {
+			chatWidget.acceptInput(query);
 		}
-
 		chatWidget.focusInput();
 	}
 }
@@ -150,7 +132,7 @@ export class ChatSubmitEditorAction extends EditorAction2 {
 }
 
 export function registerChatActions() {
-	registerAction2(OpenChatGlobalAction);
+	registerAction2(QuickChatGlobalAction);
 	registerAction2(ChatSubmitEditorAction);
 
 	registerAction2(ChatSubmitSecondaryAgentEditorAction);
@@ -179,7 +161,7 @@ export function registerChatActions() {
 			super({
 				id: 'chat.action.focus',
 				title: { value: localize('actions.interactiveSession.focus', "Focus Chat List"), original: 'Focus Chat List' },
-				precondition: ContextKeyExpr.and(CONTEXT_IN_CHAT_INPUT, CONTEXT_CHAT_INPUT_CURSOR_AT_TOP),
+				precondition: CONTEXT_IN_CHAT_INPUT,
 				category: CHAT_CATEGORY,
 				keybinding: {
 					when: EditorContextKeys.textInputFocus,
@@ -224,7 +206,7 @@ export function registerChatActions() {
 				keybinding: {
 					primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
 					weight: KeybindingWeight.WorkbenchContrib,
-					when: ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_CHAT_INPUT.negate())
+					when: ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, ContextKeyExpr.not(EditorContextKeys.focus.key))
 				}
 			});
 		}

@@ -19,7 +19,6 @@ const bootstrapNode = require('./bootstrap-node');
 const product = require('../product.json');
 
 // Enable portable support
-// @ts-ignore
 bootstrapNode.configurePortable(product);
 
 // Enable ASAR support

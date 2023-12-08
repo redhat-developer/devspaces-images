@@ -35,7 +35,7 @@ import { IChatExecuteActionContext, SubmitAction } from 'vs/workbench/contrib/ch
 import { IChatWidget } from 'vs/workbench/contrib/chat/browser/chat';
 import { ChatFollowups } from 'vs/workbench/contrib/chat/browser/chatFollowups';
 import { IChatAgentService } from 'vs/workbench/contrib/chat/common/chatAgents';
-import { CONTEXT_CHAT_INPUT_CURSOR_AT_TOP, CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_IN_CHAT_INPUT } from 'vs/workbench/contrib/chat/common/chatContextKeys';
+import { CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_IN_CHAT_INPUT } from 'vs/workbench/contrib/chat/common/chatContextKeys';
 import { chatAgentLeader } from 'vs/workbench/contrib/chat/common/chatParserTypes';
 import { IChatReplyFollowup } from 'vs/workbench/contrib/chat/common/chatService';
 import { IChatResponseViewModel } from 'vs/workbench/contrib/chat/common/chatViewModel';
@@ -82,13 +82,11 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 		return this._inputEditor;
 	}
 
-	private history: HistoryNavigator<string>;
-	private historyStates: Map<string, any> = new Map();
+	private history: HistoryNavigator<{ text: string; state?: any }>;
 	private historyNavigationBackwardsEnablement!: IContextKey<boolean>;
 	private historyNavigationForewardsEnablement!: IContextKey<boolean>;
 	private inputModel: ITextModel | undefined;
 	private inputEditorHasText: IContextKey<boolean>;
-	private chatCursorAtTop: IContextKey<boolean>;
 	private providerId: string | undefined;
 
 	private cachedDimensions: dom.Dimension | undefined;
@@ -110,8 +108,6 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 		super();
 
 		this.inputEditorHasText = CONTEXT_CHAT_INPUT_HAS_TEXT.bindTo(contextKeyService);
-		this.chatCursorAtTop = CONTEXT_CHAT_INPUT_CURSOR_AT_TOP.bindTo(contextKeyService);
-
 		this.history = new HistoryNavigator([], 5);
 		this._register(this.historyService.onDidClearHistory(() => this.history.clear()));
 		this._register(this.configurationService.onDidChangeConfiguration(e => {
@@ -133,11 +129,7 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 	setState(providerId: string, inputValue: string | undefined): void {
 		this.providerId = providerId;
 		const history = this.historyService.getHistory(providerId);
-		this.historyStates = new Map(history.map(h => [h.text, h.state]));
-		const historyTexts: string[] = [];
-		this.historyStates.forEach((_, str) => historyTexts.push(str));
-
-		this.history = new HistoryNavigator(historyTexts, 50);
+		this.history = new HistoryNavigator(history, 50);
 
 		if (typeof inputValue === 'string') {
 			this.setValue(inputValue);
@@ -159,11 +151,11 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 	private navigateHistory(previous: boolean): void {
 		const historyInput = (previous ?
 			(this.history.previous() ?? this.history.first()) : this.history.next())
-			?? '';
+			?? { text: '' };
 
-		aria.status(historyInput);
-		this.setValue(historyInput);
-		this._onDidLoadInputState.fire(this.historyStates.get(historyInput));
+		aria.status(historyInput.text);
+		this.setValue(historyInput.text);
+		this._onDidLoadInputState.fire(historyInput.state);
 		if (previous) {
 			this._inputEditor.setPosition({ lineNumber: 1, column: 1 });
 		} else {
@@ -196,8 +188,7 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 	 */
 	async acceptInput(userQuery?: string, inputState?: any): Promise<void> {
 		if (userQuery) {
-			this.history.add(userQuery);
-			this.historyStates.set(userQuery, inputState);
+			this.history.add({ text: userQuery, state: inputState });
 		}
 
 		if (this.accessibilityService.isScreenReaderOptimized() && isMacintosh) {
@@ -282,9 +273,7 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 				return;
 			}
 
-			const atTop = e.position.column === 1 && e.position.lineNumber === 1;
-			this.historyNavigationBackwardsEnablement.set(atTop);
-			this.chatCursorAtTop.set(atTop);
+			this.historyNavigationBackwardsEnablement.set(e.position.column === 1 && e.position.lineNumber === 1);
 			this.historyNavigationForewardsEnablement.set(e.position.equals(getLastPosition(model)));
 		}));
 
@@ -375,8 +364,7 @@ export class ChatInputPart extends Disposable implements IHistoryNavigationWidge
 
 	saveState(): void {
 		const inputHistory = this.history.getHistory();
-		const historyEntries = inputHistory.map(entry => ({ text: entry, state: this.historyStates.get(entry) }));
-		this.historyService.saveHistory(this.providerId!, historyEntries);
+		this.historyService.saveHistory(this.providerId!, inputHistory);
 	}
 }
 

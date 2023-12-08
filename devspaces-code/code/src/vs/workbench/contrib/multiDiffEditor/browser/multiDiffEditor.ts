@@ -23,18 +23,11 @@ import { MultiDiffEditorInput } from 'vs/workbench/contrib/multiDiffEditor/brows
 import { IEditorGroupsService } from 'vs/workbench/services/editor/common/editorGroupsService';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { URI } from 'vs/base/common/uri';
-import { MultiDiffEditorViewModel } from 'vs/editor/browser/widget/multiDiffEditorWidget/multiDiffEditorViewModel';
 
 export class MultiDiffEditor extends AbstractEditorWithViewState<IMultiDiffEditorViewState> {
 	static readonly ID = 'multiDiffEditor';
 
 	private _multiDiffEditorWidget: MultiDiffEditorWidget | undefined = undefined;
-	private _viewModel: MultiDiffEditorViewModel | undefined;
-
-	public get viewModel(): MultiDiffEditorViewModel | undefined {
-		return this._viewModel;
-	}
-
 
 	constructor(
 		@IInstantiationService instantiationService: InstantiationService,
@@ -72,8 +65,8 @@ export class MultiDiffEditor extends AbstractEditorWithViewState<IMultiDiffEdito
 
 	override async setInput(input: MultiDiffEditorInput, options: IEditorOptions | undefined, context: IEditorOpenContext, token: CancellationToken): Promise<void> {
 		await super.setInput(input, options, context, token);
-		this._viewModel = await input.getViewModel();
-		this._multiDiffEditorWidget!.setViewModel(this._viewModel);
+		const vm = await input.getViewModel();
+		this._multiDiffEditorWidget!.setViewModel(vm);
 
 		const viewState = this.loadEditorViewState(input, context);
 		if (viewState) {

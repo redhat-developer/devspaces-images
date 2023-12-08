@@ -318,10 +318,9 @@ export class MultiEditorTabsControl extends EditorTabsControl {
 
 		// Drag & Drop support
 		let lastDragEvent: DragEvent | undefined = undefined;
-		let isNewWindowOperation = false;
 		this._register(new DragAndDropObserver(tabsContainer, {
 			onDragStart: e => {
-				isNewWindowOperation = this.onGroupDragStart(e, tabsContainer);
+				this.onGroupDragStart(e, tabsContainer);
 			},
 
 			onDrag: e => {
@@ -386,7 +385,7 @@ export class MultiEditorTabsControl extends EditorTabsControl {
 				this.updateDropFeedback(tabsContainer, false);
 				tabsContainer.classList.remove('scroll');
 
-				this.onGroupDragEnd(e, lastDragEvent, tabsContainer, isNewWindowOperation);
+				this.onGroupDragEnd(e, lastDragEvent, tabsContainer);
 			},
 
 			onDrop: e => {
@@ -1024,15 +1023,12 @@ export class MultiEditorTabsControl extends EditorTabsControl {
 
 		// Drag & Drop support
 		let lastDragEvent: DragEvent | undefined = undefined;
-		let isNewWindowOperation = false;
 		disposables.add(new DragAndDropObserver(tab, {
 			onDragStart: e => {
 				const editor = this.tabsModel.getEditorByIndex(tabIndex);
 				if (!editor) {
 					return;
 				}
-
-				isNewWindowOperation = this.isNewWindowOperation(e);
 
 				this.editorTransfer.setData([new DraggedEditorIdentifier({ editor, groupId: this.groupView.id })], DraggedEditorIdentifier.prototype);
 
@@ -1041,7 +1037,7 @@ export class MultiEditorTabsControl extends EditorTabsControl {
 				}
 
 				// Apply some datatransfer types to allow for dragging the element outside of the application
-				this.doFillResourceDataTransfers([editor], e, isNewWindowOperation);
+				this.doFillResourceDataTransfers([editor], e);
 
 				// Fixes https://github.com/microsoft/vscode/issues/18733
 				tab.classList.add('dragged');
@@ -1117,7 +1113,7 @@ export class MultiEditorTabsControl extends EditorTabsControl {
 
 				const editor = this.tabsModel.getEditorByIndex(tabIndex);
 				if (
-					!isNewWindowOperation ||
+					!this.isNewWindowOperation(lastDragEvent ?? e) ||
 					isWindowDraggedOver() ||
 					!editor
 				) {

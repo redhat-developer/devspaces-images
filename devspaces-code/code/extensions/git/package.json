@@ -24,6 +24,8 @@
     "tabInputTextMerge",
     "timeline",
     "contribMergeEditorMenus",
+    "scmInputBoxActionButton",
+    "scmInputBoxValueProvider",
     "contribSourceControlInputBoxMenu"
   ],
   "categories": [

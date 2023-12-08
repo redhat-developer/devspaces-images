@@ -34,7 +34,7 @@ import { StopWatch } from 'vs/base/common/stopwatch';
 import { isCancellationError, NotImplementedError } from 'vs/base/common/errors';
 import { raceCancellationError } from 'vs/base/common/async';
 import { isProposedApiEnabled } from 'vs/workbench/services/extensions/common/extensions';
-import { ExtHostTelemetry, IExtHostTelemetry } from 'vs/workbench/api/common/extHostTelemetry';
+import { IExtHostTelemetry } from 'vs/workbench/api/common/extHostTelemetry';
 import { localize } from 'vs/nls';
 import { IAutoClosingPairConditional } from 'vs/editor/common/languages/languageConfiguration';
 
@@ -104,16 +104,15 @@ class DocumentSymbolAdapter {
 
 class CodeLensAdapter {
 
+	private static _badCmd: vscode.Command = { command: 'missing', title: '!!MISSING: command!!' };
+
 	private readonly _cache = new Cache<vscode.CodeLens>('CodeLens');
 	private readonly _disposables = new Map<number, DisposableStore>();
 
 	constructor(
 		private readonly _documents: ExtHostDocuments,
 		private readonly _commands: CommandsConverter,
-		private readonly _provider: vscode.CodeLensProvider,
-		private readonly _extension: IExtensionDescription,
-		private readonly _extTelemetry: ExtHostTelemetry,
-		private readonly _logService: ILogService,
+		private readonly _provider: vscode.CodeLensProvider
 	) { }
 
 	async provideCodeLenses(resource: URI, token: CancellationToken): Promise<extHostProtocol.ICodeLensListDto | undefined> {
@@ -165,15 +164,7 @@ class CodeLensAdapter {
 			// disposed in the meantime
 			return undefined;
 		}
-
-		if (!resolvedLens.command) {
-			const error = new Error('INVALID code lens resolved, lacks command: ' + this._extension.identifier.value);
-			this._extTelemetry.onExtensionError(this._extension.identifier, error);
-			this._logService.error(error);
-			return undefined;
-		}
-
-		symbol.command = this._commands.toInternal(resolvedLens.command, disposables);
+		symbol.command = this._commands.toInternal(resolvedLens.command ?? CodeLensAdapter._badCmd, disposables);
 		return symbol;
 	}
 
@@ -1471,26 +1462,17 @@ class InlayHintsAdapter {
 		if (typeof hint.label === 'string') {
 			result.label = hint.label;
 		} else {
-			const parts: languages.InlayHintLabelPart[] = [];
-			result.label = parts;
-
-			for (const part of hint.label) {
-				if (!part.value) {
-					console.warn('INVALID inlay hint, empty label part', this._extension.identifier.value);
-					continue;
-				}
-				const part2: languages.InlayHintLabelPart = {
-					label: part.value,
-					tooltip: typeConvert.MarkdownString.fromStrict(part.tooltip)
-				};
+			result.label = hint.label.map(part => {
+				const result: languages.InlayHintLabelPart = { label: part.value };
+				result.tooltip = typeConvert.MarkdownString.fromStrict(part.tooltip);
 				if (Location.isLocation(part.location)) {
-					part2.location = typeConvert.location.from(part.location);
+					result.location = typeConvert.location.from(part.location);
 				}
 				if (part.command) {
-					part2.command = this._commands.toInternal(part.command, disposables);
+					result.command = this._commands.toInternal(part.command, disposables);
 				}
-				parts.push(part2);
-			}
+				return result;
+			});
 		}
 		return result;
 	}
@@ -2015,7 +1997,7 @@ export class ExtHostLanguageFeatures implements extHostProtocol.ExtHostLanguageF
 		const handle = this._nextHandle();
 		const eventHandle = typeof provider.onDidChangeCodeLenses === 'function' ? this._nextHandle() : undefined;
 
-		this._adapter.set(handle, new AdapterData(new CodeLensAdapter(this._documents, this._commands.converter, provider, extension, this._extensionTelemetry, this._logService), extension));
+		this._adapter.set(handle, new AdapterData(new CodeLensAdapter(this._documents, this._commands.converter, provider), extension));
 		this._proxy.$registerCodeLensSupport(handle, this._transformDocumentSelector(selector, extension), eventHandle);
 		let result = this._createDisposable(handle);
 

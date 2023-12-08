@@ -540,12 +540,7 @@ export class EditorService extends Disposable implements EditorServiceImpl {
 		// If group still isn't defined because of a disabled override we resolve it
 		if (!group) {
 			let activation: EditorActivation | undefined = undefined;
-			const findGroupResult = this.instantiationService.invokeFunction(findGroup, { editor: typedEditor, options }, preferredGroup);
-			if (findGroupResult instanceof Promise) {
-				([group, activation] = await findGroupResult);
-			} else {
-				([group, activation] = findGroupResult);
-			}
+			([group, activation] = this.instantiationService.invokeFunction(findGroup, { editor: typedEditor, options }, preferredGroup));
 
 			// Mixin editor group activation if returned
 			if (activation) {
@@ -603,12 +598,7 @@ export class EditorService extends Disposable implements EditorServiceImpl {
 
 			// If group still isn't defined because of a disabled override we resolve it
 			if (!group) {
-				const findGroupResult = this.instantiationService.invokeFunction(findGroup, typedEditor, preferredGroup);
-				if (findGroupResult instanceof Promise) {
-					([group] = await findGroupResult);
-				} else {
-					([group] = findGroupResult);
-				}
+				[group] = this.instantiationService.invokeFunction(findGroup, typedEditor, preferredGroup);
 			}
 
 			// Update map of groups to editors

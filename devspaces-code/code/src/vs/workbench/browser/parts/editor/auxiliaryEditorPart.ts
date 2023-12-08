@@ -220,7 +220,7 @@ class AuxiliaryEditorPartImpl extends EditorPart implements IAuxiliaryEditorPart
 	}
 
 	private doClose(mergeGroupsToMainPart: boolean): void {
-		if (mergeGroupsToMainPart && this.groups.some(group => group.count > 0)) {
+		if (mergeGroupsToMainPart) {
 			this.mergeAllGroups(this.editorPartsView.mainPart.activeGroup);
 		}
 

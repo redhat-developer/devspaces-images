@@ -12,7 +12,6 @@ import { IFileService } from 'vs/platform/files/common/files';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { ILogService } from 'vs/platform/log/common/log';
 import { IStorageService, StorageScope, StorageTarget } from 'vs/platform/storage/common/storage';
-import { IUriIdentityService } from 'vs/platform/uriIdentity/common/uriIdentity';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { StoredValue } from 'vs/workbench/contrib/testing/common/storedValue';
 import { HydratedTestResult, ITestResult } from 'vs/workbench/contrib/testing/common/testResult';
@@ -56,7 +55,6 @@ export abstract class BaseTestResultStorage extends Disposable implements ITestR
 	}, this.storageService));
 
 	constructor(
-		@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
 		@IStorageService private readonly storageService: IStorageService,
 		@ILogService private readonly logService: ILogService,
 	) {
@@ -78,7 +76,7 @@ export abstract class BaseTestResultStorage extends Disposable implements ITestR
 					return undefined;
 				}
 
-				return new HydratedTestResult(this.uriIdentityService, contents);
+				return new HydratedTestResult(contents);
 			} catch (e) {
 				this.logService.warn(`Error deserializing stored test result ${id}`, e);
 				return undefined;
@@ -208,14 +206,13 @@ export class TestResultStorage extends BaseTestResultStorage {
 	private readonly directory: URI;
 
 	constructor(
-		@IUriIdentityService uriIdentityService: IUriIdentityService,
 		@IStorageService storageService: IStorageService,
 		@ILogService logService: ILogService,
 		@IWorkspaceContextService workspaceContext: IWorkspaceContextService,
 		@IFileService private readonly fileService: IFileService,
 		@IEnvironmentService environmentService: IEnvironmentService,
 	) {
-		super(uriIdentityService, storageService, logService);
+		super(storageService, logService);
 		this.directory = URI.joinPath(environmentService.workspaceStorageHome, workspaceContext.getWorkspace().id, 'testResults');
 	}
 

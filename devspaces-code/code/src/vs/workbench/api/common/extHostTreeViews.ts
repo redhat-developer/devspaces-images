@@ -658,16 +658,13 @@ class ExtHostTreeView<T> extends Disposable {
 				return undefined;
 			}
 
-			const coalescedElements = coalesce(elements || []);
-			const treeItems = await Promise.all(coalesce(coalescedElements).map(element => {
-				return this.dataProvider.getTreeItem(element);
+			const items = await Promise.all(coalesce(elements || []).map(async element => {
+				const item = await this.dataProvider.getTreeItem(element);
+				return item && !cts.token.isCancellationRequested ? this.createAndRegisterTreeNode(element, item, parentNode) : null;
 			}));
 			if (cts.token.isCancellationRequested) {
 				return undefined;
 			}
-
-			// createAndRegisterTreeNodes adds the nodes to a cache. This must be done sync so that they get added in the correct order.
-			const items = treeItems.map((item, index) => item ? this.createAndRegisterTreeNode(coalescedElements[index], item, parentNode) : null);
 
 			return coalesce(items);
 		} finally {

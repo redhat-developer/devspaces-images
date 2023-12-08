@@ -189,6 +189,14 @@ export class TerminalQuickFixAddon extends Disposable implements ITerminalAddon,
 			this._disposeQuickFix(this._lastQuickFixId, false);
 		}
 
+
+		// Wait for the next command to start to ensure the quick fix marker is created on the next
+		// prompt line
+		const commandDetection = this._capabilities.get(TerminalCapability.CommandDetection);
+		if (commandDetection) {
+			await Event.toPromise(commandDetection.onCommandStarted);
+		}
+
 		const resolver = async (selector: ITerminalQuickFixOptions, lines?: string[]) => {
 			if (lines === undefined) {
 				return undefined;

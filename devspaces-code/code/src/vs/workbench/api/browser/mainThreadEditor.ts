@@ -21,7 +21,6 @@ import { CodeEditorStateFlag, EditorState } from 'vs/editor/contrib/editorState/
 import { IClipboardService } from 'vs/platform/clipboard/common/clipboardService';
 import { SnippetParser } from 'vs/editor/contrib/snippet/browser/snippetParser';
 import { MainThreadDocuments } from 'vs/workbench/api/browser/mainThreadDocuments';
-import { ISnippetEdit } from 'vs/editor/contrib/snippet/browser/snippetSession';
 
 export interface IFocusTracker {
 	onGainedFocus(): void;
@@ -531,11 +530,16 @@ export class MainThreadTextEditor {
 			return false;
 		}
 
+		// cancel previous snippet mode
+		// snippetController.leaveSnippet();
+
+		// set selection, focus editor
+		const selections = ranges.map(r => new Selection(r.startLineNumber, r.startColumn, r.endLineNumber, r.endColumn));
+		this._codeEditor.setSelections(selections);
 		this._codeEditor.focus();
 
-		// make modifications as snippet edit
-		const edits: ISnippetEdit[] = ranges.map(range => ({ range: Range.lift(range), template }));
-		snippetController.apply(edits, {
+		// make modifications
+		snippetController.insert(template, {
 			overwriteBefore: 0, overwriteAfter: 0,
 			undoStopBefore: opts.undoStopBefore, undoStopAfter: opts.undoStopAfter,
 			clipboardText
