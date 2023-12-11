@@ -116,14 +116,13 @@ sed -i "$d"/yarn.lock -r \
   -e "/browserify-sign\@\^4\.[0-9.]+:/{s/(browserify-sign.+):/\1, browserify-sign@4.2.2:/;n;\
   s/version \"4\.[0-9.]+\"/version \"4.2.2\"/;n;\
   s/browserify-sign-4.+/browserify-sign-4.2.2.tgz#e78d4b69816d6e3dd1c747e64e9947f9ad79bc7e\"/;n;\
-  s/integrity .+/integrity sha512-1rudGyeYY42Dk6texmv7c4VcQ0EsvVbLwZkA+AQB7SxvXxmcD93jcHie8bzecJ+ChDlmAm2Qyu0+Ccg5uhZXCg==/}"
+  s#integrity .+#integrity sha512-1rudGyeYY42Dk6texmv7c4VcQ0EsvVbLwZkA+AQB7SxvXxmcD93jcHie8bzecJ+ChDlmAm2Qyu0+Ccg5uhZXCg==#}"
 echo "Patched package.json and yarn.lock: browserify-sign @ 4.2.2"
-
 sed -i "$d"/yarn.lock -r \
   -e "/get-func-name\@\^2\.[0-9.]+:/{s/(get-func-name.+):/\1, get-func-name@2.0.2:/;n;\
   s/version \"2\.[0-9.]+\"/version \"2.0.2\"/;n;\
   s/get-func-name-2.+/get-func-name-2.0.2.tgz#0d7cf20cd13fda808669ffa88f4ffc7a3943fc41\"/;n;\
-  s/integrity .+/integrity sha512-8vXOvuE167CtIc3OyItco7N/dpRtBbYOsPsXCz7X/PMnlGjYjSGuZJgM1Y7mmew7BKf9BqvLX2tnOVy1BBUsxQ==/}"
+  s#integrity .+#integrity sha512-8vXOvuE167CtIc3OyItco7N/dpRtBbYOsPsXCz7X/PMnlGjYjSGuZJgM1Y7mmew7BKf9BqvLX2tnOVy1BBUsxQ==#}"
 echo "Patched package.json and yarn.lock: get-func-name @ 2.0.2"
 
 # nothing to transform, so just copy from rhel.Dockerfile into root to replace the upstream one
