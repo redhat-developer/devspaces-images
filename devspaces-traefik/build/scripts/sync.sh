@@ -100,22 +100,31 @@ echo "Using $TRAEFIK_VERSION = $SOURCE_SHA"
 
 "${SCRIPT_DIR}/checkgoMod.sh" "${TARGETDIR}" || exit $?
 
-# CRW-4966 - if a version newer than 4.2.2 comes out, should update this again
+# CRW-4966 browserify-sign@4.2.2
+# CRW-4882 get-func-name@2.0.2
 # to get a new resolved & integrity SHA values, run 
-#   cd /tmp; mkdir foo; cd foo; yarn add browserify-sign@4.2.2
+#   cd /tmp; mkdir foo; cd foo; yarn add browserify-sign@4.2.2 get-func-name@2.0.2
 # then look in generated yarn.lock for the correct hashes
 d=webui
-# collect existing .dependencies; add browserify-sign@4.2.2
+# collect existing .dependencies; add new ones
 pairs="$(jq -M -c '.dependencies' "$d"/package.json | tr -d "{}")"
 pairs="$pairs,\"browserify-sign\": \"4.2.2\""
+pairs="$pairs,\"get-func-name\": \"2.0.2\""
 jq '.dependencies|={'"$pairs"'}' "$d"/package.json > "$d"/package.json_; mv "$d"/package.json{_,}
-# replace resolution of browserify-sign 4.0.4 with 4.2.2
+# replace resolution of older deps with new ones
 sed -i "$d"/yarn.lock -r \
   -e "/browserify-sign\@\^4\.[0-9.]+:/{s/(browserify-sign.+):/\1, browserify-sign@4.2.2:/;n;\
   s/version \"4\.[0-9.]+\"/version \"4.2.2\"/;n;\
   s/browserify-sign-4.+/browserify-sign-4.2.2.tgz#e78d4b69816d6e3dd1c747e64e9947f9ad79bc7e\"/;n;\
   s/integrity .+/integrity sha512-1rudGyeYY42Dk6texmv7c4VcQ0EsvVbLwZkA+AQB7SxvXxmcD93jcHie8bzecJ+ChDlmAm2Qyu0+Ccg5uhZXCg==/}"
-echo "Patched package.json and yarn.lock to update browserify-sign to 4.2.2"
+echo "Patched package.json and yarn.lock: browserify-sign @ 4.2.2"
+
+sed -i "$d"/yarn.lock -r \
+  -e "/get-func-name\@\^2\.[0-9.]+:/{s/(get-func-name.+):/\1, get-func-name@2.0.2:/;n;\
+  s/version \"2\.[0-9.]+\"/version \"2.0.2\"/;n;\
+  s/get-func-name-2.+/get-func-name-2.0.2.tgz#0d7cf20cd13fda808669ffa88f4ffc7a3943fc41\"/;n;\
+  s/integrity .+/integrity sha512-8vXOvuE167CtIc3OyItco7N/dpRtBbYOsPsXCz7X/PMnlGjYjSGuZJgM1Y7mmew7BKf9BqvLX2tnOVy1BBUsxQ==/}"
+echo "Patched package.json and yarn.lock: get-func-name @ 2.0.2"
 
 # nothing to transform, so just copy from rhel.Dockerfile into root to replace the upstream one
 cp -f "${TARGETDIR}"/build/rhel.Dockerfile "${TARGETDIR}"/Dockerfile
