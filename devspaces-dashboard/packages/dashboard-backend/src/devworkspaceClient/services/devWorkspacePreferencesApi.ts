@@ -39,14 +39,15 @@ export class DevWorkspacePreferencesApiService implements IDevWorkspacePreferenc
         namespace,
       );
       const data = response.body.data;
+      let skipAuthorization: string[];
       if (data === undefined) {
-        throw new Error('Data is empty');
+        skipAuthorization = [];
+      } else {
+        skipAuthorization =
+          data[SKIP_AUTHORIZATION_KEY] && data[SKIP_AUTHORIZATION_KEY] !== '[]'
+            ? data[SKIP_AUTHORIZATION_KEY].replace(/^\[/, '').replace(/\]$/, '').split(', ')
+            : [];
       }
-
-      const skipAuthorization =
-        data[SKIP_AUTHORIZATION_KEY] && data[SKIP_AUTHORIZATION_KEY] !== '[]'
-          ? data[SKIP_AUTHORIZATION_KEY].replace(/^\[/, '').replace(/\]$/, '').split(', ')
-          : [];
 
       return Object.assign({}, data, {
         [SKIP_AUTHORIZATION_KEY]: skipAuthorization,
