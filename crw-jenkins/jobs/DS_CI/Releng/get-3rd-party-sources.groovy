@@ -30,7 +30,7 @@ Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they ca
     If the <b>stage-mw-release</b> command fails or was omitted, you can re-run it locally without having to re-run this whole job:
     <p><pre>
         kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
-        REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+        REMOTE_USER_AND_HOST="devspaces-build@spmm-util.engineering.redhat.com"
         ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z.yyyy-mm-dd"
         Staged devspaces-3.yy.z.2023-03-21 in 0:04:30.158899
     </pre></p>

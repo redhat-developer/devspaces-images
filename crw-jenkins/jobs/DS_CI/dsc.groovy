@@ -61,7 +61,7 @@ Results: <ul><li> <a href=https://quay.io/repository/devspaces/dsc?tab=tags>quay
     For GA builds only: if the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
     <pre>
     kinit kinit -k -t /path/to/devspaces-build-keytab devspaces-build@IPA.REDHAT.COM
-    REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+    REMOTE_USER_AND_HOST="devspaces-build@spmm-util.engineering.redhat.com"
     ssh "${REMOTE_USER_AND_HOST}" "stage-mw-release devspaces-3.yy.z.yyyy-mm-dd"
     Staged devspaces-3.yy.z.2023-03-21 in 0:04:30.158899</pre>
 </blockquote></p>

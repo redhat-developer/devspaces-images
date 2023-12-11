@@ -101,7 +101,7 @@ fi
             println "########################################################################################################"
             println "##  Copy vsix files to spmm-util"
             println "########################################################################################################"
-            //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+            //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.engineering.redhat.com"
             sh('''#!/bin/bash -ex
 # TODO CRW-1919 remove this when we no longer need it
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache
