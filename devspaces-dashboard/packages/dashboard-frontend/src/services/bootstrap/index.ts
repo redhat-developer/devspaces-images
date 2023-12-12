@@ -35,6 +35,7 @@ import { AppState } from '@/store';
 import * as BannerAlertStore from '@/store/BannerAlert';
 import * as BrandingStore from '@/store/Branding';
 import * as ClusterConfigStore from '@/store/ClusterConfig';
+import { selectDashboardFavicon } from '@/store/ClusterConfig/selectors';
 import * as ClusterInfoStore from '@/store/ClusterInfo';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
@@ -112,7 +113,7 @@ export default class Bootstrap {
       this.fetchPods().then(() => {
         this.watchWebSocketPods();
       }),
-      this.fetchClusterConfig().then(() => this.setFavicon()),
+      this.fetchClusterConfig().then(() => this.updateFavicon()),
     ]);
 
     const errors = results
@@ -464,16 +465,14 @@ export default class Bootstrap {
     return -1;
   }
 
-  private setFavicon() {
-    const base64data =
-      this.store.getState().clusterConfig.clusterConfig.dashboardFavicon?.base64data;
-    const mediaType = this.store.getState().clusterConfig.clusterConfig.dashboardFavicon?.mediatype;
-    if (base64data && mediaType) {
-      const hrefAttribute = `data:${mediaType};base64,${base64data}`;
+  private updateFavicon() {
+    const dashboardFavicon = selectDashboardFavicon(this.store.getState());
+    if (dashboardFavicon?.base64data && dashboardFavicon?.mediatype) {
+      const hrefAttribute = `data:${dashboardFavicon?.mediatype};base64,${dashboardFavicon?.base64data}`;
       if (window.document) {
-        const dashboardFavicon = window.document.getElementById('dashboardFavicon');
-        if (dashboardFavicon) {
-          dashboardFavicon.setAttribute('href', hrefAttribute);
+        const faviconHTML = window.document.getElementById('dashboardFavicon');
+        if (faviconHTML) {
+          faviconHTML.setAttribute('href', hrefAttribute);
         }
       }
     }
