@@ -55,7 +55,7 @@ func (s *CheServerReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.
 	}
 
 	if done, err := s.syncPermissions(ctx); !done {
-		return reconcile.Result{Requeue: true}, false, err
+		return reconcile.Result{}, false, err
 	}
 
 	done, err = s.syncDeployment(ctx)
