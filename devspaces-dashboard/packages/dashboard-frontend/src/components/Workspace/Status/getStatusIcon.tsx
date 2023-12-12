@@ -28,7 +28,7 @@ export function getStatusIcon(status: string) {
     case DevWorkspaceStatus.STOPPED:
     case WorkspaceStatus.STOPPED:
       icon = (
-        <Icon status="default" isInline>
+        <Icon isInline>
           <StoppedIcon />
         </Icon>
       );
@@ -67,7 +67,7 @@ export function getStatusIcon(status: string) {
       break;
     default:
       icon = (
-        <Icon status="default" isInline>
+        <Icon isInline>
           <InProgressIcon className={styles.rotate} color={greyCssVariable} />
         </Icon>
       );

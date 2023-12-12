@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-backend",
-  "version": "7.79.0",
+  "version": "7.78.1",
   "description": "Dashboard backend for Eclipse Che",
   "scripts": {
     "build": "webpack --color --config webpack.config.prod.js",
@@ -38,7 +38,7 @@
     "@fastify/websocket": "^8.2.0",
     "@kubernetes/client-node": "^0.18.1",
     "args": "^5.0.3",
-    "axios": "^1.6.0",
+    "axios": "^0.21.4",
     "fastify": "^4.21.0",
     "fs-extra": "^11.1.1",
     "https": "^1.0.0",

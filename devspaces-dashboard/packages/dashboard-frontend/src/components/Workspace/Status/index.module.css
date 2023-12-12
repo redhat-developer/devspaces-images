@@ -1,3 +1,4 @@
+
 .statusLabel {
   text-transform: capitalize;
 }
@@ -9,6 +10,7 @@
 .statusIndicator svg {
   overflow: visible;
 }
+
 
 svg.rotate {
   width: 17px;

@@ -298,7 +298,7 @@ describe('Workspace-client helpers', () => {
         optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({ inline: editor });
         const store = new FakeStoreBuilder().build();
 
-        let errorText: string | undefined;
+        let errorText: string | undefined = undefined;
 
         try {
           await getCustomEditor(
@@ -394,7 +394,7 @@ describe('Workspace-client helpers', () => {
             })
             .build();
 
-          let errorText: string | undefined;
+          let errorText: string | undefined = undefined;
           try {
             await getCustomEditor(
               pluginRegistryUrl,
@@ -490,7 +490,7 @@ describe('Workspace-client helpers', () => {
             })
             .build();
 
-          let errorText: string | undefined;
+          let errorText: string | undefined = undefined;
           try {
             await getCustomEditor(
               pluginRegistryUrl,

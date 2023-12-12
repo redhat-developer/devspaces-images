@@ -80,22 +80,9 @@ describe('Server Config API Service', () => {
     expect(res).toEqual([{ container: { image: 'component-image' }, name: 'component-name' }]);
   });
 
-  test('getting openVSXURL from the CR', () => {
-    const openVSXURL = 'https://open-vsx.org';
-    const res = serverConfigService.getPluginRegistry(buildCustomResource(openVSXURL));
-    expect(res).toEqual({ openVSXURL: 'https://open-vsx.org' });
-  });
-
-  test('getting openVSXURL from the env var', () => {
-    process.env.CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL = 'https://open-vsx.org';
+  test('getting pluginRegistry', () => {
     const res = serverConfigService.getPluginRegistry(buildCustomResource());
     expect(res).toEqual({ openVSXURL: 'https://open-vsx.org' });
-  });
-
-  test('getting empty openVSXURL from the env var', () => {
-    process.env.CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL = '';
-    const res = serverConfigService.getPluginRegistry(buildCustomResource());
-    expect(res).toEqual({ openVSXURL: '' });
   });
 
   test('getting PVC strategy', () => {
@@ -162,7 +149,7 @@ function buildCustomResourceList(): { body: CustomResourceDefinitionList } {
   };
 }
 
-function buildCustomResource(openVSXURL?: string): CheClusterCustomResource {
+function buildCustomResource(): CheClusterCustomResource {
   return {
     apiVersion: 'org.eclipse.che/v2',
     kind: 'CheCluster',
@@ -179,7 +166,7 @@ function buildCustomResource(openVSXURL?: string): CheClusterCustomResource {
           },
         },
         devWorkspace: {},
-        pluginRegistry: openVSXURL ? { openVSXURL } : {},
+        pluginRegistry: { openVSXURL: 'https://open-vsx.org' },
         devfileRegistry: {
           externalDevfileRegistries: [
             {

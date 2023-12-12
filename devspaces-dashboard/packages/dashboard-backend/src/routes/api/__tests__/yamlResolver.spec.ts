@@ -16,15 +16,16 @@ import { baseApiPath } from '@/constants/config';
 import { axiosInstance } from '@/routes/api/helpers/getCertificateAuthority';
 import { setup, teardown } from '@/utils/appBuilder';
 
-jest.mock('@/routes/api/helpers/getDevWorkspaceClient.ts');
-jest.mock('@/routes/api/helpers/getToken.ts');
+jest.mock('../helpers/getDevWorkspaceClient.ts');
+jest.mock('../helpers/getToken.ts');
 
 jest.mock('@/routes/api/helpers/getCertificateAuthority');
 const getAxiosInstanceMock = jest.fn();
 (axiosInstance.get as jest.Mock).mockImplementation(getAxiosInstanceMock);
 
-describe('Data Resolver Route', () => {
+describe('Server Config Route', () => {
   let app: FastifyInstance;
+  const namespace = 'user-che';
 
   beforeAll(async () => {
     app = await setup();
@@ -34,7 +35,7 @@ describe('Data Resolver Route', () => {
     teardown(app);
   });
 
-  describe('POST ${baseApiPath}/data/resolver', () => {
+  describe('POST ${baseApiPath}/namespace/:namespace/yaml/resolver', () => {
     test('file exists', async () => {
       const devfileContent = 'devfile content';
       getAxiosInstanceMock.mockResolvedValue({
@@ -44,7 +45,7 @@ describe('Data Resolver Route', () => {
 
       const res = await app
         .inject()
-        .post(`${baseApiPath}/data/resolver`)
+        .post(`${baseApiPath}/namespace/${namespace}/yaml/resolver`)
         .payload({ url: 'https://devfile.yaml' });
 
       expect(res.statusCode).toEqual(200);
@@ -60,7 +61,7 @@ describe('Data Resolver Route', () => {
 
       const res = await app
         .inject()
-        .post(`${baseApiPath}/data/resolver`)
+        .post(`${baseApiPath}/namespace/${namespace}/yaml/resolver`)
         .payload({ url: 'https://devfile.yaml' });
 
       expect(res.statusCode).toEqual(404);

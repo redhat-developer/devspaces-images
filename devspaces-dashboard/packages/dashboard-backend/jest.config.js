@@ -28,7 +28,6 @@ module.exports = {
     '!src/localRun/**',
     '!src/utils/**',
     '!src/server.ts',
-    '!src/**/*.d.ts',
   ],
   testEnvironment: 'node',
   setupFilesAfterEnv: ['./jest.setup.js'],

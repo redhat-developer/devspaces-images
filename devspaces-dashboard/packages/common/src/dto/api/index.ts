@@ -129,7 +129,7 @@ export interface IServerConfig {
 export interface IPluginRegistry {
   disableInternalRegistry?: boolean;
   externalPluginRegistries?: { url: string }[];
-  openVSXURL?: string;
+  openVSXURL: string;
 }
 
 export interface IUserProfile {

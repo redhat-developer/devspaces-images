@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard",
-  "version": "7.79.0",
+  "version": "7.78.0",
   "description": "Dashboard for Eclipse Che",
   "private": true,
   "workspaces": [
@@ -38,8 +38,5 @@
   },
   "devDependencies": {
     "lerna": "^6"
-  },
-  "resolutions": {
-    "@adobe/css-tools": "^4.3.2"
   }
 }

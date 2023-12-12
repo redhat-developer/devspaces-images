@@ -11,14 +11,14 @@
  */
 
 import { api, helpers } from '@eclipse-che/common';
-import axios, { AxiosResponseHeaders, RawAxiosResponseHeaders } from 'axios';
+import axios from 'axios';
 import { JSONSchema7 } from 'json-schema';
 
 import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
 import { dashboardBackendPrefix } from '@/services/backend-client/const';
 import devfileApi, { IDevWorkspacesList } from '@/services/devfileApi';
 
-export type Headers = RawAxiosResponseHeaders | AxiosResponseHeaders;
+export type Headers = { [key: string]: string };
 
 export async function createWorkspace(
   devworkspace: devfileApi.DevWorkspace,

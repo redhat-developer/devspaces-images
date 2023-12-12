@@ -397,7 +397,7 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).toBeCalledWith(location);
+      expect(getYamlResolverSpy).toBeCalledWith('user-che', location);
       expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
         error_code: undefined,
       });
@@ -410,7 +410,7 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).toBeCalledWith(location);
+      expect(getYamlResolverSpy).toBeCalledWith('user-che', location);
       expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
         error_code: undefined,
       });
@@ -423,7 +423,7 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).toBeCalledWith(location);
+      expect(getYamlResolverSpy).toBeCalledWith('user-che', location);
       expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
         error_code: undefined,
       });
@@ -436,7 +436,7 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).not.toBeCalledWith(location);
+      expect(getYamlResolverSpy).not.toBeCalledWith('user-che', location);
       expect(getFactoryResolverSpy).toBeCalledWith(location, {
         error_code: undefined,
       });
