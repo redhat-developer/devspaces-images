@@ -72,15 +72,13 @@ git add plugin-config.json
                 sh('''#!/bin/bash -e
 cd ''' + SOURCE_DIR + '''
 # this process also generates plugin-manifest.json
-./build/build.sh ''' + PLUGIN + '''
+./build/build.sh ''' + PLUGIN + ''' --clean --update-manifest
                 ''')
               }
               catch(err) {
                 println "Plugin " + PLUGIN + " failed to build."
                 FAILURES = FAILURES + PLUGIN + "\n"
               }
-              //cleanup
-              sh('podman system prune -a -f')
             }
 
             println "########################################################################################################"
