@@ -113,20 +113,59 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
   @Override
   public BitbucketUser getUser(String token)
       throws ScmItemNotFoundException, ScmUnauthorizedException, ScmCommunicationException {
-    return getUser(Optional.of(token));
+    return getUser(getUserSlug(token), Optional.of(token));
   }
 
   @Override
   public BitbucketUser getUser()
       throws ScmItemNotFoundException, ScmUnauthorizedException, ScmCommunicationException {
-    return getUser(Optional.empty());
+    return getUser(getUserSlug(), Optional.empty());
+  }
+
+  private BitbucketUser getUser(String slug, Optional<String> token)
+      throws ScmItemNotFoundException, ScmUnauthorizedException, ScmCommunicationException {
+    URI uri;
+    try {
+      uri = serverUri.resolve("./rest/api/1.0/users/" + slug);
+    } catch (IllegalArgumentException e) {
+      // if the slug contains invalid characters (space for example) then the URI will be invalid
+      throw new ScmCommunicationException(e.getMessage(), e);
+    }
+
+    HttpRequest request =
+        HttpRequest.newBuilder(uri)
+            .headers(
+                "Authorization",
+                token.isPresent()
+                    ? "Bearer " + token.get()
+                    : computeAuthorizationHeader("GET", uri.toString()))
+            .timeout(DEFAULT_HTTP_TIMEOUT)
+            .build();
+
+    try {
+      LOG.trace("executeRequest={}", request);
+      return executeRequest(
+          httpClient,
+          request,
+          inputStream -> {
+            try {
+              String result =
+                  CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
+              return OM.readValue(result, BitbucketUser.class);
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          });
+    } catch (ScmBadRequestException e) {
+      throw new ScmCommunicationException(e.getMessage(), e);
+    }
   }
 
   @Override
   public List<BitbucketUser> getUsers()
       throws ScmBadRequestException, ScmUnauthorizedException, ScmCommunicationException {
     try {
-      return doGetItems(Optional.empty(), BitbucketUser.class, "./rest/api/1.0/users", null);
+      return doGetItems(BitbucketUser.class, "./rest/api/1.0/users", null);
     } catch (ScmItemNotFoundException e) {
       throw new ScmCommunicationException(e.getMessage(), e);
     }
@@ -136,14 +175,14 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
   public List<BitbucketUser> getUsers(String filter)
       throws ScmBadRequestException, ScmUnauthorizedException, ScmCommunicationException {
     try {
-      return doGetItems(Optional.empty(), BitbucketUser.class, "./rest/api/1.0/users", filter);
+      return doGetItems(BitbucketUser.class, "./rest/api/1.0/users", filter);
     } catch (ScmItemNotFoundException e) {
       throw new ScmCommunicationException(e.getMessage(), e);
     }
   }
 
   @Override
-  public void deletePersonalAccessTokens(String tokenId)
+  public void deletePersonalAccessTokens(Long tokenId)
       throws ScmItemNotFoundException, ScmUnauthorizedException, ScmCommunicationException {
     URI uri = serverUri.resolve("./rest/access-tokens/1.0/users/" + getUserSlug() + "/" + tokenId);
     HttpRequest request =
@@ -227,7 +266,6 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
       throws ScmItemNotFoundException, ScmUnauthorizedException, ScmCommunicationException {
     try {
       return doGetItems(
-          Optional.empty(),
           BitbucketPersonalAccessToken.class,
           "./rest/access-tokens/1.0/users/" + getUserSlug(),
           null);
@@ -237,7 +275,7 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
   }
 
   @Override
-  public BitbucketPersonalAccessToken getPersonalAccessToken(String tokenId)
+  public BitbucketPersonalAccessToken getPersonalAccessToken(Long tokenId)
       throws ScmItemNotFoundException, ScmUnauthorizedException, ScmCommunicationException {
     URI uri = serverUri.resolve("./rest/access-tokens/1.0/users/" + getUserSlug() + "/" + tokenId);
     HttpRequest request =
@@ -269,12 +307,17 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
     }
   }
 
-  private String getUserSlug()
+  private String getUserSlug(String token)
       throws ScmItemNotFoundException, ScmCommunicationException, ScmUnauthorizedException {
-    return getUser(Optional.empty()).getSlug();
+    return getUserSlug(Optional.of(token));
   }
 
-  private BitbucketUser getUser(Optional<String> token)
+  private String getUserSlug()
+      throws ScmItemNotFoundException, ScmCommunicationException, ScmUnauthorizedException {
+    return getUserSlug(Optional.empty());
+  }
+
+  private String getUserSlug(Optional<String> token)
       throws ScmCommunicationException, ScmUnauthorizedException, ScmItemNotFoundException {
     URI uri;
     try {
@@ -294,59 +337,36 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
             .timeout(DEFAULT_HTTP_TIMEOUT)
             .build();
 
-    String username;
     try {
       LOG.trace("executeRequest={}", request);
-      username =
-          executeRequest(
-              httpClient,
-              request,
-              inputStream -> {
-                try {
-                  return CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
-                } catch (IOException e) {
-                  throw new UncheckedIOException(e);
-                }
-              });
-    } catch (ScmBadRequestException e) {
-      throw new ScmCommunicationException(e.getMessage(), e);
-    }
-
-    // Only authenticated users can do the request below, so we must ensure that the username is not
-    // empty
-    if (isNullOrEmpty(username)) {
-      throw buildScmUnauthorizedException();
-    }
-
-    try {
-      List<BitbucketUser> users =
-          doGetItems(token, BitbucketUser.class, "./rest/api/1.0/users", username);
-      // The result can contain multiple users, but we only want the one with the correct username
-      // See https://docs.atlassian.com/bitbucket-server/rest/7.9.0/bitbucket-rest.html#idp434
-      return users.stream()
-          .filter(user -> user.getName().equals(username))
-          .findFirst()
-          .orElseThrow(
-              () -> new ScmItemNotFoundException("User '" + username + "' not found in Bitbucket"));
+      return executeRequest(
+          httpClient,
+          request,
+          inputStream -> {
+            try {
+              return CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          });
     } catch (ScmBadRequestException e) {
       throw new ScmCommunicationException(e.getMessage(), e);
     }
   }
 
-  private <T> List<T> doGetItems(Optional<String> token, Class<T> tClass, String api, String filter)
+  private <T> List<T> doGetItems(Class<T> tClass, String api, String filter)
       throws ScmUnauthorizedException, ScmCommunicationException, ScmBadRequestException,
           ScmItemNotFoundException {
-    Page<T> currentPage = doGetPage(token, tClass, api, 0, 25, filter);
+    Page<T> currentPage = doGetPage(tClass, api, 0, 25, filter);
     List<T> result = new ArrayList<>(currentPage.getValues());
     while (!currentPage.isLastPage()) {
-      currentPage = doGetPage(token, tClass, api, currentPage.getNextPageStart(), 25, filter);
+      currentPage = doGetPage(tClass, api, currentPage.getNextPageStart(), 25, filter);
       result.addAll(currentPage.getValues());
     }
     return result;
   }
 
-  private <T> Page<T> doGetPage(
-      Optional<String> token, Class<T> tClass, String api, int start, int limit, String filter)
+  private <T> Page<T> doGetPage(Class<T> tClass, String api, int start, int limit, String filter)
       throws ScmUnauthorizedException, ScmBadRequestException, ScmCommunicationException,
           ScmItemNotFoundException {
     String suffix = api + "?start=" + start + "&limit=" + limit;
@@ -357,11 +377,7 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
     URI uri = serverUri.resolve(suffix);
     HttpRequest request =
         HttpRequest.newBuilder(uri)
-            .headers(
-                "Authorization",
-                token.isPresent()
-                    ? "Bearer " + token.get()
-                    : computeAuthorizationHeader("GET", uri.toString()))
+            .headers("Authorization", computeAuthorizationHeader("GET", uri.toString()))
             .timeout(DEFAULT_HTTP_TIMEOUT)
             .build();
     LOG.trace("executeRequest={}", request);

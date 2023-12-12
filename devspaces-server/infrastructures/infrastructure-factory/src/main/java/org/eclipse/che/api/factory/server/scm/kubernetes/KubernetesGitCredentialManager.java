@@ -23,7 +23,6 @@ import static org.eclipse.che.workspace.infrastructure.kubernetes.provision.secr
 import static org.eclipse.che.workspace.infrastructure.kubernetes.provision.secret.KubernetesSecretAnnotationNames.DEV_WORKSPACE_PREFIX;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.net.PercentEscaper;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
@@ -174,12 +173,10 @@ public class KubernetesGitCredentialManager implements GitCredentialManager {
    * field.
    */
   private String getUsernameSegment(PersonalAccessToken personalAccessToken) {
-    // Special characters are not allowed in URL username segment, so we need to escape them.
-    PercentEscaper percentEscaper = new PercentEscaper("", false);
     return personalAccessToken.getScmTokenName().startsWith(OAUTH_2_PREFIX)
         ? "oauth2"
         : isNullOrEmpty(personalAccessToken.getScmOrganization())
-            ? percentEscaper.escape(personalAccessToken.getScmUserName())
+            ? personalAccessToken.getScmUserName()
             : "username";
   }
 

@@ -57,9 +57,6 @@ import org.eclipse.che.inject.ConfigurationException;
 import org.eclipse.che.workspace.infrastructure.kubernetes.CheServerKubernetesClientFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.impls.KubernetesNamespaceMetaImpl;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.shared.KubernetesNamespaceMeta;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.AuthorizationChecker;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.AuthorizationException;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.PermissionsCleaner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.namespace.configurator.NamespaceConfigurator;
 import org.eclipse.che.workspace.infrastructure.kubernetes.util.KubernetesSharedPool;
 import org.slf4j.Logger;
@@ -101,8 +98,6 @@ public class KubernetesNamespaceFactory {
   private final PreferenceManager preferenceManager;
   protected final Set<NamespaceConfigurator> namespaceConfigurators;
   protected final KubernetesSharedPool sharedPool;
-  protected final AuthorizationChecker authorizationChecker;
-  protected final PermissionsCleaner permissionsCleaner;
 
   @Inject
   public KubernetesNamespaceFactory(
@@ -115,9 +110,7 @@ public class KubernetesNamespaceFactory {
       Set<NamespaceConfigurator> namespaceConfigurators,
       CheServerKubernetesClientFactory cheServerKubernetesClientFactory,
       PreferenceManager preferenceManager,
-      KubernetesSharedPool sharedPool,
-      AuthorizationChecker authorizationChecker,
-      PermissionsCleaner permissionsCleaner)
+      KubernetesSharedPool sharedPool)
       throws ConfigurationException {
     this.namespaceCreationAllowed = namespaceCreationAllowed;
     this.cheServerKubernetesClientFactory = cheServerKubernetesClientFactory;
@@ -127,8 +120,6 @@ public class KubernetesNamespaceFactory {
     this.labelNamespaces = labelNamespaces;
     this.annotateNamespaces = annotateNamespaces;
     this.namespaceConfigurators = ImmutableSet.copyOf(namespaceConfigurators);
-    this.authorizationChecker = authorizationChecker;
-    this.permissionsCleaner = permissionsCleaner;
 
     //noinspection UnstableApiUsage
     Splitter.MapSplitter csvMapSplitter = Splitter.on(",").withKeyValueSeparator("=");
@@ -290,9 +281,6 @@ public class KubernetesNamespaceFactory {
 
     var subject = EnvironmentContext.getCurrent().getSubject();
     var userName = subject.getUserName();
-
-    validateAuthorization(namespace.getName(), userName);
-
     NamespaceResolutionContext resolutionCtx =
         new NamespaceResolutionContext(identity.getWorkspaceId(), subject.getUserId(), userName);
     Map<String, String> namespaceAnnotationsEvaluated =
@@ -582,27 +570,6 @@ public class KubernetesNamespaceFactory {
     KubernetesNamespace namespace = get(workspace);
     if (isWorkspaceNamespaceManaged(namespace.getName(), workspace)) {
       namespace.delete();
-    }
-  }
-
-  protected void validateAuthorization(String namespaceName, String username)
-      throws InfrastructureException {
-    if (!authorizationChecker.isAuthorized(username)) {
-      try {
-        permissionsCleaner.cleanUp(namespaceName);
-      } catch (InfrastructureException | KubernetesClientException e) {
-        LOG.error(
-            "Failed to clean up permissions for user '{}' in namespace '{}'. Cause: {}",
-            username,
-            namespaceName,
-            e.getMessage(),
-            e);
-      }
-
-      throw new AuthorizationException(
-          format(
-              "User '%s' is not authorized to create a project. Please contact your system administrator.",
-              username));
     }
   }
 

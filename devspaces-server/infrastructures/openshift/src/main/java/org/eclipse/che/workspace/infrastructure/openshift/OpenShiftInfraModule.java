@@ -40,8 +40,6 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.KubernetesClientTermi
 import org.eclipse.che.workspace.infrastructure.kubernetes.KubernetesEnvironmentProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.StartSynchronizerFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.KubernetesNamespaceService;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.AuthorizationChecker;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.PermissionsCleaner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.cache.jpa.JpaKubernetesRuntimeCacheModule;
 import org.eclipse.che.workspace.infrastructure.kubernetes.devfile.DockerimageComponentToWorkspaceApplier;
 import org.eclipse.che.workspace.infrastructure.kubernetes.devfile.KubernetesComponentToWorkspaceApplier;
@@ -82,7 +80,6 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.PluginBroke
 import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.SidecarToolingProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.brokerphases.BrokerEnvironmentFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.events.BrokerService;
-import org.eclipse.che.workspace.infrastructure.openshift.authorization.OpenShiftAuthorizationCheckerImpl;
 import org.eclipse.che.workspace.infrastructure.openshift.devfile.OpenshiftComponentToWorkspaceApplier;
 import org.eclipse.che.workspace.infrastructure.openshift.environment.OpenShiftEnvironment;
 import org.eclipse.che.workspace.infrastructure.openshift.environment.OpenShiftEnvironmentFactory;
@@ -120,9 +117,6 @@ public class OpenShiftInfraModule extends AbstractModule {
     namespaceConfigurators.addBinding().to(OpenShiftStopWorkspaceRoleConfigurator.class);
     namespaceConfigurators.addBinding().to(SshKeysConfigurator.class);
     namespaceConfigurators.addBinding().to(GitconfigUserDataConfigurator.class);
-
-    bind(AuthorizationChecker.class).to(OpenShiftAuthorizationCheckerImpl.class);
-    bind(PermissionsCleaner.class).asEagerSingleton();
 
     bind(KubernetesNamespaceService.class);
 

@@ -40,8 +40,6 @@ import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.workspace.infrastructure.kubernetes.CheServerKubernetesClientFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.impls.KubernetesNamespaceMetaImpl;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.shared.KubernetesNamespaceMeta;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.AuthorizationChecker;
-import org.eclipse.che.workspace.infrastructure.kubernetes.authorization.PermissionsCleaner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.namespace.KubernetesNamespaceFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.namespace.configurator.NamespaceConfigurator;
 import org.eclipse.che.workspace.infrastructure.kubernetes.util.KubernetesSharedPool;
@@ -83,8 +81,6 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
       CheServerOpenshiftClientFactory cheServerOpenshiftClientFactory,
       PreferenceManager preferenceManager,
       KubernetesSharedPool sharedPool,
-      AuthorizationChecker authorizationChecker,
-      PermissionsCleaner permissionsCleaner,
       @Nullable @Named("che.infra.openshift.oauth_identity_provider")
           String oAuthIdentityProvider) {
     super(
@@ -97,9 +93,7 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
         namespaceConfigurators,
         cheServerKubernetesClientFactory,
         preferenceManager,
-        sharedPool,
-        authorizationChecker,
-        permissionsCleaner);
+        sharedPool);
     this.initWithCheServerSa = initWithCheServerSa;
     this.cheServerKubernetesClientFactory = cheServerKubernetesClientFactory;
     this.cheServerOpenshiftClientFactory = cheServerOpenshiftClientFactory;
@@ -111,9 +105,6 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
     OpenShiftProject osProject = get(identity);
     var subject = EnvironmentContext.getCurrent().getSubject();
     var userName = subject.getUserName();
-
-    validateAuthorization(osProject.getName(), userName);
-
     NamespaceResolutionContext resolutionCtx =
         new NamespaceResolutionContext(identity.getWorkspaceId(), subject.getUserId(), userName);
     Map<String, String> namespaceAnnotationsEvaluated =
