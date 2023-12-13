@@ -26,14 +26,15 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     def List PHASE_LIST = PHASES.tokenize(" ").collect { it.trim() }
 
                     if (PHASE_LIST.contains("1")) {
-                        // 9 jobs
+                        // 10 jobs
                         def jobsList = [
                             "configbump",
                             "dashboard",
-                            "imagepuller",
-                            "machineexec",
+                            "imagepuller",              // deprecated? see https://issues.redhat.com/browse/CRW-4781
+                            "machineexec",              // deprecated? see https://issues.redhat.com/browse/CRW-3080 https://issues.redhat.com/browse/CRW-3160
                             "operator",                 // special case: "devspaces-rhel8-operator"
                             "pluginregistry",
+                            "pluginregistry-plugins",   // required for code build
                             "server",
                             "traefik",
                             "udi"
@@ -71,8 +72,8 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     if (PHASE_LIST.contains("2")) {
                         // 2 jobs
                         def jobsList = [
-                            "code",                     // @since 3.1
-                            "idea"                      // @since 2.11; depends on machineexec
+                            "code",                     // depends on machineexec and pluginregistry-plugins
+                            "idea"                      // depends on machineexec
                         ]
 
                         def Map tasks = [failFast: false]

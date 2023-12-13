@@ -65,15 +65,15 @@ for global CVE updates.
                 stringParam("PHASES", "1 2 3 4", '''
 Phases:
 <ol>
-    <li> build internals in parallel (9 images): 
+    <li> build internals in parallel (10 images): 
         <ul>
-            <li> configbump, operator, dashboard, imagepuller, </li>
-            <li> machineexec, pluginregistry, server, traefik, udi</li>
+            <li> configbump, operator, dashboard, imagepuller, machineexec, </li>
+            <li> pluginregistry, pluginregistry-plugins, server, traefik, udi</li>
         </ul>
     </li>
     <li> build editors in parallel (2 images): 
         <ul>
-            <li> code [depends on machineexec] </li>
+            <li> code [depends on machineexec and pluginregistry-plugins] </li>
             <li> idea [depends on machineexec] </li>
         </ul>
     </li>
