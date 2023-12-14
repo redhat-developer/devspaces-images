@@ -353,16 +353,17 @@
     request "^2.81.0"
     rewire "^3.0.2"
 
-"@devfile/api@2.2.1-alpha-1667236163", "@devfile/api@^2.2.1-alpha-1667236163":
-  version "2.2.1-alpha-1667236163"
-  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.1-alpha-1667236163.tgz#33cf448dae960c071037b32c6c68f96ba26f1990"
-  integrity sha512-tspoTrbyMbPIVwTD2qr6ljvQAJLE1lCN6uBFIGcYXKw89JGt0s0+WLQ/qIh2+RP5pDpDWbDp/yNFKCmzaOLupg==
+"@devfile/api@2.2.2-1700686170":
+  version "2.2.2-1700686170"
+  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.2-1700686170.tgz#faf3627f1f9d5df60705813add60b349eb3166bb"
+  integrity sha512-mCIzvSce4Bu50HNybY0gWtSD1kujnXGvMVkzk0AAKMt1eSIAKtJeuTRPqQcLfrcfMRjF5t+AVOIIJ5LtlEfknA==
   dependencies:
-    "@types/bluebird" "3.5.21"
-    "@types/request" "*"
-    bluebird "^3.5.0"
-    request "^2.81.0"
-    rewire "^3.0.2"
+    "@types/node" "*"
+    "@types/node-fetch" "^2.5.7"
+    es6-promise "^4.2.4"
+    form-data "^2.5.0"
+    node-fetch "^2.6.0"
+    url-parse "^1.4.3"
 
 "@discoveryjs/json-ext@0.5.7", "@discoveryjs/json-ext@^0.5.0":
   version "0.5.7"
@@ -374,12 +375,12 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.76.0.tgz#4e51015b566df5a9843d32d4de040875da78e368"
   integrity sha512-V7egXY0x5Ce9DJGLrjXEeBkA/0854C9oz+KhxzCT/mXYbVVj4+YbNFjiuufNRnuGOBOOVCOLhhe69ebODjCiQQ==
 
-"@eclipse-che/che-devworkspace-generator@7.78.0":
-  version "7.78.0"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.78.0.tgz#75817ba92f0f68293e10fa5389266af8495701d8"
-  integrity sha512-A8eYJAHZqupSLt3yaNgCfGXfDOswatQBiDXFhKghIfscDYE0+ExQW5KxwtRgT5kszPqeupvsRqLWmmuqgsOe2Q==
+"@eclipse-che/che-devworkspace-generator@7.79.0-next-1427c19":
+  version "7.79.0-next-1427c19"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.79.0-next-1427c19.tgz#2530b87d3e551b2c71ebb84e3e2e15c8229c0a19"
+  integrity sha512-eIu2bW165I4UzYFdpFQ1c2JXU1qGd7RRO4ITWE4To372+Cq1DTKNMjhVdj40DDeU2Pw1UjYh3Rr0flS7KBAUbg==
   dependencies:
-    "@devfile/api" "2.2.1-alpha-1667236163"
+    "@devfile/api" "2.2.2-1700686170"
     axios "1.6.0"
     fs-extra "^10.0.0"
     inversify "^5.0.1"
@@ -1823,6 +1824,14 @@
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.4.tgz#81f886786411c45bba3f33e781ab48bd56bfca2e"
   integrity sha512-Kfe/D3hxHTusnPNRbycJE1N77WHDsdS4AjUYIzlDzhDrS47NrwuL3YW4VITxwR7KCVpzwgy4Rbj829KSSQmwXQ==
+
+"@types/node-fetch@^2.5.7":
+  version "2.6.9"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.9.tgz#15f529d247f1ede1824f7e7acdaa192d5f28071e"
+  integrity sha512-bQVlnMLFJ2d35DkPNjEPmd9ueO/rh5EiaZt2bhqiSarPjZIuIV6bPQVqcrEyvNo+AfTrRGVazle1tl597w3gfA==
+  dependencies:
+    "@types/node" "*"
+    form-data "^4.0.0"
 
 "@types/node@*", "@types/node@^20.4.9":
   version "20.8.10"
@@ -4590,6 +4599,11 @@ es-to-primitive@^1.2.1:
     is-callable "^1.1.4"
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
+
+es6-promise@^4.2.4:
+  version "4.2.8"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.8.tgz#4eb21594c972bc40553d276e510539143db53e0a"
+  integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
 
 escalade@^3.1.1:
   version "3.1.1"
@@ -8181,7 +8195,7 @@ node-fetch@2.6.7:
   dependencies:
     whatwg-url "^5.0.0"
 
-node-fetch@^2.6.7:
+node-fetch@^2.6.0, node-fetch@^2.6.7:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
@@ -11690,7 +11704,7 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-url-parse@^1.5.3:
+url-parse@^1.4.3, url-parse@^1.5.3:
   version "1.5.10"
   resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.10.tgz#9d3c2f736c1d75dd3bd2be507dcc111f1e2ea9c1"
   integrity sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==

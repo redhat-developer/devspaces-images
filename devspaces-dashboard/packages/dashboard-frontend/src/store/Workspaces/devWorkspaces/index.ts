@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1alpha2DevWorkspaceStatus } from '@devfile/api';
 import common, { api, ApplicationId } from '@eclipse-che/common';
 import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
@@ -1086,7 +1087,7 @@ export const reducer: Reducer<State> = (
           if (WorkspaceAdapter.getUID(workspace) === action.workspaceUID) {
             const targetWorkspace = Object.assign({}, workspace);
             if (!targetWorkspace.status) {
-              targetWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
+              targetWorkspace.status = {} as V1alpha2DevWorkspaceStatus;
             }
             targetWorkspace.status.phase = DevWorkspaceStatus.TERMINATING;
             targetWorkspace.status.message = action.message;

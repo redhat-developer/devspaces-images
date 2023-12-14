@@ -18,4 +18,3 @@ export { DevWorkspaceSpec } from './devWorkspace/spec';
 export { DevWorkspaceSpecTemplate } from './devWorkspace/spec/template';
 export { DevWorkspaceTemplate, DevWorkspaceTemplateLike } from './devWorkspaceTemplate';
 export { DevWorkspaceTemplateMetadata } from './devWorkspaceTemplate/metadata';
-export { V1alpha2DevWorkspaceStatus as DevWorkspaceStatus } from '@devfile/api';

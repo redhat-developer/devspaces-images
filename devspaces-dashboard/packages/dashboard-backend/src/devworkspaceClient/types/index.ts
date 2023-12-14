@@ -13,7 +13,7 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
-  V221DevfileComponents,
+  V222DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
@@ -144,7 +144,7 @@ export type CheClusterCustomResourceSpecDevEnvironments = {
   containerBuildConfiguration?: {
     openShiftSecurityContextConstraint?: string;
   };
-  defaultComponents?: V221DevfileComponents[];
+  defaultComponents?: V222DevfileComponents[];
   defaultEditor?: string;
   defaultPlugins?: api.IWorkspacesDefaultPlugins[];
   disableContainerBuildCapabilities?: boolean;
@@ -270,7 +270,7 @@ export interface IServerConfigApi {
    * Returns the default components applied to DevWorkspaces.
    * These default components are meant to be used when a Devfile does not contain any components.
    */
-  getDefaultComponents(cheCustomResource: CheClusterCustomResource): V221DevfileComponents[];
+  getDefaultComponents(cheCustomResource: CheClusterCustomResource): V222DevfileComponents[];
   /**
    * Returns the plugin registry.
    */

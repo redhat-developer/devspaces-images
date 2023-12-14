@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V221DevfileProjects } from '@devfile/api';
+import { V222DevfileProjects } from '@devfile/api';
 
 import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import { getProjectName } from '@/services/helpers/getProjectName';
@@ -18,7 +18,7 @@ import { getProjectName } from '@/services/helpers/getProjectName';
 export function getProjectFromLocation(
   location: string,
   remoteName = 'origin',
-): V221DevfileProjects {
+): V222DevfileProjects {
   const name = getProjectName(location);
   if (FactoryLocationAdapter.isSshLocation(location)) {
     const origin = location;

@@ -5,6 +5,7 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `@babel/runtime-corejs3@7.22.10` | transitive dependency |
 | `@csstools/media-query-list-parser@2.1.4` | transitive dependency |
 | `@csstools/selector-specificity@3.0.0` | transitive dependency |
+| `@devfile/api@2.2.2-1700686170` | N/A |
 | `@eslint/js@8.53.0` | transitive dependency |
 | `@nrwl/nx-darwin-arm64@15.9.7` | transitive dependency |
 | `@nrwl/nx-darwin-x64@15.9.7` | transitive dependency |

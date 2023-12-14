@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
+import { V1alpha2DevWorkspaceStatus, V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
 
 import devfileApi from '@/services/devfileApi';
 import { DevWorkspacePlugin } from '@/services/devfileApi/devWorkspace';
@@ -35,7 +35,7 @@ export class DevWorkspaceBuilder {
     },
   };
 
-  private buildStatus(id?: string): devfileApi.DevWorkspaceStatus {
+  private buildStatus(id?: string): V1alpha2DevWorkspaceStatus {
     return {
       devworkspaceId: id
         ? id

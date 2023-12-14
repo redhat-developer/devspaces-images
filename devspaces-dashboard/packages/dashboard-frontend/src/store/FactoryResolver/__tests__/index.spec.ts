@@ -17,10 +17,7 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import * as factoryResolver from '@/services/backend-client/factoryApi';
 import * as yamlResolver from '@/services/backend-client/yamlResolverApi';
-import {
-  convertDevfileV1toDevfileV2,
-  convertDevfileV2toDevfileV1,
-} from '@/services/devfile/converters';
+import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
 import devfileApi from '@/services/devfileApi';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
@@ -40,11 +37,6 @@ jest.mock('../normalizeDevfileV2.ts');
 });
 
 jest.mock('../../../services/devfile/converters');
-(convertDevfileV2toDevfileV1 as jest.Mock).mockImplementation(async () => {
-  return {
-    apiVersion: '1.0.0',
-  } as che.WorkspaceDevfile;
-});
 (convertDevfileV1toDevfileV2 as jest.Mock).mockImplementation(async () => {
   return {
     schemaVersion: '2.0.0',

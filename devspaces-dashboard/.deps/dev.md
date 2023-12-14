@@ -47,6 +47,7 @@
 | [`@csstools/css-tokenizer@2.2.1`](https://github.com/csstools/postcss-plugins.git) | MIT | clearlydefined |
 | [`@csstools/media-query-list-parser@2.1.5`](https://github.com/csstools/postcss-plugins.git) | MIT | clearlydefined |
 | [`@csstools/selector-specificity@3.0.0`](https://github.com/csstools/postcss-plugins.git) | MIT-0 | transitive dependency |
+| [`@devfile/api@2.2.2-1700686170`](https://github.com/GIT_USER_ID/GIT_REPO_ID.git) | Apache-2.0 | N/A |
 | [`@discoveryjs/json-ext@0.5.7`](https://github.com/discoveryjs/json-ext.git) | MIT | clearlydefined |
 | [`@eslint-community/eslint-utils@4.4.0`](https://github.com/eslint-community/eslint-utils) | MIT | #8032 |
 | [`@eslint-community/regexpp@4.10.0`](https://github.com/eslint-community/regexpp) | MIT | clearlydefined |
@@ -591,6 +592,7 @@
 | [`jest-worker@29.7.0`](https://github.com/jestjs/jest.git) | MIT | clearlydefined |
 | [`jest@29.7.0`](https://github.com/jestjs/jest.git) | MIT | clearlydefined |
 | [`jsdom@20.0.3`](https://github.com/jsdom/jsdom.git) | MIT | #7436 |
+| [`jsesc@2.5.2`](https://github.com/mathiasbynens/jsesc.git) | MIT | clearlydefined |
 | [`json-buffer@3.0.1`](git://github.com/dominictarr/json-buffer.git) | MIT | clearlydefined |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
 | [`json-parse-even-better-errors@3.0.0`](https://github.com/npm/json-parse-even-better-errors.git) | MIT | clearlydefined |
@@ -782,7 +784,6 @@
 | [`pstree.remy@1.1.8`](https://github.com/remy/pstree.git) | MIT | clearlydefined |
 | [`pure-rand@6.0.4`](git+https://github.com/dubzzz/pure-rand.git) | MIT | #8423 |
 | [`q@1.5.1`](git://github.com/kriskowal/q.git) | MIT | #1020 |
-| [`querystringify@2.2.0`](https://github.com/unshiftio/querystringify) | MIT | clearlydefined |
 | [`queue-microtask@1.2.3`](git://github.com/feross/queue-microtask.git) | MIT | clearlydefined |
 | [`quick-lru@4.0.1`](https://github.com/sindresorhus/quick-lru.git) | MIT | clearlydefined |
 | [`react-test-renderer@16.14.0`](git+https://github.com/facebook/react.git) | MIT | clearlydefined |
@@ -802,7 +803,6 @@
 | [`relateurl@0.2.7`](git://github.com/stevenvachon/relateurl.git) | MIT | clearlydefined |
 | [`renderkid@3.0.0`](https://github.com/AriaMinaei/RenderKid.git) | MIT | clearlydefined |
 | [`require-directory@2.1.1`](git://github.com/troygoode/node-require-directory.git) | MIT | clearlydefined |
-| [`requires-port@1.0.0`](https://github.com/unshiftio/requires-port) | MIT | clearlydefined |
 | [`resolve-cwd@3.0.0`](https://github.com/sindresorhus/resolve-cwd.git) | MIT | clearlydefined |
 | [`resolve-from@5.0.0`](https://github.com/sindresorhus/resolve-from.git) | MIT | clearlydefined |
 | [`resolve.exports@2.0.2`](https://github.com/lukeed/resolve.exports.git) | MIT | clearlydefined |
@@ -890,6 +890,7 @@
 | [`through2@4.0.2`](https://github.com/rvagg/through2.git) | MIT | clearlydefined |
 | [`through@2.3.8`](https://github.com/dominictarr/through.git) | MIT | #1036 |
 | [`titleize@3.0.0`](https://github.com/sindresorhus/titleize.git) | MIT | clearlydefined |
+| [`to-fast-properties@2.0.0`](https://github.com/sindresorhus/to-fast-properties.git) | MIT | clearlydefined |
 | [`to-regex-range@5.0.1`](https://github.com/micromatch/to-regex-range.git) | MIT | clearlydefined |
 | [`totalist@3.0.1`](https://github.com/lukeed/totalist.git) | MIT | clearlydefined |
 | [`touch@3.1.0`](git://github.com/isaacs/node-touch.git) | ISC | clearlydefined |
@@ -920,7 +921,6 @@
 | [`untildify@4.0.0`](https://github.com/sindresorhus/untildify.git) | MIT | clearlydefined |
 | [`upath@2.0.1`](git://github.com/anodynos/upath) | MIT | clearlydefined |
 | [`update-browserslist-db@1.0.13`](https://github.com/browserslist/update-db.git) | MIT | #8237 |
-| [`url-parse@1.5.10`](https://github.com/unshiftio/url-parse.git) | MIT | clearlydefined |
 | [`utila@0.4.0`](https://github.com/AriaMinaei/utila.git) | MIT | clearlydefined |
 | [`uuid@8.3.2`](https://github.com/uuidjs/uuid.git) | MIT | #2438 |
 | [`v8-compile-cache@2.3.0`](https://github.com/zertosh/v8-compile-cache.git) | MIT | clearlydefined |
