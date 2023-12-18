@@ -70,22 +70,6 @@ const config = {
         exclude: /node_modules/,
       },
       {
-        test: /node_modules[\\\\|\/](yaml-language-server)/,
-        use: ['umd-compat-loader']
-      },
-      {
-        test: /node_modules[\\\\|/](vscode-json-languageservice)/,
-        use: ['umd-compat-loader']
-      },
-      {
-        test: /prettier\/parser-yaml/,
-        use: ['null-loader']
-      },
-      {
-        test: /prettier/,
-        use: ['null-loader']
-      },
-      {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
       },

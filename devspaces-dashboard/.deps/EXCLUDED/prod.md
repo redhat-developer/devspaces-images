@@ -10,5 +10,4 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | `codemirror@5.65.15` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/codemirror/5.65.15) |
 | `fast-uri@2.3.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fast-uri/2.3.0) |
 | `fastify@4.24.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/4.24.3) |
-| `joi@17.11.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/joi/17.11.0) |
 | `real-require@0.2.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/real-require/0.2.0) |

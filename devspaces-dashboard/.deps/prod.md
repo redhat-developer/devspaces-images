@@ -9,7 +9,7 @@
 | [`@eclipse-che/common@7.79.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-backend@7.79.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-frontend@7.79.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/devfile-converter@0.0.1-ff55f9a`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/devfile-converter@0.0.1-0751ad2`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@fastify/accept-negotiator@1.1.0`](git+https://github.com/fastify/accept-negotiator.git) | MIT | clearlydefined |
 | [`@fastify/ajv-compiler@3.5.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@fastify/busboy@2.0.0`](https://github.com/fastify/busboy.git) | MIT | clearlydefined |
@@ -219,7 +219,7 @@
 | [`isarray@0.0.1`](git://github.com/juliangruber/isarray.git) | MIT | clearlydefined |
 | [`isomorphic-ws@5.0.0`](git+https://github.com/heineiuo/isomorphic-ws.git) | MIT | clearlydefined |
 | [`isstream@0.1.2`](https://github.com/rvagg/isstream.git) | MIT | clearlydefined |
-| [`joi@17.11.0`](git://github.com/hapijs/joi) | BSD-3-Clause | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/joi/17.11.0) |
+| [`joi@17.11.0`](git://github.com/hapijs/joi) | BSD-3-Clause | #12056 |
 | [`jose@4.15.4`](https://github.com/panva/jose.git) | MIT | clearlydefined |
 | [`joycon@3.1.1`](https://github.com/egoist/joycon.git) | MIT | clearlydefined |
 | [`js-tokens@4.0.0`](https://github.com/lydell/js-tokens.git) | MIT | #2401 |
