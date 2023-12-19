@@ -1,0 +1,404 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> a1384d97dd8
+STEP 3/23: ARG BOOTSTRAP=true
+--> 229afa56c47
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 4c8eb0c528e
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> bbd061fa9d1
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> e84af899653
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 9560c693344
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 55d5363a5d8
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 569e95664d4
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> d93a4e9049a
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.x86_64        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch               
+Installed:
+  containers-common-2:1-70.module+el8.9.0+20326+387084d0.x86_64                 
+  criu-3.18-4.module+el8.9.0+20326+387084d0.x86_64                              
+  fuse-common-3.3.0-17.el8.x86_64                                               
+  fuse-overlayfs-1.12-1.module+el8.9.0+20326+387084d0.x86_64                    
+  fuse3-3.3.0-17.el8.x86_64                                                     
+  fuse3-libs-3.3.0-17.el8.x86_64                                                
+  jq-1.6-7.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-1.module+el8.9.0+20326+387084d0.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.5-1.el8_9.x86_64                                              
+  python3.11-devel-3.11.5-1.el8_9.x86_64                                        
+  python3.11-libs-3.11.5-1.el8_9.x86_64                                         
+  python3.11-pip-22.3.1-4.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-4.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.9-1.module+el8.9.0+20326+387084d0.x86_64                           
+  skopeo-2:1.13.3-1.module+el8.9.0+20326+387084d0.x86_64                        
+  slirp4netns-1.2.1-1.module+el8.9.0+20326+387084d0.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.2.1-py3-none-any.whl (42 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.3/42.3 kB 2.6 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.2-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 32.1 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 380.9 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.3-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.2.1 pip-23.3.2 tomlkit-0.12.3 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> 1bc061dbde9
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 349f31c9855
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 0f07b667c11
+STEP 14/23: COPY ./VERSION /
+--> 035b2d856d7
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> e026c1471de
+STEP 16/23: WORKDIR /build/
+--> 3bb8ca01430
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 84 contributors and audited 31 packages in 5.143s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 288596545a8
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 136d02daaed
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:b92a1cc447f4b534dfb2d03b22283485764b018f8b206d5e894825f076071feb PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.11 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.11 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.11 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ = quay.io/devspaces/ansible-creator-ee@sha256:b92a1cc447f4b534dfb2d03b22283485764b018f8b206d5e894825f076071feb PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.11 PASS - 3.11 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.11 PASS - 3.11 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.11 PASS - 3.11 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 755823b2880
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 2f3034a2790
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 6e7cd93da86
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 373a275f5b9
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 424c0264332
+Successfully tagged localhost/devfileregistry:tmp
+424c0264332ff78040d23678bd9ee703f298eda3883ba074396487d734374bf6
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages/pip/__init__.py /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/__init__.py
+--- /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages/pip/__init__.py	2023-12-12 09:36:05.000000000 -0500
++++ /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/__init__.py	2023-12-19 07:30:14.251862520 -0500
+@@ -1,6 +1,6 @@
+ from typing import List, Optional
+ 
+-__version__ = "23.3.1"
++__version__ = "23.3.2"
+ 
+ 
+ def main(args: Optional[List[str]] = None) -> int:
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/factory.py /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/factory.py
+--- /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/factory.py	2023-12-12 09:36:05.000000000 -0500
++++ /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/factory.py	2023-12-19 07:30:14.253862520 -0500
+@@ -36,7 +36,10 @@
+ from pip._internal.models.link import Link
+ from pip._internal.models.wheel import Wheel
+ from pip._internal.operations.prepare import RequirementPreparer
+-from pip._internal.req.constructors import install_req_from_link_and_ireq
++from pip._internal.req.constructors import (
++    install_req_drop_extras,
++    install_req_from_link_and_ireq,
++)
+ from pip._internal.req.req_install import (
+     InstallRequirement,
+     check_invalid_constraint_type,
+@@ -176,6 +179,20 @@
+         name: Optional[NormalizedName],
+         version: Optional[CandidateVersion],
+     ) -> Optional[Candidate]:
++        base: Optional[BaseCandidate] = self._make_base_candidate_from_link(
++            link, template, name, version
++        )
++        if not extras or base is None:
++            return base
++        return self._make_extras_candidate(base, extras, comes_from=template)
++
++    def _make_base_candidate_from_link(
++        self,
++        link: Link,
++        template: InstallRequirement,
++        name: Optional[NormalizedName],
++        version: Optional[CandidateVersion],
++    ) -> Optional[BaseCandidate]:
+         # TODO: Check already installed candidate, and use it if the link and
+         # editable flag match.
+ 
+@@ -204,7 +221,7 @@
+                     self._build_failures[link] = e
+                     return None
+ 
+-            base: BaseCandidate = self._editable_candidate_cache[link]
++            return self._editable_candidate_cache[link]
+         else:
+             if link not in self._link_candidate_cache:
+                 try:
+@@ -224,11 +241,7 @@
+                     )
+                     self._build_failures[link] = e
+                     return None
+-            base = self._link_candidate_cache[link]
+-
+-        if not extras:
+-            return base
+-        return self._make_extras_candidate(base, extras, comes_from=template)
++            return self._link_candidate_cache[link]
+ 
+     def _iter_found_candidates(
+         self,
+@@ -362,9 +375,8 @@
+         """
+         for link in constraint.links:
+             self._fail_if_link_is_unsupported_wheel(link)
+-            candidate = self._make_candidate_from_link(
++            candidate = self._make_base_candidate_from_link(
+                 link,
+-                extras=frozenset(),
+                 template=install_req_from_link_and_ireq(link, template),
+                 name=canonicalize_name(identifier),
+                 version=None,
+@@ -454,10 +466,10 @@
+         Returns requirement objects associated with the given InstallRequirement. In
+         most cases this will be a single object but the following special cases exist:
+             - the InstallRequirement has markers that do not apply -> result is empty
+-            - the InstallRequirement has both a constraint and extras -> result is split
+-                in two requirement objects: one with the constraint and one with the
+-                extra. This allows centralized constraint handling for the base,
+-                resulting in fewer candidate rejections.
++            - the InstallRequirement has both a constraint (or link) and extras
++                -> result is split in two requirement objects: one with the constraint
++                (or link) and one with the extra. This allows centralized constraint
++                handling for the base, resulting in fewer candidate rejections.
+         """
+         if not ireq.match_markers(requested_extras):
+             logger.info(
+@@ -471,10 +483,13 @@
+             yield SpecifierRequirement(ireq)
+         else:
+             self._fail_if_link_is_unsupported_wheel(ireq.link)
+-            cand = self._make_candidate_from_link(
++            # Always make the link candidate for the base requirement to make it
++            # available to `find_candidates` for explicit candidate lookup for any
++            # set of extras.
++            # The extras are required separately via a second requirement.
++            cand = self._make_base_candidate_from_link(
+                 ireq.link,
+-                extras=frozenset(ireq.extras),
+-                template=ireq,
++                template=install_req_drop_extras(ireq) if ireq.extras else ireq,
+                 name=canonicalize_name(ireq.name) if ireq.name else None,
+                 version=None,
+             )
+@@ -489,7 +504,13 @@
+                     raise self._build_failures[ireq.link]
+                 yield UnsatisfiableRequirement(canonicalize_name(ireq.name))
+             else:
++                # require the base from the link
+                 yield self.make_requirement_from_candidate(cand)
++                if ireq.extras:
++                    # require the extras on top of the base candidate
++                    yield self.make_requirement_from_candidate(
++                        self._make_extras_candidate(cand, frozenset(ireq.extras))
++                    )
+ 
+     def collect_root_requirements(
+         self, root_ireqs: List[InstallRequirement]
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages/pip/_internal/vcs/mercurial.py /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_internal/vcs/mercurial.py
+--- /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages/pip/_internal/vcs/mercurial.py	2023-12-12 09:36:05.000000000 -0500
++++ /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_internal/vcs/mercurial.py	2023-12-19 07:30:14.258862520 -0500
+@@ -31,7 +31,7 @@
+ 
+     @staticmethod
+     def get_base_rev_args(rev: str) -> List[str]:
+-        return [f"-r={rev}"]
++        return [f"--rev={rev}"]
+ 
+     def fetch_new(
+         self, dest: str, url: HiddenText, rev_options: RevOptions, verbosity: int
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/cachecontrol: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/certifi: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/chardet: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/distro: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/idna: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/packaging: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/platformdirs: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/pyparsing: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/resolvelib: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/rich: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/tenacity: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/tomli: py.typed
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages/pip/_vendor/truststore: py.typed
+Only in /tmp/tmp.qTHs30EXHU/lib/python3.11/site-packages: pip-23.3.1.dist-info
+Only in /tmp/tmp.Lag5gx4pkr/lib/python3.11/site-packages: pip-23.3.2.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 424c0264332ff78040d23678bd9ee703f298eda3883ba074396487d734374bf6
+Deleted: 373a275f5b904910d794d38dc2c89c8e5cfd33dd0be3b2cd4e7530895fdc8f1f
+Deleted: 6e7cd93da86ca0973b74222faf1c7693bed6a18f2fdd0f264dd8a63740b532af
+Deleted: 2f3034a27904f5c295c10b6d47b8ae1d07c73cc7283e3be043391f1c7d47de00
+Deleted: 755823b28802eb70d826f9fba060c0f2ccd2ea5137cb205ffde9ef2cd6932417
+Deleted: 136d02daaedb2cc15e2510318f3cb17969c6cc5ebf6b4236d14e4e2125e58f7b
+Deleted: 288596545a87f43991cce71b528147021599f1ec0678defd56ee19a89d1b7532
+Deleted: 3bb8ca01430b422fab2ef9d12dd5df4c9ef453695e2de47a583b2b8c25acbd9b
+Deleted: e026c1471de47f82912eca0df24baff670fb9013a482af7a49631de4674b1d55
+Deleted: 035b2d856d73294fe816970b61f31d429d922c585906b598eac7fa65fca99546
+Deleted: 0f07b667c11196ed200a8aa6aa3a372c78f9db426ac450d8b3ced137352c412a
+Deleted: 349f31c9855be3a19046b1a79bd536d63e0e5e64df15cfa9d64e3320309d9b9e
+Deleted: 1bc061dbde94677b8bb3911b00f88f0094037039e30e0c37445266821a5e3025
+Deleted: d93a4e9049a98acca87e8bda3ea6ef5640d43dcf495660cde548711d3fb97700
+Deleted: 569e95664d40d5fe97e9a7299a9ed7e45468089702626b0898bbda91d466c5c6
+Deleted: 55d5363a5d8e3b5db6e91c5a80f2d38e76dc29ea49ae715d11717bc7149035d0
+Deleted: 9560c6933447696e9b65bd370a1222694a09e601bb83d2b7cd64503e24f72f04
+Deleted: e84af899653bdb3cbbb5d4f2b97085f9ff3d0e7bc1769cfc3fa224750e638adb
+Deleted: bbd061fa9d1689a16867252c7ecf602d15d2a56668b89295c517602f30475151
+Deleted: 4c8eb0c528efd469b8bb002189a4ddb57db92f40bfb0b300fa32ef5b06cb8289
+Deleted: 229afa56c475e26db87246e598e516edd3cdcbbf8c1705d85857f19d4e071124
+Deleted: a1384d97dd8d63ccd0af10b652f9333d5549c8a6f470d7f7f2d4dcca4ea1c313
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
