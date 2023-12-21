@@ -106,6 +106,10 @@ describe('GitServices', () => {
               .withEndpointUrl('https://bitbucket.dummy.endpoint.org')
               .build(),
             new FakeGitOauthBuilder()
+              .withName('bitbucket-server')
+              .withEndpointUrl('https://bitbucket-server.dummy.endpoint.org')
+              .build(),
+            new FakeGitOauthBuilder()
               .withName('azure-devops')
               .withEndpointUrl('https://azure.dummy.endpoint.com/')
               .build(),
@@ -124,11 +128,12 @@ describe('GitServices', () => {
 
       const actions = screen.queryAllByRole('button', { name: /actions/i });
 
-      expect(actions.length).toEqual(4);
+      expect(actions.length).toEqual(5);
       expect(actions[0]).not.toBeDisabled();
       expect(actions[1]).toBeDisabled();
       expect(actions[2]).toBeDisabled();
       expect(actions[3]).toBeDisabled();
+      expect(actions[4]).toBeDisabled();
     });
 
     test('snapshot', () => {

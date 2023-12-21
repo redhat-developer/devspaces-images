@@ -75,7 +75,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
       >
         <tr
           className=""
-          data-ouia-component-id="OUIA-Generated-TableRow-6"
+          data-ouia-component-id="OUIA-Generated-TableRow-7"
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
@@ -133,7 +133,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
       >
         <tr
           className=""
-          data-ouia-component-id="OUIA-Generated-TableRow-7"
+          data-ouia-component-id="OUIA-Generated-TableRow-8"
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
@@ -221,134 +221,6 @@ exports[`GitServices with 4 git services snapshot 1`] = `
           >
             <div
               className="pf-c-dropdown pf-m-align-right"
-              data-ouia-component-id="OUIA-Generated-Dropdown-5"
-              data-ouia-component-type="PF4/Dropdown"
-              data-ouia-safe={true}
-            >
-              <button
-                aria-expanded={false}
-                aria-haspopup={true}
-                aria-label="Actions"
-                className="pf-c-dropdown__toggle pf-m-plain"
-                disabled={false}
-                id="pf-dropdown-toggle-id-4"
-                onClick={[Function]}
-                onKeyDown={[Function]}
-                type="button"
-              >
-                <svg
-                  aria-hidden={true}
-                  aria-labelledby={null}
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  style={
-                    {
-                      "verticalAlign": "-0.125em",
-                    }
-                  }
-                  viewBox="0 0 192 512"
-                  width="1em"
-                >
-                  <path
-                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                  />
-                </svg>
-              </button>
-            </div>
-          </td>
-        </tr>
-        <tr
-          className=""
-          data-ouia-component-id="OUIA-Generated-TableRow-8"
-          data-ouia-component-type="PF4/TableRow"
-          data-ouia-safe={true}
-          hidden={false}
-          onClick={[Function]}
-          onKeyDown={[Function]}
-        >
-          <td
-            className="pf-c-table__check"
-            data-key={0}
-            data-label={null}
-            onMouseEnter={[Function]}
-          >
-            <label>
-              <input
-                aria-label="Select row 1"
-                checked={false}
-                disabled={true}
-                name="checkrow1"
-                onChange={[Function]}
-                type="checkbox"
-              />
-            </label>
-          </td>
-          <td
-            className=""
-            data-key={1}
-            data-label="Name"
-            onMouseEnter={[Function]}
-          >
-            GitLab
-          </td>
-          <td
-            className=""
-            data-key={2}
-            data-label="Server"
-            onMouseEnter={[Function]}
-          >
-            <a
-              href="https://gitlab.dummy.endpoint.com"
-              rel="noreferrer"
-              target="_blank"
-            >
-              https://gitlab.dummy.endpoint.com
-            </a>
-          </td>
-          <td
-            className=""
-            data-key={3}
-            data-label="Authorization"
-            onMouseEnter={[Function]}
-          >
-            <div>
-              <svg
-                aria-hidden={true}
-                aria-labelledby={null}
-                fill="var(--pf-global--disabled-color--100)"
-                height="1em"
-                role="img"
-                style={
-                  {
-                    "verticalAlign": "-0.125em",
-                  }
-                }
-                viewBox="0 0 1024 1024"
-                width="1em"
-              >
-                <path
-                  d="M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.7,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 L512,896 Z M512.1,0 C229.7,0 0,229.8 0,512 C0,794.3 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0 L512.1,0 Z"
-                />
-              </svg>
-              <span>
-                Unauthorized
-              </span>
-            </div>
-          </td>
-          <td
-            className="pf-c-table__action"
-            data-key={4}
-            data-label={null}
-            onMouseEnter={[Function]}
-            style={
-              {
-                "paddingRight": 0,
-              }
-            }
-          >
-            <div
-              className="pf-c-dropdown pf-m-align-right"
               data-ouia-component-id="OUIA-Generated-Dropdown-6"
               data-ouia-component-type="PF4/Dropdown"
               data-ouia-safe={true}
@@ -358,7 +230,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
                 aria-haspopup={true}
                 aria-label="Actions"
                 className="pf-c-dropdown__toggle pf-m-plain"
-                disabled={true}
+                disabled={false}
                 id="pf-dropdown-toggle-id-5"
                 onClick={[Function]}
                 onKeyDown={[Function]}
@@ -403,10 +275,10 @@ exports[`GitServices with 4 git services snapshot 1`] = `
           >
             <label>
               <input
-                aria-label="Select row 2"
+                aria-label="Select row 1"
                 checked={false}
                 disabled={true}
-                name="checkrow2"
+                name="checkrow1"
                 onChange={[Function]}
                 type="checkbox"
               />
@@ -418,7 +290,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
             data-label="Name"
             onMouseEnter={[Function]}
           >
-            Bitbucket Server (OAuth 1.0)
+            GitLab
           </td>
           <td
             className=""
@@ -427,11 +299,11 @@ exports[`GitServices with 4 git services snapshot 1`] = `
             onMouseEnter={[Function]}
           >
             <a
-              href="https://bitbucket.dummy.endpoint.org"
+              href="https://gitlab.dummy.endpoint.com"
               rel="noreferrer"
               target="_blank"
             >
-              https://bitbucket.dummy.endpoint.org
+              https://gitlab.dummy.endpoint.com
             </a>
           </td>
           <td
@@ -531,10 +403,266 @@ exports[`GitServices with 4 git services snapshot 1`] = `
           >
             <label>
               <input
+                aria-label="Select row 2"
+                checked={false}
+                disabled={true}
+                name="checkrow2"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
+          </td>
+          <td
+            className=""
+            data-key={1}
+            data-label="Name"
+            onMouseEnter={[Function]}
+          >
+            Bitbucket
+          </td>
+          <td
+            className=""
+            data-key={2}
+            data-label="Server"
+            onMouseEnter={[Function]}
+          >
+            <a
+              href="https://bitbucket.dummy.endpoint.org"
+              rel="noreferrer"
+              target="_blank"
+            >
+              https://bitbucket.dummy.endpoint.org
+            </a>
+          </td>
+          <td
+            className=""
+            data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+          >
+            <div>
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="var(--pf-global--disabled-color--100)"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.7,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 L512,896 Z M512.1,0 C229.7,0 0,229.8 0,512 C0,794.3 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0 L512.1,0 Z"
+                />
+              </svg>
+              <span>
+                Unauthorized
+              </span>
+            </div>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={4}
+            data-label={null}
+            onMouseEnter={[Function]}
+            style={
+              {
+                "paddingRight": 0,
+              }
+            }
+          >
+            <div
+              className="pf-c-dropdown pf-m-align-right"
+              data-ouia-component-id="OUIA-Generated-Dropdown-8"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe={true}
+            >
+              <button
+                aria-expanded={false}
+                aria-haspopup={true}
+                aria-label="Actions"
+                className="pf-c-dropdown__toggle pf-m-plain"
+                disabled={true}
+                id="pf-dropdown-toggle-id-7"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style={
+                    {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 192 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          className=""
+          data-ouia-component-id="OUIA-Generated-TableRow-11"
+          data-ouia-component-type="PF4/TableRow"
+          data-ouia-safe={true}
+          hidden={false}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+        >
+          <td
+            className="pf-c-table__check"
+            data-key={0}
+            data-label={null}
+            onMouseEnter={[Function]}
+          >
+            <label>
+              <input
                 aria-label="Select row 3"
                 checked={false}
                 disabled={true}
                 name="checkrow3"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
+          </td>
+          <td
+            className=""
+            data-key={1}
+            data-label="Name"
+            onMouseEnter={[Function]}
+          >
+            Bitbucket (OAuth 1.0)
+          </td>
+          <td
+            className=""
+            data-key={2}
+            data-label="Server"
+            onMouseEnter={[Function]}
+          >
+            <a
+              href="https://bitbucket-server.dummy.endpoint.org"
+              rel="noreferrer"
+              target="_blank"
+            >
+              https://bitbucket-server.dummy.endpoint.org
+            </a>
+          </td>
+          <td
+            className=""
+            data-key={3}
+            data-label="Authorization"
+            onMouseEnter={[Function]}
+          >
+            <div>
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="var(--pf-global--disabled-color--100)"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.7,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 L512,896 Z M512.1,0 C229.7,0 0,229.8 0,512 C0,794.3 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0 L512.1,0 Z"
+                />
+              </svg>
+              <span>
+                Unauthorized
+              </span>
+            </div>
+          </td>
+          <td
+            className="pf-c-table__action"
+            data-key={4}
+            data-label={null}
+            onMouseEnter={[Function]}
+            style={
+              {
+                "paddingRight": 0,
+              }
+            }
+          >
+            <div
+              className="pf-c-dropdown pf-m-align-right"
+              data-ouia-component-id="OUIA-Generated-Dropdown-9"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe={true}
+            >
+              <button
+                aria-expanded={false}
+                aria-haspopup={true}
+                aria-label="Actions"
+                className="pf-c-dropdown__toggle pf-m-plain"
+                disabled={true}
+                id="pf-dropdown-toggle-id-8"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style={
+                    {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 192 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          className=""
+          data-ouia-component-id="OUIA-Generated-TableRow-12"
+          data-ouia-component-type="PF4/TableRow"
+          data-ouia-safe={true}
+          hidden={false}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+        >
+          <td
+            className="pf-c-table__check"
+            data-key={0}
+            data-label={null}
+            onMouseEnter={[Function]}
+          >
+            <label>
+              <input
+                aria-label="Select row 4"
+                checked={false}
+                disabled={true}
+                name="checkrow4"
                 onChange={[Function]}
                 type="checkbox"
               />
@@ -605,7 +733,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
           >
             <div
               className="pf-c-dropdown pf-m-align-right"
-              data-ouia-component-id="OUIA-Generated-Dropdown-8"
+              data-ouia-component-id="OUIA-Generated-Dropdown-10"
               data-ouia-component-type="PF4/Dropdown"
               data-ouia-safe={true}
             >
@@ -615,7 +743,7 @@ exports[`GitServices with 4 git services snapshot 1`] = `
                 aria-label="Actions"
                 className="pf-c-dropdown__toggle pf-m-plain"
                 disabled={true}
-                id="pf-dropdown-toggle-id-7"
+                id="pf-dropdown-toggle-id-9"
                 onClick={[Function]}
                 onKeyDown={[Function]}
                 type="button"
