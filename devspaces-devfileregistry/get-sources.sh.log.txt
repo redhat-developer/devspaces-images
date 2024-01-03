@@ -1,0 +1,560 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 5a961e8de9b
+STEP 3/23: ARG BOOTSTRAP=true
+--> f7750b91a12
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> d4cb7b5eb0d
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 7c5ac81abbf
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> b179a69799f
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> bef27a8e650
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> b9208412959
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 40092b7340e
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> fb75d0f21ca
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.x86_64        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch               
+Installed:
+  containers-common-2:1-70.module+el8.9.0+20326+387084d0.x86_64                 
+  criu-3.18-4.module+el8.9.0+20326+387084d0.x86_64                              
+  fuse-common-3.3.0-17.el8.x86_64                                               
+  fuse-overlayfs-1.12-1.module+el8.9.0+20326+387084d0.x86_64                    
+  fuse3-3.3.0-17.el8.x86_64                                                     
+  fuse3-libs-3.3.0-17.el8.x86_64                                                
+  jq-1.6-7.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-1.module+el8.9.0+20326+387084d0.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.5-1.el8_9.x86_64                                              
+  python3.11-devel-3.11.5-1.el8_9.x86_64                                        
+  python3.11-libs-3.11.5-1.el8_9.x86_64                                         
+  python3.11-pip-22.3.1-4.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-4.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.9-1.module+el8.9.0+20326+387084d0.x86_64                           
+  skopeo-2:1.13.3-1.module+el8.9.0+20326+387084d0.x86_64                        
+  slirp4netns-1.2.1-1.module+el8.9.0+20326+387084d0.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.2.1-py3-none-any.whl (42 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.3/42.3 kB 2.6 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.2-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 32.8 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 373.5 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.3-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.2.1 pip-23.3.2 tomlkit-0.12.3 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> b3c3fc4f173
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> cbf797dfce8
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 51e073e24b1
+STEP 14/23: COPY ./VERSION /
+--> 567e64ea00b
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> b3d00421be2
+STEP 16/23: WORKDIR /build/
+--> b0276937c03
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 84 contributors and audited 31 packages in 5.022s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> e280340cff4
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 9a9260898d7
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:d5fa3a375621048dcfaf2a0b319b8dd57b4056ef1e352decd001db830fc63efc PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.12 PASS - 3.12 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.12 PASS - 3.12 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.12 PASS - 3.12 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> ba0079c8ae3
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> b4b072ae396
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> de6fb3e53c5
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 9bd2cfe444d
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 500ef2ce49a
+Successfully tagged localhost/devfileregistry:tmp
+500ef2ce49ab26565dd5a39522c51e0033dd68e0f0864df4081085caf26ac8be
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml /tmp/tmp.8khvSYu3MD/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-insiders.yaml	2024-01-03 13:11:00.622858250 -0500
+@@ -103,7 +103,7 @@
+                 targetPort: 5005
+               - exposure: public
+                 name: hello-greeting-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 8080
+                 path: /hello/greeting/devspaces-user
+             volumeMounts:
+@@ -158,7 +158,7 @@
+               targetPort: 5005
+             - exposure: public
+               name: hello-greeting-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 8080
+               path: /hello/greeting/devspaces-user
+           volumeMounts:
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2024-01-03 13:11:00.622858250 -0500
+@@ -103,7 +103,7 @@
+                 targetPort: 5005
+               - exposure: public
+                 name: hello-greeting-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 8080
+                 path: /hello/greeting/devspaces-user
+             volumeMounts:
+@@ -158,7 +158,7 @@
+               targetPort: 5005
+             - exposure: public
+               name: hello-greeting-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 8080
+               path: /hello/greeting/devspaces-user
+           volumeMounts:
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2024-01-03 13:11:00.622858250 -0500
+@@ -122,7 +122,7 @@
+                 targetPort: 5005
+               - exposure: public
+                 name: hello-greeting-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 8080
+                 path: /hello/greeting/devspaces-user
+             volumeMounts:
+@@ -177,7 +177,7 @@
+               targetPort: 5005
+             - exposure: public
+               name: hello-greeting-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 8080
+               path: /hello/greeting/devspaces-user
+           volumeMounts:
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.8khvSYu3MD/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-insiders.yaml	2024-01-03 13:11:00.622858250 -0500
+@@ -102,6 +102,7 @@
+               - exposure: public
+                 name: nodejs
+                 targetPort: 8080
++                protocol: https
+             memoryLimit: 1Gi
+             memoryRequest: 512Mi
+             cpuLimit: '2'
+@@ -170,6 +171,7 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
++              protocol: https
+           memoryLimit: 1Gi
+           memoryRequest: 512Mi
+           cpuLimit: '2'
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2024-01-03 13:11:00.622858250 -0500
+@@ -102,6 +102,7 @@
+               - exposure: public
+                 name: nodejs
+                 targetPort: 8080
++                protocol: https
+             memoryLimit: 1Gi
+             memoryRequest: 512Mi
+             cpuLimit: '2'
+@@ -170,6 +171,7 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
++              protocol: https
+           memoryLimit: 1Gi
+           memoryRequest: 512Mi
+           cpuLimit: '2'
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2024-01-03 13:11:00.622858250 -0500
+@@ -121,6 +121,7 @@
+               - exposure: public
+                 name: nodejs
+                 targetPort: 8080
++                protocol: https
+             memoryLimit: 1Gi
+             memoryRequest: 512Mi
+             cpuLimit: '2'
+@@ -189,6 +190,7 @@
+             - exposure: public
+               name: nodejs
+               targetPort: 8080
++              protocol: https
+           memoryLimit: 1Gi
+           memoryRequest: 512Mi
+           cpuLimit: '2'
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml /tmp/tmp.8khvSYu3MD/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-insiders.yaml	2024-01-03 13:11:00.620858250 -0500
+@@ -96,7 +96,7 @@
+             endpoints:
+               - exposure: public
+                 name: nodejs
+-                protocol: http
++                protocol: https
+                 targetPort: 3000
+             memoryLimit: 1Gi
+             memoryRequest: 512Mi
+@@ -168,7 +168,7 @@
+           endpoints:
+             - exposure: public
+               name: nodejs
+-              protocol: http
++              protocol: https
+               targetPort: 3000
+           memoryLimit: 1Gi
+           memoryRequest: 512Mi
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2024-01-03 13:11:00.620858250 -0500
+@@ -96,7 +96,7 @@
+             endpoints:
+               - exposure: public
+                 name: nodejs
+-                protocol: http
++                protocol: https
+                 targetPort: 3000
+             memoryLimit: 1Gi
+             memoryRequest: 512Mi
+@@ -168,7 +168,7 @@
+           endpoints:
+             - exposure: public
+               name: nodejs
+-              protocol: http
++              protocol: https
+               targetPort: 3000
+           memoryLimit: 1Gi
+           memoryRequest: 512Mi
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2024-01-03 13:11:00.620858250 -0500
+@@ -115,7 +115,7 @@
+             endpoints:
+               - exposure: public
+                 name: nodejs
+-                protocol: http
++                protocol: https
+                 targetPort: 3000
+             memoryLimit: 1Gi
+             memoryRequest: 512Mi
+@@ -187,7 +187,7 @@
+           endpoints:
+             - exposure: public
+               name: nodejs
+-              protocol: http
++              protocol: https
+               targetPort: 3000
+           memoryLimit: 1Gi
+           memoryRequest: 512Mi
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.8khvSYu3MD/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-insiders.yaml	2024-01-03 13:11:00.621858250 -0500
+@@ -101,7 +101,7 @@
+             endpoints:
+               - exposure: public
+                 name: hello-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 5032
+             volumeMounts:
+               - name: nuget
+@@ -154,7 +154,7 @@
+           endpoints:
+             - exposure: public
+               name: hello-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 5032
+           volumeMounts:
+             - name: nuget
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2024-01-03 13:11:00.621858250 -0500
+@@ -101,7 +101,7 @@
+             endpoints:
+               - exposure: public
+                 name: hello-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 5032
+             volumeMounts:
+               - name: nuget
+@@ -154,7 +154,7 @@
+           endpoints:
+             - exposure: public
+               name: hello-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 5032
+           volumeMounts:
+             - name: nuget
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2024-01-03 13:11:00.621858250 -0500
+@@ -120,7 +120,7 @@
+             endpoints:
+               - exposure: public
+                 name: hello-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 5032
+             volumeMounts:
+               - name: nuget
+@@ -173,7 +173,7 @@
+           endpoints:
+             - exposure: public
+               name: hello-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 5032
+           volumeMounts:
+             - name: nuget
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml /tmp/tmp.8khvSYu3MD/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/TP__go__golang-health-check/devworkspace-che-code-insiders.yaml	2024-01-03 13:11:00.621858250 -0500
+@@ -104,7 +104,7 @@
+             endpoints:
+               - exposure: public
+                 name: health-check-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 8080
+       commands:
+         - id: build
+@@ -146,7 +146,7 @@
+           endpoints:
+             - exposure: public
+               name: health-check-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 8080
+     commands:
+       - id: build
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2024-01-03 13:11:00.621858250 -0500
+@@ -104,7 +104,7 @@
+             endpoints:
+               - exposure: public
+                 name: health-check-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 8080
+       commands:
+         - id: build
+@@ -146,7 +146,7 @@
+           endpoints:
+             - exposure: public
+               name: health-check-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 8080
+     commands:
+       - id: build
+diff --suppress-common-lines -u -r /tmp/tmp.ER3zCET4cM/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml /tmp/tmp.8khvSYu3MD/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.ER3zCET4cM/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2023-12-20 17:26:06.000000000 -0500
++++ /tmp/tmp.8khvSYu3MD/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2024-01-03 13:11:00.621858250 -0500
+@@ -123,7 +123,7 @@
+             endpoints:
+               - exposure: public
+                 name: health-check-endpoint
+-                protocol: http
++                protocol: https
+                 targetPort: 8080
+       commands:
+         - id: build
+@@ -165,7 +165,7 @@
+           endpoints:
+             - exposure: public
+               name: health-check-endpoint
+-              protocol: http
++              protocol: https
+               targetPort: 8080
+     commands:
+       - id: build
+Binary files /tmp/tmp.ER3zCET4cM/resources/v2/dotnet-web-simple.zip and /tmp/tmp.8khvSYu3MD/resources/v2/dotnet-web-simple.zip differ
+Binary files /tmp/tmp.ER3zCET4cM/resources/v2/golang-health-check.zip and /tmp/tmp.8khvSYu3MD/resources/v2/golang-health-check.zip differ
+Binary files /tmp/tmp.ER3zCET4cM/resources/v2/nodejs-mongodb-sample.zip and /tmp/tmp.8khvSYu3MD/resources/v2/nodejs-mongodb-sample.zip differ
+Binary files /tmp/tmp.ER3zCET4cM/resources/v2/quarkus-quickstarts.zip and /tmp/tmp.8khvSYu3MD/resources/v2/quarkus-quickstarts.zip differ
+Binary files /tmp/tmp.ER3zCET4cM/resources/v2/web-nodejs-sample.zip and /tmp/tmp.8khvSYu3MD/resources/v2/web-nodejs-sample.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 500ef2ce49ab26565dd5a39522c51e0033dd68e0f0864df4081085caf26ac8be
+Deleted: 9bd2cfe444dd83cbf3a9f3f40b1ffdefd39b1146c54da2de90960e48536d6a82
+Deleted: de6fb3e53c54f7a8273977246cddec7394d7057cc3c67b9d55d487192313449d
+Deleted: b4b072ae3962ab999e578eabe6e6fc16e5cd71f4ed7a51869b64fb98d0e41b47
+Deleted: ba0079c8ae39920979456246047281aeca6912909cdf38fc6068e6ba991b5310
+Deleted: 9a9260898d70dd53d44f169f7d5b09f13da6e598c5be3222eed3f66c59ed4dfa
+Deleted: e280340cff4f8f3dc6ec64329f1c7fa6f433b4fc0985123237fb74be37bffc03
+Deleted: b0276937c034936e1e06d3c117df301cd30c679b780c35896626395db1812767
+Deleted: b3d00421be2af0600a74baba5eb47166ac13ae3753b44dcebc0d567222c8ebe1
+Deleted: 567e64ea00b4a4bae8f27ed3810a67ebb84796288755a2eb21c20b487165e8bd
+Deleted: 51e073e24b105bf4752f0bc11fbf3e661d69e792cfa8b6d48e39666548dea77a
+Deleted: cbf797dfce85fc656aae0a15c04037f7cb06b2753589afe0ee9825a8523c18e4
+Deleted: b3c3fc4f17332cd87d9e0ecaccbe5feec1872900694492836949901d2b692fa5
+Deleted: fb75d0f21ca9d65dc92230daa5245cc6c547a2075ec14e92e1140e9f5e51fb29
+Deleted: 40092b7340ea74ecf843c81fe4973554b28a4c824bb193a0800168d30a8f86f6
+Deleted: b9208412959be40df29a3a9e26b7fc00e5030c9e44efb85c60df91274de7bde3
+Deleted: bef27a8e650e8b284ac770ec41a34e8ef0c6d0709869ffa027f382091d9fb1ad
+Deleted: b179a69799f1ff08b16bfc710d4d7654a8ed971c1ee12dde048abdbb1d130063
+Deleted: 7c5ac81abbff4275ffd8ab50fcc68da0c7984d1c8165f1f9de8314388b6ffe08
+Deleted: d4cb7b5eb0d0802ba60050cb9f0437bc93b0e02da8b3a44d74a81a5c4f8b1792
+Deleted: f7750b91a12370b7f3aeaf20912e50cadda76955c94bb8610fd8a2aa2fca9cd4
+Deleted: 5a961e8de9b52ed419401ec774e3ddaad1478b410e23d5f5c2b208f8643cb118
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
