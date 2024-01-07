@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2018-2023 Red Hat, Inc.
+#  Copyright (c) 2018-2024 Red Hat, Inc.
 #    This program and the accompanying materials are made
 #    available under the terms of the Eclipse Public License 2.0
 #    which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -56,7 +56,7 @@ spec:
                 "SETUID"]}}'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:b9e8320c8b64e02215b225fa60bfcc25ac6d567db28b9fe9016f58ccfb0748d5"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:75fb30a3d5de9696df2f06aaae924a54a05b95fb9d6ddcb96a581193efcd79f2"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
