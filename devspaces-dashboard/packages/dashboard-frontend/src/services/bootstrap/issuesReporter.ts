@@ -12,7 +12,13 @@
 
 import { injectable } from 'inversify';
 
+export type Warning = {
+  key: string;
+  title: string;
+};
+
 export type IssueType =
+  | 'namespaceProvisioningError'
   | 'sessionExpired'
   | 'sso'
   | 'workspaceInactive'
@@ -45,10 +51,17 @@ export class IssuesReporterService {
   }
 
   public reportIssue(): Issue | undefined {
-    return this.issues[0];
+    if (!this.hasIssue) {
+      return undefined;
+    }
+    return this.issues[this.issues.length - 1];
   }
 
   public reportAllIssues(): Issue[] {
     return this.issues;
+  }
+
+  public clearIssues(): void {
+    this.issues = [];
   }
 }

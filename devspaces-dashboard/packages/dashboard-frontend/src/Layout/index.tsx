@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Brand, Page } from '@patternfly/react-core';
+import { AlertVariant, Brand, Page } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
@@ -26,7 +26,9 @@ import Header from '@/Layout/Header';
 import Sidebar from '@/Layout/Sidebar';
 import StoreErrorsAlert from '@/Layout/StoreErrorsAlert';
 import { ROUTE } from '@/Routes/routes';
+import { AppAlerts } from '@/services/alerts/appAlerts';
 import { IssuesReporterService } from '@/services/bootstrap/issuesReporter';
+import { WarningsReporterService } from '@/services/bootstrap/warningsReporter';
 import { signOut } from '@/services/helpers/login';
 import { AppState } from '@/store';
 import { selectBranding } from '@/store/Branding/selectors';
@@ -48,6 +50,12 @@ type State = {
 export class Layout extends React.PureComponent<Props, State> {
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
+
+  @lazyInject(WarningsReporterService)
+  private readonly warningsReporterService: WarningsReporterService;
+
+  @lazyInject(AppAlerts)
+  private readonly appAlerts: AppAlerts;
 
   constructor(props: Props) {
     super(props);
@@ -88,6 +96,19 @@ export class Layout extends React.PureComponent<Props, State> {
     if (matchFactoryLoaderPath !== null || matchIdeLoaderPath !== null) {
       this.hideAllBars();
     }
+    this.showWarnings();
+  }
+
+  private showWarnings(): void {
+    const warnings = this.warningsReporterService.reportAllWarnings();
+    warnings.forEach(warning => {
+      this.appAlerts.showAlert({
+        key: warning.key,
+        title: warning.title,
+        variant: AlertVariant.warning,
+        timeout: 9999999,
+      });
+    });
   }
   private async testBackends(error?: string): Promise<void> {
     try {

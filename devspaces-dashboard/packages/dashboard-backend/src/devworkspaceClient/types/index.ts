@@ -119,6 +119,11 @@ export type CheClusterCustomResource = k8s.V1CustomResourceDefinition & {
   spec: {
     devEnvironments?: CheClusterCustomResourceSpecDevEnvironments;
     components?: CheClusterCustomResourceSpecComponents;
+    networking?: {
+      auth?: {
+        advancedAuthorization?: api.IAdvancedAuthorization;
+      };
+    };
   };
   status: {
     devfileRegistryURL: string;
@@ -145,6 +150,10 @@ export type CheClusterCustomResourceSpecDevEnvironments = {
     openShiftSecurityContextConstraint?: string;
   };
   defaultComponents?: V222DevfileComponents[];
+  defaultNamespace?: {
+    autoProvision?: boolean;
+    template?: string;
+  };
   defaultEditor?: string;
   defaultPlugins?: api.IWorkspacesDefaultPlugins[];
   disableContainerBuildCapabilities?: boolean;
@@ -325,6 +334,18 @@ export interface IServerConfigApi {
   getDashboardLogo(
     cheCustomResource: CheClusterCustomResource,
   ): { base64data: string; mediatype: string } | undefined;
+
+  /**
+   * Returns the advancedAuthorization value
+   */
+  getAdvancedAuthorization(
+    cheCustomResource: CheClusterCustomResource,
+  ): api.IAdvancedAuthorization | undefined;
+
+  /**
+   * Returns the autoProvision value
+   */
+  getAutoProvision(cheCustomResource: CheClusterCustomResource): boolean;
 }
 
 export interface IKubeConfigApi {

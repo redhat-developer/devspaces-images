@@ -118,12 +118,27 @@ export interface IServerConfig {
     runTimeout: number;
     startTimeout: number;
   };
+  networking?: {
+    auth?: {
+      advancedAuthorization: IAdvancedAuthorization;
+    };
+  };
+  defaultNamespace: {
+    autoProvision: boolean;
+  };
   cheNamespace: string;
   pluginRegistryURL: string;
   pluginRegistryInternalURL: string;
   devfileRegistryURL: string;
   devfileRegistryInternalURL: string;
   dashboardLogo?: { base64data: string; mediatype: string };
+}
+
+export interface IAdvancedAuthorization {
+  allowUsers?: string[];
+  allowGroups?: string[];
+  denyUsers?: string[];
+  denyGroups?: string[];
 }
 
 export interface IPluginRegistry {

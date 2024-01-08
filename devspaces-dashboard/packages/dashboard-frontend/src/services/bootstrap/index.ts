@@ -21,6 +21,7 @@ import {
   IssueType,
   WorkspaceData,
 } from '@/services/bootstrap/issuesReporter';
+import { checkNamespaceProvisionWarnings } from '@/services/bootstrap/namespaceProvisionWarnings';
 import {
   WorkspaceRunningError,
   WorkspaceStoppedDetector,
@@ -85,14 +86,12 @@ export default class Bootstrap {
   }
 
   async init(): Promise<void> {
-    await this.doBackendsSanityCheck();
-
+    await this.fetchServerConfig().then(() => this.doBackendsSanityCheck());
     this.prefetchResources();
 
     await Promise.all([
       this.fetchBranding(),
       this.fetchInfrastructureNamespaces(),
-      this.fetchServerConfig(),
       this.fetchClusterInfo(),
     ]);
 
@@ -136,8 +135,12 @@ export default class Bootstrap {
     try {
       await testBackends()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
+      checkNamespaceProvisionWarnings(this.store.getState);
       const errorMessage = common.helpers.errors.getMessage(e);
-      this.issuesReporterService.registerIssue('sessionExpired', new Error(errorMessage));
+      this.issuesReporterService.registerIssue(
+        'namespaceProvisioningError',
+        new Error(errorMessage),
+      );
       throw e;
     }
   }

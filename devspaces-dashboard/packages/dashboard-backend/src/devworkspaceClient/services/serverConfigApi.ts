@@ -222,4 +222,14 @@ export class ServerConfigApiService implements IServerConfigApi {
   ): { base64data: string; mediatype: string } | undefined {
     return cheCustomResource.spec.components?.dashboard?.branding?.logo;
   }
+
+  getAdvancedAuthorization(
+    cheCustomResource: CheClusterCustomResource,
+  ): api.IAdvancedAuthorization | undefined {
+    return cheCustomResource.spec.networking?.auth?.advancedAuthorization;
+  }
+
+  getAutoProvision(cheCustomResource: CheClusterCustomResource): boolean {
+    return cheCustomResource.spec.devEnvironments?.defaultNamespace?.autoProvision || false;
+  }
 }

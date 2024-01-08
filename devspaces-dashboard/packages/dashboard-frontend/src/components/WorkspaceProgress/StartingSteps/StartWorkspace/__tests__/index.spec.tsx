@@ -76,6 +76,9 @@ const serverConfig: api.IServerConfig = {
     runTimeout: -1,
     startTimeout,
   },
+  defaultNamespace: {
+    autoProvision: true,
+  },
   cheNamespace: '',
   devfileRegistry: {
     disableInternalRegistry: false,

@@ -23,7 +23,6 @@ import { container } from '@/inversify.config';
 import { fetchServerConfig } from '@/services/backend-client/serverConfigApi';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
 import devfileApi from '@/services/devfileApi';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
 import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 import { AppState } from '@/store';
@@ -360,7 +359,6 @@ describe('DevWorkspace store, actions', () => {
           check: AUTHORIZED,
         },
         {
-          check: AUTHORIZED,
           type: 'REQUEST_DW_SERVER_CONFIG',
         },
         {

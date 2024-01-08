@@ -16,7 +16,6 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
 import * as dwServerConfigStore from '@/store/ServerConfig';
 import { serverConfig } from '@/store/ServerConfig/__tests__/stubs';
 
@@ -46,7 +45,6 @@ describe('dwPlugins store', () => {
       const expectedActions: dwServerConfigStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_SERVER_CONFIG',
-          check: AUTHORIZED,
         },
         {
           type: 'RECEIVE_DW_SERVER_CONFIG',
@@ -76,7 +74,6 @@ describe('dwPlugins store', () => {
     const expectedActions: dwServerConfigStore.KnownAction[] = [
       {
         type: 'REQUEST_DW_SERVER_CONFIG',
-        check: AUTHORIZED,
       },
       {
         type: 'RECEIVE_DW_SERVER_CONFIG_ERROR',

@@ -82,7 +82,7 @@ describe('Server Config API Service', () => {
 
   test('getting openVSXURL from the CR', () => {
     const openVSXURL = 'https://open-vsx.org';
-    const res = serverConfigService.getPluginRegistry(buildCustomResource(openVSXURL));
+    const res = serverConfigService.getPluginRegistry(buildCustomResource({ openVSXURL }));
     expect(res).toEqual({ openVSXURL: 'https://open-vsx.org' });
   });
 
@@ -150,6 +150,16 @@ describe('Server Config API Service', () => {
     const res = serverConfigService.getDefaultDevfileRegistryUrl(buildCustomResource());
     expect(res).toEqual('http://devfile-registry.eclipse-che.svc/devfile-registry/');
   });
+
+  test('getting autoProvision value', () => {
+    const res = serverConfigService.getAutoProvision(buildCustomResource());
+    expect(res).toBeTruthy();
+  });
+
+  test('getting advanced authorization object', () => {
+    const res = serverConfigService.getAdvancedAuthorization(buildCustomResource());
+    expect(res).toEqual({ allowUsers: ['user1', 'user2'] });
+  });
 });
 
 function buildCustomResourceList(): { body: CustomResourceDefinitionList } {
@@ -162,7 +172,7 @@ function buildCustomResourceList(): { body: CustomResourceDefinitionList } {
   };
 }
 
-function buildCustomResource(openVSXURL?: string): CheClusterCustomResource {
+function buildCustomResource(options?: { openVSXURL?: string }): CheClusterCustomResource {
   return {
     apiVersion: 'org.eclipse.che/v2',
     kind: 'CheCluster',
@@ -179,7 +189,7 @@ function buildCustomResource(openVSXURL?: string): CheClusterCustomResource {
           },
         },
         devWorkspace: {},
-        pluginRegistry: openVSXURL ? { openVSXURL } : {},
+        pluginRegistry: options?.openVSXURL ? { openVSXURL: options.openVSXURL } : {},
         devfileRegistry: {
           externalDevfileRegistries: [
             {
@@ -201,10 +211,20 @@ function buildCustomResource(openVSXURL?: string): CheClusterCustomResource {
             name: 'component-name',
           },
         ],
+        defaultNamespace: {
+          autoProvision: true,
+        },
         defaultEditor: 'eclipse/che-theia/latest',
         secondsOfInactivityBeforeIdling: 1800,
         secondsOfRunBeforeIdling: -1,
         storage: { pvcStrategy: 'per-user' },
+      },
+      networking: {
+        auth: {
+          advancedAuthorization: {
+            allowUsers: ['user1', 'user2'],
+          },
+        },
       },
     },
     status: {

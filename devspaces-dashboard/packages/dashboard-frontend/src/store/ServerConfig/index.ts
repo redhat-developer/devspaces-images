@@ -16,7 +16,6 @@ import { Action, Reducer } from 'redux';
 import * as ServerConfigApi from '@/services/backend-client/serverConfigApi';
 import { AppThunk } from '@/store';
 import { createObject } from '@/store/helpers';
-import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 export interface State {
   isLoading: boolean;
@@ -24,7 +23,7 @@ export interface State {
   error?: string;
 }
 
-export interface RequestDwServerConfigAction extends Action, SanityCheckAction {
+export interface RequestDwServerConfigAction {
   type: 'REQUEST_DW_SERVER_CONFIG';
 }
 
@@ -50,10 +49,7 @@ export const actionCreators: ActionCreators = {
   requestServerConfig:
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      await dispatch({
-        type: 'REQUEST_DW_SERVER_CONFIG',
-        check: AUTHORIZED,
-      });
+      dispatch({ type: 'REQUEST_DW_SERVER_CONFIG' });
       try {
         const config = await ServerConfigApi.fetchServerConfig();
         dispatch({
@@ -92,6 +88,9 @@ const unloadedState: State = {
       inactivityTimeout: -1,
       runTimeout: -1,
       startTimeout: 300,
+    },
+    defaultNamespace: {
+      autoProvision: true,
     },
     cheNamespace: '',
     devfileRegistryURL: '',

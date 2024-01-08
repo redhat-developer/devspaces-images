@@ -45,6 +45,9 @@ export const serverConfig: api.IServerConfig = {
     runTimeout: -1,
     startTimeout: 300,
   },
+  defaultNamespace: {
+    autoProvision: true,
+  },
   cheNamespace: 'eclipse-che',
   devfileRegistry: {
     disableInternalRegistry: false,

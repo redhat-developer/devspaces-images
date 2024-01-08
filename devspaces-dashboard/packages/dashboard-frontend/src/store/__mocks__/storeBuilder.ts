@@ -76,6 +76,9 @@ export class FakeStoreBuilder {
           runTimeout: -1,
           startTimeout: 300,
         },
+        defaultNamespace: {
+          autoProvision: true,
+        },
         cheNamespace: '',
         devfileRegistry: {
           disableInternalRegistry: false,
