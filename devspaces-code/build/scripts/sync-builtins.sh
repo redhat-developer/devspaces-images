@@ -38,7 +38,7 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+REMOTE_USER_AND_HOST="devspaces-build@spmm-util.engineering.redhat.com"
 BASE_URL="https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements"
 
 SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
