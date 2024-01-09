@@ -16,15 +16,27 @@ import { Props } from '..';
 
 export class TextFileUpload extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const { fieldId, onChange, placeholder } = this.props;
+    const { fieldId, onChange, fileNamePlaceholder, textAreaPlaceholder, validated } = this.props;
+
+    const uploadId = `${fieldId}-upload`;
+    const textareaId = `${fieldId}-textarea`;
 
     return (
-      <input
-        id={fieldId}
-        data-testid={fieldId}
-        placeholder={placeholder}
-        onChange={event => onChange(event.target.value)}
-      />
+      <div>
+        <span data-testid={`${fieldId}-validated`}>{validated}</span>
+        <input
+          id={uploadId}
+          data-testid={uploadId}
+          placeholder={fileNamePlaceholder}
+          onChange={event => onChange(event.target.value, true)}
+        />
+        <input
+          id={textareaId}
+          data-testid={textareaId}
+          placeholder={textAreaPlaceholder}
+          onChange={event => onChange(event.target.value, false)}
+        />
+      </div>
     );
   }
 }

@@ -15,13 +15,17 @@ import React from 'react';
 
 import { TextFileUpload } from '@/components/TextFileUpload';
 
-const REQUIRED_ERROR = 'This field is required.';
+export const REQUIRED_ERROR = 'This field is required.';
+const MAX_LENGTH = 16384;
+export const MAX_LENGTH_ERROR = `The value is too long. The maximum length is ${MAX_LENGTH} characters.`;
+export const WRONG_TYPE_ERROR = 'This file type is not supported.';
 
 export type Props = {
   onChange: (privateKey: string, isValid: boolean) => void;
 };
 
 export type State = {
+  isUpload: boolean;
   privateKey: string | undefined;
   validated: ValidatedOptions;
 };
@@ -31,6 +35,7 @@ export class SshPrivateKey extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      isUpload: false,
       privateKey: undefined,
       validated: ValidatedOptions.default,
     };
@@ -43,26 +48,39 @@ export class SshPrivateKey extends React.Component<Props, State> {
     return privateKey !== nextPrivateKey || validated !== nextValidated;
   }
 
-  private onChange(privateKey: string): void {
+  private onChange(privateKey: string, isUpload: boolean): void {
     const { onChange } = this.props;
     const validated = this.validate(privateKey);
     const isValid = validated === ValidatedOptions.success;
 
-    this.setState({ privateKey, validated });
+    this.setState({ privateKey, validated, isUpload });
     onChange(privateKey, isValid);
   }
 
   private validate(privateKey: string): ValidatedOptions {
     if (privateKey.length === 0) {
       return ValidatedOptions.error;
+    } else if (privateKey.length > MAX_LENGTH) {
+      return ValidatedOptions.error;
     } else {
       return ValidatedOptions.success;
     }
   }
 
+  private getErrorMessage(key: string | undefined, isUpload: boolean): string | undefined {
+    if (key && key.length > MAX_LENGTH) {
+      return MAX_LENGTH_ERROR;
+    }
+    if (isUpload === true) {
+      return WRONG_TYPE_ERROR;
+    }
+    return REQUIRED_ERROR;
+  }
+
   public render(): React.ReactElement {
-    const { validated } = this.state;
-    const errorMessage = REQUIRED_ERROR;
+    const { validated, privateKey, isUpload } = this.state;
+
+    const errorMessage = this.getErrorMessage(privateKey, isUpload);
 
     return (
       <FormGroup
@@ -70,13 +88,14 @@ export class SshPrivateKey extends React.Component<Props, State> {
         helperTextInvalid={errorMessage}
         label="Private Key"
         validated={validated}
-        required={true}
+        isRequired={true}
       >
         <TextFileUpload
           fieldId="ssh-private-key"
-          placeholder="Paste the PRIVATE key here."
+          fileNamePlaceholder="Upload the PRIVATE key"
+          textAreaPlaceholder="Or paste the PRIVATE key"
           validated={validated}
-          onChange={key => this.onChange(key)}
+          onChange={(key, isUpload) => this.onChange(key, isUpload)}
         />
       </FormGroup>
     );

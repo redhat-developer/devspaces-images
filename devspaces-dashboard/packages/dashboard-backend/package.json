@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-backend",
-  "version": "7.78.1",
+  "version": "7.80.0",
   "description": "Dashboard backend for Eclipse Che",
   "scripts": {
     "build": "webpack --color --config webpack.config.prod.js",
@@ -26,8 +26,7 @@
   ],
   "license": "EPL-2.0",
   "dependencies": {
-    "@devfile/api": "^2.2.1-alpha-1667236163",
-    "@eclipse-che/che-devworkspace-generator": "7.78.0",
+    "@eclipse-che/che-devworkspace-generator": "7.79.0-next-1427c19",
     "@fastify/cors": "^8.3.0",
     "@fastify/error": "^3.3.0",
     "@fastify/http-proxy": "^9.2.1",
@@ -38,7 +37,7 @@
     "@fastify/websocket": "^8.2.0",
     "@kubernetes/client-node": "^0.18.1",
     "args": "^5.0.3",
-    "axios": "^0.21.4",
+    "axios": "^1.6.0",
     "fastify": "^4.21.0",
     "fs-extra": "^11.1.1",
     "https": "^1.0.0",
@@ -52,6 +51,7 @@
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@devfile/api": "2.2.2-1700686170",
     "@types/args": "^5.0.0",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.5.3",
@@ -61,7 +61,6 @@
     "copy-webpack-plugin": "^11.0.0",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-no-relative-import-paths": "^1.5.2",
     "eslint-plugin-notice": "^0.9.10",
     "eslint-plugin-prettier": "^5.0.0",

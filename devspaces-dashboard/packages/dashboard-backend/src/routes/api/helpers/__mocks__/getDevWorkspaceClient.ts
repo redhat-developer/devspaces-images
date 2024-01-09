@@ -15,7 +15,7 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
-  V221DevfileComponents,
+  V222DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { IncomingHttpHeaders } from 'http';
@@ -41,7 +41,7 @@ export const stubContainerBuild = {
   disableContainerBuildCapabilities: true,
 };
 export const stubDashboardWarning = 'Dashboard warning';
-export const stubDefaultComponents: V221DevfileComponents[] = [];
+export const stubDefaultComponents: V222DevfileComponents[] = [];
 export const stubDefaultEditor = undefined;
 export const stubDefaultPlugins: api.IWorkspacesDefaultPlugins[] = [];
 export const stubPluginRegistry = { openVSXURL: 'openvsx-url' };
@@ -125,6 +125,10 @@ export const stubSshKeysList: api.SshKey[] = [
   },
 ];
 
+export const stubAutoProvision = true;
+
+export const stubAdvancedAuthorization = {};
+
 export function getDevWorkspaceClient(
   ..._args: Parameters<typeof helper>
 ): ReturnType<typeof helper> {
@@ -148,6 +152,8 @@ export function getDevWorkspaceClient(
       getExternalDevfileRegistries: _cheCustomResource => externalDevfileRegistries,
       getInternalRegistryDisableStatus: _cheCustomResource => internalRegistryDisableStatus,
       getDashboardLogo: _cheCustomResource => dashboardLogo,
+      getAutoProvision: _cheCustomResource => stubAutoProvision,
+      getAdvancedAuthorization: _cheCustomResource => stubAdvancedAuthorization,
     } as IServerConfigApi,
     devworkspaceApi: {
       create: (_devworkspace, _namespace) =>

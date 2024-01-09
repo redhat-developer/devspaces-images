@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1alpha2DevWorkspaceStatus } from '@devfile/api';
 import common, { api, ApplicationId } from '@eclipse-che/common';
 import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
@@ -539,6 +540,7 @@ export const actionCreators: ActionCreators = {
       const openVSXUrl = selectOpenVSXUrl(state);
       const pluginRegistryUrl = selectPluginRegistryUrl(state);
       const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
+      const cheEditor = editorId ? editorId : selectDefaultEditor(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
 
       try {
@@ -551,7 +553,7 @@ export const actionCreators: ActionCreators = {
         const createResp = await getDevWorkspaceClient().createDevWorkspace(
           defaultNamespace,
           devWorkspaceResource,
-          editorId,
+          cheEditor,
         );
 
         if (createResp.headers.warning) {
@@ -818,7 +820,7 @@ export const actionCreators: ActionCreators = {
       let editorContent: string | undefined;
       let editorYamlUrl: string | undefined;
       // do we have an optional editor parameter ?
-      const editor = attributes.cheEditor;
+      let editor = attributes.cheEditor;
       if (editor) {
         const response = await getEditor(editor, dispatch, getState, pluginRegistryUrl);
         if (response.content) {
@@ -854,6 +856,7 @@ export const actionCreators: ActionCreators = {
           } else {
             throw new Error(response.error);
           }
+          editor = defaultsEditor;
           console.debug(`Using default editor ${defaultsEditor}`);
         }
       }
@@ -1086,7 +1089,7 @@ export const reducer: Reducer<State> = (
           if (WorkspaceAdapter.getUID(workspace) === action.workspaceUID) {
             const targetWorkspace = Object.assign({}, workspace);
             if (!targetWorkspace.status) {
-              targetWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
+              targetWorkspace.status = {} as V1alpha2DevWorkspaceStatus;
             }
             targetWorkspace.status.phase = DevWorkspaceStatus.TERMINATING;
             targetWorkspace.status.message = action.message;

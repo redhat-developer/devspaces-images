@@ -167,8 +167,13 @@ export const actionCreators: ActionCreators = {
                     : token.gitProviderEndpoint;
 
                   // compare Git OAuth Endpoint url ONLY with OAuth tokens
+                  const gitProvider = token.gitProvider;
                   if (
-                    token.gitProvider.startsWith('oauth2') &&
+                    (gitProvider.startsWith('oauth2') ||
+                      // The git provider value format of a bitbucket-server token is 'che-token-<user id>-<che hostname>'
+                      new RegExp(`^che-token-<.*>-<${window.location.hostname}>$`).test(
+                        gitProvider,
+                      )) &&
                     normalizedGitOauthEndpoint === normalizedTokenGitProviderEndpoint
                   ) {
                     providersWithToken.push(gitOauth.name);

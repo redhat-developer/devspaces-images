@@ -26,7 +26,6 @@ module.exports = {
     es6: true,
   },
   plugins: [
-    'import',
     'no-relative-import-paths',
     'react',
     'simple-import-sort',
@@ -44,9 +43,6 @@ module.exports = {
     ],
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
-    "import/first": "error",
-    "import/newline-after-import": "error",
-    "import/no-duplicates": "error",
 
     "no-relative-import-paths/no-relative-import-paths": [
       "error",

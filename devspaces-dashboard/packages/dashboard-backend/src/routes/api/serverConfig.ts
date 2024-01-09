@@ -48,6 +48,8 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
       const disableInternalRegistry =
         serverConfigApi.getInternalRegistryDisableStatus(cheCustomResource);
       const dashboardLogo = serverConfigApi.getDashboardLogo(cheCustomResource);
+      const advancedAuthorization = serverConfigApi.getAdvancedAuthorization(cheCustomResource);
+      const autoProvision = serverConfigApi.getAutoProvision(cheCustomResource);
 
       const serverConfig: api.IServerConfig = {
         containerBuild,
@@ -66,6 +68,9 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
           disableInternalRegistry,
           externalDevfileRegistries,
         },
+        defaultNamespace: {
+          autoProvision,
+        },
         pluginRegistry,
         cheNamespace,
         pluginRegistryURL,
@@ -74,10 +79,17 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
         devfileRegistryInternalURL,
       };
 
-      if (dashboardLogo) {
+      if (dashboardLogo !== undefined) {
         serverConfig.dashboardLogo = dashboardLogo;
       }
 
+      if (advancedAuthorization !== undefined) {
+        serverConfig.networking = {
+          auth: {
+            advancedAuthorization,
+          },
+        };
+      }
       return serverConfig;
     });
   });

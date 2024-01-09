@@ -32,6 +32,10 @@ const gitOauth = [
     name: 'azure-devops',
     endpointUrl: 'https://dev.azure.com',
   },
+  {
+    name: 'bitbucket-server',
+    endpointUrl: 'https://bitbucket-server.com',
+  },
 ] as IGitOauth[];
 
 const mockGetOAuthProviders = jest.fn().mockResolvedValue(gitOauth);
@@ -46,7 +50,17 @@ const mockFetchTokens = jest.fn().mockResolvedValue([
   {
     tokenName: 'github-personal-access-token',
     gitProvider: 'oauth2-token',
+    gitProviderEndpoint: 'https://github.com/',
+  },
+  {
+    tokenName: 'azure-devops-personal-access-token',
+    gitProvider: 'oauth2-token',
     gitProviderEndpoint: 'https://dev.azure.com/',
+  },
+  {
+    tokenName: 'bitbucket-server-personal-access-token',
+    gitProvider: 'che-token-<user.id>-<bitbucket-server>',
+    gitProviderEndpoint: 'https://bitbucket-server.com/',
   },
 ] as any[]);
 
@@ -65,6 +79,13 @@ jest.mock('../../../services/backend-client/personalAccessTokenApi', () => {
 
 // mute the outputs
 console.error = jest.fn();
+
+window = Object.create(window);
+Object.defineProperty(window, 'location', {
+  value: {
+    hostname: 'bitbucket-server',
+  },
+});
 
 describe('GitOauthConfig store, actions', () => {
   let store: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, TestStore.KnownAction>>;
@@ -86,7 +107,7 @@ describe('GitOauthConfig store, actions', () => {
 
     const expectedAction: TestStore.KnownAction = {
       supportedGitOauth: gitOauth,
-      providersWithToken: ['github', 'azure-devops'],
+      providersWithToken: ['github', 'azure-devops', 'bitbucket-server'],
       type: TestStore.Type.RECEIVE_GIT_OAUTH_PROVIDERS,
     };
 

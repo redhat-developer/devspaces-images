@@ -13,14 +13,17 @@
 import { FileUpload, FileUploadProps, ValidatedOptions } from '@patternfly/react-core';
 import React from 'react';
 
+import { TextFileUploadPreview } from '@/components/TextFileUpload/Preview';
+
 export type Props = {
   fieldId: string;
-  placeholder?: string;
+  fileNamePlaceholder?: string;
+  textAreaPlaceholder?: string;
   validated: ValidatedOptions;
   /**
    * @param content base64 encoded file content
    */
-  onChange: (content: string) => void;
+  onChange: (content: string, isUpload: boolean) => void;
 };
 
 export type State = {
@@ -54,45 +57,64 @@ export class TextFileUpload extends React.PureComponent<Props, State> {
 
   private handleClearClick(): void {
     this.setState({
+      content: undefined,
       file: undefined,
       filename: undefined,
     });
-    this.props.onChange('');
+    this.props.onChange('', false);
   }
 
-  private handleDataChange(dataUrl: string): void {
-    const content = dataUrl.split(',')[1];
+  private handleDataChange(content: string): void {
     this.setState({ content });
-    this.props.onChange(content);
+    this.props.onChange(btoa(content), true);
+  }
+
+  private handleTextChange(content: string): void {
+    this.setState({
+      content,
+      file: undefined,
+      filename: undefined,
+    });
+    this.props.onChange(btoa(content), false);
   }
 
   public render(): React.ReactElement {
-    const { fieldId, placeholder, validated } = this.props;
-    const { file, filename, isLoading } = this.state;
+    const { fieldId, fileNamePlaceholder, textAreaPlaceholder, validated } = this.props;
+    const { content, file, filename, isLoading } = this.state;
 
     const fileUploadValidated: FileUploadProps['validated'] =
       validated === ValidatedOptions.warning ? ValidatedOptions.success : validated;
+
+    const isReadOnly = filename !== undefined;
+    const allowEditingUploadedText = filename === undefined;
+    const hideDefaultPreview = filename !== undefined;
 
     return (
       <FileUpload
         id={fieldId}
         data-testid={fieldId}
-        value={file}
+        value={content}
         filename={filename}
-        filenamePlaceholder={placeholder}
+        filenamePlaceholder={fileNamePlaceholder}
         onFileInputChange={(event, file) => this.handleFileInputChange(event, file)}
         onClearClick={() => this.handleClearClick()}
-        onDataChange={text => this.handleDataChange(text)}
-        hideDefaultPreview={true}
+        onDataChange={data => this.handleDataChange(data)}
+        onTextChange={text => this.handleTextChange(text)}
         browseButtonText="Upload"
         isLoading={isLoading}
         isRequired={true}
+        isReadOnly={isReadOnly}
         validated={fileUploadValidated}
-        type="dataURL"
+        type="text"
         onReadStarted={() => this.setState({ isLoading: true })}
         onReadFinished={() => this.setState({ isLoading: false })}
         onReadFailed={() => this.setState({ isLoading: false })}
-      />
+        textAreaPlaceholder={textAreaPlaceholder}
+        allowEditingUploadedText={allowEditingUploadedText}
+        hideDefaultPreview={hideDefaultPreview}
+      >
+        {filename && <TextFileUploadPreview file={file} />}
+      </FileUpload>
     );
   }
 }

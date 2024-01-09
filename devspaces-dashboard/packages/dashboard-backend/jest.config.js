@@ -21,13 +21,21 @@ module.exports = {
   moduleNameMapper: {
     // mapping for absolute imports (see tsconfig.json)
     '^@/(.*)$': '<rootDir>/src/$1',
+
+    // not everything we need is exported from the package
+    // so we need to alias the rest
+    '@devfile/api/(.*)$': '<rootDir>/../../node_modules/@devfile/api/$1.ts',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!@devfile/api)',
+  ],
   collectCoverageFrom: [
     ...base.collectCoverageFrom,
 
     '!src/localRun/**',
     '!src/utils/**',
     '!src/server.ts',
+    '!src/**/*.d.ts',
   ],
   testEnvironment: 'node',
   setupFilesAfterEnv: ['./jest.setup.js'],

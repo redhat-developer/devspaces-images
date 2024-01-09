@@ -38,7 +38,7 @@ describe('Get Devfile by URL', () => {
   it('Should throw the "plugin registry URL is required" error message', async () => {
     const store = new FakeStoreBuilder().build();
 
-    let errorText: string | undefined = undefined;
+    let errorText: string | undefined;
     try {
       await getEditor('che-incubator/che-idea/next', store.dispatch, store.getState);
     } catch (e) {
@@ -51,7 +51,7 @@ describe('Get Devfile by URL', () => {
   it('Should throw the "failed to fetch editor yaml" error message', async () => {
     const store = new FakeStoreBuilder().build();
 
-    let errorText: string | undefined = undefined;
+    let errorText: string | undefined;
     try {
       await getEditor(
         'che-incubator/che-idea/next',

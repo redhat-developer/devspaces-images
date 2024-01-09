@@ -21,10 +21,6 @@ type DevWorkspaceTemplateRequired = Pick<
   V1alpha2DevWorkspaceTemplate,
   'apiVersion' | 'kind' | 'metadata'
 >;
-type DevWorkspaceTemplateRequiredField = keyof DevWorkspaceTemplateRequired;
-
-export const devWorkspaceTemplateRequiredFields: `${DevWorkspaceTemplateRequiredField} | ${DevWorkspaceTemplateRequiredField} | ${DevWorkspaceTemplateRequiredField}` =
-  'apiVersion | kind | metadata';
 
 export type DevWorkspaceTemplate = V1alpha2DevWorkspaceTemplate &
   Required<DevWorkspaceTemplateRequired> & {

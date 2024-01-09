@@ -14,20 +14,6 @@ import * as devfileConverter from '@eclipse-che/devfile-converter';
 
 import devfileApi from '@/services/devfileApi';
 
-export async function convertDevfileV2toDevfileV1(
-  devfile: devfileApi.Devfile,
-  optionalFilesContent:
-    | {
-        [fileName: string]: string;
-      }
-    | undefined,
-): Promise<che.WorkspaceDevfile> {
-  const externalAccess = async function (file: string): Promise<string> {
-    return optionalFilesContent?.[file] || '';
-  };
-  return (await devfileConverter.v2ToV1(devfile, externalAccess)) as che.WorkspaceDevfile;
-}
-
 export async function convertDevfileV1toDevfileV2(
   devfile: che.WorkspaceDevfile,
 ): Promise<devfileApi.Devfile> {

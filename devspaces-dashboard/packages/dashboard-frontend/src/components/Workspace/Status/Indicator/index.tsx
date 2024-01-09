@@ -35,7 +35,11 @@ export class WorkspaceStatusIndicator extends React.PureComponent<Props> {
 
     return (
       <CheTooltip content={tooltip}>
-        <span className={styles.statusIndicator} data-testid="workspace-status-indicator">
+        <span
+          className={styles.statusIndicator}
+          data-testid="workspace-status-indicator"
+          aria-label={`Workspace status is ${status}`}
+        >
           {icon}
         </span>
       </CheTooltip>

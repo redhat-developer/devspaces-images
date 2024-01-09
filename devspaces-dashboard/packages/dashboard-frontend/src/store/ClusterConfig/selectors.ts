@@ -32,3 +32,8 @@ export const selectAllWorkspacesLimit = createSelector(
 );
 
 export const selectClusterConfigError = createSelector(selectState, state => state.error);
+
+export const selectDashboardFavicon = createSelector(
+  selectState,
+  state => state.clusterConfig.dashboardFavicon,
+);

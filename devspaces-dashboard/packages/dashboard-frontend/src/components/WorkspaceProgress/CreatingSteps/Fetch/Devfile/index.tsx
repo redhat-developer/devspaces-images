@@ -26,6 +26,7 @@ import {
 } from '@/components/WorkspaceProgress/ProgressStep';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import {
   buildFactoryParams,
   FactoryParams,
@@ -223,7 +224,16 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
       if (errorMessage.includes('schema validation failed')) {
         throw new ApplyingDevfileError(errorMessage);
       }
-      if (errorMessage === 'Failed to fetch devfile') {
+      if (
+        errorMessage === 'Failed to fetch devfile' ||
+        errorMessage.startsWith('Could not reach devfile')
+      ) {
+        // do not throw if git+SSH URL is provided
+        if (FactoryLocationAdapter.isSshLocation(sourceUrl)) {
+          this.handleDefaultDevfile('');
+          return true;
+        }
+
         throw new UnsupportedGitProviderError(errorMessage);
       }
       throw e;
@@ -371,7 +381,7 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
     return {
       key,
       title: 'Failed to create the workspace',
-      variant: AlertVariant.danger,
+      variant: AlertVariant.warning,
       children: helpers.errors.getMessage(error),
       actionCallbacks: [
         {
@@ -396,8 +406,8 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
     const { name, lastError } = this.state;
 
     const isActive = distance === 0;
-    const isError = lastError !== undefined;
-    const isWarning = false;
+    const isError = false;
+    const isWarning = lastError !== undefined;
 
     return (
       <React.Fragment>

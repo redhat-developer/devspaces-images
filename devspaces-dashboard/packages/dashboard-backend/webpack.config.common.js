@@ -44,6 +44,10 @@ module.exports = () => {
       alias: {
         // alias for absolute imports (see tsconfig.json)
         '@': path.resolve(__dirname, 'src/'),
+        
+        // not everything we need is exported from the package
+        // so we need to alias the rest
+        '@devfile/api/api': path.resolve(__dirname, '../../node_modules/@devfile/api/api.ts'),
       },
     },
     resolveLoader: {},

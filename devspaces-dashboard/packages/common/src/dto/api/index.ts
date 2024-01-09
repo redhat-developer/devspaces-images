@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1alpha2DevWorkspace, V221DevfileComponents } from '@devfile/api';
+import { V1alpha2DevWorkspace, V222DevfileComponents } from '@devfile/api';
 import { CoreV1EventList, V1PodList } from '@kubernetes/client-node';
 import * as webSocket from './webSocket';
 
@@ -104,7 +104,7 @@ export interface IServerConfig {
   };
   defaults: {
     editor: string | undefined;
-    components: V221DevfileComponents[];
+    components: V222DevfileComponents[];
     plugins: IWorkspacesDefaultPlugins[];
     pvcStrategy: string | undefined;
   };
@@ -118,6 +118,14 @@ export interface IServerConfig {
     runTimeout: number;
     startTimeout: number;
   };
+  networking?: {
+    auth?: {
+      advancedAuthorization: IAdvancedAuthorization;
+    };
+  };
+  defaultNamespace: {
+    autoProvision: boolean;
+  };
   cheNamespace: string;
   pluginRegistryURL: string;
   pluginRegistryInternalURL: string;
@@ -126,10 +134,17 @@ export interface IServerConfig {
   dashboardLogo?: { base64data: string; mediatype: string };
 }
 
+export interface IAdvancedAuthorization {
+  allowUsers?: string[];
+  allowGroups?: string[];
+  denyUsers?: string[];
+  denyGroups?: string[];
+}
+
 export interface IPluginRegistry {
   disableInternalRegistry?: boolean;
   externalPluginRegistries?: { url: string }[];
-  openVSXURL: string;
+  openVSXURL?: string;
 }
 
 export interface IUserProfile {

@@ -61,4 +61,14 @@ export const selectStartTimeout = createSelector(
 
 export const selectDashboardLogo = createSelector(selectState, state => state.config.dashboardLogo);
 
+export const selectAdvancedAuthorization = createSelector(
+  selectState,
+  state => state.config.networking?.auth?.advancedAuthorization,
+);
+
+export const selectAutoProvision = createSelector(
+  selectState,
+  state => state.config.defaultNamespace.autoProvision,
+);
+
 export const selectServerConfigError = createSelector(selectState, state => state.error);

@@ -46,13 +46,14 @@ module.exports = {
     '!src/index.tsx',
     '!src/App.tsx',
     '!src/Routes.tsx',
+    '!src/service-worker.ts',
   ],
   coverageThreshold: {
     global: {
-      statements: 81,
+      statements: 88,
       branches: 85,
-      functions: 77,
-      lines: 81,
+      functions: 81,
+      lines: 88,
     },
   },
 };

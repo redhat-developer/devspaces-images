@@ -36,6 +36,7 @@ async function buildClusterConfig(): Promise<ClusterConfig> {
   const dashboardWarning = serverConfigApi.getDashboardWarning(cheCustomResource);
   const runningWorkspacesLimit = serverConfigApi.getRunningWorkspacesLimit(cheCustomResource);
   const allWorkspacesLimit = serverConfigApi.getAllWorkspacesLimit(cheCustomResource);
+  const dashboardFavicon = serverConfigApi.getDashboardLogo(cheCustomResource);
 
-  return { dashboardWarning, allWorkspacesLimit, runningWorkspacesLimit };
+  return { dashboardWarning, dashboardFavicon, allWorkspacesLimit, runningWorkspacesLimit };
 }

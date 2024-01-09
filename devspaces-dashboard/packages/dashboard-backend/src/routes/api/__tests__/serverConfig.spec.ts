@@ -49,6 +49,11 @@ describe('Server Config Route', () => {
       timeouts: { inactivityTimeout: 0, runTimeout: 0, startTimeout: 0 },
       devfileRegistryInternalURL: 'http://devfile-registry.internal',
       devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc',
+      networking: {
+        auth: {
+          advancedAuthorization: {},
+        },
+      },
       pluginRegistryInternalURL: 'http://plugin-registry.internal',
       pluginRegistryURL: 'http://plugin-registry.eclipse-che.svc/v3',
       devfileRegistry: {
@@ -58,6 +63,9 @@ describe('Server Config Route', () => {
             url: 'https://devfile.registry.test.org/',
           },
         ],
+      },
+      defaultNamespace: {
+        autoProvision: true,
       },
       dashboardLogo: {
         base64data: 'base64-encoded-data',

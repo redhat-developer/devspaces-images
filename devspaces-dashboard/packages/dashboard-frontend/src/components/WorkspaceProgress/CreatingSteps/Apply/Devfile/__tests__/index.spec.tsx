@@ -22,6 +22,9 @@ import { Action, Store } from 'redux';
 
 import ExpandableWarning from '@/components/ExpandableWarning';
 import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
+import CreatingStepApplyDevfile, {
+  State,
+} from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile';
 import { prepareDevfile } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/prepareDevfile';
 import { ROUTE } from '@/Routes/routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
@@ -38,13 +41,11 @@ import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { ActionCreators } from '@/store/Workspaces';
 
-import CreatingStepApplyDevfile, { State } from '..';
-
-jest.mock('../../../../TimeLimit');
-jest.mock('../prepareDevfile.ts');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
+jest.mock('@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/prepareDevfile.ts');
 
 let mockCreateWorkspaceFromDevfile;
-jest.mock('../../../../../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
       createWorkspaceFromDevfile:
@@ -228,6 +229,165 @@ describe('Creating steps, applying a devfile', () => {
           expect.objectContaining({
             attributes: {
               defaultDevfile: true,
+            },
+          }),
+          factoryId,
+          undefined,
+          false,
+        ),
+      );
+      await waitFor(() => expect(mockCreateWorkspaceFromDevfile).toHaveBeenCalled());
+    });
+
+    test('git+SHH URL resolved with no devfile', async () => {
+      const factoryUrl = 'git@github.com:user/repository-name.git';
+      const factoryId = `${FACTORY_URL_ATTR}=${factoryUrl}`;
+      const searchParams = new URLSearchParams({
+        [FACTORY_URL_ATTR]: factoryUrl,
+      });
+
+      const registryUrl = 'https://registry-url';
+      const sampleResourceUrl = 'https://resources-url';
+      const registryMetadata = {
+        displayName: 'Empty Workspace',
+        description: 'Start an empty remote development environment',
+        tags: ['Empty'],
+        icon: '/images/empty.svg',
+        links: {
+          v2: sampleResourceUrl,
+        },
+      } as che.DevfileMetaData;
+      const sampleContent = dump({
+        schemaVersion: '2.1.0',
+        metadata: {
+          generateName: 'empty',
+        },
+        attributes: {
+          defaultDevfile: true, // this is the default devfile
+        },
+      } as devfileApi.Devfile);
+      const defaultComponents = [
+        {
+          name: 'universal-developer-image',
+          container: {
+            image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+          },
+        },
+      ];
+
+      const store = getStoreBuilder()
+        .withFactoryResolver({
+          resolver: {
+            location: factoryUrl,
+            source: 'repo',
+          },
+          converted: {
+            devfileV2: devfile,
+          },
+        })
+        .withDevfileRegistries({
+          registries: {
+            [registryUrl]: {
+              metadata: [registryMetadata],
+            },
+          },
+          devfiles: {
+            [sampleResourceUrl]: {
+              content: sampleContent,
+            },
+          },
+        })
+        .withDwServerConfig({
+          defaults: {
+            components: defaultComponents,
+          },
+        } as api.IServerConfig)
+        .build();
+
+      renderComponent(store, searchParams);
+      jest.runAllTimers();
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(
+          expect.objectContaining({
+            attributes: {
+              'controller.devfile.io/bootstrap-devworkspace': true,
+            },
+          }),
+          factoryId,
+          undefined,
+          false,
+        ),
+      );
+      await waitFor(() => expect(mockCreateWorkspaceFromDevfile).toHaveBeenCalled());
+    });
+
+    test('git+SHH URL resolving failed', async () => {
+      const factoryUrl = 'git@github.com:user/repository-name.git';
+      const factoryId = `${FACTORY_URL_ATTR}=${factoryUrl}`;
+      const searchParams = new URLSearchParams({
+        [FACTORY_URL_ATTR]: factoryUrl,
+      });
+
+      const registryUrl = 'https://registry-url';
+      const sampleResourceUrl = 'https://resources-url';
+      const registryMetadata = {
+        displayName: 'Empty Workspace',
+        description: 'Start an empty remote development environment',
+        tags: ['Empty'],
+        icon: '/images/empty.svg',
+        links: {
+          v2: sampleResourceUrl,
+        },
+      } as che.DevfileMetaData;
+      const sampleContent = dump({
+        schemaVersion: '2.1.0',
+        metadata: {
+          generateName: 'empty',
+        },
+        attributes: {
+          defaultDevfile: true, // this is the default devfile
+        },
+      } as devfileApi.Devfile);
+      const defaultComponents = [
+        {
+          name: 'universal-developer-image',
+          container: {
+            image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+          },
+        },
+      ];
+
+      const store = getStoreBuilder()
+        .withFactoryResolver({ resolver: undefined, converted: undefined })
+        .withDevfileRegistries({
+          registries: {
+            [registryUrl]: {
+              metadata: [registryMetadata],
+            },
+          },
+          devfiles: {
+            [sampleResourceUrl]: {
+              content: sampleContent,
+            },
+          },
+        })
+        .withDwServerConfig({
+          defaults: {
+            components: defaultComponents,
+          },
+        } as api.IServerConfig)
+        .build();
+
+      renderComponent(store, searchParams);
+      jest.runAllTimers();
+
+      await waitFor(() =>
+        expect(prepareDevfile).toHaveBeenCalledWith(
+          expect.objectContaining({
+            attributes: {
+              defaultDevfile: true,
+              'controller.devfile.io/bootstrap-devworkspace': true,
             },
           }),
           factoryId,

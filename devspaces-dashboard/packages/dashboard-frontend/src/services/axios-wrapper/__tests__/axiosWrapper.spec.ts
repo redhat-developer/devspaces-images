@@ -11,7 +11,7 @@
  */
 
 import common from '@eclipse-che/common';
-import mockAxios, { AxiosInstance, AxiosResponse } from 'axios';
+import mockAxios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 import {
   AxiosWrapper,
@@ -228,7 +228,7 @@ function createAxiosResponseError(message: string): { response: AxiosResponse } 
       status: 401,
       statusText: 'Unauthorized',
       headers: {},
-      config: {},
+      config: {} as InternalAxiosRequestConfig,
     },
   };
 }

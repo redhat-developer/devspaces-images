@@ -10,12 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import {
-  devworkspaceGroup,
-  devworkspaceLatestVersion,
-  devworkspacePlural,
-  V1alpha2DevWorkspace,
-} from '@devfile/api';
+import { V1alpha2DevWorkspace } from '@devfile/api';
+import { devworkspaceGroup, devworkspaceLatestVersion, devworkspacePlural } from '@devfile/api/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { V1Status } from '@kubernetes/client-node';

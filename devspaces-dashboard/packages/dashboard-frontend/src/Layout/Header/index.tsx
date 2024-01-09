@@ -16,7 +16,7 @@ import React from 'react';
 
 import HeaderTools from '@/Layout/Header/Tools';
 
-type Props = {
+export type Props = {
   history: History;
   isVisible: boolean;
   logo: React.ReactNode;

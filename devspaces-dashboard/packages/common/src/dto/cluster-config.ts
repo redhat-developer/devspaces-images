@@ -12,6 +12,10 @@
 
 export interface ClusterConfig {
   dashboardWarning?: string;
+  dashboardFavicon?: {
+    base64data: string;
+    mediatype: string;
+  };
   allWorkspacesLimit: number;
   runningWorkspacesLimit: number;
 }

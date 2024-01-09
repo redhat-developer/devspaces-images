@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V221DevfileComponents } from '@devfile/api';
+import { V222DevfileComponents } from '@devfile/api';
 import { dump } from 'js-yaml';
 import { cloneDeep } from 'lodash';
 
@@ -39,7 +39,7 @@ export default function normalizeDevfileV2(
   devfileLike: devfileApi.DevfileLike,
   data: FactoryResolver,
   location: string,
-  defaultComponents: V221DevfileComponents[],
+  defaultComponents: V222DevfileComponents[],
   namespace: string,
   factoryParams: Partial<FactoryParams>,
 ): devfileApi.Devfile {

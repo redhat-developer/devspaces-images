@@ -21,6 +21,7 @@ import {
   IssueType,
   WorkspaceData,
 } from '@/services/bootstrap/issuesReporter';
+import { checkNamespaceProvisionWarnings } from '@/services/bootstrap/namespaceProvisionWarnings';
 import {
   WorkspaceRunningError,
   WorkspaceStoppedDetector,
@@ -35,6 +36,7 @@ import { AppState } from '@/store';
 import * as BannerAlertStore from '@/store/BannerAlert';
 import * as BrandingStore from '@/store/Branding';
 import * as ClusterConfigStore from '@/store/ClusterConfig';
+import { selectDashboardFavicon } from '@/store/ClusterConfig/selectors';
 import * as ClusterInfoStore from '@/store/ClusterInfo';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
@@ -84,14 +86,12 @@ export default class Bootstrap {
   }
 
   async init(): Promise<void> {
-    await this.doBackendsSanityCheck();
-
+    await this.fetchServerConfig().then(() => this.doBackendsSanityCheck());
     this.prefetchResources();
 
     await Promise.all([
       this.fetchBranding(),
       this.fetchInfrastructureNamespaces(),
-      this.fetchServerConfig(),
       this.fetchClusterInfo(),
     ]);
 
@@ -112,7 +112,7 @@ export default class Bootstrap {
       this.fetchPods().then(() => {
         this.watchWebSocketPods();
       }),
-      this.fetchClusterConfig(),
+      this.fetchClusterConfig().then(() => this.updateFavicon()),
     ]);
 
     const errors = results
@@ -135,8 +135,12 @@ export default class Bootstrap {
     try {
       await testBackends()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
+      checkNamespaceProvisionWarnings(this.store.getState);
       const errorMessage = common.helpers.errors.getMessage(e);
-      this.issuesReporterService.registerIssue('sessionExpired', new Error(errorMessage));
+      this.issuesReporterService.registerIssue(
+        'namespaceProvisioningError',
+        new Error(errorMessage),
+      );
       throw e;
     }
   }
@@ -417,7 +421,7 @@ export default class Bootstrap {
   }
 
   private checkWorkspaceStopped(): void {
-    let stoppedWorkspace: Workspace | undefined = undefined;
+    let stoppedWorkspace: Workspace | undefined;
 
     try {
       stoppedWorkspace = this.workspaceStoppedDetector.checkWorkspaceStopped(this.store.getState());
@@ -462,5 +466,18 @@ export default class Bootstrap {
       return this.store.getState().dwServerConfig.config.timeouts.runTimeout;
     }
     return -1;
+  }
+
+  private updateFavicon() {
+    const dashboardFavicon = selectDashboardFavicon(this.store.getState());
+    if (dashboardFavicon?.base64data && dashboardFavicon?.mediatype) {
+      const hrefAttribute = `data:${dashboardFavicon?.mediatype};base64,${dashboardFavicon?.base64data}`;
+      if (window.document) {
+        const faviconHTML = window.document.getElementById('dashboardFavicon');
+        if (faviconHTML) {
+          faviconHTML.setAttribute('href', hrefAttribute);
+        }
+      }
+    }
   }
 }

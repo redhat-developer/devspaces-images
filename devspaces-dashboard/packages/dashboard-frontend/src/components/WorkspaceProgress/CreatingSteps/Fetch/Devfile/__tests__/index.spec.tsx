@@ -22,6 +22,7 @@ import { Action, Store } from 'redux';
 
 import ExpandableWarning from '@/components/ExpandableWarning';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RESOLVE_SEC } from '@/components/WorkspaceProgress/const';
+import CreatingStepFetchDevfile from '@/components/WorkspaceProgress/CreatingSteps/Fetch/Devfile';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import devfileApi from '@/services/devfileApi';
 import { getDefer } from '@/services/helpers/deferred';
@@ -36,13 +37,11 @@ import { AppThunk } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { ActionCreators, OAuthResponse } from '@/store/FactoryResolver';
 
-import CreatingStepFetchDevfile from '..';
-
-jest.mock('../../../../TimeLimit');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const mockRequestFactoryResolver = jest.fn();
 const mockIsOAuthResponse = jest.fn();
-jest.mock('../../../../../../store/FactoryResolver', () => {
+jest.mock('@/store/FactoryResolver', () => {
   return {
     actionCreators: {
       requestFactoryResolver:
@@ -683,6 +682,59 @@ describe('Creating steps, fetching a devfile', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
+      expect(mockOnError).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('private git+SSH URL repo', () => {
+    const host = 'che-host';
+    const protocol = 'http://';
+    const factoryUrl = 'git@github.com:user/repository-name.git';
+
+    let spyWindowLocation: jest.SpyInstance;
+    let spyOpenOAuthPage: jest.SpyInstance;
+    let history: MemoryHistory;
+
+    beforeEach(() => {
+      store = new FakeStoreBuilder().build();
+
+      searchParams = new URLSearchParams({
+        [FACTORY_URL_ATTR]: factoryUrl,
+      });
+
+      mockIsOAuthResponse.mockReturnValue(false);
+      mockRequestFactoryResolver.mockRejectedValue('Could not reach devfile');
+
+      spyWindowLocation = createWindowLocationSpy(host, protocol);
+      spyOpenOAuthPage = jest
+        .spyOn(OAuthService, 'openOAuthPage')
+        .mockImplementation(() => jest.fn());
+
+      history = createMemoryHistory({
+        initialEntries: [
+          {
+            search: searchParams.toString(),
+          },
+        ],
+      });
+    });
+
+    afterEach(() => {
+      sessionStorage.clear();
+      spyWindowLocation.mockClear();
+      spyOpenOAuthPage.mockClear();
+    });
+
+    it('should go to next step', async () => {
+      const emptyStore = new FakeStoreBuilder().build();
+
+      renderComponent(emptyStore, searchParams, history);
+
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+      await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
+
+      expect(spyOpenOAuthPage).not.toHaveBeenCalled();
       expect(mockOnError).not.toHaveBeenCalled();
     });
   });

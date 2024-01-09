@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V221DevfileMetadata } from '@devfile/api';
+import { V222DevfileMetadata } from '@devfile/api';
 
-export type DevfileMetadataLike = V221DevfileMetadata & {
+export type DevfileMetadataLike = V222DevfileMetadata & {
   namespace?: string;
   generateName?: string;
 };

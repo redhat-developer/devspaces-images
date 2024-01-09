@@ -3,6 +3,7 @@
 exports[`Workspace indicator component Che Workspaces should render ERROR status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is ERROR"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -40,6 +41,7 @@ exports[`Workspace indicator component Che Workspaces should render ERROR status
 exports[`Workspace indicator component Che Workspaces should render RUNNING status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is RUNNING"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -77,6 +79,7 @@ exports[`Workspace indicator component Che Workspaces should render RUNNING stat
 exports[`Workspace indicator component Che Workspaces should render STARTING status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is STARTING"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -115,6 +118,7 @@ exports[`Workspace indicator component Che Workspaces should render STARTING sta
 exports[`Workspace indicator component Che Workspaces should render STOPPED status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is STOPPED"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -122,7 +126,7 @@ exports[`Workspace indicator component Che Workspaces should render STOPPED stat
       className="pf-c-icon pf-m-inline"
     >
       <span
-        className="pf-c-icon__content"
+        className="pf-c-icon__content pf-m-default"
       >
         <svg
           aria-hidden="true"
@@ -158,6 +162,7 @@ exports[`Workspace indicator component Che Workspaces should render STOPPED stat
 exports[`Workspace indicator component Che Workspaces should render STOPPING status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is STOPPING"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -165,7 +170,7 @@ exports[`Workspace indicator component Che Workspaces should render STOPPING sta
       className="pf-c-icon pf-m-inline"
     >
       <span
-        className="pf-c-icon__content"
+        className="pf-c-icon__content pf-m-default"
       >
         <svg
           aria-hidden={true}
@@ -196,6 +201,7 @@ exports[`Workspace indicator component Che Workspaces should render STOPPING sta
 exports[`Workspace indicator component Deprecated workspaces should render "Deprecated" status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is Deprecated"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -233,6 +239,7 @@ exports[`Workspace indicator component Deprecated workspaces should render "Depr
 exports[`Workspace indicator component DevWorkspaces should render FAILED status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is Failed"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -270,6 +277,7 @@ exports[`Workspace indicator component DevWorkspaces should render FAILED status
 exports[`Workspace indicator component DevWorkspaces should render FAILING status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is Failing"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -308,6 +316,7 @@ exports[`Workspace indicator component DevWorkspaces should render FAILING statu
 exports[`Workspace indicator component DevWorkspaces should render RUNNING status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is Running"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -345,6 +354,7 @@ exports[`Workspace indicator component DevWorkspaces should render RUNNING statu
 exports[`Workspace indicator component DevWorkspaces should render STOPPED status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is Stopped"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -352,7 +362,7 @@ exports[`Workspace indicator component DevWorkspaces should render STOPPED statu
       className="pf-c-icon pf-m-inline"
     >
       <span
-        className="pf-c-icon__content"
+        className="pf-c-icon__content pf-m-default"
       >
         <svg
           aria-hidden="true"
@@ -388,6 +398,7 @@ exports[`Workspace indicator component DevWorkspaces should render STOPPED statu
 exports[`Workspace indicator component should render default status correctly 1`] = `
 <div>
   <span
+    aria-label="Workspace status is STOPPING"
     className="statusIndicator"
     data-testid="workspace-status-indicator"
   >
@@ -395,7 +406,7 @@ exports[`Workspace indicator component should render default status correctly 1`
       className="pf-c-icon pf-m-inline"
     >
       <span
-        className="pf-c-icon__content"
+        className="pf-c-icon__content pf-m-default"
       >
         <svg
           aria-hidden={true}

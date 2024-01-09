@@ -12,6 +12,7 @@
 
 import common from '@eclipse-che/common';
 
+import { getDataResolver } from '@/services/backend-client/dataResolverApi';
 import { fetchData } from '@/services/registry/fetchData';
 import { isDevfileMetaData } from '@/services/registry/types';
 import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
@@ -154,7 +155,17 @@ export async function fetchRegistryMetadata(
     const devfileMetaDataArr: che.DevfileMetaData[] = [];
     for (const [index, location] of registryIndexLocations.entries()) {
       try {
-        const data = await fetchData(location);
+        let data: che.DevfileMetaData[] | undefined;
+        if (isExternal) {
+          try {
+            data = await getDataResolver(location);
+          } catch (e) {
+            console.error(`Failed to fetch data resolver for URL: ${location}, reason: ${e}`);
+            data = await fetchData(location);
+          }
+        } else {
+          data = await fetchData(location);
+        }
         if (Array.isArray(data)) {
           data.forEach(metadata => {
             if (metadata.url) {

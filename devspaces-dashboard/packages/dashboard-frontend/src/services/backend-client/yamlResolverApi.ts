@@ -18,16 +18,13 @@ import { dashboardBackendPrefix } from '@/services/backend-client/const';
 import devfileApi from '@/services/devfileApi';
 import { FactoryResolver } from '@/services/helpers/types';
 
-export async function getYamlResolver(
-  namespace: string,
-  location: string,
-): Promise<FactoryResolver> {
+export async function getYamlResolver(location: string): Promise<FactoryResolver> {
   try {
     const url = new URL(location);
     const response =
       url.origin === window.location.origin
         ? await axios.get(url.href)
-        : await axios.post(`${dashboardBackendPrefix}/namespace/${namespace}/yaml/resolver`, {
+        : await axios.post(`${dashboardBackendPrefix}/data/resolver`, {
             url: url.href,
           });
 
@@ -38,6 +35,6 @@ export async function getYamlResolver(
       links: [],
     };
   } catch (e) {
-    throw new Error(`Failed to fetch yaml resolver'. ${helpers.errors.getMessage(e)}`);
+    throw new Error(`Failed to resolve yaml'. ${helpers.errors.getMessage(e)}`);
   }
 }

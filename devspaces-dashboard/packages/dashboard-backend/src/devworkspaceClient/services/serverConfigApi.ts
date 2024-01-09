@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V221DevfileComponents } from '@devfile/api';
+import { V222DevfileComponents } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { readFileSync } from 'fs';
@@ -131,7 +131,7 @@ export class ServerConfigApiService implements IServerConfigApi {
     );
   }
 
-  getDefaultComponents(cheCustomResource: CheClusterCustomResource): V221DevfileComponents[] {
+  getDefaultComponents(cheCustomResource: CheClusterCustomResource): V222DevfileComponents[] {
     if (cheCustomResource.spec.devEnvironments?.defaultComponents) {
       return cheCustomResource.spec.devEnvironments.defaultComponents;
     }
@@ -155,17 +155,11 @@ export class ServerConfigApiService implements IServerConfigApi {
     //   - empty value forces to use embedded registry
     //   - undefined value means that the default value should be used
 
-    const pluginRegistry = cheCustomResource.spec.components?.pluginRegistry
-      ? cheCustomResource.spec.components.pluginRegistry
-      : ({ openVSXURL: '' } as api.IPluginRegistry);
+    const pluginRegistry = cheCustomResource.spec.components?.pluginRegistry || {};
 
-    const openVSXURL =
-      cheCustomResource.spec.components?.pluginRegistry?.openVSXURL !== undefined
-        ? pluginRegistry.openVSXURL
-        : process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'];
-
-    if (openVSXURL) {
-      pluginRegistry.openVSXURL = openVSXURL;
+    if (pluginRegistry?.openVSXURL === undefined) {
+      pluginRegistry.openVSXURL =
+        process.env['CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL'];
     }
 
     return pluginRegistry;
@@ -227,5 +221,15 @@ export class ServerConfigApiService implements IServerConfigApi {
     cheCustomResource: CheClusterCustomResource,
   ): { base64data: string; mediatype: string } | undefined {
     return cheCustomResource.spec.components?.dashboard?.branding?.logo;
+  }
+
+  getAdvancedAuthorization(
+    cheCustomResource: CheClusterCustomResource,
+  ): api.IAdvancedAuthorization | undefined {
+    return cheCustomResource.spec.networking?.auth?.advancedAuthorization;
+  }
+
+  getAutoProvision(cheCustomResource: CheClusterCustomResource): boolean {
+    return cheCustomResource.spec.devEnvironments?.defaultNamespace?.autoProvision || false;
   }
 }

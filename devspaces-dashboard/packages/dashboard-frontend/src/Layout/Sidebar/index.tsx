@@ -16,7 +16,7 @@ import React from 'react';
 
 import Navigation from '@/Layout/Navigation';
 
-type Props = {
+export type Props = {
   isManaged: boolean;
   isNavOpen: boolean;
   history: History;

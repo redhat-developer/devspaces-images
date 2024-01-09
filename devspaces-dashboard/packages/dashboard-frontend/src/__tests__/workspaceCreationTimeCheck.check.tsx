@@ -56,7 +56,7 @@ describe('Workspace creation time', () => {
   const mockPost = mockAxios.post as jest.Mock;
 
   let execTime: number;
-  let execTimer: number | undefined = undefined;
+  let execTimer: number;
 
   beforeEach(() => {
     execTime = 0;

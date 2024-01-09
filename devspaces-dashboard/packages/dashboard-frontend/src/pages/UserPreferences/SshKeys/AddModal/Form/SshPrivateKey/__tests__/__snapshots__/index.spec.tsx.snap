@@ -7,7 +7,6 @@ exports[`SshPrivateKey snapshot 1`] = `
 >
   <div
     className="pf-c-form__group"
-    required={true}
   >
     <div
       className="pf-c-form__group-label"
@@ -21,18 +20,38 @@ exports[`SshPrivateKey snapshot 1`] = `
         >
           Private Key
         </span>
+        <span
+          aria-hidden="true"
+          className="pf-c-form__label-required"
+        >
+           
+          *
+        </span>
       </label>
        
     </div>
     <div
       className="pf-c-form__group-control"
     >
-      <input
-        data-testid="ssh-private-key"
-        id="ssh-private-key"
-        onChange={[Function]}
-        placeholder="Paste the PRIVATE key here."
-      />
+      <div>
+        <span
+          data-testid="ssh-private-key-validated"
+        >
+          default
+        </span>
+        <input
+          data-testid="ssh-private-key-upload"
+          id="ssh-private-key-upload"
+          onChange={[Function]}
+          placeholder="Upload the PRIVATE key"
+        />
+        <input
+          data-testid="ssh-private-key-textarea"
+          id="ssh-private-key-textarea"
+          onChange={[Function]}
+          placeholder="Or paste the PRIVATE key"
+        />
+      </div>
       
     </div>
   </div>

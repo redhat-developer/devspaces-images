@@ -105,7 +105,7 @@ exports[`The workspace status label component Che Workspaces should render STOPP
           className="pf-c-icon pf-m-inline"
         >
           <span
-            className="pf-c-icon__content"
+            className="pf-c-icon__content pf-m-default"
           >
             <svg
               aria-hidden="true"
@@ -337,7 +337,7 @@ exports[`The workspace status label component DevWorkspaces should render STOPPE
           className="pf-c-icon pf-m-inline"
         >
           <span
-            className="pf-c-icon__content"
+            className="pf-c-icon__content pf-m-default"
           >
             <svg
               aria-hidden="true"
@@ -388,7 +388,7 @@ exports[`The workspace status label component should render default status corre
           className="pf-c-icon pf-m-inline"
         >
           <span
-            className="pf-c-icon__content"
+            className="pf-c-icon__content pf-m-default"
           >
             <svg
               aria-hidden={true}

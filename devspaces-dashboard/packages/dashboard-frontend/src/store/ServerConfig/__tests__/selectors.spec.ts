@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
@@ -18,6 +19,8 @@ import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { serverConfig } from '@/store/ServerConfig/__tests__/stubs';
 import {
+  selectAdvancedAuthorization,
+  selectAutoProvision,
   selectDashboardLogo,
   selectDefaultComponents,
   selectDefaultEditor,
@@ -203,6 +206,68 @@ describe('serverConfig selectors', () => {
 
       const selectedDashboardLogo = selectDashboardLogo(state);
       expect(selectedDashboardLogo).toBeUndefined();
+    });
+  });
+
+  describe('selectAdvancedAuthorization', () => {
+    it('should return provided value', () => {
+      const fakeStore = new FakeStoreBuilder()
+        .withDwServerConfig(
+          Object.assign({}, serverConfig, {
+            networking: {
+              auth: {
+                advancedAuthorization: {
+                  allowUsers: ['user0'],
+                },
+              },
+            },
+          } as api.IServerConfig),
+        )
+        .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
+      const state = fakeStore.getState();
+
+      const selectedAdvancedAuthorization = selectAdvancedAuthorization(state);
+      expect(selectedAdvancedAuthorization).toEqual({ allowUsers: ['user0'] });
+    });
+
+    it('should return default value', () => {
+      const fakeStore = new FakeStoreBuilder().build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, AnyAction>
+      >;
+      const state = fakeStore.getState();
+
+      const selectedAdvancedAuthorization = selectAdvancedAuthorization(state);
+      expect(selectedAdvancedAuthorization).toBeUndefined();
+    });
+  });
+
+  describe('selectAutoProvision', () => {
+    it('should return provided value', () => {
+      const fakeStore = new FakeStoreBuilder()
+        .withDwServerConfig(
+          Object.assign({}, serverConfig, {
+            defaultNamespace: {
+              autoProvision: false,
+            },
+          } as api.IServerConfig),
+        )
+        .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
+      const state = fakeStore.getState();
+
+      const selectedDashboardLogo = selectAutoProvision(state);
+      expect(selectedDashboardLogo).toBeFalsy();
+    });
+
+    it('should return default value', () => {
+      const fakeStore = new FakeStoreBuilder().build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, AnyAction>
+      >;
+      const state = fakeStore.getState();
+
+      const selectedDashboardLogo = selectAutoProvision(state);
+      expect(selectedDashboardLogo).toBeTruthy();
     });
   });
 });

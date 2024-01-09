@@ -30,6 +30,7 @@ import {
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import devfileApi from '@/services/devfileApi';
+import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import {
   buildFactoryParams,
   FactoryParams,
@@ -178,6 +179,14 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
 
     // when using the default devfile instead of a user devfile
     if (factoryResolver === undefined && isEqual(devfile, defaultDevfile)) {
+      if (FactoryLocationAdapter.isSshLocation(factoryParams.sourceUrl)) {
+        if (!devfile.attributes) {
+          devfile.attributes = {};
+        }
+
+        devfile.attributes['controller.devfile.io/bootstrap-devworkspace'] = true;
+      }
+
       if (devfile.projects === undefined) {
         devfile.projects = [];
       }
@@ -190,6 +199,14 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
           devfile.metadata.name = project.name;
           devfile.metadata.generateName = project.name;
         }
+      }
+    } else if (factoryResolver?.source === 'repo') {
+      if (FactoryLocationAdapter.isSshLocation(factoryParams.sourceUrl)) {
+        if (!devfile.attributes) {
+          devfile.attributes = {};
+        }
+
+        devfile.attributes['controller.devfile.io/bootstrap-devworkspace'] = true;
       }
     }
 
@@ -244,9 +261,6 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
           throw new Error('Failed to resolve the default devfile.');
         }
         const _devfile = cloneDeep(defaultDevfile);
-        if (!_devfile.attributes) {
-          _devfile.attributes = {};
-        }
         this.updateCurrentDevfile(_devfile);
       } else {
         try {
@@ -419,8 +433,8 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
     const { name, lastError, warning } = this.state;
 
     const isActive = distance === 0;
-    const isError = lastError !== undefined;
-    const isWarning = warning !== undefined;
+    const isError = false;
+    const isWarning = warning !== undefined || lastError !== undefined;
 
     return (
       <React.Fragment>
