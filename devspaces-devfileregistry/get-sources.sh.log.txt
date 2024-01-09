@@ -1,0 +1,656 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 998a2a69074
+STEP 3/23: ARG BOOTSTRAP=true
+--> 4d342113c90
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 92a30f0913c
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 04dba2a0f9a
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 83b1d93a116
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> fd4f9e014bb
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 98311c0f9ad
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> f23e7c48612
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> cf9eec13cf7
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.x86_64        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch               
+Installed:
+  containers-common-2:1-70.module+el8.9.0+20326+387084d0.x86_64                 
+  criu-3.18-4.module+el8.9.0+20326+387084d0.x86_64                              
+  fuse-common-3.3.0-17.el8.x86_64                                               
+  fuse-overlayfs-1.12-1.module+el8.9.0+20326+387084d0.x86_64                    
+  fuse3-3.3.0-17.el8.x86_64                                                     
+  fuse3-libs-3.3.0-17.el8.x86_64                                                
+  jq-1.6-7.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-1.module+el8.9.0+20326+387084d0.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.5-1.el8_9.x86_64                                              
+  python3.11-devel-3.11.5-1.el8_9.x86_64                                        
+  python3.11-libs-3.11.5-1.el8_9.x86_64                                         
+  python3.11-pip-22.3.1-4.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-4.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.9-1.module+el8.9.0+20326+387084d0.x86_64                           
+  skopeo-2:1.13.3-1.module+el8.9.0+20326+387084d0.x86_64                        
+  slirp4netns-1.2.1-1.module+el8.9.0+20326+387084d0.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.2.1-py3-none-any.whl (42 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.3/42.3 kB 2.8 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-23.3.2-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 36.3 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 463.5 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.3-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.2.1 pip-23.3.2 tomlkit-0.12.3 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> 4fd08e72044
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> be93697cb7f
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 5b5cae93ce5
+STEP 14/23: COPY ./VERSION /
+--> 432ba2ab42f
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 75c3d9702d8
+STEP 16/23: WORKDIR /build/
+--> 259b5339642
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 84 contributors and audited 31 packages in 3.659s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 293c481c6bd
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 56ec75c2ac0
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:aae7d4408ddfba4da6be6311cef177ecb45c82881e2b230285df8ebe33a6b2b6 PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.12 PASS - 3.12 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.12 PASS - 3.12 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.12 PASS - 3.12 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> fd705fde6c4
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> d9ccc63f8fe
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> efe7263a1f5
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 570b415e566
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 9b019a14c29
+Successfully tagged localhost/devfileregistry:tmp
+9b019a14c29ed2bf521d80632e48ff9747b61c355566b07b7a36f45c8ed47ea3
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.638791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.638791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.639791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.639791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.639791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.639791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.638791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.638791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.638791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+diff --suppress-common-lines -u -r /tmp/tmp.nW2V7MqHBi/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml /tmp/tmp.REV4H58bnv/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.nW2V7MqHBi/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml	2024-01-09 03:45:53.000000000 -0500
++++ /tmp/tmp.REV4H58bnv/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml	2024-01-09 04:50:17.638791762 -0500
+@@ -45,32 +45,32 @@
+               cookiesAuthEnabled: true
+               discoverable: false
+               urlRewriteSupported: true
+-              secure: false
+             targetPort: 8887
+             exposure: public
+             path: /?backgroundColor=434343&wss
+-            protocol: http
++            secure: false
++            protocol: https
+           - name: intellij-redirect-1
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13131
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-2
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13132
+             exposure: public
+-            protocol: http
++            protocol: https
+           - name: intellij-redirect-3
+             attributes:
+               discoverable: false
+               urlRewriteSupported: false
+             targetPort: 13133
+             exposure: public
+-            protocol: http
++            protocol: https
+       attributes:
+         app.kubernetes.io/component: idea-rhel8-runtime
+         app.kubernetes.io/part-of: idea-rhel8.eclipse.org
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 9b019a14c29ed2bf521d80632e48ff9747b61c355566b07b7a36f45c8ed47ea3
+Deleted: 570b415e5666695af0d6b1c7e5ac1fb6c0a89b84154ad092514fb34c264961db
+Deleted: efe7263a1f54b19b6dd214d1681b4fc1f76c511e0c16347c4ba9d853d83ebc88
+Deleted: d9ccc63f8fea943176b3dbab5b959274561755bcb26da1ebb4e66a1907921723
+Deleted: fd705fde6c49e88d64e93a145a2d7f6b71e682df9d566e67f1b36e44e794c0cd
+Deleted: 56ec75c2ac02352af851cc7d4bfd414f930086749183b2c352cf326f226c5156
+Deleted: 293c481c6bd52c90eff473104ac1874d0a0d5b8f6340ce66eebb5d98bb746f92
+Deleted: 259b5339642e2d70bdeaa511253016213f79133be2178fe2ea8d17541a2fd183
+Deleted: 75c3d9702d86d0713f524dc8bd8737efe678be92502eb76d2b2879998af71df9
+Deleted: 432ba2ab42f3f822c2412e7c1f64b682f568e916c7d8596d9d51a8ce78699f41
+Deleted: 5b5cae93ce569769af102b5795a47da18cf3a6dd590ed09037b949ddd3e2ced8
+Deleted: be93697cb7f1f9be2331e2eb5ff76fac7d92c5227710f67fcc9d6102bff46070
+Deleted: 4fd08e72044dc01c68fbd84eaaba3a652d8ee0d423cc75e35e7795a4192c752e
+Deleted: cf9eec13cf74ea2e80404227c481bd853ba095bc4c861f25b0744de28b61af8d
+Deleted: f23e7c486126682d6f615079b5710d04d10fc218cd6f977b71d0cf0703876581
+Deleted: 98311c0f9ade00c2941be8d3da08f9cb69477ae9b9f103600f6e4f4cdf66c008
+Deleted: fd4f9e014bba5f9abe5b852bacb7319aaecc916f99c967fd657f38813cac3181
+Deleted: 83b1d93a1164b37716d704f1211e849855530caa1f5dce542f2cdab6f3466a8d
+Deleted: 04dba2a0f9a19c0b57f1eaeec1c0e8c839c77f9ef14395860492c14067a67070
+Deleted: 92a30f0913c563a628d32c4c88e03de09154a4000e013a2710f68b0e9473833d
+Deleted: 4d342113c906ff015cfb62786f3c21f00cc691feffc93c6fc9b9387135cd92b6
+Deleted: 998a2a690740a4d416240f7e0e6724c03cf1b374602e7c8d3fddc36f77c29af8
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
