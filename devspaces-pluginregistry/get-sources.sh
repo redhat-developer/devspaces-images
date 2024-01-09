@@ -133,24 +133,8 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
     
     # save current branch name to the temporary file, it will be used in the openvsx-builder.Dockerfile build
     echo "$SCRIPT_BRANCH" > current_branch
-
-	# load job-config.json file
-	base_dir=$(cd "$(dirname "$0")"; pwd)
-	if [[ -f "${base_dir}/job-config.json" ]]; then
-    	jobconfigjson="${base_dir}/job-config.json"
-    	echo "Load ${jobconfigjson} [1]"
-	else
-    	jobconfigjson="${base_dir%/*}/job-config.json"
-    	echo "Load ${jobconfigjson} [2]"
-	fi
-	# get the tag of che-openvsx from job-config.json
-	REGISTRY_VERSION=$(jq -r '.Version' "${jobconfigjson}");
-	echo "REGISTRY_VERSION ${REGISTRY_VERSION}"
-    CHE_OPENVSX_TAG=$(jq -r --arg REGISTRY_VERSION "${REGISTRY_VERSION}" '.Other["CHE_OPENVSX_TAG"][$REGISTRY_VERSION]' "${jobconfigjson}");
-	echo "CHE_OPENVSX_TAG ${CHE_OPENVSX_TAG}"
-
 	# build 2 new tarballs
-	buildTarball "/openvsx-server.tar.gz" "che-openvsx" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder --build-arg CHE_OPENVSX_TAG=${CHE_OPENVSX_TAG}"
+	buildTarball "/openvsx-server.tar.gz" "che-openvsx" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
 	buildTarball "opt/app-root/src/ovsx.tar.gz" "che-ovsx" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
 	# remove temporary file
 	rm current_branch 
