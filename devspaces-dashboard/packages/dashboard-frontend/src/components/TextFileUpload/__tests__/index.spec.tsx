@@ -11,50 +11,140 @@
  */
 
 import { ValidatedOptions } from '@patternfly/react-core';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { TextFileUpload } from '@/components/TextFileUpload';
-import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
 
 const { renderComponent, createSnapshot } = getComponentRenderer(getComponent);
 
 const fieldId = 'text-file-upload-id';
-const placeholder = 'Drag end drop file here';
+const fileNamePlaceholder = 'Drag end drop file here';
+const textAreaPlaceholder = 'Paste your content here';
 const mockOnChange = jest.fn();
 
 describe('TextFileUpload', () => {
-  test('snapshot', () => {
-    const snapshot = createSnapshot(placeholder, ValidatedOptions.default);
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('snapshot, validation is in the default state', () => {
+    const snapshot = createSnapshot(ValidatedOptions.default);
+    expect(snapshot.toJSON()).toMatchSnapshot();
+  });
+
+  test('snapshot, validation is in the error state', () => {
+    const snapshot = createSnapshot(ValidatedOptions.error);
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
   test('File uploader controls', () => {
-    renderComponent(placeholder, ValidatedOptions.default);
+    renderComponent(ValidatedOptions.default);
 
     const fileUploader = screen.queryByTestId(fieldId);
 
     // file uploader is rendered
     expect(fileUploader).not.toBeNull();
 
-    // input field
-    expect(screen.queryByPlaceholderText(placeholder)).not.toBeNull();
+    // file input field
+    const fileInput = screen.queryByPlaceholderText(fileNamePlaceholder);
+    expect(fileInput).not.toBeNull();
+    expect(fileInput).toHaveAttribute('readonly');
 
     // Upload button
-    expect(screen.queryByText('Upload')).not.toBeNull();
+    const uploadButton = screen.queryByText('Upload');
+    expect(uploadButton).not.toBeNull();
+    expect(uploadButton).toBeEnabled();
 
     // Clear button
-    expect(screen.queryByText('Clear')).not.toBeNull();
+    const clearButton = screen.queryByText('Clear');
+    expect(clearButton).not.toBeNull();
+    expect(clearButton).toBeDisabled();
+
+    // content input field
+    const contentInput = screen.queryByPlaceholderText(textAreaPlaceholder);
+    expect(contentInput).not.toBeNull();
+    expect(contentInput).not.toHaveAttribute('readonly');
+    expect(contentInput).toBeEnabled();
+  });
+
+  describe('Upload file', () => {
+    test('should handle a valid file', async () => {
+      renderComponent(ValidatedOptions.default);
+
+      const contentInput = screen.getByPlaceholderText(textAreaPlaceholder);
+
+      const fileInput = screen.getByPlaceholderText(fileNamePlaceholder);
+
+      const clearButton = screen.getByText('Clear');
+
+      /* Upload a file */
+
+      const fileContent = 'file-content';
+      const fileContentBase64 = Buffer.from(fileContent).toString('base64');
+      const file = new File([fileContent], 'file.txt', { type: 'text/plain' });
+
+      const fileUploader = screen.getByTestId(fieldId);
+      const fileUploadInput = fileUploader.querySelector('input[type="file"]');
+      userEvent.upload(fileUploadInput!, file);
+
+      await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(fileContentBase64, true));
+
+      expect(fileInput).toHaveValue(file.name);
+      expect(clearButton).toBeEnabled();
+      expect(contentInput).not.toBeInTheDocument();
+      expect(screen.queryByTestId('text-file-upload-preview')).toBeInTheDocument();
+
+      /* Clear the field */
+
+      userEvent.click(clearButton);
+
+      expect(fileInput).toHaveValue('');
+      expect(clearButton).toBeDisabled();
+    });
+  });
+
+  describe('Paste content', () => {
+    test('should handle a valid content', async () => {
+      renderComponent(ValidatedOptions.default);
+
+      const contentInput = screen.getByPlaceholderText(textAreaPlaceholder);
+
+      const clearButton = screen.getByText('Clear');
+
+      const fileInput = screen.getByPlaceholderText(fileNamePlaceholder);
+
+      /* Paste a content */
+
+      const content = 'content';
+      const contentBase64 = Buffer.from(content).toString('base64');
+      userEvent.paste(contentInput, content);
+
+      await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(contentBase64, false));
+
+      expect(fileInput).toHaveValue('');
+      expect(clearButton).toBeEnabled();
+      expect(contentInput).toHaveTextContent(content);
+      expect(contentInput).not.toHaveAttribute('readonly');
+      expect(screen.queryByTestId('text-file-upload-preview')).not.toBeInTheDocument();
+
+      /* Clear the field */
+
+      userEvent.click(clearButton);
+
+      expect(contentInput).toHaveValue('');
+      expect(clearButton).toBeDisabled();
+    });
   });
 });
 
-function getComponent(
-  placeholder: string | undefined,
-  validated: ValidatedOptions,
-): React.ReactElement {
+function getComponent(validated: ValidatedOptions): React.ReactElement {
   return (
     <TextFileUpload
       fieldId={fieldId}
-      placeholder={placeholder}
+      fileNamePlaceholder={fileNamePlaceholder}
+      textAreaPlaceholder={textAreaPlaceholder}
       validated={validated}
       onChange={mockOnChange}
     />

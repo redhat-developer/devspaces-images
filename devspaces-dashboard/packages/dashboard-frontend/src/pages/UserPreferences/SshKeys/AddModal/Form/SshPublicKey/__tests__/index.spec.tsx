@@ -11,11 +11,12 @@
  */
 
 import { Form } from '@patternfly/react-core';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import getComponentRenderer, { fireEvent, screen } from '@/services/__mocks__/getComponentRenderer';
 
-import { SshPublicKey } from '..';
+import { MAX_LENGTH_ERROR, REQUIRED_ERROR, SshPublicKey, WRONG_TYPE_ERROR } from '..';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
@@ -33,38 +34,117 @@ describe('SshPublicKey', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should handle SSH public key', () => {
-    renderComponent();
+  describe('file upload', () => {
+    it('should handle SSH public key', () => {
+      renderComponent();
 
-    expect(mockOnChange).not.toHaveBeenCalled();
+      expect(mockOnChange).not.toHaveBeenCalled();
 
-    const input = screen.getByRole('textbox');
+      const input = screen.getByPlaceholderText('Upload the PUBLIC key');
 
-    const sshPublicKey = 'ssh-public-key';
-    fireEvent.change(input, { target: { value: sshPublicKey } });
+      const sshPublicKey = 'ssh-public-key';
+      userEvent.paste(input, sshPublicKey);
 
-    expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, true);
-    expect(screen.queryByText('This field is required.')).toBeFalsy();
+      expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, true);
+      expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
+      expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
+    });
+
+    it('should handle the wrong file type', () => {
+      renderComponent();
+
+      expect(mockOnChange).not.toHaveBeenCalled();
+
+      const input = screen.getByPlaceholderText('Upload the PUBLIC key');
+
+      // fill the SSH public key field
+      userEvent.paste(input, 'ssh-public-key');
+
+      mockOnChange.mockClear();
+
+      // clear the SSH public key field
+      const sshPublicKey = '';
+      fireEvent.change(input, { target: { value: sshPublicKey } });
+
+      expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, false);
+      expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeTruthy();
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
+      expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
+    });
+
+    it('should handle large file', () => {
+      renderComponent();
+
+      expect(mockOnChange).not.toHaveBeenCalled();
+
+      const input = screen.getByPlaceholderText('Upload the PUBLIC key');
+
+      // fill the SSH public key field
+      const sshPublicKey = 'ssh-public-key'.repeat(1000);
+      userEvent.paste(input, sshPublicKey);
+
+      expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, false);
+      expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeTruthy();
+      expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
+    });
   });
 
-  it('should handle the empty value', () => {
-    renderComponent();
+  describe('text area', () => {
+    it('should handle SSH public key', () => {
+      renderComponent();
 
-    expect(mockOnChange).not.toHaveBeenCalled();
+      expect(mockOnChange).not.toHaveBeenCalled();
 
-    const input = screen.getByRole('textbox');
+      const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
 
-    // fill the SSH key data field
-    const sshKeyData = 'ssh-key-data';
-    fireEvent.change(input, { target: { value: sshKeyData } });
+      const sshKeyData = 'ssh-key-data';
+      userEvent.paste(input, sshKeyData);
 
-    mockOnChange.mockClear();
+      expect(mockOnChange).toHaveBeenCalledWith(sshKeyData, true);
+      expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
+      expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
+    });
 
-    // clear the SSH key data field
-    fireEvent.change(input, { target: { value: '' } });
+    it('should handle the empty value', () => {
+      renderComponent();
 
-    expect(mockOnChange).toHaveBeenCalledWith('', false);
-    expect(screen.queryByText('This field is required.')).toBeTruthy();
+      expect(mockOnChange).not.toHaveBeenCalled();
+
+      const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
+
+      // fill the SSH key data field
+      userEvent.paste(input, 'ssh-key-data');
+
+      mockOnChange.mockClear();
+
+      // clear the SSH key data field
+      userEvent.clear(input);
+
+      expect(mockOnChange).toHaveBeenCalledWith('', false);
+      expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeTruthy();
+      expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
+    });
+
+    it('should handle large file', () => {
+      renderComponent();
+
+      expect(mockOnChange).not.toHaveBeenCalled();
+
+      const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
+
+      // fill the SSH key data field
+      const sshKeyData = 'ssh-key-data'.repeat(1000);
+      userEvent.paste(input, sshKeyData);
+
+      expect(mockOnChange).toHaveBeenCalledWith(sshKeyData, false);
+      expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeTruthy();
+      expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
+    });
   });
 });
 
