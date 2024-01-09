@@ -200,6 +200,14 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
           devfile.metadata.generateName = project.name;
         }
       }
+    } else if (factoryResolver?.source === 'repo') {
+      if (FactoryLocationAdapter.isSshLocation(factoryParams.sourceUrl)) {
+        if (!devfile.attributes) {
+          devfile.attributes = {};
+        }
+
+        devfile.attributes['controller.devfile.io/bootstrap-devworkspace'] = true;
+      }
     }
 
     if (remotes) {
