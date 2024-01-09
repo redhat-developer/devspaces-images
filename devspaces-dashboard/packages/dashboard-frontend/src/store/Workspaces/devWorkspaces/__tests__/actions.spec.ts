@@ -28,6 +28,7 @@ import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/dev
 import { AppState } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import * as getEditorModule from '@/store/DevfileRegistries/getEditor';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
 import * as ServerConfigStore from '@/store/ServerConfig';
 import { checkRunningWorkspacesLimit } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
@@ -158,6 +159,7 @@ describe('DevWorkspace store, actions', () => {
       { name: 'user-che', attributes: { default: 'true', phase: 'Active' } },
     ]);
     store = storeBuilder
+      .withDwPlugins({}, false, undefined, 'che-incubator/che-code/latest')
       .withDwServerConfig({
         defaults: {
           editor: 'che-incubator/che-code/latest',
@@ -862,6 +864,59 @@ describe('DevWorkspace store, actions', () => {
 
       expect(actions).toStrictEqual(expectedActions);
     });
+
+    describe('should test editor id', () => {
+      let devWorkspace;
+      let devWorkspaceTemplate;
+      beforeEach(() => {
+        devWorkspace = new DevWorkspaceBuilder().build();
+        devWorkspaceTemplate = {
+          apiVersion: 'v1alpha2',
+          kind: 'DevWorkspaceTemplate',
+          metadata: {
+            name: 'template',
+            namespace: 'user-che',
+            annotations: {},
+          },
+        };
+        mockCreateDevWorkspace.mockResolvedValueOnce({
+          headers: { warning: 'Unsupported Devfile feature' },
+          devWorkspace,
+        });
+        mockCreateDevWorkspaceTemplate.mockResolvedValueOnce({ headers: {}, devWorkspaceTemplate });
+        mockCreateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+        mockUpdateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+        mockOnStart.mockResolvedValueOnce(undefined);
+      });
+
+      it('should provide default editor id when creating a new workspace from resources', async () => {
+        await store.dispatch(
+          testStore.actionCreators.createWorkspaceFromResources(devWorkspace, devWorkspaceTemplate),
+        );
+
+        expect(mockCreateDevWorkspace).toHaveBeenCalledWith(
+          expect.any(String),
+          devWorkspace,
+          'che-incubator/che-code/latest',
+        );
+      });
+
+      it('should use provided editor id when creating a new workspace from resources', async () => {
+        await store.dispatch(
+          testStore.actionCreators.createWorkspaceFromResources(
+            devWorkspace,
+            devWorkspaceTemplate,
+            'editorid',
+          ),
+        );
+
+        expect(mockCreateDevWorkspace).toHaveBeenCalledWith(
+          expect.any(String),
+          devWorkspace,
+          'editorid',
+        );
+      });
+    });
   });
 
   describe('createWorkspaceFromDevfile', () => {
@@ -992,6 +1047,78 @@ describe('DevWorkspace store, actions', () => {
       ];
 
       expect(actions).toStrictEqual(expectedActions);
+    });
+
+    describe('verify editor id', () => {
+      let devWorkspace: devfileApi.DevWorkspace;
+      let devWorkspaceTemplate: devfileApi.DevWorkspaceTemplate;
+      let devfile: devfileApi.Devfile;
+
+      beforeEach(() => {
+        devWorkspace = new DevWorkspaceBuilder().build();
+        devWorkspaceTemplate = {
+          apiVersion: 'v1alpha2',
+          kind: 'DevWorkspaceTemplate',
+          metadata: {
+            name: 'template',
+            namespace: 'user-che',
+            annotations: {},
+          },
+        };
+        devfile = {
+          schemaVersion: '2.1.0',
+          metadata: {
+            name: 'che-dashboard',
+            namespace: 'admin-che',
+          },
+          components: [
+            {
+              name: 'tools',
+              container: {
+                image: 'quay.io/devfile/universal-developer-image:ubi8',
+              },
+            },
+          ],
+        };
+
+        mockCreateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+        mockCreateDevWorkspaceTemplate.mockResolvedValueOnce({ headers: {}, devWorkspaceTemplate });
+        mockUpdateDevWorkspace.mockResolvedValueOnce({ headers: {}, devWorkspace });
+        mockOnStart.mockResolvedValueOnce(undefined);
+      });
+
+      it('should provide default editor id to createDevWorkspace', async () => {
+        await store.dispatch(testStore.actionCreators.createWorkspaceFromDevfile(devfile, {}, {}));
+
+        expect(mockCreateDevWorkspace.mock.calls).toEqual([
+          expect.arrayContaining(['che-incubator/che-code/latest']),
+        ]);
+      });
+
+      it('should provide the editor id from attributes to createDevWorkspace', async () => {
+        const editorContent = {
+          schemaVersion: '2.1.0',
+          metadata: {
+            name: 'test-editor',
+            namespace: 'che',
+          },
+        };
+
+        jest.spyOn(getEditorModule, 'getEditor').mockResolvedValueOnce({
+          editorYamlUrl: 'test-editor-yaml',
+          content: JSON.stringify(editorContent),
+        });
+        await store.dispatch(
+          testStore.actionCreators.createWorkspaceFromDevfile(
+            devfile,
+            { cheEditor: 'test-editor' },
+            {},
+          ),
+        );
+        expect(mockCreateDevWorkspace.mock.calls).toEqual([
+          expect.arrayContaining(['test-editor']),
+        ]);
+      });
     });
   });
 

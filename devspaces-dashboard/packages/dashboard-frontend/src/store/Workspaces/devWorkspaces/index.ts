@@ -540,6 +540,7 @@ export const actionCreators: ActionCreators = {
       const openVSXUrl = selectOpenVSXUrl(state);
       const pluginRegistryUrl = selectPluginRegistryUrl(state);
       const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
+      const cheEditor = editorId ? editorId : selectDefaultEditor(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
 
       try {
@@ -552,7 +553,7 @@ export const actionCreators: ActionCreators = {
         const createResp = await getDevWorkspaceClient().createDevWorkspace(
           defaultNamespace,
           devWorkspaceResource,
-          editorId,
+          cheEditor,
         );
 
         if (createResp.headers.warning) {
@@ -819,7 +820,7 @@ export const actionCreators: ActionCreators = {
       let editorContent: string | undefined;
       let editorYamlUrl: string | undefined;
       // do we have an optional editor parameter ?
-      const editor = attributes.cheEditor;
+      let editor = attributes.cheEditor;
       if (editor) {
         const response = await getEditor(editor, dispatch, getState, pluginRegistryUrl);
         if (response.content) {
@@ -855,6 +856,7 @@ export const actionCreators: ActionCreators = {
           } else {
             throw new Error(response.error);
           }
+          editor = defaultsEditor;
           console.debug(`Using default editor ${defaultsEditor}`);
         }
       }
