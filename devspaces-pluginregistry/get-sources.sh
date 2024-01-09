@@ -134,7 +134,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
     # save current branch name to the temporary file, it will be used in the openvsx-builder.Dockerfile build
     echo "$SCRIPT_BRANCH" > current_branch
     
-	# load job-config.json file
+    # load job-config.json file
     base_dir=$(cd "$(dirname "$0")"; pwd)
     jobconfigjson="${base_dir}/job-config.json"
     echo "Load ${jobconfigjson}"
