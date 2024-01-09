@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.11
-    createdAt: "2023-12-08T19:19:24+00:00"
+    createdAt: "2024-01-09T19:37:38+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -523,6 +523,12 @@ spec:
               verbs:
                 - list
                 - delete
+            - apiGroups:
+                - user.openshift.io
+              resources:
+                - groups
+              verbs:
+                - get
             - apiGroups:
                 - user.openshift.io
               resources:
