@@ -16,7 +16,7 @@
 #########################################################################
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-81 as checode-linux-libc-builder
+FROM ubi8/nodejs-18:1-86 as checode-linux-libc-builder
 # hadolint ignore=DL3002
 USER root
 
@@ -216,7 +216,7 @@ RUN yarn \
 # NOTE: can't use scatch images in OSBS, because unable to start container process: exec: \"/bin/sh\": stat /bin/sh: no such file or directory
 # so we must rebuild machineexec binary in this build
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.20.10-3 as machineexec-builder
+FROM rhel8/go-toolset:1.20.10-10 as machineexec-builder
 ENV GOPATH=/go/
 # hadolint ignore=DL3002
 USER root
@@ -234,7 +234,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -instal
 #########################################################################
 
 # https://registry.access.redhat.com/ubi8
-FROM ubi8:8.9-1028 as ubi-builder
+FROM ubi8:8.9-1107 as ubi-builder
 
 RUN mkdir -p /mnt/rootfs/projects /mnt/rootfs/home/che
 # hadolint ignore=DL3033
@@ -264,7 +264,7 @@ RUN rm /mnt/rootfs/etc/hosts
 #########################################################################
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.9-1029
+FROM ubi8-minimal:8.9-1108
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che
 USER 1001
