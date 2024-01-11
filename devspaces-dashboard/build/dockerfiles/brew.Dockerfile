@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Red Hat, Inc.
+# Copyright (c) 2021-2024 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-81 as builder
+FROM ubi8/nodejs-18:1-86 as builder
 # hadolint ignore=DL3002
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
@@ -43,7 +43,7 @@ RUN yarn build
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-81
+FROM ubi8/nodejs-18:1-86
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006
