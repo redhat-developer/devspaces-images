@@ -13,17 +13,16 @@
 import { Button } from '@patternfly/react-core';
 import * as React from 'react';
 
-import { Props, State } from '..';
+import { Props } from '..';
 
-export class InputGroupExtended extends React.PureComponent<Props, State> {
+export class InputGroupExtended extends React.PureComponent<Props> {
   render(): React.ReactElement {
-    const { children, onCancel, onSave, validated } = this.props;
+    const { children, onRemove, validated } = this.props;
     return (
       <div>
         {children}
         <span data-testid="validated">{validated}</span>
-        <Button data-testid="button-save" onClick={onSave} />
-        <Button data-testid="button-cancel" onClick={onCancel} />
+        <Button data-testid="button-remove" onClick={onRemove} />
       </div>
     );
   }

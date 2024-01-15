@@ -16,8 +16,15 @@ import { Props } from '..';
 
 export class GitConfigUserEmail extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const { onChange } = this.props;
+    const { onChange, isLoading, value } = this.props;
 
-    return <button onClick={() => onChange('new-user@che')}>Change Email</button>;
+    return (
+      <div data-testid="config-user-email">
+        <span data-testid="isLoading">{isLoading}</span>
+        <span data-testid="value">{value}</span>
+        <button onClick={() => onChange('new-user@che', true)}>Change Email Valid</button>
+        <button onClick={() => onChange('new-user@che', false)}>Change Email Invalid</button>
+      </div>
+    );
   }
 }

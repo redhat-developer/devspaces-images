@@ -18,9 +18,9 @@ import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import * as TestStore from '@/store/GitConfig';
 import {
+  selectGitConfig,
   selectGitConfigError,
   selectGitConfigIsLoading,
-  selectGitConfigUser,
 } from '@/store/GitConfig/selectors';
 
 describe('GitConfig store, selectors', () => {
@@ -59,10 +59,12 @@ describe('GitConfig store, selectors', () => {
     >;
     const state = fakeStore.getState();
 
-    const gitconfig = selectGitConfigUser(state);
+    const gitconfig = selectGitConfig(state);
     expect(gitconfig).toEqual({
-      name: 'user-che',
-      email: 'user@che',
+      user: {
+        name: 'user-che',
+        email: 'user@che',
+      },
     });
   });
 

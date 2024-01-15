@@ -10,97 +10,50 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Button, Form, InputGroup, ValidatedOptions } from '@patternfly/react-core';
-import { CheckIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
+import { Button, InputGroup, ValidatedOptions } from '@patternfly/react-core';
+import { MinusCircleIcon } from '@patternfly/react-icons';
 import * as React from 'react';
 
 import styles from '@/components/InputGroupExtended/index.module.css';
 
 export type Props = React.PropsWithChildren & {
+  isLoading: boolean;
   readonly: boolean;
+  required: boolean;
   validated?: ValidatedOptions;
   value: string;
-  onCancel: () => void;
-  onSave: () => void;
-};
-export type State = {
-  isEditMode: boolean;
+  onRemove: (() => void) | undefined;
 };
 
-export class InputGroupExtended extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      isEditMode: false,
-    };
-  }
-
-  private handleEdit(): void {
-    this.setState({ isEditMode: true });
-  }
-
-  private handleSave(): void {
-    this.setState({ isEditMode: false });
-    this.props.onSave();
-  }
-
-  private handleCancel(): void {
-    this.setState({ isEditMode: false });
-    this.props.onCancel();
-  }
-
-  private handleSubmit(e: React.FormEvent): void {
-    e.preventDefault();
-
-    if (this.canSave()) {
-      this.handleSave();
-    }
-  }
-
-  private canSave(): boolean {
-    const { validated } = this.props;
-    return validated === ValidatedOptions.success;
+export class InputGroupExtended extends React.PureComponent<Props> {
+  private handleRemove(): void {
+    this.props.onRemove?.();
   }
 
   public render(): React.ReactElement {
-    const { children, readonly, value } = this.props;
-    const { isEditMode } = this.state;
+    const { children, isLoading, readonly, required, value, onRemove } = this.props;
 
     if (readonly) {
       return <span className={styles.readonly}>{value}</span>;
     }
 
-    if (isEditMode === false) {
-      return (
-        <span className={styles.editable}>
-          {value}
-          <Button data-testid="button-edit" variant="plain" onClick={() => this.handleEdit()}>
-            <PencilAltIcon />
-          </Button>
-        </span>
-      );
-    }
-
-    const isSaveButtonDisabled = this.canSave() === false;
+    const isRemoveDisabled = required || isLoading;
+    const canRemove = onRemove !== undefined;
 
     return (
-      <Form isHorizontal onSubmit={e => this.handleSubmit(e)}>
-        <InputGroup className={styles.nameInput}>
-          {children}
+      <InputGroup className={styles.nameInput}>
+        {children}
+        {canRemove && (
           <Button
-            variant="link"
-            data-testid="button-save"
-            isDisabled={isSaveButtonDisabled}
-            onClick={() => this.handleSave()}
+            isDisabled={isRemoveDisabled}
+            variant="plain"
+            data-testid="button-remove"
+            onClick={() => this.handleRemove()}
           >
-            <CheckIcon />
+            <MinusCircleIcon />
           </Button>
-          <Button variant="plain" data-testid="button-cancel" onClick={() => this.handleCancel()}>
-            <TimesIcon />
-          </Button>
-        </InputGroup>
-      </Form>
+        )}
+      </InputGroup>
     );
   }
 }

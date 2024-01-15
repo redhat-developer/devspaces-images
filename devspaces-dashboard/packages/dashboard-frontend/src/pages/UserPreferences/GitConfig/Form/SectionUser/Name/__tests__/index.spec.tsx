@@ -18,7 +18,7 @@ import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentR
 
 import { GitConfigUserName } from '..';
 
-jest.mock('../../../../../../components/InputGroupExtended');
+jest.mock('@/components/InputGroupExtended');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
@@ -29,13 +29,18 @@ describe('GitConfigUserName', () => {
     jest.clearAllMocks();
   });
 
-  test('snapshot', () => {
-    const snapshot = createSnapshot('user one');
+  test('snapshot, not loading', () => {
+    const snapshot = createSnapshot('user one', false);
+    expect(snapshot.toJSON()).toMatchSnapshot();
+  });
+
+  test('snapshot, loading', () => {
+    const snapshot = createSnapshot('user one', true);
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
   it('should fail validation if value is empty', () => {
-    renderComponent('user one');
+    renderComponent('user one', false);
 
     const textInput = screen.getByRole('textbox');
     userEvent.clear(textInput);
@@ -43,41 +48,35 @@ describe('GitConfigUserName', () => {
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should fail validation if value is too long', () => {
-    renderComponent('user one');
+  it('should fail validation if value is too long', async () => {
+    renderComponent('user one', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, 'a'.repeat(129));
+    userEvent.paste(textInput, 'a'.repeat(129));
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should handle save', () => {
-    renderComponent('user one');
+  it('should re-validate on component update', () => {
+    const { reRenderComponent } = renderComponent('', false);
 
-    const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, ' two');
+    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
 
-    const buttonSave = screen.getByTestId('button-save');
-    userEvent.click(buttonSave);
+    reRenderComponent('valid name', false);
 
-    expect(mockOnChange).toBeCalledWith('user one two');
+    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default);
   });
 
-  it('should handle cancel', () => {
-    renderComponent('user one');
+  it('should handle value changing', () => {
+    renderComponent('user one', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, ' two');
+    userEvent.paste(textInput, ' two');
 
-    const buttonCancel = screen.getByTestId('button-cancel');
-    userEvent.click(buttonCancel);
-
-    expect(textInput).toHaveValue('user one');
-    expect(mockOnChange).not.toBeCalled();
+    expect(mockOnChange).toHaveBeenCalledWith('user one two', true);
   });
 });
 
-function getComponent(value: string): React.ReactElement {
-  return <GitConfigUserName value={value} onChange={mockOnChange} />;
+function getComponent(value: string, isLoading: boolean): React.ReactElement {
+  return <GitConfigUserName isLoading={isLoading} value={value} onChange={mockOnChange} />;
 }

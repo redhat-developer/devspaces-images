@@ -18,14 +18,14 @@ import { connect, ConnectedProps } from 'react-redux';
 import ProgressIndicator from '@/components/Progress';
 import { lazyInject } from '@/inversify.config';
 import { GitConfigEmptyState } from '@/pages/UserPreferences/GitConfig/EmptyState';
-import { GitConfigSectionUser } from '@/pages/UserPreferences/GitConfig/SectionUser';
+import { GitConfigForm } from '@/pages/UserPreferences/GitConfig/Form';
 import { AppAlerts } from '@/services/alerts/appAlerts';
 import { AppState } from '@/store';
 import * as GitConfigStore from '@/store/GitConfig';
 import {
+  selectGitConfig,
   selectGitConfigError,
   selectGitConfigIsLoading,
-  selectGitConfigUser,
 } from '@/store/GitConfig/selectors';
 
 export type Props = MappedProps;
@@ -35,33 +35,37 @@ class GitConfig extends React.PureComponent<Props> {
   private readonly appAlerts: AppAlerts;
 
   public async componentDidMount(): Promise<void> {
-    const { gitConfigIsLoading, requestGitConfig } = this.props;
+    const { gitConfigIsLoading } = this.props;
 
     if (gitConfigIsLoading === true) {
+      this.init();
       return;
     }
 
-    try {
-      await requestGitConfig();
-    } catch (error) {
-      console.error(error);
-    }
+    await this.handleReload();
   }
 
   public componentDidUpdate(prevProps: Props): void {
+    this.init(prevProps);
+  }
+
+  private init(prevProps?: Props): void {
     const { gitConfigError } = this.props;
-    if (gitConfigError && gitConfigError !== prevProps.gitConfigError) {
+    const prevGitConfigError = prevProps?.gitConfigError;
+    if (gitConfigError && gitConfigError !== prevGitConfigError) {
       this.appAlerts.showAlert({
         key: 'gitconfig-error',
         title: helpers.errors.getMessage(gitConfigError),
         variant: AlertVariant.danger,
       });
+    } else if (gitConfigError === undefined && gitConfigError !== prevGitConfigError) {
+      this.appAlerts.removeAlert('gitconfig-error');
     }
   }
 
-  private async handleChangeConfigUser(gitConfigUser: GitConfigStore.GitConfigUser): Promise<void> {
+  private async handleSave(gitConfig: GitConfigStore.GitConfig): Promise<void> {
     try {
-      await this.props.updateGitConfig(gitConfigUser);
+      await this.props.updateGitConfig(gitConfig);
       this.appAlerts.showAlert({
         key: 'gitconfig-success',
         title: 'Gitconfig saved successfully.',
@@ -72,31 +76,41 @@ class GitConfig extends React.PureComponent<Props> {
     }
   }
 
-  public render(): React.ReactElement {
-    const { gitConfigIsLoading, gitConfigUser } = this.props;
+  private async handleReload(): Promise<void> {
+    try {
+      await this.props.requestGitConfig();
+    } catch (error) {
+      console.error('Failed to reload gitconfig', error);
+    }
+  }
 
-    const isEmpty = gitConfigUser === undefined;
+  public render(): React.ReactElement {
+    const { gitConfigIsLoading, gitConfig } = this.props;
+
+    const isEmpty = gitConfig === undefined;
 
     return (
       <React.Fragment>
         <ProgressIndicator isLoading={gitConfigIsLoading} />
-        <PageSection>
-          {isEmpty ? (
-            <GitConfigEmptyState />
-          ) : (
-            <GitConfigSectionUser
-              config={gitConfigUser}
-              onChange={gitConfigUser => this.handleChangeConfigUser(gitConfigUser)}
+        {isEmpty ? (
+          <GitConfigEmptyState />
+        ) : (
+          <PageSection>
+            <GitConfigForm
+              gitConfig={gitConfig}
+              isLoading={gitConfigIsLoading}
+              onSave={async gitConfig => await this.handleSave(gitConfig)}
+              onReload={async () => await this.handleReload()}
             />
-          )}
-        </PageSection>
+          </PageSection>
+        )}
       </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = (state: AppState) => ({
-  gitConfigUser: selectGitConfigUser(state),
+  gitConfig: selectGitConfig(state),
   gitConfigIsLoading: selectGitConfigIsLoading(state),
   gitConfigError: selectGitConfigError(state),
 });

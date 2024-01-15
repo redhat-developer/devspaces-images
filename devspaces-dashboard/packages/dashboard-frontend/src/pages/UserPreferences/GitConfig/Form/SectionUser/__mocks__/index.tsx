@@ -19,10 +19,12 @@ export class GitConfigSectionUser extends React.PureComponent<Props> {
     const { config, onChange } = this.props;
     return (
       <div>
-        <div data-testid="user-email">{config.email || ''}</div>
-        <div data-testid="user-name">{config.name || ''}</div>
-        <button onClick={() => onChange({ email: 'new-user@che', name: 'new user' })}>
-          Change Email
+        <div data-testid="user-email">{config.user.email}</div>
+        <div data-testid="user-name">{config.user.name}</div>
+        <button
+          onClick={() => onChange({ user: { email: 'new-user@che', name: 'new user' } }, true)}
+        >
+          Change Email Valid
         </button>
       </div>
     );

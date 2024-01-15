@@ -11,17 +11,15 @@
  */
 
 import { ValidatedOptions } from '@patternfly/react-core';
-import { StateMock } from '@react-mock/state';
 import * as React from 'react';
 
-import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { fireEvent, screen } from '@/services/__mocks__/getComponentRenderer';
 
-import { InputGroupExtended, Props, State } from '..';
+import { InputGroupExtended, Props } from '..';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
-const mockOnCancel = jest.fn();
-const mockOnSave = jest.fn();
+const mockOnRemove = jest.fn();
 
 describe('InputGroupExtended', () => {
   afterEach(() => {
@@ -31,131 +29,97 @@ describe('InputGroupExtended', () => {
   describe('snapshots', () => {
     test('readonly', () => {
       const snapshot = createSnapshot({
+        isLoading: false,
         readonly: true,
+        required: false,
         value: 'value',
-        onCancel: mockOnCancel,
-        onSave: mockOnSave,
+        onRemove: mockOnRemove,
       });
 
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('editable', () => {
+    test('required', () => {
       const snapshot = createSnapshot({
+        isLoading: false,
         readonly: false,
+        required: true,
         value: 'value',
-        onCancel: mockOnCancel,
-        onSave: mockOnSave,
+        onRemove: mockOnRemove,
       });
 
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
   });
 
-  it('should switch in edit mode', () => {
+  it('should handle submiting', () => {
     renderComponent({
+      isLoading: false,
       readonly: false,
+      required: false,
       value: 'value',
-      onCancel: mockOnCancel,
-      onSave: mockOnSave,
+      validated: ValidatedOptions.success,
+      onRemove: mockOnRemove,
     });
 
-    const editButton = screen.queryByTestId('button-edit');
-    expect(editButton).not.toBeNull();
-
-    editButton!.click();
-
-    expect(screen.queryByTestId('button-edit')).toBeNull();
-
-    expect(screen.queryByTestId('text-input')).not.toBeNull();
-    expect(screen.queryByTestId('button-save')).not.toBeNull();
-    expect(screen.queryByTestId('button-cancel')).not.toBeNull();
+    const input = screen.queryByTestId('text-input');
+    fireEvent.submit(input!);
   });
 
-  it('should switch out of edit mode', () => {
-    renderComponent(
-      {
-        readonly: false,
-        value: 'value',
-        onCancel: mockOnCancel,
-        onSave: mockOnSave,
-      },
-      {
-        isEditMode: true,
-      },
-    );
+  it('should handle removing the entry', () => {
+    renderComponent({
+      isLoading: false,
+      readonly: false,
+      required: false,
+      value: 'value',
+      validated: ValidatedOptions.success,
+      onRemove: mockOnRemove,
+    });
 
-    const cancelButton = screen.queryByTestId('button-cancel');
-    expect(cancelButton).not.toBeNull();
-    expect(cancelButton).toBeEnabled();
+    const removeButton = screen.queryByTestId('button-remove');
+    expect(removeButton).not.toBeNull();
+    expect(removeButton).toBeEnabled();
 
-    cancelButton!.click();
+    removeButton!.click();
 
-    expect(mockOnCancel).toBeCalled();
-    expect(screen.queryByTestId('button-edit')).not.toBeNull();
-
-    expect(screen.queryByTestId('text-input')).toBeNull();
-    expect(screen.queryByTestId('button-save')).toBeNull();
-    expect(screen.queryByTestId('button-cancel')).toBeNull();
+    expect(mockOnRemove).toHaveBeenCalled();
   });
 
-  it('should handle save', () => {
-    renderComponent(
-      {
-        readonly: false,
-        value: 'value',
-        onCancel: mockOnCancel,
-        onSave: mockOnSave,
-        validated: ValidatedOptions.success,
-      },
-      {
-        isEditMode: true,
-      },
-    );
+  it('should disable the remove button if required', () => {
+    renderComponent({
+      isLoading: false,
+      readonly: false,
+      required: true,
+      value: 'value',
+      validated: ValidatedOptions.default,
+      onRemove: mockOnRemove,
+    });
 
-    const saveButton = screen.queryByTestId('button-save');
-    expect(saveButton).not.toBeNull();
-    expect(saveButton).toBeEnabled();
-
-    saveButton!.click();
-
-    expect(mockOnSave).toBeCalled();
-    expect(screen.queryByTestId('button-edit')).not.toBeNull();
-
-    expect(screen.queryByTestId('text-input')).toBeNull();
-    expect(screen.queryByTestId('button-save')).toBeNull();
-    expect(screen.queryByTestId('button-cancel')).toBeNull();
+    const removeButton = screen.queryByTestId('button-remove');
+    expect(removeButton).not.toBeNull();
+    expect(removeButton).toBeDisabled();
   });
 
-  it('should disable save button if not validated', () => {
-    renderComponent(
-      {
-        readonly: false,
-        value: 'value',
-        onCancel: mockOnCancel,
-        onSave: mockOnSave,
-        validated: ValidatedOptions.error,
-      },
-      {
-        isEditMode: true,
-      },
-    );
+  it('should disable the remove button if in progress', () => {
+    renderComponent({
+      isLoading: true,
+      readonly: false,
+      required: false,
+      value: 'value',
+      validated: ValidatedOptions.default,
+      onRemove: mockOnRemove,
+    });
 
-    const saveButton = screen.queryByTestId('button-save');
-    expect(saveButton).not.toBeNull();
-    expect(saveButton).toBeDisabled();
+    const removeButton = screen.queryByTestId('button-remove');
+    expect(removeButton).not.toBeNull();
+    expect(removeButton).toBeDisabled();
   });
 });
 
-function getComponent(props: Props, localState?: Partial<State>): React.ReactElement {
-  const component = (
+function getComponent(props: Props): React.ReactElement {
+  return (
     <InputGroupExtended {...props}>
-      <div data-testid="text-input" />
+      <input data-testid="text-input" />
     </InputGroupExtended>
   );
-  if (localState) {
-    return <StateMock state={localState}>{component}</StateMock>;
-  } else {
-    return component;
-  }
 }

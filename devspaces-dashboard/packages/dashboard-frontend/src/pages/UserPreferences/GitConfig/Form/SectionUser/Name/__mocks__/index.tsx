@@ -16,8 +16,15 @@ import { Props } from '..';
 
 export class GitConfigUserName extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const { onChange } = this.props;
+    const { onChange, isLoading, value } = this.props;
 
-    return <button onClick={() => onChange('new user')}>Change Name</button>;
+    return (
+      <div data-testid="config-user-name">
+        <span data-testid="isLoading">{isLoading}</span>
+        <span data-testid="value">{value}</span>
+        <button onClick={() => onChange('new user', true)}>Change Name Valid</button>
+        <button onClick={() => onChange('new user', false)}>Change Name Invalid</button>
+      </div>
+    );
   }
 }

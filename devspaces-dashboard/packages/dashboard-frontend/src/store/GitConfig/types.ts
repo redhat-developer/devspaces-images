@@ -15,7 +15,7 @@ import { Action } from 'redux';
 
 import { SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
-export type GitConfigUser = api.IGitConfig['gitconfig']['user'];
+export type GitConfig = api.IGitConfig['gitconfig'];
 
 export interface State {
   isLoading: boolean;

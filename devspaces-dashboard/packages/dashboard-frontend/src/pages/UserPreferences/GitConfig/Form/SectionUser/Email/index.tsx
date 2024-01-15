@@ -19,89 +19,103 @@ import { InputGroupExtended } from '@/components/InputGroupExtended';
 const ERROR_REQUIRED_VALUE = 'A value is required.';
 const MAX_LENGTH = 128;
 const ERROR_MAX_LENGTH = `The value is too long. The maximum length is ${MAX_LENGTH} characters.`;
+const REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const ERROR_INVALID_EMAIL = 'The value is not a valid email address.';
 
 export type Props = {
+  isLoading: boolean;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, isValid: boolean) => void;
 };
 export type State = {
   errorMessage?: string;
-  value: string;
   validated: ValidatedOptions | undefined;
 };
 
-export class GitConfigUserName extends React.PureComponent<Props, State> {
+export class GitConfigUserEmail extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      value: props.value,
       validated: undefined,
     };
   }
 
-  private handleChange(value: string): void {
-    this.validate(value);
-    this.setState({ value });
-  }
-
-  private handleSave(): void {
-    const { value } = this.state;
-    this.props.onChange(value);
-  }
-
-  private handleCancel(): void {
+  public componentDidMount(): void {
     const { value } = this.props;
-    this.setState({ value });
+    this.validate(value, true);
   }
 
-  private validate(value: string): void {
+  public componentDidUpdate(prevProps: Readonly<Props>): void {
+    const { value } = this.props;
+    if (value !== prevProps.value) {
+      this.validate(value, true);
+    }
+  }
+
+  private handleChange(value: string): void {
+    const isValid = this.validate(value);
+    this.props.onChange(value, isValid);
+  }
+
+  private validate(value: string, initial = false): boolean {
     if (value.length === 0) {
       this.setState({
         errorMessage: ERROR_REQUIRED_VALUE,
         validated: ValidatedOptions.error,
       });
-      return;
+      return false;
     }
     if (value.length > MAX_LENGTH) {
       this.setState({
         errorMessage: ERROR_MAX_LENGTH,
         validated: ValidatedOptions.error,
       });
-      return;
+      return false;
+    }
+    if (!REGEX.test(value)) {
+      this.setState({
+        errorMessage: ERROR_INVALID_EMAIL,
+        validated: ValidatedOptions.error,
+      });
+      return false;
     }
     this.setState({
       errorMessage: undefined,
-      validated: ValidatedOptions.success,
+      validated: initial === true ? ValidatedOptions.default : ValidatedOptions.success,
     });
+    return true;
   }
 
   public render(): React.ReactElement {
-    const { errorMessage, value, validated } = this.state;
+    const { isLoading, value } = this.props;
+    const { errorMessage, validated } = this.state;
 
-    const fieldId = 'gitconfig-user-name';
+    const fieldId = 'gitconfig-user-email';
 
     return (
       <FormGroup
-        label="name"
+        label="email"
         fieldId={fieldId}
         isRequired
         helperTextInvalid={errorMessage}
         helperTextIcon={<ExclamationCircleIcon />}
+        validated={validated}
       >
         <InputGroupExtended
+          isLoading={isLoading}
           readonly={false}
-          value={value}
+          required={true}
           validated={validated}
-          onSave={() => this.handleSave()}
-          onCancel={() => this.handleCancel()}
+          value={value}
+          onRemove={undefined}
         >
           <TextInput
             id={fieldId}
-            value={value}
+            isDisabled={isLoading}
             validated={validated}
+            value={value}
             onChange={value => this.handleChange(value)}
-            onSubmit={() => this.handleSave()}
           />
         </InputGroupExtended>
       </FormGroup>

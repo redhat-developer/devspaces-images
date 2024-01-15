@@ -27,14 +27,14 @@ import { ActionCreators } from '@/store/GitConfig';
 
 import GitConfig from '..';
 
-jest.mock('../SectionUser');
+jest.mock('@/pages/UserPreferences/GitConfig/Form');
 
 // mute output
 console.error = jest.fn();
 
 const mockRequestGitConfig = jest.fn();
 const mockUpdateGitConfig = jest.fn();
-jest.mock('../../../../store/GitConfig', () => ({
+jest.mock('@/store/GitConfig', () => ({
   actionCreators: {
     requestGitConfig:
       (...args): AppThunk<Action, Promise<void>> =>
@@ -129,8 +129,8 @@ describe('GitConfig', () => {
     it('should update the git config and show a success notification', async () => {
       renderComponent(store);
 
-      const changeEmailButton = screen.getByRole('button', { name: 'Change Email' });
-      userEvent.click(changeEmailButton);
+      const saveConfigButton = screen.getByRole('button', { name: 'Save Config' });
+      userEvent.click(saveConfigButton);
 
       // mock should be called
       expect(mockUpdateGitConfig).toHaveBeenCalled();
@@ -150,8 +150,8 @@ describe('GitConfig', () => {
 
       mockUpdateGitConfig.mockRejectedValueOnce(new Error('update gitconfig error'));
 
-      const changeEmailButton = screen.getByRole('button', { name: 'Change Email' });
-      userEvent.click(changeEmailButton);
+      const saveConfigButton = screen.getByRole('button', { name: 'Save Config' });
+      userEvent.click(saveConfigButton);
 
       // mock should be called
       expect(mockUpdateGitConfig).toHaveBeenCalled();
@@ -182,6 +182,16 @@ describe('GitConfig', () => {
           variant: AlertVariant.danger,
         } as AlertItem),
       );
+    });
+
+    it('should reload the gitconfig', async () => {
+      renderComponent(store);
+
+      const reloadConfigButton = screen.getByRole('button', { name: 'Reload Config' });
+      userEvent.click(reloadConfigButton);
+
+      // mock should be called
+      expect(mockRequestGitConfig).toHaveBeenCalled();
     });
   });
 });

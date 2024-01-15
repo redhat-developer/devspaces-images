@@ -18,7 +18,7 @@ import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentR
 
 import { GitConfigUserEmail } from '..';
 
-jest.mock('../../../../../../components/InputGroupExtended');
+jest.mock('@/components/InputGroupExtended');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
@@ -29,13 +29,17 @@ describe('GitConfigUserEmail', () => {
     jest.clearAllMocks();
   });
 
+  test('snapshot, not loading', () => {
+    const snapshot = createSnapshot('user@che', false);
+    expect(snapshot.toJSON()).toMatchSnapshot();
+  });
   test('snapshot', () => {
-    const snapshot = createSnapshot('user@che');
+    const snapshot = createSnapshot('user@che', true);
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
   it('should fail validation if value is empty', () => {
-    renderComponent('user@che.org');
+    renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
     userEvent.clear(textInput);
@@ -44,49 +48,43 @@ describe('GitConfigUserEmail', () => {
   });
 
   it('should fail validation if value is too long', () => {
-    renderComponent('user@che.org');
+    renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, 'a'.repeat(129));
+    userEvent.paste(textInput, 'a'.repeat(129));
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
   it('should fail validation if is not a valid email', () => {
-    renderComponent('user@che.org');
+    renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, '@test');
+    userEvent.paste(textInput, '@test');
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should handle save', () => {
-    renderComponent('user@che.org');
+  it('should re-validate on component update', () => {
+    const { reRenderComponent } = renderComponent('', false);
 
-    const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, 'a');
+    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
 
-    const buttonSave = screen.getByTestId('button-save');
-    userEvent.click(buttonSave);
+    reRenderComponent('user@che.com', false);
 
-    expect(mockOnChange).toBeCalledWith('user@che.orga');
+    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default);
   });
 
-  it('should handle cancel', () => {
-    renderComponent('user@che.org');
+  it('should handle value changing', () => {
+    renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.type(textInput, 'a');
+    userEvent.paste(textInput, 'a');
 
-    const buttonCancel = screen.getByTestId('button-cancel');
-    userEvent.click(buttonCancel);
-
-    expect(textInput).toHaveValue('user@che.org');
-    expect(mockOnChange).not.toBeCalled();
+    expect(mockOnChange).toHaveBeenCalledWith('user@che.orga', true);
   });
 });
 
-function getComponent(value: string): React.ReactElement {
-  return <GitConfigUserEmail value={value} onChange={mockOnChange} />;
+function getComponent(value: string, isLoading: boolean): React.ReactElement {
+  return <GitConfigUserEmail isLoading={isLoading} value={value} onChange={mockOnChange} />;
 }

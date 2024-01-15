@@ -134,8 +134,10 @@ describe('GitConfig store, actions', () => {
   it('should create REQUEST_GITCONFIG and RECEIVE_GITCONFIG when path the gitconfig', async () => {
     await store.dispatch(
       TestStore.actionCreators.updateGitConfig({
-        name: 'testname',
-        email: 'test@email',
+        user: {
+          name: 'testname',
+          email: 'test@email',
+        },
       }),
     );
 
@@ -166,7 +168,12 @@ describe('GitConfig store, actions', () => {
 
     try {
       await store.dispatch(
-        TestStore.actionCreators.updateGitConfig({ name: 'testname', email: 'testemail' }),
+        TestStore.actionCreators.updateGitConfig({
+          user: {
+            name: 'testname',
+            email: 'testemail',
+          },
+        }),
       );
     } catch (e) {
       // ignore

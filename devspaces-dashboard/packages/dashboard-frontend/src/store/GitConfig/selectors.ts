@@ -20,9 +20,9 @@ const selectState = (state: AppState) => state.gitConfig;
 
 export const selectGitConfigIsLoading = createSelector(selectState, state => state.isLoading);
 
-export const selectGitConfigUser = createSelector(
+export const selectGitConfig = createSelector(
   selectState,
-  (state: State) => state.config?.gitconfig.user,
+  (state: State) => state.config?.gitconfig,
 );
 
 export const selectGitConfigError = createSelector(selectState, state => state.error);

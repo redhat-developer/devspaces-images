@@ -16,8 +16,8 @@ import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentR
 
 import { GitConfigSectionUser, Props } from '..';
 
-jest.mock('../Email');
-jest.mock('../Name');
+jest.mock('@/pages/UserPreferences/GitConfig/Form/SectionUser/Email');
+jest.mock('@/pages/UserPreferences/GitConfig/Form/SectionUser/Name');
 
 const mockOnChange = jest.fn();
 
@@ -31,9 +31,12 @@ describe('GitConfigSectionUser', () => {
   test('snapshot', () => {
     const snapshot = createSnapshot({
       config: {
-        name: 'user',
-        email: 'user@che',
+        user: {
+          name: 'user',
+          email: 'user@che',
+        },
       },
+      isLoading: false,
       onChange: mockOnChange,
     });
     expect(snapshot.toJSON()).toMatchSnapshot();
@@ -42,35 +45,51 @@ describe('GitConfigSectionUser', () => {
   it('should handle name change', () => {
     renderComponent({
       config: {
-        name: 'user',
-        email: 'user@che',
+        user: {
+          name: 'user',
+          email: 'user@che',
+        },
       },
+      isLoading: false,
       onChange: mockOnChange,
     });
 
-    screen.getByText('Change Name').click();
+    screen.getByText('Change Name Valid').click();
 
-    expect(mockOnChange).toHaveBeenCalledWith({
-      name: 'new user',
-      email: 'user@che',
-    });
+    expect(mockOnChange).toHaveBeenCalledWith(
+      {
+        user: {
+          name: 'new user',
+          email: 'user@che',
+        },
+      },
+      true,
+    );
   });
 
   it('should handle email change', () => {
     renderComponent({
       config: {
-        name: 'user',
-        email: 'user@che',
+        user: {
+          name: 'user',
+          email: 'user@che',
+        },
       },
+      isLoading: false,
       onChange: mockOnChange,
     });
 
-    screen.getByText('Change Email').click();
+    screen.getByText('Change Email Valid').click();
 
-    expect(mockOnChange).toHaveBeenCalledWith({
-      name: 'user',
-      email: 'new-user@che',
-    });
+    expect(mockOnChange).toHaveBeenCalledWith(
+      {
+        user: {
+          name: 'user',
+          email: 'new-user@che',
+        },
+      },
+      true,
+    );
   });
 });
 

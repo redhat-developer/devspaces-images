@@ -13,7 +13,7 @@
 import common, { api, helpers } from '@eclipse-che/common';
 
 import { fetchGitConfig, patchGitConfig } from '@/services/backend-client/gitConfigApi';
-import { GitConfigUser, KnownAction, Type } from '@/store/GitConfig/types';
+import { GitConfig, KnownAction, Type } from '@/store/GitConfig/types';
 import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
 import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
@@ -25,7 +25,7 @@ export * from './types';
 
 export type ActionCreators = {
   requestGitConfig: () => AppThunk<KnownAction, Promise<void>>;
-  updateGitConfig: (gitconfig: GitConfigUser) => AppThunk<KnownAction, Promise<void>>;
+  updateGitConfig: (gitconfig: GitConfig) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
@@ -64,15 +64,13 @@ export const actionCreators: ActionCreators = {
     },
 
   updateGitConfig:
-    (changedGitConfig: GitConfigUser): AppThunk<KnownAction, Promise<void>> =>
+    (changedGitConfig: GitConfig): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
       const namespace = selectDefaultNamespace(state).name;
       const { gitConfig } = state;
       const gitconfig = Object.assign(gitConfig.config || {}, {
-        gitconfig: {
-          user: changedGitConfig,
-        },
+        gitconfig: changedGitConfig,
       } as api.IGitConfig);
       try {
         await dispatch({ type: Type.REQUEST_GITCONFIG, check: AUTHORIZED });
