@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:cc9c77a43573e7fffbaa8cd7623d273adefe950df7730450d77ad80fd3a10840
-    createdAt: "2024-01-09T21:16:45+00:00"
+    createdAt: "2024-01-16T11:35:10+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -898,7 +898,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:d6f8680b8868bad5ac497bb38776b5a9d6f8f2c4d35441c68fcf468841ca41fb
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:c52c90a986ae37e4c6f3db1ca4107ea5d77e17e76bec364e0d2f8db41967e668
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:d2f79d3c1d2c35ad6daab91bb65c27aa4585c91ac0753f52238c54bf54734e75
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1248,7 +1248,7 @@ spec:
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
-  replaces: devspacesoperator.v3.10.0
+  replaces: devspacesoperator.v3.10.1
   relatedImages:
   - name: devspaces-rhel8-operator-cc9c77a43573e7fffbaa8cd7623d273adefe950df7730450d77ad80fd3a10840-annotation
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:cc9c77a43573e7fffbaa8cd7623d273adefe950df7730450d77ad80fd3a10840
@@ -1277,7 +1277,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:d6f8680b8868bad5ac497bb38776b5a9d6f8f2c4d35441c68fcf468841ca41fb
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:c52c90a986ae37e4c6f3db1ca4107ea5d77e17e76bec364e0d2f8db41967e668
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:d2f79d3c1d2c35ad6daab91bb65c27aa4585c91ac0753f52238c54bf54734e75
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
