@@ -1,0 +1,9 @@
+{
+    "name": "devspaces-pluginregistry",
+    "description": "NPM dependencies for building Dev Spaces Pluginregistry in OSBS",
+    "dependencies": {
+        "ovsx": "^0.8.3"
+    },
+    "devDependencies": {},
+    "author": "Samantha Dawley <sdawley@redhat.com>"
+}

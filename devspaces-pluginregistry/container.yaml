@@ -14,3 +14,20 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-pluginregistry
+  remote_source:
+    repo:
+    ref:
+    pkg_managers: ["npm"]
+    packages: {
+      "npm": [
+        {
+          "path": "devspaces-pluginregistry"
+        }
+      ]
+    }
+
+
+    
