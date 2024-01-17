@@ -28,8 +28,8 @@ import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 
 import StartingStepWorkspaceConditions from '..';
 
-jest.mock('../../../TimeLimit');
-jest.mock('../../../StepTitle');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
+jest.mock('@/components/WorkspaceProgress/StepTitle');
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();

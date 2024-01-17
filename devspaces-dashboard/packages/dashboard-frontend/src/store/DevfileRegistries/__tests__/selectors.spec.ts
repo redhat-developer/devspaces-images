@@ -17,6 +17,7 @@ import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
 
 import devfileApi from '@/services/devfileApi';
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';

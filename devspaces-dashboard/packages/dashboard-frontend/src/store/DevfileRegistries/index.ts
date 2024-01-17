@@ -14,6 +14,7 @@ import common from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
 
 import devfileApi from '@/services/devfileApi';
+import { che } from '@/services/models';
 import { fetchDevfile, fetchRegistryMetadata } from '@/services/registry/devfiles';
 import { fetchResources, loadResourcesContent } from '@/services/registry/resources';
 import { createObject } from '@/store/helpers';

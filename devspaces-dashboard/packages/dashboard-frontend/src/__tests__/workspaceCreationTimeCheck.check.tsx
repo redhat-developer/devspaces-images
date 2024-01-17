@@ -43,7 +43,7 @@ import Routes from '@/Routes';
 import devfileApi from '@/services/devfileApi';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { ConvertedState } from '@/store/FactoryResolver';
+import { ConvertedState, ResolverState } from '@/store/FactoryResolver';
 
 // mute the outputs
 console.error = jest.fn();
@@ -162,7 +162,7 @@ describe('Workspace creation time', () => {
           .withInfrastructureNamespace([namespace])
           .withFactoryResolver({
             resolver: Object.assign(
-              { location: 'https://github.com/eclipse-che/che-dashboard' },
+              { location: 'https://github.com/eclipse-che/che-dashboard' } as ResolverState,
               factoryResolver,
             ),
             converted: {

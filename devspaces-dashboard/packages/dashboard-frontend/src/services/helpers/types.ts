@@ -10,11 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as cheApi from '@eclipse-che/api';
 import { AlertVariant } from '@patternfly/react-core';
 import * as React from 'react';
 
 import devfileApi from '@/services/devfileApi';
+import { che } from '@/services/models';
 
 export type ActionCallback = {
   title: string;
@@ -31,13 +31,10 @@ export interface AlertItem {
   timeout?: boolean | number;
 }
 
-export interface FactoryResolver {
-  v: string;
-  source?: string;
-  devfile: devfileApi.Devfile | che.WorkspaceDevfile;
+export interface FactoryResolver extends Omit<che.api.factory.Factory, 'devfile'> {
+  devfile: che.api.workspace.devfile.Devfile | devfileApi.Devfile;
   location?: string;
   scm_info?: FactoryResolverScmInfo;
-  links: cheApi.che.core.rest.Link[];
 }
 
 export type FactoryResolverScmInfo = {

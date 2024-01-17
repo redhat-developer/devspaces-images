@@ -19,7 +19,7 @@ import { DEVWORKSPACE_DEVFILE_SOURCE } from '@/services/workspace-client/devwork
 import { DevWorkspaceResources } from '@/store/DevfileRegistries';
 
 const suffix = '-1234';
-jest.mock('../../../../../../services/helpers/generateName');
+jest.mock('@/services/helpers/generateName');
 (generateSuffix as jest.Mock).mockImplementation(() => suffix);
 
 describe('FactoryLoaderContainer/prepareResources', () => {

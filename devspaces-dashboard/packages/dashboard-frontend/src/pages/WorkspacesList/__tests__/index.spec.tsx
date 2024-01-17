@@ -25,7 +25,7 @@ import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 import WorkspacesList from '..';
 
-jest.mock('../../../components/Head', () => {
+jest.mock('@/components/Head', () => {
   const FakeHead = () => {
     return <span>Dummy Head Component</span>;
   };

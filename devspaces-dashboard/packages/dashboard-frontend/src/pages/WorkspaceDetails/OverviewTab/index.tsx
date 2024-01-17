@@ -19,6 +19,7 @@ import { ProjectsFormGroup } from '@/pages/WorkspaceDetails/OverviewTab/Projects
 import StorageTypeFormGroup from '@/pages/WorkspaceDetails/OverviewTab/StorageType';
 import WorkspaceNameFormGroup from '@/pages/WorkspaceDetails/OverviewTab/WorkspaceName';
 import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { che } from '@/services/models';
 import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
 
 export type Props = {

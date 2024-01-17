@@ -14,6 +14,7 @@ import { DevfileAdapter } from '@/services/devfile/adapter';
 import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
 import devfileApi from '@/services/devfileApi';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { che } from '@/services/models';
 import { DevfileBuilder } from '@/store/__mocks__/devfile';
 
 describe('DevfileAdapter Service', () => {
@@ -106,14 +107,14 @@ describe('DevfileAdapter Service', () => {
   });
 });
 
-function getDevfileWithPersistentStorage(): che.WorkspaceDevfile {
+function getDevfileWithPersistentStorage(): che.api.workspace.devfile.Devfile {
   const devfileV1 = new DevfileBuilder().withAttributes({
     persistVolumes: 'true',
   });
   return devfileV1.build();
 }
 
-function getDevfileWithEphemeralStorage(): che.WorkspaceDevfile {
+function getDevfileWithEphemeralStorage(): che.api.workspace.devfile.Devfile {
   const devfileV1 = new DevfileBuilder().withAttributes({
     persistVolumes: 'false',
   });

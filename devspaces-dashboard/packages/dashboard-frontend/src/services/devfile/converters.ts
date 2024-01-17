@@ -13,9 +13,10 @@
 import * as devfileConverter from '@eclipse-che/devfile-converter';
 
 import devfileApi from '@/services/devfileApi';
+import { che } from '@/services/models';
 
 export async function convertDevfileV1toDevfileV2(
-  devfile: che.WorkspaceDevfile,
+  devfile: che.api.workspace.devfile.Devfile,
 ): Promise<devfileApi.Devfile> {
   const converted = (await devfileConverter.v1ToV2(devfile)) as devfileApi.Devfile;
 

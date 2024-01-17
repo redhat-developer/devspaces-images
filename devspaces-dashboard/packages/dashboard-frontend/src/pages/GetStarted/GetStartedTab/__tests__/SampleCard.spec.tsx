@@ -14,6 +14,7 @@ import { fireEvent, render, RenderResult, screen } from '@testing-library/react'
 import React from 'react';
 
 import { SampleCard } from '@/pages/GetStarted/GetStartedTab/SampleCard';
+import { che } from '@/services/models';
 
 describe('Devfile Metadata Card', () => {
   const onCardClick = jest.fn();

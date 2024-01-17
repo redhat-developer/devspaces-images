@@ -31,7 +31,7 @@ import { ActionCreators, ResourceQueryParams } from '@/store/Workspaces';
 import { HeaderActionSelect } from '..';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-jest.mock('../../../../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
       startWorkspace:

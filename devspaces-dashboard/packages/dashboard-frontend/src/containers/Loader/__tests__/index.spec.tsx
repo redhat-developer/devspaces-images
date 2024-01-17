@@ -26,11 +26,11 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import LoaderContainer from '..';
 
-jest.mock('../../../pages/Loader');
+jest.mock('@/pages/Loader');
 
 const mockFindTargetWorkspace = jest.fn().mockReturnValue(undefined);
 // const mockFindTargetWorkspace = jest.fn();
-jest.mock('../../../services/helpers/factoryFlow/findTargetWorkspace', () => ({
+jest.mock('@/services/helpers/factoryFlow/findTargetWorkspace', () => ({
   __esModule: true,
   findTargetWorkspace: () => mockFindTargetWorkspace(),
 }));

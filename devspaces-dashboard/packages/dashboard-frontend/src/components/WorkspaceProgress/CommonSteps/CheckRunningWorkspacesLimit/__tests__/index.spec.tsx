@@ -32,11 +32,11 @@ import { ActionCreators } from '@/store/Workspaces';
 
 import CommonStepCheckRunningWorkspacesLimit, { State } from '..';
 
-jest.mock('../../../TimeLimit');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const mockStartWorkspace = jest.fn();
 const mockStopWorkspace = jest.fn();
-jest.mock('../../../../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
       startWorkspace:

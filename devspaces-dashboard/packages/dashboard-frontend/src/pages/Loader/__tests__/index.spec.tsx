@@ -32,9 +32,9 @@ jest.mock('react-tooltip', () => {
   };
 });
 
-jest.mock('../../../components/WorkspaceProgress');
-jest.mock('../../../components/WorkspaceLogs');
-jest.mock('../../../components/WorkspaceEvents');
+jest.mock('@/components/WorkspaceProgress');
+jest.mock('@/components/WorkspaceLogs');
+jest.mock('@/components/WorkspaceEvents');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 

@@ -16,6 +16,7 @@ import {
   getKubernetesNamespace,
   provisionKubernetesNamespace,
 } from '@/services/backend-client/kubernetesNamespaceApi';
+import { che } from '@/services/models';
 
 describe('Kubernetes namespace API', () => {
   const mockGet = mockAxios.get as jest.Mock;

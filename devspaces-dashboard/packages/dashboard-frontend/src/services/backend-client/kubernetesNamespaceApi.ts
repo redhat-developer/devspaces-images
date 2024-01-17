@@ -12,6 +12,7 @@
 
 import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
 import { cheServerPrefix } from '@/services/backend-client/const';
+import { che } from '@/services/models';
 
 export async function getKubernetesNamespace(): Promise<che.KubernetesNamespace[]> {
   const response = await AxiosWrapper.createToRetryAnyErrors().get(

@@ -22,7 +22,7 @@ import * as TestStore from '..';
 
 const mockFetchGitConfig = jest.fn().mockResolvedValue({ gitconfig: {} } as api.IGitConfig);
 const mockPatchGitConfig = jest.fn().mockResolvedValue({ gitconfig: {} } as api.IGitConfig);
-jest.mock('../../../services/backend-client/gitConfigApi', () => {
+jest.mock('@/services/backend-client/gitConfigApi', () => {
   return {
     fetchGitConfig: (...args: unknown[]) => mockFetchGitConfig(...args),
     patchGitConfig: (...args: unknown[]) => mockPatchGitConfig(...args),

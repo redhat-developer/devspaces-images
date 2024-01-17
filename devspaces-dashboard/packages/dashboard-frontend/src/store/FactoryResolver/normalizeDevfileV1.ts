@@ -13,20 +13,21 @@
 import { cloneDeep } from 'lodash';
 
 import { DevfileAdapter } from '@/services/devfile/adapter';
+import { che } from '@/services/models';
 
 export default function normalizeDevfileV1(
-  devfile: che.WorkspaceDevfile,
+  devfile: che.api.workspace.devfile.Devfile,
   preferredStorageType: che.WorkspaceStorageType,
-): che.WorkspaceDevfile {
+): che.api.workspace.devfile.Devfile {
   const newDevfile = cloneDeep(devfile);
-  if (newDevfile.metadata.generateName) {
+  if (newDevfile.metadata?.generateName) {
     newDevfile.metadata.generateName = newDevfile.metadata.generateName.toLowerCase();
   }
-  if (newDevfile.metadata.name) {
+  if (newDevfile.metadata?.name) {
     newDevfile.metadata.name = newDevfile.metadata.name.toLowerCase();
   }
   const devfileAdapter = new DevfileAdapter(newDevfile);
   devfileAdapter.storageType = preferredStorageType;
 
-  return devfileAdapter.devfile as che.WorkspaceDevfile;
+  return devfileAdapter.devfile as che.api.workspace.devfile.Devfile;
 }

@@ -18,6 +18,7 @@ import devfileApi from '@/services/devfileApi';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
 import { generateWorkspaceName } from '@/services/helpers/generateName';
 import sanitizeName from '@/services/helpers/sanitizeName';
+import { che } from '@/services/models';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,

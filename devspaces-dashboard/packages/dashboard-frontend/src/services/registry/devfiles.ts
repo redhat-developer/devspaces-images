@@ -13,6 +13,7 @@
 import common from '@eclipse-che/common';
 
 import { getDataResolver } from '@/services/backend-client/dataResolverApi';
+import { che } from '@/services/models';
 import { fetchData } from '@/services/registry/fetchData';
 import { isDevfileMetaData } from '@/services/registry/types';
 import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';

@@ -48,7 +48,7 @@ const mockShowAlert = jest.fn();
 const mockRequestSshKeys = jest.fn();
 const mockAddSshKeys = jest.fn();
 const mockRemoveSshKey = jest.fn();
-jest.mock('../../../../store/SshKeys', () => ({
+jest.mock('@/store/SshKeys', () => ({
   actionCreators: {
     addSshKey:
       (...args): AppThunk<Action, Promise<void>> =>

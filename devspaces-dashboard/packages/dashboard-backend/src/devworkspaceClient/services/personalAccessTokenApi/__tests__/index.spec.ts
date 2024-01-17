@@ -38,7 +38,7 @@ jest.mock('../helpers', () => {
     toSecret: (...args: Parameters<(typeof originalModule)['toSecret']>) => mockToSecret(...args),
   };
 });
-jest.mock('../../helpers/retryableExec');
+jest.mock('@/devworkspaceClient/services/helpers/retryableExec.ts');
 
 const namespace = 'user-che';
 

@@ -14,6 +14,7 @@ import common from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
 
 import { getKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
+import { che } from '@/services/models';
 import { createObject } from '@/store/helpers';
 import { selectAsyncIsAuthorized, selectSanityCheckError } from '@/store/SanityCheck/selectors';
 import { AUTHORIZED, SanityCheckAction } from '@/store/sanityCheckMiddleware';

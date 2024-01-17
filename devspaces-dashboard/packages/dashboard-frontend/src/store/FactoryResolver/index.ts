@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as cheApi from '@eclipse-che/api';
 import common from '@eclipse-che/common';
 import axios from 'axios';
 import { Action, Reducer } from 'redux';
@@ -21,6 +20,7 @@ import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
 import devfileApi, { isDevfileV2 } from '@/services/devfileApi';
 import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { FactoryResolver } from '@/services/helpers/types';
+import { che } from '@/services/models';
 import { isOAuthResponse } from '@/services/oauth';
 import { CHE_EDITOR_YAML_PATH } from '@/services/workspace-client/helpers';
 import { DEFAULT_REGISTRY } from '@/store/DevfileRegistries';
@@ -44,13 +44,14 @@ export type OAuthResponse = {
 };
 
 export interface ResolverState extends FactoryResolver {
+  devfile: devfileApi.Devfile;
   optionalFilesContent?: {
     [fileName: string]: string;
   };
 }
 
 export interface ConvertedState {
-  resolvedDevfile: devfileApi.Devfile | che.WorkspaceDevfile;
+  resolvedDevfile: devfileApi.Devfile | che.api.workspace.devfile.Devfile;
   devfileV2: devfileApi.Devfile;
   isConverted: boolean;
 }
@@ -90,7 +91,7 @@ export type ActionCreators = {
 };
 
 export async function grabLink(
-  links: cheApi.che.core.rest.Link[],
+  links: che.api.core.rest.Link[],
   filename: string,
 ): Promise<string | undefined> {
   // handle servers not yet providing links
@@ -156,7 +157,7 @@ export const actionCreators: ActionCreators = {
         }
         const externalDevfileRegistries =
           state.dwServerConfig.config.devfileRegistry.externalDevfileRegistries.map(
-            externalDevfileRegistriy => externalDevfileRegistriy.url,
+            externalDevfileRegistry => externalDevfileRegistry.url,
           );
         if (externalDevfileRegistries.length) {
           devfileRegistries.push(...externalDevfileRegistries);
@@ -175,7 +176,7 @@ export const actionCreators: ActionCreators = {
           data = await getYamlResolver(location);
         } else {
           data = await getFactoryResolver(location, overrideParams);
-          const cheEditor = await grabLink(data.links, CHE_EDITOR_YAML_PATH);
+          const cheEditor = await grabLink(data.links || [], CHE_EDITOR_YAML_PATH);
           if (cheEditor) {
             optionalFilesContent[CHE_EDITOR_YAML_PATH] = cheEditor;
           }
@@ -187,7 +188,7 @@ export const actionCreators: ActionCreators = {
         const isResolvedDevfileV2 = isDevfileV2(data.devfile);
         let devfileV2: devfileApi.Devfile;
         const defaultComponents = selectDefaultComponents(state);
-        if (isResolvedDevfileV2) {
+        if (isDevfileV2(data.devfile)) {
           devfileV2 = normalizeDevfileV2(
             data.devfile as devfileApi.DevfileLike,
             data,
@@ -198,7 +199,7 @@ export const actionCreators: ActionCreators = {
           );
         } else {
           const devfileV1 = normalizeDevfileV1(
-            data.devfile as che.WorkspaceDevfile,
+            data.devfile as che.api.workspace.devfile.Devfile,
             preferredStorageType,
           );
           devfileV2 = normalizeDevfileV2(
@@ -216,9 +217,12 @@ export const actionCreators: ActionCreators = {
           devfileV2,
         };
 
-        const resolver = { ...data, optionalFilesContent };
-        resolver.devfile = devfileV2;
-        resolver.location = location;
+        const resolver = {
+          ...data,
+          devfile: devfileV2,
+          location,
+          optionalFilesContent,
+        };
 
         dispatch({
           type: 'RECEIVE_FACTORY_RESOLVER',

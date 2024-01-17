@@ -18,6 +18,7 @@ import { Store } from 'redux';
 
 import PreloadData from '@/services/bootstrap';
 import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { che } from '@/services/models';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 jest.mock('@/services/helpers/delay', () => ({ delay: jest.fn() }));

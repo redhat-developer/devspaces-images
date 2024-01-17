@@ -10,6 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { che } from '@/services/models';
+
 export function isDevfileMetaData(
   devfileMetaData: unknown,
 ): devfileMetaData is che.DevfileMetaData {

@@ -15,6 +15,7 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import * as KubernetesNamespaceApi from '@/services/backend-client/kubernetesNamespaceApi';
 import * as sshKeysApi from '@/services/backend-client/sshKeysApi';
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';

@@ -28,6 +28,7 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import overviewStyles from '@/pages/WorkspaceDetails/OverviewTab/index.module.css';
 import styles from '@/pages/WorkspaceDetails/OverviewTab/StorageType/index.module.css';
+import { che } from '@/services/models';
 import * as storageTypeService from '@/services/storageTypes';
 import { AppState } from '@/store';
 import { selectBranding } from '@/store/Branding/selectors';

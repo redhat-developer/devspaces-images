@@ -18,6 +18,7 @@ import {
   DevWorkspaceStatus,
   WorkspaceStatus,
 } from '@/services/helpers/types';
+import { che } from '@/services/models';
 import {
   devfileToDevWorkspace,
   devWorkspaceToDevfile,
@@ -274,6 +275,6 @@ export function constructWorkspace<T extends devfileApi.DevWorkspace>(workspace:
   return new WorkspaceAdapter(workspace);
 }
 
-export function isCheDevfile(devfile: unknown): devfile is che.WorkspaceDevfile {
+export function isCheDevfile(devfile: unknown): devfile is che.api.workspace.devfile.Devfile {
   return !isDevfileV2(devfile);
 }

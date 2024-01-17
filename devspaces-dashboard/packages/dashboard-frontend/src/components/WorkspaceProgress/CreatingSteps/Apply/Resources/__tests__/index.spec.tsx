@@ -37,11 +37,11 @@ import { ActionCreators } from '@/store/Workspaces/devWorkspaces';
 
 import CreatingStepApplyResources from '..';
 
-jest.mock('../../../../TimeLimit');
-jest.mock('../prepareResources.ts');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
+jest.mock('@/components/WorkspaceProgress/CreatingSteps/Apply/Resources/prepareResources.ts');
 
 const mockCreateWorkspaceFromResources = jest.fn().mockResolvedValue(undefined);
-jest.mock('../../../../../../store/Workspaces/devWorkspaces', () => {
+jest.mock('@/store/Workspaces/devWorkspaces', () => {
   return {
     actionCreators: {
       createWorkspaceFromResources:

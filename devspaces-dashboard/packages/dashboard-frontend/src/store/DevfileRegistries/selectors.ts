@@ -15,6 +15,7 @@ import { createSelector } from 'reselect';
 
 import devfileApi from '@/services/devfileApi';
 import match from '@/services/helpers/filter';
+import { che } from '@/services/models';
 import { selectDefaultComponents } from '@/store/ServerConfig/selectors';
 
 import { AppState } from '..';

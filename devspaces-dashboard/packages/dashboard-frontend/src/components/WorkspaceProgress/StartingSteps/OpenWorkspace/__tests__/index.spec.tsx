@@ -27,10 +27,10 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import StartingStepOpenWorkspace from '..';
 
-jest.mock('../../../TimeLimit');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const isAvailableEndpointMock = jest.fn();
-jest.mock('../../../../../services/helpers/api-ping', () => ({
+jest.mock('@/services/helpers/api-ping', () => ({
   isAvailableEndpoint: (url: string | undefined) => isAvailableEndpointMock(url),
 }));
 

@@ -18,7 +18,7 @@ import { CustomObjectsApi } from '@kubernetes/client-node';
 import { CheClusterCustomResource, CustomResourceDefinitionList } from '@/devworkspaceClient';
 import { ServerConfigApiService } from '@/devworkspaceClient/services/serverConfigApi';
 
-jest.mock('../../../helpers/getUserName.ts');
+jest.mock('@/helpers/getUserName.ts');
 
 describe('Server Config API Service', () => {
   const env = process.env;

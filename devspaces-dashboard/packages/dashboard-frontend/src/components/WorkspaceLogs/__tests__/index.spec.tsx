@@ -35,7 +35,7 @@ jest.mock('../Viewer');
 
 const mockWatchPodLogs = jest.fn();
 const mockStopWatchingPodLogs = jest.fn();
-jest.mock('../../../store/Pods/Logs', () => ({
+jest.mock('@/store/Pods/Logs', () => ({
   actionCreators: {
     watchPodLogs:
       (pod: V1Pod): AppThunk<Action, Promise<void>> =>

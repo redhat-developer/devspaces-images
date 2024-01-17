@@ -12,6 +12,8 @@
 
 import { createSelector } from 'reselect';
 
+import { che } from '@/services/models';
+
 import { AppState } from '..';
 
 const selectState = (state: AppState) => state.dwServerConfig;

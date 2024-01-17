@@ -10,32 +10,34 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { che } from '@/services/models';
+
 export class DevfileBuilder {
-  private devfile: che.WorkspaceDevfile = {
+  private devfile: che.api.workspace.devfile.Devfile = {
     apiVersion: '1.0.0',
     metadata: {
       generateName: 'stub-devfile-',
     },
-  } as che.WorkspaceDevfile;
+  } as che.api.workspace.devfile.Devfile;
 
   public withName(name: string): DevfileBuilder {
-    this.devfile.metadata.name = name;
-    delete this.devfile.metadata.generateName;
+    this.devfile.metadata!.name = name;
+    delete this.devfile.metadata!.generateName;
     return this;
   }
 
-  public withComponents(components: Array<unknown>): DevfileBuilder {
-    this.devfile.components = Object.assign({}, components);
+  public withComponents(components: Array<che.api.workspace.devfile.Component[]>): DevfileBuilder {
+    this.devfile.components = Object.assign([], components);
     return this;
   }
 
-  public withProjects(projects: Array<unknown>): DevfileBuilder {
-    this.devfile.projects = Object.assign({}, projects);
+  public withProjects(projects: Array<che.api.workspace.devfile.Project[]>): DevfileBuilder {
+    this.devfile.projects = Object.assign([], projects);
     return this;
   }
 
-  public withCommands(commands: Array<unknown>): DevfileBuilder {
-    this.devfile.commands = Object.assign({}, commands);
+  public withCommands(commands: Array<che.api.workspace.devfile.DevfileCommand[]>): DevfileBuilder {
+    this.devfile.commands = Object.assign([], commands);
     return this;
   }
 
@@ -44,7 +46,7 @@ export class DevfileBuilder {
     return this;
   }
 
-  public build(): che.WorkspaceDevfile {
+  public build(): che.api.workspace.devfile.Devfile {
     return this.devfile;
   }
 }

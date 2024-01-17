@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -17,6 +18,7 @@ import renderer from 'react-test-renderer';
 import { Action, Store } from 'redux';
 
 import { BRANDING_DEFAULT, BrandingData } from '@/services/bootstrap/branding.constant';
+import { che } from '@/services/models';
 import { AppThunk } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { selectBranding } from '@/store/Branding/selectors';
@@ -30,7 +32,7 @@ jest.mock('gravatar-url', () => {
   };
 });
 
-jest.mock('../../../../../store/InfrastructureNamespaces', () => {
+jest.mock('@/store/InfrastructureNamespaces', () => {
   return {
     actionCreators: {
       requestNamespaces:
@@ -131,11 +133,9 @@ describe('About Menu', () => {
 function createStore(cheCliTool: string, name: string, email: string): Store {
   return new FakeStoreBuilder()
     .withUserProfile({
-      attributes: {
-        preferred_username: name,
-      },
+      username: name,
       email,
-    } as api.che.user.Profile)
+    } as api.IUserProfile)
     .withBranding({
       configuration: {
         cheCliTool,

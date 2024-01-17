@@ -28,6 +28,7 @@ import React from 'react';
 import DropdownEditors from '@/pages/GetStarted/GetStartedTab/DropdownEditors';
 import styles from '@/pages/GetStarted/GetStartedTab/SampleCard/index.module.css';
 import { TargetEditor, VISIBLE_TAGS } from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
+import { che } from '@/services/models';
 import { convertIconToSrc } from '@/services/registry/devfiles';
 
 type Props = {

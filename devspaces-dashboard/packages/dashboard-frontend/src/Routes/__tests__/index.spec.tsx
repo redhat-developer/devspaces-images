@@ -31,27 +31,27 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import Routes from '..';
 
-jest.mock('../../pages/GetStarted', () => {
+jest.mock('@/pages/GetStarted', () => {
   return function GetStarted() {
     return <span>Quick Add</span>;
   };
 });
-jest.mock('../../containers/WorkspacesList.tsx', () => {
+jest.mock('@/containers/WorkspacesList.tsx', () => {
   return function WorkspacesList() {
     return <span>Workspaces List</span>;
   };
 });
-jest.mock('../../containers/WorkspaceDetails', () => {
+jest.mock('@/containers/WorkspaceDetails', () => {
   return function WorkspaceDetails() {
     return <span>Workspace Details</span>;
   };
 });
-jest.mock('../../containers/Loader', () => {
+jest.mock('@/containers/Loader', () => {
   return function Loader() {
     return <span>Loader</span>;
   };
 });
-jest.mock('../../pages/UserPreferences', () => {
+jest.mock('@/pages/UserPreferences', () => {
   return function UserPreferences() {
     return <span>User Preferences</span>;
   };

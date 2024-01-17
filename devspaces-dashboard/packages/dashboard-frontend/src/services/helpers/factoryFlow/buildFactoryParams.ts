@@ -10,6 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { che } from '@/services/models';
+
 export const DEV_WORKSPACE_ATTR = 'devWorkspace';
 export const EDITOR_ATTR = 'che-editor';
 export const ERROR_CODE_ATTR = 'error_code';

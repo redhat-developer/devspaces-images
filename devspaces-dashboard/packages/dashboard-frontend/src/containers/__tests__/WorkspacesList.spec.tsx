@@ -25,7 +25,7 @@ import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { ActionCreators } from '@/store/Workspaces';
 
-jest.mock('../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
       requestWorkspaces: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => {
@@ -34,7 +34,7 @@ jest.mock('../../store/Workspaces/index', () => {
     } as ActionCreators,
   };
 });
-jest.mock('../../pages/WorkspacesList', () => {
+jest.mock('@/pages/WorkspacesList', () => {
   const FakeWorkspacesList = (props: { workspaces: Workspace[] }): React.ReactElement => {
     const ids = props.workspaces.map(wksp => (
       <span data-testid="workspace" key={wksp.uid}>
@@ -51,7 +51,7 @@ jest.mock('../../pages/WorkspacesList', () => {
   FakeWorkspacesList.displayName = 'WorkspacesList';
   return FakeWorkspacesList;
 });
-jest.mock('../../components/Fallback', () => <div>Fallback Spinner</div>);
+jest.mock('@/components/Fallback', () => <div>Fallback Spinner</div>);
 
 describe('Workspaces List Container', () => {
   afterEach(() => {

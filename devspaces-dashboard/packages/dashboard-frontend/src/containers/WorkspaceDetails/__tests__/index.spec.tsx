@@ -27,7 +27,7 @@ import WorkspaceDetailsContainer from '..';
 
 const mockUpdateWorkspace = jest.fn();
 
-jest.mock('../../../store/Workspaces');
+jest.mock('@/store/Workspaces');
 (workspacesActionCreators.requestWorkspaces as jest.Mock).mockImplementation(() => async () => {
   // no-op
 });
@@ -37,7 +37,7 @@ jest.mock('../../../store/Workspaces');
       mockUpdateWorkspace(...args),
 );
 
-jest.mock('../../../pages/WorkspaceDetails');
+jest.mock('@/pages/WorkspaceDetails');
 
 describe('Workspace Details container', () => {
   const namespace = 'user-dev';

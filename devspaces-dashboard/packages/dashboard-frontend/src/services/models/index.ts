@@ -10,12 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-declare namespace api {
-  import { che } from '@eclipse-che/api';
+import * as che from '@/services/models/che';
 
-  export { che };
-}
-
-declare module 'api' {
-  export = api;
-}
+export { che };

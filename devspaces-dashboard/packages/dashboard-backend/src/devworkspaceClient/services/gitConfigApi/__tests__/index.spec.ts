@@ -17,7 +17,7 @@ import { IncomingMessage } from 'http';
 
 import { GitConfigApiService } from '..';
 
-jest.mock('../../helpers/retryableExec');
+jest.mock('@/devworkspaceClient/services/helpers/retryableExec.ts');
 
 const namespace = 'user-che';
 const responseBody = {

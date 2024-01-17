@@ -11,24 +11,20 @@
  */
 
 import { FactoryResolver, FactoryResolverScmInfo } from '@/services/helpers/types';
+import { che } from '@/services/models';
 
 export class FactoryResolverBuilder {
   private factoryResolver = {
     v: '4.0',
   } as FactoryResolver;
 
-  withDevfile(devfile: api.che.workspace.devfile.Devfile): FactoryResolverBuilder {
+  withDevfile(devfile: che.api.workspace.devfile.Devfile): FactoryResolverBuilder {
     this.factoryResolver.devfile = devfile;
     return this;
   }
 
   withSource(source: string): FactoryResolverBuilder {
     this.factoryResolver.source = source;
-    return this;
-  }
-
-  withLocation(location: string): FactoryResolverBuilder {
-    this.factoryResolver.location = location;
     return this;
   }
 

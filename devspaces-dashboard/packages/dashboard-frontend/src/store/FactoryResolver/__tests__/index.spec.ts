@@ -19,6 +19,8 @@ import * as factoryResolver from '@/services/backend-client/factoryApi';
 import * as yamlResolver from '@/services/backend-client/yamlResolverApi';
 import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
 import devfileApi from '@/services/devfileApi';
+import { FactoryResolver } from '@/services/helpers/types';
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import normalizeDevfileV1 from '@/store/FactoryResolver/normalizeDevfileV1';
@@ -36,18 +38,18 @@ jest.mock('../normalizeDevfileV2.ts');
   return devfile;
 });
 
-jest.mock('../../../services/devfile/converters');
+jest.mock('@/services/devfile/converters');
 (convertDevfileV1toDevfileV2 as jest.Mock).mockImplementation(async () => {
   return {
     schemaVersion: '2.0.0',
   } as devfileApi.Devfile;
 });
 
-jest.mock('../../../services/devfileApi');
-jest.mock('../../../services/devfileApi/typeguards.ts', () => {
+jest.mock('@/services/devfileApi');
+jest.mock('@/services/devfileApi/typeguards.ts', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/ban-types
-    ...(jest.requireActual('../../../services/devfileApi/typeguards.ts') as Object),
+    ...(jest.requireActual('@/services/devfileApi/typeguards.ts') as Object),
     isDevfileV2: (devfile: unknown): boolean => {
       return (devfile as devfileApi.Devfile).schemaVersion !== undefined;
     },
@@ -66,8 +68,8 @@ describe('FactoryResolver store', () => {
       const resolver = {
         devfile: {
           apiVersion: '1.0.0',
-        } as che.WorkspaceDevfile,
-      } as factoryResolverStore.ResolverState;
+        } as che.api.workspace.devfile.Devfile,
+      } as FactoryResolver;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 

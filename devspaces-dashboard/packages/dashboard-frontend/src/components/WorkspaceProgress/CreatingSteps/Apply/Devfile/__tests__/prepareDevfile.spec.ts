@@ -21,7 +21,7 @@ import {
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
-jest.mock('../../../../../../services/helpers/generateName');
+jest.mock('@/services/helpers/generateName');
 (generateWorkspaceName as jest.Mock).mockImplementation(name => name + '1234');
 
 describe('FactoryLoaderContainer/prepareDevfile', () => {

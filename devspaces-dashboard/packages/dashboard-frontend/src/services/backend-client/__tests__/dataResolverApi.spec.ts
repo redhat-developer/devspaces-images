@@ -14,6 +14,7 @@ import common from '@eclipse-che/common';
 import mockAxios, { AxiosError } from 'axios';
 
 import { getDataResolver } from '@/services/backend-client/dataResolverApi';
+import { che } from '@/services/models';
 
 describe('Data Resolver API', () => {
   const mockPost = mockAxios.post as jest.Mock;

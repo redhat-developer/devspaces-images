@@ -27,7 +27,7 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import StartingStepInitialize from '..';
 
-jest.mock('../../../TimeLimit');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 

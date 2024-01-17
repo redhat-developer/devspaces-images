@@ -12,9 +12,10 @@
 
 import devfileApi, { isDevfileV2 } from '@/services/devfileApi';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
+import { che } from '@/services/models';
 import { attributesToType } from '@/services/storageTypes';
 
-export type Devfile = che.WorkspaceDevfile | devfileApi.Devfile;
+export type Devfile = che.api.workspace.devfile.Devfile | devfileApi.Devfile;
 
 export class DevfileAdapter {
   private _devfile: Devfile;

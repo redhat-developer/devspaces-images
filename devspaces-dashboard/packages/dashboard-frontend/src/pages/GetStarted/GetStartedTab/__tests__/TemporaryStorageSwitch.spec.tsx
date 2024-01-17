@@ -18,6 +18,7 @@ import { Store } from 'redux';
 import mockMetadata from '@/pages/GetStarted/__tests__/devfileMetadata.json';
 import TemporaryStorageSwitch from '@/pages/GetStarted/GetStartedTab/TemporaryStorageSwitch';
 import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { che } from '@/services/models';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 describe('Temporary Storage Switch', () => {

@@ -18,6 +18,7 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import { BrandingData } from '@/services/bootstrap/branding.constant';
 import devfileApi from '@/services/devfileApi';
+import { che } from '@/services/models';
 import mockThunk from '@/store/__mocks__/thunk';
 import { State as BrandingState } from '@/store/Branding';
 import { DevWorkspaceResources, State as DevfileRegistriesState } from '@/store/DevfileRegistries';

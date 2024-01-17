@@ -19,6 +19,7 @@ import { Store } from 'redux';
 import StorageTypeFormGroup, { State } from '@/pages/WorkspaceDetails/OverviewTab/StorageType';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import { BrandingData } from '@/services/bootstrap/branding.constant';
+import { che } from '@/services/models';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);

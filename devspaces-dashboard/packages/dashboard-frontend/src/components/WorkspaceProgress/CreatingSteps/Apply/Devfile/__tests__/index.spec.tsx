@@ -36,6 +36,7 @@ import {
   POLICIES_CREATE_ATTR,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { AlertItem } from '@/services/helpers/types';
+import { che } from '@/services/models';
 import { AppThunk } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';

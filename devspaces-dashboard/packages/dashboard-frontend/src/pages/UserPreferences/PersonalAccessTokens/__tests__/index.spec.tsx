@@ -44,7 +44,7 @@ const mockRequestTokens = jest.fn();
 const mockAddToken = jest.fn();
 const mockUpdateToken = jest.fn();
 const mockRemoveToken = jest.fn();
-jest.mock('../../../../store/PersonalAccessToken', () => ({
+jest.mock('@/store/PersonalAccessToken', () => ({
   actionCreators: {
     addToken:
       (...args): AppThunk<Action, Promise<void>> =>

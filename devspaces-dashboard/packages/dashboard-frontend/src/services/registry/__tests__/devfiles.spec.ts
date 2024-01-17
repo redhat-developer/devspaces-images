@@ -12,6 +12,7 @@
 
 import common from '@eclipse-che/common';
 
+import { che } from '@/services/models';
 import {
   fetchRegistryMetadata,
   resolveLinks,

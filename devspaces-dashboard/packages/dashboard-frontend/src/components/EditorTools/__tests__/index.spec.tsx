@@ -21,7 +21,7 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import EditorTools from '..';
 
-jest.mock('../../../contexts/ToggleBars');
+jest.mock('@/contexts/ToggleBars');
 
 const mockClipboard = jest.fn();
 jest.mock('react-copy-to-clipboard', () => {

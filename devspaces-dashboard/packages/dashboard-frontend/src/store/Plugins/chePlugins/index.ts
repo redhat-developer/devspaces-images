@@ -14,6 +14,7 @@ import common from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
 
 import { getAxiosInstance } from '@/services/axios-wrapper/getAxiosInstance';
+import { che } from '@/services/models';
 import { AppThunk } from '@/store';
 import { createObject } from '@/store/helpers';
 import { SanityCheckAction } from '@/store/sanityCheckMiddleware';

@@ -17,6 +17,7 @@ import { Provider } from 'react-redux';
 
 import { BrandingData } from '@/services/bootstrap/branding.constant';
 import devfileApi from '@/services/devfileApi';
+import { che } from '@/services/models';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 

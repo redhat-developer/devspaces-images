@@ -24,6 +24,7 @@ import { fetchServerConfig } from '@/services/backend-client/serverConfigApi';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
 import devfileApi from '@/services/devfileApi';
 import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { che } from '@/services/models';
 import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 import { AppState } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
@@ -35,13 +36,13 @@ import { checkRunningWorkspacesLimit } from '@/store/Workspaces/devWorkspaces/ch
 
 import * as testStore from '..';
 
-jest.mock('../../../../services/backend-client/serverConfigApi');
-jest.mock('../../../../services/helpers/delay', () => ({
+jest.mock('@/services/backend-client/serverConfigApi');
+jest.mock('@/services/helpers/delay', () => ({
   delay: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('../checkRunningWorkspacesLimit.ts');
 
-jest.mock('../../../../services/backend-client/devworkspaceResourcesApi', () => ({
+jest.mock('@/services/backend-client/devworkspaceResourcesApi', () => ({
   fetchResources: () => `
 apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspaceTemplate
@@ -97,7 +98,7 @@ spec:
 }));
 
 const mockPatchTemplate = jest.fn();
-jest.mock('../../../../services/backend-client/devWorkspaceTemplateApi', () => ({
+jest.mock('@/services/backend-client/devWorkspaceTemplateApi', () => ({
   getTemplates: () => [
     {
       apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -113,7 +114,7 @@ jest.mock('../../../../services/backend-client/devWorkspaceTemplateApi', () => (
     mockPatchTemplate(templateNamespace, templateName, targetTemplatePatch),
 }));
 const mockPatchWorkspace = jest.fn();
-jest.mock('../../../../services/backend-client/devWorkspaceApi', () => ({
+jest.mock('@/services/backend-client/devWorkspaceApi', () => ({
   patchWorkspace: (namespace, workspaceName, patch) =>
     mockPatchWorkspace(namespace, workspaceName, patch),
 }));

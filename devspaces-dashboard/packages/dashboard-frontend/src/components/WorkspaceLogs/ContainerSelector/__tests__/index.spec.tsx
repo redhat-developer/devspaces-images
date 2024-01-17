@@ -19,7 +19,7 @@ import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentR
 
 import { NO_CONTAINERS, WorkspaceLogsContainerSelector } from '..';
 
-jest.mock('../../../../components/ResourceIcon');
+jest.mock('@/components/ResourceIcon');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 

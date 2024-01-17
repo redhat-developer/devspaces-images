@@ -32,10 +32,10 @@ import { ActionCreators } from '@/store/DevfileRegistries';
 
 import CreatingStepFetchResources from '..';
 
-jest.mock('../../../../TimeLimit');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const mockRequestResources = jest.fn();
-jest.mock('../../../../../../store/DevfileRegistries', () => {
+jest.mock('@/store/DevfileRegistries', () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   return {
     actionCreators: {

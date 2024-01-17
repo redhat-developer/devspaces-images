@@ -15,6 +15,7 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import * as KubernetesNamespaceApi from '@/services/backend-client/kubernetesNamespaceApi';
 import * as PersonalAccessTokenApi from '@/services/backend-client/personalAccessTokenApi';
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { token1, token2 } from '@/store/PersonalAccessToken/__tests__/stub';
@@ -23,7 +24,7 @@ import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
 import * as testStore from '..';
 
 jest.mock(
-  '../../../services/backend-client/kubernetesNamespaceApi',
+  '@/services/backend-client/kubernetesNamespaceApi',
   () =>
     ({
       provisionKubernetesNamespace: () => Promise.resolve({} as che.KubernetesNamespace),
@@ -35,7 +36,7 @@ const mockAddToken = jest.fn();
 const mockUpdateToken = jest.fn();
 const mockRemoveToken = jest.fn();
 jest.mock(
-  '../../../services/backend-client/personalAccessTokenApi',
+  '@/services/backend-client/personalAccessTokenApi',
   () =>
     ({
       fetchTokens: (...args) => mockFetchTokens(...args),

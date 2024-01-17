@@ -12,9 +12,9 @@
 
 import { DwClientProvider } from '@/services/kubeclient/dwClientProvider';
 
-jest.mock('../../../devworkspaceClient');
-jest.mock('../kubeConfigProvider.ts');
-jest.mock('../../kubeclient/helpers/index.ts', () => {
+jest.mock('@/devworkspaceClient');
+jest.mock('@/services/kubeclient/kubeConfigProvider.ts');
+jest.mock('@/services/kubeclient/helpers/index.ts', () => {
   return {
     isOpenShift: () => true,
   };

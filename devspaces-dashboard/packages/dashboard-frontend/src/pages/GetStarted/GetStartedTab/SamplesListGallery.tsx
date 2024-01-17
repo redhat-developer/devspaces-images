@@ -30,6 +30,7 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import { SampleCard } from '@/pages/GetStarted/GetStartedTab/SampleCard';
 import { AlertItem } from '@/services/helpers/types';
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
 import { EMPTY_WORKSPACE_TAG, selectMetadataFiltered } from '@/store/DevfileRegistries/selectors';

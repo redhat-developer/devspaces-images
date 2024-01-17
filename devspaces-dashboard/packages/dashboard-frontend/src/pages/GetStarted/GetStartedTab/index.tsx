@@ -22,6 +22,7 @@ import SamplesListToolbar from '@/pages/GetStarted/GetStartedTab/SamplesListTool
 import { DevfileAdapter } from '@/services/devfile/adapter';
 import devfileApi from '@/services/devfileApi';
 import stringify from '@/services/helpers/editor';
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { ResolverState } from '@/store/FactoryResolver';
 import { selectPvcStrategy } from '@/store/ServerConfig/selectors';

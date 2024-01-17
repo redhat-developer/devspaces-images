@@ -15,6 +15,7 @@ import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
 
+import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';

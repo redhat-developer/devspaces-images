@@ -64,14 +64,14 @@ const mockFetchTokens = jest.fn().mockResolvedValue([
   },
 ] as any[]);
 
-jest.mock('../../../services/backend-client/oAuthApi', () => {
+jest.mock('@/services/backend-client/oAuthApi', () => {
   return {
     getOAuthProviders: (...args: unknown[]) => mockGetOAuthProviders(...args),
     getOAuthToken: (...args: unknown[]) => mockGetOAuthToken(...args),
     getDevWorkspacePreferences: (...args: unknown[]) => mockGetDevWorkspacePreferences(...args),
   };
 });
-jest.mock('../../../services/backend-client/personalAccessTokenApi', () => {
+jest.mock('@/services/backend-client/personalAccessTokenApi', () => {
   return {
     fetchTokens: (...args: unknown[]) => mockFetchTokens(...args),
   };

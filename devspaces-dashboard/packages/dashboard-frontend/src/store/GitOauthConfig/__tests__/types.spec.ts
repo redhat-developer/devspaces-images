@@ -10,12 +10,11 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { api } from '@eclipse-che/common';
+import * as types from '@/store/GitOauthConfig/types';
 
-import { che } from '@/services/models';
-
-export interface IGitOauth {
-  name: api.GitOauthProvider;
-  endpointUrl: string;
-  links?: che.api.core.rest.Link[];
-}
+describe('types', () => {
+  // this makes the coverage tool happy
+  test('should export types', () => {
+    expect(types).toBeDefined();
+  });
+});

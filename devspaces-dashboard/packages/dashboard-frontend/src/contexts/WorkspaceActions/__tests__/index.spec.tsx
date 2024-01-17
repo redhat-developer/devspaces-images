@@ -27,7 +27,7 @@ import { ActionCreators } from '@/store/Workspaces';
 
 import { ActionContextType, WorkspaceActionsConsumer } from '..';
 
-jest.mock('../../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   return {
     actionCreators: {

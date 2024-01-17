@@ -26,7 +26,7 @@ jest.mock('../const', () => ({
 }));
 
 const mockDelay = jest.fn().mockImplementation(() => Promise.resolve());
-jest.mock('../../../../services/helpers', () => ({
+jest.mock('@/services/helpers', () => ({
   delay: (ms: number) => mockDelay(ms),
 }));
 

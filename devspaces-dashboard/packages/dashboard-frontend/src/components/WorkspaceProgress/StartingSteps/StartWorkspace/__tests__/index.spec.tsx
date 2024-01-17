@@ -30,10 +30,10 @@ import { ActionCreators } from '@/store/Workspaces';
 
 import StartingStepStartWorkspace from '..';
 
-jest.mock('../../../TimeLimit');
+jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const mockStartWorkspace = jest.fn();
-jest.mock('../../../../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
       startWorkspace:

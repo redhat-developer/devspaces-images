@@ -17,7 +17,7 @@ import { CoreV1Api, V1Secret } from '@kubernetes/client-node';
 
 import { UserProfileApiService } from '@/devworkspaceClient/services/userProfileApi';
 
-jest.mock('../../../helpers/getUserName.ts');
+jest.mock('@/helpers/getUserName.ts');
 
 const userNamespace = 'user1-che';
 

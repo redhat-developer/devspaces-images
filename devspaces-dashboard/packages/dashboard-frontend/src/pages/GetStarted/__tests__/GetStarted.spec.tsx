@@ -43,7 +43,7 @@ const workspace = new DevWorkspaceBuilder()
   .withNamespace(namespace)
   .build();
 
-jest.mock('../../../store/Workspaces/index', () => {
+jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
       createWorkspaceFromDevfile: (devfile, attributes) => async (): Promise<Workspace> => {
