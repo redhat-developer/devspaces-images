@@ -85,7 +85,7 @@ describe('Dashboard bootstrap', () => {
     expect(mockGet).toHaveBeenCalledWith('https://prefetch-che-cdn.test', {
       headers: { 'Cache-Control': 'no-cache', Expires: '0' },
     });
-    expect(mockGet).toHaveBeenCalledWith('/dashboard/api/server-config');
+    expect(mockGet).toHaveBeenCalledWith('/dashboard/api/server-config', undefined);
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/cluster-info');
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/userprofile/test-che', undefined);
     expect(mockGet).toHaveBeenCalledWith('/plugin-registry/v3/plugins/index.json');

@@ -56,7 +56,7 @@ describe('dwPlugins store', () => {
   });
 
   it('should create RECEIVE_DW_SERVER_CONFIG_ERROR when fetching server and got an error', async () => {
-    (mockAxios.get as jest.Mock).mockRejectedValueOnce('Test error');
+    (mockAxios.get as jest.Mock).mockRejectedValue('Test error');
 
     const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
       AppState,

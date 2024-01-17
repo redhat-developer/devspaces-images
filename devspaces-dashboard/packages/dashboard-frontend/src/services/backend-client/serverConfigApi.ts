@@ -11,8 +11,8 @@
  */
 
 import { api } from '@eclipse-che/common';
-import axios from 'axios';
 
+import { AxiosWrapper } from '@/services/axios-wrapper/axiosWrapper';
 import { dashboardBackendPrefix } from '@/services/backend-client/const';
 
 /**
@@ -24,6 +24,6 @@ import { dashboardBackendPrefix } from '@/services/backend-client/const';
  */
 export async function fetchServerConfig(): Promise<api.IServerConfig> {
   const url = `${dashboardBackendPrefix}/server-config`;
-  const response = await axios.get(url);
+  const response = await AxiosWrapper.createToRetryAnyErrors().get(url);
   return response.data ? response.data : [];
 }
