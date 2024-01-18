@@ -1,0 +1,7 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspaceTemplate
+metadata:
+  annotations:
+    che.eclipse.org/components-update-policy: managed
+  name: che-code
+spec: {}

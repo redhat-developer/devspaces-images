@@ -20,6 +20,7 @@ export const POLICIES_CREATE_ATTR = 'policies.create';
 export const STORAGE_TYPE_ATTR = 'storageType';
 export const REMOTES_ATTR = 'remotes';
 export const IMAGE_ATTR = 'image';
+export const EDITOR_IMAGE_ATTR = 'editor-image';
 export const USE_DEFAULT_DEVFILE = 'useDefaultDevfile';
 export const DEBUG_WORKSPACE_START = 'debugWorkspaceStart';
 export const PROPAGATE_FACTORY_ATTRS = [
@@ -32,6 +33,7 @@ export const PROPAGATE_FACTORY_ATTRS = [
   STORAGE_TYPE_ATTR,
   REMOTES_ATTR,
   IMAGE_ATTR,
+  EDITOR_IMAGE_ATTR,
 ];
 export const OVERRIDE_ATTR_PREFIX = 'override.';
 export const DEFAULT_POLICIES_CREATE = 'peruser';
@@ -46,6 +48,7 @@ export type FactoryParams = {
   errorCode: ErrorCode | undefined;
   storageType: che.WorkspaceStorageType | undefined;
   cheEditor: string | undefined;
+  editorImage: string | undefined;
   remotes: string | undefined;
   image: string | undefined;
   useDefaultDevfile: boolean;
@@ -59,6 +62,7 @@ export type ErrorCode = 'invalid_request' | 'access_denied';
 export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams {
   return {
     cheEditor: getEditorId(searchParams),
+    editorImage: getEditorImage(searchParams),
     errorCode: getErrorCode(searchParams),
     factoryId: buildFactoryId(searchParams),
     factoryUrl: getFactoryUrl(searchParams),
@@ -106,6 +110,10 @@ function getStorageType(searchParams: URLSearchParams): che.WorkspaceStorageType
 
 function getEditorId(searchParams: URLSearchParams): string | undefined {
   return searchParams.get(EDITOR_ATTR) || undefined;
+}
+
+function getEditorImage(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(EDITOR_IMAGE_ATTR) || undefined;
 }
 
 function getErrorCode(searchParams: URLSearchParams): ErrorCode | undefined {

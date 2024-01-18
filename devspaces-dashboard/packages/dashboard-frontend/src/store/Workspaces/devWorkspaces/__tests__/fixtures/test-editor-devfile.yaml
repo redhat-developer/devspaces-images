@@ -1,0 +1,14 @@
+schemaVersion: 2.2.0
+metadata:
+  name: che-code
+components:
+  - name: che-code-runtime-description
+    container:
+      image: quay.io/devfile/universal-developer-image:next
+    attributes:
+      controller.devfile.io/container-contribution: true
+  - name: checode
+    volume: {}
+  - name: che-code-injector
+    container:
+      image: quay.io/che-incubator/che-code:next

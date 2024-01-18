@@ -32,6 +32,15 @@ describe('test buildFactoryLoaderPath()', () => {
       );
     });
 
+    test('editor-image parameter', () => {
+      const result = buildFactoryLoaderPath(
+        'git@github.com:eclipse-che/che-dashboard.git?editor-image=quay.io/mloriedo/che-code:copilot-builtin',
+      );
+      expect(result).toEqual(
+        '/f?editor-image=quay.io%2Fmloriedo%2Fche-code%3Acopilot-builtin&url=git%40github.com%3Aeclipse-che%2Fche-dashboard.git',
+      );
+    });
+
     test('devfilePath parameter', () => {
       const result = buildFactoryLoaderPath(
         'git@github.com:eclipse-che/che-dashboard.git?devfilePath=devfilev2.yaml',

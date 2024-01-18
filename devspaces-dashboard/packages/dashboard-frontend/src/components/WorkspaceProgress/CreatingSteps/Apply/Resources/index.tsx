@@ -226,7 +226,7 @@ class CreatingStepApplyResources extends ProgressStep<Props, State> {
       return false;
     }
 
-    await this.props.createWorkspaceFromResources(...resources, cheEditor);
+    await this.props.createWorkspaceFromResources(...resources, factoryParams, cheEditor);
 
     // wait for the workspace creation to complete
     return false;

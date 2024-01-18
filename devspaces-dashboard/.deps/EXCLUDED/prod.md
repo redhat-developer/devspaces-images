@@ -3,6 +3,7 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | Packages | Resolved CQs |
 | --- | --- |
 | `@fastify/cors@8.4.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@fastify/cors/8.4.1) |
+| `@fastify/reply-from@^9.6.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@fastify/reply-from/9.6.0) |
 | `@patternfly/react-core@4.278.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-core/4.278.0) |
 | `@patternfly/react-table@4.113.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-table/4.113.6) |
 | `@patternfly/react-icons@4.93.7` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-icons/4.93.7) |

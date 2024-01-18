@@ -1,0 +1,18 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspaceTemplate
+metadata:
+  annotations:
+    che.eclipse.org/components-update-policy: managed
+  name: che-code
+spec:
+  components:
+    - attributes:
+        controller.devfile.io/container-contribution: true
+      container:
+        image: quay.io/devfile/universal-developer-image:next
+      name: che-code-runtime-description
+    - name: checode
+      volume: {}
+    - container:
+        image: quay.io/che-incubator/che-code:next
+      name: che-code-injector

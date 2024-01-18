@@ -59,6 +59,11 @@ import {
   selectPluginRegistryUrl,
 } from '@/store/ServerConfig/selectors';
 import { checkRunningWorkspacesLimit } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
+import {
+  getEditorImage,
+  updateDevWorkspaceTemplate,
+  updateEditorDevfile,
+} from '@/store/Workspaces/devWorkspaces/editorImage';
 import { selectDevWorkspacesResourceVersion } from '@/store/Workspaces/devWorkspaces/selectors';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
@@ -176,7 +181,7 @@ export type ActionCreators = {
   ) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
     devfile: devfileApi.Devfile,
-    attributes: Partial<FactoryParams>,
+    params: Partial<FactoryParams>,
     optionalFilesContent: {
       [fileName: string]: string;
     },
@@ -184,6 +189,7 @@ export type ActionCreators = {
   createWorkspaceFromResources: (
     devWorkspace: devfileApi.DevWorkspace,
     devWorkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+    params: Partial<FactoryParams>,
     // it could be editorId or editorContent
     editor?: string,
   ) => AppThunk<KnownAction, Promise<void>>;
@@ -531,8 +537,9 @@ export const actionCreators: ActionCreators = {
 
   createWorkspaceFromResources:
     (
-      devWorkspaceResource: devfileApi.DevWorkspace,
-      devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate,
+      devWorkspace: devfileApi.DevWorkspace,
+      devWorkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+      params: Partial<FactoryParams>,
       editor?: string,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
@@ -553,7 +560,7 @@ export const actionCreators: ActionCreators = {
         /* create a new DevWorkspace */
         const createResp = await getDevWorkspaceClient().createDevWorkspace(
           defaultNamespace,
-          devWorkspaceResource,
+          devWorkspace,
           cheEditor,
         );
 
@@ -572,11 +579,12 @@ export const actionCreators: ActionCreators = {
           app => app.id === ApplicationId.CLUSTER_CONSOLE,
         );
 
+        devWorkspaceTemplate = updateDevWorkspaceTemplate(devWorkspaceTemplate, params.editorImage);
         /* create a new DevWorkspaceTemplate */
         await getDevWorkspaceClient().createDevWorkspaceTemplate(
           defaultNamespace,
           createResp.devWorkspace,
-          devWorkspaceTemplateResource,
+          devWorkspaceTemplate,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
           openVSXUrl,
@@ -653,6 +661,11 @@ export const actionCreators: ActionCreators = {
 
         defaultsDevfile.metadata.name = workspace.metadata.name;
         delete defaultsDevfile.metadata.generateName;
+
+        const editorImage = getEditorImage(workspace);
+        if (editorImage) {
+          editorContent = updateEditorDevfile(editorContent, editorImage);
+        }
         const resourcesContent = await fetchResources({
           pluginRegistryUrl,
           devfileContent: dump(defaultsDevfile),
@@ -808,7 +821,7 @@ export const actionCreators: ActionCreators = {
   createWorkspaceFromDevfile:
     (
       devfile: devfileApi.Devfile,
-      attributes: Partial<FactoryParams>,
+      params: Partial<FactoryParams>,
       optionalFilesContent: {
         [fileName: string]: string;
       },
@@ -821,7 +834,7 @@ export const actionCreators: ActionCreators = {
       let editorContent: string | undefined;
       let editorYamlUrl: string | undefined;
       // do we have an optional editor parameter ?
-      let editor = attributes.cheEditor;
+      let editor = params.cheEditor;
       if (editor) {
         const response = await getEditor(editor, dispatch, getState, pluginRegistryUrl);
         if (response.content) {
@@ -868,6 +881,7 @@ export const actionCreators: ActionCreators = {
           const error = selectSanityCheckError(getState());
           throw new Error(error);
         }
+        editorContent = updateEditorDevfile(editorContent, params.editorImage);
         const resourcesContent = await fetchResources({
           pluginRegistryUrl,
           devfileContent: dump(devfile),
@@ -913,6 +927,7 @@ export const actionCreators: ActionCreators = {
         actionCreators.createWorkspaceFromResources(
           devWorkspaceResource,
           devWorkspaceTemplateResource,
+          params,
           editor ? editor : editorContent,
         ),
       );

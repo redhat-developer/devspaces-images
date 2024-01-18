@@ -510,12 +510,13 @@
     simple-oauth2 "^5.0.0"
 
 "@fastify/reply-from@^9.0.0":
-  version "9.4.0"
-  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.4.0.tgz#7d648cd5221e1aa9a0ec2cd5451f32078c431dd3"
-  integrity sha512-A0rT2o2Y8Xe9+CpS/VCfpWMLyptwI7peljdtdsW3nlLwwMbDr3kxDry5aiIb43SCfI1nr3B5mMH48kerJAZ8YQ==
+  version "9.6.0"
+  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.6.0.tgz#63d45f4cd63f95a012549cc56fcb73ea6432d660"
+  integrity sha512-c1AqCq5+Wsc9iGpeRE5UpkzNJFn1HW1tCBgQw9h/EcaohqhYp2zoeXFM/MVFZvVKPph9eFkbWzLoQqMH4degfg==
   dependencies:
     "@fastify/error" "^3.0.0"
     end-of-stream "^1.4.4"
+    fast-content-type-parse "^1.1.0"
     fast-querystring "^1.0.0"
     fastify-plugin "^4.0.0"
     pump "^3.0.0"
@@ -5184,9 +5185,9 @@ focus-trap@6.9.2:
     tabbable "^5.3.2"
 
 follow-redirects@^1.15.0:
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.3.tgz#fe2f3ef2690afce7e82ed0b44db08165b207123a"
-  integrity sha512-1VzOtuEM8pC9SFU1E+8KfTjZyMztRsgEfwQl44z8A25uy13jSzTj6dyK2Df52iV0vgHCfBwLhDWevLn95w5v6Q==
+  version "1.15.4"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.4.tgz#cdc7d308bf6493126b17ea2191ea0ccf3e535adf"
+  integrity sha512-Cr4D/5wlrb0z9dgERpUL3LrmPKVDsETIJhaCMeDfuFYcqa5bldGV6wBsAN6X/vxlXQtFBMrXdXxdL8CbDTGniw==
 
 for-each@^0.3.3:
   version "0.3.3"
