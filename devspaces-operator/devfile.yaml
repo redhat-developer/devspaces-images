@@ -13,7 +13,7 @@ schemaVersion: 2.1.0
 attributes:
   controller.devfile.io/storage-type: ephemeral
 metadata:
-  name: che-operator
+  name: devspaces-images
 components:
   - name: tooling-container
     container:
@@ -49,7 +49,7 @@ commands:
       label: POST START EVENT - Install goimports
       component: tooling-container
       commandLine: |
-        $HOME/go1.18/bin/go install golang.org/x/tools/cmd/goimports@latest
+        go install golang.org/x/tools/cmd/goimports@latest
   - id: go-build
     exec:
       label: Build Eclipse Che Operator binary
@@ -74,4 +74,8 @@ commands:
     exec:
       label: Update all development resources
       component: tooling-container
-      commandLine: make update-dev-resources
+      commandLine: make update-dev-resources      
+events:
+  postStart:
+    - install-goimports
+    - install-chectl
