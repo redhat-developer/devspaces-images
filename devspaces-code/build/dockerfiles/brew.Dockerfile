@@ -112,7 +112,7 @@ RUN sed -i -r -e '/function yarnInstall/ !s|^[^#]*yarnInstal|//&|' build/npm/pos
 
 # install node-gyp
 # '--userconfig .npmrc --global' is an essential part, when it comes to installing npm dependencies from Cachito
-RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/cachito && cat package-lock.json && npm install --userconfig .npmrc --global node-gyp@10.0.0 && node-gyp version
+RUN yarn global add $REMOTE_SOURCES_DIR/devspaces-images-code/deps/yarn/node-gyp/node-gyp-10.0.0.tgz && node-gyp version
 
 # Cachito clears all project's '.yarnrc' files, To make sure yarn is configured to the local Nexus.
 # To avoid any possible issues, like failure of build because of missing 'ms_build_id', or 'target' properties,
