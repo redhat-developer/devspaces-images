@@ -29,7 +29,7 @@ import { CodeCellViewModel } from 'vs/workbench/contrib/notebook/browser/viewMod
 import { CellStatusbarAlignment, INotebookCellStatusBarItem } from 'vs/workbench/contrib/notebook/common/notebookCommon';
 import { ITooltipMarkdownString, setupCustomHover } from 'vs/base/browser/ui/iconLabel/iconLabelHover';
 import { IHoverDelegate, IHoverDelegateOptions } from 'vs/base/browser/ui/iconLabel/iconHoverDelegate';
-import { IHoverService } from 'vs/workbench/services/hover/browser/hover';
+import { IHoverService } from 'vs/platform/hover/browser/hover';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { HoverPosition } from 'vs/base/browser/ui/hover/hoverWidget';
 
@@ -77,7 +77,8 @@ export class CellEditorStatusBar extends CellContentPart {
 			private _lastHoverHideTime: number = 0;
 
 			readonly showHover = (options: IHoverDelegateOptions) => {
-				options.hoverPosition = HoverPosition.ABOVE;
+				options.position = options.position ?? {};
+				options.position.hoverPosition = HoverPosition.ABOVE;
 				return hoverService.showHover(options);
 			};
 

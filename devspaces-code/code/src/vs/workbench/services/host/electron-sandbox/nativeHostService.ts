@@ -70,7 +70,7 @@ class WorkbenchHostService extends Disposable implements IHostService {
 	//#region Window
 
 	@memoize
-	get onDidChangeActiveWindow(): Event<void> {
+	get onDidChangeActiveWindow(): Event<number> {
 		const emitter = this._register(new Emitter<number>());
 
 		// Emit via native focus tracking
@@ -91,8 +91,10 @@ class WorkbenchHostService extends Disposable implements IHostService {
 			}, 100, 20));
 		}));
 
-		return Event.map(Event.latch(emitter.event, undefined, this._store), () => undefined, this._store);
+		return Event.latch(emitter.event, undefined, this._store);
 	}
+
+	readonly onDidChangeFullScreen = Event.filter(this.nativeHostService.onDidChangeWindowFullScreen, id => hasWindow(id), this._store);
 
 	openWindow(options?: IOpenEmptyWindowOptions): Promise<void>;
 	openWindow(toOpen: IWindowOpenable[], options?: IOpenWindowOptions): Promise<void>;

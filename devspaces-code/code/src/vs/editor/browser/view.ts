@@ -194,7 +194,7 @@ export class View extends ViewEventHandler {
 		this._viewParts.push(this._viewCursors);
 
 		// Overlay widgets
-		this._overlayWidgets = new ViewOverlayWidgets(this._context);
+		this._overlayWidgets = new ViewOverlayWidgets(this._context, this.domNode);
 		this._viewParts.push(this._overlayWidgets);
 
 		const rulers = new Rulers(this._context);
@@ -231,8 +231,10 @@ export class View extends ViewEventHandler {
 
 		if (overflowWidgetsDomNode) {
 			overflowWidgetsDomNode.appendChild(this._contentWidgets.overflowingContentWidgetsDomNode.domNode);
+			overflowWidgetsDomNode.appendChild(this._overlayWidgets.overflowingOverlayWidgetsDomNode.domNode);
 		} else {
 			this.domNode.appendChild(this._contentWidgets.overflowingContentWidgetsDomNode);
+			this.domNode.appendChild(this._overlayWidgets.overflowingOverlayWidgetsDomNode);
 		}
 
 		this._applyLayout();
@@ -248,7 +250,7 @@ export class View extends ViewEventHandler {
 
 		// Add all margin decorations
 		glyphs = glyphs.concat(model.getAllMarginDecorations().map((decoration) => {
-			const lane = decoration.options.glyphMargin?.position ?? GlyphMarginLane.Left;
+			const lane = decoration.options.glyphMargin?.position ?? GlyphMarginLane.Center;
 			return { range: decoration.range, lane };
 		}));
 
@@ -261,40 +263,34 @@ export class View extends ViewEventHandler {
 		// Sorted by their start position
 		glyphs.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
 
-		let leftDecRange: Range | null = null;
-		let rightDecRange: Range | null = null;
+		const maxLane = GlyphMarginLane.Right;
+		const lanes: (Range | undefined)[] = Array.from({ length: maxLane + 1 });
+		let requiredLanes = 1;
+
 		for (const decoration of glyphs) {
-
-			if (decoration.lane === GlyphMarginLane.Left && (!leftDecRange || Range.compareRangesUsingEnds(leftDecRange, decoration.range) < 0)) {
-				// assign only if the range of `decoration` ends after, which means it has a higher chance to overlap with the other lane
-				leftDecRange = decoration.range;
+			// assign only if the range of `decoration` ends after, which means it has a higher chance to overlap with the other lane
+			if (!lanes[decoration.lane] || Range.compareRangesUsingEnds(lanes[decoration.lane]!, decoration.range) < 0) {
+				lanes[decoration.lane] = decoration.range;
 			}
 
-			if (decoration.lane === GlyphMarginLane.Right && (!rightDecRange || Range.compareRangesUsingEnds(rightDecRange, decoration.range) < 0)) {
-				// assign only if the range of `decoration` ends after, which means it has a higher chance to overlap with the other lane
-				rightDecRange = decoration.range;
-			}
-
-			if (leftDecRange && rightDecRange) {
-
-				if (leftDecRange.endLineNumber < rightDecRange.startLineNumber) {
-					// there's no chance for `leftDecRange` to ever intersect something going further
-					leftDecRange = null;
+			let requiredLanesHere = 0;
+			for (let i = 1; i <= maxLane; i++) {
+				const lane = lanes[i];
+				if (!lane || lane.endLineNumber < decoration.range.startLineNumber) {
+					lanes[i] = undefined;
 					continue;
 				}
 
-				if (rightDecRange.endLineNumber < leftDecRange.startLineNumber) {
-					// there's no chance for `rightDecRange` to ever intersect something going further
-					rightDecRange = null;
-					continue;
-				}
+				requiredLanesHere++;
+			}
 
-				// leftDecRange and rightDecRange are intersecting or touching => we need two lanes
-				return 2;
+			requiredLanes = Math.max(requiredLanes, requiredLanesHere);
+			if (requiredLanes === maxLane) {
+				return requiredLanes;
 			}
 		}
 
-		return 1;
+		return requiredLanes;
 	}
 
 	private _createPointerHandlerHelper(): IPointerHandlerHelper {
@@ -713,7 +709,7 @@ class EditorRenderingCoordinator {
 	public static INSTANCE = new EditorRenderingCoordinator();
 
 	private _coordinatedRenderings: ICoordinatedRendering[] = [];
-	private _animationFrameRunner: IDisposable | null = null;
+	private _animationFrameRunners = new Map<CodeWindow, IDisposable>();
 
 	private constructor() { }
 
@@ -729,23 +725,23 @@ class EditorRenderingCoordinator {
 				this._coordinatedRenderings.splice(renderingIndex, 1);
 
 				if (this._coordinatedRenderings.length === 0) {
-					// There are no more renderings to coordinate => cancel animation frame
-					if (this._animationFrameRunner !== null) {
-						this._animationFrameRunner.dispose();
-						this._animationFrameRunner = null;
+					// There are no more renderings to coordinate => cancel animation frames
+					for (const [_, disposable] of this._animationFrameRunners) {
+						disposable.dispose();
 					}
+					this._animationFrameRunners.clear();
 				}
 			}
 		};
 	}
 
 	private _scheduleRender(window: CodeWindow): void {
-		if (this._animationFrameRunner === null) {
+		if (!this._animationFrameRunners.has(window)) {
 			const runner = () => {
-				this._animationFrameRunner = null;
+				this._animationFrameRunners.delete(window);
 				this._onRenderScheduled();
 			};
-			this._animationFrameRunner = dom.runAtThisOrScheduleAtNextAnimationFrame(window, runner, 100);
+			this._animationFrameRunners.set(window, dom.runAtThisOrScheduleAtNextAnimationFrame(window, runner, 100));
 		}
 	}
 

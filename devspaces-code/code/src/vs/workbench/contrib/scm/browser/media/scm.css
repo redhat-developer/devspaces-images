@@ -79,13 +79,13 @@
 	padding-left: 4px;
 	display: flex;
 	align-items: center;
-	min-width: 16px;
 }
 
 .scm-view .scm-provider > .actions > .monaco-toolbar > .monaco-action-bar > .actions-container  > .action-item > .action-label,
 .scm-view .scm-provider > .actions > .monaco-toolbar > .monaco-action-bar > .actions-container  > .action-item > .monaco-dropdown > .dropdown-label > .action-label {
 	display: flex;
 	align-items: center;
+	line-height: 16px;
 	overflow: hidden;
 }
 
@@ -303,9 +303,7 @@
 	padding: 1px 3px 1px 1px;
 }
 
-.scm-view .scm-input .scm-editor .scm-editor-toolbar.hidden,
-.scm-view .scm-input .scm-editor .scm-editor-toolbar .monaco-action-bar.hidden,
-.scm-view .scm-input .scm-editor .scm-editor-toolbar .monaco-toolbar.hidden {
+.scm-view .scm-input .scm-editor .scm-editor-toolbar.hidden {
 	display: none;
 }
 
