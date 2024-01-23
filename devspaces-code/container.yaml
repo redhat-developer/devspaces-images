@@ -19,13 +19,12 @@ remote_sources:
 - name: devspaces-images-code
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: b8d76a3091d9fbf553184bd0a3d8b797a76e38dd
-    pkg_managers: [npm, yarn]
+    ref: 845b5d478947a4f42e40726151924cc54e7a3e91
+    pkg_managers: [yarn]
     packages:
-      npm:
-        - path: devspaces-code/cachito 
       yarn: 
       # CRW-3160 this section is automatically generated in sync.sh 
+        - path: devspaces-code/cachito
         - path: devspaces-code/code/
         - path: devspaces-code/code/build
         - path: devspaces-code/code/extensions
