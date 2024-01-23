@@ -24,7 +24,6 @@ remote_sources:
     packages:
       yarn: 
       # CRW-3160 this section is automatically generated in sync.sh 
-        - path: devspaces-code/cachito
         - path: devspaces-code/code/
         - path: devspaces-code/code/build
         - path: devspaces-code/code/extensions
