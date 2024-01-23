@@ -116,7 +116,8 @@ pushd "${TARGETDIR}"/ >/dev/null
   CONTAINER_YAML_MODULE_LIST=${CONTAINER_YAML_MODULE_LIST:2}
 
   CONTAINER_YAML_MODULE_LIST+="\n        - path: devspaces-code/launcher"
-
+  CONTAINER_YAML_MODULE_LIST+="\n        - path: devspaces-code/cachito"
+  
   # remove trailing \
   DOCKERFILE_YAML_BUILD_COMMAND=${DOCKERFILE_YAML_BUILD_COMMAND%\\\\}
   # remove leading '\n    && '
