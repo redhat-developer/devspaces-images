@@ -74,3 +74,4 @@ remote_sources:
         - path: devspaces-code/code/remote
         - path: devspaces-code/code/remote/web
         - path: devspaces-code/launcher
+        - path: devspaces-code/cachito
