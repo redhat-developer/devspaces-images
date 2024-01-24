@@ -14,6 +14,7 @@ import { History, Location } from 'history';
 
 import { ROUTE } from '@/Routes/routes';
 import { CreateWorkspaceTab, LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { UserPreferencesTab } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -40,6 +41,16 @@ export function buildIdeLoaderLocation(workspace: Workspace, tab?: LoaderTab): L
 
 export function buildWorkspacesLocation(): Location {
   return _buildLocationObject(ROUTE.WORKSPACES);
+}
+
+export function buildUserPreferencesLocation(tab?: UserPreferencesTab): Location {
+  let pathAndQuery: string;
+  if (!tab) {
+    pathAndQuery = ROUTE.USER_PREFERENCES;
+  } else {
+    pathAndQuery = ROUTE.USER_PREFERENCES_TAB.replace(':tabId', tab);
+  }
+  return _buildLocationObject(pathAndQuery);
 }
 
 export function buildGettingStartedLocation(tab?: CreateWorkspaceTab): Location {

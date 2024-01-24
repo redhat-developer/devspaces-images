@@ -12,6 +12,7 @@
 
 import { api } from '@eclipse-che/common';
 import { render, RenderResult, screen } from '@testing-library/react';
+import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 
@@ -22,6 +23,11 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 
 import { SamplesListTab } from '..';
+
+jest.mock('@/pages/GetStarted/GetStartedTab/ImportFromGit');
+const history = createMemoryHistory({
+  initialEntries: ['/'],
+});
 
 const onDevfileMock: (
   devfileContent: string,
@@ -84,6 +90,8 @@ describe('Samples list tab', () => {
     return render(
       <Provider store={store}>
         <SamplesListTab
+          sshKeys={[]}
+          history={history}
           onDevfile={onDevfileMock}
           preferredStorageType={selectPvcStrategy(state)}
           dispatch={jest.fn()}

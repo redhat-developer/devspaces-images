@@ -372,7 +372,7 @@ class Progress extends React.Component<Props, State> {
     const { history, searchParams } = this.props;
     const { factoryParams } = this.state;
 
-    const usePrebuiltResources = factoryParams.useDevworkspaceResources;
+    const usePrebuiltResources = factoryParams.useDevWorkspaceResources;
     const steps = [
       usePrebuiltResources ? this.getFactoryFetchResources() : this.getFactoryFetchDevfile(),
       this.getCheckExistingWorkspacesStep(),

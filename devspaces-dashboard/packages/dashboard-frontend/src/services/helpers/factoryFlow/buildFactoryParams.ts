@@ -43,7 +43,7 @@ export type FactoryParams = {
   factoryUrl: string;
   policiesCreate: PoliciesCreate;
   sourceUrl: string;
-  useDevworkspaceResources: boolean;
+  useDevWorkspaceResources: boolean;
   overrides: Record<string, string> | undefined;
   errorCode: ErrorCode | undefined;
   storageType: che.WorkspaceStorageType | undefined;
@@ -71,7 +71,7 @@ export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams
     sourceUrl: getSourceUrl(searchParams),
     storageType: getStorageType(searchParams),
     remotes: getRemotes(searchParams),
-    useDevworkspaceResources: getDevworkspaceResourcesUrl(searchParams) !== undefined,
+    useDevWorkspaceResources: getDevworkspaceResourcesUrl(searchParams) !== undefined,
     image: getImage(searchParams),
     useDefaultDevfile: isSafeWorkspaceStart(searchParams) !== undefined,
     debugWorkspaceStart: isDebugWorkspaceStart(searchParams) !== undefined,

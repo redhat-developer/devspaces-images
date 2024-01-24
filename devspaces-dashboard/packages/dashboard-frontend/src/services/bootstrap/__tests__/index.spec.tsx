@@ -31,6 +31,7 @@ jest.mock('@/services/resource-fetcher/appendLink', () => {
 });
 
 // mute the outputs
+console.error = jest.fn();
 console.log = jest.fn();
 
 describe('Dashboard bootstrap', () => {
@@ -67,7 +68,7 @@ describe('Dashboard bootstrap', () => {
 
   test('requests which should be sent', async () => {
     prepareMocks(mockPost, 1, namespace); // provisionNamespace
-    prepareMocks(mockGet, 15, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, plugin-registry, default-editor, devfile-registry, getting-started-sample, devworkspacetemplates, devworkspaces, events, pods, cluster-config
+    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, plugin-registry, default-editor, devfile-registry, getting-started-sample, devworkspacetemplates, devworkspaces, events, pods, cluster-config, ssh-key
 
     await preloadData.init();
 
@@ -79,7 +80,11 @@ describe('Dashboard bootstrap', () => {
       undefined,
     );
     // wait for all GET requests to be sent
-    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(15));
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(16));
+
+    await waitFor(() =>
+      expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/ssh-key', undefined),
+    );
     expect(mockGet).toHaveBeenCalledWith('./assets/branding/product.json');
     expect(mockGet).toHaveBeenCalledWith('/api/kubernetes/namespace', undefined);
     expect(mockGet).toHaveBeenCalledWith('https://prefetch-che-cdn.test', {

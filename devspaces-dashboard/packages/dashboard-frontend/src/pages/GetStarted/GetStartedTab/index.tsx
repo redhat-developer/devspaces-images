@@ -11,11 +11,12 @@
  */
 
 import { Flex, FlexItem, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { History } from 'history';
 import { load } from 'js-yaml';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
-import ImportFromGit from '@/pages/GetStarted/GetStartedTab/ImportFromGit';
+import { ImportFromGit } from '@/pages/GetStarted/GetStartedTab/ImportFromGit';
 import SamplesListGallery from '@/pages/GetStarted/GetStartedTab/SamplesListGallery';
 import { SamplesListHeader } from '@/pages/GetStarted/GetStartedTab/SamplesListHeader';
 import SamplesListToolbar from '@/pages/GetStarted/GetStartedTab/SamplesListToolbar';
@@ -24,11 +25,12 @@ import devfileApi from '@/services/devfileApi';
 import stringify from '@/services/helpers/editor';
 import { che } from '@/services/models';
 import { AppState } from '@/store';
-import { ResolverState } from '@/store/FactoryResolver';
 import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
+import { selectSshKeys } from '@/store/SshKeys/selectors';
 
 // At runtime, Redux will merge together...
 type Props = {
+  history: History;
   onDevfile: (
     devfileContent: string,
     stackName: string,
@@ -94,63 +96,47 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     this.isLoading = false;
   }
 
-  private handleDevfileResolver(resolverState: ResolverState, stackName: string): Promise<void> {
-    const devfileAdapter = new DevfileAdapter(resolverState.devfile);
-    devfileAdapter.storageType = this.props.preferredStorageType as che.WorkspaceStorageType;
-    const devfileContent = stringify(devfileAdapter.devfile);
-
-    return this.props.onDevfile(
-      devfileContent,
-      stackName,
-      resolverState.optionalFilesContent || {},
-    );
-  }
-
   public render(): React.ReactElement {
+    const { history, sshKeys } = this.props;
+
     const storageType = this.getStorageType();
+    const hasSshKeys = sshKeys.length !== 0;
 
     return (
-      <>
-        <PageSection variant={PageSectionVariants.default} style={{ background: '#f0f0f0' }}>
-          <PageSection variant={PageSectionVariants.light}>
-            <ImportFromGit
-              onDevfileResolve={(resolverState, location) =>
-                this.handleDevfileResolver(resolverState, location)
-              }
-            />
-          </PageSection>
-          <PageSection
-            variant={PageSectionVariants.light}
-            style={{ marginTop: 'var(--pf-c-page__main-section--PaddingTop)' }}
-          >
-            <Flex direction={{ default: 'column' }}>
-              <FlexItem spacer={{ default: 'spacerLg' }}>
-                <SamplesListHeader />
-              </FlexItem>
-              <FlexItem grow={{ default: 'grow' }} spacer={{ default: 'spacerLg' }}>
-                <SamplesListToolbar
-                  persistVolumesDefault={this.state.persistVolumesDefault}
-                  onTemporaryStorageChange={temporary =>
-                    this.handleTemporaryStorageChange(temporary)
-                  }
-                />
-              </FlexItem>
-            </Flex>
-            <SamplesListGallery
-              onCardClick={(devfileContent, stackName, optionalFilesContent) =>
-                this.handleSampleCardClick(devfileContent, stackName, optionalFilesContent)
-              }
-              storageType={storageType}
-            />
-          </PageSection>
+      <PageSection variant={PageSectionVariants.default} style={{ background: '#f0f0f0' }}>
+        <PageSection variant={PageSectionVariants.light}>
+          <ImportFromGit hasSshKeys={hasSshKeys} history={history} />
         </PageSection>
-      </>
+        <PageSection
+          variant={PageSectionVariants.light}
+          style={{ marginTop: 'var(--pf-c-page__main-section--PaddingTop)' }}
+        >
+          <Flex direction={{ default: 'column' }}>
+            <FlexItem spacer={{ default: 'spacerLg' }}>
+              <SamplesListHeader />
+            </FlexItem>
+            <FlexItem grow={{ default: 'grow' }} spacer={{ default: 'spacerLg' }}>
+              <SamplesListToolbar
+                persistVolumesDefault={this.state.persistVolumesDefault}
+                onTemporaryStorageChange={temporary => this.handleTemporaryStorageChange(temporary)}
+              />
+            </FlexItem>
+          </Flex>
+          <SamplesListGallery
+            onCardClick={(devfileContent, stackName, optionalFilesContent) =>
+              this.handleSampleCardClick(devfileContent, stackName, optionalFilesContent)
+            }
+            storageType={storageType}
+          />
+        </PageSection>
+      </PageSection>
     );
   }
 }
 
 const mapStateToProps = (state: AppState) => ({
   preferredStorageType: selectPvcStrategy(state),
+  sshKeys: selectSshKeys(state),
 });
 
 const connector = connect(mapStateToProps);

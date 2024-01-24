@@ -147,7 +147,7 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
     }
 
     let newWorkspaceName: string;
-    if (factoryParams.useDevworkspaceResources === true) {
+    if (factoryParams.useDevWorkspaceResources === true) {
       const resources = devWorkspaceResources[factoryParams.sourceUrl]?.resources;
       if (resources === undefined) {
         // going to use the default devfile in the next step

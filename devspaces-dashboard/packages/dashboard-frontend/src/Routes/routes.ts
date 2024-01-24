@@ -22,6 +22,7 @@ export enum ROUTE {
   FACTORY_LOADER = '/load-factory',
   FACTORY_LOADER_URL = '/load-factory?url=:url',
   USER_PREFERENCES = '/user-preferences',
+  USER_PREFERENCES_TAB = '/user-preferences?tab=:tabId',
   USER_ACCOUNT = '/user-account',
 }
 

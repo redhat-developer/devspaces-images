@@ -86,12 +86,22 @@ describe('Workspace creation time', () => {
     const { rerender } = render(
       getComponent(
         `/load-factory?url=${url}`,
-        new FakeStoreBuilder().withInfrastructureNamespace([namespace]).build(),
+        new FakeStoreBuilder()
+          .withInfrastructureNamespace([namespace])
+          .withSshKeys({
+            keys: [
+              {
+                name: 'test',
+                keyPub: 'test',
+              },
+            ],
+          })
+          .build(),
       ),
     );
 
     await waitFor(
-      () => expect(mockPost).toBeCalledWith('/api/factory/resolver', expect.anything()),
+      () => expect(mockPost).toHaveBeenCalledWith('/api/factory/resolver', expect.anything()),
       { timeout: 8000 },
     );
     expect(mockPost).toHaveBeenCalledTimes(1);
@@ -205,7 +215,7 @@ describe('Workspace creation time', () => {
         ]),
       { timeout: 1500 },
     );
-    expect(mockPost).toBeCalledTimes(3);
+    expect(mockPost).toHaveBeenCalledTimes(3);
 
     await waitFor(
       () =>
@@ -216,8 +226,8 @@ describe('Workspace creation time', () => {
         ]),
       { timeout: 1500 },
     );
-    expect(mockPatch).toBeCalledTimes(1);
-    expect(mockGet).not.toBeCalled();
+    expect(mockPatch).toHaveBeenCalledTimes(1);
+    expect(mockGet).not.toHaveBeenCalled();
     expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
 
     expect(execTime).toBeLessThan(TIME_LIMIT);

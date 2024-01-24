@@ -16,7 +16,7 @@ import React from 'react';
 import { TextFileUpload } from '@/components/TextFileUpload';
 
 export const REQUIRED_ERROR = 'This field is required.';
-const MAX_LENGTH = 512;
+const MAX_LENGTH = 4096;
 export const MAX_LENGTH_ERROR = `The value is too long. The maximum length is ${MAX_LENGTH} characters.`;
 export const WRONG_TYPE_ERROR = 'This file type is not supported.';
 

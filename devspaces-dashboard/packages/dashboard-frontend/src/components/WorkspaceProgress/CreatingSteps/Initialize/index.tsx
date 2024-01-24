@@ -29,10 +29,12 @@ import {
   FactoryParams,
   PoliciesCreate,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { AlertItem } from '@/services/helpers/types';
+import { buildUserPreferencesLocation, toHref } from '@/services/helpers/location';
+import { AlertItem, UserPreferencesTab } from '@/services/helpers/types';
 import { AppState } from '@/store';
 import { selectAllWorkspacesLimit } from '@/store/ClusterConfig/selectors';
 import { selectInfrastructureNamespaces } from '@/store/InfrastructureNamespaces/selectors';
+import { selectSshKeys } from '@/store/SshKeys/selectors';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
@@ -90,12 +92,12 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
   }
 
   protected async runStep(): Promise<boolean> {
-    const { useDevworkspaceResources, sourceUrl, errorCode, policiesCreate, remotes } =
+    const { useDevWorkspaceResources, sourceUrl, errorCode, policiesCreate, remotes } =
       this.state.factoryParams;
 
-    if (useDevworkspaceResources === true && sourceUrl === '') {
-      throw new Error('Devworkspace resources URL is missing.');
-    } else if (useDevworkspaceResources === false && sourceUrl === '' && !remotes) {
+    if (useDevWorkspaceResources === true && sourceUrl === '') {
+      throw new Error('DevWorkspace resources URL is missing.');
+    } else if (useDevWorkspaceResources === false && sourceUrl === '' && !remotes) {
       const factoryPath = generatePath(ROUTE.FACTORY_LOADER_URL, {
         url: 'your-repository-url',
       });
@@ -126,6 +128,11 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       );
     }
 
+    // check for SSH keys availability
+    if (this.props.sshKeys.length === 0) {
+      throw new NoSshKeysError('No SSH keys found.');
+    }
+
     this.checkAllWorkspacesLimitExceeded();
 
     return true;
@@ -135,13 +142,38 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     return (val && (val as PoliciesCreate) === 'perclick') || (val as PoliciesCreate) === 'peruser';
   }
 
-  private handleRestart(alertKey: string): void {
-    this.props.onHideError(alertKey);
-    this.props.onRestart();
+  private handleRestart(): void {
+    window.location.reload();
+  }
+
+  private handleOpenUserPreferences(): void {
+    const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
+    const link = toHref(this.props.history, location);
+    window.open(link, '_blank');
   }
 
   protected buildAlertItem(error: Error): AlertItem {
     const key = this.name;
+
+    if (error instanceof NoSshKeysError) {
+      return {
+        key,
+        title: 'No SSH keys found',
+        variant: AlertVariant.warning,
+        children: 'No SSH keys found. Please add your SSH keys and then try again.',
+        actionCallbacks: [
+          {
+            title: 'Click to try again',
+            callback: () => this.handleRestart(),
+          },
+          {
+            title: 'Add SSH Keys',
+            callback: () => this.handleOpenUserPreferences(),
+          },
+        ],
+      };
+    }
+
     return {
       key,
       title: 'Failed to create the workspace',
@@ -150,7 +182,7 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       actionCallbacks: [
         {
           title: 'Click to try again',
-          callback: () => this.handleRestart(key),
+          callback: () => this.handleRestart(),
         },
       ],
     };
@@ -171,8 +203,12 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     const { distance, hasChildren } = this.props;
     const { name, lastError } = this.state;
 
-    const isError = lastError !== undefined;
-    const isWarning = false;
+    let isError = lastError !== undefined;
+    let isWarning = false;
+    if (lastError instanceof NoSshKeysError) {
+      isWarning = true;
+      isError = false;
+    }
 
     return (
       <React.Fragment>
@@ -196,10 +232,18 @@ export class AllWorkspacesExceededError extends Error {
   }
 }
 
+export class NoSshKeysError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NoSshKeysError';
+  }
+}
+
 const mapStateToProps = (state: AppState) => ({
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
   allWorkspaces: selectAllWorkspaces(state),
   allWorkspacesLimit: selectAllWorkspacesLimit(state),
+  sshKeys: selectSshKeys(state),
 });
 
 const connector = connect(mapStateToProps, {}, null, {

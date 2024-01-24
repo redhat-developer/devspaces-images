@@ -11,12 +11,13 @@
  */
 
 import userEvent from '@testing-library/user-event';
-import { createHashHistory, History } from 'history';
+import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router';
 
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import { UserPreferencesTab } from '@/services/helpers/types';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 import UserPreferences from '..';
@@ -27,9 +28,10 @@ jest.mock('../GitServicesTab');
 jest.mock('../PersonalAccessTokens');
 jest.mock('../SshKeys');
 
-const { renderComponent } = getComponentRenderer(getComponent);
+const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
-let history: History;
+const history = createMemoryHistory();
+
 function getComponent(): React.ReactElement {
   const store = new FakeStoreBuilder().build();
   return (
@@ -42,20 +44,15 @@ function getComponent(): React.ReactElement {
 }
 
 describe('UserPreferences', () => {
-  beforeEach(() => {
-    history = createHashHistory();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
-    window.location.href = '/';
   });
 
-  // TODO: figure out why screenshots fail on the `Tabs` component
-  // test('snapshot', () => {
-  //   const snapshot = createSnapshot();
-  //   expect(snapshot.toJSON()).toMatchSnapshot();
-  // });
+  test('snapshot', () => {
+    const snapshot = createSnapshot();
+    expect(snapshot.toJSON()).toMatchSnapshot();
+    snapshot.unmount();
+  });
 
   it('should activate the Container Registries tab by default', () => {
     history.push('/user-preferences?tab=unknown-tab-name');
@@ -75,7 +72,7 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the Git Services tab', () => {
-      history.push('/user-preferences?tab=git-services');
+      history.push(`/user-preferences?tab=${UserPreferencesTab.GIT_SERVICES}`);
 
       renderComponent();
 
@@ -83,7 +80,7 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the Personal Access Tokens tab', () => {
-      history.push('/user-preferences?tab=personal-access-tokens');
+      history.push(`/user-preferences?tab=${UserPreferencesTab.PERSONAL_ACCESS_TOKENS}`);
 
       renderComponent();
 
@@ -91,7 +88,7 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the SSH Keys tab', () => {
-      history.push('/user-preferences?tab=ssh-keys');
+      history.push(`/user-preferences?tab=${UserPreferencesTab.SSH_KEYS}`);
 
       renderComponent();
 

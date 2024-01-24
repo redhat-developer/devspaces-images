@@ -229,6 +229,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
             <Tab eventKey={quickAddTab} title="Quick Add">
               <Suspense fallback={Fallback}>
                 <SamplesListTab
+                  history={this.props.history}
                   onDevfile={(devfileContent: string, stackName: string, optionalFilesContent) => {
                     return this.handleDevfileContent(
                       devfileContent,

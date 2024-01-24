@@ -54,6 +54,7 @@ import { selectPodsResourceVersion } from '@/store/Pods/selectors';
 import * as SanityCheckStore from '@/store/SanityCheck';
 import * as ServerConfigStore from '@/store/ServerConfig';
 import { selectOpenVSXUrl, selectPluginRegistryUrl } from '@/store/ServerConfig/selectors';
+import * as SshKeysStore from '@/store/SshKeys';
 import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
 import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
@@ -113,6 +114,7 @@ export default class Bootstrap {
         this.watchWebSocketPods();
       }),
       this.fetchClusterConfig().then(() => this.updateFavicon()),
+      this.fetchSshKeys(),
     ]);
 
     const errors = results
@@ -479,5 +481,10 @@ export default class Bootstrap {
         }
       }
     }
+  }
+
+  private async fetchSshKeys(): Promise<void> {
+    const { requestSshKeys } = SshKeysStore.actionCreators;
+    await requestSshKeys()(this.store.dispatch, this.store.getState, undefined);
   }
 }

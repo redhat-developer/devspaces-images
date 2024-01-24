@@ -23,7 +23,7 @@ import {
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { AlertItem } from '@/services/helpers/types';
+import { AlertItem, UserPreferencesTab } from '@/services/helpers/types';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
@@ -36,20 +36,35 @@ const mockOnRestart = jest.fn();
 const mockOnError = jest.fn();
 const mockOnHideError = jest.fn();
 
+jest.mock('@/services/helpers/location', () => ({
+  toHref: (_: unknown, location: string) => 'http://localhost/' + location,
+  buildUserPreferencesLocation: (tab: UserPreferencesTab) => 'user-preferences?tab=' + tab,
+}));
+
 describe('Creating steps, initializing', () => {
   const factoryUrl = 'https://factory-url';
+  const { reload } = window.location;
 
   let store: Store;
 
   beforeEach(() => {
     store = new FakeStoreBuilder()
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withSshKeys({
+        keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
       .build();
+
+    delete (window as any).location;
+    (window.location as any) = { reload: jest.fn() };
+    window.open = jest.fn();
 
     jest.useFakeTimers();
   });
 
   afterEach(() => {
+    window.location.reload = reload;
+
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
@@ -83,7 +98,7 @@ describe('Creating steps, initializing', () => {
     });
     await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
 
-    expect(mockOnRestart).toHaveBeenCalled();
+    expect(window.location.reload).toHaveBeenCalled();
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 
@@ -99,7 +114,7 @@ describe('Creating steps, initializing', () => {
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',
-      children: expect.stringContaining('Devworkspace resources URL is missing.'),
+      children: expect.stringContaining('DevWorkspace resources URL is missing.'),
       actionCallbacks: [
         expect.objectContaining({
           title: 'Click to try again',
@@ -213,6 +228,9 @@ describe('Creating steps, initializing', () => {
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
       .withClusterConfig({ allWorkspacesLimit: 1 })
       .withDevWorkspaces({ workspaces: [new DevWorkspaceBuilder().build()] })
+      .withSshKeys({
+        keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
       .build();
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
@@ -234,6 +252,48 @@ describe('Creating steps, initializing', () => {
     });
     await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
 
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('no SSH keys with Git+SSH factory URL', async () => {
+    const store = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .build();
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    // this will help test the case when the user clicks on the "Add SSH Keys" button
+    mockOnError.mockImplementation((alertItem: AlertItem) => {
+      if (alertItem.actionCallbacks) {
+        alertItem.actionCallbacks[1].callback();
+      }
+    });
+
+    renderComponent(store, searchParams);
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    const expectAlertItem = expect.objectContaining({
+      title: 'No SSH keys found',
+      children: 'No SSH keys found. Please add your SSH keys and then try again.',
+      actionCallbacks: [
+        expect.objectContaining({
+          title: 'Click to try again',
+          callback: expect.any(Function),
+        }),
+        expect.objectContaining({
+          title: 'Add SSH Keys',
+          callback: expect.any(Function),
+        }),
+      ],
+    });
+    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+
+    expect(window.open).toHaveBeenCalledWith(
+      'http://localhost/user-preferences?tab=SshKeys',
+      '_blank',
+    );
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 });

@@ -27,12 +27,6 @@ import { AppState } from '@/store';
 import { actionCreators } from '@/store/GitOauthConfig';
 import { selectIsLoading } from '@/store/GitOauthConfig/selectors';
 
-const CONTAINER_REGISTRIES_TAB: UserPreferencesTab = 'container-registries';
-const GIT_SERVICES_TAB: UserPreferencesTab = 'git-services';
-const PERSONAL_ACCESS_TOKENS_TAB: UserPreferencesTab = 'personal-access-tokens';
-const GITCONFIG_TAB: UserPreferencesTab = 'gitconfig';
-const SSH_KEYS_TAB: UserPreferencesTab = 'ssh-keys';
-
 export type Props = {
   history: History;
 } & MappedProps;
@@ -60,17 +54,17 @@ export class UserPreferences extends React.PureComponent<Props, State> {
       const tab = searchParam.get('tab');
       if (
         pathname === ROUTE.USER_PREFERENCES &&
-        (tab === CONTAINER_REGISTRIES_TAB ||
-          tab === GITCONFIG_TAB ||
-          tab === GIT_SERVICES_TAB ||
-          tab === PERSONAL_ACCESS_TOKENS_TAB ||
-          tab === SSH_KEYS_TAB)
+        (tab === UserPreferencesTab.CONTAINER_REGISTRIES ||
+          tab === UserPreferencesTab.GITCONFIG ||
+          tab === UserPreferencesTab.GIT_SERVICES ||
+          tab === UserPreferencesTab.PERSONAL_ACCESS_TOKENS ||
+          tab === UserPreferencesTab.SSH_KEYS)
       ) {
         return searchParam.get('tab') as UserPreferencesTab;
       }
     }
 
-    return CONTAINER_REGISTRIES_TAB;
+    return UserPreferencesTab.CONTAINER_REGISTRIES;
   }
 
   private handleTabClick(
@@ -102,19 +96,19 @@ export class UserPreferences extends React.PureComponent<Props, State> {
           mountOnEnter={true}
           unmountOnExit={true}
         >
-          <Tab eventKey={CONTAINER_REGISTRIES_TAB} title="Container Registries">
+          <Tab eventKey={UserPreferencesTab.CONTAINER_REGISTRIES} title="Container Registries">
             <ContainerRegistries />
           </Tab>
-          <Tab eventKey={GIT_SERVICES_TAB} title="Git Services">
+          <Tab eventKey={UserPreferencesTab.GIT_SERVICES} title="Git Services">
             <GitServicesTab />
           </Tab>
-          <Tab eventKey={PERSONAL_ACCESS_TOKENS_TAB} title="Personal Access Tokens">
+          <Tab eventKey={UserPreferencesTab.PERSONAL_ACCESS_TOKENS} title="Personal Access Tokens">
             <PersonalAccessTokens />
           </Tab>
-          <Tab eventKey={GITCONFIG_TAB} title="Gitconfig">
+          <Tab eventKey={UserPreferencesTab.GITCONFIG} title="Gitconfig">
             <GitConfig />
           </Tab>
-          <Tab eventKey={SSH_KEYS_TAB} title="SSH Keys">
+          <Tab eventKey={UserPreferencesTab.SSH_KEYS} title="SSH Keys">
             <SshKeys />
           </Tab>
         </Tabs>
