@@ -104,7 +104,7 @@ describe('Update editor image', () => {
       }
 
       expect(errorMessage).toEqual(
-        'Failed to update editor image. Editor components is not defined.',
+        'Failed to update editor image. Editor components are not defined.',
       );
     });
 
@@ -146,7 +146,7 @@ describe('Update editor image', () => {
       }
 
       expect(errorMessage).toEqual(
-        'Failed to update editor image. Editor components is not defined.',
+        'Failed to update editor image. Editor components are not defined.',
       );
     });
 

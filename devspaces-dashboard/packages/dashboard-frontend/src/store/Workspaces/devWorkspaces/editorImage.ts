@@ -87,7 +87,7 @@ function updateComponents(
   editorImage: string,
 ): boolean {
   if (!components) {
-    throw new Error('Editor components is not defined.');
+    throw new Error('Editor components are not defined.');
   }
   let isUpdated = false;
   for (let i = 0; i < components.length; i++) {

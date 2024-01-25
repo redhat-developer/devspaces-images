@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const PROJECT_NAME_MAX_LENGTH = 63;
+export const PROJECT_NAME_MAX_LENGTH = 63;
 
 export function getProjectName(cloneUrl: string): string {
   let name = cloneUrl
@@ -22,7 +22,7 @@ export function getProjectName(cloneUrl: string): string {
   name = name.replace(/(^[-]+)/, '');
   name = name.replace(/([-]+$)/, '');
   if (name.length > PROJECT_NAME_MAX_LENGTH) {
-    name = name.substr(0, PROJECT_NAME_MAX_LENGTH - 1);
+    name = name.substring(0, PROJECT_NAME_MAX_LENGTH - 1);
   }
 
   return name;

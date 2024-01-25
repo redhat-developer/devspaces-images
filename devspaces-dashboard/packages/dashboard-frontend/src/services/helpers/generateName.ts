@@ -12,8 +12,15 @@
 
 import getRandomString from '@/services/helpers/random';
 
+export const WORKSPACE_NAME_MAX_LENGTH = 63;
+
 export function generateWorkspaceName(generateName: string): string {
-  return generateName + generateSuffix();
+  const suffix = generateSuffix();
+
+  if (generateName.length + suffix.length > WORKSPACE_NAME_MAX_LENGTH) {
+    generateName = generateName.substring(0, WORKSPACE_NAME_MAX_LENGTH - suffix.length - 1);
+  }
+  return generateName + suffix;
 }
 
 export function generateSuffix(): string {

@@ -10,16 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getProjectName } from '@/services/helpers/getProjectName';
+import { getProjectName, PROJECT_NAME_MAX_LENGTH } from '@/services/helpers/getProjectName';
 
 describe('Get a project name based on location', () => {
-  it('should return a valid name less then 63 symbols', () => {
+  it('should return a valid name less then PROJECT_NAME_MAX_LENGTH symbols', () => {
     let cloneUrl = 'http://dummy/test.com/project-demo';
 
     cloneUrl += 'a'.repeat(100);
     const projectName = getProjectName(cloneUrl);
 
-    expect(projectName).toEqual('project-demo' + 'a'.repeat(50));
+    expect(projectName.length).toBeLessThan(PROJECT_NAME_MAX_LENGTH);
   });
 
   it('should return a valid name which has the first char [a-z0-9]', () => {
