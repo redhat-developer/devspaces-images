@@ -24,6 +24,7 @@ import {
 } from '@/components/WorkspaceProgress/ProgressStep';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { ROUTE } from '@/Routes/routes';
+import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import {
   buildFactoryParams,
   FactoryParams,
@@ -129,7 +130,7 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     }
 
     // check for SSH keys availability
-    if (this.props.sshKeys.length === 0) {
+    if (FactoryLocationAdapter.isSshLocation(sourceUrl) && this.props.sshKeys.length === 0) {
       throw new NoSshKeysError('No SSH keys found.');
     }
 

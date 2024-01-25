@@ -255,7 +255,25 @@ describe('Creating steps, initializing', () => {
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 
+  test('no SSH keys with Git+HTTPS factory URL', async () => {
+    const store = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .build();
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    renderComponent(store, searchParams);
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    await waitFor(() => expect(mockOnError).not.toBeCalled());
+
+    expect(mockOnNextStep).toHaveBeenCalled();
+  });
+
   test('no SSH keys with Git+SSH factory URL', async () => {
+    const factoryUrl = 'git@github.com:eclipse-che/che-dashboard.git';
     const store = new FakeStoreBuilder()
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
       .build();
