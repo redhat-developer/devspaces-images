@@ -18,16 +18,19 @@ image_build_method: imagebuilder
 remote_sources:
 - name: devspaces-pluginregistry
   remote_source:
-    repo:
-    ref:
-    pkg_managers: ["npm"]
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: 2c104bc59f4c60cc1a4ccc4e6aac1931ebf5e74b
+    pkg_managers: ["npm", "pip"]
     packages: {
       "npm": [
         {
           "path": "devspaces-pluginregistry"
         }
+      ],
+      "pip": [
+        {
+          "path": "devspaces-pluginregistry/build/python", 
+          "requirements_build_files": ["requirements-build.txt"]
+        }
       ]
     }
-
-
-    
