@@ -886,9 +886,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMQK
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:2f13718e1127784dbbbcd6d382ab3af586191eaf186cf9585895578265897840
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCMQK
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:c9183c3a90fbae2b8a155e5b4c22a9d08f6c6216162dc80ba5836336347faac1
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:d659b99c86f0cc5ec4a6433947fb27fd92008e91f65bee2ea74c273a99759be4
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMQK
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:c9183c3a90fbae2b8a155e5b4c22a9d08f6c6216162dc80ba5836336347faac1
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:d659b99c86f0cc5ec4a6433947fb27fd92008e91f65bee2ea74c273a99759be4
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCMQK
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:4babc8f767064fb69cfc8e07b2df6e0fc38a47fe8c58e4432a03e585dd48ea5a
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCMQK
@@ -1265,9 +1265,9 @@ spec:
   - name: devspaces_code_plugin_registry_image_gmxdcmqk
     image: registry.redhat.io/devspaces/code-rhel8@sha256:2f13718e1127784dbbbcd6d382ab3af586191eaf186cf9585895578265897840
   - name: devspaces_idea_devfile_registry_image_gmxdcmqk
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:c9183c3a90fbae2b8a155e5b4c22a9d08f6c6216162dc80ba5836336347faac1
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:d659b99c86f0cc5ec4a6433947fb27fd92008e91f65bee2ea74c273a99759be4
   - name: devspaces_idea_plugin_registry_image_gmxdcmqk
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:c9183c3a90fbae2b8a155e5b4c22a9d08f6c6216162dc80ba5836336347faac1
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:d659b99c86f0cc5ec4a6433947fb27fd92008e91f65bee2ea74c273a99759be4
   - name: devspaces_udi_devfile_registry_image_gmxdcmqk
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:4babc8f767064fb69cfc8e07b2df6e0fc38a47fe8c58e4432a03e585dd48ea5a
   - name: devspaces_udi_plugin_registry_image_gmxdcmqk
