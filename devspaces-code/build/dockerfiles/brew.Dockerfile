@@ -110,9 +110,17 @@ RUN git init .; \
 RUN sed -i -r -e '/function yarnInstall/ !s|^[^#]*yarnInstal|//&|' build/npm/postinstall.js
 # ... and run the dependencies installation manually for each sub-package listed in the 'code/build/npm/dirs.js' (except the 'test' folder).
 
-# install node-gyp
-# '--userconfig .npmrc --global' is an essential part, when it comes to installing npm dependencies from Cachito
-RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/cachito && cat package-lock.json && npm install --userconfig .npmrc --global node-gyp@10.0.0 && node-gyp version
+# install node-gyp - workaround for `yarn global add node-gyp`, since installing it
+# globally it tries to fetch it from outside. So, we install locally the module
+# that has node-gyp dependency, and then put it's node_modules to yarns global modules
+RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/cachito \
+ && yarn \
+ && mkdir -p $(yarn global dir) && cp -r $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/cachito/node_modules/. $(yarn global dir)/node_modules \
+ && mkdir -p $(yarn global bin) && ln -s $(yarn global dir)/node_modules/.bin/node-gyp $(yarn global bin)/node-gyp \
+ && ls -l $(yarn global bin) \
+ && ls -l $(yarn global dir)/node_modules/.bin \
+ && which node-gyp \
+ && node-gyp version
 
 # Cachito clears all project's '.yarnrc' files, To make sure yarn is configured to the local Nexus.
 # To avoid any possible issues, like failure of build because of missing 'ms_build_id', or 'target' properties,
