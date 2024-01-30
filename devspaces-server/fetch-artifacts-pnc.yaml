@@ -1,11 +1,11 @@
 builds:
-  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/A56DKJZ2STYAA
+  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/A57NYDO2CTYAA
   # build id must be string
-  - build_id: 'A56DKJZ2STYAA'
+  - build_id: 'A57NYDO2CTYAA'
     artifacts:
-      # https://orch.psi.redhat.com/pnc-web/#/artifacts/11799097
-      # ==> org.eclipse.che:assembly-main:tar.gz:7.81.0.redhat-00011
+      # https://orch.psi.redhat.com/pnc-web/#/artifacts/
+      # ==> org.eclipse.che:assembly-main:tar.gz:null
       # artifact id must be string; rename it by setting a different target path/file
-      - id: '11799097'
+      - id: ''
         target: assembly-main.tar.gz
 
