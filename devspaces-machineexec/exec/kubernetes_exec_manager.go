@@ -236,10 +236,12 @@ func (manager *KubernetesExecManager) doCreate(machineExec *model.MachineExec, c
 	machineExec.Executor = executor
 	machineExec.ID = int(atomic.AddUint64(&prevExecID, 1))
 	machineExec.MsgChan = make(chan []byte)
-	machineExec.SizeChan = make(chan remotecommand.TerminalSize)
+	machineExec.SizeChan = make(chan remotecommand.TerminalSize, 1)
 	machineExec.ExitChan = make(chan bool)
 	machineExec.ErrorChan = make(chan error)
 	machineExec.ConnectionHandler = ws.NewConnHandler()
+
+	machineExec.SizeChan <- remotecommand.TerminalSize{Width: uint16(machineExec.Cols), Height: uint16(machineExec.Rows)}
 
 	execs.execMap[machineExec.ID] = machineExec
 
