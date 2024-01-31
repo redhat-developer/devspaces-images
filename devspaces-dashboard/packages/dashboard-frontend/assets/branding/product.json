@@ -20,8 +20,8 @@
   ],
   "docs": {
     "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#customizing-workspace-components",
-    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#developer-workspaces",
-    "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
+    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#getting-started-with-devspaces",
+    "converting": "https://devfile.io/docs/devfile/2.2.2/user-guide/migrating-to-devfile-v2/",
     "general": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/",
     "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/administration_guide#configuring-storage",
     "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#troubleshooting-network-problems"
