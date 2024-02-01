@@ -72,15 +72,13 @@ git add plugin-config.json
                 sh('''#!/bin/bash -e
 cd ''' + SOURCE_DIR + '''
 # this process also generates plugin-manifest.json
-./build/build.sh ''' + PLUGIN + '''
+./build/build.sh ''' + PLUGIN + ''' --clean --update-manifest
                 ''')
               }
               catch(err) {
                 println "Plugin " + PLUGIN + " failed to build."
                 FAILURES = FAILURES + PLUGIN + "\n"
               }
-              //cleanup
-              sh('podman system prune -a -f')
             }
 
             println "########################################################################################################"
@@ -101,7 +99,7 @@ fi
             println "########################################################################################################"
             println "##  Copy vsix files to spmm-util"
             println "########################################################################################################"
-            //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.hosts.stage.psi.bos.redhat.com"
+            //REMOTE_USER_AND_HOST="devspaces-build@spmm-util.engineering.redhat.com"
             sh('''#!/bin/bash -ex
 # TODO CRW-1919 remove this when we no longer need it
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache

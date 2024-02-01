@@ -170,9 +170,9 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
                                 script: "cd ${WORKSPACE}/devspaces/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'devspaces/devspaces-operator-bundle' --quay --tag ${DS_VERSION}- --hide",
                                 returnStdout: true
                                 ).trim()
-                                echo "${rebuiltOperatorBundleImage}"
+                                println "${rebuiltOperatorBundleImage}"
                                 if (rebuiltOperatorBundleImage!=operatorBundleImage) {
-                                    echo "Operator bundle has been rebuilt!"
+                                    println "Operator bundle has been rebuilt!"
                                     break
                                 }
                                 sleep(time:120,unit:"SECONDS")
