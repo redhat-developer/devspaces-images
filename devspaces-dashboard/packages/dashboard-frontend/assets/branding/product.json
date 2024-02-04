@@ -1,7 +1,7 @@
 {
   "title": "Red Hat OpenShift Dev Spaces ",
   "name": "Red Hat OpenShift Dev Spaces",
-  "productVersion": "3.12 @ c7894 #451 :: Eclipse Che Dashboard 7.81.0 @ eac0",
+  "productVersion": "3.13 @ fb015 #452 :: Eclipse Che Dashboard 7.81.0 @ eac0",
   "logoFile": "che-logo.svg",
   "logoTextFile": "che-logo-text.svg",
   "links": [
@@ -11,7 +11,7 @@
     },
     {
       "text": "Documentation",
-      "href": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/"
+      "href": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/"
     },
     {
       "text": "Support",
@@ -19,12 +19,12 @@
     }
   ],
   "docs": {
-    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#customizing-workspace-components",
-    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#getting-started-with-devspaces",
-    "converting": "https://devfile.io/docs/devfile/2.2.2/user-guide/migrating-to-devfile-v2/",
-    "general": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/",
-    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/administration_guide#configuring-storage",
-    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.12/html-single/user_guide#troubleshooting-network-problems"
+    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html-single/user_guide#customizing-workspace-components",
+    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html-single/user_guide#developer-workspaces",
+    "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
+    "general": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/",
+    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html-single/administration_guide#configuring-storage",
+    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html-single/user_guide#troubleshooting-network-problems"
   },
   "configuration": {
     "cheCliTool": "dsc"
