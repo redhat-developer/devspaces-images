@@ -58,8 +58,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.12
-    createdAt: "2024-01-31T21:42:04+00:00"
+    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.13
+    createdAt: "2024-02-04T09:55:07+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -72,8 +72,8 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/devspaces-images/
     support: Red Hat
-    skipRange: '>=3.0.0 <3.12.0'
-  name: devspacesoperator.v3.12.0
+    skipRange: '>=3.0.0 <3.13.0'
+  name: devspacesoperator.v3.13.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -904,7 +904,7 @@ spec:
                           {"add": ["SETGID", "SETUID"]}}'
                       - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
                         value: '[{"name": "universal-developer-image", "container":
-                          {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:4babc8f767064fb69cfc8e07b2df6e0fc38a47fe8c58e4432a03e585dd48ea5a"}}]'
+                          {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:176d0890d3c3a05e82b0cdbd638a5781a0f6493705721c9f5de8d695755ddeb2"}}]'
                       - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
                         value: che-incubator/che-code/latest
                       - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -912,7 +912,7 @@ spec:
                       - name: CHE_FLAVOR
                         value: devspaces
                       - name: CHE_VERSION
-                        value: 3.12.0
+                        value: 3.13.0
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: Red Hat OpenShift Dev Spaces
                       - name: CONSOLE_LINK_IMAGE
@@ -930,41 +930,29 @@ spec:
                           fieldRef:
                             fieldPath: metadata.name
                       - name: RELATED_IMAGE_che_server
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-server-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-server-rhel8:3.13
                       - name: RELATED_IMAGE_dashboard
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.13
                       - name: RELATED_IMAGE_devfile_registry
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.12
-                      - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCMQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.13
                       - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCMYK
-                        value: registry.redhat.io/devspaces/code-rhel8:3.13
-                      - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.13
                       - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCMYK
-                        value: registry.redhat.io/devspaces/code-rhel8:3.13
-                      - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCMQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.13
                       - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCMYK
-                        value: registry.redhat.io/devspaces/idea-rhel8:3.13
-                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.13
                       - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCMYK
-                        value: registry.redhat.io/devspaces/idea-rhel8:3.13
-                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCMQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.13
                       - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCMYK
-                        value: registry.redhat.io/devspaces/udi-rhel8:3.13
-                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCMQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.13
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCMYK
-                        value: registry.redhat.io/devspaces/udi-rhel8:3.13
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.13
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
                         value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.12
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
                         value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.12
                       - name: RELATED_IMAGE_plugin_registry
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:3.13
                       - name: RELATED_IMAGE_pvc_jobs
                         value: registry.redhat.io/ubi8/ubi-minimal:8.8
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -972,14 +960,14 @@ spec:
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                         value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                       - name: RELATED_IMAGE_single_host_gateway
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.13
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-configbump-rhel8:3.12
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-configbump-rhel8:3.13
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
-                    image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.12
+                    image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.13
                     imagePullPolicy: Always
                     livenessProbe:
                       failureThreshold: 10
@@ -1258,7 +1246,7 @@ spec:
   minKubeVersion: 1.19.0
   provider:
     name: Red Hat
-  version: 3.12.0
+  version: 3.13.0
   webhookdefinitions:
     - admissionReviewVersions:
         - v1
@@ -1314,4 +1302,4 @@ spec:
       targetPort: 9443
       type: ConversionWebhook
       webhookPath: /convert
-  replaces: devspacesoperator.v3.10.1
+  replaces: devspacesoperator.v3.11.0
