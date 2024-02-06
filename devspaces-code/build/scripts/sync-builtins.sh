@@ -208,7 +208,7 @@ addVscodePluginsToYaml () {
     git config --global hub.protocol https
     git remote set-url origin https://$GITHUB_TOKEN:x-oauth-basic@github.com/redhat-developer/devspaces-vscode-extensions.git
   popd >/dev/null
-  PLUGINS=$(jq -r '.Plugins | keys[]' /tmp/devspaces-vscode-extensions/plugin-manifest.json)
+  PLUGINS=$(jq -r '.builtInExtensions[] | .name' "$TARGETDIR"/code/product.json)
   # check if vsix plugin version listed in synced sources as dependency
   # has corresponding version on rcm tools
   for PLUGIN in $PLUGINS; do
@@ -219,10 +219,7 @@ addVscodePluginsToYaml () {
     SOURCE_SHA=""
     PLUGIN_REMOTE_SOURCE_SHA=""
     PLUGIN_MANIFEST_SOURCE_SHA=""
-    #filter out non built-in plugins
-    if [[ $PLUGIN != "ms-vscode"* ]]; then
-      continue
-    fi
+
     PLUGIN_LOCATION=$BASE_URL/devspaces-$DS_VERSION-pluginregistry/plugins/$PLUGIN.vsix
     SOURCE_LOCATION=$BASE_URL/devspaces-$DS_VERSION-pluginregistry/sources/$PLUGIN-sources.tar.gz
     # plugin "version" in product.json can be different from 
