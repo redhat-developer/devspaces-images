@@ -174,6 +174,7 @@ export function getDevWorkspaceClient(
     devWorkspaceTemplateApi: {
       create: _template => Promise.resolve(stubDevWorkspaceTemplate),
       listInNamespace: _namespace => Promise.resolve(stubDevWorkspaceTemplatesList),
+      getByName: (_namespace, _name) => Promise.resolve(stubDevWorkspaceTemplate),
       patch: (_namespace, _name, _patches) => Promise.resolve(stubDevWorkspaceTemplate),
       delete: (_namespace, _name) => Promise.resolve(undefined),
     } as IDevWorkspaceTemplateApi,

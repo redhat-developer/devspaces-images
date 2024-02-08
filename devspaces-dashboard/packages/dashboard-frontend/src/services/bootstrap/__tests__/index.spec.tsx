@@ -68,7 +68,7 @@ describe('Dashboard bootstrap', () => {
 
   test('requests which should be sent', async () => {
     prepareMocks(mockPost, 1, namespace); // provisionNamespace
-    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, plugin-registry, default-editor, devfile-registry, getting-started-sample, devworkspacetemplates, devworkspaces, events, pods, cluster-config, ssh-key
+    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, plugin-registry, default-editor, devfile-registry, getting-started-sample, devworkspaces, events, pods, cluster-config, ssh-key
 
     await preloadData.init();
 
@@ -80,7 +80,7 @@ describe('Dashboard bootstrap', () => {
       undefined,
     );
     // wait for all GET requests to be sent
-    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(16));
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(15));
 
     await waitFor(() =>
       expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/ssh-key', undefined),
@@ -99,10 +99,6 @@ describe('Dashboard bootstrap', () => {
       'http://localhost/dashboard/devfile-registry/devfiles/index.json',
     );
     expect(mockGet).toHaveBeenCalledWith('http://localhost/dashboard/api/getting-started-sample');
-    expect(mockGet).toHaveBeenCalledWith(
-      '/dashboard/api/namespace/test-che/devworkspacetemplates',
-      undefined,
-    );
     expect(mockGet).toHaveBeenCalledWith(
       '/dashboard/api/namespace/test-che/devworkspaces',
       undefined,

@@ -22,7 +22,7 @@ export type DevWorkspacePlugin = {
   uri?: string;
   kubernetes?: {
     name: string;
-    namespace: string;
+    namespace?: string;
   };
 };
 export const devWorkspaceKind: DevWorkspaceKind = 'DevWorkspace';

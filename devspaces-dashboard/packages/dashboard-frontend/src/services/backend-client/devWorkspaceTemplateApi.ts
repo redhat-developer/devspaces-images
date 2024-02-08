@@ -44,11 +44,26 @@ export async function getTemplates(namespace: string): Promise<devfileApi.DevWor
   }
 }
 
+export async function getTemplateByName(
+  namespace: string,
+  name: string,
+): Promise<devfileApi.DevWorkspaceTemplate> {
+  const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${name}`;
+  try {
+    const response = await AxiosWrapper.createToRetryMissedBearerTokenError().get(url);
+    return response.data;
+  } catch (e) {
+    throw new Error(
+      `Failed to fetch DevWorkspaceTemplate by name. ${common.helpers.errors.getMessage(e)}`,
+    );
+  }
+}
+
 export async function patchTemplate(
   namespace: string,
   templateName: string,
   patch: api.IPatch[],
-): Promise<devfileApi.DevWorkspace> {
+): Promise<devfileApi.DevWorkspaceTemplate> {
   const url = `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`;
   try {
     const response = await AxiosWrapper.createToRetryMissedBearerTokenError().patch(url, patch);

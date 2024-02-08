@@ -91,7 +91,9 @@ describe('Edit Registry Modal', () => {
     expect(editButton).toBeEnabled();
 
     userEvent.click(editButton);
-    expect(mockOnChange).toBeCalledWith(Object.assign({}, registry, { url: 'http://test.com' }));
+    expect(mockOnChange).toHaveBeenCalledWith(
+      Object.assign({}, registry, { url: 'http://test.com' }),
+    );
   });
 
   it('should fire onCancel event', () => {

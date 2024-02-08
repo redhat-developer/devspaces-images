@@ -621,21 +621,25 @@ export class DevWorkspaceClient {
       }
     }
 
-    const { devWorkspace: changedWorkspace } = await DwApi.patchWorkspace(
+    let { devWorkspace } = await DwApi.patchWorkspace(
       workspace.metadata.namespace,
       workspace.metadata.name,
       patch,
     );
     if (!skipErrorCheck) {
-      this.checkForDevWorkspaceError(changedWorkspace);
+      const currentPhase = WorkspaceAdapter.getStatus(devWorkspace);
+      // Need to request DevWorkspace again to get updated Status -- we've patched spec.started
+      // but status still may contain an earlier error until DevWorkspace Operator updates it.
+      if (currentPhase === DevWorkspaceStatus.FAILED) {
+        devWorkspace = await DwApi.getWorkspaceByName(
+          devWorkspace.metadata.namespace,
+          devWorkspace.metadata.name,
+        );
+      }
+      this.checkForDevWorkspaceError(devWorkspace);
     }
-    // Need to request DevWorkspace again to get updated Status -- we've patched spec.started
-    // but status still may contain an earlier error until DevWorkspace Operator updates it.
-    const clusterWorkspace = await DwApi.getWorkspaceByName(
-      changedWorkspace.metadata.namespace,
-      changedWorkspace.metadata.name,
-    );
-    return clusterWorkspace;
+
+    return devWorkspace;
   }
 
   /**
@@ -673,6 +677,7 @@ export class DevWorkspaceClient {
   }
 
   async checkForTemplatesUpdate(
+    editorName: string,
     namespace: string,
     pluginsByUrl: { [url: string]: devfileApi.Devfile } = {},
     pluginRegistryUrl: string | undefined,
@@ -682,70 +687,57 @@ export class DevWorkspaceClient {
       url: string;
       title: string;
     },
-  ): Promise<{ [templateName: string]: api.IPatch[] }> {
-    const templates = await DwtApi.getTemplates(namespace);
-    const managedTemplates = templates.filter(
-      template =>
-        template.metadata?.annotations?.[COMPONENT_UPDATE_POLICY] === 'managed' &&
-        template.metadata?.annotations?.[REGISTRY_URL],
-    );
+  ): Promise<api.IPatch[]> {
+    const managedTemplate = await DwtApi.getTemplateByName(namespace, editorName);
 
-    const patchByName: { [templateName: string]: api.IPatch[] } = {};
+    const patch: api.IPatch[] = [];
 
-    for (const template of managedTemplates) {
-      const url = template.metadata?.annotations?.[REGISTRY_URL];
-      let plugin: devfileApi.Devfile | undefined;
-      if (pluginsByUrl[url]) {
-        plugin = pluginsByUrl[url];
-      } else {
-        const pluginContent = await fetchData<string>(url);
-        plugin = load(pluginContent) as devfileApi.Devfile;
-        pluginsByUrl[url] = plugin;
-      }
+    const url = managedTemplate.metadata?.annotations?.[REGISTRY_URL];
 
-      const spec: Partial<V1alpha2DevWorkspaceTemplateSpec> = {};
-      for (const key in plugin) {
-        if (key !== 'schemaVersion' && key !== 'metadata') {
-          if (key === 'components') {
-            plugin.components?.forEach(component => {
-              if (component.container && !component.container.sourceMapping) {
-                component.container.sourceMapping = '/projects';
-              }
-            });
-            spec.components = plugin.components;
-            this.addEnvVarsToContainers(
-              spec.components,
-              pluginRegistryUrl,
-              pluginRegistryInternalUrl,
-              openVSXUrl,
-              clusterConsole,
-            );
-          } else {
-            spec[key] = plugin[key];
-          }
-        }
-      }
-      if (!isEqual(spec, template.spec)) {
-        const patch = {
-          op: 'replace',
-          path: '/spec',
-          value: spec,
-        };
-        patchByName[template.metadata.name] = [patch];
-      }
+    if (!url || managedTemplate.metadata?.annotations?.[COMPONENT_UPDATE_POLICY] !== 'managed') {
+      console.log('Template is not managed');
+      return patch;
     }
 
-    return patchByName;
-  }
+    let plugin: devfileApi.Devfile | undefined;
+    if (pluginsByUrl[url]) {
+      plugin = pluginsByUrl[url];
+    } else {
+      const pluginContent = await fetchData<string>(url);
+      plugin = load(pluginContent) as devfileApi.Devfile;
+      pluginsByUrl[url] = plugin;
+    }
 
-  async updateTemplates(
-    namespace: string,
-    patchByName: { [templateName: string]: api.IPatch[] },
-  ): Promise<void> {
-    await Promise.all(
-      Object.keys(patchByName).map(name =>
-        DwtApi.patchTemplate(namespace, name, patchByName[name]),
-      ),
-    );
+    const spec: Partial<V1alpha2DevWorkspaceTemplateSpec> = {};
+    for (const key in plugin) {
+      if (key !== 'schemaVersion' && key !== 'metadata') {
+        if (key === 'components') {
+          plugin.components?.forEach(component => {
+            if (component.container && !component.container.sourceMapping) {
+              component.container.sourceMapping = '/projects';
+            }
+          });
+          spec.components = plugin.components;
+          this.addEnvVarsToContainers(
+            spec.components,
+            pluginRegistryUrl,
+            pluginRegistryInternalUrl,
+            openVSXUrl,
+            clusterConsole,
+          );
+        } else {
+          spec[key] = plugin[key];
+        }
+      }
+    }
+    if (!isEqual(spec, managedTemplate.spec)) {
+      patch.push({
+        op: 'replace',
+        path: '/spec',
+        value: spec,
+      });
+    }
+
+    return patch;
   }
 }

@@ -44,7 +44,7 @@ describe('Data Resolver API', () => {
       });
       const data = await getDataResolver(registryLocation);
 
-      expect(mockPost).toBeCalledWith('/dashboard/api/data/resolver', {
+      expect(mockPost).toHaveBeenCalledWith('/dashboard/api/data/resolver', {
         url: 'http://127.0.0.1:8080/dashboard/devfile-registry/devfiles/index.json',
       });
       expect(data).toEqual(metaData);

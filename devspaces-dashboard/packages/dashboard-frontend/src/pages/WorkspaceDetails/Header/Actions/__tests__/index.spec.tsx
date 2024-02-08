@@ -116,7 +116,10 @@ describe('Workspace WorkspaceAction widget', () => {
     targetAction.click();
 
     await waitFor(() =>
-      expect(window.open).toBeCalledWith(`#/ide/${namespace}/test-workspace-name`, workspaceUID),
+      expect(window.open).toHaveBeenCalledWith(
+        `#/ide/${namespace}/test-workspace-name`,
+        workspaceUID,
+      ),
     );
   });
 
@@ -136,7 +139,10 @@ describe('Workspace WorkspaceAction widget', () => {
     targetAction.click();
 
     await waitFor(() =>
-      expect(window.open).toBeCalledWith(`#/ide/${namespace}/test-workspace-name`, workspaceUID),
+      expect(window.open).toHaveBeenCalledWith(
+        `#/ide/${namespace}/test-workspace-name`,
+        workspaceUID,
+      ),
     );
   });
 

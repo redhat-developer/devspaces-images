@@ -43,6 +43,20 @@ export function registerDevWorkspaceTemplates(instance: FastifyInstance) {
       },
     );
 
+    server.get(
+      `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+      getSchema({
+        tags,
+        params: namespacedTemplateSchema,
+      }),
+      async function (request: FastifyRequest) {
+        const { namespace, templateName } = request.params as restParams.INamespacedTemplateParams;
+        const token = getToken(request);
+        const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
+        return templateApi.getByName(namespace, templateName);
+      },
+    );
+
     server.post(
       `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
       getSchema({

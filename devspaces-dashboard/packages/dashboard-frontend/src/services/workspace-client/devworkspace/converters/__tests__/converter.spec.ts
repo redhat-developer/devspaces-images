@@ -60,7 +60,7 @@ describe('testing sample conversions', () => {
         ),
       );
       const devfile = devWorkspaceToDevfile(input);
-      expect(console.debug).toBeCalledWith(
+      expect(console.debug).toHaveBeenCalledWith(
         'Failed to parse the origin devfile. The target object is not devfile V2.',
       );
       expect(devfile.schemaVersion).toEqual(devfileSchemaVersion);

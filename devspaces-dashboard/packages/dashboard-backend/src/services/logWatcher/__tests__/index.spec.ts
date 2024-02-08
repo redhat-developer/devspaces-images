@@ -73,7 +73,7 @@ describe('watchLogLevel', () => {
 
     await watchLogLevel(server);
 
-    expect(mockWatch).toBeCalledWith(
+    expect(mockWatch).toHaveBeenCalledWith(
       `/apis/org.eclipse.che/v2/namespaces/${namespace}/checlusters`,
       { watch: true },
       expect.any(Function),
@@ -90,6 +90,6 @@ describe('watchLogLevel', () => {
       },
     } as CheClusterCustomResource);
 
-    expect(mockUpdateLogLevel).toBeCalledWith('DEBUG', server);
+    expect(mockUpdateLogLevel).toHaveBeenCalledWith('DEBUG', server);
   });
 });

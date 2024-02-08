@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common, { api, ApplicationId } from '@eclipse-che/common';
+import common, { api } from '@eclipse-che/common';
 import { Store } from 'redux';
 
 import { lazyInject } from '@/inversify.config';
@@ -26,19 +26,16 @@ import {
   WorkspaceRunningError,
   WorkspaceStoppedDetector,
 } from '@/services/bootstrap/workspaceStoppedDetector';
-import devfileApi from '@/services/devfileApi';
 import { isAvailableEndpoint } from '@/services/helpers/api-ping';
 import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
 import { ResourceFetcherService } from '@/services/resource-fetcher';
 import { Workspace } from '@/services/workspace-adapter';
-import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 import { AppState } from '@/store';
 import * as BannerAlertStore from '@/store/BannerAlert';
 import * as BrandingStore from '@/store/Branding';
 import * as ClusterConfigStore from '@/store/ClusterConfig';
 import { selectDashboardFavicon } from '@/store/ClusterConfig/selectors';
 import * as ClusterInfoStore from '@/store/ClusterInfo';
-import { selectApplications } from '@/store/ClusterInfo/selectors';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
 import { DEFAULT_REGISTRY } from '@/store/DevfileRegistries';
 import { selectEmptyWorkspaceUrl } from '@/store/DevfileRegistries/selectors';
@@ -48,12 +45,11 @@ import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces
 import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
 import * as PluginsStore from '@/store/Plugins/chePlugins';
 import * as DwPluginsStore from '@/store/Plugins/devWorkspacePlugins';
-import { selectDwEditorsPluginsList } from '@/store/Plugins/devWorkspacePlugins/selectors';
 import * as PodsStore from '@/store/Pods';
 import { selectPodsResourceVersion } from '@/store/Pods/selectors';
 import * as SanityCheckStore from '@/store/SanityCheck';
 import * as ServerConfigStore from '@/store/ServerConfig';
-import { selectOpenVSXUrl, selectPluginRegistryUrl } from '@/store/ServerConfig/selectors';
+import { selectPluginRegistryUrl } from '@/store/ServerConfig/selectors';
 import * as SshKeysStore from '@/store/SshKeys';
 import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
@@ -61,7 +57,7 @@ import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
 import { selectDevWorkspacesResourceVersion } from '@/store/Workspaces/devWorkspaces/selectors';
 
 /**
- * This class executes a few initial instructions
+ * This class executes initial instructions
  * @author Oleksii Orel
  */
 export default class Bootstrap {
@@ -70,9 +66,6 @@ export default class Bootstrap {
 
   @lazyInject(WebsocketClient)
   private readonly websocketClient: WebsocketClient;
-
-  @lazyInject(DevWorkspaceClient)
-  private readonly devWorkspaceClient: DevWorkspaceClient;
 
   @lazyInject(WorkspaceStoppedDetector)
   private readonly workspaceStoppedDetector: WorkspaceStoppedDetector;
@@ -102,7 +95,6 @@ export default class Bootstrap {
       this.fetchDwPlugins(),
       this.fetchDefaultDwPlugins(),
       this.fetchRegistriesMetadata().then(() => this.fetchEmptyWorkspace()),
-      this.updateDevWorkspaceTemplates(),
       this.fetchWorkspaces().then(() => {
         this.checkWorkspaceStopped();
         return this.watchWebSocketDevWorkspaces();
@@ -301,37 +293,6 @@ export default class Bootstrap {
       await requestDwDefaultPlugins()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
       console.error('Failed to retrieve default plug-ins.', e);
-    }
-  }
-
-  private async updateDevWorkspaceTemplates(): Promise<void> {
-    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
-    const defaultNamespace = defaultKubernetesNamespace.name;
-    try {
-      const pluginsByUrl: { [url: string]: devfileApi.Devfile } = {};
-      const state = this.store.getState();
-      selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).forEach(dwEditor => {
-        pluginsByUrl[dwEditor.url] = dwEditor.devfile;
-      });
-      const openVSXUrl = selectOpenVSXUrl(state);
-      const pluginRegistryUrl = selectPluginRegistryUrl(state);
-      const pluginRegistryInternalUrl = state.dwServerConfig.config.pluginRegistryInternalURL;
-      const clusterConsole = selectApplications(state).find(
-        app => app.id === ApplicationId.CLUSTER_CONSOLE,
-      );
-      const updates = await this.devWorkspaceClient.checkForTemplatesUpdate(
-        defaultNamespace,
-        pluginsByUrl,
-        pluginRegistryUrl,
-        pluginRegistryInternalUrl,
-        openVSXUrl,
-        clusterConsole,
-      );
-      if (Object.keys(updates).length > 0) {
-        await this.devWorkspaceClient.updateTemplates(defaultNamespace, updates);
-      }
-    } catch (e) {
-      console.error('Failed to update templates.', e);
     }
   }
 

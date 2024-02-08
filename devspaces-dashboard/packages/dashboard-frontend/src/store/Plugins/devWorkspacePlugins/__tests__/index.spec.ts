@@ -194,7 +194,7 @@ describe('dwPlugins store', () => {
       expect(actions).toEqual(expectedActions);
 
       // check that we fetched the editor on axios
-      expect(mockAxios.get).toBeCalledWith(editorLink);
+      expect(mockAxios.get).toHaveBeenCalledWith(editorLink);
     });
 
     it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR_ERROR when failed to fetch an editor', async () => {

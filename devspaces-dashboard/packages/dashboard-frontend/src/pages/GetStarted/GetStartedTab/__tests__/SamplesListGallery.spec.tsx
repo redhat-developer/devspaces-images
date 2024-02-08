@@ -96,7 +96,7 @@ describe('Samples List Gallery', () => {
     const cardHeader = screen.getByText('Java with Spring Boot and MongoDB');
     fireEvent.click(cardHeader);
     jest.runOnlyPendingTimers();
-    expect(windowSpy).toBeCalledWith(
+    expect(windowSpy).toHaveBeenCalledWith(
       'http://localhost/#/load-factory?url=https%3A%2F%2Fgithub.com%2Fche-samples%2Fjava-guestbook%2Ftree%2Fdevfilev2',
       '_blank',
     );

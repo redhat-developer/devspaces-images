@@ -65,6 +65,11 @@ import {
   updateEditorDevfile,
 } from '@/store/Workspaces/devWorkspaces/editorImage';
 import { selectDevWorkspacesResourceVersion } from '@/store/Workspaces/devWorkspaces/selectors';
+import {
+  getEditorName,
+  getLifeTimeMs,
+  updateEditor,
+} from '@/store/Workspaces/devWorkspaces/updateEditor';
 
 export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
@@ -337,6 +342,12 @@ export const actionCreators: ActionCreators = {
         workspace = await getDevWorkspaceClient().manageContainerBuildAttribute(workspace, config);
 
         workspace = await getDevWorkspaceClient().manageDebugMode(workspace, debugWorkspace);
+
+        const editorName = getEditorName(workspace);
+        const lifeTimeMs = getLifeTimeMs(workspace);
+        if (editorName && lifeTimeMs > 30000) {
+          await updateEditor(editorName, getState);
+        }
 
         const startingWorkspace = await getDevWorkspaceClient().changeWorkspaceStatus(
           workspace,
@@ -738,18 +749,13 @@ export const actionCreators: ActionCreators = {
           openVSXUrl,
           clusterConsole,
         );
-        const templates = await DwtApi.getTemplates(workspace.metadata.namespace);
-        const targetTemplate = templates.find(template => {
-          const ownerReferences = template.metadata?.ownerReferences || [];
-          return (
-            ownerReferences.find(
-              ownerReference => ownerReference.uid === workspace.metadata.uid,
-            ) !== undefined
-          );
-        });
-        const templateName = targetTemplate?.metadata?.name;
-        const templateNamespace = targetTemplate?.metadata?.namespace;
-        if (!templateName || !templateNamespace) {
+        let targetTemplate: devfileApi.DevWorkspaceTemplate | undefined;
+        const templateName = getEditorName(workspace);
+        const templateNamespace = workspace.metadata.namespace;
+        if (templateName && templateNamespace) {
+          targetTemplate = await DwtApi.getTemplateByName(templateNamespace, templateName);
+        }
+        if (!templateName || !templateNamespace || !targetTemplate) {
           throw new Error('Cannot define the target template');
         }
 

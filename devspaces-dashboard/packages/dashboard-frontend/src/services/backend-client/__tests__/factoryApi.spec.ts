@@ -48,7 +48,7 @@ describe('Factory API', () => {
       });
       await getFactoryResolver(location, {});
 
-      expect(mockPost).toBeCalledWith('/api/factory/resolver', {
+      expect(mockPost).toHaveBeenCalledWith('/api/factory/resolver', {
         url: 'https://github.com/eclipse-che/che-dashboard.git',
       });
     });
@@ -72,7 +72,7 @@ describe('Factory API', () => {
 
       await refreshFactoryOauthToken(location);
 
-      expect(mockPost).toBeCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         '/api/factory/token/refresh?url=https://github.com/eclipse-che/che-dashboard.git',
       );
     });

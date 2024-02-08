@@ -107,9 +107,9 @@ describe('test API endpoints', () => {
 
     const isAvailable = await isAvailableEndpoint(endpoint);
 
-    expect(delayMock).toBeCalledWith(2500);
+    expect(delayMock).toHaveBeenCalledWith(2500);
     expect(delayMock).toHaveBeenCalledTimes(11);
-    expect(console.error).toBeCalledWith(
+    expect(console.error).toHaveBeenCalledWith(
       `Endpoint 'https://example.com/developer-image/3100/' is not available. Error: 503 Service Unavailable.`,
     );
     expect(isAvailable).toBeFalsy();
@@ -128,9 +128,9 @@ describe('test API endpoints', () => {
 
     const isAvailable = await isAvailableEndpoint(endpoint);
 
-    expect(delayMock).toBeCalledWith(2500);
+    expect(delayMock).toHaveBeenCalledWith(2500);
     expect(delayMock).toHaveBeenCalledTimes(11);
-    expect(console.error).toBeCalledWith(
+    expect(console.error).toHaveBeenCalledWith(
       `Endpoint 'https://example.com/developer-image/3100/' is not available. Error: 404 Page Not Found.`,
     );
     expect(isAvailable).toBeFalsy();

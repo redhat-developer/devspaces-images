@@ -186,7 +186,7 @@ describe('Workspace creation time', () => {
             },
             pluginRegistryURL: 'http://localhost/plugin-registry/v3',
           } as api.IServerConfig)
-          .withDwPlugins(plugins)
+          .withDwPlugins(plugins, {}, false)
           .withDevfileRegistries({
             devfiles: {
               ['http://localhost/plugin-registry/v3/plugins/che-incubator/che-code/insiders/devfile.yaml']:

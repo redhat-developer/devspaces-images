@@ -99,17 +99,15 @@ spec:
 
 const mockPatchTemplate = jest.fn();
 jest.mock('@/services/backend-client/devWorkspaceTemplateApi', () => ({
-  getTemplates: () => [
-    {
-      apiVersion: 'workspace.devfile.io/v1alpha2',
-      kind: 'DevWorkspaceTemplate',
-      metadata: {
-        name: 'che-code',
-        namespace: 'test-che',
-        ownerReferences: [{ uid: 'testDevWorkspaceUID' }],
-      },
+  getTemplateByName: (namespace: string, name: string) => ({
+    apiVersion: 'workspace.devfile.io/v1alpha2',
+    kind: 'DevWorkspaceTemplate',
+    metadata: {
+      name,
+      namespace,
+      ownerReferences: [{ uid: 'testDevWorkspaceUID' }],
     },
-  ],
+  }),
   patchTemplate: (templateNamespace, templateName, targetTemplatePatch) =>
     mockPatchTemplate(templateNamespace, templateName, targetTemplatePatch),
 }));
@@ -117,6 +115,15 @@ const mockPatchWorkspace = jest.fn();
 jest.mock('@/services/backend-client/devWorkspaceApi', () => ({
   patchWorkspace: (namespace, workspaceName, patch) =>
     mockPatchWorkspace(namespace, workspaceName, patch),
+}));
+const mockGetEditorName = jest.fn();
+const mockGetLifeTimeMs = jest.fn();
+const mockCheckForEditorUpdate = jest.fn();
+jest.mock('@/store/Workspaces/devWorkspaces/updateEditor', () => ({
+  getEditorName: (workspace: devfileApi.DevWorkspace) => mockGetEditorName(workspace),
+  getLifeTimeMs: (workspace: devfileApi.DevWorkspace) => mockGetLifeTimeMs(workspace),
+  updateEditor: (editorName: string, getState: () => AppState) =>
+    mockCheckForEditorUpdate(editorName, getState),
 }));
 
 // DevWorkspaceClient mocks
@@ -160,7 +167,7 @@ describe('DevWorkspace store, actions', () => {
       { name: 'user-che', attributes: { default: 'true', phase: 'Active' } },
     ]);
     store = storeBuilder
-      .withDwPlugins({}, false, undefined, 'che-incubator/che-code/latest')
+      .withDwPlugins({}, {}, false, undefined, 'che-incubator/che-code/latest')
       .withDwServerConfig({
         defaults: {
           editor: 'che-incubator/che-code/latest',
@@ -334,13 +341,12 @@ describe('DevWorkspace store, actions', () => {
   });
 
   describe('startWorkspace', () => {
-    it('should create REQUEST_DEVWORKSPACE and UPDATE_DEVWORKSPACE when starting DevWorkspace', async () => {
-      const devWorkspace = new DevWorkspaceBuilder().build();
+    let devWorkspace: devfileApi.DevWorkspace;
 
-      (checkRunningWorkspacesLimit as jest.Mock).mockImplementation(() => undefined);
-
+    beforeEach(() => {
       (fetchServerConfig as jest.Mock).mockResolvedValueOnce({});
 
+      devWorkspace = new DevWorkspaceBuilder().build();
       mockChangeWorkspaceStatus.mockResolvedValueOnce(devWorkspace);
       mockManageContainerBuildAttribute.mockResolvedValueOnce(devWorkspace);
       mockManageDebugMode.mockResolvedValueOnce(devWorkspace);
@@ -349,6 +355,50 @@ describe('DevWorkspace store, actions', () => {
       mockUpdate.mockResolvedValueOnce(devWorkspace);
       mockOnStart.mockResolvedValueOnce(devWorkspace);
       mockCheckForDevWorkspaceError.mockReturnValueOnce(devWorkspace);
+    });
+
+    describe('updateEditor', () => {
+      it('should check for update if the target devWorkspase has an editor name and the lifeTime > 30s', async () => {
+        mockGetEditorName.mockReturnValueOnce('che-code');
+        mockGetLifeTimeMs.mockReturnValueOnce(60000);
+
+        mockCheckForEditorUpdate.mockResolvedValueOnce([]);
+
+        const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
+
+        await store.dispatch(testStore.actionCreators.startWorkspace(devWorkspace));
+
+        expect(mockCheckForEditorUpdate).toHaveBeenCalledWith('che-code', store.getState);
+      });
+
+      it('should not check for update if the lifeTime less then 30s', async () => {
+        mockGetEditorName.mockReturnValueOnce('che-code');
+        mockGetLifeTimeMs.mockReturnValueOnce(1000);
+
+        mockCheckForEditorUpdate.mockResolvedValueOnce([]);
+
+        const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
+
+        await store.dispatch(testStore.actionCreators.startWorkspace(devWorkspace));
+
+        expect(mockCheckForEditorUpdate).not.toHaveBeenCalled();
+      });
+
+      it('should not check for update without editor name', async () => {
+        mockGetEditorName.mockReturnValueOnce(undefined);
+        mockGetLifeTimeMs.mockReturnValueOnce(60000);
+
+        mockCheckForEditorUpdate.mockResolvedValueOnce([]);
+
+        const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
+
+        await store.dispatch(testStore.actionCreators.startWorkspace(devWorkspace));
+
+        expect(mockCheckForEditorUpdate).not.toHaveBeenCalled();
+      });
+    });
+    it('should create REQUEST_DEVWORKSPACE and UPDATE_DEVWORKSPACE when starting DevWorkspace', async () => {
+      (checkRunningWorkspacesLimit as jest.Mock).mockImplementation(() => undefined);
 
       const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
 
@@ -378,20 +428,9 @@ describe('DevWorkspace store, actions', () => {
     });
 
     it('should create REQUEST_DEVWORKSPACE and RECEIVE_DEVWORKSPACE_ERROR when failed to start a DevWorkspace', async () => {
-      const devWorkspace = new DevWorkspaceBuilder().build();
-
       (checkRunningWorkspacesLimit as jest.Mock).mockImplementation(() => {
         throw new Error('Limit reached.');
       });
-
-      mockChangeWorkspaceStatus.mockResolvedValueOnce(devWorkspace);
-      mockManageContainerBuildAttribute.mockResolvedValueOnce(devWorkspace);
-      mockManageDebugMode.mockResolvedValueOnce(devWorkspace);
-      mockManagePvcStrategy.mockResolvedValueOnce(devWorkspace);
-      mockOnStart.mockResolvedValueOnce(devWorkspace);
-      mockUpdate.mockResolvedValueOnce(devWorkspace);
-      mockOnStart.mockResolvedValueOnce(devWorkspace);
-      mockCheckForDevWorkspaceError.mockReturnValueOnce(devWorkspace);
 
       const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
 
@@ -436,6 +475,7 @@ describe('DevWorkspace store, actions', () => {
         .withUID('testDevWorkspaceUID')
         .build();
 
+      mockGetEditorName.mockReturnValueOnce('che-code');
       mockPatchTemplate.mockResolvedValueOnce({});
       mockPatchWorkspace.mockResolvedValueOnce({ devWorkspace: devWorkspace });
 
@@ -480,7 +520,7 @@ describe('DevWorkspace store, actions', () => {
             },
           },
         })
-        .withDwPlugins({}, false, undefined, 'che-incubator/che-code/latest')
+        .withDwPlugins({}, {}, false, undefined, 'che-incubator/che-code/latest')
         .build();
 
       await store.dispatch(

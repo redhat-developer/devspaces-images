@@ -158,7 +158,7 @@ describe('test storePathnameIfNeeded()', () => {
 
   test('regular path', () => {
     storePathIfNeeded('/test');
-    expect(mockUpdate).toBeCalledWith(SessionStorageKey.ORIGINAL_LOCATION_PATH, '/test');
+    expect(mockUpdate).toHaveBeenCalledWith(SessionStorageKey.ORIGINAL_LOCATION_PATH, '/test');
   });
 
   test('empty path', () => {

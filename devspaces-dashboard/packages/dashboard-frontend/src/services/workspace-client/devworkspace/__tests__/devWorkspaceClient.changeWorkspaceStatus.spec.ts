@@ -55,7 +55,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
 
     await client.changeWorkspaceStatus(testWorkspace, true);
 
-    expect(spyPatchWorkspace).toBeCalledWith(
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
       expect.arrayContaining([
@@ -90,7 +90,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
 
     await client.changeWorkspaceStatus(testWorkspace, true);
 
-    expect(spyPatchWorkspace).toBeCalledWith(
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
       expect.arrayContaining([
@@ -120,7 +120,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
 
     await client.changeWorkspaceStatus(testWorkspace, false);
 
-    expect(spyPatchWorkspace).toBeCalledWith(
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
       expect.not.arrayContaining([
