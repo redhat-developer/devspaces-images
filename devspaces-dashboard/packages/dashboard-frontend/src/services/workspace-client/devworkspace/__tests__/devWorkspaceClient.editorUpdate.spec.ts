@@ -33,16 +33,17 @@ describe('DevWorkspace client editor update', () => {
     it('should return patch for an editor if it has been updated', async () => {
       const template = getDevWorkspaceTemplate('1000m');
       const mockPatch = mockAxios.get as jest.Mock;
-      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: [template] })));
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if cpuLimit changed from '1000m' to '2000m'
       const newTemplate = getDevWorkspaceTemplate('2000m');
 
-      const url = newTemplate?.metadata?.annotations?.[
-        'che.eclipse.org/plugin-registry-url'
-      ] as string;
+      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
+
+      const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
+        editorName,
         namespace,
         {
           [url]: newTemplate.spec as devfileApi.Devfile,
@@ -53,33 +54,32 @@ describe('DevWorkspace client editor update', () => {
       );
 
       expect(mockPatch.mock.calls).toEqual([
-        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`],
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
       ]);
 
-      expect(patch).toEqual({
-        [newTemplate?.metadata?.name]: [
-          {
-            op: 'replace',
-            path: '/spec',
-            value: newTemplate.spec,
-          },
-        ],
-      });
+      expect(patch).toEqual([
+        {
+          op: 'replace',
+          path: '/spec',
+          value: newTemplate.spec,
+        },
+      ]);
     });
 
     it(`should return an empty object if it hasn't been updated`, async () => {
-      const template = getDevWorkspaceTemplate();
+      const template = getDevWorkspaceTemplate('1000m');
       const mockPatch = mockAxios.get as jest.Mock;
-      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: [template] })));
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if nothing changed
-      const newTemplate = getDevWorkspaceTemplate();
+      const newTemplate = getDevWorkspaceTemplate('1000m');
 
-      const url = newTemplate?.metadata?.annotations?.[
-        'che.eclipse.org/plugin-registry-url'
-      ] as string;
+      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
+
+      const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
+        editorName,
         namespace,
         {
           [url]: newTemplate.spec as devfileApi.Devfile,
@@ -90,10 +90,10 @@ describe('DevWorkspace client editor update', () => {
       );
 
       expect(mockPatch.mock.calls).toEqual([
-        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`],
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
       ]);
 
-      expect(patch).toEqual({});
+      expect(patch).toEqual([]);
     });
   });
 
@@ -101,7 +101,7 @@ describe('DevWorkspace client editor update', () => {
     it('should return patch for an editor if it has been updated', async () => {
       const template = getDevWorkspaceTemplate('1000m');
       const mockPatch = mockAxios.get as jest.Mock;
-      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: [template] })));
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if cpuLimit changed from '1000m' to '2000m'
       const newTemplate = getDevWorkspaceTemplate('2000m');
@@ -109,11 +109,12 @@ describe('DevWorkspace client editor update', () => {
         new Promise(resolve => resolve({ data: JSON.stringify(newTemplate.spec) })),
       );
 
-      const url = newTemplate?.metadata?.annotations?.[
-        'che.eclipse.org/plugin-registry-url'
-      ] as string;
+      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
+
+      const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
+        editorName,
         namespace,
         {},
         pluginRegistryUrl,
@@ -122,37 +123,36 @@ describe('DevWorkspace client editor update', () => {
       );
 
       expect(mockPatch.mock.calls).toEqual([
-        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`],
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
         [url],
       ]);
 
-      expect(patch).toEqual({
-        [newTemplate?.metadata?.name]: [
-          {
-            op: 'replace',
-            path: '/spec',
-            value: newTemplate.spec,
-          },
-        ],
-      });
+      expect(patch).toEqual([
+        {
+          op: 'replace',
+          path: '/spec',
+          value: newTemplate.spec,
+        },
+      ]);
     });
 
     it(`should return an empty object if it hasn't been updated`, async () => {
-      const template = getDevWorkspaceTemplate();
+      const template = getDevWorkspaceTemplate('1000m');
       const mockPatch = mockAxios.get as jest.Mock;
-      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: [template] })));
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if nothing changed
-      const newTemplate = getDevWorkspaceTemplate();
+      const newTemplate = getDevWorkspaceTemplate('1000m');
       mockPatch.mockResolvedValueOnce(
         new Promise(resolve => resolve({ data: JSON.stringify(newTemplate.spec) })),
       );
 
-      const url = newTemplate?.metadata?.annotations?.[
-        'che.eclipse.org/plugin-registry-url'
-      ] as string;
+      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
+
+      const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
+        editorName,
         namespace,
         {},
         pluginRegistryUrl,
@@ -161,30 +161,29 @@ describe('DevWorkspace client editor update', () => {
       );
 
       expect(mockPatch.mock.calls).toEqual([
-        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates`],
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
         [url],
       ]);
 
-      expect(patch).toEqual({});
+      expect(patch).toEqual([]);
     });
   });
 
   it('should patch target template', async () => {
-    const template = getDevWorkspaceTemplate();
+    const template = getDevWorkspaceTemplate('1000m');
+
+    const editorName = template.metadata.name;
 
     const spyPatchWorkspace = jest.spyOn(DwtApi, 'patchTemplate').mockResolvedValue(template);
 
-    await client.updateTemplates(namespace, {
-      [template?.metadata?.name]: [
-        {
-          op: 'replace',
-          path: '/spec',
-          value: template.spec,
-        },
-      ],
-    });
-
-    expect(spyPatchWorkspace).toBeCalledWith(namespace, template?.metadata?.name, [
+    await DwtApi.patchTemplate(namespace, editorName, [
+      {
+        op: 'replace',
+        path: '/spec',
+        value: template.spec,
+      },
+    ]);
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(namespace, editorName, [
       {
         op: 'replace',
         path: '/spec',

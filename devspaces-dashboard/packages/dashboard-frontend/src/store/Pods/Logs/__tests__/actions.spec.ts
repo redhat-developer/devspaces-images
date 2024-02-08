@@ -99,11 +99,13 @@ describe('Pod logs store, actions', () => {
       await appStore.dispatch(testStore.actionCreators.watchPodLogs(pod));
 
       expect(websocketClient.connect).toBeCalled();
-      expect(websocketClient.addChannelMessageListener).toBeCalledWith(
+      expect(websocketClient.addChannelMessageListener).toHaveBeenCalledWith(
         api.webSocket.Channel.LOGS,
         expect.any(Function),
       );
-      expect(websocketClient.unsubscribeFromChannel).toBeCalledWith(api.webSocket.Channel.LOGS);
+      expect(websocketClient.unsubscribeFromChannel).toHaveBeenCalledWith(
+        api.webSocket.Channel.LOGS,
+      );
       expect(websocketClient.subscribeToChannel).toHaveBeenCalledWith(
         api.webSocket.Channel.LOGS,
         namespace,
@@ -126,7 +128,9 @@ describe('Pod logs store, actions', () => {
 
       await appStore.dispatch(testStore.actionCreators.stopWatchingPodLogs(pod));
 
-      expect(websocketClient.unsubscribeFromChannel).toBeCalledWith(api.webSocket.Channel.LOGS);
+      expect(websocketClient.unsubscribeFromChannel).toHaveBeenCalledWith(
+        api.webSocket.Channel.LOGS,
+      );
     });
   });
 
@@ -282,7 +286,7 @@ describe('Pod logs store, actions', () => {
       const expectedActions: testStore.KnownAction[] = [];
 
       expect(actions).toStrictEqual(expectedActions);
-      expect(console.warn).toBeCalledWith('WebSocket: unexpected message:', message);
+      expect(console.warn).toHaveBeenCalledWith('WebSocket: unexpected message:', message);
     });
   });
 });

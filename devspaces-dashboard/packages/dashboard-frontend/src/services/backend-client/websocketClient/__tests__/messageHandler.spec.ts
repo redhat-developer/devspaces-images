@@ -94,7 +94,7 @@ describe('messageHandler', () => {
 
     const consoleWarn = jest.spyOn(console, 'warn').mockImplementation();
     messageHandler.notifyListeners(messageEvent);
-    expect(consoleWarn).toBeCalledWith(
+    expect(consoleWarn).toHaveBeenCalledWith(
       "[WARN] Can't parse the WS message payload:",
       'not a valid JSON',
     );
@@ -112,7 +112,7 @@ describe('messageHandler', () => {
 
     const consoleWarn = jest.spyOn(console, 'warn').mockImplementation();
     messageHandler.notifyListeners(messageEvent);
-    expect(consoleWarn).toBeCalledWith(
+    expect(consoleWarn).toHaveBeenCalledWith(
       '[WARN] Unexpected WS message payload:',
       '{"channel":"event","message":{}}',
     );

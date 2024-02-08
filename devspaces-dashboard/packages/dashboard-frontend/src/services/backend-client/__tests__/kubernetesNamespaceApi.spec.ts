@@ -30,10 +30,10 @@ describe('Kubernetes namespace API', () => {
 
   describe('fetch namespace', () => {
     it('should call "/api/kubernetes/namespace"', async () => {
-      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: expect.anything() })));
+      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: {} })));
       await getKubernetesNamespace();
 
-      expect(mockGet).toBeCalledWith('/api/kubernetes/namespace', undefined);
+      expect(mockGet).toHaveBeenCalledWith('/api/kubernetes/namespace', undefined);
       expect(mockPost).not.toBeCalled();
     });
 
@@ -54,7 +54,11 @@ describe('Kubernetes namespace API', () => {
       await provisionKubernetesNamespace();
 
       expect(mockGet).not.toBeCalled();
-      expect(mockPost).toBeCalledWith('/api/kubernetes/namespace/provision', undefined, undefined);
+      expect(mockPost).toHaveBeenCalledWith(
+        '/api/kubernetes/namespace/provision',
+        undefined,
+        undefined,
+      );
     });
 
     it('should return a list of namespaces', async () => {

@@ -109,7 +109,7 @@ describe('DevWorkspace client, create', () => {
         openVSXUrl,
       );
 
-      expect(spyCreateWorkspaceTemplate).toBeCalledWith(
+      expect(spyCreateWorkspaceTemplate).toHaveBeenCalledWith(
         expect.objectContaining({
           spec: expect.objectContaining({
             components: expect.arrayContaining([
@@ -155,7 +155,7 @@ describe('DevWorkspace client, create', () => {
         clusterConsole,
       );
 
-      expect(spyCreateWorkspaceTemplate).toBeCalledWith(
+      expect(spyCreateWorkspaceTemplate).toHaveBeenCalledWith(
         expect.objectContaining({
           spec: expect.objectContaining({
             components: expect.arrayContaining([
@@ -193,7 +193,7 @@ describe('DevWorkspace client, create', () => {
         openVSXUrl,
       );
 
-      expect(spyCreateWorkspaceTemplate).toBeCalledWith(
+      expect(spyCreateWorkspaceTemplate).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             ownerReferences: expect.arrayContaining([
@@ -217,7 +217,7 @@ describe('DevWorkspace client, create', () => {
 
       await client.createDevWorkspace(namespace, testDevWorkspace, undefined);
 
-      expect(spyCreateWorkspace).toBeCalledWith(
+      expect(spyCreateWorkspace).toHaveBeenCalledWith(
         expect.objectContaining({
           spec: expect.objectContaining({
             routingClass: routingClass,

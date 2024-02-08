@@ -31,6 +31,7 @@ import {
 import { IGitOauth } from '@/store/GitOauthConfig/types';
 import { State as InfrastructureNamespaceState } from '@/store/InfrastructureNamespaces';
 import { State as PluginsState } from '@/store/Plugins/chePlugins';
+import { PluginDefinition } from '@/store/Plugins/devWorkspacePlugins';
 import { State as LogsState } from '@/store/Pods/Logs';
 import { State as UserProfileState } from '@/store/User/Profile';
 import { State as WorkspacesState } from '@/store/Workspaces';
@@ -380,19 +381,15 @@ export class FakeStoreBuilder {
   }
 
   public withDwPlugins(
-    plugins: {
-      [location: string]: {
-        plugin?: devfileApi.Devfile;
-        url: string;
-        error?: string;
-      };
-    },
+    plugins: { [url: string]: PluginDefinition },
+    editors: { [url: string]: PluginDefinition },
     isLoading = false,
     defaultEditorError?: string,
     defaultEditorName?: string,
   ) {
     this.state.dwPlugins.defaultEditorError = defaultEditorError;
     this.state.dwPlugins.plugins = Object.assign({}, plugins);
+    this.state.dwPlugins.editors = Object.assign({}, editors);
     this.state.dwPlugins.isLoading = isLoading;
     this.state.dwPlugins.defaultEditorName = defaultEditorName;
 

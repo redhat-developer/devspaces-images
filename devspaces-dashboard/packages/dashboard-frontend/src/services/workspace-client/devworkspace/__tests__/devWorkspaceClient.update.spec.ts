@@ -54,7 +54,7 @@ describe('DevWorkspace client, update', () => {
 
     await client.update(testWorkspace);
 
-    expect(spyPatchWorkspace).toBeCalledWith(
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
       expect.arrayContaining([
@@ -88,7 +88,7 @@ describe('DevWorkspace client, update', () => {
 
     await client.update(testWorkspace);
 
-    expect(spyPatchWorkspace).toBeCalledWith(
+    expect(spyPatchWorkspace).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
       expect.arrayContaining([

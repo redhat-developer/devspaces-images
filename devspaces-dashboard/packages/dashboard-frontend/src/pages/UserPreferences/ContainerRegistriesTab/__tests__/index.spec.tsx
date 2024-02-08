@@ -97,7 +97,7 @@ describe('ContainerRegistries', () => {
     expect(editButton).toBeEnabled();
 
     userEvent.click(editButton);
-    expect(mockUpdateCredentials).toBeCalledWith([
+    expect(mockUpdateCredentials).toHaveBeenCalledWith([
       {
         url: 'http://tst',
         username: '',
@@ -133,6 +133,6 @@ describe('ContainerRegistries', () => {
     expect(deleteButton).toBeEnabled();
 
     userEvent.click(deleteButton);
-    expect(mockUpdateCredentials).toBeCalledWith([]);
+    expect(mockUpdateCredentials).toHaveBeenCalledWith([]);
   });
 });

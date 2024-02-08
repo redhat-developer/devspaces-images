@@ -391,8 +391,8 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).toBeCalledWith(location);
-      expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
+      expect(getYamlResolverSpy).toHaveBeenCalledWith(location);
+      expect(getFactoryResolverSpy).not.toHaveBeenCalledWith(location, {
         error_code: undefined,
       });
     });
@@ -404,8 +404,8 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).toBeCalledWith(location);
-      expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
+      expect(getYamlResolverSpy).toHaveBeenCalledWith(location);
+      expect(getFactoryResolverSpy).not.toHaveBeenCalledWith(location, {
         error_code: undefined,
       });
     });
@@ -417,8 +417,8 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).toBeCalledWith(location);
-      expect(getFactoryResolverSpy).not.toBeCalledWith(location, {
+      expect(getYamlResolverSpy).toHaveBeenCalledWith(location);
+      expect(getFactoryResolverSpy).not.toHaveBeenCalledWith(location, {
         error_code: undefined,
       });
     });
@@ -430,8 +430,8 @@ describe('FactoryResolver store', () => {
         factoryResolverStore.actionCreators.requestFactoryResolver(location, {}),
       );
 
-      expect(getYamlResolverSpy).not.toBeCalledWith(location);
-      expect(getFactoryResolverSpy).toBeCalledWith(location, {
+      expect(getYamlResolverSpy).not.toHaveBeenCalledWith(location);
+      expect(getFactoryResolverSpy).toHaveBeenCalledWith(location, {
         error_code: undefined,
       });
     });

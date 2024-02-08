@@ -10,8 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
-  ({
+import devfileApi from '@/services/devfileApi';
+
+const getDevWorkspaceTemplate = (cpuLimit = '1500m'): devfileApi.DevWorkspaceTemplate => {
+  return {
     apiVersion: 'workspace.devfile.io/v1alpha2',
     kind: 'DevWorkspaceTemplate',
     metadata: {
@@ -20,7 +22,7 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
         'che.eclipse.org/plugin-registry-url':
           'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/eclipse/che-theia/next/devfile.yaml',
       },
-      creationTimestamp: '2021-11-24T17:11:37Z',
+      creationTimestamp: new Date('2021-11-24T17:11:37Z'),
       generation: 1,
       name: 'theia-ide-workspacee2ade80d625b4f3e',
       namespace: 'admin-che',
@@ -149,6 +151,7 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
         preStart: ['init-container-command'],
       },
     },
-  }) as any;
+  };
+};
 
 export default getDevWorkspaceTemplate;

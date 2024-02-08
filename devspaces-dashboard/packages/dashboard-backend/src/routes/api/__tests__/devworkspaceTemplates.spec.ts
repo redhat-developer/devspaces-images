@@ -63,6 +63,16 @@ describe('DevWorkspaceTemplates Routes', () => {
       expect(res.json()).toEqual(stubDevWorkspaceTemplate);
     });
 
+    test('GET ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
+      const templateName = 'tmpl';
+      const res = await app
+        .inject()
+        .get(`${baseApiPath}/namespace/${namespace}/devworkspacetemplates/${templateName}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.json()).toEqual(stubDevWorkspaceTemplate);
+    });
+
     test('PATCH ${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName', async () => {
       const templateName = 'tmpl';
       const patches: api.IPatch[] = [

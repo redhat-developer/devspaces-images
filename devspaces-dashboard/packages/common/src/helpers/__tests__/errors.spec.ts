@@ -66,7 +66,7 @@ describe('Errors helper', () => {
     expect(getMessage(notError)).toEqual(expectedMessage);
 
     const expectedOutput = ['Unexpected error:', { alert: 'Beware of bugs!' }];
-    expect(console.error).toBeCalledWith(...expectedOutput);
+    expect(console.error).toHaveBeenCalledWith(...expectedOutput);
   });
 
   describe('Frontend errors', () => {
