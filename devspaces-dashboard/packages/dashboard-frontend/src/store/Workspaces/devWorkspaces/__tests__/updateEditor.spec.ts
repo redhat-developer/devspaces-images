@@ -89,16 +89,16 @@ describe('updateEditor, functions', () => {
     });
 
     it('should return the devWorkspace lifetime', async () => {
-      const lifetime = 1234;
+      const lifeTime = 1234;
       const devWorkspace = new DevWorkspaceBuilder()
         .withMetadata({
-          creationTimestamp: new Date(Date.now() - lifetime),
+          creationTimestamp: new Date(Date.now() - lifeTime * 1000),
         })
         .build();
 
-      const result = getLifeTimeMs(devWorkspace);
+      const result = Math.floor(getLifeTimeMs(devWorkspace) / 1000);
 
-      expect(result).toBe(1234);
+      expect(result).toBe(lifeTime);
     });
   });
 

@@ -137,7 +137,7 @@
 | [`@sigstore/sign@1.0.0`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | transitive dependency |
 | [`@sigstore/tuf@1.0.3`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | #8733 |
 | [`@sinclair/typebox@0.27.8`](https://github.com/sinclairzx81/typebox) | MIT | clearlydefined |
-| [`@sinonjs/commons@3.0.0`](git+https://github.com/sinonjs/commons.git) | BSD-3-Clause | clearlydefined |
+| [`@sinonjs/commons@3.0.0`](git+https://github.com/sinonjs/commons.git) | BSD-3-Clause | #12905 |
 | [`@sinonjs/fake-timers@10.3.0`](https://github.com/sinonjs/fake-timers.git) | BSD-3-Clause | #9214 |
 | [`@testing-library/dom@7.31.2`](https://github.com/testing-library/dom-testing-library) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.2) |
 | [`@testing-library/jest-dom@6.1.4`](https://github.com/testing-library/jest-dom) | MIT | clearlydefined |
@@ -383,7 +383,7 @@
 | [`enhanced-resolve@5.15.0`](git://github.com/webpack/enhanced-resolve.git) | MIT | #8939 |
 | [`enquirer@2.3.6`](https://github.com/enquirer/enquirer.git) | MIT | #2727 |
 | [`env-paths@2.2.1`](https://github.com/sindresorhus/env-paths.git) | MIT | clearlydefined |
-| [`envinfo@7.11.0`](https://github.com/tabrindle/envinfo) | MIT | clearlydefined |
+| [`envinfo@7.11.0`](https://github.com/tabrindle/envinfo) | MIT | #13100 |
 | [`err-code@2.0.3`](git://github.com/IndigoUnited/js-err-code.git) | MIT | clearlydefined |
 | [`error-ex@1.3.2`](https://github.com/qix-/node-error-ex.git) | MIT | clearlydefined |
 | [`es-abstract@1.22.3`](git://github.com/ljharb/es-abstract.git) | MIT | #9656 |
@@ -471,7 +471,7 @@
 | [`harmony-reflect@1.6.2`](https://tvcutsem@github.com/tvcutsem/harmony-reflect.git) | (Apache-2.0 OR MPL-1.1) | #2966 |
 | [`has-bigints@1.0.2`](git+https://github.com/ljharb/has-bigints.git) | MIT | clearlydefined |
 | [`has-flag@4.0.0`](https://github.com/sindresorhus/has-flag.git) | MIT | clearlydefined |
-| [`has-tostringtag@1.0.0`](git+https://github.com/inspect-js/has-tostringtag.git) | MIT | clearlydefined |
+| [`has-tostringtag@1.0.0`](git+https://github.com/inspect-js/has-tostringtag.git) | MIT | #13161 |
 | [`has-unicode@2.0.1`](https://github.com/iarna/has-unicode) | ISC | clearlydefined |
 | [`he@1.2.0`](https://github.com/mathiasbynens/he.git) | MIT | clearlydefined |
 | [`hosted-git-info@6.1.1`](https://github.com/npm/hosted-git-info.git) | ISC | clearlydefined |
