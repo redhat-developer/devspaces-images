@@ -288,7 +288,7 @@ RUN echo "######################################################## /tmp/vscode-r
 # Unpack the vsix files to '.build/builtInExtensions/ext_publisher.ext_name'.
 # 
 # For the details, see 'build/lib/builtInExtensions.ts'.
-COPY artifacts/ms-vscode.*.vsix /tmp/builtInExtensions/
+COPY artifacts/*.vsix /tmp/builtInExtensions/
 RUN for vsixfile in /tmp/builtInExtensions/*; do \
         # get the file name without the path
         basename="${vsixfile##*/}"; \
