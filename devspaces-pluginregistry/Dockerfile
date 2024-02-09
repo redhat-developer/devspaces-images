@@ -80,7 +80,7 @@ RUN chmod 755 /usr/local/bin/*.sh && \
     cp -r /build/output/v3 /var/www/html/
 
 COPY v3/plugins/ /var/www/html/v3/plugins/
-COPY v3/images/*.png /var/www/html/v3/images/
+COPY v3/images/*.* /var/www/html/v3/images/
 COPY /build/dockerfiles/entrypoint.sh /usr/local/bin/
 
 RUN \
@@ -139,7 +139,7 @@ RUN \
     chgrp -R 0 /var/lib/pgsql/15 /var/lib/pgsql/data /var/lib/pgsql/backups && \
     mv /var/lib/pgsql/15/data/database /var/lib/pgsql/15/data/old
 
-ARG DS_BRANCH=devspaces-3-rhel-8
+ARG DS_BRANCH=devspaces-3.12-rhel-8
 ENV DS_BRANCH=${DS_BRANCH}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
