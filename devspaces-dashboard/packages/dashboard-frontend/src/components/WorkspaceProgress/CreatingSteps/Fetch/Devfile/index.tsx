@@ -79,7 +79,9 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
     super(props);
 
     const factoryParams = buildFactoryParams(props.searchParams);
-    const name = `Inspecting repo ${factoryParams.sourceUrl} for a devfile`;
+    const name = FactoryLocationAdapter.isHttpLocation(factoryParams.sourceUrl)
+      ? `Inspecting repo ${factoryParams.sourceUrl} for a devfile`
+      : 'Applying default devfile';
 
     this.state = {
       factoryParams,
@@ -214,6 +216,12 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
       return true;
     }
 
+    // do not resolve a devfile if git+SSH URL is provided
+    if (FactoryLocationAdapter.isSshLocation(sourceUrl)) {
+      this.handleDefaultDevfile('');
+      return true;
+    }
+
     let resolveDone = false;
     try {
       // start resolving the devfile
@@ -228,12 +236,6 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         errorMessage === 'Failed to fetch devfile' ||
         errorMessage.startsWith('Could not reach devfile')
       ) {
-        // do not throw if git+SSH URL is provided
-        if (FactoryLocationAdapter.isSshLocation(sourceUrl)) {
-          this.handleDefaultDevfile('');
-          return true;
-        }
-
         throw new UnsupportedGitProviderError(errorMessage);
       }
       throw e;
