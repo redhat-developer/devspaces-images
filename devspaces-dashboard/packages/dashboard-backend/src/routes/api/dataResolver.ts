@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import axios, { AxiosResponse } from 'axios';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { baseApiPath } from '@/constants/config';
@@ -20,6 +21,10 @@ import { getSchema } from '@/services/helpers';
 
 const tags = ['Data Resolver'];
 
+const config = {
+  headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET' },
+};
+
 export function registerDataResolverRoute(instance: FastifyInstance) {
   instance.register(async server => {
     server.post(
@@ -28,12 +33,12 @@ export function registerDataResolverRoute(instance: FastifyInstance) {
       async function (request: FastifyRequest, reply: FastifyReply): Promise<string | void> {
         const { url } = request.body as restParams.IYamlResolverParams;
 
-        const response = await axiosInstance.get(url, {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET',
-          },
-        });
+        let response: AxiosResponse;
+        try {
+          response = await axios.get(url, config);
+        } catch (e) {
+          response = await axiosInstance.get(url, config);
+        }
         reply.code(response.status);
         reply.send(response.data);
         return reply;
