@@ -42,12 +42,6 @@ https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/ta
   <p>NOTE: this job is not meant to create tags in repos, as branching occurs BEFORE GA, and tagging occurs AFTER.
         ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("sdawley")
-            }
-        }
-
         logRotator {
             daysToKeep(5)
             numToKeep(5)

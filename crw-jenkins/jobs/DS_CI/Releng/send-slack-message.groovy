@@ -30,12 +30,6 @@ This job will also trigger <a href=../../push-latest-containers-to-quay_'''+JB+'
 to refresh quay images. 
             ''')
 
-            properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-            }
-
             throttleConcurrentBuilds {
                 maxPerNode(1)
                 maxTotal(1)

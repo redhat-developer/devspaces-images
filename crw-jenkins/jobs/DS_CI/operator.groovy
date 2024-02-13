@@ -66,10 +66,6 @@ Artifact builder + sync job; triggers brew after syncing
             ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
                 // watch upstream but with some ignored folders

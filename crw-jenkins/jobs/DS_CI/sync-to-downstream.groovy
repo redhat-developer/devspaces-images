@@ -30,12 +30,6 @@ Sync job between midstream repo https://github.com/redhat-developer/devspaces-im
 
             ''')
 
-            properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-            }
-
             logRotator {
                 daysToKeep(45)
                 numToKeep(90)

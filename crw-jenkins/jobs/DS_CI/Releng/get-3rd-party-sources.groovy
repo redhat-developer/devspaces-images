@@ -37,12 +37,6 @@ Collect sources from pkgs.devel and vsix files and rsync to spmm-util so they ca
 </blockquote></p>
 ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("sdawley")
-            }
-        }
-
         logRotator {
             daysToKeep(5)
             numToKeep(5)

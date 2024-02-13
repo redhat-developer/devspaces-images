@@ -68,10 +68,6 @@ Results: <ul><li> <a href=https://quay.io/repository/devspaces/dsc?tab=tags>quay
 ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
                 JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 

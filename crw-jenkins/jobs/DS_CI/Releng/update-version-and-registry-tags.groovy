@@ -23,12 +23,6 @@ This job is meant to bootstrap a new release of DS, by bumping versions in
 job-config.json, VERSION file and registries, then committing changes.
         ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("sdawley")
-            }
-        }
-
         logRotator {
             daysToKeep(5)
             numToKeep(5)

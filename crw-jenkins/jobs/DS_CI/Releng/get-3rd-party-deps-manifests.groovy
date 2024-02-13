@@ -34,12 +34,6 @@ as part of a GA release.
 <p>NOTE! Tags for the current release must exist first, but can be optionally created as part of this job.
         ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("sdawley")
-            }
-        }
-
         logRotator {
             daysToKeep(5)
             numToKeep(5)

@@ -27,10 +27,6 @@ for (JB in JOB_BRANCHES) {
 Copy latest filtered IIBs to <a href=https://quay.io/devspaces/iib>https://quay.io/devspaces/iib</a>''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 disableResumeJobProperty()
             }
 

@@ -61,10 +61,6 @@ Artifact builder + sync job; triggers brew after syncing
             ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("vzhukovs")
-                }
-
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
                 
                 JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 

@@ -9,10 +9,6 @@ To override the normal report type to today, choose a different type. <br/>
 Use <b>dry run</b> flag and your own email address to control output before sending emails to component owners.''')
 
     properties {
-        ownership {
-            primaryOwnerId("sdawley")
-        }
-
         pipelineTriggers {
             triggers {
                 cron {

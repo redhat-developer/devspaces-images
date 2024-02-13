@@ -34,10 +34,6 @@ for global CVE updates.
             ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 pipelineTriggers {
                     triggers{
                         cron {

@@ -28,12 +28,6 @@ for (JB in JOB_BRANCHES) {
 Send an email to QE announcing an ER or RC build, including a list of images. This job will also trigger <a href=../copyIIBsToQuay>copyIIBsToQuay</a> to refresh <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a> tags. 
             ''')
 
-            properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-            }
-
             throttleConcurrentBuilds {
                 maxPerNode(1)
                 maxTotal(1)

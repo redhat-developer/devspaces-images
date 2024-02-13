@@ -54,10 +54,6 @@ UDI image builder (including assets); triggers brew
             ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
                 // for builds where the upstream repo is devspaces-images, must configure 

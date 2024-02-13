@@ -67,10 +67,6 @@ Artifact builder + sync job; triggers brew after syncing
             ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
                 disableResumeJobProperty()

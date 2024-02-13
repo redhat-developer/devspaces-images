@@ -79,10 +79,6 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
 ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 disableResumeJobProperty()
             }
 

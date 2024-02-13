@@ -21,9 +21,6 @@ This job is used to copy the latest DWO bundle + its operands to
 ''')
         
         properties {
-            ownership {
-                primaryOwnerId("sdawley")
-            }
             pipelineTriggers {
                 triggers{
                     cron {

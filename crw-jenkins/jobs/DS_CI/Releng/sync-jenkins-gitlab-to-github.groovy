@@ -9,10 +9,6 @@ Sync DS_CI jobs in gitlab repo to github.
         ''')
 
         properties {
-            ownership {
-                primaryOwnerId("sdawley")
-            }
-
             pipelineTriggers {
                 triggers{
                     cron {

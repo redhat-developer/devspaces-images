@@ -3,10 +3,6 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
     description('''Sync job between github issues and jira for docs team''')
 
     properties {
-        ownership {
-            primaryOwnerId("sdawley")
-        }
-
         pipelineTriggers {
             triggers {
                 cron {

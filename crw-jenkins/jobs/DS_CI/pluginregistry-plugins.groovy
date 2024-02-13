@@ -50,10 +50,6 @@ Currently builds:
             ''')
 
             properties {
-                ownership {
-                    primaryOwnerId("sdawley")
-                }
-
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
                 disableResumeJobProperty()
