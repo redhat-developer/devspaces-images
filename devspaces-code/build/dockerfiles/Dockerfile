@@ -84,7 +84,7 @@ RUN yarn \
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi9/nodejs-18
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-84 as linux-libc-ubi9-builder
+FROM registry.access.redhat.com/ubi9/nodejs-18:1-88 as linux-libc-ubi9-builder
 
 USER root
 
@@ -157,7 +157,7 @@ RUN yarn \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8/ubi:8.9 AS ubi-builder
+FROM registry.access.redhat.com/ubi8/ubi:8.9-1107 AS ubi-builder
 
 RUN mkdir -p /mnt/rootfs
 RUN yum install --installroot /mnt/rootfs brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
