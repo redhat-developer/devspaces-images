@@ -17,7 +17,7 @@ import groovy.json.JsonSlurper
 // NOTE: if rpm install in docker build problems reoccur, see CRW-1958
 def String nodeLabel = 'x86_64-rhel8||ppc64le-rhel8'
 currentBuild.description="Building " + QUAY_REPO_PATHs + "... "
-timeout(240) {
+timeout(360) {
   node(nodeLabel) { 
     stage ("Build on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
