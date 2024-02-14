@@ -107,9 +107,10 @@ export function registerDevWorkspaceTemplates(instance: FastifyInstance) {
             request.params as restParams.INamespacedTemplateParams;
           const token = getToken(request);
           const { devWorkspaceTemplateApi: templateApi } = getDevWorkspaceClient(token);
+
           await templateApi.delete(namespace, templateName);
-          reply.code(204);
-          return reply.send();
+
+          reply.code(204).send();
         },
       );
     }

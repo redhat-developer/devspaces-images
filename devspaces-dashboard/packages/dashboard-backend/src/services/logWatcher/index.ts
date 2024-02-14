@@ -15,6 +15,8 @@ import { FastifyInstance } from 'fastify';
 
 import { isCheClusterCustomResource } from '@/devworkspaceClient';
 import { prepareCustomObjectWatch } from '@/devworkspaceClient/services/helpers/prepareCustomObjectWatch';
+import { isLocalRun } from '@/localRun';
+import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
 import { getServiceAccountToken } from '@/routes/api/helpers/getServiceAccountToken';
 import { KubeConfigProvider } from '@/services/kubeclient/kubeConfigProvider';
 import { logger, updateLogLevel } from '@/utils/logger';
@@ -28,7 +30,15 @@ export async function watchLogLevel(server: FastifyInstance) {
   const kubeConfigProvider = new KubeConfigProvider();
   const kubeConfig = kubeConfigProvider.getKubeConfig(token);
 
-  watchCR(kubeConfig, server);
+  const localRun = isLocalRun();
+  if (localRun) {
+    const { serverConfigApi } = getDevWorkspaceClient(token);
+    const cheCustomResource = await serverConfigApi.fetchCheCustomResource();
+    const logLevel = cheCustomResource.spec.components?.dashboard?.logLevel || 'silent';
+    updateLogLevel(logLevel, server);
+  } else {
+    await watchCR(kubeConfig, server);
+  }
 }
 
 // Watch for changes to the Che Cluster Custom Resource object

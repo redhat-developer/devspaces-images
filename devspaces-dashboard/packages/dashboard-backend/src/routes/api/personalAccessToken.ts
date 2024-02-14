@@ -77,7 +77,8 @@ export function registerPersonalAccessTokenRoutes(instance: FastifyInstance) {
         const { personalAccessTokenApi } = getDevWorkspaceClient(token);
 
         await personalAccessTokenApi.delete(namespace, tokenName);
-        return reply.code(204).send();
+
+        reply.code(204).send();
       },
     );
   });

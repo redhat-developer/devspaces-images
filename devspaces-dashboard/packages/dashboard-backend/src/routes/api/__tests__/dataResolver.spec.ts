@@ -13,15 +13,15 @@
 import { FastifyInstance } from 'fastify';
 
 import { baseApiPath } from '@/constants/config';
-import { axiosInstance } from '@/routes/api/helpers/getCertificateAuthority';
+import { axiosInstance, axiosInstanceNoCert } from '@/routes/api/helpers/getCertificateAuthority';
+import { createFastifyError } from '@/services/helpers';
 import { setup, teardown } from '@/utils/appBuilder';
 
-jest.mock('@/routes/api/helpers/getDevWorkspaceClient.ts');
-jest.mock('@/routes/api/helpers/getToken.ts');
-
 jest.mock('@/routes/api/helpers/getCertificateAuthority');
-const getAxiosInstanceMock = jest.fn();
-(axiosInstance.get as jest.Mock).mockImplementation(getAxiosInstanceMock);
+const axiosInstanceMock = jest.fn();
+(axiosInstance.get as jest.Mock).mockImplementation(axiosInstanceMock);
+const defaultAxiosInstanceMock = jest.fn();
+(axiosInstanceNoCert.get as jest.Mock).mockImplementation(defaultAxiosInstanceMock);
 
 describe('Data Resolver Route', () => {
   let app: FastifyInstance;
@@ -34,37 +34,111 @@ describe('Data Resolver Route', () => {
     teardown(app);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('POST ${baseApiPath}/data/resolver', () => {
-    test('file exists', async () => {
-      const devfileContent = 'devfile content';
-      getAxiosInstanceMock.mockResolvedValue({
-        status: 200,
-        data: devfileContent,
+    describe('with certificate authority', () => {
+      beforeEach(() => {
+        defaultAxiosInstanceMock.mockRejectedValueOnce({
+          response: {
+            headers: {},
+            status: 500,
+            config: {},
+            statusText: '500 Internal Server Error',
+            data: createFastifyError(
+              'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+              'Internal Server Error',
+              500,
+            ),
+          },
+        });
       });
 
-      const res = await app
-        .inject()
-        .post(`${baseApiPath}/data/resolver`)
-        .payload({ url: 'https://devfile.yaml' });
+      test('file exists', async () => {
+        axiosInstanceMock.mockResolvedValueOnce({
+          status: 200,
+          data: 'test content',
+        });
 
-      expect(res.statusCode).toEqual(200);
-      expect(res.body).toEqual(devfileContent);
+        const res = await app
+          .inject()
+          .post(`${baseApiPath}/data/resolver`)
+          .payload({ url: 'https://devfile.yaml' });
+
+        expect(defaultAxiosInstanceMock).toHaveBeenCalledTimes(1);
+        expect(axiosInstanceMock).toHaveBeenCalledTimes(1);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual('test content');
+      });
+
+      test('file not found', async () => {
+        axiosInstanceMock.mockRejectedValueOnce({
+          response: {
+            headers: {},
+            status: 404,
+            config: {},
+            statusText: '404 Not Found',
+            data: createFastifyError('ERR_BAD_REQUEST', 'Not Found', 404),
+          },
+        });
+
+        const res = await app
+          .inject()
+          .post(`${baseApiPath}/data/resolver`)
+          .payload({ url: 'https://devfile.yaml' });
+
+        expect(defaultAxiosInstanceMock).toHaveBeenCalledTimes(1);
+        expect(axiosInstanceMock).toHaveBeenCalledTimes(1);
+        expect(res.statusCode).toEqual(404);
+        expect(res.body).toEqual(
+          '{"statusCode":404,"code":"ERR_BAD_REQUEST","error":"Not Found","message":"Not Found"}',
+        );
+      });
     });
+    describe('without certificate authority', () => {
+      test('file exists', async () => {
+        defaultAxiosInstanceMock.mockResolvedValueOnce({
+          status: 200,
+          data: 'test content',
+        });
 
-    test('file not found', async () => {
-      const responseText = 'not found';
-      getAxiosInstanceMock.mockResolvedValue({
-        status: 404,
-        data: responseText,
+        const res = await app
+          .inject()
+          .post(`${baseApiPath}/data/resolver`)
+          .payload({ url: 'https://devfile.yaml' });
+
+        expect(defaultAxiosInstanceMock).toHaveBeenCalledTimes(1);
+        expect(axiosInstanceMock).toHaveBeenCalledTimes(0);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual('test content');
       });
 
-      const res = await app
-        .inject()
-        .post(`${baseApiPath}/data/resolver`)
-        .payload({ url: 'https://devfile.yaml' });
+      test('file not found', async () => {
+        const fastifyError = createFastifyError('ERR_BAD_REQUEST', 'Not Found', 404);
+        defaultAxiosInstanceMock.mockRejectedValueOnce({
+          response: {
+            headers: {},
+            status: 404,
+            config: {},
+            statusText: '404 Not Found',
+            data: fastifyError,
+          },
+        });
 
-      expect(res.statusCode).toEqual(404);
-      expect(res.body).toEqual(responseText);
+        const res = await app
+          .inject()
+          .post(`${baseApiPath}/data/resolver`)
+          .payload({ url: 'https://devfile.yaml' });
+
+        expect(defaultAxiosInstanceMock).toHaveBeenCalledTimes(1);
+        expect(axiosInstanceMock).toHaveBeenCalledTimes(0);
+        expect(res.statusCode).toEqual(404);
+        expect(res.body).toEqual(
+          '{"statusCode":404,"code":"ERR_BAD_REQUEST","error":"Not Found","message":"Not Found"}',
+        );
+      });
     });
   });
 });

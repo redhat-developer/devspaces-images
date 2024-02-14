@@ -21,7 +21,7 @@ export function registerWorkspaceRedirect(instance: FastifyInstance): void {
         const params = searchParams.get('params');
         if (params) {
           const parse: { namespace: string; workspace: string } = JSON.parse(params);
-          return reply.redirect(`/dashboard/#/ide/${parse.namespace}/${parse.workspace}`);
+          reply.redirect(`/dashboard/#/ide/${parse.namespace}/${parse.workspace}`);
         }
       });
     });
