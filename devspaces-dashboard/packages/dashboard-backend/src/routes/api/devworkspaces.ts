@@ -57,8 +57,7 @@ export function registerDevworkspacesRoutes(instance: FastifyInstance) {
         const { devworkspaceApi } = getDevWorkspaceClient(token);
         const { headers, devWorkspace } = await devworkspaceApi.create(devworkspace, namespace);
 
-        reply.headers(headers);
-        reply.send(devWorkspace);
+        reply.headers(headers).send(devWorkspace);
       },
     );
 
@@ -89,8 +88,7 @@ export function registerDevworkspacesRoutes(instance: FastifyInstance) {
           patch,
         );
 
-        reply.headers(headers);
-        reply.send(devWorkspace);
+        reply.headers(headers).send(devWorkspace);
       },
     );
 
@@ -111,9 +109,10 @@ export function registerDevworkspacesRoutes(instance: FastifyInstance) {
           request.params as restParams.INamespacedWorkspaceParams;
         const token = getToken(request);
         const { devworkspaceApi } = getDevWorkspaceClient(token);
+
         await devworkspaceApi.delete(namespace, workspaceName);
-        reply.code(204);
-        return reply.send();
+
+        reply.code(204).send();
       },
     );
   });

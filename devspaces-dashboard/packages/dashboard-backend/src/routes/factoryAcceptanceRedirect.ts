@@ -39,7 +39,7 @@ export function registerFactoryAcceptanceRedirect(instance: FastifyInstance): vo
 
         const sanitizedQueryParams = helpers.sanitizeSearchParams(params);
 
-        return reply.redirect('/dashboard/#/load-factory?' + sanitizedQueryParams.toString());
+        reply.redirect('/dashboard/#/load-factory?' + sanitizedQueryParams.toString());
       });
     });
   }

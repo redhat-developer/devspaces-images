@@ -59,7 +59,8 @@ export function registerSShKeysRoutes(instance: FastifyInstance) {
         const { sshKeysApi } = getDevWorkspaceClient(token);
 
         await sshKeysApi.delete(namespace, name);
-        return reply.code(204).send();
+
+        reply.code(204).send();
       },
     );
   });

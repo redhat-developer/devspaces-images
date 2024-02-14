@@ -50,12 +50,13 @@ export function registerWorkspacePreferencesRoute(instance: FastifyInstance) {
         const { namespace, provider } = request.params as restParams.IWorkspacePreferencesParams;
         const token = getToken(request);
         const { devWorkspacePreferencesApi } = getDevWorkspaceClient(token);
+
         await devWorkspacePreferencesApi.removeProviderFromSkipAuthorizationList(
           namespace,
           provider,
         );
-        reply.code(204);
-        return reply.send();
+
+        reply.code(204).send();
       },
     );
   });

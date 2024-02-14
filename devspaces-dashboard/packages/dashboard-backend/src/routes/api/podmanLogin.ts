@@ -41,8 +41,7 @@ export function registerPodmanLoginRoute(instance: FastifyInstance) {
         const { podmanApi } = getDevWorkspaceClient(token);
         const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
         await podmanApi.podmanLogin(namespace, devworkspaceId);
-        reply.code(204);
-        return reply.send();
+        reply.code(204).send();
       },
     );
   });

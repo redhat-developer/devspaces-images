@@ -17,10 +17,10 @@ export function registerDexCallback(server: FastifyInstance) {
     try {
       const { token } = await server.localStart.getAccessTokenFromAuthorizationCodeFlow(request);
       process.env.CLUSTER_ACCESS_TOKEN = token.access_token;
-      return reply.redirect('/dashboard/');
+      reply.redirect('/dashboard/');
     } catch (e) {
       // handle an error that usually occurs during the authorization flow from an abandoned tab with outdated state
-      return reply.redirect('/oauth/sign_in');
+      reply.redirect('/oauth/sign_in');
     }
   });
 }

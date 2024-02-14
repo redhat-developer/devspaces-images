@@ -40,8 +40,8 @@ export function registerKubeConfigRoute(instance: FastifyInstance) {
         const { kubeConfigApi } = getDevWorkspaceClient(token);
         const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParams;
         await kubeConfigApi.injectKubeConfig(namespace, devworkspaceId);
-        reply.code(204);
-        return reply.send();
+
+        reply.code(204).send();
       },
     );
   });

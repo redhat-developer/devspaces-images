@@ -16,7 +16,7 @@ export function stubCheServerOptionsRequests(server: FastifyInstance) {
   // stub OPTIONS requests to '/api/' since they fail when running the backend locally.
   server.addHook('onRequest', (request, reply, done) => {
     if ((request.url === '/api' || request.url === '/api/') && request.method === 'OPTIONS') {
-      return reply.send({
+      reply.send({
         implementationVersion: 'Local Run',
       });
     }
