@@ -254,7 +254,9 @@ services:
 
 _Required, Default="unix:///var/run/docker.sock"_
 
+<!-- markdownlint-disable MD051 -->
 See the sections [Docker API Access](#docker-api-access) and [Docker Swarm API Access](#docker-api-access_1) for more information.
+<!-- markdownlint-restore -->
 
 ??? example "Using the docker.sock"
 
@@ -265,7 +267,7 @@ See the sections [Docker API Access](#docker-api-access) and [Docker Swarm API A
 
     services:
       traefik:
-         image: traefik:v2.9 # The official v2 Traefik docker image
+         image: traefik:v2.11 # The official v2 Traefik docker image
          ports:
            - "80:80"
          volumes:
@@ -440,10 +442,11 @@ _Optional, Default=```Host(`{{ normalize .Name }}`)```_
 
 The `defaultRule` option defines what routing rule to apply to a container if no rule is defined by a label.
 
-It must be a valid [Go template](https://pkg.go.dev/text/template/), and can use
-[sprig template functions](https://masterminds.github.io/sprig/).
-The container service name can be accessed with the `Name` identifier,
-and the template has access to all the labels defined on this container.
+It must be a valid [Go template](https://pkg.go.dev/text/template/),
+and can use [sprig template functions](https://masterminds.github.io/sprig/).
+The container name can be accessed with the `ContainerName` identifier.
+The service name can be accessed with the `Name` identifier.
+The template has access to all the labels defined on this container with the `Labels` identifier.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -462,6 +465,13 @@ providers:
 --providers.docker.defaultRule=Host(`{{ .Name }}.{{ index .Labels \"customLabel\"}}`)
 # ...
 ```
+
+??? info "Default rule and Traefik service"
+
+    The exposure of the Traefik container, combined with the default rule mechanism,
+    can lead to create a router targeting itself in a loop.
+    In this case, to prevent an infinite loop,
+    Traefik adds an internal middleware to refuse the request if it comes from the same router.
 
 ### `swarmMode`
 

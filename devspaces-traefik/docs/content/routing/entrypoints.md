@@ -589,17 +589,77 @@ Controls the behavior of Traefik during the shutdown phase.
     --entryPoints.name.transport.lifeCycle.graceTimeOut=42
     ```
 
+#### `keepAliveMaxRequests`
+
+_Optional, Default=0_
+
+The maximum number of requests Traefik can handle before sending a `Connection: Close` header to the client (for HTTP2, Traefik sends a GOAWAY). Zero means no limit.
+
+    ```yaml tab="File (YAML)"
+    ## Static configuration
+    entryPoints:
+      name:
+        address: ":8888"
+        transport:
+          keepAliveMaxRequests: 42
+    ```
+
+    ```toml tab="File (TOML)"
+    ## Static configuration
+    [entryPoints]
+      [entryPoints.name]
+        address = ":8888"
+        [entryPoints.name.transport]
+          keepAliveMaxRequests = 42
+    ```
+
+    ```bash tab="CLI"
+    ## Static configuration
+    --entryPoints.name.address=:8888
+    --entryPoints.name.transport.keepAliveMaxRequests=42
+    ```
+
+#### `keepAliveMaxTime`
+
+_Optional, Default=0s_
+
+The maximum duration Traefik can handle requests before sending a `Connection: Close` header to the client (for HTTP2, Traefik sends a GOAWAY). Zero means no limit.
+
+    ```yaml tab="File (YAML)"
+    ## Static configuration
+    entryPoints:
+      name:
+        address: ":8888"
+        transport:
+          keepAliveMaxTime: 42s
+    ```
+
+    ```toml tab="File (TOML)"
+    ## Static configuration
+    [entryPoints]
+      [entryPoints.name]
+        address = ":8888"
+        [entryPoints.name.transport]
+          keepAliveMaxTime = 42s
+    ```
+
+    ```bash tab="CLI"
+    ## Static configuration
+    --entryPoints.name.address=:8888
+    --entryPoints.name.transport.keepAliveMaxTime=42s
+    ```
+
 ### ProxyProtocol
 
-Traefik supports [ProxyProtocol](https://www.haproxy.org/download/2.0/doc/proxy-protocol.txt) version 1 and 2.
+Traefik supports [PROXY protocol](https://www.haproxy.org/download/2.0/doc/proxy-protocol.txt) version 1 and 2.
 
-If Proxy Protocol header parsing is enabled for the entry point, this entry point can accept connections with or without Proxy Protocol headers.
+If PROXY protocol header parsing is enabled for the entry point, this entry point can accept connections with or without PROXY protocol headers.
 
-If the Proxy Protocol header is passed, then the version is determined automatically.
+If the PROXY protocol header is passed, then the version is determined automatically.
 
 ??? info "`proxyProtocol.trustedIPs`"
 
-    Enabling Proxy Protocol with Trusted IPs.
+    Enabling PROXY protocol with Trusted IPs.
 
     ```yaml tab="File (YAML)"
     ## Static configuration
@@ -662,7 +722,7 @@ If the Proxy Protocol header is passed, then the version is determined automatic
 
 !!! warning "Queuing Traefik behind Another Load Balancer"
 
-    When queuing Traefik behind another load-balancer, make sure to configure Proxy Protocol on both sides.
+    When queuing Traefik behind another load-balancer, make sure to configure PROXY protocol on both sides.
     Not doing so could introduce a security risk in your system (enabling request forgery).
 
 ## HTTP Options
@@ -832,6 +892,44 @@ This section is a convenience to enable (permanent) redirecting of all incoming 
     ```bash tab="CLI"
     --entrypoints.foo.http.redirections.entrypoint.priority=10
     ```
+
+### EncodeQuerySemicolons
+
+_Optional, Default=false_
+
+The `encodeQuerySemicolons` option allows to enable query semicolons encoding.
+One could use this option to avoid non-encoded semicolons to be interpreted as query parameter separators by Traefik.
+When using this option, the non-encoded semicolons characters in query will be transmitted encoded to the backend.
+
+```yaml tab="File (YAML)"
+entryPoints:
+  websecure:
+    address: ':443'
+    http:
+      encodeQuerySemicolons: true
+```
+
+```toml tab="File (TOML)"
+[entryPoints.websecure]
+  address = ":443"
+
+  [entryPoints.websecure.http]
+    encodeQuerySemicolons = true
+```
+
+```bash tab="CLI"
+--entrypoints.websecure.address=:443
+--entrypoints.websecure.http.encodequerysemicolons=true
+```
+
+#### Examples
+
+| EncodeQuerySemicolons | Request Query       | Resulting Request Query |
+|-----------------------|---------------------|-------------------------|
+| false                 | foo=bar;baz=bar     | foo=bar&baz=bar         |
+| true                  | foo=bar;baz=bar     | foo=bar%3Bbaz=bar       |
+| false                 | foo=bar&baz=bar;foo | foo=bar&baz=bar&foo     |
+| true                  | foo=bar&baz=bar;foo | foo=bar&baz=bar%3Bfoo   |
 
 ### Middlewares
 
