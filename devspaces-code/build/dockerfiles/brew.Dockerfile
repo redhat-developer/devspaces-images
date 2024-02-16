@@ -461,7 +461,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -instal
 # https://registry.access.redhat.com/ubi8
 FROM ubi8:8.9-1107 as ubi-builder
 
-RUN mkdir -p /mnt/rootfs/projects /mnt/rootfs/home/che
+RUN mkdir -p /mnt/rootfs/projects /mnt/rootfs/home/che /mnt/rootfs/remote/data/Machine/
 # hadolint ignore=DL3033
 RUN yum install --installroot /mnt/rootfs tar gzip brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
 RUN rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
@@ -473,12 +473,13 @@ RUN cat /mnt/rootfs/etc/passwd | sed 's#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}
     && cat /mnt/rootfs/etc/group | sed 's#root:x:0:#root:x:0:0,\${USER_ID}:#g' > /mnt/rootfs/home/che/.group.template
 
 COPY /build/scripts/entrypoint*.sh /mnt/rootfs/
+COPY /build/remote-config/settings.json /mnt/rootfs/remote/data/Machine/settings.json
 COPY --from=checode-linux-libc-ubi8-builder --chown=0:0 /checode /mnt/rootfs/checode-linux-libc/ubi8
 COPY --from=checode-linux-libc-ubi9-builder --chown=0:0 /checode /mnt/rootfs/checode-linux-libc/ubi9
 COPY --from=machineexec-builder --chown=0:0 /rootfs/go/bin/che-machine-exec /mnt/rootfs/bin/machine-exec
 
 # hadolint ignore=SC2086
-RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" "/mnt/rootfs/etc/group" "/mnt/rootfs/projects" "/mnt/rootfs/entrypoint*.sh" "/mnt/rootfs/checode-linux-libc" ; do\
+RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" "/mnt/rootfs/etc/group" "/mnt/rootfs/projects" "/mnt/rootfs/entrypoint*.sh" "/mnt/rootfs/checode-linux-libc" "/mnt/rootfs/remote/data/Machine/settings.json" ; do\
            chgrp -R 0 ${f} && \
            chmod -R g+rwX ${f}; \
        done
