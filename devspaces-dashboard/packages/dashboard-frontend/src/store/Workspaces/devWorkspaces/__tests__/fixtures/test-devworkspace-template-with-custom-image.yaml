@@ -9,10 +9,10 @@ spec:
     - attributes:
         controller.devfile.io/container-contribution: true
       container:
-        image: test-images/che-code:tag
+        image: quay.io/devfile/universal-developer-image:next
       name: che-code-runtime-description
     - name: checode
       volume: {}
     - container:
-        image: quay.io/che-incubator/che-code:next
+        image: test-images/che-code:tag
       name: che-code-injector

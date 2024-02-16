@@ -91,10 +91,7 @@ function updateComponents(
   }
   let isUpdated = false;
   for (let i = 0; i < components.length; i++) {
-    if (
-      components[i].attributes?.['controller.devfile.io/container-contribution'] &&
-      components[i].container?.image
-    ) {
+    if (components[i].name.endsWith('-injector') && components[i].container?.image) {
       components[i].container!.image = editorImage;
       isUpdated = true;
       break;
