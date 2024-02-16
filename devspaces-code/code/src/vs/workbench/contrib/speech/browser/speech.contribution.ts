@@ -3,22 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-declare module 'vscode' {
+import { InstantiationType, registerSingleton } from 'vs/platform/instantiation/common/extensions';
+import { ISpeechService } from 'vs/workbench/contrib/speech/common/speechService';
+import { SpeechService } from 'vs/workbench/contrib/speech/browser/speechService';
 
-	// ChatML
-	export enum ChatMessageRole {
-		System = 0,
-		User = 1,
-		Assistant = 2,
-	}
-
-	// ChatML
-	export class ChatMessage {
-		role: ChatMessageRole;
-		content: string;
-		name?: string;
-
-		constructor(role: ChatMessageRole, content: string);
-	}
-
-}
+registerSingleton(ISpeechService, SpeechService, InstantiationType.Delayed);
