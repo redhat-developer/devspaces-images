@@ -1,5 +1,6 @@
 {
     "name": "devspaces-pluginregistry",
+    "version": "3.12.0",
     "description": "NPM dependencies for building Dev Spaces Pluginregistry in OSBS",
     "dependencies": {
         "ovsx": "^0.8.3"
