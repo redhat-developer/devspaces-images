@@ -47,11 +47,7 @@ metadata:
             "namespace": "openshift-devspaces"
           },
           "spec": {
-            "components": {
-              "pluginRegistry" : {
-                 "disableInternalRegistry": "true",
-              },
-            },
+            "components": {},
             "containerRegistry": {},
             "devEnvironments": {},
             "gitServices": {},
