@@ -231,6 +231,26 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		echo "    ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
 
+  # Ensure that internal devfile registry is enabled by default in downstream
+  # See https://github.com/eclipse/che/issues/22485
+  ALM_EXAMPLES=$(yq -r '.metadata.annotations["alm-examples"]' "${TARGETDIR}/manifests/devspaces.csv.yaml")
+  V1_EXAMPLE=$(echo "$ALM_EXAMPLES" | yq '(.[] | select(.apiVersion=="org.eclipse.che/v1"))')
+  V2_EXAMPLE=$(echo "$ALM_EXAMPLES" | yq '(.[] | select(.apiVersion=="org.eclipse.che/v2"))')
+  FIXED_V2_EXAMPLE=$(echo "$V2_EXAMPLE" | \
+    yq 'del(.spec.components.devfileRegistry.disableInternalRegistry)' | \
+    yq 'del(.spec.components.devfileRegistry.externalDevfileRegistries)'| \
+    yq 'del(.spec.components.devfileRegistry | select(length == 0))')
+  FIXED_V1_EXAMPLE=$(echo "$V1_EXAMPLE" | \
+    yq 'del(.spec.server.externalDevfileRegistry)' | \
+    yq 'del(.spec.server.devfileRegistryUrl)'| \
+    yq 'del(.spec.server.externalDevfileRegistries)'| \
+    yq 'del(.spec.server | select(length == 0))')
+  FIXED_ALM_EXAMPLES=$(echo "$ALM_EXAMPLES" | \
+    yq '(.[] | select(.apiVersion=="org.eclipse.che/v1")) |= '"$FIXED_V1_EXAMPLE" | \
+    yq '(.[] | select(.apiVersion=="org.eclipse.che/v2")) |= '"$FIXED_V2_EXAMPLE" | \
+    sed -r 's/"/\\"/g')
+  yq -riY ".metadata.annotations[\"alm-examples\"] = \"$FIXED_ALM_EXAMPLES\"" "${TARGETDIR}/manifests/devspaces.csv.yaml"
+
 	# Change the install Mode to AllNamespaces by default
 	yq -Yi '.spec.installModes[] |= if .type=="OwnNamespace" then .supported |= false else . end' "${CSVFILE}"
 	yq -Yi '.spec.installModes[] |= if .type=="SingleNamespace" then .supported |= false else . end' "${CSVFILE}"
