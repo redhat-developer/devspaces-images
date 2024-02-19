@@ -906,7 +906,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:50f1b4c65541b56b85f42bc9b3127bc7bc9faad1974067ce11481de7596e4c6e
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:875e2f8e9fd4122f824bae25b4ba0451ff9df9af0e0cf086e192e6eda3563b2f
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:e605aac8dabc3d23977aa7e8936397b235690420d0d85a21091bffe17ebde363
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1285,7 +1285,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:50f1b4c65541b56b85f42bc9b3127bc7bc9faad1974067ce11481de7596e4c6e
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:875e2f8e9fd4122f824bae25b4ba0451ff9df9af0e0cf086e192e6eda3563b2f
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:e605aac8dabc3d23977aa7e8936397b235690420d0d85a21091bffe17ebde363
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
