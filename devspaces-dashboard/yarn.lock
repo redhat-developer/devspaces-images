@@ -380,10 +380,10 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.80.0.tgz#3e62755ebe6598391fd0b77436ef0092fd9e7e20"
   integrity sha512-+steYN8zsI/KH6sv1/avrpg+JV+NhplavyD92B334eGMBTevrzDFSOsWXB0a3z/u6BZ4wCPbxAwQr5gPMbVk+g==
 
-"@eclipse-che/che-devworkspace-generator@7.79.0-next-1427c19":
-  version "7.79.0-next-1427c19"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.79.0-next-1427c19.tgz#2530b87d3e551b2c71ebb84e3e2e15c8229c0a19"
-  integrity sha512-eIu2bW165I4UzYFdpFQ1c2JXU1qGd7RRO4ITWE4To372+Cq1DTKNMjhVdj40DDeU2Pw1UjYh3Rr0flS7KBAUbg==
+"@eclipse-che/che-devworkspace-generator@7.82.0":
+  version "7.82.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.82.0.tgz#974b6d064cadef61e5ede82943c8f7bb6ab0f663"
+  integrity sha512-/eHSaN8ILT3ObJDSV1FOF13z6g3N8K3XN5c0i/lO+n71NmNh6Gq5gRUmPnogeDBbRZGvRHX1/owADWZSu1Jsgw==
   dependencies:
     "@devfile/api" "2.2.2-1700686170"
     axios "1.6.0"

@@ -502,7 +502,7 @@
 | [`inquirer@8.2.6`](https://github.com/SBoudrias/Inquirer.js.git) | MIT | transitive dependency |
 | [`internal-slot@1.0.6`](git+https://github.com/ljharb/internal-slot.git) | MIT | #7118 |
 | [`interpret@3.1.1`](https://github.com/gulpjs/interpret.git) | MIT | clearlydefined |
-| [`ip@2.0.0`](http://github.com/indutny/node-ip.git) | MIT | clearlydefined |
+| [`ip@2.0.0`](http://github.com/indutny/node-ip.git) | MIT | #13289 |
 | [`is-array-buffer@3.0.2`](git+https://github.com/inspect-js/is-array-buffer.git) | MIT | #6248 |
 | [`is-arrayish@0.2.1`](https://github.com/qix-/node-is-arrayish.git) | MIT | clearlydefined |
 | [`is-async-function@2.0.0`](git://github.com/inspect-js/is-async-function.git) | MIT | clearlydefined |
