@@ -158,9 +158,9 @@ RUN \
         bash bash-completion tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree vim \
         # For OpenShift Client 4 (oc): rhocp-4.12-for-rhel-8-x86_64-rpms
         # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
-        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.12/os/Packages/o/odo-3.9.0-1.el8.x86_64.rpm
-        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.12/os/Packages/o/odo-3.9.0-1.el8.s390x.rpm
-        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.12/os/Packages/o/odo-3.9.0-1.el8.ppc64le.rpm
+        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.12/os/Packages/o/odo-3.9.0-1.el8.x86_64.rpm
+        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.12/os/Packages/o/odo-3.9.0-1.el8.s390x.rpm
+        # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.12/os/Packages/o/odo-3.9.0-1.el8.ppc64le.rpm
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.x86_64.rpm
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.s390x.rpm
         # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.12/os/Packages/h/helm-3.10.1-2.el8.ppc64le.rpm
