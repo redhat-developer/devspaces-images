@@ -29,7 +29,7 @@ timeout(240) {
                         util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "devspaces", MIDSTM_BRANCH, false)
 
                         def NEW_IMAGES = sh (
-                            script: "cd ${WORKSPACE}/devspaces/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/devspaces/dependencies/LATEST_IMAGES.new",
+                            script: "cd ${WORKSPACE}/devspaces/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION} --hide | tee ${WORKSPACE}/devspaces/dependencies/LATEST_IMAGES.new",
                             returnStdout: true
                         ).trim().split()
 
