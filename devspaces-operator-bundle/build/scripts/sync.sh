@@ -207,8 +207,16 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
 EOT
 echo "Generated Dockerfile"
 
-"${TARGETDIR}"/build/scripts/sync-che-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
-"${TARGETDIR}"/build/scripts/sync-che-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/getLatestImageTags.sh --output /tmp/getLatestImageTags.sh
+if [[ $(cat /tmp/getLatestImageTags.sh) == *"404"* ]] || [[ $(cat /tmp/getLatestImageTags.sh) == *"Not Found"* ]]; then
+    echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/getLatestImageTags.sh"
+    exit 1
+fi
+chmod +x /tmp/getLatestImageTags.sh
+UBI_TAG=$(/tmp/getLatestImageTags.sh -c ubi8/ubi-minimal --tag "8."); UBI_TAG=${UBI_TAG##*:}
+
+"${TARGETDIR}"/build/scripts/sync-che-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/" --ubi-tag "${UBI_TAG}"
+"${TARGETDIR}"/build/scripts/sync-che-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/" --ubi-tag "${UBI_TAG}"
 
 pushd "${TARGETDIR}"/ >/dev/null || exit
 rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ pkg/ vendor/ version/ go.* *.go
