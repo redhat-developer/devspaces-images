@@ -74,7 +74,7 @@ timeout(90) {
                     if (doCollectImages.equals("true")) {
                         parallel quay_check: {
                             NEW_QUAY = sh (
-                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION} --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
                                 returnStdout: true).trim().split( '\n' )
                                 errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
                         }, 
@@ -169,7 +169,7 @@ Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
                     // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
                     def latestBundleImage = sh(script: '''#!/bin/bash
         curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
-        ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+        ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''
         ''', returnStdout: true).trim()
 
                     // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
@@ -284,7 +284,7 @@ Quay Index (IIB) Images: ''' + mailBodyQuayIIBs
                     mailBody = mailBody + '''
 
 (latest IIBs in OSBS can be queried with: 
-  $ ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+  $ ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''
   ''' + latestBundleImage + '''
 
   $ for OCP_VER in ''' + OCP_VERSIONS + '''; do \\

@@ -167,7 +167,7 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
                             while (true) 
                             {
                                 def rebuiltOperatorBundleImage = sh (
-                                script: "cd ${WORKSPACE}/devspaces/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'devspaces/devspaces-operator-bundle' --quay --tag ${DS_VERSION}- --hide",
+                                script: "cd ${WORKSPACE}/devspaces/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'devspaces/devspaces-operator-bundle' --quay --tag ${DS_VERSION} --hide",
                                 returnStdout: true
                                 ).trim()
                                 println "${rebuiltOperatorBundleImage}"

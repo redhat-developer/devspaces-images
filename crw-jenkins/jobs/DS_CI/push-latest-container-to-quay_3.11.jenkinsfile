@@ -96,7 +96,7 @@ wait
 
                     def NEW_QUAY = ""
                     NEW_QUAY = sh (
-                        script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                        script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION} --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
                         returnStdout: true).trim().split( '\n' )
                     errorOccurred = checkFailureQuay(NEW_QUAY, errorOccurred)
 
