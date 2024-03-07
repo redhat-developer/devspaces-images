@@ -1,0 +1,581 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 3ade6d12de3a
+STEP 3/23: ARG BOOTSTRAP=true
+--> ead8cafac16d
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> c15906a5e04b
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> fbb84e3eebfc
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 8a77d5967e9b
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> d79062643cfc
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> f84c9f778b8a
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 97d85c8087c3
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> fa861e0412de
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.x86_64        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch               
+Installed:
+  containers-common-2:1-71.module+el8.9.0+21243+a586538b.x86_64                 
+  criu-3.18-4.module+el8.9.0+21243+a586538b.x86_64                              
+  fuse-common-3.3.0-17.el8.x86_64                                               
+  fuse-overlayfs-1.12-1.module+el8.9.0+21243+a586538b.x86_64                    
+  fuse3-3.3.0-17.el8.x86_64                                                     
+  fuse3-libs-3.3.0-17.el8.x86_64                                                
+  jq-1.6-7.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-1.module+el8.9.0+21243+a586538b.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-2.1.el8_9.x86_64                                              
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.5-1.el8_9.x86_64                                              
+  python3.11-devel-3.11.5-1.el8_9.x86_64                                        
+  python3.11-libs-3.11.5-1.el8_9.x86_64                                         
+  python3.11-pip-22.3.1-4.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-4.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.12-1.module+el8.9.0+21243+a586538b.x86_64                          
+  skopeo-2:1.13.3-3.module+el8.9.0+21243+a586538b.x86_64                        
+  slirp4netns-1.2.1-1.module+el8.9.0+21243+a586538b.x86_64                      
+
+Collecting yq
+  Downloading yq-3.2.3-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.2.2-py3-none-any.whl (42 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.3/42.3 kB 5.0 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-24.0-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 56.9 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 375.2 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.4-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.2.2 pip-24.0 tomlkit-0.12.4 xmltodict-0.13.0 yq-3.2.3
+python: Python 3.8.16
+yq: yq 3.2.3
+jq: jq-1.6
+--> ed1949a7a194
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 10ad6ede7dc9
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 5f62f4bb55f6
+STEP 14/23: COPY ./VERSION /
+--> a0f9ff86bab2
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 1e3f4167175a
+STEP 16/23: WORKDIR /build/
+--> 2b5f160d5c42
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 83 contributors and audited 31 packages in 4.07s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 284e155d7b96
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> bcbc7140bc26
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.12 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.12 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.12 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ = quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.12 PASS - 3.12 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.12 PASS - 3.12 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.12 PASS - 3.12 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 603b374366b4
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 84dea9486722
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 0ab95f8d4623
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 3895065e51a4
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 0cfb95d02bfa
+Successfully tagged localhost/devfileregistry:tmp
+0cfb95d02bfa1b6ee75c31be5c2d447ba6761886c36c405b70300529252e4e68
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/container.py	2024-02-09 11:34:14.000000000 -0500
++++ /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/container.py	2024-03-07 08:19:28.072889808 -0500
+@@ -227,9 +227,9 @@
+                     if item.is_super_table():
+                         # We need to merge both super tables
+                         if (
+-                            self._table_keys[-1] != current_body_element[0]
+-                            or key.is_dotted()
++                            key.is_dotted()
+                             or current_body_element[0].is_dotted()
++                            or self._table_keys[-1] != current_body_element[0]
+                         ):
+                             if key.is_dotted() and not self._parsed:
+                                 idx = self._get_last_index_before_table()
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/__init__.py	2024-02-09 11:34:14.000000000 -0500
++++ /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/__init__.py	2024-03-07 08:19:28.072889808 -0500
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.3"
++__version__ = "0.12.4"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/items.py	2024-02-09 11:34:14.000000000 -0500
++++ /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/items.py	2024-03-07 08:19:28.072889808 -0500
+@@ -1412,6 +1412,7 @@
+                 if (
+                     idx == 0
+                     and len(self._value) > 0
++                    and self._value[idx].indent
+                     and "\n" not in self._value[idx].indent.s
+                 ):
+                     # Remove the indentation of the first item if not newline
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/_types.py /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/_types.py
+--- /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages/tomlkit/_types.py	2024-02-09 11:34:14.000000000 -0500
++++ /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages/tomlkit/_types.py	2024-03-07 08:19:28.072889808 -0500
+@@ -43,9 +43,27 @@
+     class _CustomList(MutableSequence, list):
+         """Adds MutableSequence mixin while pretending to be a builtin list"""
+ 
++        def __add__(self, other):
++            new_list = self.copy()
++            new_list.extend(other)
++            return new_list
++
++        def __iadd__(self, other):
++            self.extend(other)
++            return self
++
+     class _CustomDict(MutableMapping, dict):
+         """Adds MutableMapping mixin while pretending to be a builtin dict"""
+ 
++        def __or__(self, other):
++            new_dict = self.copy()
++            new_dict.update(other)
++            return new_dict
++
++        def __ior__(self, other):
++            self.update(other)
++            return self
++
+     class _CustomInt(Integral, int):
+         """Adds Integral mixin while pretending to be a builtin int"""
+ 
+@@ -54,7 +72,7 @@
+ 
+ 
+ def wrap_method(
+-    original_method: Callable[Concatenate[WT, P], Any]
++    original_method: Callable[Concatenate[WT, P], Any],
+ ) -> Callable[Concatenate[WT, P], Any]:
+     def wrapper(self: WT, *args: P.args, **kwargs: P.kwargs) -> Any:
+         result = original_method(self, *args, **kwargs)
+Only in /tmp/tmp.0n16PDYNen/lib/python3.11/site-packages: tomlkit-0.12.3.dist-info
+Only in /tmp/tmp.Y5Pjm4PTad/lib/python3.11/site-packages: tomlkit-0.12.4.dist-info
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.XgmWvayEbf/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml /tmp/tmp.WIu054EuD8/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.XgmWvayEbf/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2024-02-09 11:34:16.000000000 -0500
++++ /tmp/tmp.WIu054EuD8/devfiles/ansible__ansible-demo/devworkspace-che-code-insiders.yaml	2024-03-07 08:19:29.941889808 -0500
+@@ -93,7 +93,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++              quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -137,20 +137,20 @@
+               kind: run
+               isDefault: true
+             component: tooling-container
+-        - id: molecule-verify
++        - id: molecule-converge
+           exec:
+-            label: '3.Molecule: run the verification against the test pod'
+-            commandLine: source $HOME/.bashrc && molecule verify
++            label: '3.Molecule: apply the role to the pod'
++            commandLine: source $HOME/.bashrc && molecule converge
+             workingDir: >-
+               ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+             group:
+               kind: run
+               isDefault: true
+             component: tooling-container
+-        - id: molecule-converge
++        - id: molecule-verify
+           exec:
+-            label: '4.Molecule: apply the role to the pod'
+-            commandLine: source $HOME/.bashrc && molecule converge
++            label: '4.Molecule: run the verification against the test pod'
++            commandLine: source $HOME/.bashrc && molecule verify
+             workingDir: >-
+               ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+             group:
+@@ -207,7 +207,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++            quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -251,20 +251,20 @@
+             kind: run
+             isDefault: true
+           component: tooling-container
+-      - id: molecule-verify
++      - id: molecule-converge
+         exec:
+-          label: '3.Molecule: run the verification against the test pod'
+-          commandLine: source $HOME/.bashrc && molecule verify
++          label: '3.Molecule: apply the role to the pod'
++          commandLine: source $HOME/.bashrc && molecule converge
+           workingDir: >-
+             ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+           group:
+             kind: run
+             isDefault: true
+           component: tooling-container
+-      - id: molecule-converge
++      - id: molecule-verify
+         exec:
+-          label: '4.Molecule: apply the role to the pod'
+-          commandLine: source $HOME/.bashrc && molecule converge
++          label: '4.Molecule: run the verification against the test pod'
++          commandLine: source $HOME/.bashrc && molecule verify
+           workingDir: >-
+             ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+           group:
+diff --suppress-common-lines -u -r /tmp/tmp.XgmWvayEbf/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml /tmp/tmp.WIu054EuD8/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.XgmWvayEbf/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2024-02-09 11:34:16.000000000 -0500
++++ /tmp/tmp.WIu054EuD8/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2024-03-07 08:19:29.941889808 -0500
+@@ -93,7 +93,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++              quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -137,20 +137,20 @@
+               kind: run
+               isDefault: true
+             component: tooling-container
+-        - id: molecule-verify
++        - id: molecule-converge
+           exec:
+-            label: '3.Molecule: run the verification against the test pod'
+-            commandLine: source $HOME/.bashrc && molecule verify
++            label: '3.Molecule: apply the role to the pod'
++            commandLine: source $HOME/.bashrc && molecule converge
+             workingDir: >-
+               ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+             group:
+               kind: run
+               isDefault: true
+             component: tooling-container
+-        - id: molecule-converge
++        - id: molecule-verify
+           exec:
+-            label: '4.Molecule: apply the role to the pod'
+-            commandLine: source $HOME/.bashrc && molecule converge
++            label: '4.Molecule: run the verification against the test pod'
++            commandLine: source $HOME/.bashrc && molecule verify
+             workingDir: >-
+               ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+             group:
+@@ -207,7 +207,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++            quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -251,20 +251,20 @@
+             kind: run
+             isDefault: true
+           component: tooling-container
+-      - id: molecule-verify
++      - id: molecule-converge
+         exec:
+-          label: '3.Molecule: run the verification against the test pod'
+-          commandLine: source $HOME/.bashrc && molecule verify
++          label: '3.Molecule: apply the role to the pod'
++          commandLine: source $HOME/.bashrc && molecule converge
+           workingDir: >-
+             ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+           group:
+             kind: run
+             isDefault: true
+           component: tooling-container
+-      - id: molecule-converge
++      - id: molecule-verify
+         exec:
+-          label: '4.Molecule: apply the role to the pod'
+-          commandLine: source $HOME/.bashrc && molecule converge
++          label: '4.Molecule: run the verification against the test pod'
++          commandLine: source $HOME/.bashrc && molecule verify
+           workingDir: >-
+             ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+           group:
+diff --suppress-common-lines -u -r /tmp/tmp.XgmWvayEbf/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml /tmp/tmp.WIu054EuD8/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.XgmWvayEbf/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2024-02-09 11:34:16.000000000 -0500
++++ /tmp/tmp.WIu054EuD8/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2024-03-07 08:19:29.941889808 -0500
+@@ -112,7 +112,7 @@
+         - name: tooling-container
+           container:
+             image: >-
+-              quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++              quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+             memoryRequest: 256M
+             memoryLimit: 6Gi
+             cpuRequest: 250m
+@@ -156,20 +156,20 @@
+               kind: run
+               isDefault: true
+             component: tooling-container
+-        - id: molecule-verify
++        - id: molecule-converge
+           exec:
+-            label: '3.Molecule: run the verification against the test pod'
+-            commandLine: source $HOME/.bashrc && molecule verify
++            label: '3.Molecule: apply the role to the pod'
++            commandLine: source $HOME/.bashrc && molecule converge
+             workingDir: >-
+               ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+             group:
+               kind: run
+               isDefault: true
+             component: tooling-container
+-        - id: molecule-converge
++        - id: molecule-verify
+           exec:
+-            label: '4.Molecule: apply the role to the pod'
+-            commandLine: source $HOME/.bashrc && molecule converge
++            label: '4.Molecule: run the verification against the test pod'
++            commandLine: source $HOME/.bashrc && molecule verify
+             workingDir: >-
+               ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+             group:
+@@ -226,7 +226,7 @@
+       - name: tooling-container
+         container:
+           image: >-
+-            quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++            quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+           memoryRequest: 256M
+           memoryLimit: 6Gi
+           cpuRequest: 250m
+@@ -270,20 +270,20 @@
+             kind: run
+             isDefault: true
+           component: tooling-container
+-      - id: molecule-verify
++      - id: molecule-converge
+         exec:
+-          label: '3.Molecule: run the verification against the test pod'
+-          commandLine: source $HOME/.bashrc && molecule verify
++          label: '3.Molecule: apply the role to the pod'
++          commandLine: source $HOME/.bashrc && molecule converge
+           workingDir: >-
+             ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+           group:
+             kind: run
+             isDefault: true
+           component: tooling-container
+-      - id: molecule-converge
++      - id: molecule-verify
+         exec:
+-          label: '4.Molecule: apply the role to the pod'
+-          commandLine: source $HOME/.bashrc && molecule converge
++          label: '4.Molecule: run the verification against the test pod'
++          commandLine: source $HOME/.bashrc && molecule verify
+           workingDir: >-
+             ${PROJECTS_ROOT}/ansible-devspaces-demo/collections/ansible_collections/sample_namespace/sample_collection/extensions
+           group:
+diff --suppress-common-lines -u -r /tmp/tmp.XgmWvayEbf/devfiles/external_images_by_devfile.txt /tmp/tmp.WIu054EuD8/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.XgmWvayEbf/devfiles/external_images_by_devfile.txt	2024-02-09 11:34:16.000000000 -0500
++++ /tmp/tmp.WIu054EuD8/devfiles/external_images_by_devfile.txt	2024-03-07 08:19:29.942889808 -0500
+@@ -1,6 +1,6 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.12	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.12	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.12	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.12-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.XgmWvayEbf/devfiles/external_images.txt /tmp/tmp.WIu054EuD8/devfiles/external_images.txt
+--- /tmp/tmp.XgmWvayEbf/devfiles/external_images.txt	2024-02-09 11:34:16.000000000 -0500
++++ /tmp/tmp.WIu054EuD8/devfiles/external_images.txt	2024-03-07 08:19:29.942889808 -0500
+@@ -1,4 +1,4 @@
+-quay.io/devspaces/ansible-creator-ee@sha256:de3afc21b2d466dbe8b5da8b484ecd1538e1f56db5084a46cd193133a96cb56f
++quay.io/devspaces/ansible-creator-ee@sha256:5d9bc07920753cfd1aafcab21358060d08f846865d5dd75a02941787471c838c
+ registry.redhat.io/devspaces/code-rhel8:3.12
+ registry.redhat.io/devspaces/idea-rhel8:3.12
+ registry.redhat.io/devspaces/udi-rhel8:3.12
+Binary files /tmp/tmp.XgmWvayEbf/resources/v2/ansible-devspaces-demo.zip and /tmp/tmp.WIu054EuD8/resources/v2/ansible-devspaces-demo.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 0cfb95d02bfa1b6ee75c31be5c2d447ba6761886c36c405b70300529252e4e68
+Deleted: 3895065e51a42c84f4bbfd1d4ba0f41e492f706098d18d63fa1d9e82adcc154f
+Deleted: 0ab95f8d4623fdcb26e2bc9ee8623198878dd14eef6a3e4d6d7cb86f25d09ad0
+Deleted: 84dea94867226cc800040feb437d76a846f60896a6fbe0f6b99eb327b5e3a1f6
+Deleted: 603b374366b43157f1f1f815a1716bba0fe26c35caccef443ec3be0bf6b421ea
+Deleted: bcbc7140bc26a7984060d45b58018445b08b150814479cdb0e71b775e5c1ef8d
+Deleted: 284e155d7b966d588a09deab4dfbb6270dbbe6c9f31c8b010df34ea214f5539f
+Deleted: 2b5f160d5c421228985764bc812ace5b0b21ef52b5b0050a06e3135e4e2ef624
+Deleted: 1e3f4167175a27fe10e23e8982b8f6ee508ed8c47457a8bc3fb2fdb062d37b14
+Deleted: a0f9ff86bab2c02807c6c457c84d9008cd6f015ca76fdc11bd3d96793496ef78
+Deleted: 5f62f4bb55f68037c5be7146cde4ae6983c838774ffacb19d485aec004c38d3b
+Deleted: 10ad6ede7dc96816819aecfe59704885f35b89af9813263b9e54d88c9010f2fd
+Deleted: ed1949a7a19421cc75be009f5e93522bec2e6aae67b56978430d4189b9a56a9c
+Deleted: fa861e0412de0396104bb705e013a3c44aeb386a65be606362bbb279901a9c5d
+Deleted: 97d85c8087c312dfd34168ea7360923f9dac35a7516e7547d1aa02acfb6832fd
+Deleted: f84c9f778b8abcc6ea85ecc2e04087d01dcbb8cf4f0c7d62cf90db3ab78c7031
+Deleted: d79062643cfcde38525831c93a42cd78f8a3fab5cdb7498de5ee778089bd950f
+Deleted: 8a77d5967e9bece5b5960b00f8d6c9d01317d501a195574e5799661bdda5ac95
+Deleted: fbb84e3eebfc9721fdb140b9f43605bc0542da1fc126b6f8f7fc682b270e6fd8
+Deleted: c15906a5e04b7ecd3d7b3d01b366f84d92f9ab9e9ab50b53908f9d9408537241
+Deleted: ead8cafac16d10e590727657a81d3a17e826787bcc115d56420518cf4f37399e
+Deleted: 3ade6d12de3aab6ca554c5ddd33b655b7c095b2fb88647d38a914a9f671687c4
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
