@@ -175,8 +175,8 @@ if [[ ${TAR_DIFF} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 		log "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
 		gitbranch="$(git rev-parse --abbrev-ref HEAD)"
-		if [[ $scratchFlag == "--scratch" ]]; then gitbranch="devspaces-3-rhel-8"; fi
 		target=${gitbranch}-containers-candidate
+		if [[ $scratchFlag == "--scratch" ]]; then target=devspaces-3-rhel-8-containers-candidate; fi
 		repo="$(git remote -v | grep origin | head -1 | sed -r -e "s#.+/containers/(.+) \(fetch.+#\1#")"
 		sha="$(git rev-parse HEAD)"
 		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} ${scratchFlag} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
@@ -193,8 +193,8 @@ else
 		log "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
 		gitbranch="$(git rev-parse --abbrev-ref HEAD)"
-		if [[ $scratchFlag == "--scratch" ]]; then gitbranch="devspaces-3-rhel-8"; fi
 		target=${gitbranch}-containers-candidate
+		if [[ $scratchFlag == "--scratch" ]]; then target=devspaces-3-rhel-8-containers-candidate; fi
 		repo="$(git remote -v | grep origin | head -1 | sed -r -e "s#.+/containers/(.+) \(fetch.+#\1#")"
 		sha="$(git rev-parse HEAD)"
 		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} ${scratchFlag} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
