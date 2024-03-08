@@ -151,7 +151,7 @@ if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 		target=${gitbranch}-containers-candidate
 		repo="$(git remote -v | grep origin | head -1 | sed -r -e "s#.+/containers/(.+) \(fetch.+#\1#")"
 		sha="$(git rev-parse HEAD)"
-		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
+		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} ${scratchFlag} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
 		taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
 		ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
@@ -169,7 +169,7 @@ else
 		target=${gitbranch}-containers-candidate
 		repo="$(git remote -v | grep origin | head -1 | sed -r -e "s#.+/containers/(.+) \(fetch.+#\1#")"
 		sha="$(git rev-parse HEAD)"
-		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
+		tmpfile=$(mktemp) && brew container-build ${target} git+https://pkgs.devel.redhat.com/git/containers/${repo}#${sha} --git-branch ${gitbranch} ${scratchFlag} --nowait 2>/dev/null | tee 2>&1 "${tmpfile}"
 		taskID=$(cat "${tmpfile}" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "${tmpfile}"
 		ERRORS="$(grep "image build failed" "${tmpfile}")" && rm -f "${tmpfile}"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
