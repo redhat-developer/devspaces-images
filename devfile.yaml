@@ -1,0 +1,43 @@
+#
+# Copyright (c) 2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+schemaVersion: 2.2.0
+metadata:
+  name: devspaces-images
+components:
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:ubi8-latest
+      memoryRequest: 1Gi
+      memoryLimit: 8Gi
+      cpuLimit: '4'
+      cpuRequest: '0.5'
+commands:
+  #devspaces-operator
+  - id: operator-go-build
+    exec:
+      label: Build Eclipse Che Operator binary
+      component: tooling-container
+      commandLine: make build
+      workingDir: ${PROJECT_SOURCE}/devspaces-operator
+  - id: operator-go-run
+    exec:
+      label: Run Eclipse Che Operator
+      component: tooling-container
+      commandLine: make run
+      workingDir: ${PROJECT_SOURCE}/devspaces-operator
+  - id: operator-go-test
+    exec:
+      label: Run unit tests
+      component: tooling-container
+      commandLine: make test
+      workingDir: ${PROJECT_SOURCE}/devspaces-operator
+  #devspaces-operator-bundle
