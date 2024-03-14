@@ -14,3 +14,13 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-pluginregistry
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: 03588209388ce14179c03e3a9833d5c157b3b846
+    pkg_managers: [yarn]
+    packages:
+      yarn:
+        - path: devspaces-pluginregistry/cachito/ovsx
