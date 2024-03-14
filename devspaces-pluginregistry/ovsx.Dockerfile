@@ -11,6 +11,10 @@
 #   IBM Corporation - implementation
 #
 
+# ovsx.Dockerfile is used to build the ovsx npm package and its dependencies using yarn
+# The result is a node_modules directory that can be copied to the final image
+# The directory is located at /tmp/opt/ovsx/node_modules
+
 # https://registry.access.redhat.com/ubi8/nodejs-18
 FROM registry.access.redhat.com/ubi8/nodejs-18:1-94 as builder
 
