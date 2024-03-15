@@ -76,6 +76,7 @@ echo ".github/
 /build/scripts/sync.sh
 /bootstrap.Dockerfile
 /ovsx.Dockerfile
+/cachito
 /cvp.yml
 /container.yaml
 /content_sets.*
