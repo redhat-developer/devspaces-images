@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021-2023 Red Hat, Inc.
+# Copyright (c) 2021-2024 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -75,6 +75,8 @@ echo ".github/
 .gitattributes
 /build/scripts/sync.sh
 /bootstrap.Dockerfile
+/ovsx.Dockerfile
+/cachito
 /cvp.yml
 /container.yaml
 /content_sets.*
@@ -111,7 +113,18 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
     -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
+    `# Replace ovsx installation part with the cachito friendly way` \
+    -e '/# Copy OVSX npm package/,/^RUN tar -xf ovsx.tar.gz -C \/ && rm ovsx.tar.gz && ls -la \/tmp\/opt\/ovsx\/bin\//c\
+# Copy OVSX npm package from the previous stage\nCOPY --from=builder --chown=0:0 \/tmp\/opt\/ovsx \/tmp\/opt\/ovsx' \
+    -e 's|/tmp/opt/ovsx/bin|/tmp/opt/ovsx/node_modules/.bin|g' \
   > "${TARGETDIR}/Dockerfile"
+
+# Concatenate the content of ovsx.Dockerfile and final Dockerfile into a temporary file
+cat "${TARGETDIR}/ovsx.Dockerfile" "${TARGETDIR}/Dockerfile" > "${TARGETDIR}/tmp.Dockerfile"
+# Overwrite the final Dockerfile with the concatenated content
+mv "${TARGETDIR}/tmp.Dockerfile" "${TARGETDIR}/Dockerfile"
+# Clean up by removing the temporary file
+rm -f "${TARGETDIR}/tmp.Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\

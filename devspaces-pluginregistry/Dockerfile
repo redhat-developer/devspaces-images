@@ -1,4 +1,49 @@
 #
+# Copyright (c) 2024 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# ovsx.Dockerfile is used to build the ovsx npm package and its dependencies using yarn
+# The result is a node_modules directory that can be copied to the final image
+# The directory is located at /tmp/opt/ovsx/node_modules
+
+# https://registry.access.redhat.com/ubi8/nodejs-18
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-94 as builder
+
+# hadolint ignore=DL3002
+USER root
+
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry 
+ENV NPM_CONFIG_NODEDIR=/usr
+
+# cachito:yarn step 1: copy cachito sources where we can use them;
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+
+# hadolint ignore=SC2086
+RUN source $REMOTE_SOURCES_DIR/devspaces-pluginregistry/cachito.env; \
+       cat $REMOTE_SOURCES_DIR/devspaces-pluginregistry/cachito.env 
+
+# cachito:yarn step 2: workaround for yarn not being installed in an executable path, taking yarn from the dashboard part
+# hadolint ignore=SC2086
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn
+
+# cachito:yarn step 3: install ovsx dependencies using yarn
+# put the node_modules of ovsx npm library into /tmp/opt/ovsx location so we can copy them to the final image
+RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry/cachito/ovsx \
+ && yarn \
+ && mkdir -p /tmp/opt/ovsx && cp -r $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry/cachito/ovsx/node_modules/. /tmp/opt/ovsx/node_modules \
+ && echo "OVSX version:" \
+ && /tmp/opt/ovsx/node_modules/.bin/ovsx --version
+
+#
 # Copyright (c) 2018-2023 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
@@ -49,10 +94,8 @@ RUN tar --no-same-owner -xf openvsx-server.tar.gz && rm openvsx-server.tar.gz
 COPY /build/dockerfiles/application.yaml /openvsx-server/config/
 RUN chmod -R g+rwx /openvsx-server
 
-# Copy OVSX npm package
-RUN mkdir -p /tmp/opt
-COPY --chown=0:0 /ovsx.tar.gz .
-RUN tar -xf ovsx.tar.gz -C / && rm ovsx.tar.gz && ls -la /tmp/opt/ovsx/bin/
+# Copy OVSX npm package from the previous stage
+COPY --from=builder --chown=0:0 /tmp/opt/ovsx /tmp/opt/ovsx
 
 RUN \
     # Apply permissions to later change these files on httpd
@@ -111,7 +154,7 @@ ENV LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     PGDATA=/var/lib/pgsql/15/data/database \
-    PATH="/tmp/opt/ovsx/bin:$PATH" \
+    PATH="/tmp/opt/ovsx/node_modules/.bin:$PATH" \
     # use a cached version of the license list and not go over the internet
     # it's needed for openvsx server when vsix is publishing on AirGap environment
     # https://issues.redhat.com/browse/CRW-3481
@@ -121,7 +164,7 @@ RUN \
     echo "======================" && \
     echo -n "node:  "; node --version && \
     echo "======================" \
-    echo -n "ovsx:  "; /tmp/opt/ovsx/bin/ovsx --version && \
+    echo -n "ovsx:  "; /tmp/opt/ovsx/node_modules/.bin/ovsx --version && \
     echo "======================"
 
 RUN chmod 777 /var/run/postgresql && \
