@@ -1,5 +1,3 @@
-## CODE GENERATED AUTOMATICALLY
-## THIS FILE MUST NOT BE EDITED BY HAND
 http:
   routers:
     Router0:
@@ -48,11 +46,6 @@ http:
               - foobar
   services:
     Service01:
-      failover:
-        service: foobar
-        fallback: foobar
-        healthCheck: {}
-    Service02:
       loadBalancer:
         sticky:
           cookie:
@@ -79,18 +72,19 @@ http:
         responseForwarding:
           flushInterval: foobar
         serversTransport: foobar
-    Service03:
+    Service02:
       mirroring:
         service: foobar
         maxBodySize: 42
+        healthCheck: {}
         mirrors:
           - name: foobar
             percent: 42
           - name: foobar
             percent: 42
-        healthCheck: {}
-    Service04:
+    Service03:
       weighted:
+        healthCheck: {}
         services:
           - name: foobar
             weight: 42
@@ -102,12 +96,16 @@ http:
             secure: true
             httpOnly: true
             sameSite: foobar
+    Service04:
+      failover:
+        service: foobar
+        fallback: foobar
         healthCheck: {}
   middlewares:
-    Middleware01:
+    Middleware00:
       addPrefix:
         prefix: foobar
-    Middleware02:
+    Middleware01:
       basicAuth:
         users:
           - foobar
@@ -116,34 +114,34 @@ http:
         realm: foobar
         removeHeader: true
         headerField: foobar
-    Middleware03:
+    Middleware02:
       buffering:
         maxRequestBodyBytes: 42
         memRequestBodyBytes: 42
         maxResponseBodyBytes: 42
         memResponseBodyBytes: 42
         retryExpression: foobar
-    Middleware04:
+    Middleware03:
       chain:
         middlewares:
           - foobar
           - foobar
-    Middleware05:
+    Middleware04:
       circuitBreaker:
         expression: foobar
         checkPeriod: 42s
         fallbackDuration: 42s
         recoveryDuration: 42s
-    Middleware06:
+    Middleware05:
       compress:
         excludedContentTypes:
           - foobar
           - foobar
         minResponseBodyBytes: 42
-    Middleware07:
+    Middleware06:
       contentType:
         autoDetect: true
-    Middleware08:
+    Middleware07:
       digestAuth:
         users:
           - foobar
@@ -152,14 +150,14 @@ http:
         removeHeader: true
         realm: foobar
         headerField: foobar
-    Middleware09:
+    Middleware08:
       errors:
         status:
           - foobar
           - foobar
         service: foobar
         query: foobar
-    Middleware10:
+    Middleware09:
       forwardAuth:
         address: foobar
         tls:
@@ -176,7 +174,7 @@ http:
         authRequestHeaders:
           - foobar
           - foobar
-    Middleware11:
+    Middleware10:
       headers:
         customRequestHeaders:
           name0: foobar
@@ -230,17 +228,7 @@ http:
         featurePolicy: foobar
         permissionsPolicy: foobar
         isDevelopment: true
-    Middleware12:
-      ipAllowList:
-        sourceRange:
-          - foobar
-          - foobar
-        ipStrategy:
-          depth: 42
-          excludedIPs:
-            - foobar
-            - foobar
-    Middleware13:
+    Middleware11:
       ipWhiteList:
         sourceRange:
           - foobar
@@ -250,7 +238,7 @@ http:
           excludedIPs:
             - foobar
             - foobar
-    Middleware14:
+    Middleware12:
       inFlightReq:
         amount: 42
         sourceCriterion:
@@ -261,14 +249,13 @@ http:
               - foobar
           requestHeaderName: foobar
           requestHost: true
-    Middleware15:
+    Middleware13:
       passTLSClientCert:
         pem: true
         info:
           notAfter: true
           notBefore: true
           sans: true
-          serialNumber: true
           subject:
             country: true
             province: true
@@ -286,15 +273,12 @@ http:
             commonName: true
             serialNumber: true
             domainComponent: true
-    Middleware16:
+          serialNumber: true
+    Middleware14:
       plugin:
-        PluginConf0:
-          name0: foobar
-          name1: foobar
-        PluginConf1:
-          name0: foobar
-          name1: foobar
-    Middleware17:
+        PluginConf:
+          foo: bar
+    Middleware15:
       rateLimit:
         average: 42
         period: 42s
@@ -307,34 +291,34 @@ http:
               - foobar
           requestHeaderName: foobar
           requestHost: true
-    Middleware18:
+    Middleware16:
       redirectRegex:
         regex: foobar
         replacement: foobar
         permanent: true
-    Middleware19:
+    Middleware17:
       redirectScheme:
         scheme: foobar
         port: foobar
         permanent: true
-    Middleware20:
+    Middleware18:
       replacePath:
         path: foobar
-    Middleware21:
+    Middleware19:
       replacePathRegex:
         regex: foobar
         replacement: foobar
-    Middleware22:
+    Middleware20:
       retry:
         attempts: 42
         initialInterval: 42s
-    Middleware23:
+    Middleware21:
       stripPrefix:
         prefixes:
           - foobar
           - foobar
         forceSlash: true
-    Middleware24:
+    Middleware22:
       stripPrefixRegex:
         regex:
           - foobar
@@ -445,17 +429,12 @@ tcp:
           - name: foobar
             weight: 42
   middlewares:
-    TCPMiddleware01:
-      ipAllowList:
-        sourceRange:
-          - foobar
-          - foobar
-    TCPMiddleware02:
+    TCPMiddleware00:
       ipWhiteList:
         sourceRange:
           - foobar
           - foobar
-    TCPMiddleware03:
+    TCPMiddleware01:
       inFlightConn:
         amount: 42
 udp:

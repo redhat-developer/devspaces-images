@@ -56,7 +56,7 @@ func TestWebSocketTCPClose(t *testing.T) {
 	serverErr := <-errChan
 
 	var wsErr *gorillawebsocket.CloseError
-	require.ErrorAs(t, serverErr, &wsErr)
+	require.True(t, errors.As(serverErr, &wsErr))
 	assert.Equal(t, 1006, wsErr.Code)
 }
 

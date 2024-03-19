@@ -2,13 +2,13 @@ package integration
 
 import (
 	"net/http"
-	"testing"
+	"os"
 	"time"
 
 	"github.com/gambol99/go-marathon"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	"github.com/go-check/check"
 	"github.com/traefik/traefik/v2/integration/try"
+	checker "github.com/vdemeester/shakers"
 )
 
 // Marathon test suites.
@@ -17,46 +17,40 @@ type MarathonSuite15 struct {
 	marathonURL string
 }
 
-func TestMarathonSuite15(t *testing.T) {
-	suite.Run(t, new(MarathonSuite))
-}
+func (s *MarathonSuite15) SetUpSuite(c *check.C) {
+	s.createComposeProject(c, "marathon15")
+	s.composeUp(c)
 
-func (s *MarathonSuite15) SetUpSuite() {
-	s.BaseSuite.SetupSuite()
-	s.createComposeProject("marathon15")
-	s.composeUp()
-
-	s.marathonURL = "http://" + s.getComposeServiceIP(containerNameMarathon) + ":8080"
+	s.marathonURL = "http://" + s.getComposeServiceIP(c, containerNameMarathon) + ":8080"
 
 	// Wait for Marathon readiness prior to creating the client so that we
 	// don't run into the "all cluster members down" state right from the
 	// start.
 	err := try.GetRequest(s.marathonURL+"/v2/leader", 1*time.Minute, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *MarathonSuite15) TearDownSuite() {
-	s.BaseSuite.TearDownSuite()
-}
-
-func (s *MarathonSuite15) TestConfigurationUpdate() {
-	s.T().Skip("doesn't work")
-
+func (s *MarathonSuite15) TestConfigurationUpdate(c *check.C) {
 	// Start Traefik.
-	file := s.adaptFile("fixtures/marathon/simple.toml", struct {
+	file := s.adaptFile(c, "fixtures/marathon/simple.toml", struct {
 		MarathonURL string
 	}{s.marathonURL})
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	// Wait for Traefik to turn ready.
-	err := try.GetRequest("http://127.0.0.1:8000/", 2*time.Second, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	err = try.GetRequest("http://127.0.0.1:8000/", 2*time.Second, try.StatusCodeIs(http.StatusNotFound))
+	c.Assert(err, checker.IsNil)
 
 	// Prepare Marathon client.
 	config := marathon.NewDefaultConfig()
 	config.URL = s.marathonURL
 	client, err := marathon.NewClient(config)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Create test application to be deployed.
 	app := marathon.NewDockerApplication().
@@ -72,11 +66,11 @@ func (s *MarathonSuite15) TestConfigurationUpdate() {
 	*app.Networks = append(*app.Networks, *marathon.NewBridgePodNetwork())
 
 	// Deploy the test application.
-	s.deployApplication(client, app)
+	deployApplication(c, client, app)
 
 	// Query application via Traefik.
 	err = try.GetRequest("http://127.0.0.1:8000/service", 30*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Create test application with services to be deployed.
 	app = marathon.NewDockerApplication().
@@ -92,9 +86,9 @@ func (s *MarathonSuite15) TestConfigurationUpdate() {
 	*app.Networks = append(*app.Networks, *marathon.NewBridgePodNetwork())
 
 	// Deploy the test application.
-	s.deployApplication(client, app)
+	deployApplication(c, client, app)
 
 	// Query application via Traefik.
 	err = try.GetRequest("http://127.0.0.1:8000/app", 30*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }

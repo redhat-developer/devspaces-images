@@ -2,7 +2,7 @@ package safe
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -146,7 +146,7 @@ func TestOperationWithRecoverPanic(t *testing.T) {
 
 func TestOperationWithRecoverError(t *testing.T) {
 	operation := func() error {
-		return errors.New("ERROR")
+		return fmt.Errorf("ERROR")
 	}
 	err := backoff.Retry(OperationWithRecover(operation), &backoff.StopBackOff{})
 	if err == nil {

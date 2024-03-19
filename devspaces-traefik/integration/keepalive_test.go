@@ -5,21 +5,16 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"testing"
+	"os"
 	"time"
 
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	"github.com/go-check/check"
 	"github.com/traefik/traefik/v2/integration/try"
-	"github.com/traefik/traefik/v2/pkg/log"
+	checker "github.com/vdemeester/shakers"
 )
 
 type KeepAliveSuite struct {
 	BaseSuite
-}
-
-func TestKeepAliveSuite(t *testing.T) {
-	suite.Run(t, new(KeepAliveSuite))
 }
 
 type KeepAliveConfig struct {
@@ -32,7 +27,7 @@ type connStateChangeEvent struct {
 	state http.ConnState
 }
 
-func (s *KeepAliveSuite) TestShouldRespectConfiguredBackendHttpKeepAliveTime() {
+func (s *KeepAliveSuite) TestShouldRespectConfiguredBackendHttpKeepAliveTime(c *check.C) {
 	idleTimeout := time.Duration(75) * time.Millisecond
 
 	connStateChanges := make(chan connStateChangeEvent)
@@ -64,18 +59,18 @@ func (s *KeepAliveSuite) TestShouldRespectConfiguredBackendHttpKeepAliveTime() {
 			case <-noMoreRequests:
 				moreRequestsExpected = false
 			case <-maxWaitTimeExceeded:
-				log.WithoutContext().Infof("timeout waiting for all connections to close, waited for %v, configured idle timeout was %v", maxWaitDuration, idleTimeout)
-				s.T().Fail()
+				c.Logf("timeout waiting for all connections to close, waited for %v, configured idle timeout was %v", maxWaitDuration, idleTimeout)
+				c.Fail()
 				close(completed)
 				return
 			}
 		}
 
-		require.Equal(s.T(), 1, connCount)
+		c.Check(connCount, checker.Equals, 1)
 
 		for _, idlePeriod := range idlePeriodLengthMap {
 			// Our method of measuring the actual idle period is not precise, so allow some sub-ms deviation
-			require.LessOrEqual(s.T(), math.Round(idlePeriod.Seconds()), idleTimeout.Seconds())
+			c.Check(math.Round(idlePeriod.Seconds()), checker.LessOrEqualThan, idleTimeout.Seconds())
 		}
 
 		close(completed)
@@ -92,16 +87,22 @@ func (s *KeepAliveSuite) TestShouldRespectConfiguredBackendHttpKeepAliveTime() {
 	defer server.Close()
 
 	config := KeepAliveConfig{KeepAliveServer: server.URL, IdleConnTimeout: idleTimeout.String()}
-	file := s.adaptFile("fixtures/timeout/keepalive.toml", config)
+	file := s.adaptFile(c, "fixtures/timeout/keepalive.toml", config)
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err := cmd.Start()
+	c.Check(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	// Wait for Traefik
-	err := try.GetRequest("http://127.0.0.1:8080/api/rawdata", time.Duration(1)*time.Second, try.StatusCodeIs(200), try.BodyContains("PathPrefix(`/keepalive`)"))
-	require.NoError(s.T(), err)
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", time.Duration(1)*time.Second, try.StatusCodeIs(200), try.BodyContains("PathPrefix(`/keepalive`)"))
+	c.Check(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8000/keepalive", time.Duration(1)*time.Second, try.StatusCodeIs(200))
-	require.NoError(s.T(), err)
+	c.Check(err, checker.IsNil)
 
 	close(noMoreRequests)
 	<-completed

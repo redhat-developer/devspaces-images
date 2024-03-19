@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"testing"
+	"os"
 	"time"
 
+	"github.com/go-check/check"
 	"github.com/hashicorp/consul/api"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 	"github.com/traefik/traefik/v2/integration/try"
+	checker "github.com/vdemeester/shakers"
 )
 
 type ConsulCatalogSuite struct {
@@ -21,36 +20,26 @@ type ConsulCatalogSuite struct {
 	consulURL         string
 }
 
-func TestConsulCatalogSuite(t *testing.T) {
-	suite.Run(t, new(ConsulCatalogSuite))
-}
+func (s *ConsulCatalogSuite) SetUpSuite(c *check.C) {
+	s.createComposeProject(c, "consul_catalog")
+	s.composeUp(c)
 
-func (s *ConsulCatalogSuite) SetupSuite() {
-	s.BaseSuite.SetupSuite()
-
-	s.createComposeProject("consul_catalog")
-	s.composeUp()
-
-	s.consulURL = "http://" + net.JoinHostPort(s.getComposeServiceIP("consul"), "8500")
+	s.consulURL = "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "consul"), "8500")
 
 	var err error
 	s.consulClient, err = api.NewClient(&api.Config{
 		Address: s.consulURL,
 	})
-	require.NoError(s.T(), err)
+	c.Check(err, check.IsNil)
 
 	// Wait for consul to elect itself leader
 	err = s.waitToElectConsulLeader()
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	s.consulAgentClient, err = api.NewClient(&api.Config{
-		Address: "http://" + net.JoinHostPort(s.getComposeServiceIP("consul-agent"), "8500"),
+		Address: "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "consul-agent"), "8500"),
 	})
-	require.NoError(s.T(), err)
-}
-
-func (s *ConsulCatalogSuite) TearDownSuite() {
-	s.BaseSuite.TearDownSuite()
+	c.Check(err, check.IsNil)
 }
 
 func (s *ConsulCatalogSuite) waitToElectConsulLeader() error {
@@ -94,36 +83,36 @@ func (s *ConsulCatalogSuite) deregisterService(id string, onAgent bool) error {
 	return client.Agent().ServiceDeregister(id)
 }
 
-func (s *ConsulCatalogSuite) TestWithNotExposedByDefaultAndDefaultsSettings() {
+func (s *ConsulCatalogSuite) TestWithNotExposedByDefaultAndDefaultsSettings(c *check.C) {
 	reg1 := &api.AgentServiceRegistration{
 		ID:      "whoami1",
 		Name:    "whoami",
 		Tags:    []string{"traefik.enable=true"},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 	err := s.registerService(reg1, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	reg2 := &api.AgentServiceRegistration{
 		ID:      "whoami2",
 		Name:    "whoami",
 		Tags:    []string{"traefik.enable=true"},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami2"),
+		Address: s.getComposeServiceIP(c, "whoami2"),
 	}
 	err = s.registerService(reg2, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	reg3 := &api.AgentServiceRegistration{
 		ID:      "whoami3",
 		Name:    "whoami",
 		Tags:    []string{"traefik.enable=true"},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami3"),
+		Address: s.getComposeServiceIP(c, "whoami3"),
 	}
 	err = s.registerService(reg3, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	tempObjects := struct {
 		ConsulAddress string
@@ -131,18 +120,23 @@ func (s *ConsulCatalogSuite) TestWithNotExposedByDefaultAndDefaultsSettings() {
 		ConsulAddress: s.consulURL,
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/default_not_exposed.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/default_not_exposed.toml", tempObjects)
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "whoami"
 
 	err = try.Request(req, 2*time.Second,
 		try.StatusCodeIs(200),
 		try.BodyContainsOr("Hostname: whoami1", "Hostname: whoami2", "Hostname: whoami3"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 2*time.Second,
 		try.StatusCodeIs(200),
@@ -151,18 +145,18 @@ func (s *ConsulCatalogSuite) TestWithNotExposedByDefaultAndDefaultsSettings() {
 			fmt.Sprintf(`"http://%s:80":"UP"`, reg2.Address),
 			fmt.Sprintf(`"http://%s:80":"UP"`, reg3.Address),
 		))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = s.deregisterService("whoami2", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = s.deregisterService("whoami3", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestByLabels() {
-	containerIP := s.getComposeServiceIP("whoami1")
+func (s *ConsulCatalogSuite) TestByLabels(c *check.C) {
+	containerIP := s.getComposeServiceIP(c, "whoami1")
 
 	reg := &api.AgentServiceRegistration{
 		ID:   "whoami1",
@@ -177,7 +171,7 @@ func (s *ConsulCatalogSuite) TestByLabels() {
 		Address: containerIP,
 	}
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	tempObjects := struct {
 		ConsulAddress string
@@ -185,18 +179,23 @@ func (s *ConsulCatalogSuite) TestByLabels() {
 		ConsulAddress: s.consulURL,
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/default_not_exposed.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/default_not_exposed.toml", tempObjects)
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami", 5*time.Second, try.StatusCodeIs(http.StatusOK), try.BodyContainsOr("Hostname: whoami1", "Hostname: whoami2", "Hostname: whoami3"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestSimpleConfiguration() {
+func (s *ConsulCatalogSuite) TestSimpleConfiguration(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -205,32 +204,37 @@ func (s *ConsulCatalogSuite) TestSimpleConfiguration() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
 	reg := &api.AgentServiceRegistration{
 		ID:      "whoami1",
 		Name:    "whoami",
 		Tags:    []string{"traefik.enable=true"},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "whoami.consul.localhost"
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("Hostname: whoami1"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestSimpleConfigurationWithWatch() {
+func (s *ConsulCatalogSuite) TestSimpleConfigurationWithWatch(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -239,34 +243,39 @@ func (s *ConsulCatalogSuite) TestSimpleConfigurationWithWatch() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple_watch.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple_watch.toml", tempObjects)
+	defer os.Remove(file)
 
 	reg := &api.AgentServiceRegistration{
 		ID:      "whoami1",
 		Name:    "whoami",
 		Tags:    []string{"traefik.enable=true"},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "whoami.consul.localhost"
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(http.StatusOK), try.BodyContainsOr("Hostname: whoami1"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	whoamiIP := s.getComposeServiceIP("whoami1")
+	whoamiIP := s.getComposeServiceIP(c, "whoami1")
 	reg.Check = &api.AgentServiceCheck{
 		CheckID:  "some-ok-check",
 		TCP:      whoamiIP + ":80",
@@ -276,10 +285,10 @@ func (s *ConsulCatalogSuite) TestSimpleConfigurationWithWatch() {
 	}
 
 	err = s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	err = try.Request(req, 5*time.Second, try.StatusCodeIs(http.StatusOK), try.BodyContainsOr("Hostname: whoami1"))
-	require.NoError(s.T(), err)
+	err = try.Request(req, 2*time.Second, try.StatusCodeIs(http.StatusOK), try.BodyContainsOr("Hostname: whoami1"))
+	c.Assert(err, checker.IsNil)
 
 	reg.Check = &api.AgentServiceCheck{
 		CheckID:  "some-failing-check",
@@ -290,16 +299,16 @@ func (s *ConsulCatalogSuite) TestSimpleConfigurationWithWatch() {
 	}
 
 	err = s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	err = try.Request(req, 5*time.Second, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	err = try.Request(req, 2*time.Second, try.StatusCodeIs(http.StatusNotFound))
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestRegisterServiceWithoutIP() {
+func (s *ConsulCatalogSuite) TestRegisterServiceWithoutIP(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -308,7 +317,8 @@ func (s *ConsulCatalogSuite) TestRegisterServiceWithoutIP() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
 	reg := &api.AgentServiceRegistration{
 		ID:      "whoami1",
@@ -318,21 +328,25 @@ func (s *ConsulCatalogSuite) TestRegisterServiceWithoutIP() {
 		Address: "",
 	}
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8080/api/http/services", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("whoami@consulcatalog", "\"http://127.0.0.1:80\": \"UP\""))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestDefaultConsulService() {
+func (s *ConsulCatalogSuite) TestDefaultConsulService(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -341,32 +355,37 @@ func (s *ConsulCatalogSuite) TestDefaultConsulService() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
 	reg := &api.AgentServiceRegistration{
 		ID:      "whoami1",
 		Name:    "whoami",
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Start traefik
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "whoami.consul.localhost"
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("Hostname: whoami1"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulServiceWithTCPLabels() {
+func (s *ConsulCatalogSuite) TestConsulServiceWithTCPLabels(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -375,7 +394,8 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithTCPLabels() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
 	// Start a container with some tags
 	reg := &api.AgentServiceRegistration{
@@ -387,28 +407,32 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithTCPLabels() {
 			"traefik.tcp.Services.Super.Loadbalancer.server.port=8080",
 		},
 		Port:    8080,
-		Address: s.getComposeServiceIP("whoamitcp"),
+		Address: s.getComposeServiceIP(c, "whoamitcp"),
 	}
 
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Start traefik
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1500*time.Millisecond, try.StatusCodeIs(http.StatusOK), try.BodyContains("HostSNI(`my.super.host`)"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	who, err := guessWho("127.0.0.1:8000", "my.super.host", true)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	assert.Contains(s.T(), who, "whoamitcp")
+	c.Assert(who, checker.Contains, "whoamitcp")
 
 	err = s.deregisterService("whoamitcp", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulServiceWithLabels() {
+func (s *ConsulCatalogSuite) TestConsulServiceWithLabels(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -417,7 +441,8 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithLabels() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
 	// Start a container with some tags
 	reg1 := &api.AgentServiceRegistration{
@@ -427,11 +452,11 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithLabels() {
 			"traefik.http.Routers.Super.Rule=Host(`my.super.host`)",
 		},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 
 	err := s.registerService(reg1, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Start another container by replacing a '.' by a '-'
 	reg2 := &api.AgentServiceRegistration{
@@ -441,36 +466,40 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithLabels() {
 			"traefik.http.Routers.SuperHost.Rule=Host(`my-super.host`)",
 		},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami2"),
+		Address: s.getComposeServiceIP(c, "whoami2"),
 	}
 	err = s.registerService(reg2, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Start traefik
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "my-super.host"
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("Hostname: whoami1"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	req, err = http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "my.super.host"
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("Hostname: whoami2"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami2", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestSameServiceIDOnDifferentConsulAgent() {
+func (s *ConsulCatalogSuite) TestSameServiceIDOnDifferentConsulAgent(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -479,7 +508,8 @@ func (s *ConsulCatalogSuite) TestSameServiceIDOnDifferentConsulAgent() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/default_not_exposed.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/default_not_exposed.toml", tempObjects)
+	defer os.Remove(file)
 
 	// Start a container with some tags
 	tags := []string{
@@ -493,46 +523,50 @@ func (s *ConsulCatalogSuite) TestSameServiceIDOnDifferentConsulAgent() {
 		Name:    "whoami",
 		Tags:    tags,
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 	err := s.registerService(reg1, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	reg2 := &api.AgentServiceRegistration{
 		ID:      "whoami",
 		Name:    "whoami",
 		Tags:    tags,
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami2"),
+		Address: s.getComposeServiceIP(c, "whoami2"),
 	}
 	err = s.registerService(reg2, true)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Start traefik
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "my.super.host"
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("Hostname: whoami1", "Hostname: whoami2"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	req, err = http.NewRequest(http.MethodGet, "http://127.0.0.1:8080/api/rawdata", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.Request(req, 2*time.Second, try.StatusCodeIs(200),
-		try.BodyContainsOr(s.getComposeServiceIP("whoami1"), s.getComposeServiceIP("whoami2")))
-	require.NoError(s.T(), err)
+		try.BodyContainsOr(s.getComposeServiceIP(c, "whoami1"), s.getComposeServiceIP(c, "whoami2")))
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami", true)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulServiceWithOneMissingLabels() {
+func (s *ConsulCatalogSuite) TestConsulServiceWithOneMissingLabels(c *check.C) {
 	tempObjects := struct {
 		ConsulAddress string
 		DefaultRule   string
@@ -541,7 +575,8 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithOneMissingLabels() {
 		DefaultRule:   "Host(`{{ normalize .Name }}.consul.localhost`)",
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
 	// Start a container with some tags
 	reg := &api.AgentServiceRegistration{
@@ -551,28 +586,32 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithOneMissingLabels() {
 			"traefik.random.value=my.super.host",
 		},
 		Port:    80,
-		Address: s.getComposeServiceIP("whoami1"),
+		Address: s.getComposeServiceIP(c, "whoami1"),
 	}
 
 	err := s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Start traefik
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/version", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "my.super.host"
 
 	// TODO Need to wait than 500 milliseconds more (for swarm or traefik to boot up ?)
 	// TODO validate : run on 80
 	// Expected a 404 as we did not configure anything
 	err = try.Request(req, 1500*time.Millisecond, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulServiceWithHealthCheck() {
-	whoamiIP := s.getComposeServiceIP("whoami1")
+func (s *ConsulCatalogSuite) TestConsulServiceWithHealthCheck(c *check.C) {
+	whoamiIP := s.getComposeServiceIP(c, "whoami1")
 	tags := []string{
 		"traefik.enable=true",
 		"traefik.http.routers.router1.rule=Path(`/whoami`)",
@@ -596,7 +635,7 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithHealthCheck() {
 	}
 
 	err := s.registerService(reg1, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	tempObjects := struct {
 		ConsulAddress string
@@ -604,17 +643,22 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithHealthCheck() {
 		ConsulAddress: s.consulURL,
 	}
 
-	file := s.adaptFile("fixtures/consul_catalog/simple.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/simple.toml", tempObjects)
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami", 2*time.Second, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	whoami2IP := s.getComposeServiceIP("whoami2")
+	whoami2IP := s.getComposeServiceIP(c, "whoami2")
 	reg2 := &api.AgentServiceRegistration{
 		ID:      "whoami2",
 		Name:    "whoami",
@@ -631,26 +675,26 @@ func (s *ConsulCatalogSuite) TestConsulServiceWithHealthCheck() {
 	}
 
 	err = s.registerService(reg2, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/whoami", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "whoami"
 
 	// TODO Need to wait for up to 10 seconds (for consul discovery or traefik to boot up ?)
 	err = try.Request(req, 10*time.Second, try.StatusCodeIs(200), try.BodyContainsOr("Hostname: whoami2"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("whoami2", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulConnect() {
+func (s *ConsulCatalogSuite) TestConsulConnect(c *check.C) {
 	// Wait for consul to fully initialize connect CA
 	err := s.waitForConnectCA()
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	connectIP := s.getComposeServiceIP("connect")
+	connectIP := s.getComposeServiceIP(c, "connect")
 	reg := &api.AgentServiceRegistration{
 		ID:   "uuid-api1",
 		Name: "uuid-api",
@@ -668,9 +712,9 @@ func (s *ConsulCatalogSuite) TestConsulConnect() {
 		Address: connectIP,
 	}
 	err = s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	whoamiIP := s.getComposeServiceIP("whoami1")
+	whoamiIP := s.getComposeServiceIP(c, "whoami1")
 	regWhoami := &api.AgentServiceRegistration{
 		ID:   "whoami1",
 		Name: "whoami",
@@ -683,35 +727,40 @@ func (s *ConsulCatalogSuite) TestConsulConnect() {
 		Address: whoamiIP,
 	}
 	err = s.registerService(regWhoami, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	tempObjects := struct {
 		ConsulAddress string
 	}{
 		ConsulAddress: s.consulURL,
 	}
-	file := s.adaptFile("fixtures/consul_catalog/connect.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/connect.toml", tempObjects)
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	err = try.GetRequest("http://127.0.0.1:8000/", 10*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami", 10*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("uuid-api1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulConnect_ByDefault() {
+func (s *ConsulCatalogSuite) TestConsulConnect_ByDefault(c *check.C) {
 	// Wait for consul to fully initialize connect CA
 	err := s.waitForConnectCA()
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	connectIP := s.getComposeServiceIP("connect")
+	connectIP := s.getComposeServiceIP(c, "connect")
 	reg := &api.AgentServiceRegistration{
 		ID:   "uuid-api1",
 		Name: "uuid-api",
@@ -728,9 +777,9 @@ func (s *ConsulCatalogSuite) TestConsulConnect_ByDefault() {
 		Address: connectIP,
 	}
 	err = s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	whoamiIP := s.getComposeServiceIP("whoami1")
+	whoamiIP := s.getComposeServiceIP(c, "whoami1")
 	regWhoami := &api.AgentServiceRegistration{
 		ID:   "whoami1",
 		Name: "whoami1",
@@ -743,9 +792,9 @@ func (s *ConsulCatalogSuite) TestConsulConnect_ByDefault() {
 		Address: whoamiIP,
 	}
 	err = s.registerService(regWhoami, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	whoami2IP := s.getComposeServiceIP("whoami2")
+	whoami2IP := s.getComposeServiceIP(c, "whoami2")
 	regWhoami2 := &api.AgentServiceRegistration{
 		ID:   "whoami2",
 		Name: "whoami2",
@@ -759,40 +808,45 @@ func (s *ConsulCatalogSuite) TestConsulConnect_ByDefault() {
 		Address: whoami2IP,
 	}
 	err = s.registerService(regWhoami2, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	tempObjects := struct {
 		ConsulAddress string
 	}{
 		ConsulAddress: s.consulURL,
 	}
-	file := s.adaptFile("fixtures/consul_catalog/connect_by_default.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/connect_by_default.toml", tempObjects)
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	err = try.GetRequest("http://127.0.0.1:8000/", 10*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami", 10*time.Second, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami2", 10*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("uuid-api1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = s.deregisterService("whoami2", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ConsulCatalogSuite) TestConsulConnect_NotAware() {
+func (s *ConsulCatalogSuite) TestConsulConnect_NotAware(c *check.C) {
 	// Wait for consul to fully initialize connect CA
 	err := s.waitForConnectCA()
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	connectIP := s.getComposeServiceIP("connect")
+	connectIP := s.getComposeServiceIP(c, "connect")
 	reg := &api.AgentServiceRegistration{
 		ID:   "uuid-api1",
 		Name: "uuid-api",
@@ -810,9 +864,9 @@ func (s *ConsulCatalogSuite) TestConsulConnect_NotAware() {
 		Address: connectIP,
 	}
 	err = s.registerService(reg, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
-	whoamiIP := s.getComposeServiceIP("whoami1")
+	whoamiIP := s.getComposeServiceIP(c, "whoami1")
 	regWhoami := &api.AgentServiceRegistration{
 		ID:   "whoami1",
 		Name: "whoami",
@@ -825,25 +879,30 @@ func (s *ConsulCatalogSuite) TestConsulConnect_NotAware() {
 		Address: whoamiIP,
 	}
 	err = s.registerService(regWhoami, false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	tempObjects := struct {
 		ConsulAddress string
 	}{
 		ConsulAddress: s.consulURL,
 	}
-	file := s.adaptFile("fixtures/consul_catalog/connect_not_aware.toml", tempObjects)
+	file := s.adaptFile(c, "fixtures/consul_catalog/connect_not_aware.toml", tempObjects)
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	err = try.GetRequest("http://127.0.0.1:8000/", 10*time.Second, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = try.GetRequest("http://127.0.0.1:8000/whoami", 10*time.Second, try.StatusCodeIs(http.StatusOK))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	err = s.deregisterService("uuid-api1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = s.deregisterService("whoami1", false)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }

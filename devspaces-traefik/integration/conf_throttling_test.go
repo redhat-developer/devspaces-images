@@ -8,38 +8,36 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	"github.com/go-check/check"
 	"github.com/traefik/traefik/v2/integration/try"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	checker "github.com/vdemeester/shakers"
 )
 
 type ThrottlingSuite struct{ BaseSuite }
 
-func TestThrottlingSuite(t *testing.T) {
-	suite.Run(t, new(ThrottlingSuite))
+func (s *ThrottlingSuite) SetUpSuite(c *check.C) {
+	s.createComposeProject(c, "rest")
+	s.composeUp(c)
 }
 
-func (s *ThrottlingSuite) SetupSuite() {
-	s.BaseSuite.SetupSuite()
-	s.createComposeProject("rest")
-	s.composeUp()
-}
+func (s *ThrottlingSuite) TestThrottleConfReload(c *check.C) {
+	cmd, display := s.traefikCmd(withConfigFile("fixtures/throttling/simple.toml"))
 
-func (s *ThrottlingSuite) TestThrottleConfReload() {
-	s.traefikCmd(withConfigFile("fixtures/throttling/simple.toml"))
+	defer display(c)
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
-	err := try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1000*time.Millisecond, try.BodyContains("rest@internal"))
-	require.NoError(s.T(), err)
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1000*time.Millisecond, try.BodyContains("rest@internal"))
+	c.Assert(err, checker.IsNil)
 
 	// Expected a 404 as we did not configure anything.
 	err = try.GetRequest("http://127.0.0.1:8000/", 1000*time.Millisecond, try.StatusCodeIs(http.StatusNotFound))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	config := &dynamic.Configuration{
 		HTTP: &dynamic.HTTPConfiguration{
@@ -49,7 +47,7 @@ func (s *ThrottlingSuite) TestThrottleConfReload() {
 					LoadBalancer: &dynamic.ServersLoadBalancer{
 						Servers: []dynamic.Server{
 							{
-								URL: "http://" + s.getComposeServiceIP("whoami1") + ":80",
+								URL: "http://" + s.getComposeServiceIP(c, "whoami1") + ":80",
 							},
 						},
 					},
@@ -70,28 +68,28 @@ func (s *ThrottlingSuite) TestThrottleConfReload() {
 	for i := 0; i < confChanges; i++ {
 		config.HTTP.Routers[fmt.Sprintf("routerHTTP%d", i)] = router
 		data, err := json.Marshal(config)
-		require.NoError(s.T(), err)
+		c.Assert(err, checker.IsNil)
 
 		request, err := http.NewRequest(http.MethodPut, "http://127.0.0.1:8080/api/providers/rest", bytes.NewReader(data))
-		require.NoError(s.T(), err)
+		c.Assert(err, checker.IsNil)
 
 		response, err := http.DefaultClient.Do(request)
-		require.NoError(s.T(), err)
-		assert.Equal(s.T(), http.StatusOK, response.StatusCode)
+		c.Assert(err, checker.IsNil)
+		c.Assert(response.StatusCode, checker.Equals, http.StatusOK)
 		time.Sleep(200 * time.Millisecond)
 	}
 
 	reloadsRegexp := regexp.MustCompile(`traefik_config_reloads_total (\d*)\n`)
 
 	resp, err := http.Get("http://127.0.0.1:8080/metrics")
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	fields := reloadsRegexp.FindStringSubmatch(string(body))
-	assert.Len(s.T(), fields, 2)
+	c.Assert(len(fields), checker.Equals, 2)
 
 	reloads, err := strconv.Atoi(fields[1])
 	if err != nil {
@@ -103,5 +101,5 @@ func (s *ThrottlingSuite) TestThrottleConfReload() {
 	// Therefore the throttling (set at 400ms for this test) should only let
 	// (2s / 400 ms =) 5 config reloads happen in theory.
 	// In addition, we have to take into account the extra config reload from the internal provider (5 + 1).
-	assert.LessOrEqual(s.T(), reloads, 6)
+	c.Assert(reloads, checker.LessOrEqualThan, 6)
 }

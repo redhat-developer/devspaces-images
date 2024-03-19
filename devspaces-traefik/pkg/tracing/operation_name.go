@@ -2,7 +2,7 @@ package tracing
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
+	"fmt"
 	"strings"
 
 	"github.com/traefik/traefik/v2/pkg/log"
@@ -61,5 +61,5 @@ func computeHash(name string) string {
 		log.WithoutContext().WithField("OperationName", name).Errorf("Failed to create Span name hash for %s: %v", name, err)
 	}
 
-	return hex.EncodeToString(hash.Sum(nil))[:TraceNameHashLength]
+	return fmt.Sprintf("%x", hash.Sum(nil))[:TraceNameHashLength]
 }

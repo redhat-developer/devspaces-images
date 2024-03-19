@@ -26,13 +26,10 @@ linters-settings:
       - ^spew\.Print(f|ln)?$
       - ^spew\.Dump$
   depguard:
-    rules:
-      main:
-        deny:
-          - pkg: "github.com/instana/testify"
-            desc: not allowed
-          - pkg: "github.com/pkg/errors"
-            desc: Should be replaced by standard lib errors package
+    list-type: denylist
+    include-go-root: false
+    packages:
+      - github.com/pkg/errors
   godox:
     keywords:
       - FIXME
@@ -146,16 +143,11 @@ linters-settings:
   gomoddirectives:
     replace-allow-list:
       - github.com/abbot/go-http-auth
+      - github.com/go-check/check
       - github.com/gorilla/mux
       - github.com/mailgun/minheap
       - github.com/mailgun/multibuf
       - github.com/jaguilar/vt100
-      - github.com/cucumber/godog
-  testifylint:
-    disable:
-      - suite-dont-use-pkg
-      - require-error
-      - go-require
 
 linters:
   enable-all: true
@@ -207,11 +199,10 @@ linters:
     - containedctx # too many false-positive
     - maintidx # kind of duplicate of gocyclo
     - nonamedreturns # Too strict
-    - gosmopolitan  # not relevant
 
 issues:
   exclude-use-default: false
-  max-issues-per-linter: 0
+  max-per-linter: 0
   max-same-issues: 0
   exclude:
     - 'Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv). is not checked'
@@ -225,7 +216,6 @@ issues:
     - 'SA1019: c.Providers.ConsulCatalog.Namespace is deprecated'
     - 'SA1019: c.Providers.Consul.Namespace is deprecated'
     - 'SA1019: c.Providers.Nomad.Namespace is deprecated'
-    - 'fmt.Sprintf can be replaced with string addition'
   exclude-rules:
     - path: '(.+)_test.go'
       linters:

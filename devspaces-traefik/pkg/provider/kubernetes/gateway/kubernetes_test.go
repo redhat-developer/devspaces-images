@@ -5204,7 +5204,7 @@ func Test_getAllowedRoutes(t *testing.T) {
 				return
 			}
 
-			require.Empty(t, conditions)
+			require.Len(t, conditions, 0)
 			assert.Equal(t, test.wantKinds, got)
 		})
 	}

@@ -21,7 +21,7 @@ The Errors middleware returns a custom page in lieu of the default, according to
 ```yaml tab="Docker"
 # Dynamic Custom Error Page for 5XX Status Code
 labels:
-  - "traefik.http.middlewares.test-errors.errors.status=500,501,503,505-599"
+  - "traefik.http.middlewares.test-errors.errors.status=500-599"
   - "traefik.http.middlewares.test-errors.errors.service=serviceError"
   - "traefik.http.middlewares.test-errors.errors.query=/{status}.html"
 ```
@@ -34,10 +34,7 @@ metadata:
 spec:
   errors:
     status:
-      - "500"
-      - "501"
-      - "503"
-      - "505-599"
+      - "500-599"
     query: /{status}.html
     service:
       name: whoami
@@ -45,39 +42,36 @@ spec:
 ```
 
 ```yaml tab="Consul Catalog"
-# Dynamic Custom Error Page for 5XX Status Code excluding 502 and 504
-- "traefik.http.middlewares.test-errors.errors.status=500,501,503,505-599"
+# Dynamic Custom Error Page for 5XX Status Code
+- "traefik.http.middlewares.test-errors.errors.status=500-599"
 - "traefik.http.middlewares.test-errors.errors.service=serviceError"
 - "traefik.http.middlewares.test-errors.errors.query=/{status}.html"
 ```
 
 ```json tab="Marathon"
 "labels": {
-  "traefik.http.middlewares.test-errors.errors.status": "500,501,503,505-599",
+  "traefik.http.middlewares.test-errors.errors.status": "500-599",
   "traefik.http.middlewares.test-errors.errors.service": "serviceError",
   "traefik.http.middlewares.test-errors.errors.query": "/{status}.html"
 }
 ```
 
 ```yaml tab="Rancher"
-# Dynamic Custom Error Page for 5XX Status Code excluding 502 and 504
+# Dynamic Custom Error Page for 5XX Status Code
 labels:
-  - "traefik.http.middlewares.test-errors.errors.status=500,501,503,505-599"
+  - "traefik.http.middlewares.test-errors.errors.status=500-599"
   - "traefik.http.middlewares.test-errors.errors.service=serviceError"
   - "traefik.http.middlewares.test-errors.errors.query=/{status}.html"
 ```
 
 ```yaml tab="File (YAML)"
-# Dynamic Custom Error Page for 5XX Status Code excluding 502 and 504
+# Custom Error Page for 5XX
 http:
   middlewares:
     test-errors:
       errors:
         status:
-          - "500"
-          - "501"
-          - "503"
-          - "505-599"
+          - "500-599"
         service: serviceError
         query: "/{status}.html"
 
@@ -86,10 +80,10 @@ http:
 ```
 
 ```toml tab="File (TOML)"
-# Dynamic Custom Error Page for 5XX Status Code excluding 502 and 504
+# Custom Error Page for 5XX
 [http.middlewares]
   [http.middlewares.test-errors.errors]
-    status = ["500","501","503","505-599"]
+    status = ["500-599"]
     service = "serviceError"
     query = "/{status}.html"
 
@@ -107,16 +101,14 @@ http:
 
 The `status` option defines which status or range of statuses should result in an error page.
 
-The status code ranges are inclusive (`505-599` will trigger with every code between `505` and `599`, `505` and `599` included).
+The status code ranges are inclusive (`500-599` will trigger with every code between `500` and `599`, `500` and `599` included).
 
 !!! note ""
 
     You can define either a status code as a number (`500`),
     as multiple comma-separated numbers (`500,502`),
-    as ranges by separating two codes with a dash (`505-599`),
-    or a combination of the two (`404,418,505-599`).
-    The comma-separated syntax is only available for label-based providers.
-    The examples above demonstrate which syntax is appropriate for each provider.
+    as ranges by separating two codes with a dash (`500-599`),
+    or a combination of the two (`404,418,500-599`).
 
 ### `service`
 

@@ -29,19 +29,19 @@ export default {
       const name = this.getName.toLowerCase()
 
       if (name.startsWith('plugin-')) {
-        return 'providers/plugin.svg'
+        return 'statics/providers/plugin.svg'
       }
       if (name.startsWith('consul-')) {
-        return `providers/consul.svg`
+        return `statics/providers/consul.svg`
       }
       if (name.startsWith('consulcatalog-')) {
-        return `providers/consulcatalog.svg`
+        return `statics/providers/consulcatalog.svg`
       }
       if (name.startsWith('nomad-')) {
-        return `providers/nomad.svg`
+        return `statics/providers/nomad.svg`
       }
 
-      return `providers/${name}.svg`
+      return `statics/providers/${name}.svg`
     }
   }
 }

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -9,7 +8,6 @@ import (
 	"net"
 	"net/http"
 	"reflect"
-	"strings"
 	"sync"
 	"time"
 
@@ -151,71 +149,10 @@ func createRoundTripper(cfg *dynamic.ServersTransport) (http.RoundTripper, error
 
 	// Return directly HTTP/1.1 transport when HTTP/2 is disabled
 	if cfg.DisableHTTP2 {
-		return &KerberosRoundTripper{
-			OriginalRoundTripper: transport,
-			new: func() http.RoundTripper {
-				return transport.Clone()
-			},
-		}, nil
+		return transport, nil
 	}
 
-	rt, err := newSmartRoundTripper(transport, cfg.ForwardingTimeouts)
-	if err != nil {
-		return nil, err
-	}
-	return &KerberosRoundTripper{
-		OriginalRoundTripper: rt,
-		new: func() http.RoundTripper {
-			return rt.Clone()
-		},
-	}, nil
-}
-
-type KerberosRoundTripper struct {
-	new                  func() http.RoundTripper
-	OriginalRoundTripper http.RoundTripper
-}
-
-type stickyRoundTripper struct {
-	RoundTripper http.RoundTripper
-}
-
-type transportKeyType string
-
-var transportKey transportKeyType = "transport"
-
-func AddTransportOnContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, transportKey, &stickyRoundTripper{})
-}
-
-func (k *KerberosRoundTripper) RoundTrip(request *http.Request) (*http.Response, error) {
-	value, ok := request.Context().Value(transportKey).(*stickyRoundTripper)
-	if !ok {
-		return k.OriginalRoundTripper.RoundTrip(request)
-	}
-
-	if value.RoundTripper != nil {
-		return value.RoundTripper.RoundTrip(request)
-	}
-
-	resp, err := k.OriginalRoundTripper.RoundTrip(request)
-
-	// If we found that we are authenticating with Kerberos (Negotiate) or NTLM.
-	// We put a dedicated roundTripper in the ConnContext.
-	// This will stick the next calls to the same connection with the backend.
-	if err == nil && containsNTLMorNegotiate(resp.Header.Values("WWW-Authenticate")) {
-		value.RoundTripper = k.new()
-	}
-	return resp, err
-}
-
-func containsNTLMorNegotiate(h []string) bool {
-	for _, s := range h {
-		if strings.HasPrefix(s, "NTLM") || strings.HasPrefix(s, "Negotiate") {
-			return true
-		}
-	}
-	return false
+	return newSmartRoundTripper(transport, cfg.ForwardingTimeouts)
 }
 
 func createRootCACertPool(rootCAs []traefiktls.FileOrContent) *x509.CertPool {

@@ -218,6 +218,13 @@ func TestProvider_sanitizeDomains(t *testing.T) {
 			expectedDomains: nil,
 		},
 		{
+			desc:            "no DNSChallenge",
+			domains:         types.Domain{Main: "*.traefik.wtf", SANs: []string{"foo.traefik.wtf"}},
+			dnsChallenge:    nil,
+			expectedErr:     "unable to generate a wildcard certificate in ACME provider for domain \"*.traefik.wtf,foo.traefik.wtf\" : ACME needs a DNSChallenge",
+			expectedDomains: nil,
+		},
+		{
 			desc:            "unauthorized wildcard with SAN",
 			domains:         types.Domain{Main: "*.*.traefik.wtf", SANs: []string{"foo.traefik.wtf"}},
 			dnsChallenge:    &DNSChallenge{},
@@ -580,7 +587,7 @@ func TestInitAccount(t *testing.T) {
 			acmeProvider := Provider{account: test.account, Configuration: &Configuration{Email: test.email, KeyType: test.keyType}}
 
 			actualAccount, err := acmeProvider.initAccount(context.Background())
-			assert.NoError(t, err, "Init account in error")
+			assert.Nil(t, err, "Init account in error")
 			assert.Equal(t, test.expectedAccount.Email, actualAccount.Email, "unexpected email account")
 			assert.Equal(t, test.expectedAccount.KeyType, actualAccount.KeyType, "unexpected keyType account")
 		})

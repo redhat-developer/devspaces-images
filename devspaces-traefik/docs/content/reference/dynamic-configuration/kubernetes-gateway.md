@@ -29,5 +29,3 @@ Dynamic configuration with Kubernetes Gateway provider.
 ```yaml
 --8<-- "content/reference/dynamic-configuration/kubernetes-gateway-rbac.yml"
 ```
-
-{!traefik-for-business-applications.md!}

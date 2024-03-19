@@ -20,6 +20,8 @@ import (
 const collectorURL = "https://collect.traefik.io/9vxmmkcdmalbdi635d4jgc5p5rx0h7h8"
 
 // Collected data.
+//
+//nolint:musttag // cannot be changed for historical reasons.
 type data struct {
 	Version       string
 	Codename      string
@@ -65,7 +67,7 @@ func createBody(staticConfiguration *static.Configuration) (*bytes.Buffer, error
 	}
 
 	buf := new(bytes.Buffer)
-	err = json.NewEncoder(buf).Encode(data) //nolint:musttag // cannot be changed for historical reasons.
+	err = json.NewEncoder(buf).Encode(data)
 	if err != nil {
 		return nil, err
 	}

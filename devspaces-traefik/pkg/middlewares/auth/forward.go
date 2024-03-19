@@ -126,7 +126,6 @@ func (fa *forwardAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	defer forwardResponse.Body.Close()
 
 	body, readError := io.ReadAll(forwardResponse.Body)
 	if readError != nil {
@@ -137,6 +136,7 @@ func (fa *forwardAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	defer forwardResponse.Body.Close()
 
 	// Pass the forward response's body and selected headers if it
 	// didn't return a response within the range of [200, 300).

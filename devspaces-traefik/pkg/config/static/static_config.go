@@ -1,7 +1,6 @@
 package static
 
 import (
-	"errors"
 	"fmt"
 	stdlog "log"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"github.com/traefik/traefik/v2/pkg/provider/ecs"
 	"github.com/traefik/traefik/v2/pkg/provider/file"
 	"github.com/traefik/traefik/v2/pkg/provider/http"
+	"github.com/traefik/traefik/v2/pkg/provider/hub"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/gateway"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/ingress"
@@ -81,6 +81,8 @@ type Configuration struct {
 	// Deprecated.
 	Pilot *Pilot `description:"Traefik Pilot configuration (Deprecated)." json:"pilot,omitempty" toml:"pilot,omitempty" yaml:"pilot,omitempty" export:"true"`
 
+	Hub *hub.Provider `description:"Traefik Hub configuration." json:"hub,omitempty" toml:"hub,omitempty" yaml:"hub,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
+
 	Experimental *Experimental `description:"experimental features." json:"experimental,omitempty" toml:"experimental,omitempty" yaml:"experimental,omitempty" export:"true"`
 }
 
@@ -92,7 +94,7 @@ type CertificateResolver struct {
 // Global holds the global configuration.
 type Global struct {
 	CheckNewVersion    bool `description:"Periodically check if a new version has been released." json:"checkNewVersion,omitempty" toml:"checkNewVersion,omitempty" yaml:"checkNewVersion,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
-	SendAnonymousUsage bool `description:"Periodically send anonymous usage statistics. If the option is not specified, it will be disabled by default." json:"sendAnonymousUsage,omitempty" toml:"sendAnonymousUsage,omitempty" yaml:"sendAnonymousUsage,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
+	SendAnonymousUsage bool `description:"Periodically send anonymous usage statistics. If the option is not specified, it will be enabled by default." json:"sendAnonymousUsage,omitempty" toml:"sendAnonymousUsage,omitempty" yaml:"sendAnonymousUsage,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
 }
 
 // ServersTransport options to configure communication between Traefik and the servers.
@@ -105,10 +107,9 @@ type ServersTransport struct {
 
 // API holds the API configuration.
 type API struct {
-	Insecure           bool `description:"Activate API directly on the entryPoint named traefik." json:"insecure,omitempty" toml:"insecure,omitempty" yaml:"insecure,omitempty" export:"true"`
-	Dashboard          bool `description:"Activate dashboard." json:"dashboard,omitempty" toml:"dashboard,omitempty" yaml:"dashboard,omitempty" export:"true"`
-	Debug              bool `description:"Enable additional endpoints for debugging and profiling." json:"debug,omitempty" toml:"debug,omitempty" yaml:"debug,omitempty" export:"true"`
-	DisableDashboardAd bool `description:"Disable ad in the dashboard." json:"disableDashboardAd,omitempty" toml:"disableDashboardAd,omitempty" yaml:"disableDashboardAd,omitempty" export:"true"`
+	Insecure  bool `description:"Activate API directly on the entryPoint named traefik." json:"insecure,omitempty" toml:"insecure,omitempty" yaml:"insecure,omitempty" export:"true"`
+	Dashboard bool `description:"Activate dashboard." json:"dashboard,omitempty" toml:"dashboard,omitempty" yaml:"dashboard,omitempty" export:"true"`
+	Debug     bool `description:"Enable additional endpoints for debugging and profiling." json:"debug,omitempty" toml:"debug,omitempty" yaml:"debug,omitempty" export:"true"`
 	// TODO: Re-enable statistics
 	// Statistics      *types.Statistics `description:"Enable more detailed statistics." json:"statistics,omitempty" toml:"statistics,omitempty" yaml:"statistics,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
 }
@@ -223,6 +224,15 @@ func (c *Configuration) SetEffectiveConfiguration() {
 		}
 	}
 
+	if c.Hub != nil {
+		if err := c.initHubProvider(); err != nil {
+			c.Hub = nil
+			log.WithoutContext().Errorf("Unable to activate the Hub provider: %v", err)
+		} else {
+			log.WithoutContext().Debugf("Hub provider has been activated.")
+		}
+	}
+
 	if c.Providers.Docker != nil {
 		if c.Providers.Docker.SwarmModeRefreshSeconds <= 0 {
 			c.Providers.Docker.SwarmModeRefreshSeconds = ptypes.Duration(15 * time.Second)
@@ -273,7 +283,18 @@ func (c *Configuration) SetEffectiveConfiguration() {
 }
 
 func (c *Configuration) hasUserDefinedEntrypoint() bool {
-	return len(c.EntryPoints) != 0
+	if len(c.EntryPoints) == 0 {
+		return false
+	}
+
+	switch len(c.EntryPoints) {
+	case 1:
+		return c.EntryPoints[hub.TunnelEntrypoint] == nil
+	case 2:
+		return c.EntryPoints[hub.TunnelEntrypoint] == nil || c.EntryPoints[hub.APIEntrypoint] == nil
+	default:
+		return true
+	}
 }
 
 func (c *Configuration) initACMEProvider() {
@@ -305,15 +326,15 @@ func (c *Configuration) ValidateConfiguration() error {
 	}
 
 	if c.Providers.ConsulCatalog != nil && c.Providers.ConsulCatalog.Namespace != "" && len(c.Providers.ConsulCatalog.Namespaces) > 0 {
-		return errors.New("Consul Catalog provider cannot have both namespace and namespaces options configured")
+		return fmt.Errorf("Consul Catalog provider cannot have both namespace and namespaces options configured")
 	}
 
 	if c.Providers.Consul != nil && c.Providers.Consul.Namespace != "" && len(c.Providers.Consul.Namespaces) > 0 {
-		return errors.New("Consul provider cannot have both namespace and namespaces options configured")
+		return fmt.Errorf("Consul provider cannot have both namespace and namespaces options configured")
 	}
 
 	if c.Providers.Nomad != nil && c.Providers.Nomad.Namespace != "" && len(c.Providers.Nomad.Namespaces) > 0 {
-		return errors.New("Nomad provider cannot have both namespace and namespaces options configured")
+		return fmt.Errorf("Nomad provider cannot have both namespace and namespaces options configured")
 	}
 
 	return nil

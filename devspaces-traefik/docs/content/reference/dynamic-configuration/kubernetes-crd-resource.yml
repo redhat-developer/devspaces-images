@@ -148,7 +148,7 @@ spec:
         - name: whoamitcp
           port: 8080
       middlewares:
-        - name: ipallowlist
+        - name: ipwhitelist
   tls:
     secretName: foosecret
     passthrough: false

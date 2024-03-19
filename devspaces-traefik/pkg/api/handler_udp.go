@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -77,13 +76,7 @@ func (h Handler) getUDPRouters(rw http.ResponseWriter, request *http.Request) {
 }
 
 func (h Handler) getUDPRouter(rw http.ResponseWriter, request *http.Request) {
-	scapedRouterID := mux.Vars(request)["routerID"]
-
-	routerID, err := url.PathUnescape(scapedRouterID)
-	if err != nil {
-		writeError(rw, fmt.Sprintf("unable to decode routerID %q: %s", scapedRouterID, err), http.StatusBadRequest)
-		return
-	}
+	routerID := mux.Vars(request)["routerID"]
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -95,7 +88,7 @@ func (h Handler) getUDPRouter(rw http.ResponseWriter, request *http.Request) {
 
 	result := newUDPRouterRepresentation(routerID, router)
 
-	err = json.NewEncoder(rw).Encode(result)
+	err := json.NewEncoder(rw).Encode(result)
 	if err != nil {
 		log.FromContext(request.Context()).Error(err)
 		writeError(rw, err.Error(), http.StatusInternalServerError)
@@ -135,13 +128,7 @@ func (h Handler) getUDPServices(rw http.ResponseWriter, request *http.Request) {
 }
 
 func (h Handler) getUDPService(rw http.ResponseWriter, request *http.Request) {
-	scapedServiceID := mux.Vars(request)["serviceID"]
-
-	serviceID, err := url.PathUnescape(scapedServiceID)
-	if err != nil {
-		writeError(rw, fmt.Sprintf("unable to decode serviceID %q: %s", scapedServiceID, err), http.StatusBadRequest)
-		return
-	}
+	serviceID := mux.Vars(request)["serviceID"]
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -153,7 +140,7 @@ func (h Handler) getUDPService(rw http.ResponseWriter, request *http.Request) {
 
 	result := newUDPServiceRepresentation(serviceID, service)
 
-	err = json.NewEncoder(rw).Encode(result)
+	err := json.NewEncoder(rw).Encode(result)
 	if err != nil {
 		log.FromContext(request.Context()).Error(err)
 		writeError(rw, err.Error(), http.StatusInternalServerError)

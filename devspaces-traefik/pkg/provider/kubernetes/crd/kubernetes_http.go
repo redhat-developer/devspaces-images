@@ -148,8 +148,6 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 				}
 			}
 
-			p.applyRouterTransform(ctx, r, ingressRoute)
-
 			conf.Routers[normalized] = r
 		}
 	}
@@ -414,8 +412,8 @@ func (c configBuilder) loadServers(parentNamespace string, svc traefikv1alpha1.L
 		return nil, fmt.Errorf("subset not found for %s/%s", namespace, sanitizedName)
 	}
 
+	var port int32
 	for _, subset := range endpoints.Subsets {
-		var port int32
 		for _, p := range subset.Ports {
 			if svcPort.Name == p.Name {
 				port = p.Port
@@ -424,7 +422,7 @@ func (c configBuilder) loadServers(parentNamespace string, svc traefikv1alpha1.L
 		}
 
 		if port == 0 {
-			continue
+			return nil, fmt.Errorf("cannot define a port for %s/%s", namespace, sanitizedName)
 		}
 
 		protocol, err := parseServiceProtocol(svc.Scheme, svcPort.Name, svcPort.Port)

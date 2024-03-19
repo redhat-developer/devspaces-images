@@ -2,7 +2,7 @@ package ingress
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -40,9 +40,9 @@ func TestTranslateNotFoundError(t *testing.T) {
 		},
 		{
 			desc:           "not a kubernetes not found error",
-			err:            errors.New("bar error"),
+			err:            fmt.Errorf("bar error"),
 			expectedExists: false,
-			expectedError:  errors.New("bar error"),
+			expectedError:  fmt.Errorf("bar error"),
 		},
 	}
 

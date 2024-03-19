@@ -47,7 +47,7 @@ VOLUME ["/tmp"]
 ENTRYPOINT ["/traefik"]
 ENV SUMMARY="Red Hat OpenShift Dev Spaces traefik container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces traefik container" \
-    TRAEFIK_VERSION="v2.11.0" \
+    TRAEFIK_VERSION="v2.10.0" \
     PRODNAME="devspaces" \
     COMPNAME="traefik-rhel8"
 LABEL summary="$SUMMARY" \
