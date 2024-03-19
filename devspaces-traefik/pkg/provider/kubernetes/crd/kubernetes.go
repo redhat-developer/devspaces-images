@@ -25,7 +25,6 @@ import (
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/provider"
 	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
-	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/k8s"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/traefik/v2/pkg/tls"
 	"github.com/traefik/traefik/v2/pkg/types"
@@ -57,25 +56,7 @@ type Provider struct {
 	IngressClass              string          `description:"Value of kubernetes.io/ingress.class annotation to watch for." json:"ingressClass,omitempty" toml:"ingressClass,omitempty" yaml:"ingressClass,omitempty" export:"true"`
 	ThrottleDuration          ptypes.Duration `description:"Ingress refresh throttle duration" json:"throttleDuration,omitempty" toml:"throttleDuration,omitempty" yaml:"throttleDuration,omitempty" export:"true"`
 	AllowEmptyServices        bool            `description:"Allow the creation of services without endpoints." json:"allowEmptyServices,omitempty" toml:"allowEmptyServices,omitempty" yaml:"allowEmptyServices,omitempty" export:"true"`
-
-	lastConfiguration safe.Safe
-
-	routerTransform k8s.RouterTransform
-}
-
-func (p *Provider) SetRouterTransform(routerTransform k8s.RouterTransform) {
-	p.routerTransform = routerTransform
-}
-
-func (p *Provider) applyRouterTransform(ctx context.Context, rt *dynamic.Router, ingress *traefikv1alpha1.IngressRoute) {
-	if p.routerTransform == nil {
-		return
-	}
-
-	err := p.routerTransform.Apply(ctx, rt, ingress.Annotations)
-	if err != nil {
-		log.FromContext(ctx).WithError(err).Error("Apply router transform")
-	}
+	lastConfiguration         safe.Safe
 }
 
 func (p *Provider) newK8sClient(ctx context.Context) (*clientWrapper, error) {
@@ -123,6 +104,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 	logger := log.FromContext(ctxLog)
 
 	logger.Warn("CRDs API Group \"traefik.containo.us\" is deprecated, and its support will end starting with Traefik v3. Please use the API Group \"traefik.io\" instead.")
+	logger.Warn("CRDs API Version \"traefik.io/v1alpha1\" will not be supported in Traefik v3 itself. However, an automatic migration path to the next version will be available.")
 
 	k8sClient, err := p.newK8sClient(ctxLog)
 	if err != nil {
@@ -287,7 +269,6 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 			ReplacePathRegex:  middleware.Spec.ReplacePathRegex,
 			Chain:             createChainMiddleware(ctxMid, middleware.Namespace, middleware.Spec.Chain),
 			IPWhiteList:       middleware.Spec.IPWhiteList,
-			IPAllowList:       middleware.Spec.IPAllowList,
 			Headers:           middleware.Spec.Headers,
 			Errors:            errorPage,
 			RateLimit:         rateLimit,
@@ -313,7 +294,6 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 		conf.TCP.Middlewares[id] = &dynamic.TCPMiddleware{
 			InFlightConn: middlewareTCP.Spec.InFlightConn,
 			IPWhiteList:  middlewareTCP.Spec.IPWhiteList,
-			IPAllowList:  middlewareTCP.Spec.IPAllowList,
 		}
 	}
 
@@ -641,7 +621,7 @@ func createForwardAuthMiddleware(k8sClient Client, namespace string, auth *traef
 		return nil, nil
 	}
 	if len(auth.Address) == 0 {
-		return nil, errors.New("forward authentication requires an address")
+		return nil, fmt.Errorf("forward authentication requires an address")
 	}
 
 	forwardAuth := &dynamic.ForwardAuth{
@@ -734,7 +714,7 @@ func createBasicAuthMiddleware(client Client, namespace string, basicAuth *traef
 	}
 
 	if basicAuth.Secret == "" {
-		return nil, errors.New("auth secret must be set")
+		return nil, fmt.Errorf("auth secret must be set")
 	}
 
 	secret, ok, err := client.GetSecret(namespace, basicAuth.Secret)
@@ -781,7 +761,7 @@ func createDigestAuthMiddleware(client Client, namespace string, digestAuth *tra
 	}
 
 	if digestAuth.Secret == "" {
-		return nil, errors.New("auth secret must be set")
+		return nil, fmt.Errorf("auth secret must be set")
 	}
 
 	secret, ok, err := client.GetSecret(namespace, digestAuth.Secret)

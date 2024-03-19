@@ -32,7 +32,7 @@ type serviceBuilder interface {
 	BuildHTTP(ctx context.Context, serviceName string) (http.Handler, error)
 }
 
-// customErrors is a middleware that provides the custom error pages.
+// customErrors is a middleware that provides the custom error pages..
 type customErrors struct {
 	name           string
 	next           http.Handler
@@ -131,10 +131,10 @@ type responseInterceptor interface {
 	isFilteredCode() bool
 }
 
-// codeCatcher is a response writer that detects as soon as possible
-// whether the response is a code within the ranges of codes it watches for.
-// If it is, it simply drops the data from the response.
-// Otherwise, it forwards it directly to the original client (its responseWriter) without any buffering.
+// codeCatcher is a response writer that detects as soon as possible whether the
+// response is a code within the ranges of codes it watches for. If it is, it
+// simply drops the data from the response. Otherwise, it forwards it directly to
+// the original client (its responseWriter) without any buffering.
 type codeCatcher struct {
 	headerMap          http.Header
 	code               int
@@ -142,6 +142,16 @@ type codeCatcher struct {
 	caughtFilteredCode bool
 	responseWriter     http.ResponseWriter
 	headersSent        bool
+}
+
+type codeCatcherWithCloseNotify struct {
+	*codeCatcher
+}
+
+// CloseNotify returns a channel that receives at most a
+// single value (true) when the client connection has gone away.
+func (cc *codeCatcherWithCloseNotify) CloseNotify() <-chan bool {
+	return cc.responseWriter.(http.CloseNotifier).CloseNotify()
 }
 
 func newCodeCatcher(rw http.ResponseWriter, httpCodeRanges types.HTTPCodeRanges) responseInterceptor {
@@ -158,10 +168,6 @@ func newCodeCatcher(rw http.ResponseWriter, httpCodeRanges types.HTTPCodeRanges)
 }
 
 func (cc *codeCatcher) Header() http.Header {
-	if cc.headersSent {
-		return cc.responseWriter.Header()
-	}
-
 	if cc.headerMap == nil {
 		cc.headerMap = make(http.Header)
 	}
@@ -193,22 +199,8 @@ func (cc *codeCatcher) Write(buf []byte) (int, error) {
 	return cc.responseWriter.Write(buf)
 }
 
-// WriteHeader is, in the specific case of 1xx status codes, a direct call to the wrapped ResponseWriter, without marking headers as sent,
-// allowing so further calls.
 func (cc *codeCatcher) WriteHeader(code int) {
 	if cc.headersSent || cc.caughtFilteredCode {
-		return
-	}
-
-	// Handling informational headers.
-	if code >= 100 && code <= 199 {
-		// Multiple informational status codes can be used,
-		// so here the copy is not appending the values to not repeat them.
-		for k, v := range cc.Header() {
-			cc.responseWriter.Header()[k] = v
-		}
-
-		cc.responseWriter.WriteHeader(code)
 		return
 	}
 
@@ -222,11 +214,7 @@ func (cc *codeCatcher) WriteHeader(code int) {
 		}
 	}
 
-	// The copy is not appending the values,
-	// to not repeat them in case any informational status code has been written.
-	for k, v := range cc.Header() {
-		cc.responseWriter.Header()[k] = v
-	}
+	utils.CopyHeaders(cc.responseWriter.Header(), cc.Header())
 	cc.responseWriter.WriteHeader(cc.code)
 	cc.headersSent = true
 }
@@ -259,16 +247,6 @@ func (cc *codeCatcher) Flush() {
 	}
 }
 
-type codeCatcherWithCloseNotify struct {
-	*codeCatcher
-}
-
-// CloseNotify returns a channel that receives at most a single value (true)
-// when the client connection has gone away.
-func (cc *codeCatcherWithCloseNotify) CloseNotify() <-chan bool {
-	return cc.responseWriter.(http.CloseNotifier).CloseNotify()
-}
-
 // codeModifier forwards a response back to the client,
 // while enforcing a given response code.
 type codeModifier interface {
@@ -299,12 +277,18 @@ type codeModifierWithoutCloseNotify struct {
 	responseWriter http.ResponseWriter
 }
 
+type codeModifierWithCloseNotify struct {
+	*codeModifierWithoutCloseNotify
+}
+
+// CloseNotify returns a channel that receives at most a
+// single value (true) when the client connection has gone away.
+func (r *codeModifierWithCloseNotify) CloseNotify() <-chan bool {
+	return r.responseWriter.(http.CloseNotifier).CloseNotify()
+}
+
 // Header returns the response headers.
 func (r *codeModifierWithoutCloseNotify) Header() http.Header {
-	if r.headerSent {
-		return r.responseWriter.Header()
-	}
-
 	if r.headerMap == nil {
 		r.headerMap = make(http.Header)
 	}
@@ -319,30 +303,14 @@ func (r *codeModifierWithoutCloseNotify) Write(buf []byte) (int, error) {
 	return r.responseWriter.Write(buf)
 }
 
-// WriteHeader sends the headers, with the enforced code (the code in argument is always ignored),
-// if it hasn't already been done.
-// WriteHeader is, in the specific case of 1xx status codes, a direct call to the wrapped ResponseWriter, without marking headers as sent,
-// allowing so further calls.
-func (r *codeModifierWithoutCloseNotify) WriteHeader(code int) {
+// WriteHeader sends the headers, with the enforced code (the code in argument
+// is always ignored), if it hasn't already been done.
+func (r *codeModifierWithoutCloseNotify) WriteHeader(_ int) {
 	if r.headerSent {
 		return
 	}
 
-	// Handling informational headers.
-	if code >= 100 && code <= 199 {
-		// Multiple informational status codes can be used,
-		// so here the copy is not appending the values to not repeat them.
-		for k, v := range r.headerMap {
-			r.responseWriter.Header()[k] = v
-		}
-
-		r.responseWriter.WriteHeader(code)
-		return
-	}
-
-	for k, v := range r.headerMap {
-		r.responseWriter.Header()[k] = v
-	}
+	utils.CopyHeaders(r.responseWriter.Header(), r.Header())
 	r.responseWriter.WriteHeader(r.code)
 	r.headerSent = true
 }
@@ -363,14 +331,4 @@ func (r *codeModifierWithoutCloseNotify) Flush() {
 	if flusher, ok := r.responseWriter.(http.Flusher); ok {
 		flusher.Flush()
 	}
-}
-
-type codeModifierWithCloseNotify struct {
-	*codeModifierWithoutCloseNotify
-}
-
-// CloseNotify returns a channel that receives at most a single value (true)
-// when the client connection has gone away.
-func (r *codeModifierWithCloseNotify) CloseNotify() <-chan bool {
-	return r.responseWriter.(http.CloseNotifier).CloseNotify()
 }

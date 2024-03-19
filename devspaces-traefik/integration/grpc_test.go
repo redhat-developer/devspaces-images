@@ -8,11 +8,9 @@ import (
 	"math/rand"
 	"net"
 	"os"
-	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"github.com/go-check/check"
 	"github.com/traefik/traefik/v2/integration/helloworld"
 	"github.com/traefik/traefik/v2/integration/try"
 	"github.com/traefik/traefik/v2/pkg/log"
@@ -31,24 +29,20 @@ const randCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 // GRPCSuite tests suite.
 type GRPCSuite struct{ BaseSuite }
 
-func TestGRPCSuite(t *testing.T) {
-	suite.Run(t, new(GRPCSuite))
-}
-
 type myserver struct {
 	stopStreamExample chan bool
 }
 
-func (s *GRPCSuite) SetupSuite() {
+func (s *GRPCSuite) SetUpSuite(c *check.C) {
 	var err error
 	LocalhostCert, err = os.ReadFile("./resources/tls/local.cert")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	LocalhostKey, err = os.ReadFile("./resources/tls/local.key")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 }
 
 func (s *myserver) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
-	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil
+	return &helloworld.HelloReply{Message: "Hello " + in.Name}, nil
 }
 
 func (s *myserver) StreamExample(in *helloworld.StreamExampleRequest, server helloworld.Greeter_StreamExampleServer) error {
@@ -127,7 +121,7 @@ func callHelloClientGRPC(name string, secure bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return r.GetMessage(), nil
+	return r.Message, nil
 }
 
 func callStreamExampleClientGRPC() (helloworld.Greeter_StreamExampleClient, func() error, error) {
@@ -143,18 +137,19 @@ func callStreamExampleClientGRPC() (helloworld.Greeter_StreamExampleClient, func
 	return t, closer, nil
 }
 
-func (s *GRPCSuite) TestGRPC() {
+func (s *GRPCSuite) TestGRPC(c *check.C) {
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := startGRPCServer(lis, &myserver{})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config.toml", struct {
 		CertContent    string
 		KeyContent     string
 		GRPCServerPort string
@@ -164,65 +159,79 @@ func (s *GRPCSuite) TestGRPC() {
 		GRPCServerPort: port,
 	})
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	var response string
 	err = try.Do(1*time.Second, func() error {
 		response, err = callHelloClientGRPC("World", true)
 		return err
 	})
-	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "Hello World", response)
+	c.Assert(err, check.IsNil)
+	c.Assert(response, check.Equals, "Hello World")
 }
 
-func (s *GRPCSuite) TestGRPCh2c() {
+func (s *GRPCSuite) TestGRPCh2c(c *check.C) {
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := starth2cGRPCServer(lis, &myserver{})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config_h2c.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config_h2c.toml", struct {
 		GRPCServerPort string
 	}{
 		GRPCServerPort: port,
 	})
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	var response string
 	err = try.Do(1*time.Second, func() error {
 		response, err = callHelloClientGRPC("World", false)
 		return err
 	})
-	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "Hello World", response)
+	c.Assert(err, check.IsNil)
+	c.Assert(response, check.Equals, "Hello World")
 }
 
-func (s *GRPCSuite) TestGRPCh2cTermination() {
+func (s *GRPCSuite) TestGRPCh2cTermination(c *check.C) {
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := starth2cGRPCServer(lis, &myserver{})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config_h2c_termination.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config_h2c_termination.toml", struct {
 		CertContent    string
 		KeyContent     string
 		GRPCServerPort string
@@ -232,33 +241,40 @@ func (s *GRPCSuite) TestGRPCh2cTermination() {
 		GRPCServerPort: port,
 	})
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	var response string
 	err = try.Do(1*time.Second, func() error {
 		response, err = callHelloClientGRPC("World", true)
 		return err
 	})
-	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "Hello World", response)
+	c.Assert(err, check.IsNil)
+	c.Assert(response, check.Equals, "Hello World")
 }
 
-func (s *GRPCSuite) TestGRPCInsecure() {
+func (s *GRPCSuite) TestGRPCInsecure(c *check.C) {
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := startGRPCServer(lis, &myserver{})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config_insecure.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config_insecure.toml", struct {
 		CertContent    string
 		KeyContent     string
 		GRPCServerPort string
@@ -268,37 +284,44 @@ func (s *GRPCSuite) TestGRPCInsecure() {
 		GRPCServerPort: port,
 	})
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	var response string
 	err = try.Do(1*time.Second, func() error {
 		response, err = callHelloClientGRPC("World", true)
 		return err
 	})
-	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "Hello World", response)
+	c.Assert(err, check.IsNil)
+	c.Assert(response, check.Equals, "Hello World")
 }
 
-func (s *GRPCSuite) TestGRPCBuffer() {
+func (s *GRPCSuite) TestGRPCBuffer(c *check.C) {
 	stopStreamExample := make(chan bool)
 	defer func() { stopStreamExample <- true }()
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := startGRPCServer(lis, &myserver{
 			stopStreamExample: stopStreamExample,
 		})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config.toml", struct {
 		CertContent    string
 		KeyContent     string
 		GRPCServerPort string
@@ -308,21 +331,27 @@ func (s *GRPCSuite) TestGRPCBuffer() {
 		GRPCServerPort: port,
 	})
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	var client helloworld.Greeter_StreamExampleClient
 	client, closer, err := callStreamExampleClientGRPC()
 	defer func() { _ = closer() }()
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	received := make(chan bool)
 	go func() {
 		tr, err := client.Recv()
-		assert.NoError(s.T(), err)
-		assert.Len(s.T(), tr.GetData(), 512)
+		c.Assert(err, check.IsNil)
+		c.Assert(len(tr.Data), check.Equals, 512)
 		received <- true
 	}()
 
@@ -334,24 +363,25 @@ func (s *GRPCSuite) TestGRPCBuffer() {
 			return errors.New("failed to receive stream data")
 		}
 	})
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 }
 
-func (s *GRPCSuite) TestGRPCBufferWithFlushInterval() {
+func (s *GRPCSuite) TestGRPCBufferWithFlushInterval(c *check.C) {
 	stopStreamExample := make(chan bool)
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := startGRPCServer(lis, &myserver{
 			stopStreamExample: stopStreamExample,
 		})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config.toml", struct {
 		CertContent    string
 		KeyContent     string
 		GRPCServerPort string
@@ -360,11 +390,17 @@ func (s *GRPCSuite) TestGRPCBufferWithFlushInterval() {
 		KeyContent:     string(LocalhostKey),
 		GRPCServerPort: port,
 	})
+	defer os.Remove(file)
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
+
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	var client helloworld.Greeter_StreamExampleClient
 	client, closer, err := callStreamExampleClientGRPC()
@@ -372,13 +408,13 @@ func (s *GRPCSuite) TestGRPCBufferWithFlushInterval() {
 		_ = closer()
 		stopStreamExample <- true
 	}()
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	received := make(chan bool)
 	go func() {
 		tr, err := client.Recv()
-		assert.NoError(s.T(), err)
-		assert.Len(s.T(), tr.GetData(), 512)
+		c.Assert(err, check.IsNil)
+		c.Assert(len(tr.Data), check.Equals, 512)
 		received <- true
 	}()
 
@@ -390,21 +426,22 @@ func (s *GRPCSuite) TestGRPCBufferWithFlushInterval() {
 			return errors.New("failed to receive stream data")
 		}
 	})
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 }
 
-func (s *GRPCSuite) TestGRPCWithRetry() {
+func (s *GRPCSuite) TestGRPCWithRetry(c *check.C) {
 	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 	_, port, err := net.SplitHostPort(lis.Addr().String())
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	go func() {
 		err := startGRPCServer(lis, &myserver{})
-		assert.NoError(s.T(), err)
+		c.Log(err)
+		c.Assert(err, check.IsNil)
 	}()
 
-	file := s.adaptFile("fixtures/grpc/config_retry.toml", struct {
+	file := s.adaptFile(c, "fixtures/grpc/config_retry.toml", struct {
 		CertContent    string
 		KeyContent     string
 		GRPCServerPort string
@@ -414,17 +451,23 @@ func (s *GRPCSuite) TestGRPCWithRetry() {
 		GRPCServerPort: port,
 	})
 
-	s.traefikCmd(withConfigFile(file))
+	defer os.Remove(file)
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+
+	err = cmd.Start()
+	c.Assert(err, check.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for Traefik
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("Host(`127.0.0.1`)"))
-	assert.NoError(s.T(), err)
+	c.Assert(err, check.IsNil)
 
 	var response string
 	err = try.Do(1*time.Second, func() error {
 		response, err = callHelloClientGRPC("World", true)
 		return err
 	})
-	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "Hello World", response)
+	c.Assert(err, check.IsNil)
+	c.Assert(response, check.Equals, "Hello World")
 }

@@ -13,7 +13,6 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
-	"slices"
 	"sort"
 	"strings"
 
@@ -81,7 +80,7 @@ func (c Centrifuge) Run(dest string, pkgName string) error {
 	}
 
 	for _, p := range c.pkg.Imports() {
-		if slices.Contains(c.IncludedImports, p.Path()) {
+		if contains(c.IncludedImports, p.Path()) {
 			fls := c.run(p.Scope(), p.Path(), p.Name())
 
 			err = fileWriter{baseDir: filepath.Join(dest, p.Name())}.Write(fls)
@@ -98,7 +97,7 @@ func (c Centrifuge) run(sc *types.Scope, rootPkg string, pkgName string) map[str
 	files := map[string]*File{}
 
 	for _, name := range sc.Names() {
-		if slices.Contains(c.ExcludedTypes, name) {
+		if contains(c.ExcludedTypes, name) {
 			continue
 		}
 
@@ -108,7 +107,7 @@ func (c Centrifuge) run(sc *types.Scope, rootPkg string, pkgName string) map[str
 		}
 
 		filename := filepath.Base(c.fileSet.File(o.Pos()).Name())
-		if slices.Contains(c.ExcludedFiles, path.Join(rootPkg, filename)) {
+		if contains(c.ExcludedFiles, path.Join(rootPkg, filename)) {
 			continue
 		}
 
@@ -236,6 +235,16 @@ func extractPackage(t types.Type) string {
 	default:
 		return ""
 	}
+}
+
+func contains(values []string, value string) bool {
+	for _, val := range values {
+		if val == value {
+			return true
+		}
+	}
+
+	return false
 }
 
 type fileWriter struct {

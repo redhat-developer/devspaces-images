@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"sort"
 	"strconv"
 
@@ -50,13 +49,7 @@ func (h Handler) getEntryPoints(rw http.ResponseWriter, request *http.Request) {
 }
 
 func (h Handler) getEntryPoint(rw http.ResponseWriter, request *http.Request) {
-	scapedEntryPointID := mux.Vars(request)["entryPointID"]
-
-	entryPointID, err := url.PathUnescape(scapedEntryPointID)
-	if err != nil {
-		writeError(rw, fmt.Sprintf("unable to decode entryPointID %q: %s", scapedEntryPointID, err), http.StatusBadRequest)
-		return
-	}
+	entryPointID := mux.Vars(request)["entryPointID"]
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -71,7 +64,7 @@ func (h Handler) getEntryPoint(rw http.ResponseWriter, request *http.Request) {
 		Name:       entryPointID,
 	}
 
-	err = json.NewEncoder(rw).Encode(result)
+	err := json.NewEncoder(rw).Encode(result)
 	if err != nil {
 		log.FromContext(request.Context()).Error(err)
 		writeError(rw, err.Error(), http.StatusInternalServerError)

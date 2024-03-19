@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -24,8 +23,6 @@ import (
 	"github.com/traefik/traefik/v2/pkg/middlewares/capture"
 	"github.com/traefik/traefik/v2/pkg/types"
 )
-
-const delta float64 = 1e-10
 
 var (
 	logFileNameSuffix       = "/traefik/logger/test.log"
@@ -280,7 +277,7 @@ func assertFloat64(exp float64) func(t *testing.T, actual interface{}) {
 	return func(t *testing.T, actual interface{}) {
 		t.Helper()
 
-		assert.InDelta(t, exp, actual, delta)
+		assert.Equal(t, exp, actual)
 	}
 }
 
@@ -324,7 +321,7 @@ func TestLoggerJSON(t *testing.T) {
 				ServiceURL:                assertString(testServiceName),
 				ClientUsername:            assertString(testUsername),
 				ClientHost:                assertString(testHostname),
-				ClientPort:                assertString(strconv.Itoa(testPort)),
+				ClientPort:                assertString(fmt.Sprintf("%d", testPort)),
 				ClientAddr:                assertString(fmt.Sprintf("%s:%d", testHostname, testPort)),
 				"level":                   assertString("info"),
 				"msg":                     assertString(""),
@@ -364,7 +361,7 @@ func TestLoggerJSON(t *testing.T) {
 				ServiceURL:                assertString(testServiceName),
 				ClientUsername:            assertString(testUsername),
 				ClientHost:                assertString(testHostname),
-				ClientPort:                assertString(strconv.Itoa(testPort)),
+				ClientPort:                assertString(fmt.Sprintf("%d", testPort)),
 				ClientAddr:                assertString(fmt.Sprintf("%s:%d", testHostname, testPort)),
 				"level":                   assertString("info"),
 				"msg":                     assertString(""),

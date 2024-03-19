@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2020 Containous SAS; 2020-2024 Traefik Labs
+Copyright (c) 2016-2020 Containous SAS; 2020-2023 Traefik Labs
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ import (
 	v1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikcontainous/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -43,9 +44,9 @@ type FakeTLSStores struct {
 	ns   string
 }
 
-var tlsstoresResource = v1alpha1.SchemeGroupVersion.WithResource("tlsstores")
+var tlsstoresResource = schema.GroupVersionResource{Group: "traefik.containo.us", Version: "v1alpha1", Resource: "tlsstores"}
 
-var tlsstoresKind = v1alpha1.SchemeGroupVersion.WithKind("TLSStore")
+var tlsstoresKind = schema.GroupVersionKind{Group: "traefik.containo.us", Version: "v1alpha1", Kind: "TLSStore"}
 
 // Get takes name of the tLSStore, and returns the corresponding tLSStore object, and an error if there is any.
 func (c *FakeTLSStores) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.TLSStore, err error) {
@@ -112,7 +113,7 @@ func (c *FakeTLSStores) Update(ctx context.Context, tLSStore *v1alpha1.TLSStore,
 // Delete takes name of the tLSStore and deletes it. Returns an error if one occurs.
 func (c *FakeTLSStores) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(tlsstoresResource, c.ns, name, opts), &v1alpha1.TLSStore{})
+		Invokes(testing.NewDeleteAction(tlsstoresResource, c.ns, name), &v1alpha1.TLSStore{})
 
 	return err
 }

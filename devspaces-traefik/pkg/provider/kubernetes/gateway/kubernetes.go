@@ -22,7 +22,6 @@ import (
 	"github.com/traefik/traefik/v2/pkg/provider"
 	containousv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikcontainous/v1alpha1"
 	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
-	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/k8s"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/traefik/v2/pkg/tls"
 	corev1 "k8s.io/api/core/v1"
@@ -54,23 +53,6 @@ type Provider struct {
 	EntryPoints      map[string]Entrypoint `json:"-" toml:"-" yaml:"-" label:"-" file:"-"`
 
 	lastConfiguration safe.Safe
-
-	routerTransform k8s.RouterTransform
-}
-
-func (p *Provider) SetRouterTransform(routerTransform k8s.RouterTransform) {
-	p.routerTransform = routerTransform
-}
-
-func (p *Provider) applyRouterTransform(ctx context.Context, rt *dynamic.Router, route *gatev1alpha2.HTTPRoute) {
-	if p.routerTransform == nil {
-		return
-	}
-
-	err := p.routerTransform.Apply(ctx, rt, route.Annotations)
-	if err != nil {
-		log.FromContext(ctx).WithError(err).Error("Apply router transform")
-	}
 }
 
 // Entrypoint defines the available entry points.
@@ -513,7 +495,7 @@ func (p *Provider) fillGatewayConf(ctx context.Context, client Client, gateway *
 		for _, routeKind := range routeKinds {
 			switch routeKind.Kind {
 			case kindHTTPRoute:
-				listenerStatuses[i].Conditions = append(listenerStatuses[i].Conditions, p.gatewayHTTPRouteToHTTPConf(ctx, ep, listener, gateway, client, conf)...)
+				listenerStatuses[i].Conditions = append(listenerStatuses[i].Conditions, gatewayHTTPRouteToHTTPConf(ctx, ep, listener, gateway, client, conf)...)
 			case kindTCPRoute:
 				listenerStatuses[i].Conditions = append(listenerStatuses[i].Conditions, gatewayTCPRouteToTCPConf(ctx, ep, listener, gateway, client, conf)...)
 			case kindTLSRoute:
@@ -672,7 +654,7 @@ func getAllowedRouteKinds(listener gatev1alpha2.Listener, supportedKinds []gatev
 	return routeKinds, conditions
 }
 
-func (p *Provider) gatewayHTTPRouteToHTTPConf(ctx context.Context, ep string, listener gatev1alpha2.Listener, gateway *gatev1alpha2.Gateway, client Client, conf *dynamic.Configuration) []metav1.Condition {
+func gatewayHTTPRouteToHTTPConf(ctx context.Context, ep string, listener gatev1alpha2.Listener, gateway *gatev1alpha2.Gateway, client Client, conf *dynamic.Configuration) []metav1.Condition {
 	if listener.AllowedRoutes == nil {
 		// Should not happen due to validation.
 		return nil
@@ -805,11 +787,8 @@ func (p *Provider) gatewayHTTPRouteToHTTPConf(ctx context.Context, ep string, li
 				router.Service = serviceName
 			}
 
-			rt := &router
-			p.applyRouterTransform(ctx, rt, route)
-
 			routerKey = provider.Normalize(routerKey)
-			conf.HTTP.Routers[routerKey] = rt
+			conf.HTTP.Routers[routerKey] = &router
 		}
 	}
 

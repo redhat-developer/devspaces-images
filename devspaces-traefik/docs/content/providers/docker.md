@@ -254,9 +254,7 @@ services:
 
 _Required, Default="unix:///var/run/docker.sock"_
 
-<!-- markdownlint-disable MD051 -->
 See the sections [Docker API Access](#docker-api-access) and [Docker Swarm API Access](#docker-api-access_1) for more information.
-<!-- markdownlint-restore -->
 
 ??? example "Using the docker.sock"
 
@@ -267,7 +265,7 @@ See the sections [Docker API Access](#docker-api-access) and [Docker Swarm API A
 
     services:
       traefik:
-         image: traefik:v2.11 # The official v2 Traefik docker image
+         image: traefik:v2.10 # The official v2 Traefik docker image
          ports:
            - "80:80"
          volumes:
@@ -465,13 +463,6 @@ providers:
 --providers.docker.defaultRule=Host(`{{ .Name }}.{{ index .Labels \"customLabel\"}}`)
 # ...
 ```
-
-??? info "Default rule and Traefik service"
-
-    The exposure of the Traefik container, combined with the default rule mechanism,
-    can lead to create a router targeting itself in a loop.
-    In this case, to prevent an infinite loop,
-    Traefik adds an internal middleware to refuse the request if it comes from the same router.
 
 ### `swarmMode`
 

@@ -2,9 +2,7 @@ package runtime
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
@@ -19,7 +17,7 @@ func (c *Configuration) GetTCPRoutersByEntryPoints(ctx context.Context, entryPoi
 
 		entryPointsCount := 0
 		for _, entryPointName := range rt.EntryPoints {
-			if !slices.Contains(entryPoints, entryPointName) {
+			if !contains(entryPoints, entryPointName) {
 				rt.AddError(fmt.Errorf("entryPoint %q doesn't exist", entryPointName), false)
 				logger.WithField(log.EntryPointName, entryPointName).
 					Errorf("entryPoint %q doesn't exist", entryPointName)
@@ -37,7 +35,7 @@ func (c *Configuration) GetTCPRoutersByEntryPoints(ctx context.Context, entryPoi
 		}
 
 		if entryPointsCount == 0 {
-			rt.AddError(errors.New("no valid entryPoint for this router"), true)
+			rt.AddError(fmt.Errorf("no valid entryPoint for this router"), true)
 			logger.Error("no valid entryPoint for this router")
 		}
 	}

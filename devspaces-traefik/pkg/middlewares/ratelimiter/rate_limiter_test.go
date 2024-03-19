@@ -18,8 +18,6 @@ import (
 	"golang.org/x/time/rate"
 )
 
-const delta float64 = 1e-10
-
 func TestNewRateLimiter(t *testing.T) {
 	testCases := []struct {
 		desc             string
@@ -133,7 +131,7 @@ func TestNewRateLimiter(t *testing.T) {
 				assert.Equal(t, test.requestHeader, hd)
 			}
 			if test.expectedRTL != 0 {
-				assert.InDelta(t, float64(test.expectedRTL), float64(rtl.rate), delta)
+				assert.Equal(t, test.expectedRTL, rtl.rate)
 			}
 		})
 	}

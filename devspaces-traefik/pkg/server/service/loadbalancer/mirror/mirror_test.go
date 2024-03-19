@@ -98,7 +98,7 @@ func TestHijack(t *testing.T) {
 	var mirrorRequest bool
 	err := mirror.AddMirror(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		hijacker, ok := rw.(http.Hijacker)
-		assert.True(t, ok)
+		assert.Equal(t, true, ok)
 
 		_, _, err := hijacker.Hijack()
 		assert.Error(t, err)
@@ -109,7 +109,7 @@ func TestHijack(t *testing.T) {
 	mirror.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
 
 	pool.Stop()
-	assert.True(t, mirrorRequest)
+	assert.Equal(t, true, mirrorRequest)
 }
 
 func TestFlush(t *testing.T) {
@@ -122,7 +122,7 @@ func TestFlush(t *testing.T) {
 	var mirrorRequest bool
 	err := mirror.AddMirror(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		hijacker, ok := rw.(http.Flusher)
-		assert.True(t, ok)
+		assert.Equal(t, true, ok)
 
 		hijacker.Flush()
 
@@ -133,7 +133,7 @@ func TestFlush(t *testing.T) {
 	mirror.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
 
 	pool.Stop()
-	assert.True(t, mirrorRequest)
+	assert.Equal(t, true, mirrorRequest)
 }
 
 func TestMirroringWithBody(t *testing.T) {
@@ -233,7 +233,7 @@ func TestCloneRequest(t *testing.T) {
 
 		_, expectedBytes, err := newReusableRequest(req, 2)
 		assert.Error(t, err)
-		assert.Equal(t, expectedBytes, bb[:3])
+		assert.Equal(t, bb[:3], expectedBytes)
 	})
 
 	t.Run("valid case with maxBodySize", func(t *testing.T) {
@@ -258,7 +258,7 @@ func TestCloneRequest(t *testing.T) {
 		rr, expectedBytes, err := newReusableRequest(req, 20)
 		assert.NoError(t, err)
 		assert.Nil(t, expectedBytes)
-		assert.Empty(t, rr.body)
+		assert.Len(t, rr.body, 0)
 	})
 
 	t.Run("no request given", func(t *testing.T) {

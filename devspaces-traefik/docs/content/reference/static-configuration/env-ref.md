@@ -45,9 +45,6 @@ Activate dashboard. (Default: ```true```)
 `TRAEFIK_API_DEBUG`:  
 Enable additional endpoints for debugging and profiling. (Default: ```false```)
 
-`TRAEFIK_API_DISABLEDASHBOARDAD`:  
-Disable ad in the dashboard. (Default: ```false```)
-
 `TRAEFIK_API_INSECURE`:  
 Activate API directly on the entryPoint named traefik. (Default: ```false```)
 
@@ -126,9 +123,6 @@ HTTP/3 configuration. (Default: ```false```)
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP3_ADVERTISEDPORT`:  
 UDP port to advertise, on which HTTP/3 is available. (Default: ```0```)
 
-`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_ENCODEQUERYSEMICOLONS`:  
-Defines whether request query semicolons should be URLEncoded. (Default: ```false```)
-
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_MIDDLEWARES`:  
 Default middlewares for the routers linked to the entry point.
 
@@ -171,12 +165,6 @@ Trust all. (Default: ```false```)
 `TRAEFIK_ENTRYPOINTS_<NAME>_PROXYPROTOCOL_TRUSTEDIPS`:  
 Trust only selected IPs.
 
-`TRAEFIK_ENTRYPOINTS_<NAME>_TRANSPORT_KEEPALIVEMAXREQUESTS`:  
-Maximum number of requests before closing a keep-alive connection. (Default: ```0```)
-
-`TRAEFIK_ENTRYPOINTS_<NAME>_TRANSPORT_KEEPALIVEMAXTIME`:  
-Maximum duration before closing a keep-alive connection. (Default: ```0```)
-
 `TRAEFIK_ENTRYPOINTS_<NAME>_TRANSPORT_LIFECYCLE_GRACETIMEOUT`:  
 Duration to give active requests a chance to finish before Traefik stops. (Default: ```10```)
 
@@ -198,6 +186,9 @@ Timeout defines how long to wait on an idle session before releasing the related
 `TRAEFIK_EXPERIMENTAL_HTTP3`:  
 Enable HTTP3. (Default: ```false```)
 
+`TRAEFIK_EXPERIMENTAL_HUB`:  
+Enable the Traefik Hub provider. (Default: ```false```)
+
 `TRAEFIK_EXPERIMENTAL_KUBERNETESGATEWAY`:  
 Allow the Kubernetes gateway api provider usage. (Default: ```false```)
 
@@ -217,7 +208,7 @@ plugin's version.
 Periodically check if a new version has been released. (Default: ```true```)
 
 `TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE`:  
-Periodically send anonymous usage statistics. If the option is not specified, it will be disabled by default. (Default: ```false```)
+Periodically send anonymous usage statistics. If the option is not specified, it will be enabled by default. (Default: ```false```)
 
 `TRAEFIK_HOSTRESOLVER`:  
 Enable CNAME Flattening. (Default: ```false```)
@@ -230,6 +221,21 @@ resolv.conf used for DNS resolving (Default: ```/etc/resolv.conf```)
 
 `TRAEFIK_HOSTRESOLVER_RESOLVDEPTH`:  
 The maximal depth of DNS recursive resolving (Default: ```5```)
+
+`TRAEFIK_HUB`:  
+Traefik Hub configuration. (Default: ```false```)
+
+`TRAEFIK_HUB_TLS_CA`:  
+The certificate authority authenticates the Traefik Hub Agent certificate.
+
+`TRAEFIK_HUB_TLS_CERT`:  
+The TLS certificate for Traefik Proxy as a TLS client.
+
+`TRAEFIK_HUB_TLS_INSECURE`:  
+Enables an insecure TLS connection that uses default credentials, and which has no peer authentication between Traefik Proxy and the Traefik Hub Agent. (Default: ```false```)
+
+`TRAEFIK_HUB_TLS_KEY`:  
+The TLS key for Traefik Proxy as a TLS client.
 
 `TRAEFIK_LOG`:  
 Traefik log settings. (Default: ```false```)
@@ -911,27 +917,6 @@ Password for authentication.
 
 `TRAEFIK_PROVIDERS_REDIS_ROOTKEY`:  
 Root key used for KV store. (Default: ```traefik```)
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_LATENCYSTRATEGY`:  
-Defines whether to route commands to the closest master or replica nodes (mutually exclusive with RandomStrategy and ReplicaStrategy). (Default: ```false```)
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_MASTERNAME`:  
-Name of the master.
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_PASSWORD`:  
-Password for Sentinel authentication.
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_RANDOMSTRATEGY`:  
-Defines whether to route commands randomly to master or replica nodes (mutually exclusive with LatencyStrategy and ReplicaStrategy). (Default: ```false```)
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_REPLICASTRATEGY`:  
-Defines whether to route all commands to replica nodes (mutually exclusive with LatencyStrategy and RandomStrategy). (Default: ```false```)
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_USEDISCONNECTEDREPLICAS`:  
-Use replicas disconnected with master when cannot get connected replicas. (Default: ```false```)
-
-`TRAEFIK_PROVIDERS_REDIS_SENTINEL_USERNAME`:  
-Username for Sentinel authentication.
 
 `TRAEFIK_PROVIDERS_REDIS_TLS_CA`:  
 TLS CA
