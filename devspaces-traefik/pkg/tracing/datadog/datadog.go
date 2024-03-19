@@ -1,6 +1,7 @@
 package datadog
 
 import (
+	"context"
 	"io"
 	"net"
 	"os"
@@ -18,6 +19,7 @@ const Name = "datadog"
 // Config provides configuration settings for a datadog tracer.
 type Config struct {
 	LocalAgentHostPort string `description:"Sets the Datadog Agent host:port." json:"localAgentHostPort,omitempty" toml:"localAgentHostPort,omitempty" yaml:"localAgentHostPort,omitempty"`
+	LocalAgentSocket   string `description:"Sets the socket for the Datadog Agent." json:"localAgentSocket,omitempty" toml:"localAgentSocket,omitempty" yaml:"localAgentSocket,omitempty"`
 	// Deprecated: use GlobalTags instead.
 	GlobalTag                  string            `description:"Sets a key:value tag on all spans." json:"globalTag,omitempty" toml:"globalTag,omitempty" yaml:"globalTag,omitempty" export:"true"`
 	GlobalTags                 map[string]string `description:"Sets a list of key:value tags on all spans." json:"globalTags,omitempty" toml:"globalTags,omitempty" yaml:"globalTags,omitempty" export:"true"`
@@ -46,9 +48,10 @@ func (c *Config) SetDefaults() {
 
 // Setup sets up the tracer.
 func (c *Config) Setup(serviceName string) (opentracing.Tracer, io.Closer, error) {
+	ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "datadog"))
+
 	opts := []datadog.StartOption{
-		datadog.WithAgentAddr(c.LocalAgentHostPort),
-		datadog.WithServiceName(serviceName),
+		datadog.WithService(serviceName),
 		datadog.WithDebugMode(c.Debug),
 		datadog.WithPropagator(datadog.NewPropagator(&datadog.PropagatorConfig{
 			TraceHeader:    c.TraceIDHeaderName,
@@ -56,6 +59,13 @@ func (c *Config) Setup(serviceName string) (opentracing.Tracer, io.Closer, error
 			PriorityHeader: c.SamplingPriorityHeaderName,
 			BaggagePrefix:  c.BagagePrefixHeaderName,
 		})),
+		datadog.WithLogger(log.NewDatadogLogger(log.FromContext(ctx))),
+	}
+
+	if c.LocalAgentSocket != "" {
+		opts = append(opts, datadog.WithUDS(c.LocalAgentSocket))
+	} else {
+		opts = append(opts, datadog.WithAgentAddr(c.LocalAgentHostPort))
 	}
 
 	for k, v := range c.GlobalTags {

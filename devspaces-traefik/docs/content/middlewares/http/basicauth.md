@@ -10,7 +10,7 @@ Adding Basic Authentication
 
 ![BasicAuth](../../assets/img/middleware/basicauth.png)
 
-The BasicAuth middleware restricts access to your services to known users.
+The BasicAuth middleware grants access to services to authorized users only.
 
 ## Configuration Examples
 
@@ -28,7 +28,7 @@ labels:
 
 ```yaml tab="Kubernetes"
 # Declaring the user list
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-auth
@@ -114,7 +114,7 @@ labels:
 
 ```yaml tab="Kubernetes"
 # Declaring the user list
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-auth
@@ -207,7 +207,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-auth
@@ -274,7 +274,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-auth
@@ -322,7 +322,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: my-auth
@@ -367,7 +367,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-auth

@@ -108,13 +108,13 @@ func (l *TCPServersLoadBalancer) Mergeable(loadBalancer *TCPServersLoadBalancer)
 // TCPServer holds a TCP Server configuration.
 type TCPServer struct {
 	Address string `json:"address,omitempty" toml:"address,omitempty" yaml:"address,omitempty" label:"-"`
-	Port    string `toml:"-" json:"-" yaml:"-"`
+	Port    string `json:"-" toml:"-" yaml:"-"`
 }
 
 // +k8s:deepcopy-gen=true
 
 // ProxyProtocol holds the PROXY Protocol configuration.
-// More info: https://doc.traefik.io/traefik/v2.9/routing/services/#proxy-protocol
+// More info: https://doc.traefik.io/traefik/v2.11/routing/services/#proxy-protocol
 type ProxyProtocol struct {
 	// Version defines the PROXY Protocol version to use.
 	Version int `json:"version,omitempty" toml:"version,omitempty" yaml:"version,omitempty" export:"true"`

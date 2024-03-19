@@ -15,7 +15,6 @@ import (
 	"github.com/traefik/traefik/v2/pkg/config/static"
 	"github.com/traefik/traefik/v2/pkg/provider/docker"
 	"github.com/traefik/traefik/v2/pkg/provider/file"
-	"github.com/traefik/traefik/v2/pkg/provider/hub"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/ingress"
 	"github.com/traefik/traefik/v2/pkg/provider/marathon"
@@ -266,7 +265,6 @@ func TestHandler_Overview(t *testing.T) {
 				Tracing: &static.Tracing{
 					Jaeger: &jaeger.Config{},
 				},
-				Hub: &hub.Provider{},
 			},
 			confDyn: runtime.Configuration{},
 			expected: expected{
@@ -293,7 +291,7 @@ func TestHandler_Overview(t *testing.T) {
 				return
 			}
 
-			assert.Equal(t, resp.Header.Get("Content-Type"), "application/json")
+			assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 			contents, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 

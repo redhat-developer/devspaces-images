@@ -11,7 +11,7 @@ import (
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/provider"
-	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
+	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 	"github.com/traefik/traefik/v2/pkg/tls"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -84,8 +84,8 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 			serviceName := normalized
 
 			if len(route.Services) > 1 {
-				spec := v1alpha1.TraefikServiceSpec{
-					Weighted: &v1alpha1.WeightedRoundRobin{
+				spec := traefikv1alpha1.TraefikServiceSpec{
+					Weighted: &traefikv1alpha1.WeightedRoundRobin{
 						Services: route.Services,
 					},
 				}
@@ -148,6 +148,8 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 				}
 			}
 
+			p.applyRouterTransform(ctx, r, ingressRoute)
+
 			conf.Routers[normalized] = r
 		}
 	}
@@ -155,7 +157,7 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 	return conf
 }
 
-func (p *Provider) makeMiddlewareKeys(ctx context.Context, ingRouteNamespace string, middlewares []v1alpha1.MiddlewareRef) ([]string, error) {
+func (p *Provider) makeMiddlewareKeys(ctx context.Context, ingRouteNamespace string, middlewares []traefikv1alpha1.MiddlewareRef) ([]string, error) {
 	var mds []string
 
 	for _, mi := range middlewares {
@@ -203,7 +205,7 @@ type configBuilder struct {
 
 // buildTraefikService creates the configuration for the traefik service defined in tService,
 // and adds it to the given conf map.
-func (c configBuilder) buildTraefikService(ctx context.Context, tService *v1alpha1.TraefikService, conf map[string]*dynamic.Service) error {
+func (c configBuilder) buildTraefikService(ctx context.Context, tService *traefikv1alpha1.TraefikService, conf map[string]*dynamic.Service) error {
 	id := provider.Normalize(makeID(tService.Namespace, tService.Name))
 
 	if tService.Spec.Weighted != nil {
@@ -217,7 +219,7 @@ func (c configBuilder) buildTraefikService(ctx context.Context, tService *v1alph
 
 // buildServicesLB creates the configuration for the load-balancer of services named id, and defined in tService.
 // It adds it to the given conf map.
-func (c configBuilder) buildServicesLB(ctx context.Context, namespace string, tService v1alpha1.TraefikServiceSpec, id string, conf map[string]*dynamic.Service) error {
+func (c configBuilder) buildServicesLB(ctx context.Context, namespace string, tService traefikv1alpha1.TraefikServiceSpec, id string, conf map[string]*dynamic.Service) error {
 	var wrrServices []dynamic.WRRService
 
 	for _, service := range tService.Weighted.Services {
@@ -252,7 +254,7 @@ func (c configBuilder) buildServicesLB(ctx context.Context, namespace string, tS
 
 // buildMirroring creates the configuration for the mirroring service named id, and defined by tService.
 // It adds it to the given conf map.
-func (c configBuilder) buildMirroring(ctx context.Context, tService *v1alpha1.TraefikService, id string, conf map[string]*dynamic.Service) error {
+func (c configBuilder) buildMirroring(ctx context.Context, tService *traefikv1alpha1.TraefikService, id string, conf map[string]*dynamic.Service) error {
 	fullNameMain, k8sService, err := c.nameAndService(ctx, tService.Namespace, tService.Spec.Mirroring.LoadBalancerSpec)
 	if err != nil {
 		return err
@@ -291,7 +293,7 @@ func (c configBuilder) buildMirroring(ctx context.Context, tService *v1alpha1.Tr
 }
 
 // buildServersLB creates the configuration for the load-balancer of servers defined by svc.
-func (c configBuilder) buildServersLB(namespace string, svc v1alpha1.LoadBalancerSpec) (*dynamic.Service, error) {
+func (c configBuilder) buildServersLB(namespace string, svc traefikv1alpha1.LoadBalancerSpec) (*dynamic.Service, error) {
 	servers, err := c.loadServers(namespace, svc)
 	if err != nil {
 		return nil, err
@@ -338,7 +340,7 @@ func (c *configBuilder) makeServersTransportKey(parentNamespace string, serversT
 	return provider.Normalize(makeID(parentNamespace, serversTransportName)), nil
 }
 
-func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBalancerSpec) ([]dynamic.Server, error) {
+func (c configBuilder) loadServers(parentNamespace string, svc traefikv1alpha1.LoadBalancerSpec) ([]dynamic.Server, error) {
 	strategy := svc.Strategy
 	if strategy == "" {
 		strategy = roundRobinStrategy
@@ -366,6 +368,20 @@ func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBala
 	svcPort, err := getServicePort(service, svc.Port)
 	if err != nil {
 		return nil, err
+	}
+
+	if svc.NativeLB {
+		address, err := getNativeServiceAddress(*service, *svcPort)
+		if err != nil {
+			return nil, fmt.Errorf("getting native Kubernetes Service address: %w", err)
+		}
+
+		protocol, err := parseServiceProtocol(svc.Scheme, svcPort.Name, svcPort.Port)
+		if err != nil {
+			return nil, err
+		}
+
+		return []dynamic.Server{{URL: fmt.Sprintf("%s://%s", protocol, address)}}, nil
 	}
 
 	var servers []dynamic.Server
@@ -398,8 +414,8 @@ func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBala
 		return nil, fmt.Errorf("subset not found for %s/%s", namespace, sanitizedName)
 	}
 
-	var port int32
 	for _, subset := range endpoints.Subsets {
+		var port int32
 		for _, p := range subset.Ports {
 			if svcPort.Name == p.Name {
 				port = p.Port
@@ -408,7 +424,7 @@ func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBala
 		}
 
 		if port == 0 {
-			return nil, fmt.Errorf("cannot define a port for %s/%s", namespace, sanitizedName)
+			continue
 		}
 
 		protocol, err := parseServiceProtocol(svc.Scheme, svcPort.Name, svcPort.Port)
@@ -432,7 +448,7 @@ func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBala
 // In addition, if the service is a Kubernetes one,
 // it generates and returns the configuration part for such a service,
 // so that the caller can add it to the global config map.
-func (c configBuilder) nameAndService(ctx context.Context, parentNamespace string, service v1alpha1.LoadBalancerSpec) (string, *dynamic.Service, error) {
+func (c configBuilder) nameAndService(ctx context.Context, parentNamespace string, service traefikv1alpha1.LoadBalancerSpec) (string, *dynamic.Service, error) {
 	svcCtx := log.With(ctx, log.Str(log.ServiceName, service.Name))
 
 	namespace := namespaceOrFallback(service, parentNamespace)
@@ -467,7 +483,7 @@ func splitSvcNameProvider(name string) (string, string) {
 	return svc, pvd
 }
 
-func fullServiceName(ctx context.Context, namespace string, service v1alpha1.LoadBalancerSpec, port intstr.IntOrString) string {
+func fullServiceName(ctx context.Context, namespace string, service traefikv1alpha1.LoadBalancerSpec, port intstr.IntOrString) string {
 	if (port.Type == intstr.Int && port.IntVal != 0) || (port.Type == intstr.String && port.StrVal != "") {
 		return provider.Normalize(fmt.Sprintf("%s-%s-%s", namespace, service.Name, &port))
 	}
@@ -488,7 +504,7 @@ func fullServiceName(ctx context.Context, namespace string, service v1alpha1.Loa
 	return provider.Normalize(name) + providerNamespaceSeparator + pName
 }
 
-func namespaceOrFallback(lb v1alpha1.LoadBalancerSpec, fallback string) string {
+func namespaceOrFallback(lb traefikv1alpha1.LoadBalancerSpec, fallback string) string {
 	if lb.Namespace != "" {
 		return lb.Namespace
 	}
@@ -496,7 +512,7 @@ func namespaceOrFallback(lb v1alpha1.LoadBalancerSpec, fallback string) string {
 }
 
 // getTLSHTTP mutates tlsConfigs.
-func getTLSHTTP(ctx context.Context, ingressRoute *v1alpha1.IngressRoute, k8sClient Client, tlsConfigs map[string]*tls.CertAndStores) error {
+func getTLSHTTP(ctx context.Context, ingressRoute *traefikv1alpha1.IngressRoute, k8sClient Client, tlsConfigs map[string]*tls.CertAndStores) error {
 	if ingressRoute.Spec.TLS == nil {
 		return nil
 	}

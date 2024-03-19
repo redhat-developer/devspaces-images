@@ -8,9 +8,13 @@ description: "Learn how to use IPWhiteList in HTTP middleware for limiting clien
 Limiting Clients to Specific IPs
 {: .subtitle }
 
-![IpWhiteList](../../assets/img/middleware/ipwhitelist.png)
+![IPWhiteList](../../assets/img/middleware/ipwhitelist.png)
 
-IPWhitelist accepts / refuses requests based on the client IP.
+IPWhiteList accepts / refuses requests based on the client IP.
+
+!!! warning
+
+    This middleware is deprecated, please use the [IPAllowList](./ipallowlist.md) middleware instead.
 
 ## Configuration Examples
 
@@ -21,7 +25,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-ipwhitelist
@@ -106,7 +110,7 @@ labels:
 
 ```yaml tab="Kubernetes"
 # Whitelisting Based on `X-Forwarded-For` with `depth=2`
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-ipwhitelist
@@ -185,7 +189,7 @@ labels:
 
 ```yaml tab="Kubernetes"
 # Exclude from `X-Forwarded-For`
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-ipwhitelist

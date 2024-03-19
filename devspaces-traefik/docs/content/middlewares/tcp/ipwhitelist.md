@@ -8,7 +8,11 @@ description: "Learn how to use IPWhiteList in TCP middleware for limiting client
 Limiting Clients to Specific IPs
 {: .subtitle }
 
-IPWhitelist accepts / refuses connections based on the client IP.
+IPWhiteList accepts / refuses connections based on the client IP.
+
+!!! warning
+
+    This middleware is deprecated, please use the [IPAllowList](./ipallowlist.md) middleware instead.
 
 ## Configuration Examples
 
@@ -19,7 +23,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: MiddlewareTCP
 metadata:
   name: test-ipwhitelist

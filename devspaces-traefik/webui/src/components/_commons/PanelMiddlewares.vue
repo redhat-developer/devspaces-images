@@ -402,6 +402,20 @@
               </div>
             </div>
           </q-card-section>
+          <!-- EXTRA FIELDS FROM MIDDLEWARES - [headers] - accessControlAllowOriginListRegex -->
+          <q-card-section v-if="middleware.headers">
+            <div class="row items-start no-wrap">
+              <div class="col">
+                <div class="text-subtitle2">Access Control Allow Origin Regex</div>
+                <q-chip
+                  v-for="(val, key) in exData(middleware).accessControlAllowOriginListRegex" :key="key"
+                  dense
+                  class="app-chip app-chip-green">
+                  {{ val }}
+                </q-chip>
+              </div>
+            </div>
+          </q-card-section>
           <!-- EXTRA FIELDS FROM MIDDLEWARES - [headers] - accessControlExposeHeaders -->
           <q-card-section v-if="middleware.headers">
             <div class="row items-start no-wrap">
@@ -723,7 +737,7 @@
             </div>
           </q-card-section>
 
-          <!-- EXTRA FIELDS FROM MIDDLEWARES - [rateLimit] - average && burst-->
+          <!-- EXTRA FIELDS FROM MIDDLEWARES - [rateLimit] - average & burst & period -->
           <q-card-section v-if="middleware.rateLimit">
             <div class="row items-start no-wrap">
               <div class="col">
@@ -740,6 +754,14 @@
                   dense
                   class="app-chip app-chip-green">
                   {{ exData(middleware).burst }}
+                </q-chip>
+              </div>
+              <div class="col">
+                <div class="text-subtitle2">Period</div>
+                <q-chip
+                  dense
+                  class="app-chip app-chip-green">
+                  {{ exData(middleware).period }}
                 </q-chip>
               </div>
             </div>
@@ -1149,16 +1171,19 @@ export default {
       const name = provider.toLowerCase()
 
       if (name.startsWith('plugin-')) {
-        return 'statics/providers/plugin.svg'
+        return 'providers/plugin.svg'
       }
       if (name.startsWith('consul-')) {
-        return `statics/providers/consul.svg`
+        return `providers/consul.svg`
       }
       if (name.startsWith('consulcatalog-')) {
-        return `statics/providers/consulcatalog.svg`
+        return `providers/consulcatalog.svg`
+      }
+      if (name.startsWith('nomad-')) {
+        return `providers/nomad.svg`
       }
 
-      return `statics/providers/${name}.svg`
+      return `providers/${name}.svg`
     }
   },
   filters: {
@@ -1242,7 +1267,7 @@ export default {
         flex-wrap: wrap;
         border-width: 0;
         margin-bottom: 8px;
-        /deep/ .q-chip__content{
+        :deep(.q-chip__content) {
           white-space: normal;
         }
       }

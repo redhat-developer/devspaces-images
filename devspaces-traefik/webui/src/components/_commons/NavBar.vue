@@ -29,8 +29,11 @@
             </q-btn>
           </q-tabs>
           <div class="right-menu">
-            <q-tabs>
-              <q-btn type="a" href="https://hub.traefik.io/" target="_blank" flat no-caps label="Go to Hub Dashboard →" class="btn-menu btn-hub" />
+            <q-tabs class="allow-overflow">
+              <div v-if="!coreVersion.disableDashboardAd && hasHubButtonComponent" style="margin-right: 5px;">
+                <hub-button-app theme="dark" v-if="$q.dark.isActive"></hub-button-app>
+                <hub-button-app v-if="!$q.dark.isActive"></hub-button-app>
+              </div>
               <q-btn @click="$q.dark.toggle()" stretch flat no-caps icon="invert_colors" :label="`${$q.dark.isActive ? 'Light' : 'Dark'} theme`" class="btn-menu" />
               <q-btn stretch flat icon="eva-question-mark-circle-outline">
                 <q-menu anchor="bottom left" auto-close>
@@ -83,10 +86,42 @@ export default {
     },
     name () {
       return config.productName
+    },
+    disableDashboardAd () {
+      return this.coreVersion.disableDashboardAd
+    }
+  },
+  data () {
+    return {
+      hasHubButtonComponent: false
     }
   },
   methods: {
     ...mapActions('core', { getVersion: 'getVersion' })
+  },
+  watch: {
+    disableDashboardAd (newValue) {
+      if (!newValue && customElements.get('hub-button-app') === undefined) {
+        const hubButtonScript = document.createElement('script')
+        hubButtonScript.async = true
+        hubButtonScript.onerror = () => {
+          const hubButtonScriptLocal = document.createElement('script')
+          hubButtonScriptLocal.async = true
+          hubButtonScriptLocal.onload = () => {
+            this.hasHubButtonComponent = customElements.get('hub-button-app') !== undefined
+          }
+          // Sources: https://github.com/traefik/traefiklabs-hub-button-app
+          hubButtonScriptLocal.src = 'traefiklabs-hub-button-app/main-v1.js'
+          document.head.appendChild(hubButtonScriptLocal)
+        }
+        hubButtonScript.onload = () => {
+          this.hasHubButtonComponent = customElements.get('hub-button-app') !== undefined
+        }
+        // Sources: https://github.com/traefik/traefiklabs-hub-button-app
+        hubButtonScript.src = 'https://traefik.github.io/traefiklabs-hub-button-app/main-v1.js'
+        document.head.appendChild(hubButtonScript)
+      }
+    }
   },
   created () {
     this.getVersion()
@@ -129,7 +164,7 @@ export default {
 
   .q-tabs {
     color: rgba( $app-text-white, .4 );
-    /deep/ .q-tabs__content {
+    :deep(.q-tabs__content) {
       .q-tab__content{
         min-width: 100%;
         .q-tab__label {
@@ -153,11 +188,6 @@ export default {
     font-weight: 600;
   }
 
-  .btn-hub {
-    color: #0e204c;
-    background: #deea48;
-  }
-
   .q-item {
     padding: 0;
   }
@@ -166,4 +196,11 @@ export default {
     font-weight: 700;
     align-items: flex-start;
   }
+
+  .allow-overflow {
+    :deep(.q-tabs__content) {
+      overflow: visible !important;
+    }
+  }
+
 </style>

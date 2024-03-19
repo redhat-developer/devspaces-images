@@ -92,7 +92,12 @@ func TestPrometheus(t *testing.T) {
 	promRegistry = prometheus.NewRegistry()
 	t.Cleanup(promState.reset)
 
-	prometheusRegistry := RegisterPrometheus(context.Background(), &types.Prometheus{AddEntryPointsLabels: true, AddRoutersLabels: true, AddServicesLabels: true})
+	prometheusRegistry := RegisterPrometheus(context.Background(), &types.Prometheus{
+		AddEntryPointsLabels: true,
+		AddRoutersLabels:     true,
+		AddServicesLabels:    true,
+		HeaderLabels:         map[string]string{"useragent": "User-Agent"},
+	})
 	defer promRegistry.Unregister(promState)
 
 	if !prometheusRegistry.IsEpEnabled() || !prometheusRegistry.IsRouterEnabled() || !prometheusRegistry.IsSvcEnabled() {
@@ -111,7 +116,7 @@ func TestPrometheus(t *testing.T) {
 
 	prometheusRegistry.
 		EntryPointReqsCounter().
-		With("code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http", "entrypoint", "http").
+		With(map[string][]string{"User-Agent": {"foobar"}}, "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http", "entrypoint", "http").
 		Add(1)
 	prometheusRegistry.
 		EntryPointReqDurationHistogram().
@@ -132,7 +137,7 @@ func TestPrometheus(t *testing.T) {
 
 	prometheusRegistry.
 		RouterReqsCounter().
-		With("router", "demo", "service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "router", "demo", "service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		RouterReqsTLSCounter().
@@ -157,7 +162,7 @@ func TestPrometheus(t *testing.T) {
 
 	prometheusRegistry.
 		ServiceReqsCounter().
-		With("service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(map[string][]string{"User-Agent": {"foobar"}}, "service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		ServiceReqsTLSCounter().
@@ -229,6 +234,7 @@ func TestPrometheus(t *testing.T) {
 				"method":     http.MethodGet,
 				"protocol":   "http",
 				"entrypoint": "http",
+				"useragent":  "foobar",
 			},
 			assert: buildCounterAssert(t, entryPointReqsTotalName, 1),
 		},
@@ -274,11 +280,12 @@ func TestPrometheus(t *testing.T) {
 		{
 			name: routerReqsTotalName,
 			labels: map[string]string{
-				"code":     "200",
-				"method":   http.MethodGet,
-				"protocol": "http",
-				"service":  "service1",
-				"router":   "demo",
+				"code":      "200",
+				"method":    http.MethodGet,
+				"protocol":  "http",
+				"service":   "service1",
+				"router":    "demo",
+				"useragent": "",
 			},
 			assert: buildCounterAssert(t, routerReqsTotalName, 1),
 		},
@@ -338,10 +345,11 @@ func TestPrometheus(t *testing.T) {
 		{
 			name: serviceReqsTotalName,
 			labels: map[string]string{
-				"code":     "200",
-				"method":   http.MethodGet,
-				"protocol": "http",
-				"service":  "service1",
+				"code":      "200",
+				"method":    http.MethodGet,
+				"protocol":  "http",
+				"service":   "service1",
+				"useragent": "foobar",
 			},
 			assert: buildCounterAssert(t, serviceReqsTotalName, 1),
 		},
@@ -419,12 +427,12 @@ func TestPrometheus(t *testing.T) {
 				return
 			}
 
-			for _, label := range family.Metric[0].Label {
-				val, ok := test.labels[*label.Name]
+			for _, label := range family.GetMetric()[0].GetLabel() {
+				val, ok := test.labels[label.GetName()]
 				if !ok {
-					t.Errorf("%q metric contains unexpected label %q", test.name, *label.Name)
-				} else if val != *label.Value {
-					t.Errorf("label %q in metric %q has wrong value %q, expected %q", *label.Name, test.name, *label.Value, val)
+					t.Errorf("%q metric contains unexpected label %q", test.name, label.GetName())
+				} else if val != label.GetValue() {
+					t.Errorf("label %q in metric %q has wrong value %q, expected %q", label.GetName(), test.name, label.GetValue(), val)
 				}
 			}
 			test.assert(family)
@@ -476,15 +484,15 @@ func TestPrometheusMetricRemoval(t *testing.T) {
 	// should be removed after that scrape.
 	prometheusRegistry.
 		EntryPointReqsCounter().
-		With("entrypoint", "entrypoint2", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "entrypoint", "entrypoint2", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		RouterReqsCounter().
-		With("router", "router2", "service", "bar@providerName", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "router", "router2", "service", "bar@providerName", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		ServiceReqsCounter().
-		With("service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		ServiceServerUpGauge().
@@ -502,15 +510,15 @@ func TestPrometheusMetricRemoval(t *testing.T) {
 	// here the counter examples.
 	prometheusRegistry.
 		EntryPointReqsCounter().
-		With("entrypoint", "entrypoint1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "entrypoint", "entrypoint1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		RouterReqsCounter().
-		With("router", "foo@providerName", "service", "bar", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "router", "foo@providerName", "service", "bar", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		ServiceReqsCounter().
-		With("service", "bar@providerName", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
+		With(nil, "service", "bar@providerName", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
 	prometheusRegistry.
 		ServiceServerUpGauge().
@@ -588,7 +596,7 @@ func TestPrometheusRemovedMetricsReset(t *testing.T) {
 	}
 	prometheusRegistry.
 		ServiceReqsCounter().
-		With(labelNamesValues...).
+		With(nil, labelNamesValues...).
 		Add(3)
 
 	delayForTrackingCompletion()
@@ -602,7 +610,7 @@ func TestPrometheusRemovedMetricsReset(t *testing.T) {
 
 	prometheusRegistry.
 		ServiceReqsCounter().
-		With(labelNamesValues...).
+		With(nil, labelNamesValues...).
 		Add(1)
 
 	delayForTrackingCompletion()
@@ -675,7 +683,7 @@ func findMetricByLabelNamesValues(family *dto.MetricFamily, labelNamesValues ...
 		return nil
 	}
 
-	for _, metric := range family.Metric {
+	for _, metric := range family.GetMetric() {
 		if hasMetricAllLabelPairs(metric, labelNamesValues...) {
 			return metric
 		}
@@ -695,7 +703,7 @@ func hasMetricAllLabelPairs(metric *dto.Metric, labelNamesValues ...string) bool
 }
 
 func hasMetricLabelPair(metric *dto.Metric, labelName, labelValue string) bool {
-	for _, labelPair := range metric.Label {
+	for _, labelPair := range metric.GetLabel() {
 		if labelPair.GetName() == labelName && labelPair.GetValue() == labelValue {
 			return true
 		}
@@ -712,12 +720,12 @@ func assertCounterValue(t *testing.T, want float64, family *dto.MetricFamily, la
 		t.Error("metric must not be nil")
 		return
 	}
-	if metric.Counter == nil {
+	if metric.GetCounter() == nil {
 		t.Errorf("metric %s must be a counter", family.GetName())
 		return
 	}
 
-	if cv := metric.Counter.GetValue(); cv != want {
+	if cv := metric.GetCounter().GetValue(); cv != want {
 		t.Errorf("metric %s has value %v, want %v", family.GetName(), cv, want)
 	}
 }
@@ -726,7 +734,7 @@ func buildCounterAssert(t *testing.T, metricName string, expectedValue int) func
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if cv := int(family.Metric[0].Counter.GetValue()); cv != expectedValue {
+		if cv := int(family.GetMetric()[0].GetCounter().GetValue()); cv != expectedValue {
 			t.Errorf("metric %s has value %d, want %d", metricName, cv, expectedValue)
 		}
 	}
@@ -736,7 +744,7 @@ func buildGreaterThanCounterAssert(t *testing.T, metricName string, expectedMinV
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if cv := int(family.Metric[0].Counter.GetValue()); cv < expectedMinValue {
+		if cv := int(family.GetMetric()[0].GetCounter().GetValue()); cv < expectedMinValue {
 			t.Errorf("metric %s has value %d, want at least %d", metricName, cv, expectedMinValue)
 		}
 	}
@@ -746,7 +754,7 @@ func buildHistogramAssert(t *testing.T, metricName string, expectedSampleCount i
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if sc := int(family.Metric[0].Histogram.GetSampleCount()); sc != expectedSampleCount {
+		if sc := int(family.GetMetric()[0].GetHistogram().GetSampleCount()); sc != expectedSampleCount {
 			t.Errorf("metric %s has sample count value %d, want %d", metricName, sc, expectedSampleCount)
 		}
 	}
@@ -756,7 +764,7 @@ func buildGaugeAssert(t *testing.T, metricName string, expectedValue int) func(f
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if gv := int(family.Metric[0].Gauge.GetValue()); gv != expectedValue {
+		if gv := int(family.GetMetric()[0].GetGauge().GetValue()); gv != expectedValue {
 			t.Errorf("metric %s has value %d, want %d", metricName, gv, expectedValue)
 		}
 	}
@@ -766,7 +774,7 @@ func buildTimestampAssert(t *testing.T, metricName string) func(family *dto.Metr
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if ts := time.Unix(int64(family.Metric[0].Gauge.GetValue()), 0); time.Since(ts) > time.Minute {
+		if ts := time.Unix(int64(family.GetMetric()[0].GetGauge().GetValue()), 0); time.Since(ts) > time.Minute {
 			t.Errorf("metric %s has wrong timestamp %v", metricName, ts)
 		}
 	}

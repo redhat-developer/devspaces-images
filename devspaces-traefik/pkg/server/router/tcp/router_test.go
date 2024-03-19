@@ -171,9 +171,11 @@ func Test_Routing(t *testing.T) {
 		map[string]traefiktls.Store{},
 		map[string]traefiktls.Options{
 			"default": {
+				MinVersion: "VersionTLS10",
 				MaxVersion: "VersionTLS10",
 			},
 			"tls10": {
+				MinVersion: "VersionTLS10",
 				MaxVersion: "VersionTLS10",
 			},
 			"tls12": {
@@ -618,12 +620,12 @@ func Test_Routing(t *testing.T) {
 				err := check.checkRouter(epListener.Addr().String(), timeout)
 
 				if check.expectedError != "" {
-					require.NotNil(t, err, check.desc)
+					require.Error(t, err, check.desc)
 					assert.Contains(t, err.Error(), check.expectedError, check.desc)
 					continue
 				}
 
-				assert.Nil(t, err, check.desc)
+				assert.NoError(t, err, check.desc)
 			}
 
 			epListener.Close()
@@ -840,7 +842,7 @@ func checkTCPTLS(addr string, timeout time.Duration, tlsVersion uint16) (err err
 
 	err = conn.SetReadDeadline(time.Now().Add(timeout))
 	if err != nil {
-		return
+		return err
 	}
 
 	var buf bytes.Buffer

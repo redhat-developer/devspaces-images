@@ -3,7 +3,7 @@ name: Traefik
 agent:
   machine:
     type: e1-standard-4
-    os_image: ubuntu1804
+    os_image: ubuntu2004
 
 fail_fast:
   stop:
@@ -19,36 +19,18 @@ global_job_config:
   prologue:
     commands:
       - curl -sSfL https://raw.githubusercontent.com/ldez/semgo/master/godownloader.sh | sudo sh -s -- -b "/usr/local/bin"
-      - sudo semgo go1.20
+      - sudo semgo go1.22
       - export "GOPATH=$(go env GOPATH)"
       - export "SEMAPHORE_GIT_DIR=${GOPATH}/src/github.com/traefik/${SEMAPHORE_PROJECT_NAME}"
       - export "PATH=${GOPATH}/bin:${PATH}"
       - mkdir -vp "${SEMAPHORE_GIT_DIR}" "${GOPATH}/bin"
       - export GOPROXY=https://proxy.golang.org,direct
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "${GOPATH}/bin" v1.50.0
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "${GOPATH}/bin" v1.56.0
       - curl -sSfL https://gist.githubusercontent.com/traefiker/6d7ac019c11d011e4f131bb2cca8900e/raw/goreleaser.sh | bash -s -- -b "${GOPATH}/bin"
       - checkout
       - cache restore traefik-$(checksum go.sum)
 
 blocks:
-  - name: Test Integration
-    dependencies: []
-    run:
-      when: "branch =~ '.*' OR pull_request =~'.*'"
-    task:
-      jobs:
-        - name: Test Integration
-          commands:
-            - make pull-images
-            - touch webui/static/index.html # Avoid generating webui
-            - IN_DOCKER="" make binary
-            - make test-integration
-            - df -h
-      epilogue:
-        always:
-          commands:
-            - cache store traefik-$(checksum go.sum) $HOME/go/pkg/mod
-
   - name: Release
     dependencies: []
     run:
@@ -57,27 +39,25 @@ blocks:
       agent:
         machine:
           type: e1-standard-8
-          os_image: ubuntu1804
+          os_image: ubuntu2004
       secrets:
         - name: traefik
       env_vars:
         - name: GH_VERSION
-          value: 1.12.1
+          value: 2.32.1
         - name: CODENAME
-          value: "banon"
-        - name: IN_DOCKER
-          value: ""
+          value: "mimolette"
       prologue:
         commands:
           - export VERSION=${SEMAPHORE_GIT_TAG_NAME}
           - curl -sSL -o /tmp/gh_${GH_VERSION}_linux_amd64.tar.gz https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz
           - tar -zxvf /tmp/gh_${GH_VERSION}_linux_amd64.tar.gz -C /tmp
           - sudo mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh
-          - sudo rm -rf ~/.phpbrew ~/.kerl ~/.sbt ~/.nvm ~/.npm ~/.kiex /usr/lib/jvm /opt/az /opt/firefox # Remove unnecessary data.
+          - sudo rm -rf ~/.phpbrew ~/.kerl ~/.sbt ~/.nvm ~/.npm ~/.kiex /usr/lib/jvm /opt/az /opt/firefox /usr/lib/google-cloud-sdk ~/.rbenv ~/.pip_download_cache # Remove unnecessary data.
           - sudo service docker stop && sudo umount /var/lib/docker && sudo service docker start # Unmounts the docker disk and the whole system disk is usable.
       jobs:
         - name: Release
           commands:
             - make release-packages
-            - gh release create ${SEMAPHORE_GIT_TAG_NAME} ./dist/traefik*.* --repo traefik/traefik --title ${SEMAPHORE_GIT_TAG_NAME} --notes ${SEMAPHORE_GIT_TAG_NAME}
+            - gh release create ${SEMAPHORE_GIT_TAG_NAME} ./dist/**/traefik*.{zip,tar.gz} ./dist/traefik*.{tar.gz,txt} --repo traefik/traefik --title ${SEMAPHORE_GIT_TAG_NAME} --notes ${SEMAPHORE_GIT_TAG_NAME}
             - ./script/deploy.sh

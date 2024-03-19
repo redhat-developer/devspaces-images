@@ -134,7 +134,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSStore
 metadata:
   name: default
@@ -195,7 +195,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSStore
 metadata:
   name: default
@@ -277,7 +277,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
@@ -287,7 +287,7 @@ spec:
   minVersion: VersionTLS12
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: mintls13
@@ -328,7 +328,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
@@ -338,7 +338,7 @@ spec:
   maxVersion: VersionTLS13
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: maxtls12
@@ -373,7 +373,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
@@ -418,7 +418,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
@@ -454,7 +454,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
@@ -493,7 +493,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
@@ -509,15 +509,17 @@ spec:
 
 Traefik supports mutual authentication, through the `clientAuth` section.
 
-For authentication policies that require verification of the client certificate, the certificate authority for the certificate should be set in `clientAuth.caFiles`.
+For authentication policies that require verification of the client certificate, the certificate authority for the certificates should be set in `clientAuth.caFiles`.
+
+In Kubernetes environment, CA certificate can be set in `clientAuth.secretNames`. See [TLSOption resource](../../routing/providers/kubernetes-crd#kind-tlsoption) for more details.
 
 The `clientAuth.clientAuthType` option governs the behaviour as follows:
 
 - `NoClientCert`: disregards any client certificate.
 - `RequestClientCert`: asks for a certificate but proceeds anyway if none is provided.
-- `RequireAnyClientCert`: requires a certificate but does not verify if it is signed by a CA listed in `clientAuth.caFiles`.
-- `VerifyClientCertIfGiven`: if a certificate is provided, verifies if it is signed by a CA listed in `clientAuth.caFiles`. Otherwise proceeds without any certificate.
-- `RequireAndVerifyClientCert`: requires a certificate, which must be signed by a CA listed in `clientAuth.caFiles`.
+- `RequireAnyClientCert`: requires a certificate but does not verify if it is signed by a CA listed in `clientAuth.caFiles` or in `clientAuth.secretNames`.
+- `VerifyClientCertIfGiven`: if a certificate is provided, verifies if it is signed by a CA listed in `clientAuth.caFiles` or in `clientAuth.secretNames`. Otherwise proceeds without any certificate.
+- `RequireAndVerifyClientCert`: requires a certificate, which must be signed by a CA listed in `clientAuth.caFiles` or in `clientAuth.secretNames`.
 
 ```yaml tab="File (YAML)"
 # Dynamic configuration
@@ -545,7 +547,7 @@ tls:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: TLSOption
 metadata:
   name: default
