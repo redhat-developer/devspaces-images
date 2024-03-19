@@ -226,7 +226,7 @@ export class InlineChatQuickVoice implements IEditorContribution {
 		this._store.dispose();
 	}
 
-	start() {
+	async start() {
 
 		this._finishCallback?.(true);
 
@@ -236,7 +236,7 @@ export class InlineChatQuickVoice implements IEditorContribution {
 
 		let message: string | undefined;
 		let preview: string | undefined;
-		const session = this._voiceChatService.createVoiceChatSession(cts.token, { usesAgents: false });
+		const session = await this._voiceChatService.createVoiceChatSession(cts.token, { usesAgents: false });
 		const listener = session.onDidChange(e => {
 
 			if (cts.token.isCancellationRequested) {
@@ -263,7 +263,6 @@ export class InlineChatQuickVoice implements IEditorContribution {
 
 		const done = (abort: boolean) => {
 			cts.dispose(true);
-			session.dispose();
 			listener.dispose();
 			this._widget.hide();
 			this._ctxQuickChatInProgress.reset();

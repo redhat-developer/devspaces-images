@@ -71,7 +71,7 @@ import { getTerminalResourcesFromDragEvent, getTerminalUri } from 'vs/workbench/
 import { TerminalWidgetManager } from 'vs/workbench/contrib/terminal/browser/widgets/widgetManager';
 import { LineDataEventAddon } from 'vs/workbench/contrib/terminal/browser/xterm/lineDataEventAddon';
 import { XtermTerminal, getXtermScaledDimensions } from 'vs/workbench/contrib/terminal/browser/xterm/xtermTerminal';
-import { IEnvironmentVariableInfo } from 'vs/workbench/contrib/terminal/common/environmentVariable';
+import { IEnvironmentVariableInfo, IEnvironmentVariableService } from 'vs/workbench/contrib/terminal/common/environmentVariable';
 import { getCommandHistory, getDirectoryHistory } from 'vs/workbench/contrib/terminal/common/history';
 import { DEFAULT_COMMANDS_TO_SKIP_SHELL, ITerminalProcessManager, ITerminalProfileResolverService, ProcessState, TERMINAL_CREATION_COMMANDS, TERMINAL_VIEW_ID, TerminalCommandId } from 'vs/workbench/contrib/terminal/common/terminal';
 import { TERMINAL_BACKGROUND_COLOR } from 'vs/workbench/contrib/terminal/common/terminalColorRegistry';
@@ -88,6 +88,7 @@ import type { IMarker, Terminal as XTermTerminal } from '@xterm/xterm';
 import { AccessibilityCommandId } from 'vs/workbench/contrib/accessibility/common/accessibilityCommands';
 import { terminalStrings } from 'vs/workbench/contrib/terminal/common/terminalStrings';
 import { shouldPasteTerminalText } from 'vs/workbench/contrib/terminal/common/terminalClipboard';
+import { EnvironmentVariableService } from 'vs/workbench/contrib/terminal/common/environmentVariableService';
 
 const enum Constants {
 	/**
@@ -365,7 +366,8 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		@IOpenerService private readonly _openerService: IOpenerService,
 		@ICommandService private readonly _commandService: ICommandService,
 		@IAccessibilitySignalService private readonly _accessibilitySignalService: IAccessibilitySignalService,
-		@IViewDescriptorService private readonly _viewDescriptorService: IViewDescriptorService
+		@IViewDescriptorService private readonly _viewDescriptorService: IViewDescriptorService,
+		@IEnvironmentVariableService private readonly _environmentVariableService: EnvironmentVariableService
 	) {
 		super();
 
@@ -409,6 +411,16 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		if (!this._workspaceFolder) {
 			const activeWorkspaceRootUri = this._historyService.getLastActiveWorkspaceRoot();
 			this._workspaceFolder = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? undefined : undefined;
+		}
+
+		if (!this._workspaceFolder && !this.shellLaunchConfig.cwd) {
+			const envs = this._environmentVariableService.collections.get('eclipse-che.api');
+			if (envs) {
+				const projectsRoot = envs.map.get('PROJECTS_ROOT');
+				if (projectsRoot) {
+					this.shellLaunchConfig.cwd = projectsRoot.value
+				}
+			}
 		}
 
 		const scopedContextKeyService = this._register(_contextKeyService.createScoped(this._wrapperElement));
@@ -721,7 +733,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			throw new ErrorNoTelemetry('Terminal disposed of during xterm.js creation');
 		}
 
-		const disableShellIntegrationReporting = (this.shellLaunchConfig.hideFromUser || this.shellLaunchConfig.executable === undefined || this.shellType === undefined) || !shellIntegrationSupportedShellTypes.includes(this.shellType);
+		const disableShellIntegrationReporting = (this.shellLaunchConfig.executable === undefined || this.shellType === undefined) || !shellIntegrationSupportedShellTypes.includes(this.shellType);
 		const xterm = this._scopedInstantiationService.createInstance(
 			XtermTerminal,
 			Terminal,
@@ -754,7 +766,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		// starts up or reconnects
 		disposableTimeout(() => {
 			this._register(xterm.raw.onBell(() => {
-				if (this._configHelper.config.enableBell) {
+				if (this._configurationService.getValue(TerminalSettingId.EnableBell) || this._configurationService.getValue(TerminalSettingId.EnableVisualBell)) {
 					this.statusList.add({
 						id: TerminalStatus.Bell,
 						severity: Severity.Warning,
@@ -1459,21 +1471,20 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 	}
 
 	private _onProcessData(ev: IProcessDataEvent): void {
-		const messageId = ++this._latestXtermWriteData;
 		if (ev.trackCommit) {
-			ev.writePromise = new Promise<void>(r => {
-				this.xterm?.raw.write(ev.data, () => {
-					this._latestXtermParseData = messageId;
-					this._processManager.acknowledgeDataEvent(ev.data.length);
-					r();
-				});
-			});
+			ev.writePromise = new Promise<void>(r => this._writeProcessData(ev, r));
 		} else {
-			this.xterm?.raw.write(ev.data, () => {
-				this._latestXtermParseData = messageId;
-				this._processManager.acknowledgeDataEvent(ev.data.length);
-			});
+			this._writeProcessData(ev);
 		}
+	}
+
+	private _writeProcessData(ev: IProcessDataEvent, cb?: () => void) {
+		const messageId = ++this._latestXtermWriteData;
+		this.xterm?.raw.write(ev.data, () => {
+			this._latestXtermParseData = messageId;
+			this._processManager.acknowledgeDataEvent(ev.data.length);
+			cb?.();
+		});
 	}
 
 	/**
