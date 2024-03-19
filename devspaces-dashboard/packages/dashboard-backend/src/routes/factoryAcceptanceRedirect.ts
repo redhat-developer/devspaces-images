@@ -28,8 +28,10 @@ export function registerFactoryAcceptanceRedirect(instance: FastifyInstance): vo
         }
         const query = querystring.parse(factoryLinkStr);
         if (query[FACTORY_LINK_ATTR] !== undefined) {
-          // restore the factory link from the query string
-          factoryLinkStr = decodeURIComponent(query[FACTORY_LINK_ATTR] as string);
+          // restore the factory link from the query string as base64 encoded string
+          const factoryLinkBase64 = decodeURIComponent(query[FACTORY_LINK_ATTR] as string);
+          // decode from base64
+          factoryLinkStr = Buffer.from(factoryLinkBase64, 'base64').toString('utf-8');
         }
 
         const params = new URLSearchParams(factoryLinkStr);

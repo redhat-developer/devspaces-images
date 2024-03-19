@@ -582,7 +582,7 @@ describe('Creating steps, fetching a devfile', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       const expectedRedirectUrl = `${protocol}${host}/f?${FACTORY_LINK_ATTR}=${encodeURIComponent(
-        'url=' + encodeURIComponent(factoryUrl),
+        btoa('url=' + encodeURIComponent(factoryUrl)),
       )}`;
 
       await waitFor(() =>
@@ -601,7 +601,7 @@ describe('Creating steps, fetching a devfile', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       const expectedRedirectUrl = `${protocol}${host}/f?${FACTORY_LINK_ATTR}=${encodeURIComponent(
-        'url=' + encodeURIComponent(factoryUrl),
+        btoa('url=' + encodeURIComponent(factoryUrl)),
       )}`;
 
       await waitFor(() =>

@@ -312,7 +312,7 @@ export class FakeStoreBuilder {
       devWorkspaceResources?: {
         [location: string]: { resources?: DevWorkspaceResources; error?: string };
       };
-      schema?: any;
+      filter?: string;
     },
     isLoading = false,
   ): FakeStoreBuilder {
@@ -327,6 +327,9 @@ export class FakeStoreBuilder {
         {},
         options.devWorkspaceResources,
       );
+    }
+    if (options.filter) {
+      this.state.devfileRegistries.filter = options.filter;
     }
     this.state.devfileRegistries.isLoading = isLoading;
     return this;

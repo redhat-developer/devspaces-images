@@ -15,7 +15,7 @@ import { Redirect, Route, RouteComponentProps, Switch } from 'react-router';
 
 import WorkspaceDetailsContainer from '@/containers/WorkspaceDetails';
 import WorkspacesListContainer from '@/containers/WorkspacesList';
-import CreateWorkspace from '@/pages/GetStarted';
+import GetStarted from '@/pages/GetStarted';
 import UserPreferences from '@/pages/UserPreferences';
 import { buildFactoryLoaderPath } from '@/preload/main';
 import { ROUTE } from '@/Routes/routes';
@@ -30,8 +30,8 @@ export interface RouteItem {
 }
 
 const items: RouteItem[] = [
-  { to: ROUTE.GET_STARTED, component: CreateWorkspace },
-  { to: ROUTE.HOME, component: CreateWorkspace },
+  { to: ROUTE.GET_STARTED, component: GetStarted },
+  { to: ROUTE.HOME, component: GetStarted },
   { to: ROUTE.WORKSPACES, component: WorkspacesListContainer },
   { to: ROUTE.WORKSPACE_DETAILS, component: WorkspaceDetailsContainer },
   { to: ROUTE.IDE_LOADER, component: LoaderContainer },

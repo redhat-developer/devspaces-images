@@ -13,7 +13,7 @@
 import { History, Location } from 'history';
 
 import { ROUTE } from '@/Routes/routes';
-import { CreateWorkspaceTab, LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
 import { UserPreferencesTab } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 
@@ -53,14 +53,8 @@ export function buildUserPreferencesLocation(tab?: UserPreferencesTab): Location
   return _buildLocationObject(pathAndQuery);
 }
 
-export function buildGettingStartedLocation(tab?: CreateWorkspaceTab): Location {
-  let pathAndQuery: string;
-  if (!tab) {
-    pathAndQuery = ROUTE.GET_STARTED;
-  } else {
-    pathAndQuery = ROUTE.GET_STARTED_TAB.replace(':tabId', tab);
-  }
-  return _buildLocationObject(pathAndQuery);
+export function buildGettingStartedLocation(): Location {
+  return _buildLocationObject(ROUTE.GET_STARTED);
 }
 
 export function buildDetailsLocation(
@@ -94,6 +88,10 @@ export function buildDetailsLocation(
       .replace(':tabId', tab);
   }
   return _buildLocationObject(pathAndQuery);
+}
+
+export function buildFactoryLocation(): Location {
+  return _buildLocationObject(ROUTE.FACTORY_LOADER);
 }
 
 function _buildLocationObject(pathAndQuery: string): Location {

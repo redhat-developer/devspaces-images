@@ -61,7 +61,7 @@ export class Navigation extends React.PureComponent<Props, State> {
     if (activeLocation.pathname === ROUTE.HOME) {
       const workspacesNumber = this.props.allWorkspaces.length;
       if (workspacesNumber === 0) {
-        newLocation = buildGettingStartedLocation('quick-add');
+        newLocation = buildGettingStartedLocation();
       } else {
         newLocation = buildWorkspacesLocation();
       }

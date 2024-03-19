@@ -13,6 +13,7 @@
 import { createSelector } from 'reselect';
 
 import { AppState } from '@/store';
+import { EXCLUDED_TARGET_EDITOR_NAMES } from '@/store/Plugins/chePlugins';
 
 const CHE_EDITOR = 'Che Editor';
 
@@ -24,7 +25,9 @@ export const selectPlugins = createSelector(selectState, state =>
 );
 
 export const selectEditors = createSelector(selectState, state =>
-  state.plugins.filter(item => item.type === CHE_EDITOR),
+  state.plugins
+    .filter(item => item.type === CHE_EDITOR)
+    .filter(item => !EXCLUDED_TARGET_EDITOR_NAMES.includes(item.name)),
 );
 
 export const selectPluginsError = createSelector(selectState, state => state.error);

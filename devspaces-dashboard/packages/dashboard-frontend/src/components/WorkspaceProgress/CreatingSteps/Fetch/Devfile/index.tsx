@@ -268,7 +268,8 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         const redirectUrl = new URL('/f', window.location.origin);
         redirectUrl.searchParams.set(
           FACTORY_LINK_ATTR,
-          this.props.history.location.search.replace(/^\?/, ''),
+          // encode to base64
+          btoa(this.props.history.location.search.replace(/^\?/, '')),
         );
 
         OAuthService.openOAuthPage(e.attributes.oauth_authentication_url, redirectUrl.toString());

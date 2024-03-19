@@ -75,8 +75,6 @@ export function isDevWorkspaceStatus(status: unknown): status is DevWorkspaceSta
   return Object.values(DevWorkspaceStatus).includes(status as DevWorkspaceStatus);
 }
 
-export type CreateWorkspaceTab = 'quick-add' | 'custom-workspace';
-
 export enum LoaderTab {
   Progress = 'Progress',
   Logs = 'Logs',

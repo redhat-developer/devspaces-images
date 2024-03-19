@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GetStarted snapshot 1`] = `
+[
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <h1
+      className="pf-c-title pf-m-2xl"
+      data-ouia-component-id="OUIA-Generated-Title-1"
+      data-ouia-component-type="PF4/Title"
+      data-ouia-safe={true}
+    >
+      Create Workspace
+    </h1>
+  </section>,
+  <hr
+    className="pf-c-divider"
+  />,
+  <section
+    className="pf-c-page__main-section"
+  >
+    <div
+      data-testid="editor-selector"
+    >
+      Editor Selector
+      <button
+        onClick={[Function]}
+      >
+        Select Editor
+      </button>
+    </div>
+    <div
+      className="spacer"
+      data-testid="spacer"
+    />
+    <div
+      data-testid="import-from-git"
+    >
+      <div>
+        Import from Git
+      </div>
+      <div
+        data-testid="editor-definition"
+      >
+        
+      </div>
+      <div
+        data-testid="editor-image"
+      >
+        
+      </div>
+    </div>
+    <div
+      className="spacer"
+      data-testid="spacer"
+    />
+    <div
+      data-testid="samples-list"
+    >
+      <div
+        data-testid="editor-definition"
+      >
+        
+      </div>
+      <div
+        data-testid="editor-image"
+      >
+        
+      </div>
+      Samples List
+    </div>
+  </section>,
+]
+`;

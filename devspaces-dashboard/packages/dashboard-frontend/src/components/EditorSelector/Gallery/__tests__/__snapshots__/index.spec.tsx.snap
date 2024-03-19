@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EditorGallery snapshot 1`] = `
+<div
+  className="pf-l-gallery pf-m-gutter"
+  style={
+    {
+      "--pf-l-gallery--GridTemplateColumns--max": "170px",
+      "--pf-l-gallery--GridTemplateColumns--min": "170px",
+    }
+  }
+>
+  <div
+    data-testid="editor-selector-entry"
+  >
+    <div
+      data-testid="selected-editor-id"
+    >
+      che-incubator/che-code/latest
+    </div>
+    <div
+      data-testid="editor-group-name"
+    >
+      VS Code - Open Source
+    </div>
+    <div
+      data-testid="che-code insiders"
+    >
+      <span>
+        che-code
+      </span>
+      <button
+        onClick={[Function]}
+      >
+        Select 
+        che-code
+         
+        insiders
+      </button>
+    </div>
+    <div
+      data-testid="che-code latest"
+    >
+      <span>
+        che-code
+      </span>
+      <button
+        onClick={[Function]}
+      >
+        Select 
+        che-code
+         
+        latest
+      </button>
+    </div>
+  </div>
+  <div
+    data-testid="editor-selector-entry"
+  >
+    <div
+      data-testid="selected-editor-id"
+    >
+      che-incubator/che-code/latest
+    </div>
+    <div
+      data-testid="editor-group-name"
+    >
+      che-idea-server
+    </div>
+    <div
+      data-testid="che-idea-server next"
+    >
+      <span>
+        che-idea-server
+      </span>
+      <button
+        onClick={[Function]}
+      >
+        Select 
+        che-idea-server
+         
+        next
+      </button>
+    </div>
+    <div
+      data-testid="che-idea-server latest"
+    >
+      <span>
+        che-idea-server
+      </span>
+      <button
+        onClick={[Function]}
+      >
+        Select 
+        che-idea-server
+         
+        latest
+      </button>
+    </div>
+  </div>
+</div>
+`;

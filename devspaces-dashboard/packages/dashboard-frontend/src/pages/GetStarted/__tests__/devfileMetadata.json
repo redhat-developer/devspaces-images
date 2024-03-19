@@ -155,7 +155,7 @@
   {
     "displayName": "Rust",
     "description": "Rust Stack with Rust 1.57",
-    "tags": ["Community", "Rust"],
+    "tags": ["Tech-Preview", "Rust"],
     "icon": "/images/rust.svg",
     "links": {
       "v2": "https://github.com/che-samples/helloworld-rust/tree/devfilev2"
@@ -171,23 +171,28 @@
     }
   },
   {
-    "displayName": "Python",
-    "description": "Python Stack with Python 3.7",
-    "tags": ["Centos", "Python", "pip"],
-    "icon": "/images/python.svg",
-    "globalMemoryLimit": "1686Mi",
+    "displayName": "Empty Workspace",
+    "description": "Start an empty remote development environment and create files or clone a git repository afterwards",
+    "tags": ["Empty"],
+    "icon": "/images/empty.svg",
     "links": {
-      "self": "/devfiles/python/devfile.yaml"
+      "v2": "/devfiles/empty.yaml"
     }
   },
   {
-    "displayName": "Rust",
-    "description": "Rust Stack with Rust 1.39",
-    "tags": ["Rust"],
-    "icon": "/images/rust.svg",
-    "globalMemoryLimit": "1686Mi",
+    "name": "dotnet50",
+    "version": "1.0.3",
+    "displayName": ".NET 5.0",
+    "description": ".NET 5.0 application",
+    "type": "stack",
+    "tags": [".NET", ".NET 5.0", "Devfile.io"],
+    "icon": "https://github.com/dotnet/brand/raw/main/logo/dotnet-logo.png",
+    "projectType": "dotnet",
+    "language": ".NET",
     "links": {
-      "self": "/devfiles/rust/devfile.yaml"
-    }
+      "v2": "devfile-catalog/dotnet50:1.0.3"
+    },
+    "resources": ["devfile.yaml"],
+    "starterProjects": ["dotnet50-example"]
   }
 ]

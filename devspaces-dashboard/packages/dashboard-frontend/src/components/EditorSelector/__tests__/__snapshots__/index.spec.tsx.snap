@@ -1,0 +1,231 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Editor Selector snapshot 1`] = `
+<div
+  className="pf-c-panel"
+>
+  <div
+    className="pf-c-panel__header"
+  >
+    <h3
+      className="pf-c-title pf-m-lg"
+      data-ouia-component-id="OUIA-Generated-Title-1"
+      data-ouia-component-type="PF4/Title"
+      data-ouia-safe={true}
+    >
+      Editor Selector
+    </h3>
+  </div>
+  <div
+    className="pf-c-panel__main"
+    style={
+      {
+        "--pf-c-panel__main--MaxHeight": undefined,
+      }
+    }
+  >
+    <div
+      className="pf-c-panel__main-body"
+    >
+      <div
+        aria-label=""
+        className="pf-c-accordion"
+      >
+        <h3>
+          <button
+            aria-expanded={true}
+            className="pf-c-accordion__toggle pf-m-expanded"
+            id="accordion-item-selector"
+            onClick={[Function]}
+            type="button"
+          >
+            <span
+              className="pf-c-accordion__toggle-text"
+            >
+              Choose an Editor
+            </span>
+            <span
+              className="pf-c-accordion__toggle-icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 256 512"
+                width="1em"
+              >
+                <path
+                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                />
+              </svg>
+            </span>
+          </button>
+        </h3>
+        <div
+          className="pf-c-accordion__expanded-content pf-m-expanded"
+          data-testid="editor-gallery-content"
+          hidden={false}
+          id=""
+        >
+          <div
+            className="pf-c-accordion__expanded-content-body"
+          >
+            <div
+              className="pf-c-panel"
+            >
+              <div
+                className="pf-c-panel__main"
+                style={
+                  {
+                    "--pf-c-panel__main--MaxHeight": undefined,
+                  }
+                }
+              >
+                <div
+                  className="pf-c-panel__main-body"
+                >
+                  <div
+                    data-testid="editor-gallery-component"
+                  >
+                    <div>
+                      Editor Gallery
+                    </div>
+                    <div
+                      data-testid="default-editor-id"
+                    >
+                      default/editor/id
+                    </div>
+                    <div
+                      data-testid="selected-editor-id"
+                    >
+                      
+                    </div>
+                    <button
+                      onClick={[Function]}
+                    >
+                      Select Editor
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h3>
+          <button
+            aria-expanded={false}
+            className="pf-c-accordion__toggle"
+            id="accordion-item-definition"
+            onClick={[Function]}
+            type="button"
+          >
+            <span
+              className="pf-c-accordion__toggle-text"
+            >
+              Use an Editor Definition
+            </span>
+            <span
+              className="pf-c-accordion__toggle-icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 256 512"
+                width="1em"
+              >
+                <path
+                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                />
+              </svg>
+            </span>
+          </button>
+        </h3>
+        <div
+          className="pf-c-accordion__expanded-content"
+          data-testid="editor-definition-content"
+          hidden={true}
+          id=""
+        >
+          <div
+            className="pf-c-accordion__expanded-content-body"
+          >
+            <div
+              className="pf-c-panel"
+            >
+              <div
+                className="pf-c-panel__main"
+                style={
+                  {
+                    "--pf-c-panel__main--MaxHeight": undefined,
+                  }
+                }
+              >
+                <div
+                  className="pf-c-panel__main-body"
+                >
+                  <div
+                    data-testid="editor-definition-component"
+                  >
+                    <div>
+                      Editor Definition
+                    </div>
+                    <div
+                      data-testid="editor-definition"
+                    />
+                    <div
+                      data-testid="editor-image"
+                    />
+                    <button
+                      onClick={[Function]}
+                    >
+                      Editor Definition Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="pf-l-flex"
+      >
+        <div
+          className="pf-m-align-right"
+        >
+          <a
+            aria-disabled={false}
+            aria-label={null}
+            className="pf-c-button pf-m-link pf-m-inline"
+            data-ouia-component-id="OUIA-Generated-Button-link-1"
+            data-ouia-component-type="PF4/Button"
+            data-ouia-safe={true}
+            disabled={null}
+            href="https://eclipse.dev/che/docs/stable/end-user-guide/defining-a-common-ide/"
+            role={null}
+            target="_blank"
+            type={null}
+          >
+            How to specify and use a custom editor
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

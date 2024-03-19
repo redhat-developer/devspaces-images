@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EditorDefinitionField snapshot 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        Editor Definition
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <input
+      aria-invalid={false}
+      aria-label="Editor Definition"
+      className="pf-c-form-control"
+      data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+      data-ouia-component-type="PF4/TextInput"
+      data-ouia-safe={true}
+      disabled={false}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onFocus={[Function]}
+      placeholder="Enter the link to a container editor definition URL or an editor id"
+      required={false}
+      type="text"
+      value=""
+    />
+    <div
+      aria-live="polite"
+      className="pf-c-form__helper-text"
+      id="undefined-helper"
+    >
+      <span
+        className="pf-c-form__helper-text-icon"
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 192 512"
+          width="1em"
+        >
+          <path
+            d="M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z"
+          />
+        </svg>
+      </span>
+      Default editor will be used if no definition is provided.
+    </div>
+  </div>
+</div>
+`;

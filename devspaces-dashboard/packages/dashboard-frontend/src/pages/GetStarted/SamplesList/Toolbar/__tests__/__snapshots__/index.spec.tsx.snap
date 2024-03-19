@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Samples List Toolbar snapshot 1`] = `
+<div
+  className="pf-l-flex"
+>
+  <div
+    className=""
+  >
+    <input
+      aria-invalid={false}
+      aria-label="Filter samples list"
+      className="pf-c-form-control"
+      data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+      data-ouia-component-type="PF4/TextInput"
+      data-ouia-safe={true}
+      disabled={false}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onFocus={[Function]}
+      placeholder="Filter by"
+      required={false}
+      type="search"
+      value=""
+    />
+  </div>
+  <div
+    className=""
+  >
+    <div
+      className="pf-c-content"
+    >
+      <p
+        className=""
+        data-ouia-component-id="OUIA-Generated-Text-1"
+        data-ouia-component-type="PF4/Text"
+        data-ouia-safe={true}
+        data-pf-content={true}
+      />
+    </div>
+  </div>
+  <div
+    className="pf-m-align-right"
+  >
+    <div>
+      Temporary Storage On
+      <input
+        name="Toggle Temporary Storage"
+        onClick={[Function]}
+        type="checkbox"
+      />
+    </div>
+  </div>
+</div>
+`;

@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-backend",
-  "version": "7.82.0",
+  "version": "7.84.0",
   "description": "Dashboard backend for Eclipse Che",
   "scripts": {
     "build": "webpack --color --config webpack.config.prod.js",
@@ -47,7 +47,6 @@
     "pino-pretty": "^10.2.0",
     "querystring": "^0.2.1",
     "reflect-metadata": "^0.1.13",
-    "request": "^2.88.2",
     "ws": "^8.13.0"
   },
   "devDependencies": {
@@ -56,6 +55,7 @@
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.5.3",
     "@types/node": "^20.4.9",
+    "@types/request": "^2.48.12",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
     "copy-webpack-plugin": "^11.0.0",

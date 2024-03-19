@@ -385,7 +385,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private handleAddWorkspace(): void {
-    const location = buildGettingStartedLocation('quick-add');
+    const location = buildGettingStartedLocation();
     this.props.history.push(location);
   }
 

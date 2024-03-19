@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Devfile Metadata Card snapshot 1`] = `
+<article
+  className="pf-c-card pf-m-compact pf-m-flat pf-m-selectable sample-card"
+  data-ouia-component-id="OUIA-Generated-Card-1"
+  data-ouia-component-type="PF4/Card"
+  data-ouia-safe={true}
+  data-testid="sample-card"
+  id=""
+  onClick={[Function]}
+  tabIndex="0"
+>
+  <div
+    className="pf-c-card__header"
+  >
+    <div
+      className=""
+    >
+      <img
+        alt="Go"
+        aria-label="Go"
+        className="pf-c-brand sampleCardIcon"
+        data-testid="sample-card-icon"
+        src="/images/go.svg"
+      />
+    </div>
+    <div
+      className="pf-c-card__actions"
+    />
+  </div>
+  <div
+    className="pf-c-card__header"
+  >
+    Go
+  </div>
+  <div
+    className="pf-c-card__body"
+  >
+    Stack with Go 1.12.10
+  </div>
+</article>
+`;

@@ -33,7 +33,7 @@ import {
   selectSkipOauthProviders,
 } from '@/store/GitOauthConfig/selectors';
 
-export const enabledProviders: api.GitOauthProvider[] = ['github', 'github_2'];
+export const enabledProviders: api.GitOauthProvider[] = ['github', 'github_2', 'gitlab'];
 
 type Props = MappedProps;
 

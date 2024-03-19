@@ -33,7 +33,7 @@ import Routes from '..';
 
 jest.mock('@/pages/GetStarted', () => {
   return function GetStarted() {
-    return <span>Quick Add</span>;
+    return <span>Create Workspace</span>;
   };
 });
 jest.mock('@/containers/WorkspacesList.tsx', () => {
@@ -62,30 +62,21 @@ describe('Routes', () => {
     jest.clearAllMocks();
   });
 
-  describe('Quick Add route', () => {
+  describe('Create Workspace route', () => {
     it('should handle "/"', async () => {
       const path = ROUTE.HOME;
       render(getComponent(path));
 
-      await waitFor(() => expect(screen.queryByText('Quick Add')).toBeTruthy());
+      await waitFor(() => expect(screen.queryByText('Create Workspace')).toBeTruthy());
 
       expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
-    it('should handle "/quick-add"', async () => {
+    it('should handle "/create-workspace"', async () => {
       const location = buildGettingStartedLocation();
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByText('Quick Add')).toBeTruthy());
-
-      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
-    });
-
-    it('should handle "/create-workspace?tab=quick-add"', async () => {
-      const location = buildGettingStartedLocation('quick-add');
-      render(getComponent(location));
-
-      await waitFor(() => expect(screen.queryByText('Quick Add')).toBeTruthy());
+      await waitFor(() => expect(screen.queryByText('Create Workspace')).toBeTruthy());
 
       expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });

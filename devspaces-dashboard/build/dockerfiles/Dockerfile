@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM docker.io/node:18.16.1-alpine3.18 as builder
+FROM docker.io/node:18.19.1-alpine3.19 as builder
 
 # hadolint ignore=DL3018
 RUN apk add --no-cache python3 make g++
@@ -37,7 +37,7 @@ RUN yarn install --network-timeout 3600000
 COPY packages/ /dashboard/packages
 RUN yarn build
 
-FROM docker.io/node:18.16.1-alpine3.18
+FROM docker.io/node:18.19.1-alpine3.19
 
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib

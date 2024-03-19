@@ -13,7 +13,6 @@
 export enum ROUTE {
   HOME = '/',
   GET_STARTED = '/create-workspace',
-  GET_STARTED_TAB = '/create-workspace?tab=:tabId',
   WORKSPACES = '/workspaces',
   WORKSPACE_DETAILS = '/workspace/:namespace/:workspaceName',
   WORKSPACE_DETAILS_TAB = '/workspace/:namespace/:workspaceName?tab=:tabId',

@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Editor Selector Entry snapshot 1`] = `
+[
+  <input
+    aria-label="Select VS Code - Open Source insiders "
+    checked={false}
+    className="pf-screen-reader"
+    disabled={false}
+    id="editor-selector-card-che-incubator/che-code/insiders-input"
+    onChange={[Function]}
+    tabIndex={-1}
+    type="checkbox"
+  />,
+  <article
+    className="pf-c-card pf-m-compact pf-m-flat pf-m-selectable-raised"
+    data-ouia-component-id="OUIA-Generated-Card-1"
+    data-ouia-component-type="PF4/Card"
+    data-ouia-safe={true}
+    id="editor-selector-card-che-incubator/che-code/insiders"
+    onClick={[Function]}
+    tabIndex="0"
+  >
+    <div
+      className="pf-c-card__header"
+    >
+      <img
+        className="editorIcon"
+        src="/v3/images/vscode.svg"
+      />
+      <div
+        className="pf-c-card__actions"
+      >
+        <div
+          className="pf-c-dropdown"
+          data-ouia-component-id="OUIA-Generated-Dropdown-1"
+          data-ouia-component-type="PF4/Dropdown"
+          data-ouia-safe={true}
+        >
+          <button
+            aria-expanded={false}
+            aria-haspopup={true}
+            aria-label="Actions"
+            className="pf-c-dropdown__toggle pf-m-plain"
+            disabled={false}
+            id="pf-dropdown-toggle-id-0"
+            onClick={[Function]}
+            onKeyDown={[Function]}
+            type="button"
+          >
+            <svg
+              aria-hidden={true}
+              aria-labelledby={null}
+              fill="currentColor"
+              height="1em"
+              role="img"
+              style={
+                {
+                  "verticalAlign": "-0.125em",
+                }
+              }
+              viewBox="0 0 192 512"
+              width="1em"
+            >
+              <path
+                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      className="pf-c-card__body"
+    >
+      <span
+        className=""
+      >
+        VS Code - Open Source
+      </span>
+      <span
+        className="pf-c-label pf-m-blue pf-m-outline versionLabel"
+      >
+        <span
+          className="pf-c-label__content"
+        >
+          insiders
+        </span>
+      </span>
+    </div>
+  </article>,
+]
+`;

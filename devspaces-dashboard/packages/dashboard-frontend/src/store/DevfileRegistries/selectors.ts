@@ -107,8 +107,15 @@ function mergeRegistriesMetadata(
   }, []);
 }
 
-function filterDevfileV2Metadata(metadata: Array<che.DevfileMetaData>): Array<che.DevfileMetaData> {
-  return metadata.filter(metadata => metadata.links?.v2);
+export type DevfileRegistryMetadata = che.DevfileMetaData & {
+  links: {
+    v2: string;
+  };
+};
+function filterDevfileV2Metadata(
+  metadata: Array<che.DevfileMetaData>,
+): Array<DevfileRegistryMetadata> {
+  return metadata.filter(metadata => metadata.links?.v2) as DevfileRegistryMetadata[];
 }
 
 export const selectDevWorkspaceResources = createSelector(

@@ -21,6 +21,8 @@ import { SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
 const axiosInstance = getAxiosInstance();
 
+export const EXCLUDED_TARGET_EDITOR_NAMES = ['dirigible', 'jupyter', 'eclipseide', 'code-server'];
+
 export interface State {
   isLoading: boolean;
   plugins: che.Plugin[];
@@ -44,22 +46,30 @@ interface ReceivePluginsErrorAction {
 type KnownAction = RequestPluginsAction | ReceivePluginsAction | ReceivePluginsErrorAction;
 
 export type ActionCreators = {
-  requestPlugins: (registryUrl: string) => AppThunk<KnownAction, Promise<che.Plugin[]>>;
+  requestPlugins: (registryUrl: string) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
   requestPlugins:
-    (registryUrl: string): AppThunk<KnownAction, Promise<che.Plugin[]>> =>
-    async (dispatch): Promise<che.Plugin[]> => {
+    (registryUrl: string): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
       try {
         const response = await axiosInstance.get<che.Plugin[]>(`${registryUrl}/plugins/index.json`);
-        const plugins = response.data;
+
+        const plugins = response.data.map(plugin => {
+          return {
+            ...plugin,
+            icon: resolveLink(registryUrl, plugin.icon),
+            links: {
+              devfile: resolveLink(registryUrl, plugin.links.devfile),
+            },
+          };
+        });
 
         dispatch({
           type: 'RECEIVE_PLUGINS',
           plugins,
         });
-        return plugins;
       } catch (e) {
         const errorMessage =
           `Failed to fetch plugins from registry URL: ${registryUrl}, reason: ` +
@@ -107,3 +117,20 @@ export const reducer: Reducer<State> = (
       return state;
   }
 };
+
+/**
+ * Because the `baseUrl` ends with '/v3/' and the `link` starts with '/v3/',
+ * the `resolveLink` function will remove the duplicate '/v3/' from the `resolved` URL.
+ */
+export function resolveLink(baseUrl: string, link: string): string {
+  const resolved = baseUrl + link;
+
+  const regexSingle = /(\/v\d)/i;
+  const regexDuplicate = new RegExp(regexSingle.source + '\\1', regexSingle.flags);
+
+  if (regexDuplicate.test(resolved)) {
+    return resolved.replace(regexSingle, '');
+  }
+
+  return resolved;
+}

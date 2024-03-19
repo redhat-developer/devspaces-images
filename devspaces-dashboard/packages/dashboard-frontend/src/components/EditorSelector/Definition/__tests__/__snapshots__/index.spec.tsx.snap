@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EditorDefinition snapshot w/o initial values 1`] = `
+<form
+  className="pf-c-form pf-m-horizontal"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <div
+    data-testid="editor-definition-field"
+  >
+    <button
+      onClick={[Function]}
+    >
+      Editor Definition Change
+    </button>
+    Editor Definition Field
+  </div>
+  <div
+    data-testid="editor-image-field"
+  >
+    <button
+      onClick={[Function]}
+    >
+      Editor Image Change
+    </button>
+    Editor Definition Field
+  </div>
+</form>
+`;
+
+exports[`EditorDefinition snapshot with initial values 1`] = `
+<form
+  className="pf-c-form pf-m-horizontal"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <div
+    data-testid="editor-definition-field"
+  >
+    <button
+      onClick={[Function]}
+    >
+      Editor Definition Change
+    </button>
+    Editor Definition Field
+  </div>
+  <div
+    data-testid="editor-image-field"
+  >
+    <button
+      onClick={[Function]}
+    >
+      Editor Image Change
+    </button>
+    Editor Definition Field
+  </div>
+</form>
+`;
