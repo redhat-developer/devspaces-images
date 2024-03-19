@@ -17,7 +17,7 @@
     <parent>
         <artifactId>che-server</artifactId>
         <groupId>org.eclipse.che</groupId>
-        <version>7.82.0-SNAPSHOT</version>
+        <version>7.84.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.eclipse.che.multiuser</groupId>
@@ -31,7 +31,6 @@
         <module>keycloak</module>
         <module>machine-auth</module>
         <module>personal-account</module>
-        <module>integration-tests</module>
         <module>oidc</module>
     </modules>
 </project>
