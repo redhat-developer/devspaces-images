@@ -27,7 +27,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-header
@@ -90,7 +90,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-header
@@ -158,7 +158,7 @@ labels:
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-header
@@ -207,18 +207,21 @@ http:
 CORS (Cross-Origin Resource Sharing) headers can be added and configured in a manner similar to the custom headers above.
 This functionality allows for more advanced security features to quickly be set.
 If CORS headers are set, then the middleware does not pass preflight requests to any service,
-instead the response will be generated and sent back to the client directly.
+instead the response will be generated and sent back to the client directly.  
+Please note that the example below is by no means authoritative or exhaustive,
+and should not be used as is for production.
 
 ```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.testheader.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
+  - "traefik.http.middlewares.testheader.headers.accesscontrolallowheaders=*"
   - "traefik.http.middlewares.testheader.headers.accesscontrolalloworiginlist=https://foo.bar.org,https://example.org"
   - "traefik.http.middlewares.testheader.headers.accesscontrolmaxage=100"
   - "traefik.http.middlewares.testheader.headers.addvaryheader=true"
 ```
 
 ```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: test-header
@@ -228,6 +231,8 @@ spec:
       - "GET"
       - "OPTIONS"
       - "PUT"
+    accessControlAllowHeaders:
+      - "*"
     accessControlAllowOriginList:
       - "https://foo.bar.org"
       - "https://example.org"
@@ -237,6 +242,7 @@ spec:
 
 ```yaml tab="Consul Catalog"
 - "traefik.http.middlewares.testheader.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
+- "traefik.http.middlewares.testheader.headers.accesscontrolallowheaders=*"
 - "traefik.http.middlewares.testheader.headers.accesscontrolalloworiginlist=https://foo.bar.org,https://example.org"
 - "traefik.http.middlewares.testheader.headers.accesscontrolmaxage=100"
 - "traefik.http.middlewares.testheader.headers.addvaryheader=true"
@@ -245,6 +251,7 @@ spec:
 ```json tab="Marathon"
 "labels": {
   "traefik.http.middlewares.testheader.headers.accesscontrolallowmethods": "GET,OPTIONS,PUT",
+  "traefik.http.middlewares.testheader.headers.accesscontrolallowheaders=*",
   "traefik.http.middlewares.testheader.headers.accesscontrolalloworiginlist": "https://foo.bar.org,https://example.org",
   "traefik.http.middlewares.testheader.headers.accesscontrolmaxage": "100",
   "traefik.http.middlewares.testheader.headers.addvaryheader": "true"
@@ -254,6 +261,7 @@ spec:
 ```yaml tab="Rancher"
 labels:
   - "traefik.http.middlewares.testheader.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
+  - "traefik.http.middlewares.testheader.headers.accesscontrolallowheaders=*"
   - "traefik.http.middlewares.testheader.headers.accesscontrolalloworiginlist=https://foo.bar.org,https://example.org"
   - "traefik.http.middlewares.testheader.headers.accesscontrolmaxage=100"
   - "traefik.http.middlewares.testheader.headers.addvaryheader=true"
@@ -268,6 +276,7 @@ http:
           - GET
           - OPTIONS
           - PUT
+        accessControlAllowHeaders: "*"
         accessControlAllowOriginList:
           - https://foo.bar.org
           - https://example.org
@@ -278,7 +287,8 @@ http:
 ```toml tab="File (TOML)"
 [http.middlewares]
   [http.middlewares.testHeader.headers]
-    accessControlAllowMethods= ["GET", "OPTIONS", "PUT"]
+    accessControlAllowMethods = ["GET", "OPTIONS", "PUT"]
+    accessControlAllowHeaders = [ "*" ]
     accessControlAllowOriginList = ["https://foo.bar.org","https://example.org"]
     accessControlMaxAge = 100
     addVaryHeader = true

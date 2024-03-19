@@ -374,7 +374,7 @@ func hostSNI(tree *matchersTree, hosts ...string) error {
 // hostSNIRegexp checks if the SNI Host of the connection matches the matcher host regexp.
 func hostSNIRegexp(tree *matchersTree, templates ...string) error {
 	if len(templates) == 0 {
-		return fmt.Errorf("empty value for \"HostSNIRegexp\" matcher is not allowed")
+		return errors.New("empty value for \"HostSNIRegexp\" matcher is not allowed")
 	}
 
 	var regexps []*regexp.Regexp
@@ -422,33 +422,30 @@ func preparePattern(template string) (string, error) {
 	pattern := bytes.NewBufferString("")
 
 	// Host SNI matching is case-insensitive
-	fmt.Fprint(pattern, "(?i)")
+	_, _ = fmt.Fprint(pattern, "(?i)")
 
 	pattern.WriteByte('^')
 	var end int
-	var err error
 	for i := 0; i < len(idxs); i += 2 {
 		// Set all values we are interested in.
 		raw := template[end:idxs[i]]
 		end = idxs[i+1]
 		parts := strings.SplitN(template[idxs[i]+1:end-1], ":", 2)
 		name := parts[0]
+
 		patt := defaultPattern
 		if len(parts) == 2 {
 			patt = parts[1]
 		}
+
 		// Name or pattern can't be empty.
 		if name == "" || patt == "" {
 			return "", fmt.Errorf("mux: missing name or pattern in %q",
 				template[idxs[i]:end])
 		}
-		// Build the regexp pattern.
-		fmt.Fprintf(pattern, "%s(?P<%s>%s)", regexp.QuoteMeta(raw), varGroupName(i/2), patt)
 
-		// Append variable name and compiled pattern.
-		if err != nil {
-			return "", err
-		}
+		// Build the regexp pattern.
+		_, _ = fmt.Fprintf(pattern, "%s(?P<%s>%s)", regexp.QuoteMeta(raw), varGroupName(i/2), patt)
 	}
 
 	// Add the remaining.

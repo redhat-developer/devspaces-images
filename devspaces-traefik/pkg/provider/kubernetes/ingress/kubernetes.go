@@ -20,10 +20,11 @@ import (
 	"github.com/traefik/traefik/v2/pkg/job"
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/provider"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/k8s"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/traefik/v2/pkg/tls"
 	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
@@ -46,7 +47,25 @@ type Provider struct {
 	ThrottleDuration          ptypes.Duration  `description:"Ingress refresh throttle duration" json:"throttleDuration,omitempty" toml:"throttleDuration,omitempty" yaml:"throttleDuration,omitempty" export:"true"`
 	AllowEmptyServices        bool             `description:"Allow creation of services without endpoints." json:"allowEmptyServices,omitempty" toml:"allowEmptyServices,omitempty" yaml:"allowEmptyServices,omitempty" export:"true"`
 	AllowExternalNameServices bool             `description:"Allow ExternalName services." json:"allowExternalNameServices,omitempty" toml:"allowExternalNameServices,omitempty" yaml:"allowExternalNameServices,omitempty" export:"true"`
-	lastConfiguration         safe.Safe
+
+	lastConfiguration safe.Safe
+
+	routerTransform k8s.RouterTransform
+}
+
+func (p *Provider) SetRouterTransform(routerTransform k8s.RouterTransform) {
+	p.routerTransform = routerTransform
+}
+
+func (p *Provider) applyRouterTransform(ctx context.Context, rt *dynamic.Router, ingress *netv1.Ingress) {
+	if p.routerTransform == nil {
+		return
+	}
+
+	err := p.routerTransform.Apply(ctx, rt, ingress.Annotations)
+	if err != nil {
+		log.FromContext(ctx).WithError(err).Error("Apply router transform")
+	}
 }
 
 // EndpointIngress holds the endpoint information for the Kubernetes provider.
@@ -191,7 +210,7 @@ func (p *Provider) loadConfigurationFromIngresses(ctx context.Context, client Cl
 
 	serverVersion := client.GetServerVersion()
 
-	var ingressClasses []*networkingv1.IngressClass
+	var ingressClasses []*netv1.IngressClass
 
 	if supportsIngressClass(serverVersion) {
 		ics, err := client.GetIngressClasses()
@@ -262,6 +281,8 @@ func (p *Provider) loadConfigurationFromIngresses(ctx context.Context, client Cl
 				rt.TLS = rtConfig.Router.TLS
 			}
 
+			p.applyRouterTransform(ctx, rt, ingress)
+
 			conf.HTTP.Routers["default-router"] = rt
 			conf.HTTP.Services["default-backend"] = service
 		}
@@ -298,14 +319,19 @@ func (p *Provider) loadConfigurationFromIngresses(ctx context.Context, client Cl
 				portString := pa.Backend.Service.Port.Name
 
 				if len(pa.Backend.Service.Port.Name) == 0 {
-					portString = fmt.Sprint(pa.Backend.Service.Port.Number)
+					portString = strconv.Itoa(int(pa.Backend.Service.Port.Number))
 				}
 
 				serviceName := provider.Normalize(ingress.Namespace + "-" + pa.Backend.Service.Name + "-" + portString)
 				conf.HTTP.Services[serviceName] = service
 
+				rt := loadRouter(rule, pa, rtConfig, serviceName)
+
+				p.applyRouterTransform(ctx, rt, ingress)
+
 				routerKey := strings.TrimPrefix(provider.Normalize(ingress.Namespace+"-"+ingress.Name+"-"+rule.Host+pa.Path), "-")
-				routers[routerKey] = append(routers[routerKey], loadRouter(rule, pa, rtConfig, serviceName))
+
+				routers[routerKey] = append(routers[routerKey], rt)
 			}
 		}
 
@@ -339,7 +365,7 @@ func (p *Provider) loadConfigurationFromIngresses(ctx context.Context, client Cl
 	return conf
 }
 
-func (p *Provider) updateIngressStatus(ing *networkingv1.Ingress, k8sClient Client) error {
+func (p *Provider) updateIngressStatus(ing *netv1.Ingress, k8sClient Client) error {
 	// Only process if an EndpointIngress has been configured.
 	if p.IngressEndpoint == nil {
 		return nil
@@ -350,7 +376,7 @@ func (p *Provider) updateIngressStatus(ing *networkingv1.Ingress, k8sClient Clie
 			return errors.New("publishedService or ip or hostname must be defined")
 		}
 
-		return k8sClient.UpdateIngressStatus(ing, []corev1.LoadBalancerIngress{{IP: p.IngressEndpoint.IP, Hostname: p.IngressEndpoint.Hostname}})
+		return k8sClient.UpdateIngressStatus(ing, []netv1.IngressLoadBalancerIngress{{IP: p.IngressEndpoint.IP, Hostname: p.IngressEndpoint.Hostname}})
 	}
 
 	serviceInfo := strings.Split(p.IngressEndpoint.PublishedService, "/")
@@ -375,10 +401,15 @@ func (p *Provider) updateIngressStatus(ing *networkingv1.Ingress, k8sClient Clie
 		return fmt.Errorf("missing service: %s", p.IngressEndpoint.PublishedService)
 	}
 
-	return k8sClient.UpdateIngressStatus(ing, service.Status.LoadBalancer.Ingress)
+	ingresses, err := convertSlice[netv1.IngressLoadBalancerIngress](service.Status.LoadBalancer.Ingress)
+	if err != nil {
+		return err
+	}
+
+	return k8sClient.UpdateIngressStatus(ing, ingresses)
 }
 
-func (p *Provider) shouldProcessIngress(ingress *networkingv1.Ingress, ingressClasses []*networkingv1.IngressClass) bool {
+func (p *Provider) shouldProcessIngress(ingress *netv1.Ingress, ingressClasses []*netv1.IngressClass) bool {
 	// configuration through the new kubernetes ingressClass
 	if ingress.Spec.IngressClassName != nil {
 		for _, ic := range ingressClasses {
@@ -402,7 +433,7 @@ func buildHostRule(host string) string {
 	return "Host(`" + host + "`)"
 }
 
-func getCertificates(ctx context.Context, ingress *networkingv1.Ingress, k8sClient Client, tlsConfigs map[string]*tls.CertAndStores) error {
+func getCertificates(ctx context.Context, ingress *netv1.Ingress, k8sClient Client, tlsConfigs map[string]*tls.CertAndStores) error {
 	for _, t := range ingress.Spec.TLS {
 		if t.SecretName == "" {
 			log.FromContext(ctx).Debugf("Skipping TLS sub-section: No secret name provided")
@@ -487,7 +518,16 @@ func getTLSConfig(tlsConfigs map[string]*tls.CertAndStores) []*tls.CertAndStores
 	return configs
 }
 
-func (p *Provider) loadService(client Client, namespace string, backend networkingv1.IngressBackend) (*dynamic.Service, error) {
+func (p *Provider) loadService(client Client, namespace string, backend netv1.IngressBackend) (*dynamic.Service, error) {
+	if backend.Resource != nil {
+		// https://kubernetes.io/docs/concepts/services-networking/ingress/#resource-backend
+		return nil, errors.New("resource backends are not supported")
+	}
+
+	if backend.Service == nil {
+		return nil, errors.New("missing service definition")
+	}
+
 	service, exists, err := client.GetService(namespace, backend.Service.Name)
 	if err != nil {
 		return nil, err
@@ -538,6 +578,21 @@ func (p *Provider) loadService(client Client, namespace string, backend networki
 		if svcConfig.Service.ServersTransport != "" {
 			svc.LoadBalancer.ServersTransport = svcConfig.Service.ServersTransport
 		}
+
+		if svcConfig.Service.NativeLB {
+			address, err := getNativeServiceAddress(*service, portSpec)
+			if err != nil {
+				return nil, fmt.Errorf("getting native Kubernetes Service address: %w", err)
+			}
+
+			protocol := getProtocol(portSpec, portSpec.Name, svcConfig)
+
+			svc.LoadBalancer.Servers = []dynamic.Server{
+				{URL: fmt.Sprintf("%s://%s", protocol, address)},
+			}
+
+			return svc, nil
+		}
 	}
 
 	if service.Spec.Type == corev1.ServiceTypeExternalName {
@@ -587,6 +642,18 @@ func (p *Provider) loadService(client Client, namespace string, backend networki
 	return svc, nil
 }
 
+func getNativeServiceAddress(service corev1.Service, svcPort corev1.ServicePort) (string, error) {
+	if service.Spec.ClusterIP == "None" {
+		return "", fmt.Errorf("no clusterIP on headless service: %s/%s", service.Namespace, service.Name)
+	}
+
+	if service.Spec.ClusterIP == "" {
+		return "", fmt.Errorf("no clusterIP found for service: %s/%s", service.Namespace, service.Name)
+	}
+
+	return net.JoinHostPort(service.Spec.ClusterIP, strconv.Itoa(int(svcPort.Port))), nil
+}
+
 func getProtocol(portSpec corev1.ServicePort, portName string, svcConfig *ServiceConfig) string {
 	if svcConfig != nil && svcConfig.Service != nil && svcConfig.Service.ServersScheme != "" {
 		return svcConfig.Service.ServersScheme
@@ -611,7 +678,7 @@ func makeRouterKeyWithHash(key, rule string) (string, error) {
 	return dupKey, nil
 }
 
-func loadRouter(rule networkingv1.IngressRule, pa networkingv1.HTTPIngressPath, rtConfig *RouterConfig, serviceName string) *dynamic.Router {
+func loadRouter(rule netv1.IngressRule, pa netv1.HTTPIngressPath, rtConfig *RouterConfig, serviceName string) *dynamic.Router {
 	var rules []string
 	if len(rule.Host) > 0 {
 		rules = []string{buildHostRule(rule.Host)}
@@ -620,11 +687,11 @@ func loadRouter(rule networkingv1.IngressRule, pa networkingv1.HTTPIngressPath, 
 	if len(pa.Path) > 0 {
 		matcher := defaultPathMatcher
 
-		if pa.PathType == nil || *pa.PathType == "" || *pa.PathType == networkingv1.PathTypeImplementationSpecific {
+		if pa.PathType == nil || *pa.PathType == "" || *pa.PathType == netv1.PathTypeImplementationSpecific {
 			if rtConfig != nil && rtConfig.Router != nil && rtConfig.Router.PathMatcher != "" {
 				matcher = rtConfig.Router.PathMatcher
 			}
-		} else if *pa.PathType == networkingv1.PathTypeExact {
+		} else if *pa.PathType == netv1.PathTypeExact {
 			matcher = "Path"
 		}
 
