@@ -13,6 +13,7 @@
 import common, { api } from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
 
+import { provisionKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
 import {
   deleteOAuthToken,
   deleteSkipOauthProvider,
@@ -32,8 +33,8 @@ import { AppThunk } from '..';
 export interface State {
   isLoading: boolean;
   gitOauth: IGitOauth[];
-  providersWithToken: api.GitOauthProvider[];
-  skipOauthProviders: api.GitOauthProvider[];
+  providersWithToken: api.GitOauthProvider[]; // authentication succeeded
+  skipOauthProviders: api.GitOauthProvider[]; // authentication declined
   error: string | undefined;
 }
 
@@ -219,6 +220,15 @@ export const actionCreators: ActionCreators = {
 
       try {
         await deleteOAuthToken(oauthProvider);
+
+        // request namespace provision as it triggers tokens validation
+        try {
+          await provisionKubernetesNamespace();
+          /* c8 ignore next 3 */
+        } catch (e) {
+          // no-op
+        }
+
         dispatch({
           type: Type.DELETE_GIT_OAUTH_TOKEN,
           provider: oauthProvider,

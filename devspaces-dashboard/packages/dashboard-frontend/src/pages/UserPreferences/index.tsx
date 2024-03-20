@@ -18,7 +18,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import Head from '@/components/Head';
 import ContainerRegistries from '@/pages/UserPreferences/ContainerRegistriesTab';
 import GitConfig from '@/pages/UserPreferences/GitConfig';
-import GitServicesTab from '@/pages/UserPreferences/GitServicesTab';
+import GitServices from '@/pages/UserPreferences/GitServices';
 import PersonalAccessTokens from '@/pages/UserPreferences/PersonalAccessTokens';
 import SshKeys from '@/pages/UserPreferences/SshKeys';
 import { ROUTE } from '@/Routes/routes';
@@ -100,7 +100,7 @@ export class UserPreferences extends React.PureComponent<Props, State> {
             <ContainerRegistries />
           </Tab>
           <Tab eventKey={UserPreferencesTab.GIT_SERVICES} title="Git Services">
-            <GitServicesTab />
+            <GitServices />
           </Tab>
           <Tab eventKey={UserPreferencesTab.PERSONAL_ACCESS_TOKENS} title="Personal Access Tokens">
             <PersonalAccessTokens />

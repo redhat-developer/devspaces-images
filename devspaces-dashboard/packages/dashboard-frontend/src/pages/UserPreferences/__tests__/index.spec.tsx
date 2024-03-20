@@ -24,7 +24,7 @@ import UserPreferences from '..';
 
 jest.mock('../ContainerRegistriesTab');
 jest.mock('../GitConfig');
-jest.mock('../GitServicesTab');
+jest.mock('../GitServices');
 jest.mock('../PersonalAccessTokens');
 jest.mock('../SshKeys');
 

@@ -31,8 +31,6 @@ export async function getOAuthToken(provider: api.GitOauthProvider): Promise<{ t
 
 export async function deleteOAuthToken(provider: api.GitOauthProvider): Promise<void> {
   await axios.delete(`${cheServerPrefix}/oauth/token?oauth_provider=${provider}`);
-
-  return Promise.resolve();
 }
 
 export async function getDevWorkspacePreferences(
@@ -52,6 +50,4 @@ export async function deleteSkipOauthProvider(
   await AxiosWrapper.createToRetryMissedBearerTokenError().delete(
     `${dashboardBackendPrefix}/workspace-preferences/namespace/${namespace}/skip-authorisation/${provider}`,
   );
-
-  return Promise.resolve();
 }

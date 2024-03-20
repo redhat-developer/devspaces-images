@@ -102,11 +102,10 @@ export class EditorGallery extends React.PureComponent<Props, State> {
       // editors same name, different version
       const editorsGroup = sortedEditorsByName.get(editorName);
 
-      /* c8 ignore start */
+      /* c8 ignore next 3 */
       if (editorsGroup === undefined) {
         return;
       }
-      /* c8 ignore end */
 
       const groupIcon = editorsGroup[0].icon;
       const groupName = editorsGroup[0].displayName || editorsGroup[0].name;
