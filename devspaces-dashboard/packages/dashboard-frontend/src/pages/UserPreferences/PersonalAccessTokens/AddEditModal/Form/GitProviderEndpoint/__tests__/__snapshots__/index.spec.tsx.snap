@@ -104,7 +104,7 @@ exports[`GitProviderEndpoint snapshot with endpoint 1`] = `
         placeholder="Enter a Git Provider Endpoint"
         required={false}
         type="url"
-        value="https://provider/endpoint"
+        value="https://provider.test/endpoint"
       />
       
     </div>

@@ -88,21 +88,38 @@ export class GitProviderEndpoint extends React.PureComponent<Props, State> {
 
   private handleChange(providerEndpoint: string): void {
     const { onChange } = this.props;
-    const validated = this.validate(providerEndpoint);
-    const isValid = validated === ValidatedOptions.success;
+    const result = this.validateAndSanitize(providerEndpoint);
+    const isValid = result.validated === ValidatedOptions.success;
 
-    this.setState({ providerEndpoint, validated });
-    onChange(providerEndpoint, isValid);
+    this.setState({ providerEndpoint, validated: result.validated });
+    onChange(result.sanitized, isValid);
   }
 
-  private validate(providerEndpoint: string): ValidatedOptions {
+  private validateAndSanitize(providerEndpoint: string): {
+    validated: ValidatedOptions;
+    sanitized: string;
+  } {
+    const validationRe = /^https?:\/\/(?:(?:[a-z\d]+(?:-[a-z\d]+)*)\.)+[a-z]{2,}(?:\/[^\s]*)?$/i;
+
+    if (validationRe.test(providerEndpoint) === false) {
+      return {
+        validated: ValidatedOptions.error,
+        sanitized: providerEndpoint,
+      };
+    }
+
     try {
       const url = new URL(providerEndpoint);
-      return url.protocol === 'http:' || url.protocol === 'https:'
-        ? ValidatedOptions.success
-        : ValidatedOptions.error;
+      return {
+        validated: ValidatedOptions.success,
+        sanitized: url.href,
+      };
+      /* c8 ignore next 6 */
     } catch (e) {
-      return ValidatedOptions.error;
+      return {
+        validated: ValidatedOptions.error,
+        sanitized: providerEndpoint,
+      };
     }
   }
 

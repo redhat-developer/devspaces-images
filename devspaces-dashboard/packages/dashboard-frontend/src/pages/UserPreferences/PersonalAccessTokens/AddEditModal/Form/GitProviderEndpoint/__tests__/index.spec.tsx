@@ -35,12 +35,12 @@ describe('GitProviderEndpoint', () => {
   });
 
   test('snapshot with endpoint', () => {
-    const snapshot = createSnapshot('https://provider/endpoint');
+    const snapshot = createSnapshot('https://provider.test/endpoint');
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
   it('should handle a correct endpoint', () => {
-    const endpoint = 'https://provider/endpoint';
+    const endpoint = 'https://provider.test/endpoint';
     renderComponent(undefined);
 
     expect(mockOnChange).not.toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe('GitProviderEndpoint', () => {
   });
 
   it('should handle an empty value', () => {
-    const endpoint = 'https://provider/endpoint';
+    const endpoint = 'https://provider.test/endpoint';
     renderComponent(endpoint);
 
     expect(mockOnChange).not.toHaveBeenCalled();
@@ -93,40 +93,37 @@ describe('GitProviderEndpoint', () => {
 
   describe('default endpoint update', () => {
     it('should change value if input untouched', () => {
-      const defaultEndpoint = 'https://default/endpoint';
-      const { reRenderComponent } = renderComponent(undefined, defaultEndpoint);
+      const { reRenderComponent } = renderComponent(undefined);
 
       const input = screen.getByRole('textbox');
-      expect(input).toHaveValue(defaultEndpoint);
+      expect(input).toHaveValue(defaultGitProviderEndpoint);
 
-      const nextDefaultEndpoint = 'https://next-default/endpoint';
+      const nextDefaultEndpoint = 'https://provider.next/endpoint';
       reRenderComponent(undefined, nextDefaultEndpoint);
 
       expect(input).toHaveValue(nextDefaultEndpoint);
     });
 
     it('should not change value if input is modified', () => {
-      const defaultEndpoint = 'https://default/endpoint';
-      const { reRenderComponent } = renderComponent(undefined, defaultEndpoint);
+      const { reRenderComponent } = renderComponent(undefined);
 
       const input = screen.getByRole('textbox');
-      const userModifiedEndpoint = 'https://user-modified';
+      const userModifiedEndpoint = 'https://provider.modified/endpoint';
       userEvent.paste(input, userModifiedEndpoint);
 
-      const nextDefaultEndpoint = 'https://next-default/endpoint';
+      const nextDefaultEndpoint = 'https://provider.next/endpoint';
       reRenderComponent(undefined, nextDefaultEndpoint);
 
       expect(input).toHaveValue(userModifiedEndpoint);
     });
 
     it('should not change value if it is provided as param', () => {
-      const editEndpoint = 'https://some/endpoint';
-      const defaultEndpoint = 'https://default/endpoint';
-      const { reRenderComponent } = renderComponent(editEndpoint, defaultEndpoint);
+      const editEndpoint = 'https://provider.some/endpoint';
+      const { reRenderComponent } = renderComponent(editEndpoint);
 
       const input = screen.getByRole('textbox');
 
-      const nextDefaultEndpoint = 'https://next-default/endpoint';
+      const nextDefaultEndpoint = 'https://provider.next/endpoint';
       reRenderComponent(editEndpoint, nextDefaultEndpoint);
 
       expect(input).toHaveValue(editEndpoint);
