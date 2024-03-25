@@ -56,7 +56,7 @@ spec:
                 "SETUID"]}}'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:ed790bd771df79be080e9cfc23ba27fd2f5ded690d399b42a9e79b92e0299250"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:b3ba914b716cbcb9663861535989874ccf2678fd62d4900fdeece09cc0d7603b"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -133,7 +133,7 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 1Gi
+              memory: 2Gi
             requests:
               cpu: 100m
               memory: 128Mi
