@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import mockAxios from 'axios';
 import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
@@ -21,6 +20,13 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
 
 import * as devfileRegistriesStore from '..';
+
+const mockFetchDevfile = jest.fn();
+const mockFetchRegistryMetadata = jest.fn();
+jest.mock('@/services/registry/devfiles', () => ({
+  fetchDevfile: (...args: unknown[]) => mockFetchDevfile(...args),
+  fetchRegistryMetadata: (...args: unknown[]) => mockFetchRegistryMetadata(...args),
+}));
 
 // mute error outputs
 console.error = jest.fn();
@@ -34,16 +40,10 @@ describe('Devfile registries', () => {
     it('should create REQUEST_REGISTRY_METADATA, RECEIVE_REGISTRY_METADATA when fetching registries', async () => {
       const registryMetadataV1 = getMetadataV1();
       const registryMetadataV2 = getMetadataV2();
-      (mockAxios.get as jest.Mock)
-        .mockResolvedValueOnce({
-          data: registryMetadataV1,
-        })
-        .mockResolvedValueOnce({
-          data: registryMetadataV2,
-        })
-        .mockResolvedValue({
-          data: [],
-        });
+
+      mockFetchRegistryMetadata.mockResolvedValueOnce(getMetadataV1());
+      mockFetchRegistryMetadata.mockResolvedValueOnce(getMetadataV2());
+      mockFetchRegistryMetadata.mockResolvedValueOnce([]);
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
@@ -93,36 +93,29 @@ describe('Devfile registries', () => {
     });
 
     it('should create REQUEST_REGISTRY_METADATA and RECEIVE_REGISTRY_ERROR when failed to fetch a registry', async () => {
+      const location1 = 'http://example.com/location1';
+      const location2 = 'http://example.com/location2';
+      const location3 = 'http://example.com/location3';
+      const locations = `${location1} ${location2} ${location3}`;
+
       const registryMetadataV1 = getMetadataV1();
       const registryMetadataV2 = getMetadataV2();
-      (mockAxios.get as jest.Mock)
-        .mockResolvedValueOnce({
-          data: registryMetadataV1,
-        })
-        .mockResolvedValueOnce({
-          data: registryMetadataV2,
-        })
-        .mockRejectedValueOnce({
-          data: undefined,
-        });
+
+      mockFetchRegistryMetadata.mockResolvedValueOnce(getMetadataV1());
+      mockFetchRegistryMetadata.mockResolvedValueOnce(getMetadataV2());
+      const registryError = new Error(`Failed to fetch registry metadata by URL ${location3}`);
+      mockFetchRegistryMetadata.mockRejectedValueOnce(registryError);
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
         ThunkDispatch<AppState, undefined, devfileRegistriesStore.KnownAction>
       >;
 
-      const location1 = 'http://example.com/location1';
-      const location2 = 'http://example.com/location2';
-      const location3 = 'http://example.com/location3';
-      const locations = `${location1} ${location2} ${location3}`;
-
       await expect(
         store.dispatch(
           devfileRegistriesStore.actionCreators.requestRegistriesMetadata(locations, false),
         ),
-      ).rejects.toMatch(
-        'Failed to fetch devfiles metadata from registry URL: http://example.com/location3, reason: Unexpected error. Check DevTools console and network tabs for more information.',
-      );
+      ).rejects.toMatch(registryError.message);
 
       const actions = store.getActions();
 
@@ -156,7 +149,7 @@ describe('Devfile registries', () => {
         {
           type: devfileRegistriesStore.Type.RECEIVE_REGISTRY_ERROR,
           url: location3,
-          error: expect.stringContaining(location3),
+          error: registryError.message,
         },
       ];
 
@@ -164,9 +157,7 @@ describe('Devfile registries', () => {
     });
 
     it('should create REQUEST_DEVFILE and RECEIVE_DEVFILE when fetching a devfile', async () => {
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: 'a devfile content',
-      });
+      mockFetchDevfile.mockResolvedValueOnce('a devfile content');
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,

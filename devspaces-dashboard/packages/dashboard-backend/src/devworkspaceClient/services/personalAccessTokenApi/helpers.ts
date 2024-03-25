@@ -37,16 +37,10 @@ export interface PersonalAccessTokenSecret extends k8s.V1Secret {
       'che.eclipse.org/scm-url': GitProviderEndpoint;
     } & (
       | {
-          'che.eclipse.org/scm-personal-access-token-name': Exclude<
-            api.GitProvider,
-            'azure-devops'
-          >;
+          'che.eclipse.org/scm-provider-name': Exclude<api.GitProvider, 'azure-devops'>;
         }
       | {
-          'che.eclipse.org/scm-personal-access-token-name': Extract<
-            api.GitProvider,
-            'azure-devops'
-          >;
+          'che.eclipse.org/scm-provider-name': Extract<api.GitProvider, 'azure-devops'>;
           'che.eclipse.org/scm-organization': GitProviderOrganization;
         }
     );
@@ -83,7 +77,7 @@ export function toToken(secret: k8s.V1Secret): api.PersonalAccessToken {
   return {
     tokenName: secret.metadata.name.replace('personal-access-token-', ''),
     cheUserId: secret.metadata.annotations['che.eclipse.org/che-userid'],
-    gitProvider: secret.metadata.annotations['che.eclipse.org/scm-personal-access-token-name'],
+    gitProvider: secret.metadata.annotations['che.eclipse.org/scm-provider-name'],
     gitProviderEndpoint: secret.metadata.annotations['che.eclipse.org/scm-url'],
     gitProviderOrganization: secret.metadata.annotations['che.eclipse.org/scm-organization'],
     tokenData: DUMMY_TOKEN_DATA,
@@ -102,6 +96,7 @@ export function toSecret(
   if (token.gitProvider === 'azure-devops') {
     annotations = {
       'che.eclipse.org/che-userid': token.cheUserId,
+      'che.eclipse.org/scm-provider-name': token.gitProvider,
       'che.eclipse.org/scm-personal-access-token-name': token.gitProvider,
       'che.eclipse.org/scm-url': sanitizeEndpoint(token.gitProviderEndpoint),
       'che.eclipse.org/scm-organization': token.gitProviderOrganization,
@@ -109,6 +104,7 @@ export function toSecret(
   } else {
     annotations = {
       'che.eclipse.org/che-userid': token.cheUserId,
+      'che.eclipse.org/scm-provider-name': token.gitProvider,
       'che.eclipse.org/scm-personal-access-token-name': token.gitProvider,
       'che.eclipse.org/scm-url': sanitizeEndpoint(token.gitProviderEndpoint),
     };

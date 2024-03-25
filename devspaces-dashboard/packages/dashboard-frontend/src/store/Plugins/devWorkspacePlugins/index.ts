@@ -157,7 +157,7 @@ export const actionCreators: ActionCreators = {
   requestDwEditor:
     (editorName: string): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      let editorUrl;
+      let editorUrl: string;
       // check if the editor is an id or a path to a given editor
       if (editorName.startsWith('https://')) {
         editorUrl = editorName;

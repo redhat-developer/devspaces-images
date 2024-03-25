@@ -93,8 +93,10 @@ describe('Dashboard bootstrap', () => {
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/server-config', undefined);
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/cluster-info');
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/userprofile/test-che', undefined);
-    expect(mockGet).toHaveBeenCalledWith('/plugin-registry/v3/plugins/index.json');
-    expect(mockGet).toHaveBeenCalledWith('/plugin-registry/v3/plugins/default-editor/devfile.yaml');
+    expect(mockGet).toHaveBeenCalledWith('http://localhost/plugin-registry/v3/plugins/index.json');
+    expect(mockGet).toHaveBeenCalledWith(
+      'http://localhost/plugin-registry/v3/plugins/default-editor/devfile.yaml',
+    );
     expect(mockGet).toHaveBeenCalledWith(
       'http://localhost/dashboard/devfile-registry/devfiles/index.json',
     );
@@ -146,7 +148,7 @@ function getStore(namespace: che.KubernetesNamespace): Store {
       defaults: {
         editor: 'default-editor',
       },
-      pluginRegistryURL: '/plugin-registry/v3',
+      pluginRegistryURL: 'http://localhost/plugin-registry/v3',
     } as api.IServerConfig)
     .build();
 }

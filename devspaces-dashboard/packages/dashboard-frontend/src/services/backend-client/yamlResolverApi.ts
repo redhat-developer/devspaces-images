@@ -11,30 +11,23 @@
  */
 
 import { helpers } from '@eclipse-che/common';
-import axios from 'axios';
 import * as yaml from 'js-yaml';
 
-import { dashboardBackendPrefix } from '@/services/backend-client/const';
 import devfileApi from '@/services/devfileApi';
 import { FactoryResolver } from '@/services/helpers/types';
+import { fetchData } from '@/services/registry/fetchData';
 
 export async function getYamlResolver(location: string): Promise<FactoryResolver> {
   try {
-    const url = new URL(location);
-    const response =
-      url.origin === window.location.origin
-        ? await axios.get(url.href)
-        : await axios.post(`${dashboardBackendPrefix}/data/resolver`, {
-            url: url.href,
-          });
+    const data = await fetchData<string>(location);
 
     return {
       v: 'yaml-resolver',
-      devfile: yaml.load(response.data) as devfileApi.Devfile,
-      location: url.href,
+      devfile: yaml.load(data) as devfileApi.Devfile,
+      location,
       links: [],
     };
   } catch (e) {
-    throw new Error(`Failed to resolve yaml'. ${helpers.errors.getMessage(e)}`);
+    throw new Error(`Failed to resolve yaml. ${helpers.errors.getMessage(e)}`);
   }
 }

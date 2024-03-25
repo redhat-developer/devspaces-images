@@ -26,6 +26,16 @@ import * as dwPluginsStore from '..';
 // mute the outputs
 console.error = jest.fn();
 
+const mockFetchDevfile = jest.fn();
+jest.mock('@/services/registry/devfiles', () => ({
+  fetchDevfile: (...args: unknown[]) => mockFetchDevfile(...args),
+}));
+
+const mockFetchData = jest.fn();
+jest.mock('@/services/registry/fetchData', () => ({
+  fetchData: (...args: unknown[]) => mockFetchData(...args),
+}));
+
 const plugin = {
   schemaVersion: '2.1.0',
   metadata: {
@@ -40,9 +50,7 @@ describe('dwPlugins store', () => {
 
   describe('actions', () => {
     it('should create REQUEST_DW_PLUGIN and RECEIVE_DW_PLUGIN when fetching a plugin', async () => {
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: JSON.stringify(plugin),
-      });
+      mockFetchDevfile.mockResolvedValueOnce(JSON.stringify(plugin));
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
         AppState,
@@ -71,7 +79,7 @@ describe('dwPlugins store', () => {
     });
 
     it('should create REQUEST_DW_PLUGIN and RECEIVE_DW_PLUGIN_ERROR when failed to fetch a plugin', async () => {
-      (mockAxios.get as jest.Mock).mockRejectedValueOnce({
+      mockFetchDevfile.mockRejectedValueOnce({
         isAxiosError: true,
         code: '500',
         message: 'Something unexpected happened.',
@@ -107,9 +115,7 @@ describe('dwPlugins store', () => {
     });
 
     it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR when fetching the default editor', async () => {
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: JSON.stringify(plugin),
-      });
+      mockFetchData.mockResolvedValueOnce(JSON.stringify(plugin));
 
       const store = new FakeStoreBuilder()
         .withDwServerConfig({
@@ -157,9 +163,7 @@ describe('dwPlugins store', () => {
     });
 
     it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR when fetching http editor', async () => {
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: JSON.stringify(plugin),
-      });
+      mockFetchData.mockResolvedValueOnce(JSON.stringify(plugin));
 
       const store = new FakeStoreBuilder()
         .withDwServerConfig({
@@ -193,12 +197,11 @@ describe('dwPlugins store', () => {
       ];
       expect(actions).toEqual(expectedActions);
 
-      // check that we fetched the editor on axios
-      expect(mockAxios.get).toHaveBeenCalledWith(editorLink);
+      expect(mockFetchData).toHaveBeenCalledWith(editorLink);
     });
 
     it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR_ERROR when failed to fetch an editor', async () => {
-      (mockAxios.get as jest.Mock).mockRejectedValueOnce({
+      mockFetchData.mockRejectedValueOnce({
         isAxiosError: true,
         code: '500',
         message: 'Something unexpected happened.',

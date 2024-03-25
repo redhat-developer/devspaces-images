@@ -10,14 +10,22 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common from '@eclipse-che/common';
+import { helpers } from '@eclipse-che/common';
 import axios from 'axios';
 
-export async function fetchData<T>(url: string): Promise<T> {
+import { dashboardBackendPrefix } from '@/services/backend-client/const';
+
+export async function fetchData<T>(location: string): Promise<T> {
   try {
-    const response = await axios.get<T>(url);
-    return response?.data;
+    const url = new URL(location);
+    const response =
+      url.origin === window.location.origin
+        ? await axios.get(url.href)
+        : await axios.post(`${dashboardBackendPrefix}/data/resolver`, {
+            url: url.href,
+          });
+    return response?.data as T;
   } catch (e) {
-    throw new Error(common.helpers.errors.getMessage(e));
+    throw new Error(helpers.errors.getMessage(e));
   }
 }

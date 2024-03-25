@@ -11,24 +11,23 @@
  */
 
 import common from '@eclipse-che/common';
-import mockAxios from 'axios';
 import { dump } from 'js-yaml';
 
 import devfileApi from '@/services/devfileApi';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { getEditor } from '@/store/DevfileRegistries/getEditor';
 
+const mockFetchData = jest.fn();
+jest.mock('@/services/registry/fetchData', () => ({
+  fetchData: (...args: unknown[]) => mockFetchData(...args),
+}));
+
 describe('Get Devfile by URL', () => {
   let editor: devfileApi.Devfile;
-  let mockFetch: jest.Mock;
 
   beforeEach(() => {
     editor = buildEditor();
-
-    mockFetch = mockAxios.get as jest.Mock;
-    mockFetch.mockResolvedValueOnce({
-      data: dump(editor),
-    });
+    mockFetchData.mockResolvedValueOnce(dump(editor));
   });
 
   afterEach(() => {
@@ -82,11 +81,10 @@ describe('Get Devfile by URL', () => {
       // no-op
     }
 
-    expect(mockFetch.mock.calls).toEqual([
-      [
-        'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
-      ],
-    ]);
+    expect(mockFetchData).toHaveBeenCalledTimes(1);
+    expect(mockFetchData).toHaveBeenCalledWith(
+      'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+    );
   });
 
   it('Should request a devfile content by editor path', async () => {
@@ -102,11 +100,10 @@ describe('Get Devfile by URL', () => {
       // no-op
     }
 
-    expect(mockFetch.mock.calls).toEqual([
-      [
-        'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
-      ],
-    ]);
+    expect(mockFetchData).toHaveBeenCalledTimes(1);
+    expect(mockFetchData).toHaveBeenCalledWith(
+      'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
+    );
   });
 
   it('Should return an existing devfile content by editor id', async () => {
@@ -128,7 +125,7 @@ describe('Get Devfile by URL', () => {
       'https://dummy/che-plugin-registry/main/v3',
     );
 
-    expect(mockFetch.mock.calls).toEqual([]);
+    expect(mockFetchData).toHaveBeenCalledTimes(0);
     expect(customEditor.content).toEqual(dump(editor));
     expect(customEditor.editorYamlUrl).toEqual(
       'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',
@@ -153,7 +150,7 @@ describe('Get Devfile by URL', () => {
       store.getState,
     );
 
-    expect(mockFetch.mock.calls).toEqual([]);
+    expect(mockFetchData).toHaveBeenCalledTimes(0);
     expect(customEditor.content).toEqual(dump(editor));
     expect(customEditor.editorYamlUrl).toEqual(
       'https://dummy/che-plugin-registry/main/v3/plugins/che-incubator/che-idea/next/devfile.yaml',

@@ -19,14 +19,19 @@ import devfileApi from '@/services/devfileApi';
 import getDevWorkspaceTemplate from '@/services/workspace-client/devworkspace/__tests__/__mocks__/devWorkspaceSpecTemplates';
 import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
+const mockFetchData = jest.fn();
+jest.mock('@/services/registry/fetchData', () => ({
+  fetchData: (...args: unknown[]) => mockFetchData(...args),
+}));
+
 describe('DevWorkspace client editor update', () => {
   const namespace = 'admin-che';
   const client = container.get(DevWorkspaceClient);
   const pluginRegistryUrl = 'plugin-registry-url';
   const pluginRegistryInternalUrl = 'plugin-registry-internal-url';
 
-  beforeEach(() => {
-    mockAxios.get = jest.fn();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('has target plugin in store', () => {
@@ -100,12 +105,13 @@ describe('DevWorkspace client editor update', () => {
   describe('don`t have target plugin in store', () => {
     it('should return patch for an editor if it has been updated', async () => {
       const template = getDevWorkspaceTemplate('1000m');
-      const mockPatch = mockAxios.get as jest.Mock;
-      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+      const mockGet = mockAxios.get as jest.Mock;
+      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if cpuLimit changed from '1000m' to '2000m'
       const newTemplate = getDevWorkspaceTemplate('2000m');
-      mockPatch.mockResolvedValueOnce(
+      const mockPost = mockAxios.post as jest.Mock;
+      mockPost.mockResolvedValueOnce(
         new Promise(resolve => resolve({ data: JSON.stringify(newTemplate.spec) })),
       );
 
@@ -122,10 +128,13 @@ describe('DevWorkspace client editor update', () => {
         undefined,
       );
 
-      expect(mockPatch.mock.calls).toEqual([
-        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
-        [url],
-      ]);
+      expect(mockGet).toHaveBeenCalledWith(
+        `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`,
+        undefined,
+      );
+      expect(mockPost).toHaveBeenCalledWith(expect.stringContaining('/data/resolver'), {
+        url: url,
+      });
 
       expect(patch).toEqual([
         {
@@ -138,15 +147,15 @@ describe('DevWorkspace client editor update', () => {
 
     it(`should return an empty object if it hasn't been updated`, async () => {
       const template = getDevWorkspaceTemplate('1000m');
-      const mockPatch = mockAxios.get as jest.Mock;
-      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+      const mockGet = mockAxios.get as jest.Mock;
+      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if nothing changed
       const newTemplate = getDevWorkspaceTemplate('1000m');
-      mockPatch.mockResolvedValueOnce(
+      const mockPost = mockAxios.post as jest.Mock;
+      mockPost.mockResolvedValueOnce(
         new Promise(resolve => resolve({ data: JSON.stringify(newTemplate.spec) })),
       );
-
       const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
 
       const editorName = newTemplate.metadata.name;
@@ -160,10 +169,13 @@ describe('DevWorkspace client editor update', () => {
         undefined,
       );
 
-      expect(mockPatch.mock.calls).toEqual([
-        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
-        [url],
-      ]);
+      expect(mockGet).toHaveBeenCalledWith(
+        `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`,
+        undefined,
+      );
+      expect(mockPost).toHaveBeenCalledWith(expect.stringContaining('/data/resolver'), {
+        url: url,
+      });
 
       expect(patch).toEqual([]);
     });
