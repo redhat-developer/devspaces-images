@@ -18,7 +18,7 @@ FROM quay.io/devspaces/machineexec-rhel8:3.12 as machine-exec
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-94 as linux-libc-ubi8-builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-94.1711445596 as linux-libc-ubi8-builder
 
 USER root
 
