@@ -249,7 +249,7 @@ describe('GitRepoLocationInput', () => {
       const buttonCreate = screen.getByRole('button', { name: 'Create & Open' });
       expect(buttonCreate).toBeDisabled();
 
-      const buttonUserPreferences = screen.getByRole('button', { name: 'here' });
+      const buttonUserPreferences = screen.getByRole('button', { name: 'User Preferences' });
 
       userEvent.click(buttonUserPreferences);
       expect(history.location.pathname).toBe('/user-preferences');

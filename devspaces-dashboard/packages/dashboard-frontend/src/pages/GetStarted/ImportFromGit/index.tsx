@@ -114,9 +114,9 @@ class ImportFromGit extends React.PureComponent<Props, State> {
     if (isValidGitSsh === true && this.state.hasSshKeys === false) {
       return (
         <FormHelperText icon={<ExclamationCircleIcon />} isHidden={false} isError={true}>
-          No SSH keys found. Please add your SSH keys{' '}
+          No SSH keys found. Please add your SSH keys in the{' '}
           <Button variant="link" isInline onClick={() => this.openUserPreferences()}>
-            here
+            User Preferences
           </Button>{' '}
           and then try again.
         </FormHelperText>
