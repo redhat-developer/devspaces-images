@@ -16,7 +16,7 @@
 # The directory is located at /tmp/opt/ovsx/node_modules
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-94 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-94.1711445596 as builder
 
 # hadolint ignore=DL3002
 USER root
