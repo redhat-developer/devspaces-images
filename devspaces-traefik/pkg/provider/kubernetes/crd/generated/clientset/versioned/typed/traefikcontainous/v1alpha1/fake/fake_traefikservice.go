@@ -32,6 +32,7 @@ import (
 	v1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikcontainous/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -43,9 +44,9 @@ type FakeTraefikServices struct {
 	ns   string
 }
 
-var traefikservicesResource = v1alpha1.SchemeGroupVersion.WithResource("traefikservices")
+var traefikservicesResource = schema.GroupVersionResource{Group: "traefik.containo.us", Version: "v1alpha1", Resource: "traefikservices"}
 
-var traefikservicesKind = v1alpha1.SchemeGroupVersion.WithKind("TraefikService")
+var traefikservicesKind = schema.GroupVersionKind{Group: "traefik.containo.us", Version: "v1alpha1", Kind: "TraefikService"}
 
 // Get takes name of the traefikService, and returns the corresponding traefikService object, and an error if there is any.
 func (c *FakeTraefikServices) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.TraefikService, err error) {
@@ -112,7 +113,7 @@ func (c *FakeTraefikServices) Update(ctx context.Context, traefikService *v1alph
 // Delete takes name of the traefikService and deletes it. Returns an error if one occurs.
 func (c *FakeTraefikServices) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(traefikservicesResource, c.ns, name, opts), &v1alpha1.TraefikService{})
+		Invokes(testing.NewDeleteAction(traefikservicesResource, c.ns, name), &v1alpha1.TraefikService{})
 
 	return err
 }

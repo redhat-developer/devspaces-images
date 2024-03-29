@@ -499,7 +499,7 @@ func (c *connectionTracker) Close() {
 }
 
 type stoppable interface {
-	Shutdown(ctx context.Context) error
+	Shutdown(context.Context) error
 	Close() error
 }
 
@@ -535,12 +535,7 @@ func createHTTPServer(ctx context.Context, ln net.Listener, configuration *stati
 		return nil, err
 	}
 
-	handler = denyFragment(handler)
-	if configuration.HTTP.EncodeQuerySemicolons {
-		handler = encodeQuerySemicolons(handler)
-	} else {
-		handler = http.AllowQuerySemicolons(handler)
-	}
+	handler = http.AllowQuerySemicolons(handler)
 
 	if withH2c {
 		handler = h2c.NewHandler(handler, &http2.Server{
@@ -600,41 +595,4 @@ type trackedConnection struct {
 func (t *trackedConnection) Close() error {
 	t.tracker.RemoveConnection(t.WriteCloser)
 	return t.WriteCloser.Close()
-}
-
-// This function is inspired by http.AllowQuerySemicolons.
-func encodeQuerySemicolons(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if strings.Contains(req.URL.RawQuery, ";") {
-			r2 := new(http.Request)
-			*r2 = *req
-			r2.URL = new(url.URL)
-			*r2.URL = *req.URL
-
-			r2.URL.RawQuery = strings.ReplaceAll(req.URL.RawQuery, ";", "%3B")
-			// Because the reverse proxy director is building query params from requestURI it needs to be updated as well.
-			r2.RequestURI = r2.URL.RequestURI()
-
-			h.ServeHTTP(rw, r2)
-		} else {
-			h.ServeHTTP(rw, req)
-		}
-	})
-}
-
-// When go receives an HTTP request, it assumes the absence of fragment URL.
-// However, it is still possible to send a fragment in the request.
-// In this case, Traefik will encode the '#' character, altering the request's intended meaning.
-// To avoid this behavior, the following function rejects requests that include a fragment in the URL.
-func denyFragment(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if strings.Contains(req.URL.RawPath, "#") {
-			log.WithoutContext().Debugf("Rejecting request because it contains a fragment in the URL path: %s", req.URL.RawPath)
-			rw.WriteHeader(http.StatusBadRequest)
-
-			return
-		}
-
-		h.ServeHTTP(rw, req)
-	})
 }

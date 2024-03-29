@@ -31,8 +31,6 @@ func (s *MarathonSuite15) SetUpSuite(c *check.C) {
 }
 
 func (s *MarathonSuite15) TestConfigurationUpdate(c *check.C) {
-	c.Skip("doesn't work")
-
 	// Start Traefik.
 	file := s.adaptFile(c, "fixtures/marathon/simple.toml", struct {
 		MarathonURL string

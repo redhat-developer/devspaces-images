@@ -11,7 +11,6 @@ import (
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/metrics"
 	"github.com/traefik/traefik/v2/pkg/middlewares/accesslog"
-	"github.com/traefik/traefik/v2/pkg/middlewares/denyrouterrecursion"
 	metricsMiddle "github.com/traefik/traefik/v2/pkg/middlewares/metrics"
 	"github.com/traefik/traefik/v2/pkg/middlewares/recovery"
 	"github.com/traefik/traefik/v2/pkg/middlewares/tracing"
@@ -77,7 +76,7 @@ func (m *Manager) BuildHandlers(rootCtx context.Context, entryPoints []string, t
 		}
 
 		handlerWithAccessLog, err := alice.New(func(next http.Handler) (http.Handler, error) {
-			return accesslog.NewFieldHandler(next, log.EntryPointName, entryPointName, accesslog.InitServiceFields), nil
+			return accesslog.NewFieldHandler(next, log.EntryPointName, entryPointName, accesslog.AddOriginFields), nil
 		}).Then(handler)
 		if err != nil {
 			log.FromContext(ctx).Error(err)
@@ -201,10 +200,6 @@ func (m *Manager) buildHTTPHandler(ctx context.Context, router *runtime.RouterIn
 
 	if m.metricsRegistry != nil && m.metricsRegistry.IsRouterEnabled() {
 		chain = chain.Append(metricsMiddle.WrapRouterHandler(ctx, m.metricsRegistry, routerName, provider.GetQualifiedName(ctx, router.Service)))
-	}
-
-	if router.DefaultRule {
-		chain = chain.Append(denyrouterrecursion.WrapHandler(routerName))
 	}
 
 	return chain.Extend(*mHandler).Append(tHandler).Then(sHandler)

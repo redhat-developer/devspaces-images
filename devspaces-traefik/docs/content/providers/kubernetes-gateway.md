@@ -268,5 +268,3 @@ providers:
 ```bash tab="CLI"
 --providers.kubernetesgateway.throttleDuration=10s
 ```
-
-{!traefik-for-business-applications.md!}

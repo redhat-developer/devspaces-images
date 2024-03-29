@@ -18,7 +18,7 @@ const (
 // Logger the Traefik logger.
 type Logger interface {
 	logrus.FieldLogger
-	WriterLevel(level logrus.Level) *io.PipeWriter
+	WriterLevel(logrus.Level) *io.PipeWriter
 }
 
 var (

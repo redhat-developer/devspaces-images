@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -322,7 +321,7 @@ func TestLoggerJSON(t *testing.T) {
 				ServiceURL:                assertString(testServiceName),
 				ClientUsername:            assertString(testUsername),
 				ClientHost:                assertString(testHostname),
-				ClientPort:                assertString(strconv.Itoa(testPort)),
+				ClientPort:                assertString(fmt.Sprintf("%d", testPort)),
 				ClientAddr:                assertString(fmt.Sprintf("%s:%d", testHostname, testPort)),
 				"level":                   assertString("info"),
 				"msg":                     assertString(""),
@@ -362,7 +361,7 @@ func TestLoggerJSON(t *testing.T) {
 				ServiceURL:                assertString(testServiceName),
 				ClientUsername:            assertString(testUsername),
 				ClientHost:                assertString(testHostname),
-				ClientPort:                assertString(strconv.Itoa(testPort)),
+				ClientPort:                assertString(fmt.Sprintf("%d", testPort)),
 				ClientAddr:                assertString(fmt.Sprintf("%s:%d", testHostname, testPort)),
 				"level":                   assertString("info"),
 				"msg":                     assertString(""),

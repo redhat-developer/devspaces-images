@@ -618,12 +618,12 @@ func Test_Routing(t *testing.T) {
 				err := check.checkRouter(epListener.Addr().String(), timeout)
 
 				if check.expectedError != "" {
-					require.Error(t, err, check.desc)
+					require.NotNil(t, err, check.desc)
 					assert.Contains(t, err.Error(), check.expectedError, check.desc)
 					continue
 				}
 
-				assert.NoError(t, err, check.desc)
+				assert.Nil(t, err, check.desc)
 			}
 
 			epListener.Close()
@@ -840,7 +840,7 @@ func checkTCPTLS(addr string, timeout time.Duration, tlsVersion uint16) (err err
 
 	err = conn.SetReadDeadline(time.Now().Add(timeout))
 	if err != nil {
-		return err
+		return
 	}
 
 	var buf bytes.Buffer

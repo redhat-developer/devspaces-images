@@ -1,12 +1,8 @@
 project_name: traefik
 
-dist: "./dist/[[ .GOOS ]]"
-
-[[ if eq .GOOS "linux" ]]
 before:
   hooks:
     - go generate
-[[ end ]]
 
 builds:
   - binary: traefik
@@ -19,7 +15,11 @@ builds:
     flags:
       - -trimpath
     goos:
-      - "[[ .GOOS ]]"
+      - linux
+      - darwin
+      - windows
+      - freebsd
+      - openbsd
     goarch:
       - amd64
       - '386'
@@ -27,7 +27,6 @@ builds:
       - arm64
       - ppc64le
       - s390x
-      - riscv64
     goarm:
       - '7'
       - '6'
