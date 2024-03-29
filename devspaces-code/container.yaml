@@ -73,5 +73,6 @@ remote_sources:
         - path: devspaces-code/code/extensions/vscode-test-resolver
         - path: devspaces-code/code/remote
         - path: devspaces-code/code/remote/web
+        - path: devspaces-code/code/.vscode/extensions/vscode-selfhost-test-provider
         - path: devspaces-code/launcher
         - path: devspaces-code/cachito
