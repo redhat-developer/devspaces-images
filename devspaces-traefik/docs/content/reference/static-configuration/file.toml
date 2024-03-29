@@ -30,6 +30,7 @@
       trustedIPs = ["foobar", "foobar"]
     [entryPoints.EntryPoint0.http]
       middlewares = ["foobar", "foobar"]
+      encodeQuerySemicolons = true
       [entryPoints.EntryPoint0.http.redirections]
         [entryPoints.EntryPoint0.http.redirections.entryPoint]
           to = "foobar"
@@ -264,6 +265,7 @@
   insecure = true
   dashboard = true
   debug = true
+  disabledashboardad = false
 
 [metrics]
   [metrics.prometheus]
@@ -442,13 +444,6 @@
       [certificatesResolvers.CertificateResolver1.acme.httpChallenge]
         entryPoint = "foobar"
       [certificatesResolvers.CertificateResolver1.acme.tlsChallenge]
-
-[hub]
-  [hub.tls]
-    insecure = true
-    ca = "foobar"
-    cert = "foobar"
-    key = "foobar"
 
 [experimental]
   kubernetesGateway = true

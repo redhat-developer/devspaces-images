@@ -45,6 +45,9 @@ Activate dashboard. (Default: ```true```)
 `TRAEFIK_API_DEBUG`:  
 Enable additional endpoints for debugging and profiling. (Default: ```false```)
 
+`TRAEFIK_API_DISABLEDASHBOARDAD`:  
+Disable ad in the dashboard. (Default: ```false```)
+
 `TRAEFIK_API_INSECURE`:  
 Activate API directly on the entryPoint named traefik. (Default: ```false```)
 
@@ -123,6 +126,9 @@ HTTP/3 configuration. (Default: ```false```)
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP3_ADVERTISEDPORT`:  
 UDP port to advertise, on which HTTP/3 is available. (Default: ```0```)
 
+`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_ENCODEQUERYSEMICOLONS`:  
+Defines whether request query semicolons should be URLEncoded. (Default: ```false```)
+
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_MIDDLEWARES`:  
 Default middlewares for the routers linked to the entry point.
 
@@ -186,9 +192,6 @@ Timeout defines how long to wait on an idle session before releasing the related
 `TRAEFIK_EXPERIMENTAL_HTTP3`:  
 Enable HTTP3. (Default: ```false```)
 
-`TRAEFIK_EXPERIMENTAL_HUB`:  
-Enable the Traefik Hub provider. (Default: ```false```)
-
 `TRAEFIK_EXPERIMENTAL_KUBERNETESGATEWAY`:  
 Allow the Kubernetes gateway api provider usage. (Default: ```false```)
 
@@ -221,21 +224,6 @@ resolv.conf used for DNS resolving (Default: ```/etc/resolv.conf```)
 
 `TRAEFIK_HOSTRESOLVER_RESOLVDEPTH`:  
 The maximal depth of DNS recursive resolving (Default: ```5```)
-
-`TRAEFIK_HUB`:  
-Traefik Hub configuration. (Default: ```false```)
-
-`TRAEFIK_HUB_TLS_CA`:  
-The certificate authority authenticates the Traefik Hub Agent certificate.
-
-`TRAEFIK_HUB_TLS_CERT`:  
-The TLS certificate for Traefik Proxy as a TLS client.
-
-`TRAEFIK_HUB_TLS_INSECURE`:  
-Enables an insecure TLS connection that uses default credentials, and which has no peer authentication between Traefik Proxy and the Traefik Hub Agent. (Default: ```false```)
-
-`TRAEFIK_HUB_TLS_KEY`:  
-The TLS key for Traefik Proxy as a TLS client.
 
 `TRAEFIK_LOG`:  
 Traefik log settings. (Default: ```false```)

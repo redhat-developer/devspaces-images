@@ -45,6 +45,9 @@ Activate dashboard. (Default: ```true```)
 `--api.debug`:  
 Enable additional endpoints for debugging and profiling. (Default: ```false```)
 
+`--api.disabledashboardad`:  
+Disable ad in the dashboard. (Default: ```false```)
+
 `--api.insecure`:  
 Activate API directly on the entryPoint named traefik. (Default: ```false```)
 
@@ -113,6 +116,9 @@ Trust only forwarded headers from selected IPs.
 
 `--entrypoints.<name>.http`:  
 HTTP configuration.
+
+`--entrypoints.<name>.http.encodequerysemicolons`:  
+Defines whether request query semicolons should be URLEncoded. (Default: ```false```)
 
 `--entrypoints.<name>.http.middlewares`:  
 Default middlewares for the routers linked to the entry point.
@@ -186,9 +192,6 @@ Timeout defines how long to wait on an idle session before releasing the related
 `--experimental.http3`:  
 Enable HTTP3. (Default: ```false```)
 
-`--experimental.hub`:  
-Enable the Traefik Hub provider. (Default: ```false```)
-
 `--experimental.kubernetesgateway`:  
 Allow the Kubernetes gateway api provider usage. (Default: ```false```)
 
@@ -221,21 +224,6 @@ resolv.conf used for DNS resolving (Default: ```/etc/resolv.conf```)
 
 `--hostresolver.resolvdepth`:  
 The maximal depth of DNS recursive resolving (Default: ```5```)
-
-`--hub`:  
-Traefik Hub configuration. (Default: ```false```)
-
-`--hub.tls.ca`:  
-The certificate authority authenticates the Traefik Hub Agent certificate.
-
-`--hub.tls.cert`:  
-The TLS certificate for Traefik Proxy as a TLS client.
-
-`--hub.tls.insecure`:  
-Enables an insecure TLS connection that uses default credentials, and which has no peer authentication between Traefik Proxy and the Traefik Hub Agent. (Default: ```false```)
-
-`--hub.tls.key`:  
-The TLS key for Traefik Proxy as a TLS client.
 
 `--log`:  
 Traefik log settings. (Default: ```false```)

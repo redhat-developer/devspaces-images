@@ -26,10 +26,13 @@ linters-settings:
       - ^spew\.Print(f|ln)?$
       - ^spew\.Dump$
   depguard:
-    list-type: denylist
-    include-go-root: false
-    packages:
-      - github.com/pkg/errors
+    rules:
+      main:
+        deny:
+          - pkg: "github.com/instana/testify"
+            desc: not allowed
+          - pkg: "github.com/pkg/errors"
+            desc: Should be replaced by standard lib errors package
   godox:
     keywords:
       - FIXME
@@ -148,6 +151,19 @@ linters-settings:
       - github.com/mailgun/minheap
       - github.com/mailgun/multibuf
       - github.com/jaguilar/vt100
+  testifylint:
+    enable:
+      - bool-compare
+      - compares
+      - empty
+      - error-is-as
+      - error-nil
+      - expected-actual
+      - float-compare
+      - len
+      - suite-dont-use-pkg
+      - suite-extra-assert-call
+      - suite-thelper
 
 linters:
   enable-all: true
@@ -199,6 +215,7 @@ linters:
     - containedctx # too many false-positive
     - maintidx # kind of duplicate of gocyclo
     - nonamedreturns # Too strict
+    - gosmopolitan  # not relevant
 
 issues:
   exclude-use-default: false

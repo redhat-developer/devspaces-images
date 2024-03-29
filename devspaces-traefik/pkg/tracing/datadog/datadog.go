@@ -1,6 +1,7 @@
 package datadog
 
 import (
+	"context"
 	"io"
 	"net"
 	"os"
@@ -47,8 +48,10 @@ func (c *Config) SetDefaults() {
 
 // Setup sets up the tracer.
 func (c *Config) Setup(serviceName string) (opentracing.Tracer, io.Closer, error) {
+	ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "datadog"))
+
 	opts := []datadog.StartOption{
-		datadog.WithServiceName(serviceName),
+		datadog.WithService(serviceName),
 		datadog.WithDebugMode(c.Debug),
 		datadog.WithPropagator(datadog.NewPropagator(&datadog.PropagatorConfig{
 			TraceHeader:    c.TraceIDHeaderName,
@@ -56,6 +59,7 @@ func (c *Config) Setup(serviceName string) (opentracing.Tracer, io.Closer, error
 			PriorityHeader: c.SamplingPriorityHeaderName,
 			BaggagePrefix:  c.BagagePrefixHeaderName,
 		})),
+		datadog.WithLogger(log.NewDatadogLogger(log.FromContext(ctx))),
 	}
 
 	if c.LocalAgentSocket != "" {
