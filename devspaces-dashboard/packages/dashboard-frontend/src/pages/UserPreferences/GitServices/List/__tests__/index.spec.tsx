@@ -100,15 +100,15 @@ describe('GitServicesList', () => {
       expect(gitlabRow).toHaveTextContent('https://gitlab.com');
 
       const checkbox = within(gitlabRow).getByRole('checkbox');
-      expect(checkbox).toBeDisabled();
+      expect(checkbox).toBeEnabled();
       expect(checkbox).not.toBeChecked();
 
       const kebab = within(gitlabRow).getByRole('button', { name: 'Actions' });
-      expect(kebab).toBeDisabled();
+      expect(kebab).toBeEnabled();
     }
   });
 
-  test('service not revokable (gitlab)', () => {
+  test('service revocable (gitlab)', () => {
     renderComponent(props);
 
     const rows = screen.getAllByRole('row');
@@ -120,15 +120,13 @@ describe('GitServicesList', () => {
     const gitlabCheckbox = within(gitlabRow).getByRole('checkbox');
     const gitlabKebab = within(gitlabRow).getByRole('button', { name: 'Actions' });
 
-    // the checkbox is disabled and unchecked
-    expect(gitlabCheckbox).toBeDisabled();
+    expect(gitlabCheckbox).toBeEnabled();
     expect(gitlabCheckbox).not.toBeChecked();
 
-    // the kebab button is disabled
-    expect(gitlabKebab).toBeDisabled();
+    expect(gitlabKebab).toBeEnabled();
   });
 
-  test('service revokable (github)', () => {
+  test('service revocable (github)', () => {
     renderComponent(props);
 
     const rows = screen.getAllByRole('row');

@@ -34,6 +34,7 @@ import { IGitOauth } from '@/store/GitOauthConfig/types';
 export const CAN_REVOKE_FROM_DASHBOARD: ReadonlyArray<api.GitOauthProvider> = [
   'github',
   'github_2',
+  'gitlab',
 ];
 
 export type Props = {
