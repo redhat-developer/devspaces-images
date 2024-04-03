@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CheTooltip component snapshot, active item 1`] = `
+<div
+  data-testid="patternfly-tooltip"
+>
+  <span
+    data-testid="tooltip-props"
+  >
+    {"isContentLeftAligned":true,"className":"titleHover active","position":"top-start","distance":-31,"maxWidth":"50rem"}
+  </span>
+  <div
+    data-testid="tooltip-content"
+  >
+    some-very-long-navigation-item-title
+  </div>
+  <div
+    data-testid="tooltip-placed-to"
+  >
+    <span>
+      some-very-long-navigation-item-title
+    </span>
+  </div>
+</div>
+`;
+
+exports[`CheTooltip component snapshot, non-active item 1`] = `
+<div
+  data-testid="patternfly-tooltip"
+>
+  <span
+    data-testid="tooltip-props"
+  >
+    {"isContentLeftAligned":true,"className":"titleHover ","position":"top-start","distance":-31,"maxWidth":"50rem"}
+  </span>
+  <div
+    data-testid="tooltip-content"
+  >
+    some-very-long-navigation-item-title
+  </div>
+  <div
+    data-testid="tooltip-placed-to"
+  >
+    <span>
+      some-very-long-navigation-item-title
+    </span>
+  </div>
+</div>
+`;
