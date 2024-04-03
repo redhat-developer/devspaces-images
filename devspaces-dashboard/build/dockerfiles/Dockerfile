@@ -39,6 +39,8 @@ RUN yarn build
 
 FROM docker.io/node:18.19.1-alpine3.19
 
+RUN apk --no-cache add curl
+
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
 ENV DEVFILE_REGISTRY=/dashboard/packages/devfile-registry
