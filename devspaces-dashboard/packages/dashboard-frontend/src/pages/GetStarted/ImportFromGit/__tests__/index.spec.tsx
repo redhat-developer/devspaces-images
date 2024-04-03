@@ -77,6 +77,31 @@ describe('GitRepoLocationInput', () => {
 
   describe('valid HTTP location', () => {
     describe('factory URL w/o other parameters', () => {
+      test('trim spaces from the input value', () => {
+        renderComponent(store);
+
+        const input = screen.getByRole('textbox');
+        expect(input).toBeValid();
+
+        userEvent.paste(input, '   http://test-location/  ');
+
+        expect(input).toHaveValue('http://test-location/');
+        expect(input).toBeValid();
+
+        const button = screen.getByRole('button');
+        expect(button).toBeEnabled();
+
+        userEvent.click(button);
+        // the selected editor ID should be added to the URL
+        expect(window.open).toHaveBeenLastCalledWith(
+          'http://localhost/#http://test-location/',
+          '_blank',
+        );
+        expect(window.open).toHaveBeenCalledTimes(1);
+
+        userEvent.type(input, '{enter}');
+        expect(window.open).toHaveBeenCalledTimes(2);
+      });
       test('editor definition and image are empty', () => {
         renderComponent(store);
 

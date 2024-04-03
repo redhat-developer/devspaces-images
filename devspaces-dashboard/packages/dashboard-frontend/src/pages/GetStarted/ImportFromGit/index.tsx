@@ -86,6 +86,7 @@ class ImportFromGit extends React.PureComponent<Props, State> {
   }
 
   private handleChange(location: string): void {
+    location = location.trim();
     const validated = this.validate(location);
     this.setState({
       location,
