@@ -10,7 +10,7 @@
 #
 
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.20.12-2 as builder
+FROM rhel8/go-toolset:1.20.12-5 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
 USER root
@@ -27,7 +27,7 @@ RUN adduser unprivilegeduser && \
     cp -rf /che-machine-exec/che-machine-exec /rootfs/go/bin
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1137 as runtime
+FROM registry.access.redhat.com/ubi8-minimal:8.9-1161 as runtime
 COPY --from=builder /rootfs /
 RUN microdnf install -y openssl; microdnf clean -y all
 USER unprivilegeduser
