@@ -29,6 +29,49 @@ exports[`Editor Selector Entry snapshot 1`] = `
         src="/v3/images/vscode.svg"
       />
       <div
+        className="pf-c-label-group pf-m-vertical"
+      >
+        <div
+          className="pf-c-label-group__main"
+        >
+          
+          <ul
+            aria-label="Label group category"
+            className="pf-c-label-group__list"
+            role="list"
+          >
+            <li
+              className="pf-c-label-group__list-item"
+            >
+              <span
+                className="pf-c-label pf-m-blue pf-m-outline label version"
+              >
+                <span
+                  className="pf-c-label__content"
+                >
+                  insiders
+                </span>
+              </span>
+            </li>
+            <li
+              className="pf-c-label-group__list-item"
+            >
+              <span
+                style={
+                  {
+                    "lineHeight": "12px",
+                    "padding": "0 5px",
+                    "visibility": "hidden",
+                  }
+                }
+              >
+                 
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div
         className="pf-c-card__actions"
       >
         <div
@@ -77,15 +120,6 @@ exports[`Editor Selector Entry snapshot 1`] = `
         className=""
       >
         VS Code - Open Source
-      </span>
-      <span
-        className="pf-c-label pf-m-blue pf-m-outline versionLabel"
-      >
-        <span
-          className="pf-c-label__content"
-        >
-          insiders
-        </span>
       </span>
     </div>
   </article>,

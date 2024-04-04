@@ -33,6 +33,7 @@ export interface Plugin {
     devfile: string;
   };
   icon: string;
+  tags?: string[];
 }
 
 export interface WorkspaceDevfileAttributes {

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TagLabel component snapshot type tag 1`] = `
+<span
+  className="pf-c-label pf-m-orange pf-m-outline label tag"
+>
+  <span
+    className="pf-c-label__content"
+  >
+    Tech Preview
+  </span>
+</span>
+`;
+
+exports[`TagLabel component snapshot type version 1`] = `
+<span
+  className="pf-c-label pf-m-blue pf-m-outline label version"
+>
+  <span
+    className="pf-c-label__content"
+  >
+    latest
+  </span>
+</span>
+`;

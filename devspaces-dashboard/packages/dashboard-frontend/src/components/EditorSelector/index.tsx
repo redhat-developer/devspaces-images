@@ -15,27 +15,24 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionToggle,
-  Button,
-  Flex,
-  FlexItem,
   Panel,
   PanelHeader,
   PanelMain,
   PanelMainBody,
+  Text,
+  TextVariants,
   Title,
 } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { EditorDefinition } from '@/components/EditorSelector/Definition';
+import { DocsLink } from '@/components/EditorSelector/DocsLink';
 import { EditorGallery } from '@/components/EditorSelector/Gallery';
 import { AppState } from '@/store';
 import { selectEditors } from '@/store/Plugins/chePlugins/selectors';
 
-const DOCS_DEFINING_A_COMMON_IDE =
-  'https://eclipse.dev/che/docs/stable/end-user-guide/defining-a-common-ide/';
-
-type AccordionId = 'selector' | 'definition';
+type AccordionId = 'default' | 'selector' | 'definition';
 
 export type Props = MappedProps & {
   defaultEditorId: string;
@@ -60,13 +57,18 @@ class EditorSelector extends React.PureComponent<Props, State> {
 
       selectorEditorValue: '',
 
-      expandedId: 'selector',
+      expandedId: 'default',
     };
   }
 
   private handleSelectorValueChange(editorId: string): void {
     this.setState({ selectorEditorValue: editorId });
-    this.props.onSelect(editorId, undefined);
+
+    // propagate the change to the parent component
+    // only if the selector is expanded
+    if (this.state.expandedId === 'selector') {
+      this.props.onSelect(editorId, undefined);
+    }
   }
 
   private handleDefinitionValueChange(
@@ -77,7 +79,12 @@ class EditorSelector extends React.PureComponent<Props, State> {
       definitionEditorValue: editorDefinition,
       definitionImageValue: editorImage,
     });
-    this.props.onSelect(editorDefinition, editorImage);
+
+    // propagate the change to the parent component
+    // only if the definition is expanded
+    if (this.state.expandedId === 'definition') {
+      this.props.onSelect(editorDefinition, editorImage);
+    }
   }
 
   private handleToggle(expandedId: AccordionId): void {
@@ -89,7 +96,9 @@ class EditorSelector extends React.PureComponent<Props, State> {
 
     const { definitionEditorValue, definitionImageValue, selectorEditorValue } = this.state;
 
-    if (expandedId === 'selector') {
+    if (expandedId === 'default') {
+      onSelect(undefined, undefined);
+    } else if (expandedId === 'selector') {
       onSelect(selectorEditorValue, undefined);
     } else {
       onSelect(definitionEditorValue, definitionImageValue);
@@ -109,6 +118,35 @@ class EditorSelector extends React.PureComponent<Props, State> {
         <PanelMain>
           <PanelMainBody>
             <Accordion asDefinitionList={false}>
+              <AccordionItem>
+                <AccordionToggle
+                  onClick={() => {
+                    this.handleToggle('default');
+                  }}
+                  isExpanded={expandedId === 'default'}
+                  id="accordion-item-default"
+                >
+                  Use a Default Editor
+                </AccordionToggle>
+
+                <AccordionContent
+                  isHidden={expandedId !== 'default'}
+                  data-testid="default-editor-content"
+                >
+                  <Panel>
+                    <PanelMain>
+                      <PanelMainBody>
+                        <Text component={TextVariants.p}>
+                          The editor defined as a query parameter, at the repository level or at the
+                          Custom Resource level will be used.
+                        </Text>
+                        <DocsLink />
+                      </PanelMainBody>
+                    </PanelMain>
+                  </Panel>
+                </AccordionContent>
+              </AccordionItem>
+
               <AccordionItem>
                 <AccordionToggle
                   onClick={() => {
@@ -170,19 +208,6 @@ class EditorSelector extends React.PureComponent<Props, State> {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-            <Flex>
-              <FlexItem align={{ default: 'alignRight' }}>
-                <Button
-                  component="a"
-                  href={DOCS_DEFINING_A_COMMON_IDE}
-                  variant="link"
-                  isInline
-                  target="_blank"
-                >
-                  How to specify and use a custom editor
-                </Button>
-              </FlexItem>
-            </Flex>
           </PanelMainBody>
         </PanelMain>
       </Panel>

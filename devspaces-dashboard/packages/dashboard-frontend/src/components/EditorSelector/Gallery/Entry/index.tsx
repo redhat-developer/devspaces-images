@@ -18,12 +18,13 @@ import {
   Dropdown,
   DropdownItem,
   KebabToggle,
+  LabelGroup,
 } from '@patternfly/react-core';
 import { CheckIcon } from '@patternfly/react-icons';
 import React from 'react';
 
 import styles from '@/components/EditorSelector/Gallery/Entry/index.module.css';
-import TagLabel from '@/components/TagLabel';
+import { TagLabel } from '@/components/TagLabel';
 import { che } from '@/services/models';
 
 export type Props = {
@@ -144,6 +145,20 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
 
     const titleClassName = isSelectedGroup ? styles.activeCard : '';
 
+    const hasTechPreviewTag =
+      (activeEditor.tags || []).includes('tech-preview') === true ||
+      /idea/i.test(activeEditor.id) === true;
+    const tagsGroup = (
+      <LabelGroup isVertical>
+        <TagLabel type="version" text={activeEditor.version} />
+        {hasTechPreviewTag ? (
+          <TagLabel type="tag" text="Tech Preview" />
+        ) : (
+          <span style={{ padding: '0 5px', lineHeight: '12px', visibility: 'hidden' }}>&nbsp;</span>
+        )}
+      </LabelGroup>
+    );
+
     return (
       <Card
         hasSelectableInput={true}
@@ -157,6 +172,7 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
       >
         <CardHeader>
           <img src={groupIcon} className={styles.editorIcon} />
+          {tagsGroup}
           <CardActions>
             <Dropdown
               toggle={
@@ -172,7 +188,6 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
         </CardHeader>
         <CardBody>
           <span className={titleClassName}>{groupName}</span>
-          <TagLabel version={activeEditor.version}></TagLabel>
         </CardBody>
       </Card>
     );

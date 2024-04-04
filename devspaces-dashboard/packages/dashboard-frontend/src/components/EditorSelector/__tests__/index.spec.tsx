@@ -41,31 +41,69 @@ describe('Editor Selector', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('accordion content toggling', async () => {
+  test('accordion content toggling', () => {
     renderComponent();
 
+    const defaultEditorButton = screen.getByRole('button', { name: 'Use a Default Editor' });
     const editorGalleryButton = screen.getByRole('button', { name: 'Choose an Editor' });
     const editorDefinitionButton = screen.getByRole('button', { name: 'Use an Editor Definition' });
 
-    // initially the gallery is visible and the definition is not
-    await expect(screen.findByTestId('editor-gallery-content')).resolves.toBeInTheDocument();
+    // initially the default editor section is visible; the selector and definition sections are not
+    expect(screen.getByTestId('default-editor-content')).not.toHaveAttribute('hidden');
+    expect(screen.getByTestId('editor-gallery-content')).toHaveAttribute('hidden');
+    expect(screen.getByTestId('editor-definition-content')).toHaveAttribute('hidden');
 
-    userEvent.click(editorDefinitionButton);
-
-    // now the gallery is not visible and the definition is
-    await expect(screen.findByTestId('editor-definition-content')).resolves.toBeInTheDocument();
+    /* switch to the editor gallery section */
 
     userEvent.click(editorGalleryButton);
 
-    // now the gallery is visible and the definition is not
-    await expect(screen.findByTestId('editor-gallery-content')).resolves.toBeInTheDocument();
+    // now the gallery is visible
+    expect(screen.getByTestId('editor-gallery-content')).not.toHaveAttribute('hidden');
+    expect(screen.getByTestId('editor-definition-content')).toHaveAttribute('hidden');
+    expect(screen.getByTestId('default-editor-content')).toHaveAttribute('hidden');
+
+    /* switch to the editor definition section */
+
+    userEvent.click(editorDefinitionButton);
+
+    // now the editor definition is visible
+    expect(screen.getByTestId('editor-definition-content')).not.toHaveAttribute('hidden');
+    expect(screen.getByTestId('editor-gallery-content')).toHaveAttribute('hidden');
+    expect(screen.getByTestId('default-editor-content')).toHaveAttribute('hidden');
+
+    /* switch back to the default editor section */
+
+    userEvent.click(defaultEditorButton);
+
+    // now the default editor section is visible
+    expect(screen.getByTestId('default-editor-content')).not.toHaveAttribute('hidden');
+    expect(screen.getByTestId('editor-gallery-content')).toHaveAttribute('hidden');
+    expect(screen.getByTestId('editor-definition-content')).toHaveAttribute('hidden');
+  });
+
+  test('use a default editor', () => {
+    renderComponent();
+
+    expect(screen.getByTestId('default-editor-content')).not.toHaveAttribute('hidden');
+
+    expect(mockOnSelect).not.toHaveBeenCalled();
+
+    const defaultEditorButton = screen.getByRole('button', { name: 'Use a Default Editor' });
+
+    userEvent.click(defaultEditorButton);
+    expect(mockOnSelect).toHaveBeenCalledWith(undefined, undefined);
   });
 
   test('select editor from gallery', () => {
-    renderComponent();
+    renderComponent({
+      expandedId: 'selector',
+      selectorEditorValue: 'some/editor/id',
+      definitionEditorValue: undefined,
+      definitionImageValue: undefined,
+    });
 
-    const editorGallery = screen.queryByTestId('editor-gallery-content')!;
-    expect(editorGallery).not.toBeNull();
+    const editorGallery = screen.getByTestId('editor-gallery-content');
+    expect(editorGallery).not.toHaveAttribute('hidden');
 
     // initial default editor ID
     const defaultEditor = within(editorGallery).getByTestId('default-editor-id');
@@ -73,7 +111,7 @@ describe('Editor Selector', () => {
 
     // initial selected editor ID
     const selectedEditor = within(editorGallery).getByTestId('selected-editor-id');
-    expect(selectedEditor).toHaveTextContent('');
+    expect(selectedEditor).toHaveTextContent('some/editor/id');
 
     const selectEditorButton = within(editorGallery).getByRole('button', {
       name: 'Select Editor',
@@ -97,16 +135,16 @@ describe('Editor Selector', () => {
       definitionImageValue: undefined,
     });
 
-    const editorDefinitionPanel = screen.queryByTestId('editor-definition-content')!;
-    expect(editorDefinitionPanel).not.toBeNull();
+    const editorDefinitionPanel = screen.getByTestId('editor-definition-content');
+    expect(editorDefinitionPanel).not.toHaveAttribute('hidden');
 
     // initial editor definition state
     const editorDefinition = within(editorDefinitionPanel).getByTestId('editor-definition');
-    expect(editorDefinition).toHaveTextContent('');
+    expect(editorDefinition).toBeEmptyDOMElement();
 
     // initial editor image
     const editorImage = within(editorDefinitionPanel).getByTestId('editor-image');
-    expect(editorImage).toHaveTextContent('');
+    expect(editorImage).toBeEmptyDOMElement();
 
     const changeDefinitionButton = within(editorDefinitionPanel).getByRole('button', {
       name: 'Editor Definition Change',

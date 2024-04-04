@@ -15,6 +15,7 @@ import React from 'react';
 
 import { EditorDefinitionField } from '@/components/EditorSelector/Definition/DefinitionField';
 import { EditorImageField } from '@/components/EditorSelector/Definition/ImageField';
+import { DocsLink } from '@/components/EditorSelector/DocsLink';
 
 export type Props = {
   editorDefinition: string | undefined;
@@ -58,6 +59,8 @@ export class EditorDefinition extends React.PureComponent<Props, State> {
           onChange={editorDefinition => this.handleEditorDefinition(editorDefinition)}
         />
         <EditorImageField onChange={editorImage => this.handleEditorImage(editorImage)} />
+
+        <DocsLink />
       </Form>
     );
   }

@@ -30,6 +30,8 @@ parse_args() {
 parse_args "$@"
 
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
+CHE_SELF_SIGNED_MOUNT_PATH="${CHE_SELF_SIGNED_MOUNT_PATH:-$PWD/run/public-certs}"
+
 DASHBOARD_POD_NAME=$(kubectl get pods -n "$CHE_NAMESPACE" -o=custom-columns=:metadata.name | grep dashboard)
 
 kubectl describe pod "$DASHBOARD_POD_NAME" -n "$CHE_NAMESPACE" > run/.che-dashboard-pod
@@ -51,6 +53,13 @@ if [[ -z "$CHE_HOST_ORIGIN" ]]; then
   echo '[ERROR] Cannot find cheURL.'
   exit 1
 fi
+
+if [ ! -d "$CHE_SELF_SIGNED_MOUNT_PATH" ]; then
+  mkdir -p "$CHE_SELF_SIGNED_MOUNT_PATH"
+fi
+
+# copy certificate from the dashboard pod
+kubectl cp $CHE_NAMESPACE/$DASHBOARD_POD_NAME:/public-certs/che-self-signed/..data/ca.crt "$CHE_SELF_SIGNED_MOUNT_PATH/ca.crt"
 
 GATEWAY=$(kubectl get deployments.apps -n "$CHE_NAMESPACE" che-gateway --ignore-not-found -o=json | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")')
 if [ "$GATEWAY" == "true" ]; then

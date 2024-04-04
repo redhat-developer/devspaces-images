@@ -125,7 +125,7 @@ export class EditorGallery extends React.PureComponent<Props, State> {
 
   public render() {
     return (
-      <Gallery hasGutter={true} minWidths={{ default: '170px' }} maxWidths={{ default: '170px' }}>
+      <Gallery hasGutter={true} minWidths={{ default: '210px' }} maxWidths={{ default: '210px' }}>
         {this.buildEditorCards()}
       </Gallery>
     );

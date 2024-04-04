@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-.versionLabel {
+.label {
   margin-left: 5px;
   padding: 0 5px;
 
@@ -21,6 +21,10 @@
   background-color: var(--pf-global--BackgroundColor--100);
 }
 
-.versionLabel .pf-c-label__content::before {
+.tag .pf-c-label__content::before {
+  border-color: var(--pf-global--warning-color--100);
+}
+
+.version .pf-c-label__content::before {
   border-color: var(--pf-global--link--Color);
 }

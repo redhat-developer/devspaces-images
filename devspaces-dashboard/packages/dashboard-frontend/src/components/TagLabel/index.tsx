@@ -15,20 +15,23 @@ import React from 'react';
 
 import styles from '@/components/TagLabel/index.module.css';
 
-type Props = {
-  version: string;
+export type Props = {
+  text: string;
+  type: 'version' | 'tag' | 'placeholder';
 };
 
-class TagLabel extends React.PureComponent<Props> {
+export class TagLabel extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const { version } = this.props;
+    const { text } = this.props;
+
+    const className = `${styles.label} ${this.props.type === 'tag' ? styles.tag : styles.version}`;
+
+    const color = this.props.type === 'tag' ? 'orange' : 'blue';
 
     return (
-      <Label className={styles.versionLabel} variant="outline" color="blue">
-        {version}
+      <Label className={className} variant="outline" color={color}>
+        {text}
       </Label>
     );
   }
 }
-
-export default TagLabel;

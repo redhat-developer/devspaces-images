@@ -59,6 +59,7 @@ CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
 # guide backend to use the current cluster from kubeconfig
 export LOCAL_RUN="true"
 export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
+export CHE_SELF_SIGNED_MOUNT_PATH="${CHE_SELF_SIGNED_MOUNT_PATH:-$PWD/run/public-certs}"
 
 DASHBOARD_COMMON=packages/common
 DASHBOARD_FRONTEND=packages/dashboard-frontend

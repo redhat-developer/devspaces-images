@@ -5,8 +5,8 @@ exports[`EditorGallery snapshot 1`] = `
   className="pf-l-gallery pf-m-gutter"
   style={
     {
-      "--pf-l-gallery--GridTemplateColumns--max": "170px",
-      "--pf-l-gallery--GridTemplateColumns--min": "170px",
+      "--pf-l-gallery--GridTemplateColumns--max": "210px",
+      "--pf-l-gallery--GridTemplateColumns--min": "210px",
     }
   }
 >
