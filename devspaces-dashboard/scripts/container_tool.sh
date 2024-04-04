@@ -39,6 +39,7 @@ container_tool() {
 # Main script
 case "$1" in
 build | run | push)
+    set -e
     container_tool "$@"
     ;;
 *)
