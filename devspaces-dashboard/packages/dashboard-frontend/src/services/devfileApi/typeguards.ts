@@ -48,7 +48,6 @@ export function isDevWorkspaceMetadata(
 ): metadata is devfileApi.DevWorkspaceMetadata {
   return (
     metadata !== undefined &&
-    (metadata as devfileApi.DevWorkspaceMetadata).labels !== undefined &&
     (metadata as devfileApi.DevWorkspaceMetadata).name !== undefined &&
     (metadata as devfileApi.DevWorkspaceMetadata).namespace !== undefined &&
     (metadata as devfileApi.DevWorkspaceMetadata).uid !== undefined
