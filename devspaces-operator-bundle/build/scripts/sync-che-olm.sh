@@ -210,6 +210,9 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|registry.redhat.io/ubi8/ubi-minimal:.+|${UBI_IMAGE}|" \
 		-e "s|registry.access.redhat.com/ubi8/ubi-minimal:.+|${UBI_IMAGE}|g" \
 		\
+		`# https://issues.redhat.com/browse/CRW-6052` \
+		-e "s|oc edit checluster/eclipse-che -n eclipse-che|oc edit checluster/devspaces -n openshift-devspaces|g" \
+		\
 		`# use internal image for operator, as devspaces-operator only exists in RHEC and Quay repos` \
 		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${DS_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
