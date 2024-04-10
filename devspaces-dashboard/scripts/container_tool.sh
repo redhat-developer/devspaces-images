@@ -14,10 +14,12 @@ if command_exists "podman"; then
 fi
 
 # Check for Docker
-if command_exists "docker"; then
-    # Check if Docker daemon is running
-    if docker info &>/dev/null; then
-        container_engine="docker"
+if [ -z "$container_engine" ]; then
+    if command_exists "docker"; then
+        # Check if Docker machine is running
+        if docker info &>/dev/null; then
+            container_engine="docker"
+        fi
     fi
 fi
 
