@@ -32,26 +32,38 @@ import {
   REMOTES_ATTR,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { AlertItem } from '@/services/helpers/types';
-import OAuthService from '@/services/oauth';
 import { AppThunk } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { ActionCreators, OAuthResponse } from '@/store/FactoryResolver';
+import { OAuthResponse } from '@/store/FactoryResolver';
+import { FactoryResolverActionCreators } from '@/store/FactoryResolver';
 
 jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const mockRequestFactoryResolver = jest.fn();
-const mockIsOAuthResponse = jest.fn();
-jest.mock('@/store/FactoryResolver', () => {
+jest.mock('@/store/FactoryResolver/actions', () => {
   return {
+    ...jest.requireActual('@/store/FactoryResolver'),
     actionCreators: {
       requestFactoryResolver:
         (
-          ...args: Parameters<ActionCreators['requestFactoryResolver']>
+          ...args: Parameters<FactoryResolverActionCreators['requestFactoryResolver']>
         ): AppThunk<Action, Promise<void>> =>
         async (): Promise<void> =>
           mockRequestFactoryResolver(...args),
-    } as ActionCreators,
-    isOAuthResponse: (_args: unknown[]) => mockIsOAuthResponse(_args),
+    } as FactoryResolverActionCreators,
+  };
+});
+
+const mockIsOAuthResponse = jest.fn().mockReturnValue(false);
+const mockOpenOAuthPage = jest.fn();
+jest.mock('@/services/oauth', () => {
+  return {
+    __esModule: true,
+    OAuthService: {
+      openOAuthPage: (..._args: unknown[]) => mockOpenOAuthPage(..._args),
+      refreshTokenIfNeeded: () => jest.fn().mockResolvedValue(undefined),
+    },
+    isOAuthResponse: (..._args: unknown[]) => mockIsOAuthResponse(..._args),
   };
 });
 
@@ -67,21 +79,22 @@ const factoryUrl = 'https://factory-url';
 describe('Creating steps, fetching a devfile', () => {
   let searchParams: URLSearchParams;
   let store: Store;
+  let devfile: devfileApi.Devfile;
 
   beforeEach(() => {
+    devfile = {
+      schemaVersion: '2.2.2',
+      metadata: {
+        name: 'my-project',
+        namespace: 'user-che',
+        generateName: 'my-project-',
+      },
+    };
     store = new FakeStoreBuilder()
       .withFactoryResolver({
         resolver: {
-          devfile: {} as devfileApi.Devfile,
+          devfile,
           location: factoryUrl,
-        },
-        converted: {
-          devfileV2: {
-            metadata: {
-              name: 'my-project',
-              generateName: 'my-project-',
-            },
-          } as devfileApi.Devfile,
         },
       })
       .build();
@@ -96,7 +109,6 @@ describe('Creating steps, fetching a devfile', () => {
   afterEach(() => {
     jest.clearAllMocks();
     jest.clearAllTimers();
-    jest.useRealTimers();
   });
 
   test('factory should not resolve the SSH location', async () => {
@@ -463,7 +475,6 @@ describe('Creating steps, fetching a devfile', () => {
   describe('public repo', () => {
     beforeEach(() => {
       mockRequestFactoryResolver.mockResolvedValueOnce(undefined);
-      mockIsOAuthResponse.mockReturnValueOnce(false);
     });
 
     test('request factory resolver', async () => {
@@ -517,14 +528,13 @@ describe('Creating steps, fetching a devfile', () => {
         .withFactoryResolver({
           resolver: {
             location: factoryUrl,
-          },
-          converted: {
-            devfileV2: {
+            devfile: {
+              schemaVersion: '2.2.2',
               metadata: {
                 name: 'my-project',
-                generateName: 'my-project-',
+                namespace: 'user-che',
               },
-            } as devfileApi.Devfile,
+            },
           },
         })
         .build();
@@ -542,7 +552,6 @@ describe('Creating steps, fetching a devfile', () => {
     const host = 'che-host';
     const protocol = 'http://';
     let spyWindowLocation: jest.SpyInstance;
-    let spyOpenOAuthPage: jest.SpyInstance;
     let history: MemoryHistory;
 
     beforeEach(() => {
@@ -555,9 +564,6 @@ describe('Creating steps, fetching a devfile', () => {
       } as OAuthResponse);
 
       spyWindowLocation = createWindowLocationSpy(host, protocol);
-      spyOpenOAuthPage = jest
-        .spyOn(OAuthService, 'openOAuthPage')
-        .mockImplementation(() => jest.fn());
 
       history = createMemoryHistory({
         initialEntries: [
@@ -571,7 +577,6 @@ describe('Creating steps, fetching a devfile', () => {
     afterEach(() => {
       sessionStorage.clear();
       spyWindowLocation.mockClear();
-      spyOpenOAuthPage.mockClear();
     });
 
     test('redirect to an authentication URL', async () => {
@@ -586,7 +591,7 @@ describe('Creating steps, fetching a devfile', () => {
       )}`;
 
       await waitFor(() =>
-        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+        expect(mockOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
       );
 
       expect(mockOnError).not.toHaveBeenCalled();
@@ -605,7 +610,7 @@ describe('Creating steps, fetching a devfile', () => {
       )}`;
 
       await waitFor(() =>
-        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+        expect(mockOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
       );
 
       // cleanup previous render
@@ -617,7 +622,7 @@ describe('Creating steps, fetching a devfile', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+        expect(mockOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
       );
 
       await waitFor(() => expect(mockOnError).not.toHaveBeenCalled());
@@ -631,7 +636,7 @@ describe('Creating steps, fetching a devfile', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       await waitFor(() =>
-        expect(spyOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
+        expect(mockOpenOAuthPage).toHaveBeenCalledWith(oauthAuthenticationUrl, expectedRedirectUrl),
       );
 
       const expectAlertItem = expect.objectContaining({
@@ -681,9 +686,7 @@ describe('Creating steps, fetching a devfile', () => {
         .withFactoryResolver({
           resolver: {
             location: factoryUrl,
-          },
-          converted: {
-            devfileV2: {
+            devfile: {
               metadata: {
                 name: 'my-project',
                 generateName: 'my-project-',
@@ -707,7 +710,6 @@ describe('Creating steps, fetching a devfile', () => {
     const factoryUrl = 'git@github.com:user/repository-name.git';
 
     let spyWindowLocation: jest.SpyInstance;
-    let spyOpenOAuthPage: jest.SpyInstance;
     let history: MemoryHistory;
 
     beforeEach(() => {
@@ -717,13 +719,9 @@ describe('Creating steps, fetching a devfile', () => {
         [FACTORY_URL_ATTR]: factoryUrl,
       });
 
-      mockIsOAuthResponse.mockReturnValue(false);
       mockRequestFactoryResolver.mockRejectedValue('Could not reach devfile');
 
       spyWindowLocation = createWindowLocationSpy(host, protocol);
-      spyOpenOAuthPage = jest
-        .spyOn(OAuthService, 'openOAuthPage')
-        .mockImplementation(() => jest.fn());
 
       history = createMemoryHistory({
         initialEntries: [
@@ -737,7 +735,6 @@ describe('Creating steps, fetching a devfile', () => {
     afterEach(() => {
       sessionStorage.clear();
       spyWindowLocation.mockClear();
-      spyOpenOAuthPage.mockClear();
     });
 
     it('should go to next step', async () => {
@@ -749,7 +746,7 @@ describe('Creating steps, fetching a devfile', () => {
 
       await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
 
-      expect(spyOpenOAuthPage).not.toHaveBeenCalled();
+      expect(mockOpenOAuthPage).not.toHaveBeenCalled();
       expect(mockOnError).not.toHaveBeenCalled();
     });
   });

@@ -32,7 +32,6 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@eclipse-che/devfile-converter": "0.0.1-0751ad2",
     "@patternfly/react-core": "^4.276.11",
     "@patternfly/react-icons": "^4.93.7",
     "@patternfly/react-table": "^4.113.3",

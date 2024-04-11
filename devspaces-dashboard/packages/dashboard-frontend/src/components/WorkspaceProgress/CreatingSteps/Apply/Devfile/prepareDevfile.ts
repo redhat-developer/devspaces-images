@@ -33,7 +33,7 @@ export function prepareDevfile(
   appendSuffix: boolean,
 ): devfileApi.Devfile {
   const devfile = cloneDeep(_devfile);
-  const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfile);
+  const attributes = DevfileAdapter.getAttributes(devfile);
   if (
     !attributes[DEVWORKSPACE_METADATA_ANNOTATION] ||
     typeof attributes[DEVWORKSPACE_METADATA_ANNOTATION] !== 'object'

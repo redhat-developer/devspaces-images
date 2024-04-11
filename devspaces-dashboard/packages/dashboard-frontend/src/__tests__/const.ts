@@ -14,7 +14,6 @@ import { dump } from 'js-yaml';
 
 import devfileApi from '@/services/devfileApi';
 import { FactoryResolver } from '@/services/helpers/types';
-import normalizeDevfileV2 from '@/store/FactoryResolver/normalizeDevfileV2';
 
 export const FACTORY_RESOLVER_DELAY = 600;
 export const DEVWORKSPACE_RESOURSES_DELAY = 600;
@@ -54,14 +53,6 @@ export const factoryResolver: FactoryResolver = {
   devfile: devfile,
   links: [],
 };
-export const devfileV2 = normalizeDevfileV2(
-  devfile as devfileApi.DevfileLike,
-  factoryResolver,
-  'https://github.com/eclipse-che/che-dashboard',
-  [],
-  namespace.name,
-  { factoryUrl: url },
-);
 const sampleResourceUrl =
   'http://localhost/plugin-registry/v3/plugins/che-incubator/che-code/insiders/devfile.yaml';
 export const plugins = {

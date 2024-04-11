@@ -37,11 +37,8 @@ import { AppState } from '@/store';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
 import { DevWorkspaceResources } from '@/store/DevfileRegistries';
 import { selectDevWorkspaceResources } from '@/store/DevfileRegistries/selectors';
-import * as FactoryResolverStore from '@/store/FactoryResolver';
-import {
-  selectFactoryResolver,
-  selectFactoryResolverConverted,
-} from '@/store/FactoryResolver/selectors';
+import { factoryResolverActionCreators } from '@/store/FactoryResolver';
+import { selectFactoryResolver } from '@/store/FactoryResolver/selectors';
 import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
 import * as WorkspacesStore from '@/store/Workspaces';
 import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
@@ -288,7 +285,6 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   defaultNamespace: selectDefaultNamespace(state),
   factoryResolver: selectFactoryResolver(state),
-  factoryResolverConverted: selectFactoryResolverConverted(state),
   devWorkspaceResources: selectDevWorkspaceResources(state),
   devWorkspaceWarnings: selectDevWorkspaceWarnings(state),
 });
@@ -297,7 +293,7 @@ const connector = connect(
   mapStateToProps,
   {
     ...DevfileRegistriesStore.actionCreators,
-    ...FactoryResolverStore.actionCreators,
+    ...factoryResolverActionCreators,
     ...WorkspacesStore.actionCreators,
     createWorkspaceFromResources: DevWorkspacesStore.actionCreators.createWorkspaceFromResources,
   },

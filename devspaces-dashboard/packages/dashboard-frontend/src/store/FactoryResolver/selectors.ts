@@ -18,6 +18,4 @@ const selectState = (state: AppState) => state.factoryResolver;
 
 export const selectFactoryResolver = createSelector(selectState, state => state.resolver);
 
-export const selectFactoryResolverConverted = createSelector(selectState, state => state.converted);
-
 export const selectFactoryResolverError = createSelector(selectState, state => state.error);

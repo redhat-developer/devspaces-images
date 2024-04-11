@@ -31,10 +31,7 @@ import { AlertItem } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectDevWorkspaceResources } from '@/store/DevfileRegistries/selectors';
-import {
-  selectFactoryResolver,
-  selectFactoryResolverConverted,
-} from '@/store/FactoryResolver/selectors';
+import { selectFactoryResolver } from '@/store/FactoryResolver/selectors';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
@@ -134,7 +131,7 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
   }
 
   protected async runStep(): Promise<boolean> {
-    const { devWorkspaceResources, factoryResolver, factoryResolverConverted } = this.props;
+    const { devWorkspaceResources, factoryResolver } = this.props;
     const { factoryParams, shouldCreate } = this.state;
 
     if (shouldCreate) {
@@ -160,13 +157,13 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
       if (
         factoryResolver === undefined ||
         factoryResolver.location !== factoryParams.sourceUrl ||
-        factoryResolverConverted?.devfileV2 === undefined
+        factoryResolver?.devfile === undefined
       ) {
         // going to use the default devfile in the next step
         return true;
       }
 
-      const devfile = factoryResolverConverted.devfileV2;
+      const devfile = factoryResolver.devfile;
       newWorkspaceName = devfile.metadata.name;
     }
 
@@ -234,7 +231,6 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   devWorkspaceResources: selectDevWorkspaceResources(state),
   factoryResolver: selectFactoryResolver(state),
-  factoryResolverConverted: selectFactoryResolverConverted(state),
 });
 
 const connector = connect(mapStateToProps, null, null, {

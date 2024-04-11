@@ -274,7 +274,3 @@ export class WorkspaceAdapter<T extends devfileApi.DevWorkspace> implements Work
 export function constructWorkspace<T extends devfileApi.DevWorkspace>(workspace: T): Workspace {
   return new WorkspaceAdapter(workspace);
 }
-
-export function isCheDevfile(devfile: unknown): devfile is che.api.workspace.devfile.Devfile {
-  return !isDevfileV2(devfile);
-}

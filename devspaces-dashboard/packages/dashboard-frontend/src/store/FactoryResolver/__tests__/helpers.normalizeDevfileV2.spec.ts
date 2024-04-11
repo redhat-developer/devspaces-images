@@ -10,11 +10,61 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222DevfileComponents } from '@devfile/api';
+import { V222Devfile, V222DevfileComponents } from '@devfile/api';
 
-import devfileApi from '@/services/devfileApi';
 import { FactoryResolver } from '@/services/helpers/types';
-import normalizeDevfileV2 from '@/store/FactoryResolver/normalizeDevfileV2';
+import { che } from '@/services/models';
+import { buildDevfileV2, normalizeDevfile } from '@/store/FactoryResolver/helpers';
+
+describe('buildDevfileV2', () => {
+  let devfileV1: che.api.workspace.devfile.Devfile;
+
+  beforeEach(() => {
+    devfileV1 = {
+      apiVersion: '1.0.0',
+      metadata: {
+        generateName: 'empty',
+      },
+      projects: [
+        {
+          name: 'my-project',
+          source: {
+            location: 'https://github.com/my/project.git',
+            type: 'github',
+          },
+        },
+      ],
+    };
+  });
+
+  it('should return a devfile with the correct schemaVersion', () => {
+    const devfile = buildDevfileV2(devfileV1);
+
+    expect(devfile.schemaVersion).toEqual('2.2.2');
+  });
+
+  it('should return a devfile with the correct metadata', () => {
+    const devfile = buildDevfileV2(devfileV1);
+
+    expect(devfile.metadata).toStrictEqual(devfile.metadata);
+  });
+
+  it('should return a devfile with the correct projects', () => {
+    const devfile = buildDevfileV2(devfileV1);
+
+    expect(devfile.projects).toStrictEqual([
+      {
+        attributes: {},
+        git: {
+          remotes: {
+            origin: 'https://github.com/my/project.git',
+          },
+        },
+        name: 'my-project',
+      },
+    ]);
+  });
+});
 
 describe('Normalize Devfile V2', () => {
   let defaultComponents: V222DevfileComponents[];
@@ -31,8 +81,8 @@ describe('Normalize Devfile V2', () => {
   });
 
   it('should not apply defaultComponents if components exist', () => {
-    const devfileLike = {
-      schemaVersion: '2.1.0',
+    const devfile = {
+      schemaVersion: '2.2.2',
       metadata: {
         generateName: 'empty',
       },
@@ -44,11 +94,12 @@ describe('Normalize Devfile V2', () => {
           name: 'custom-image',
         },
       ],
-    } as devfileApi.DevfileLike;
+    } as V222Devfile;
 
-    const targetDevfile = normalizeDevfileV2(
-      devfileLike,
-      {} as FactoryResolver,
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
       'http://dummy-registry/devfiles/empty.yaml',
       defaultComponents,
       'che',
@@ -62,14 +113,14 @@ describe('Normalize Devfile V2', () => {
     );
     expect(targetDevfile).toEqual(
       expect.objectContaining({
-        components: devfileLike.components,
+        components: devfile.components,
       }),
     );
   });
 
   it('should not apply defaultComponents if parent exist', () => {
-    const devfileLike = {
-      schemaVersion: '2.1.0',
+    const devfile = {
+      schemaVersion: '2.2.2',
       metadata: {
         generateName: 'empty',
       },
@@ -79,11 +130,12 @@ describe('Normalize Devfile V2', () => {
         version: '1.2.0',
       },
       components: [],
-    } as devfileApi.DevfileLike;
+    } as V222Devfile;
 
-    const targetDevfile = normalizeDevfileV2(
-      devfileLike,
-      {} as FactoryResolver,
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
       'http://dummy-registry/devfiles/empty.yaml',
       defaultComponents,
       'che',
@@ -97,19 +149,20 @@ describe('Normalize Devfile V2', () => {
     );
     expect(targetDevfile).toEqual(
       expect.objectContaining({
-        components: devfileLike.components,
+        components: devfile.components,
       }),
     );
   });
 
   it('should apply metadata name and namespace', () => {
-    const devfileLike = {
-      schemaVersion: '2.1.0',
-    } as devfileApi.DevfileLike;
+    const devfile = {
+      schemaVersion: '2.2.2',
+    } as V222Devfile;
 
-    const targetDevfile = normalizeDevfileV2(
-      devfileLike,
-      {} as FactoryResolver,
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
       'http://dummy-registry/devfiles/empty.yaml',
       [],
       'che',
@@ -121,17 +174,18 @@ describe('Normalize Devfile V2', () => {
   });
 
   it('should apply defaultComponents', () => {
-    const devfileLike = {
-      schemaVersion: '2.1.0',
+    const devfile = {
+      schemaVersion: '2.2.2',
       metadata: {
         generateName: 'empty',
       },
       components: [],
-    } as devfileApi.DevfileLike;
+    } as V222Devfile;
 
-    const targetDevfile = normalizeDevfileV2(
-      devfileLike,
-      {} as FactoryResolver,
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
       'http://dummy-registry/devfiles/empty.yaml',
       defaultComponents,
       'che',
@@ -140,7 +194,7 @@ describe('Normalize Devfile V2', () => {
 
     expect(targetDevfile).not.toEqual(
       expect.objectContaining({
-        components: devfileLike.components,
+        components: devfile.components,
       }),
     );
     expect(targetDevfile).toEqual(
@@ -151,8 +205,8 @@ describe('Normalize Devfile V2', () => {
   });
 
   it('should apply the custom image from factory params', () => {
-    const devfileLike = {
-      schemaVersion: '2.1.0',
+    const devfile = {
+      schemaVersion: '2.2.2',
       metadata: {
         generateName: 'empty',
       },
@@ -164,14 +218,15 @@ describe('Normalize Devfile V2', () => {
           name: 'developer-image',
         },
       ],
-    } as devfileApi.DevfileLike;
+    } as V222Devfile;
     const factoryParams = {
       image: 'quay.io/devfile/universal-developer-image:test',
     };
 
-    const targetDevfile = normalizeDevfileV2(
-      devfileLike,
-      {} as FactoryResolver,
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
       'http://dummy-registry/devfiles/empty.yaml',
       defaultComponents,
       'che',
@@ -193,19 +248,20 @@ describe('Normalize Devfile V2', () => {
   });
 
   it('should apply defaultComponents and then the custom image from factory params', () => {
-    const devfileLike = {
-      schemaVersion: '2.1.0',
+    const devfile = {
+      schemaVersion: '2.2.2',
       metadata: {
         generateName: 'empty',
       },
-    } as devfileApi.DevfileLike;
+    } as V222Devfile;
     const factoryParams = {
       image: 'quay.io/devfile/universal-developer-image:test',
     };
 
-    const targetDevfile = normalizeDevfileV2(
-      devfileLike,
-      {} as FactoryResolver,
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
       'http://dummy-registry/devfiles/empty.yaml',
       defaultComponents,
       'che',

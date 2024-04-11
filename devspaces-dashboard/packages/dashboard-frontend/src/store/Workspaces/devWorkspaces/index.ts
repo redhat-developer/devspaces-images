@@ -33,7 +33,7 @@ import { DisposableCollection } from '@/services/helpers/disposable';
 import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { getNewerResourceVersion } from '@/services/helpers/resourceVersion';
 import { DevWorkspaceStatus } from '@/services/helpers/types';
-import OAuthService, { isOAuthResponse } from '@/services/oauth';
+import { isOAuthResponse, OAuthService } from '@/services/oauth';
 import { loadResourcesContent } from '@/services/registry/resources';
 import { WorkspaceAdapter } from '@/services/workspace-adapter';
 import {

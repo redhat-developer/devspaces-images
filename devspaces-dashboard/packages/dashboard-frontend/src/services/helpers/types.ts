@@ -31,8 +31,12 @@ export interface AlertItem {
   timeout?: boolean | number;
 }
 
+// Field `source` tells where devfile comes from
+//  - no source: the url to raw content is used
+//  - "repo": means no devfile is found and default is generated
+//  - any other - devfile is found in repository as filename from the value
 export interface FactoryResolver extends Omit<che.api.factory.Factory, 'devfile'> {
-  devfile: che.api.workspace.devfile.Devfile | devfileApi.Devfile;
+  devfile?: che.api.workspace.devfile.Devfile | devfileApi.Devfile;
   location?: string;
   scm_info?: FactoryResolverScmInfo;
 }

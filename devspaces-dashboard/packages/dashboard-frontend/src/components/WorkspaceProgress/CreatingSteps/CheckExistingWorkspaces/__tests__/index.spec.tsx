@@ -282,9 +282,7 @@ describe('Creating steps, checking existing workspaces', () => {
           .withFactoryResolver({
             resolver: {
               location: factoryUrl,
-            },
-            converted: {
-              devfileV2: {
+              devfile: {
                 schemaVersion: '2.1.0',
                 metadata: {
                   name: workspaceName,

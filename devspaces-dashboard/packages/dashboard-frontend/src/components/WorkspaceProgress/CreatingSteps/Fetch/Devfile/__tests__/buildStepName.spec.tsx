@@ -24,8 +24,17 @@ const factoryUrl = 'https://factory-url';
 
 describe('Factory flow: step Fetch Devfile', () => {
   let searchParams: URLSearchParams;
+  let devfile: devfileApi.Devfile;
 
   beforeEach(() => {
+    devfile = {
+      schemaVersion: '2.2.2',
+      metadata: {
+        name: 'my-project',
+        namespace: 'user-che',
+        generateName: 'my-project-',
+      },
+    };
     searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
     });
@@ -36,18 +45,9 @@ describe('Factory flow: step Fetch Devfile', () => {
       const store = new FakeStoreBuilder()
         .withFactoryResolver({
           resolver: {
-            devfile: {} as devfileApi.Devfile,
+            devfile,
             location: factoryUrl,
             source: undefined, // <-
-          },
-          converted: {
-            isConverted: false,
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
           },
         })
         .build();
@@ -56,7 +56,6 @@ describe('Factory flow: step Fetch Devfile', () => {
       const newTitle = buildStepName(
         factoryParams.sourceUrl,
         store.getState().factoryResolver.resolver!,
-        store.getState().factoryResolver.converted!,
       );
 
       expect(newTitle).toEqual('Devfile found with name "my-project".');
@@ -66,18 +65,9 @@ describe('Factory flow: step Fetch Devfile', () => {
       const store = new FakeStoreBuilder()
         .withFactoryResolver({
           resolver: {
-            devfile: {} as devfileApi.Devfile,
+            devfile,
             location: factoryUrl,
             source: 'repo', // <-
-          },
-          converted: {
-            isConverted: false,
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
           },
         })
         .build();
@@ -86,7 +76,6 @@ describe('Factory flow: step Fetch Devfile', () => {
       const newTitle = buildStepName(
         factoryParams.sourceUrl,
         store.getState().factoryResolver.resolver!,
-        store.getState().factoryResolver.converted!,
       );
 
       expect(newTitle).toEqual(
@@ -98,19 +87,10 @@ describe('Factory flow: step Fetch Devfile', () => {
       const store = new FakeStoreBuilder()
         .withFactoryResolver({
           resolver: {
-            devfile: {} as devfileApi.Devfile,
+            devfile,
             location: factoryUrl,
             source: 'devfile.yaml', // <-
           },
-          converted: {
-            isConverted: false,
-            devfileV2: {
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
-          },
         })
         .build();
       const factoryParams = buildFactoryParams(searchParams);
@@ -118,43 +98,9 @@ describe('Factory flow: step Fetch Devfile', () => {
       const newTitle = buildStepName(
         factoryParams.sourceUrl,
         store.getState().factoryResolver.resolver!,
-        store.getState().factoryResolver.converted!,
       );
 
       expect(newTitle).toEqual('Devfile found with name "my-project".');
-    });
-
-    test('devfile converted', async () => {
-      const store = new FakeStoreBuilder()
-        .withFactoryResolver({
-          resolver: {
-            devfile: {} as devfileApi.Devfile,
-            location: factoryUrl,
-            source: 'devfile.yaml',
-          },
-          converted: {
-            isConverted: true, // <-
-            devfileV2: {
-              schemaVersion: '2.1.0',
-              metadata: {
-                name: 'my-project',
-                generateName: 'my-project-',
-              },
-            } as devfileApi.Devfile,
-          },
-        })
-        .build();
-      const factoryParams = buildFactoryParams(searchParams);
-
-      const newTitle = buildStepName(
-        factoryParams.sourceUrl,
-        store.getState().factoryResolver.resolver!,
-        store.getState().factoryResolver.converted!,
-      );
-
-      expect(newTitle).toEqual(
-        'Devfile found with name "my-project". Devfile version 1 found, converting it to devfile version 2.',
-      );
     });
   });
 });

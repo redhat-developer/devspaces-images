@@ -33,14 +33,10 @@ import {
   USE_DEFAULT_DEVFILE,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { AlertItem } from '@/services/helpers/types';
-import OAuthService, { isOAuthResponse } from '@/services/oauth';
+import { isOAuthResponse, OAuthService } from '@/services/oauth';
 import SessionStorageService, { SessionStorageKey } from '@/services/session-storage';
 import { AppState } from '@/store';
-import * as FactoryResolverStore from '@/store/FactoryResolver';
-import {
-  selectFactoryResolver,
-  selectFactoryResolverConverted,
-} from '@/store/FactoryResolver/selectors';
+import { factoryResolverActionCreators, selectFactoryResolver } from '@/store/FactoryResolver';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export class ApplyingDevfileError extends Error {
@@ -195,15 +191,12 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
 
   protected async runStep(): Promise<boolean> {
     const { factoryParams, shouldResolve, useDefaultDevfile } = this.state;
-    const { factoryResolver, factoryResolverConverted } = this.props;
+    const { factoryResolver } = this.props;
     const { sourceUrl } = factoryParams;
 
-    if (
-      factoryResolver?.location === sourceUrl &&
-      factoryResolverConverted?.devfileV2 !== undefined
-    ) {
+    if (factoryResolver?.location === sourceUrl && factoryResolver.devfile !== undefined) {
       // the devfile resolved successfully
-      const newName = buildStepName(sourceUrl, factoryResolver, factoryResolverConverted);
+      const newName = buildStepName(sourceUrl, factoryResolver);
       this.setState({
         name: newName,
       });
@@ -433,19 +426,11 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   factoryResolver: selectFactoryResolver(state),
-  factoryResolverConverted: selectFactoryResolverConverted(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  {
-    ...FactoryResolverStore.actionCreators,
-  },
-  null,
-  {
-    // forwardRef is mandatory for using `@react-mock/state` in unit tests
-    forwardRef: true,
-  },
-);
+const connector = connect(mapStateToProps, factoryResolverActionCreators, null, {
+  // forwardRef is mandatory for using `@react-mock/state` in unit tests
+  forwardRef: true,
+});
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(CreatingStepFetchDevfile);

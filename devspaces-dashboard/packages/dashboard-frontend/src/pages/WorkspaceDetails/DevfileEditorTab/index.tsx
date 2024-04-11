@@ -78,7 +78,7 @@ export function prepareDevfile(workspace: Workspace): devfileApi.Devfile {
   const devfileStr = workspace.ref.metadata?.annotations?.[DEVWORKSPACE_DEVFILE];
   const devfile = devfileStr ? (load(devfileStr) as devfileApi.Devfile) : workspace.devfile;
 
-  const attrs = DevfileAdapter.getAttributesFromDevfileV2(devfile);
+  const attrs = DevfileAdapter.getAttributes(devfile);
   if (attrs?.[DEVWORKSPACE_METADATA_ANNOTATION]) {
     delete attrs[DEVWORKSPACE_METADATA_ANNOTATION];
   }

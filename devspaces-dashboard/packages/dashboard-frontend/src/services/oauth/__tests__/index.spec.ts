@@ -14,9 +14,8 @@ import common from '@eclipse-che/common';
 import { AxiosError } from 'axios';
 
 import * as factoryApi from '@/services/backend-client/factoryApi';
+import { OAuthService } from '@/services/oauth';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
-
-import OAuthService from '..';
 
 const refreshFactoryOauthTokenSpy = jest.spyOn(factoryApi, 'refreshFactoryOauthToken');
 

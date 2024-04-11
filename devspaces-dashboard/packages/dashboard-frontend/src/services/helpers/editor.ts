@@ -13,10 +13,8 @@
 import { dump } from 'js-yaml';
 
 import devfileApi from '@/services/devfileApi';
-import { che } from '@/services/models';
 
-const sortOrder: Array<keyof che.api.workspace.devfile.Devfile | keyof devfileApi.Devfile> = [
-  'apiVersion',
+const sortOrder: Array<keyof devfileApi.Devfile> = [
   'schemaVersion',
   'metadata',
   'attributes',
@@ -28,8 +26,8 @@ const sortOrder: Array<keyof che.api.workspace.devfile.Devfile | keyof devfileAp
 const lineWidth = 9999;
 
 function sortKeys(
-  key1: keyof che.api.workspace.devfile.Devfile,
-  key2: keyof che.api.workspace.devfile.Devfile,
+  key1: keyof (devfileApi.Devfile | devfileApi.DevWorkspace),
+  key2: keyof (devfileApi.Devfile | devfileApi.DevWorkspace),
 ): -1 | 0 | 1 {
   const index1 = sortOrder.indexOf(key1);
   const index2 = sortOrder.indexOf(key2);
@@ -54,9 +52,7 @@ function sortKeys(
 /**
  * Provides a devfile stringify function.
  */
-export default function stringify(
-  obj: che.api.workspace.devfile.Devfile | devfileApi.Devfile | devfileApi.DevWorkspace,
-): string {
+export default function stringify(obj: devfileApi.Devfile | devfileApi.DevWorkspace): string {
   if (!obj) {
     return '';
   }

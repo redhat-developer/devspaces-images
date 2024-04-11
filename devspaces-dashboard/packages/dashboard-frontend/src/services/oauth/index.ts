@@ -16,7 +16,7 @@ import { refreshFactoryOauthToken } from '@/services/backend-client/factoryApi';
 import devfileApi from '@/services/devfileApi';
 import { OAuthResponse } from '@/store/FactoryResolver';
 
-export default class OAuthService {
+export class OAuthService {
   static openOAuthPage(authenticationUrl: string, redirectUrl: string): void {
     try {
       const oauthUrlTmp = new window.URL(authenticationUrl);
@@ -70,10 +70,11 @@ export default class OAuthService {
   }
 }
 
-export function isOAuthResponse(responseData: any): responseData is OAuthResponse {
+export function isOAuthResponse(responseData: unknown): responseData is OAuthResponse {
   if (
-    responseData?.attributes?.oauth_provider &&
-    responseData?.attributes?.oauth_authentication_url
+    responseData &&
+    (responseData as Partial<OAuthResponse>).attributes?.oauth_provider &&
+    (responseData as Partial<OAuthResponse>).attributes?.oauth_authentication_url
   ) {
     return true;
   }

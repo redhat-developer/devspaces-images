@@ -25,7 +25,6 @@ import { ThunkDispatch } from 'redux-thunk';
 import {
   CREATE_DEVWORKSPACE_DELAY,
   CREATE_DEVWORKSPACETEMPLATE_DELAY,
-  devfileV2,
   DEVWORKSPACE_RESOURSES_DELAY,
   devworkspaceResources,
   FACTORY_RESOLVER_DELAY,
@@ -43,7 +42,7 @@ import Routes from '@/Routes';
 import devfileApi from '@/services/devfileApi';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { ConvertedState, ResolverState } from '@/store/FactoryResolver';
+import { FactoryResolverStateResolver } from '@/store/FactoryResolver';
 
 // mute the outputs
 console.error = jest.fn();
@@ -172,13 +171,11 @@ describe('Workspace creation time', () => {
           .withInfrastructureNamespace([namespace])
           .withFactoryResolver({
             resolver: Object.assign(
-              { location: 'https://github.com/eclipse-che/che-dashboard' } as ResolverState,
+              {
+                location: 'https://github.com/eclipse-che/che-dashboard',
+              } as FactoryResolverStateResolver,
               factoryResolver,
             ),
-            converted: {
-              isConverted: false,
-              devfileV2: devfileV2,
-            } as ConvertedState,
           })
           .withDwServerConfig({
             defaults: {

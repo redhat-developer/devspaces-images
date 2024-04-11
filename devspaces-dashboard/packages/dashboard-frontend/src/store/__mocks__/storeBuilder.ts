@@ -23,11 +23,7 @@ import mockThunk from '@/store/__mocks__/thunk';
 import { State as BrandingState } from '@/store/Branding';
 import { DevWorkspaceResources, State as DevfileRegistriesState } from '@/store/DevfileRegistries';
 import { RegistryEntry } from '@/store/DockerConfig/types';
-import {
-  ConvertedState,
-  ResolverState,
-  State as FactoryResolverState,
-} from '@/store/FactoryResolver';
+import { FactoryResolverState, FactoryResolverStateResolver } from '@/store/FactoryResolver';
 import { IGitOauth } from '@/store/GitOauthConfig/types';
 import { State as InfrastructureNamespaceState } from '@/store/InfrastructureNamespaces';
 import { State as PluginsState } from '@/store/Plugins/chePlugins';
@@ -262,20 +258,17 @@ export class FakeStoreBuilder {
 
   public withFactoryResolver(
     options: {
-      resolver?: Partial<ResolverState>;
-      converted?: Partial<ConvertedState>;
+      resolver?: Partial<FactoryResolverStateResolver>;
     },
     isLoading = false,
   ): FakeStoreBuilder {
     if (options.resolver) {
-      this.state.factoryResolver.resolver = Object.assign({}, options.resolver as ResolverState);
+      this.state.factoryResolver.resolver = Object.assign(
+        {},
+        options.resolver as FactoryResolverStateResolver,
+      );
     } else {
       delete this.state.factoryResolver.resolver;
-    }
-    if (options.converted) {
-      this.state.factoryResolver.converted = Object.assign({}, options.converted as ConvertedState);
-    } else {
-      delete this.state.factoryResolver.converted;
     }
     this.state.factoryResolver.isLoading = isLoading;
     return this;

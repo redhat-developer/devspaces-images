@@ -47,7 +47,6 @@
 | [`@csstools/css-tokenizer@2.2.1`](https://github.com/csstools/postcss-plugins.git) | MIT | clearlydefined |
 | [`@csstools/media-query-list-parser@2.1.5`](https://github.com/csstools/postcss-plugins.git) | MIT | clearlydefined |
 | [`@csstools/selector-specificity@3.0.0`](https://github.com/csstools/postcss-plugins.git) | MIT-0 | transitive dependency |
-| [`@devfile/api@2.2.2-1700686170`](https://github.com/GIT_USER_ID/GIT_REPO_ID.git) | Apache-2.0 | N/A |
 | [`@discoveryjs/json-ext@0.5.7`](https://github.com/discoveryjs/json-ext.git) | MIT | clearlydefined |
 | `@eclipse-che/api@7.80.0` | EPL-2.0 | ecd.che |
 | [`@eslint-community/eslint-utils@4.4.0`](https://github.com/eslint-community/eslint-utils) | MIT | #8032 |
@@ -172,10 +171,11 @@
 | [`@types/minimist@1.2.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10839 |
 | [`@types/normalize-package-data@2.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10792 |
 | [`@types/parse-json@4.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/qs@6.9.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/qs@6.9.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #13991 |
 | [`@types/react-copy-to-clipboard@4.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-test-renderer@18.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/redux-mock-store@1.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/request@2.48.12`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/sanitize-html@2.9.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/semver@7.5.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10842 |
 | [`@types/stack-utils@2.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -265,7 +265,6 @@
 | [`bl@4.1.0`](https://github.com/rvagg/bl.git) | MIT | clearlydefined |
 | [`boolbase@1.0.0`](https://github.com/fb55/boolbase) | ISC | clearlydefined |
 | [`bplist-parser@0.2.0`](https://github.com/nearinfinity/node-bplist-parser.git) | MIT | clearlydefined |
-| [`brace-expansion@2.0.1`](git://github.com/juliangruber/brace-expansion.git) | MIT | clearlydefined |
 | [`braces@3.0.2`](https://github.com/micromatch/braces.git) | MIT | clearlydefined |
 | [`browserslist@4.22.1`](https://github.com/browserslist/browserslist.git) | MIT | #10780 |
 | [`bs-logger@0.2.6`](git+https://github.com/huafu/bs-logger.git) | MIT | clearlydefined |
@@ -388,7 +387,7 @@
 | [`err-code@2.0.3`](git://github.com/IndigoUnited/js-err-code.git) | MIT | clearlydefined |
 | [`error-ex@1.3.2`](https://github.com/qix-/node-error-ex.git) | MIT | clearlydefined |
 | [`es-abstract@1.22.3`](git://github.com/ljharb/es-abstract.git) | MIT | #9656 |
-| [`es-iterator-helpers@1.0.15`](git+https://github.com/es-shims/iterator-helpers.git) | MIT | clearlydefined |
+| [`es-iterator-helpers@1.0.15`](git+https://github.com/es-shims/iterator-helpers.git) | MIT | #13907 |
 | [`es-module-lexer@1.3.1`](git+https://github.com/guybedford/es-module-lexer.git) | MIT | #8964 |
 | [`es-set-tostringtag@2.0.2`](git+https://github.com/es-shims/es-set-tostringtag.git) | MIT | #6218 |
 | [`es-shim-unscopables@1.0.2`](git+https://github.com/ljharb/es-shim-unscopables.git) | MIT | clearlydefined |
@@ -411,6 +410,7 @@
 | [`esquery@1.5.0`](https://github.com/estools/esquery.git) | BSD-3-Clause | #7469 |
 | [`esrecurse@4.3.0`](https://github.com/estools/esrecurse.git) | BSD-2-Clause | clearlydefined |
 | [`estraverse@5.3.0`](http://github.com/estools/estraverse.git) | BSD-2-Clause | #1557 |
+| [`esutils@2.0.3`](http://github.com/estools/esutils.git) | BSD-2-Clause | #120 |
 | [`eventemitter3@4.0.7`](git://github.com/primus/eventemitter3.git) | MIT | clearlydefined |
 | [`execa@5.1.1`](https://github.com/sindresorhus/execa.git) | MIT | clearlydefined |
 | [`exit@0.1.2`](git://github.com/cowboy/node-exit.git) | MIT | clearlydefined |
@@ -644,6 +644,7 @@
 | [`mimic-fn@2.1.0`](https://github.com/sindresorhus/mimic-fn.git) | MIT | clearlydefined |
 | [`min-indent@1.0.1`](https://github.com/thejameskyle/min-indent) | MIT | clearlydefined |
 | [`mini-css-extract-plugin@2.7.6`](https://github.com/webpack-contrib/mini-css-extract-plugin.git) | MIT | #5004 |
+| [`minimatch@3.1.2`](git://github.com/isaacs/minimatch.git) | ISC | clearlydefined |
 | [`minimist-options@4.1.0`](https://github.com/vadimdemedes/minimist-options.git) | MIT | clearlydefined |
 | `minipass-collect@1.0.2` | ISC | clearlydefined |
 | [`minipass-fetch@3.0.4`](https://github.com/npm/minipass-fetch.git) | MIT | #5764 |
@@ -696,6 +697,7 @@
 | [`opener@1.5.2`](https://github.com/domenic/opener.git) | (WTFPL OR MIT) | #11619 |
 | [`optionator@0.9.3`](git://github.com/gkz/optionator.git) | MIT | #9208 |
 | [`ora@5.4.1`](https://github.com/sindresorhus/ora.git) | MIT | clearlydefined |
+| [`os-tmpdir@1.0.2`](https://github.com/sindresorhus/os-tmpdir.git) | MIT | clearlydefined |
 | [`p-finally@1.0.0`](https://github.com/sindresorhus/p-finally.git) | MIT | clearlydefined |
 | [`p-locate@4.1.0`](https://github.com/sindresorhus/p-locate.git) | MIT | clearlydefined |
 | [`p-map-series@2.1.0`](https://github.com/sindresorhus/p-map-series.git) | MIT | clearlydefined |
@@ -791,7 +793,7 @@
 | [`rechoir@0.8.0`](https://github.com/gulpjs/rechoir.git) | MIT | clearlydefined |
 | [`redent@3.0.0`](https://github.com/sindresorhus/redent.git) | MIT | clearlydefined |
 | [`redux-mock-store@1.5.4`](git+https://github.com/arnaudbenard/redux-mock-store.git) | MIT | clearlydefined |
-| [`reflect.getprototypeof@1.0.4`](git+https://github.com/es-shims/Reflect.getPrototypeOf.git) | MIT | clearlydefined |
+| [`reflect.getprototypeof@1.0.4`](git+https://github.com/es-shims/Reflect.getPrototypeOf.git) | MIT | #13910 |
 | [`regexp.prototype.flags@1.5.1`](git://github.com/es-shims/RegExp.prototype.flags.git) | MIT | #8199 |
 | [`relateurl@0.2.7`](git://github.com/stevenvachon/relateurl.git) | MIT | clearlydefined |
 | [`renderkid@3.0.0`](https://github.com/AriaMinaei/RenderKid.git) | MIT | clearlydefined |

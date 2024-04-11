@@ -42,10 +42,7 @@ import { AlertItem } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
-import {
-  selectFactoryResolver,
-  selectFactoryResolverConverted,
-} from '@/store/FactoryResolver/selectors';
+import { selectFactoryResolver } from '@/store/FactoryResolver/selectors';
 import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
 import * as WorkspacesStore from '@/store/Workspaces';
 import { selectDevWorkspaceWarnings } from '@/store/Workspaces/devWorkspaces/selectors';
@@ -227,7 +224,7 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   protected async runStep(): Promise<boolean> {
-    const { factoryResolverConverted, factoryResolver, defaultDevfile } = this.props;
+    const { factoryResolver, defaultDevfile } = this.props;
     const { shouldCreate, devfile, warning, continueWithDefaultDevfile } = this.state;
 
     if (warning) {
@@ -285,8 +282,8 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
         if (!_devfile.attributes) {
           _devfile.attributes = {};
         }
-        if (factoryResolverConverted?.devfileV2 !== undefined) {
-          const { metadata, projects } = factoryResolverConverted.devfileV2;
+        if (factoryResolver?.devfile !== undefined) {
+          const { metadata, projects } = factoryResolver.devfile;
           _devfile.projects = projects;
           _devfile.metadata.name = metadata.name;
           _devfile.metadata.generateName = metadata.generateName;
@@ -308,7 +305,7 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
 
     // proceed with the user devfile
     if (devfile === undefined) {
-      const resolvedDevfile = factoryResolverConverted?.devfileV2;
+      const resolvedDevfile = factoryResolver?.devfile;
       if (resolvedDevfile === undefined) {
         throw new Error('Failed to resolve the devfile.');
       }
@@ -458,7 +455,6 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   defaultNamespace: selectDefaultNamespace(state),
   factoryResolver: selectFactoryResolver(state),
-  factoryResolverConverted: selectFactoryResolverConverted(state),
   defaultDevfile: selectDefaultDevfile(state),
   devWorkspaceWarnings: selectDevWorkspaceWarnings(state),
 });

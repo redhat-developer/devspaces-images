@@ -202,7 +202,7 @@ describe('Creating steps, applying a devfile', () => {
       ];
 
       const store = getStoreBuilder()
-        .withFactoryResolver({ resolver: undefined, converted: undefined })
+        .withFactoryResolver({ resolver: undefined })
         .withDevfileRegistries({
           registries: {
             [registryUrl]: {
@@ -281,9 +281,7 @@ describe('Creating steps, applying a devfile', () => {
           resolver: {
             location: factoryUrl,
             source: 'repo',
-          },
-          converted: {
-            devfileV2: devfile,
+            devfile,
           },
         })
         .withDevfileRegistries({
@@ -360,7 +358,7 @@ describe('Creating steps, applying a devfile', () => {
       ];
 
       const store = getStoreBuilder()
-        .withFactoryResolver({ resolver: undefined, converted: undefined })
+        .withFactoryResolver({ resolver: undefined })
         .withDevfileRegistries({
           registries: {
             [registryUrl]: {
@@ -431,9 +429,8 @@ describe('Creating steps, applying a devfile', () => {
 
       const store = getStoreBuilder()
         .withFactoryResolver({
-          resolver: {},
-          converted: {
-            devfileV2: devfile,
+          resolver: {
+            devfile,
           },
         })
         .withDevfileRegistries({
@@ -486,9 +483,8 @@ describe('Creating steps, applying a devfile', () => {
           workspaces: [new DevWorkspaceBuilder().withName(devfileName).build()],
         })
         .withFactoryResolver({
-          resolver: {},
-          converted: {
-            devfileV2: devfile,
+          resolver: {
+            devfile,
           },
         })
         .build();
@@ -507,9 +503,8 @@ describe('Creating steps, applying a devfile', () => {
           workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
         })
         .withFactoryResolver({
-          resolver: {},
-          converted: {
-            devfileV2: devfile,
+          resolver: {
+            devfile,
           },
         })
         .build();
@@ -531,9 +526,8 @@ describe('Creating steps, applying a devfile', () => {
           workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
         })
         .withFactoryResolver({
-          resolver: {},
-          converted: {
-            devfileV2: devfile,
+          resolver: {
+            devfile: devfile,
           },
         })
         .build();
@@ -576,9 +570,8 @@ describe('Creating steps, applying a devfile', () => {
           workspaces: [new DevWorkspaceBuilder().withName('unique-name').build()],
         })
         .withFactoryResolver({
-          resolver: {},
-          converted: {
-            devfileV2: devfile,
+          resolver: {
+            devfile,
           },
         })
         .withDevfileRegistries({
@@ -711,9 +704,8 @@ describe('Creating steps, applying a devfile', () => {
   test('creation timeout expired, alert notification', async () => {
     const store = getStoreBuilder()
       .withFactoryResolver({
-        resolver: {},
-        converted: {
-          devfileV2: devfile,
+        resolver: {
+          devfile,
         },
       })
       .build();
@@ -760,9 +752,8 @@ describe('Creating steps, applying a devfile', () => {
   test('the new workspace created successfully', async () => {
     const store = getStoreBuilder()
       .withFactoryResolver({
-        resolver: {},
-        converted: {
-          devfileV2: devfile,
+        resolver: {
+          devfile,
         },
       })
       .build();
@@ -782,9 +773,8 @@ describe('Creating steps, applying a devfile', () => {
     // build next store
     const nextStore = getStoreBuilder()
       .withFactoryResolver({
-        resolver: {},
-        converted: {
-          devfileV2: devfile,
+        resolver: {
+          devfile,
         },
       })
       .withDevWorkspaces({
@@ -813,9 +803,8 @@ describe('Creating steps, applying a devfile', () => {
 
     const store = getStoreBuilder()
       .withFactoryResolver({
-        resolver: {},
-        converted: {
-          devfileV2: devfile,
+        resolver: {
+          devfile,
         },
       })
       .withDevWorkspaces({

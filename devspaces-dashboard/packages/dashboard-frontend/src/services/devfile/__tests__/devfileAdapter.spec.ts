@@ -11,112 +11,49 @@
  */
 
 import { DevfileAdapter } from '@/services/devfile/adapter';
-import { convertDevfileV1toDevfileV2 } from '@/services/devfile/converters';
 import devfileApi from '@/services/devfileApi';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '@/services/devfileApi/devWorkspace/spec/template';
-import { che } from '@/services/models';
-import { DevfileBuilder } from '@/store/__mocks__/devfile';
 
 describe('DevfileAdapter Service', () => {
   describe('getAttributesFromDevfileV2', () => {
-    it('should returns attributes from the devfile v2.0.0', async () => {
-      const devfileV2 = {
+    it('should return attributes from the devfile v2.0.0', async () => {
+      const devfile = {
         schemaVersion: '2.0.0',
         metadata: {
           name: 'wksp-test',
         },
       } as devfileApi.Devfile;
-      const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfileV2);
 
-      expect(attributes === devfileV2.metadata.attributes).toBeTruthy();
-      expect(attributes === devfileV2.attributes).toBeFalsy();
+      const adapter = new DevfileAdapter(devfile);
+
+      expect(adapter.attributes).toStrictEqual(devfile.metadata.attributes);
+      expect(adapter.attributes).not.toStrictEqual(devfile.attributes);
     });
 
-    it('should returns attributes from the devfile v2.1.0', async () => {
-      const devfileV2 = {
+    it('should return attributes from the devfile v2.1.0', async () => {
+      const devfile = {
         schemaVersion: '2.1.0',
         metadata: {
           name: 'wksp-test',
         },
       } as devfileApi.Devfile;
-      const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfileV2);
 
-      expect(attributes === devfileV2.metadata.attributes).toBeFalsy();
-      expect(attributes === devfileV2.attributes).toBeTruthy();
+      const adapter = new DevfileAdapter(devfile);
+
+      expect(adapter.attributes).not.toStrictEqual(devfile.metadata.attributes);
+      expect(adapter.attributes).toStrictEqual(devfile.attributes);
     });
 
     it('should returns attributes from the devfile v2.2.0', async () => {
-      const devfileV2 = {
+      const devfile = {
         schemaVersion: '2.2.0',
         metadata: {
           name: 'wksp-test',
         },
       } as devfileApi.Devfile;
-      const attributes = DevfileAdapter.getAttributesFromDevfileV2(devfileV2);
+      const adapter = new DevfileAdapter(devfile);
 
-      expect(attributes === devfileV2.metadata.attributes).toBeFalsy();
-      expect(attributes === devfileV2.attributes).toBeTruthy();
-    });
-  });
-  describe('update storageType', () => {
-    describe('devfile V2', () => {
-      describe('setting the "ephemeral" storage', () => {
-        it('should correctly update a devfile with "ephemeral" storage', async () => {
-          const devfileV2 = await convertDevfileV1toDevfileV2(getDevfileWithPersistentStorage());
-          const devfileAdapter = new DevfileAdapter(devfileV2);
-
-          expect(devfileAdapter.storageType).toEqual('persistent');
-          expect(devfileAdapter.devfile.attributes).not.toEqual(
-            expect.objectContaining({ [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral' }),
-          );
-
-          devfileAdapter.storageType = 'ephemeral';
-
-          expect(devfileAdapter.devfile.attributes).toEqual(
-            expect.objectContaining({
-              [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
-              'che-theia.eclipse.org/sidecar-policy': 'mergeImage',
-            }),
-          );
-          expect(devfileAdapter.storageType).toEqual('ephemeral');
-        });
-
-        it('should correctly update a devfile with "ephemeral" storage', async () => {
-          const devfileV2 = await convertDevfileV1toDevfileV2(getDevfileWithEphemeralStorage());
-
-          const devfileAdapter = new DevfileAdapter(devfileV2);
-
-          expect(devfileAdapter.storageType).toEqual('ephemeral');
-          expect(devfileAdapter.devfile.attributes).toEqual(
-            expect.objectContaining({
-              [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
-            }),
-          );
-
-          devfileAdapter.storageType = 'per-workspace';
-
-          expect(devfileAdapter.devfile.attributes).not.toEqual(
-            expect.objectContaining({
-              [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
-            }),
-          );
-          expect(devfileAdapter.storageType).toEqual('per-workspace');
-        });
-      });
+      expect(adapter.attributes).not.toStrictEqual(devfile.metadata.attributes);
+      expect(adapter.attributes).toStrictEqual(devfile.attributes);
     });
   });
 });
-
-function getDevfileWithPersistentStorage(): che.api.workspace.devfile.Devfile {
-  const devfileV1 = new DevfileBuilder().withAttributes({
-    persistVolumes: 'true',
-  });
-  return devfileV1.build();
-}
-
-function getDevfileWithEphemeralStorage(): che.api.workspace.devfile.Devfile {
-  const devfileV1 = new DevfileBuilder().withAttributes({
-    persistVolumes: 'false',
-  });
-  return devfileV1.build();
-}

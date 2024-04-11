@@ -20,7 +20,7 @@ import * as ClusterInfo from '@/store/ClusterInfo';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
 import * as DockerConfigStore from '@/store/DockerConfig';
 import * as EventsStore from '@/store/Events';
-import * as FactoryResolverStore from '@/store/FactoryResolver';
+import { factoryResolverReducer, FactoryResolverState } from '@/store/FactoryResolver';
 import * as GitConfigStore from '@/store/GitConfig';
 import * as GitOauthConfigStore from '@/store/GitOauthConfig';
 import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces';
@@ -49,7 +49,7 @@ export interface AppState {
   dwPlugins: DwPluginsStore.State;
   dwServerConfig: DwServerConfigStore.State;
   events: EventsStore.State;
-  factoryResolver: FactoryResolverStore.State;
+  factoryResolver: FactoryResolverState;
   gitConfig: GitConfigStore.State;
   gitOauthConfig: GitOauthConfigStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
@@ -75,7 +75,7 @@ export const reducers = {
   dwPlugins: DwPluginsStore.reducer,
   dwServerConfig: DwServerConfigStore.reducer,
   events: EventsStore.reducer,
-  factoryResolver: FactoryResolverStore.reducer,
+  factoryResolver: factoryResolverReducer,
   gitConfig: GitConfigStore.reducer,
   gitOauthConfig: GitOauthConfigStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
