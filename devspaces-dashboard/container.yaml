@@ -18,7 +18,7 @@ remote_sources:
 - name: devspaces-images-dashboard
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: 8456fbbb2a011f5223805152509dc82884b8cba6
+    ref: e5d90bb9f833f4e674c3fdaff4b9181d51c0fe4e
     pkg_managers:
       - yarn
     packages: 
