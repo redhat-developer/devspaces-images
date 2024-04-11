@@ -27,13 +27,14 @@ jest.mock('@/pages/GetStarted/SamplesList/Toolbar');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
-const editorId = 'che-incubator/che-code/insiders';
+const editorDefinition = 'che-incubator/che-code/insiders';
 const editorImage = 'custom-editor-image';
 
 describe('Samples List', () => {
   const sampleUrl = 'https://github.com/che-samples/quarkus-quickstarts/tree/devfilev2';
   const origin = window.location.origin;
   let storeBuilder: FakeStoreBuilder;
+  let mockWindowOpen: jest.Mock;
 
   beforeEach(() => {
     storeBuilder = new FakeStoreBuilder()
@@ -67,6 +68,9 @@ describe('Samples List', () => {
           },
         },
       });
+
+    mockWindowOpen = jest.fn();
+    window.open = mockWindowOpen;
   });
 
   afterEach(() => {
@@ -75,9 +79,7 @@ describe('Samples List', () => {
 
   describe('preferred storage: non-ephemeral', () => {
     const preferredPvcStrategy = 'per-workspace';
-
     let store: Store;
-    let mockWindowOpen: jest.Mock;
 
     beforeEach(() => {
       store = storeBuilder
@@ -87,18 +89,15 @@ describe('Samples List', () => {
           } as api.IServerConfig['defaults'],
         })
         .build();
-
-      mockWindowOpen = jest.fn();
-      window.open = mockWindowOpen;
     });
 
     test('snapshot', () => {
-      const snapshot = createSnapshot(store);
+      const snapshot = createSnapshot(store, editorDefinition, editorImage);
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
     test('default storage type', () => {
-      renderComponent(store);
+      renderComponent(store, editorDefinition, editorImage);
 
       const isTemporary = screen.getByTestId('isTemporary');
       expect(isTemporary).toHaveTextContent('false');
@@ -113,7 +112,7 @@ describe('Samples List', () => {
     });
 
     test('toggled storage type', () => {
-      renderComponent(store);
+      renderComponent(store, editorDefinition, editorImage);
 
       const toggleIsTemporaryButton = screen.getByRole('button', { name: 'Toggle isTemporary' });
       userEvent.click(toggleIsTemporaryButton);
@@ -134,9 +133,7 @@ describe('Samples List', () => {
 
   describe('preferred storage: ephemeral', () => {
     const preferredPvcStrategy = 'ephemeral';
-
     let store: Store;
-    let mockWindowOpen: jest.Mock;
 
     beforeEach(() => {
       store = storeBuilder
@@ -146,18 +143,15 @@ describe('Samples List', () => {
           } as api.IServerConfig['defaults'],
         })
         .build();
-
-      mockWindowOpen = jest.fn();
-      window.open = mockWindowOpen;
     });
 
     test('snapshot', () => {
-      const snapshot = createSnapshot(store);
+      const snapshot = createSnapshot(store, editorDefinition, editorImage);
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
     test('default storage type', () => {
-      renderComponent(store);
+      renderComponent(store, editorDefinition, editorImage);
 
       const isTemporary = screen.getByTestId('isTemporary');
       expect(isTemporary).toHaveTextContent('true');
@@ -172,7 +166,7 @@ describe('Samples List', () => {
     });
 
     test('toggled storage type', () => {
-      renderComponent(store);
+      renderComponent(store, editorDefinition, editorImage);
 
       const toggleIsTemporaryButton = screen.getByRole('button', { name: 'Toggle isTemporary' });
       userEvent.click(toggleIsTemporaryButton);
@@ -190,14 +184,78 @@ describe('Samples List', () => {
       expect(mockWindowOpen).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('DevWorkspace prebuilt resources', () => {
+    const preferredPvcStrategy = 'ephemeral';
+
+    beforeEach(() => {
+      storeBuilder
+        .withDwServerConfig({
+          defaults: {
+            pvcStrategy: preferredPvcStrategy,
+            editor: 'che-incubator/che-idea/next',
+          } as api.IServerConfig['defaults'],
+        })
+        .build();
+    });
+
+    test('provided editor matches some resource', () => {
+      const store = storeBuilder.build();
+      renderComponent(store, editorDefinition, editorImage);
+
+      const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
+      userEvent.click(sampleCardButton);
+
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-code%2Finsiders&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-code-insiders.yaml&editor-image=custom-editor-image&storageType=ephemeral`,
+        '_blank',
+      );
+    });
+
+    test('provided editor does not match any resource', () => {
+      const store = storeBuilder.build();
+      renderComponent(store, 'my/custom/editor', editorImage);
+
+      const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
+      userEvent.click(sampleCardButton);
+
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=my%2Fcustom%2Feditor&editor-image=custom-editor-image&storageType=ephemeral`,
+        '_blank',
+      );
+    });
+
+    test('default editor matches some resource', () => {
+      const store = storeBuilder
+        .withDwPlugins({}, {}, false, undefined, 'che-incubator/che-idea/next')
+        .build();
+      renderComponent(store, undefined, undefined);
+
+      const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
+      userEvent.click(sampleCardButton);
+
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-idea%2Fnext&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-idea-next.yaml&storageType=ephemeral`,
+        '_blank',
+      );
+    });
+  });
 });
 
-function getComponent(store: Store) {
+function getComponent(
+  store: Store,
+  editorDefinition: string | undefined,
+  editorImage: string | undefined,
+) {
   const history = createMemoryHistory();
 
   return (
     <Provider store={store}>
-      <SamplesList editorDefinition={editorId} editorImage={editorImage} history={history} />
+      <SamplesList
+        editorDefinition={editorDefinition}
+        editorImage={editorImage}
+        history={history}
+      />
     </Provider>
   );
 }

@@ -32,6 +32,7 @@ import {
   DevfileRegistryMetadata,
   selectMetadataFiltered,
 } from '@/store/DevfileRegistries/selectors';
+import { selectDefaultEditor } from '@/store/Plugins/devWorkspacePlugins/selectors';
 import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 
 export type Props = {
@@ -75,10 +76,12 @@ class SamplesList extends React.PureComponent<Props, State> {
 
     const factoryUrlParams = new URLSearchParams(url.searchParams);
 
-    if (editorDefinition !== undefined) {
-      factoryUrlParams.append(EDITOR_ATTR, editorDefinition);
+    const _editorDefinition = editorDefinition || this.props.defaultEditorId;
 
-      const prebuiltDevWorkspace = metadata.links.devWorkspaces?.[editorDefinition];
+    if (_editorDefinition !== undefined) {
+      factoryUrlParams.append(EDITOR_ATTR, _editorDefinition);
+
+      const prebuiltDevWorkspace = metadata.links.devWorkspaces?.[_editorDefinition];
       if (prebuiltDevWorkspace !== undefined) {
         factoryUrlParams.append('devWorkspace', prebuiltDevWorkspace);
       }
@@ -132,6 +135,7 @@ class SamplesList extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   metadataFiltered: selectMetadataFiltered(state),
   preferredStorageType: selectPvcStrategy(state),
+  defaultEditorId: selectDefaultEditor(state),
 });
 
 const connector = connect(mapStateToProps);
