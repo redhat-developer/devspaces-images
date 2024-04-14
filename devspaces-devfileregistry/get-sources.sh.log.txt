@@ -1,0 +1,483 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 5d6310d459e9
+STEP 3/23: ARG BOOTSTRAP=true
+--> e9bc852fbb2a
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 5412b7dcf9ae
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> c9f83123cae3
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 7c4aef036ac1
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 686095f65a7c
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> c8768b7a2111
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 9fd2f9963b36
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 9f2ce4b1ede2
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  dnf-4.7.0-19.el8.noarch                dnf-data-4.7.0-19.el8.noarch          
+  findutils-1:4.6.0-21.el8.x86_64        python3-dnf-4.7.0-19.el8.noarch       
+  yum-4.7.0-19.el8.noarch               
+Installed:
+  containers-common-2:1-71.module+el8.9.0+21525+acb5d821.x86_64                 
+  criu-3.18-4.module+el8.9.0+21525+acb5d821.x86_64                              
+  fuse-common-3.3.0-17.el8.x86_64                                               
+  fuse-overlayfs-1.12-1.module+el8.9.0+21525+acb5d821.x86_64                    
+  fuse3-3.3.0-17.el8.x86_64                                                     
+  fuse3-libs-3.3.0-17.el8.x86_64                                                
+  jq-1.6-7.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-1.module+el8.9.0+21525+acb5d821.x86_64                         
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-2.1.el8_9.x86_64                                              
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.5-1.el8_9.x86_64                                              
+  python3.11-devel-3.11.5-1.el8_9.x86_64                                        
+  python3.11-libs-3.11.5-1.el8_9.x86_64                                         
+  python3.11-pip-22.3.1-4.el8_9.1.noarch                                        
+  python3.11-pip-wheel-22.3.1-4.el8_9.1.noarch                                  
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.12-1.module+el8.9.0+21525+acb5d821.x86_64                          
+  skopeo-2:1.13.3-3.module+el8.9.0+21525+acb5d821.x86_64                        
+  slirp4netns-1.2.1-1.module+el8.9.0+21525+acb5d821.x86_64                      
+
+Collecting yq
+  Downloading yq-3.3.0-py3-none-any.whl (17 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.3.0-py3-none-any.whl (42 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.3 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-24.0-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 59.8 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 329.3 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.12.4-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.3.0 pip-24.0 tomlkit-0.12.4 xmltodict-0.13.0 yq-3.3.0
+python: Python 3.8.16
+yq: yq 0.0.0
+jq: jq-1.6
+--> 0b17bb525aa0
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> a46479de4859
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> cf3f6e333798
+STEP 14/23: COPY ./VERSION /
+--> 4a958e4c4a6f
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 53f7ff5ba907
+STEP 16/23: WORKDIR /build/
+--> 081037d8ccc6
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 83 contributors and audited 31 packages in 5.603s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 43808e173096
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 67664a6afd79
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = quay.io/devspaces/ansible-creator-ee@sha256:a1d053d24f0b80438568bd4e06437900f0afe0ae29fcfa749bbace5cfff8c2ca PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.14 PASS - 3.14 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.14 PASS - 3.14 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.14 PASS - 3.14 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> bd76f7c027b3
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 7f69b17837a5
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> f4d40c58bb31
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> de080bc5f226
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> ee575ede10ba
+Successfully tagged localhost/devfileregistry:tmp
+ee575ede10ba909c9c23be07b422ee25243ae73d6b877821e4d3a95cd9789fe3
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/argcomplete/packages/_argparse.py /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages/argcomplete/packages/_argparse.py
+--- /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/argcomplete/packages/_argparse.py	2024-03-19 18:03:48.000000000 -0400
++++ /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages/argcomplete/packages/_argparse.py	2024-04-14 19:24:57.903082493 -0400
+@@ -162,7 +162,10 @@
+         def consume_optional(start_index):
+             # get the optional identified at this index
+             option_tuple = option_string_indices[start_index]
+-            action, option_string, explicit_arg = option_tuple
++            if len(option_tuple) == 3:
++                action, option_string, explicit_arg = option_tuple
++            else:  # Python 3.11.9+, 3.12.3+, 3.13+
++                action, option_string, _, explicit_arg = option_tuple
+ 
+             # identify additional optionals in the same arg string
+             # (e.g. -xyz is the same as -x -y -z if no args are required)
+Only in /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages: argcomplete-3.2.3.dist-info
+Only in /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages: argcomplete-3.3.0.dist-info
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/yq/__init__.py /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages/yq/__init__.py
+--- /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/yq/__init__.py	2024-03-19 18:03:48.000000000 -0400
++++ /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages/yq/__init__.py	2024-04-14 19:24:57.901082493 -0400
+@@ -42,6 +42,17 @@
+         yield doc
+ 
+ 
++def get_toml_loader():
++    if sys.version_info >= (3, 11):
++        import tomllib
++
++        return tomllib.loads
++    else:
++        import tomlkit
++
++        return tomlkit.parse
++
++
+ def xq_cli():
+     cli(input_format="xml", program_name="xq")
+ 
+@@ -50,30 +61,6 @@
+     cli(input_format="toml", program_name="tomlq")
+ 
+ 
+-class DeferredOutputStream:
+-    def __init__(self, name, mode="w"):
+-        self.name = name
+-        self.mode = mode
+-        self._fh = None
+-
+-    @property
+-    def fh(self):
+-        if self._fh is None:
+-            self._fh = open(self.name, self.mode)
+-        return self._fh
+-
+-    def flush(self):
+-        if self._fh is not None:
+-            return self.fh.flush()
+-
+-    def close(self):
+-        if self._fh is not None:
+-            return self.fh.close()
+-
+-    def __getattr__(self, a):
+-        return getattr(self.fh, a)
+-
+-
+ def cli(args=None, input_format="yaml", program_name="yq"):
+     parser = get_parser(program_name, __doc__)
+     argcomplete.autocomplete(parser)
+@@ -131,8 +118,8 @@
+ 
+     yq_args = dict(input_format=input_format, program_name=program_name, jq_args=jq_args, **vars(args))
+     if in_place:
+-        if args.output_format not in {"yaml", "annotated_yaml", "toml"}:
+-            sys.exit("{}: -i/--in-place can only be used with -y/-Y/-t".format(program_name))
++        if args.output_format not in {"yaml", "annotated_yaml", "toml", "xml"}:
++            sys.exit("{}: -i/--in-place can only be used with -y/-Y/-t/-x".format(program_name))
+         input_streams = yq_args.pop("input_streams")
+         if len(input_streams) == 1 and input_streams[0].name == "<stdin>":
+             msg = "{}: -i/--in-place can only be used with filename arguments, not on standard input"
+@@ -145,7 +132,11 @@
+ 
+             if i < len(input_streams):
+                 yq_args["exit_func"] = exit_handler
+-            yq(input_streams=[input_stream], output_stream=DeferredOutputStream(input_stream.name), **yq_args)
++
++            with io.StringIO() as out_fh:
++                yq(input_streams=[input_stream], output_stream=out_fh, **yq_args)
++                with open(input_stream.name, "w") as fh:
++                    fh.write(out_fh.getvalue())
+     else:
+         yq(**yq_args)
+ 
+@@ -217,6 +208,8 @@
+         msg = "{}: Error starting jq: {}: {}. Is jq installed and available on PATH?"
+         exit_func(msg.format(program_name, type(e).__name__, e))
+ 
++    assert jq.stdin is not None  # this is to keep mypy happy
++
+     try:
+         if converting_output:
+             # TODO: enable true streaming in this branch (with asyncio, asyncproc, a multi-shot variant of
+@@ -246,18 +239,18 @@
+                     if xml_item_depth != 0:
+                         raise Exception("xml_item_depth is not supported with xq -x")
+ 
+-                    doc = xmltodict.parse(
++                    xml_doc = xmltodict.parse(
+                         input_stream.buffer if isinstance(input_stream, io.TextIOWrapper) else input_stream.read(),
+                         disable_entities=True,
+                         force_list=xml_force_list,
+                     )
+-                    json.dump(doc, json_buffer, cls=JSONDateTimeEncoder)
++                    json.dump(xml_doc, json_buffer, cls=JSONDateTimeEncoder)
+                     json_buffer.write("\n")
+                 elif input_format == "toml":
+                     import tomlkit
+ 
+-                    doc = tomlkit.load(input_stream)  # type: ignore
+-                    json.dump(doc, json_buffer, cls=JSONDateTimeEncoder)
++                    toml_doc = tomlkit.load(input_stream)
++                    json.dump(toml_doc, json_buffer, cls=JSONDateTimeEncoder)
+                     json_buffer.write("\n")
+                 else:
+                     raise Exception("Unknown input format")
+@@ -284,7 +277,7 @@
+ 
+                 for doc in decode_docs(jq_out, json_decoder):
+                     if xml_root:
+-                        doc = {xml_root: doc}  # type: ignore
++                        doc = {xml_root: doc}
+                     elif not isinstance(doc, dict):
+                         msg = (
+                             "{}: Error converting JSON to XML: cannot represent non-object types at top level. "
+@@ -301,7 +294,7 @@
+                             raise Exception(str(e) + " Use --xml-root=name to envelope your output with a root element")
+                         else:
+                             raise
+-                    output_stream.write(b"\n" if sys.version_info < (3, 0) else "\n")
++                    output_stream.write("\n")
+             elif output_format == "toml":
+                 import tomlkit
+ 
+@@ -310,6 +303,8 @@
+                         msg = "{}: Error converting JSON to TOML: cannot represent non-object types at top level."
+                         exit_func(msg.format(program_name))
+                     tomlkit.dump(doc, output_stream)
++            else:
++                raise Exception("Unknown output format")
+         else:
+             if input_format == "yaml":
+                 loader_class = get_loader(
+@@ -329,31 +324,32 @@
+                 import xmltodict
+ 
+                 def emit_entry(path, entry):
+-                    json.dump(entry, jq.stdin)  # type: ignore
+-                    jq.stdin.write("\n")  # type: ignore
++                    assert jq.stdin is not None  # this is to keep mypy happy
++                    json.dump(entry, jq.stdin)
++                    jq.stdin.write("\n")
+                     return True
+ 
+                 for input_stream in input_streams:
+-                    doc = xmltodict.parse(
++                    xml_doc = xmltodict.parse(
+                         input_stream.buffer if isinstance(input_stream, io.TextIOWrapper) else input_stream.read(),
+                         disable_entities=True,
+                         force_list=xml_force_list,
+                         item_depth=xml_item_depth,
+                         item_callback=emit_entry,
+                     )
+-                    if doc:
+-                        emit_entry(None, doc)
++                    if xml_doc:
++                        emit_entry(None, xml_doc)
+             elif input_format == "toml":
+-                import tomlkit
+-
++                toml_loader = get_toml_loader()
+                 for input_stream in input_streams:
+-                    json.dump(tomlkit.load(input_stream), jq.stdin, cls=JSONDateTimeEncoder)  # type: ignore
+-                    jq.stdin.write("\n")  # type: ignore
++                    toml_doc = toml_loader(input_stream.read())
++                    json.dump(toml_doc, jq.stdin, cls=JSONDateTimeEncoder)
++                    jq.stdin.write("\n")
+             else:
+                 raise Exception("Unknown input format")
+ 
+             try:
+-                jq.stdin.close()  # type: ignore
++                jq.stdin.close()
+             except Exception:
+                 pass
+             jq.wait()
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/yq/loader.py /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages/yq/loader.py
+--- /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/yq/loader.py	2024-03-19 18:03:48.000000000 -0400
++++ /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages/yq/loader.py	2024-04-14 19:24:57.901082493 -0400
+@@ -87,13 +87,33 @@
+         },
+         {
+             "tag": "tag:yaml.org,2002:int",
+-            "regexp": re.compile(r"^(?:|0o[0-7]+|[-+]?(?:[0-9]+)|0x[0-9a-fA-F]+)$", re.X),
++            "regexp": re.compile(
++                r"""^(?:
++                # [-+]?0b[0-1_]+ # (base 2)
++                 [-+]?0[0-7]+ # (base 8)
++                |[-+]?0o[0-7]+ # (base 8)
++                |[-+]?(0|[1-9][0-9]*) # (base 10)
++                # |[-+]?0[0-7_]+ # (base 8)
++                # |[-+]?0o[0-7_]+ # (base 8)
++                # |[-+]?(0|[1-9][0-9_]*) # (base 10)
++                # |[-+]?0x[0-9a-fA-F_]+ # (base 16)
++                # |[-+]?[1-9][0-9_]*(:[0-5]?[0-9])+ # (base 60)
++                )$""",
++                re.X,
++            ),
+             "start_chars": list("-+0123456789"),
+         },
+         {
+             "tag": "tag:yaml.org,2002:float",
+             "regexp": re.compile(
+-                r"^(?:[-+]?(?:\.[0-9]+|[0-9]+(\.[0-9]*)?)(?:[eE][-+]?[0-9]+)?|[-+]?\.(?:inf|Inf|INF)|\.(?:nan|NaN|NAN))$",  # noqa
++                r"""^(?:
++                 [-+]?([0-9][0-9]*)?\.[0-9.]*([eE][-+][0-9]+)? (base 10)
++                |[-+]?[0-9][0-9]*(:[0-5]?[0-9])+\.[0-9]* (base 60)
++                # |[-+]?([0-9][0-9_]*)?\.[0-9.]*([eE][-+][0-9]+)? (base 10)
++                # |[-+]?[0-9][0-9_]*(:[0-5]?[0-9])+\.[0-9_]* (base 60)
++                |[-+]?\.(inf|Inf|INF) # (infinity)
++                |\.(nan|NaN|NAN) # (not a number)
++                )$""",
+                 re.X,
+             ),
+             "start_chars": list("-+0123456789."),
+Only in /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages/yq: version.py
+Only in /tmp/tmp.CWhP87YYAZ/lib/python3.11/site-packages: yq-3.2.3.dist-info
+Only in /tmp/tmp.WyPnOdvsZT/lib/python3.11/site-packages: yq-3.3.0.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: ee575ede10ba909c9c23be07b422ee25243ae73d6b877821e4d3a95cd9789fe3
+Deleted: de080bc5f2269fe7135d90f2cd70fb171e546b6d1e02a245ec41d607859dd257
+Deleted: f4d40c58bb31fab576554e1a3f7b329cc851af68d46a8bda0e002aed35285a67
+Deleted: 7f69b17837a5310d8994fc3dda8c78afef1ea3404d8d8382d181f6d453d239fa
+Deleted: bd76f7c027b314ba14257cf08025601db1f6a2268fd09bb3e3fd7c75e003f243
+Deleted: 67664a6afd79794e9cdabe6f6cc3177264e6181288c4e7f29764cda4e3acb62f
+Deleted: 43808e173096e67a7a2ae3bf172c167a40b1a0dc54e23de8af921a1da0c2dba5
+Deleted: 081037d8ccc6ee658bceffb7ea6d0fc18d232a9565c7f1f876b207bc5efb960d
+Deleted: 53f7ff5ba907b7facb5555c14a948e2fe3939c706f298aaaad737e5bb62d2977
+Deleted: 4a958e4c4a6f3f75f42b6e569681b98828730e5c46af3fc2b997982c64b02e18
+Deleted: cf3f6e333798ff097897b26535f345b7904ab38e15e28d3ea48264994d7d9e5a
+Deleted: a46479de48592f998a8cd5711e61bfeb3352d3fbf5257a1e775eccaa279e5cee
+Deleted: 0b17bb525aa0a31988ad8b38e1296a61f5712a04bf4ebff015d4711b8743359e
+Deleted: 9f2ce4b1ede29d11fa0f019396a7938ae096a1adda270195b4fddf31e2e982e1
+Deleted: 9fd2f9963b36bf0b0f22bfd2985f728734e3cf29304e19ecea14f571d2f5c7ec
+Deleted: c8768b7a2111776ac527de849a6f4544a43e909cd74142a2789edc0f0281d40d
+Deleted: 686095f65a7c6bfa8ac80bcac31ed160157c846ff8109f993f065dd5d74b8d60
+Deleted: 7c4aef036ac143905c840e56cec24b2d06493f639c42c612005514fd2c6880d8
+Deleted: c9f83123cae37ea0abc0081d766a4494bd21397134df8a9756b0ac0ec0adbe31
+Deleted: 5412b7dcf9ae163761572ebc57c4948e8ea51a759b15ec195c1a2abae694b19a
+Deleted: e9bc852fbb2adc40318f39096263ae9c435df2c5034e79e57d3ba427187afde3
+Deleted: 5d6310d459e9836df2a15f39df082ddbbf799ff0acbd1d054ceb02d73e9e0f07
+Uploading: root-local.tgz
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
