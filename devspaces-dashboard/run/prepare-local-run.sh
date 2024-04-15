@@ -40,6 +40,12 @@ CHECLUSTER_CR_NAME=$(grep -o 'CHECLUSTER_CR_NAME:.*' run/.che-dashboard-pod | gr
 
 kubectl get checluster -n "$CHE_NAMESPACE" "$CHECLUSTER_CR_NAME" -o=json > run/.custom-resources
 
+rm -rf "$CHE_SELF_SIGNED_MOUNT_PATH"
+mkdir -p "$CHE_SELF_SIGNED_MOUNT_PATH"
+
+# copy certificate from the dashboard pod
+kubectl cp $CHE_NAMESPACE/$DASHBOARD_POD_NAME:/public-certs/che-self-signed/..data/ca.crt "$CHE_SELF_SIGNED_MOUNT_PATH/ca.crt"
+
 if [[ -n "$(oc whoami -t)" ]]; then
   echo 'Cluster access token found. Nothing needs to be patched.'
   echo 'Done.'
@@ -53,13 +59,6 @@ if [[ -z "$CHE_HOST_ORIGIN" ]]; then
   echo '[ERROR] Cannot find cheURL.'
   exit 1
 fi
-
-if [ ! -d "$CHE_SELF_SIGNED_MOUNT_PATH" ]; then
-  mkdir -p "$CHE_SELF_SIGNED_MOUNT_PATH"
-fi
-
-# copy certificate from the dashboard pod
-kubectl cp $CHE_NAMESPACE/$DASHBOARD_POD_NAME:/public-certs/che-self-signed/..data/ca.crt "$CHE_SELF_SIGNED_MOUNT_PATH/ca.crt"
 
 GATEWAY=$(kubectl get deployments.apps -n "$CHE_NAMESPACE" che-gateway --ignore-not-found -o=json | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")')
 if [ "$GATEWAY" == "true" ]; then

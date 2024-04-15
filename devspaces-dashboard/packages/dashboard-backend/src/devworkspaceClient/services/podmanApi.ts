@@ -13,18 +13,20 @@
 import { helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 
+import { DockerConfigApiService } from '@/devworkspaceClient/services/dockerConfigApi';
 import { exec, ServerConfig } from '@/devworkspaceClient/services/helpers/exec';
 import {
   CoreV1API,
   prepareCoreV1API,
 } from '@/devworkspaceClient/services/helpers/prepareCoreV1API';
-import { IPodmanApi } from '@/devworkspaceClient/types';
+import { IDockerConfigApi, IPodmanApi } from '@/devworkspaceClient/types';
 import { logger } from '@/utils/logger';
 
 const EXCLUDED_CONTAINERS = ['che-gateway', 'che-machine-exec'];
 
 export class PodmanApiService implements IPodmanApi {
   private readonly corev1API: CoreV1API;
+  private dockerConfig: IDockerConfigApi;
   private readonly kubeConfig: string;
   private readonly getServerConfig: () => ServerConfig;
 
@@ -32,6 +34,7 @@ export class PodmanApiService implements IPodmanApi {
     this.corev1API = prepareCoreV1API(kc);
 
     this.kubeConfig = kc.exportConfig();
+    this.dockerConfig = new DockerConfigApiService(kc);
 
     const server = kc.getCurrentCluster()?.server || '';
     const opts = {};
@@ -52,6 +55,14 @@ export class PodmanApiService implements IPodmanApi {
     const podName = currentPod.metadata?.name || '';
     const currentPodContainers = currentPod.spec?.containers || [];
 
+    let externalDockerRegistriesPodmanLoginCommand = '';
+    try {
+      externalDockerRegistriesPodmanLoginCommand =
+        await this.generateExternalDockerRegistriesPodmanLoginCommand(namespace);
+    } catch (e) {
+      logger.warn(e);
+    }
+
     let resolved = false;
     for (const container of currentPodContainers) {
       const containerName = container.name;
@@ -68,7 +79,13 @@ export class PodmanApiService implements IPodmanApi {
             'sh',
             '-c',
             `
-            command -v oc >/dev/null 2>&1 && command -v podman >/dev/null 2>&1 && [[ -n "$HOME" ]] || { echo "oc, podman, or HOME is not set"; exit 1; }
+            command -v podman >/dev/null 2>&1 || { echo "podman is absent in the container"; exit 1; }
+
+            # Login to external docker registries configured by user on the dashboard
+            ${externalDockerRegistriesPodmanLoginCommand}
+
+            command -v oc >/dev/null 2>&1 || { echo "oc is absent in the container"; exit 1; }
+            [[ -n "$HOME" ]] || { echo "HOME is not set"; exit 1; }
             export CERTS_SRC="/var/run/secrets/kubernetes.io/serviceaccount"
             export CERTS_DEST="$HOME/.config/containers/certs.d/image-registry.openshift-image-registry.svc:5000"
             mkdir -p "$CERTS_DEST"
@@ -76,6 +93,8 @@ export class PodmanApiService implements IPodmanApi {
             ln -s "$CERTS_SRC/ca.crt" "$CERTS_DEST/ca.crt"
             export OC_USER=$(oc whoami)
             [[ "$OC_USER" == "kube:admin" ]] && export OC_USER="kubeadmin"
+
+            # Login to internal OpenShift registry
             podman login -u "$OC_USER" -p $(oc whoami -t) image-registry.openshift-image-registry.svc:5000
             `,
           ],
@@ -123,5 +142,45 @@ export class PodmanApiService implements IPodmanApi {
         `Error occurred when attempting to retrieve pod. ${helpers.errors.getMessage(e)}`,
       );
     }
+  }
+
+  private async generateExternalDockerRegistriesPodmanLoginCommand(
+    namespace: string,
+  ): Promise<string> {
+    let externalDockerRegistriesPodmanLoginCommand = '';
+
+    const dockerConfigBase64Encoded = await this.dockerConfig.read(namespace);
+    const dockerConfig = JSON.parse(
+      Buffer.from(dockerConfigBase64Encoded.dockerconfig, 'base64').toString('binary'),
+    );
+
+    const auths = dockerConfig['auths'];
+    if (auths) {
+      for (const registry of Object.keys(auths)) {
+        let username = '';
+        let password = '';
+
+        const credentials = auths[registry];
+        if (credentials) {
+          username = credentials['username'];
+          password = credentials['password'];
+        }
+
+        const authBase64Encoded = credentials['auth'];
+        if (!username && !password && authBase64Encoded) {
+          const auth = Buffer.from(authBase64Encoded, 'base64').toString('binary');
+          const usernamePassword = auth.split(':');
+          username = usernamePassword[0];
+          password = usernamePassword[1];
+        }
+
+        if (username && password) {
+          // `|| true` ensures that `podman login` won't fail if credentials are invalid
+          externalDockerRegistriesPodmanLoginCommand += `podman login ${registry} -u ${username} -p ${password} || true\n`;
+        }
+      }
+    }
+
+    return externalDockerRegistriesPodmanLoginCommand.trimEnd();
   }
 }
