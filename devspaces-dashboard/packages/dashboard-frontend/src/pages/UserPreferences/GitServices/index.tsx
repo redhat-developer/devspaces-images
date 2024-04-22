@@ -131,6 +131,10 @@ export class GitServices extends React.PureComponent<Props, State> {
     });
   }
 
+  private handleClearServices(selectedService: api.GitOauthProvider): void {
+    this.props.deleteSkipOauth(selectedService);
+  }
+
   render(): React.ReactNode {
     const { gitOauth, isLoading, providersWithToken, skipOauthProviders } = this.props;
     const { isModalOpen, selectedServices } = this.state;
@@ -155,6 +159,7 @@ export class GitServices extends React.PureComponent<Props, State> {
               providersWithToken={providersWithToken}
               skipOauthProviders={skipOauthProviders}
               onRevokeServices={services => this.handleRevokeServices(services)}
+              onClearService={service => this.handleClearServices(service)}
             />
           )}
         </PageSection>

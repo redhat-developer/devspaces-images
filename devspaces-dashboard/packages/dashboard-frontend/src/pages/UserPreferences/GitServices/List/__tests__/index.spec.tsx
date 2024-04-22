@@ -43,6 +43,7 @@ describe('GitServicesList', () => {
       ],
       isDisabled: false,
       onRevokeServices: jest.fn(),
+      onClearService: jest.fn(),
       providersWithToken: ['github', 'gitlab'],
       skipOauthProviders: [],
     };
@@ -178,6 +179,58 @@ describe('GitServicesList', () => {
     ]);
   });
 
+  test('can clear opt-out (github)', () => {
+    props = {
+      gitOauth: [
+        {
+          name: 'github',
+          endpointUrl: 'https://github.com',
+        },
+      ],
+      isDisabled: false,
+      onRevokeServices: jest.fn(),
+      onClearService: jest.fn(),
+      providersWithToken: [],
+      skipOauthProviders: ['github'],
+    };
+    renderComponent(props);
+
+    const rows = screen.getAllByRole('row');
+
+    // get the github row
+    const githubRow = rows[1];
+    expect(githubRow).toHaveTextContent('github');
+
+    const githubCheckbox = within(githubRow).getByRole('checkbox');
+    const githubKebab = within(githubRow).getByRole('button', { name: 'Actions' });
+
+    // the checkbox is disabled and unchecked
+    expect(githubCheckbox).toBeDisabled();
+    expect(githubCheckbox).not.toBeChecked();
+
+    // the kebab button is enabled
+    expect(githubKebab).toBeEnabled();
+
+    // Clear button is not present
+    {
+      const clearButton = within(githubRow).queryByRole('menuitem', { name: 'Clear' });
+      expect(clearButton).toBeNull();
+    }
+
+    // open kebab menu
+    userEvent.click(githubKebab);
+
+    // the Clear button is present
+    const clearButton = within(githubRow).queryByRole('menuitem', { name: 'Clear' });
+    expect(clearButton).not.toBeNull();
+
+    // click the Clear button
+    userEvent.click(clearButton!);
+
+    expect(props.onClearService).toHaveBeenCalledTimes(1);
+    expect(props.onClearService).toHaveBeenCalledWith('github');
+  });
+
   test('toolbar', () => {
     renderComponent(props);
 
@@ -248,6 +301,7 @@ function getComponent(props: Props): React.ReactElement<Props> {
       gitOauth={props.gitOauth}
       isDisabled={props.isDisabled}
       onRevokeServices={props.onRevokeServices}
+      onClearService={props.onClearService}
       providersWithToken={props.providersWithToken}
       skipOauthProviders={props.skipOauthProviders}
     />
