@@ -57,6 +57,9 @@ cd ${WORKSPACE}/devspaces-chectl
 # TODO CRW-1919 remove this when we no longer need it
 export KRB5CCNAME=/var/tmp/devspaces-build_ccache
 
+# CRW-6273 Add node option to fix connection error when using node 18 npx
+export NODE_OPTIONS=--dns-result-order=ipv4first
+
 set -x
 # generate binaries and sources and publish
 ./build/scripts/build.sh --quay -v ''' + DSC_VERSION + ''' --ds-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
