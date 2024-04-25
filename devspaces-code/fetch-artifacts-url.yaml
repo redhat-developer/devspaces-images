@@ -16,14 +16,14 @@
   source-sha256: 9c5d369ab6ad9b1af75bc89489d3bd47a9d2bff69449cbc4d6f288d7d96d9940
 #ms-vscode.js-debug-companion
 - url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.13-pluginregistry/plugins/ms-vscode.js-debug-companion.vsix
-  sha256: d904ffb7d4097fddb6cac65a2634792140becd20034044c8570f9bbfe4ab2442
+  sha256: 03c03e08b95d140d59b2059f0aa63d1e2c5758e5b8a73cfcdacf2831bb9269c9
   source-url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.13-pluginregistry/sources/ms-vscode.js-debug-companion-sources.tar.gz
-  source-sha256: a3681a387619f2c0675c7ba334786b34b01b6abb9053e33718cab770db883e2f
+  source-sha256: 4cd324947c5c85b7f52d4891dedb4d7d79d2959d98552a199f4e489519497751
 #ms-vscode.js-debug
 - url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.13-pluginregistry/plugins/ms-vscode.js-debug.vsix
-  sha256: bd160558b414651a1cf1082d8acf176e8e30b9fc09d1957e3c3eb8b4a974cb40
+  sha256: b107f7c9eeb924ec46e40c866f10152b7007a64c166e13c1a54ac59dce37df3c
   source-url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.13-pluginregistry/sources/ms-vscode.js-debug-sources.tar.gz
-  source-sha256: f0259a3fac93842b414c759599fbd6bfe8938328fda750be05814457ec5684a3
+  source-sha256: c43952b40ae17429debb5f254b3263f566882259ba62a453c790c6e86e4744ae
 #ms-vscode.vscode-js-profile-table
 - url: https://download.devel.redhat.com/rcm-guest/staging/devspaces/build-requirements/devspaces-3.13-pluginregistry/plugins/ms-vscode.vscode-js-profile-table.vsix
   sha256: 503427dcd000c45d2363b3cb7be9b1abf07b681659e5200052aad4210430e20a
