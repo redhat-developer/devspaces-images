@@ -12,7 +12,7 @@
 # for a local build, see rhel.Dockerfile
 
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.20.12-2 as builder
+FROM registry.access.redhat.com/ubi8/go-toolset:1.20.12-5 as builder
 USER 0
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
@@ -32,7 +32,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     chmod 755 /usr/local/bin/configbump
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1137 as runtime
+FROM registry.access.redhat.com/ubi8-minimal:8.9-1161 as runtime
 #hadolint ignore=DL4006
 RUN microdnf -y install shadow-utils && \
     adduser appuser && \
