@@ -12,12 +12,12 @@
 # likely this will be x86_64 and ppc64le initially.
 ---
 x86_64:
-- rhel-8-for-x86_64-baseos-rpms
-- rhel-8-for-x86_64-appstream-rpms
+- rhel-9-for-x86_64-baseos-rpms
+- rhel-9-for-x86_64-appstream-rpms
 s390x:
-- rhel-8-for-s390x-baseos-rpms
-- rhel-8-for-s390x-appstream-rpms
+- rhel-9-for-s390x-baseos-rpms
+- rhel-9-for-s390x-appstream-rpms
 ppc64le:
-- rhel-8-for-ppc64le-baseos-rpms
-- rhel-8-for-ppc64le-appstream-rpms
+- rhel-9-for-ppc64le-baseos-rpms
+- rhel-9-for-ppc64le-appstream-rpms
 

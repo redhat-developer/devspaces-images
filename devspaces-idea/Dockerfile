@@ -31,7 +31,7 @@
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8:8.9-1160 as ubi-builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 COPY --chown=0:0 asset-required-rpms.txt /tmp/asset-required-rpms.txt
 
 RUN mkdir -p /mnt/rootfs
@@ -83,11 +83,11 @@ RUN rm /mnt/rootfs/etc/hosts
 
 # Stage 2. Copy from build environment Projector assembly to the runtime. Projector runs in headless mode.
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1161
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 ENV HOME=/home/projector
 ENV PROJECTOR_ASSEMBLY_DIR /projector
 ENV PROJECTOR_CONFIG_DIR $HOME/.jetbrains
-COPY --from=ubi-builder /mnt/rootfs/ /
+COPY --from=builder /mnt/rootfs/ /
 USER 1001
 EXPOSE 8887
 ENTRYPOINT $PROJECTOR_ASSEMBLY_DIR/entrypoint.sh
