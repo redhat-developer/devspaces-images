@@ -16,7 +16,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
 
-import ImportFromGit from '@/pages/GetStarted/ImportFromGit';
+import ImportFromGit from '@/components/ImportFromGit';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
@@ -68,7 +68,7 @@ describe('GitRepoLocationInput', () => {
     expect(input).toHaveValue('invalid-test-location');
     expect(input).toBeInvalid();
 
-    const button = screen.getByRole('button');
+    const button = screen.getByRole('button', { name: 'Create & Open' });
     expect(button).toBeDisabled();
 
     userEvent.type(input, '{enter}');
@@ -82,13 +82,14 @@ describe('GitRepoLocationInput', () => {
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
-
+        input.focus();
         userEvent.paste(input, '   http://test-location/  ');
+        input.blur();
 
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -113,7 +114,7 @@ describe('GitRepoLocationInput', () => {
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -139,7 +140,7 @@ describe('GitRepoLocationInput', () => {
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -165,7 +166,7 @@ describe('GitRepoLocationInput', () => {
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -191,7 +192,7 @@ describe('GitRepoLocationInput', () => {
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -219,7 +220,7 @@ describe('GitRepoLocationInput', () => {
         expect(input).toHaveValue('http://test-location/?che-editor=other-editor-id');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -245,7 +246,7 @@ describe('GitRepoLocationInput', () => {
         expect(input).toHaveValue('http://test-location/?editor-image=custom-editor-image');
         expect(input).toBeValid();
 
-        const button = screen.getByRole('button');
+        const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
         userEvent.click(button);
@@ -266,7 +267,9 @@ describe('GitRepoLocationInput', () => {
       const input = screen.getByRole('textbox');
       expect(input).toBeValid();
 
+      input.focus();
       userEvent.paste(input, 'git@github.com:user/repo.git');
+      input.blur();
 
       expect(input).toHaveValue('git@github.com:user/repo.git');
       expect(input).toBeInvalid();

@@ -17,8 +17,8 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import EditorSelector from '@/components/EditorSelector';
 import Head from '@/components/Head';
+import ImportFromGit from '@/components/ImportFromGit';
 import { Spacer } from '@/components/Spacer';
-import ImportFromGit from '@/pages/GetStarted/ImportFromGit';
 import SamplesList from '@/pages/GetStarted/SamplesList';
 import { AppState } from '@/store';
 import { selectDefaultEditor } from '@/store/ServerConfig/selectors';

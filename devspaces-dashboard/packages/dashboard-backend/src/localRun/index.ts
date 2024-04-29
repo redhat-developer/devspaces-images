@@ -22,8 +22,7 @@ import { registerSignOut } from '@/localRun/routes/signOut';
 import { logger } from '@/utils/logger';
 
 export function isLocalRun(): boolean {
-  const isLocalRun = process.env['LOCAL_RUN'] === 'true';
-  return isLocalRun;
+  return process.env['LOCAL_RUN'] === 'true';
 }
 
 export function registerLocalRun(server: FastifyInstance) {

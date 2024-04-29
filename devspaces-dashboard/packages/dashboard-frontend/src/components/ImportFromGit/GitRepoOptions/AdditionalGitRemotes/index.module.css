@@ -1,0 +1,28 @@
+.remoteName .pf-c-form__group-label {
+  text-align: end;
+}
+
+.remoteURL .pf-c-form__group-label {
+  text-align: end;
+}
+
+.removeRemoteButton {
+  vertical-align: middle;
+}
+
+button.addRemoteButton {
+  text-decoration: none;
+}
+
+.gitRemotesTitle {
+  font-size: var(--pf-c-form__label--FontSize);
+}
+
+.gitRemotesGroup {
+  border: 0;
+}
+
+.gitRemotesGroup .pf-c-form__field-group-body {
+  padding-top: 0;
+  padding-bottom: 0;
+}

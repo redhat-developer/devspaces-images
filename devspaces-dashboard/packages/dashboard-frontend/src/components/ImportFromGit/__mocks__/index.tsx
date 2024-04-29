@@ -12,7 +12,7 @@
 
 import React from 'react';
 
-import { Props } from '@/pages/GetStarted/ImportFromGit';
+import { Props } from '@/components/ImportFromGit';
 
 export default class ImportFromGit extends React.PureComponent<Props> {
   public render() {

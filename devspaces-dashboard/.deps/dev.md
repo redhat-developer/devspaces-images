@@ -421,6 +421,7 @@
 | [`fast-glob@3.3.2`](https://github.com/mrmlnc/fast-glob.git) | MIT | #9307 |
 | [`fast-levenshtein@2.0.6`](https://github.com/hiddentao/fast-levenshtein.git) | MIT | #2428 |
 | [`fastest-levenshtein@1.0.16`](git+https://github.com/ka-weihe/fastest-levenshtein.git) | MIT | clearlydefined |
+| [`fastq@1.15.0`](git+https://github.com/mcollina/fastq.git) | ISC | #6021 |
 | [`fb-watchman@2.0.2`](git@github.com:facebook/watchman.git) | Apache-2.0 | #5379 |
 | [`figures@3.2.0`](https://github.com/sindresorhus/figures.git) | MIT | clearlydefined |
 | [`file-entry-cache@6.0.1`](https://github.com/royriojas/file-entry-cache.git) | MIT | clearlydefined |

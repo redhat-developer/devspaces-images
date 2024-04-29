@@ -35,8 +35,8 @@ export interface GitRemote {
  * @param remotes input string to parse
  * @returns parsed array of Git remotes
  */
-export function getGitRemotes(remotes: string): GitRemote[] {
-  if (remotes.length === 0) {
+export function getGitRemotes(remotes: string | undefined): GitRemote[] {
+  if (remotes === undefined || remotes.length === 0) {
     return [];
   }
   const remotesArray = parseRemotes(remotes);
@@ -44,6 +44,28 @@ export function getGitRemotes(remotes: string): GitRemote[] {
     return parseNameAndUrls(remotesArray, remotes);
   }
   return parseUrls(remotesArray, remotes);
+}
+
+export function gitRemotesToParam(remotes: GitRemote[]): string {
+  if (remotes.length === 0) {
+    return '';
+  }
+  const remotesStr = `{${(remotes || [])
+    ?.filter(remote => remote.url !== '')
+    .map(remote => {
+      const sortedRemoteKeys = Object.keys(remote).sort();
+      const sortedRemoteObject = sortedRemoteKeys.reduce((acc, key) => {
+        acc[key] = remote[key];
+        return acc;
+      }, {});
+      return JSON.stringify(sortedRemoteObject);
+    })
+    .join(',')
+    .replace(/"name":/g, '')
+    .replace(/"url":/g, '')
+    .replace(/"/g, '')}}`;
+
+  return remotesStr;
 }
 
 function parseRemotes(remotes: string): string[] {

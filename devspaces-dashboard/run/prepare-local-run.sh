@@ -98,10 +98,7 @@ if [ "$GATEWAY" == "true" ]; then
 
     echo 'Patching che-gateway-config-oauth-proxy config map...'
     CONFIG_YAML=$(kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq e ".[\"oauth-proxy.cfg\"]" - | sed "s/${CHE_HOST_ORIGIN//\//\\/}\/oauth\/callback/${CHE_HOST//\//\\/}\/oauth\/callback/g")
-    dq_mid=\\\"
-    yaml_esc="${CONFIG_YAML//\"/$dq_mid}"
-    kubectl get configMaps che-gateway-config-oauth-proxy -n "$CHE_NAMESPACE" -o json | jq ".data[\"oauth-proxy.cfg\"] |= \"${yaml_esc}\"" | kubectl replace -f -
-
+    kubectl get configMaps che-gateway-config-oauth-proxy -n "$CHE_NAMESPACE" -o json | jq ".data[\"oauth-proxy.cfg\"] |= \"${CONFIG_YAML//\"/\\\"}\"" | kubectl replace -f -
     # rollout che-server deployment
     echo 'Rolling out che-gateway deployment...'
     kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n "$CHE_NAMESPACE"

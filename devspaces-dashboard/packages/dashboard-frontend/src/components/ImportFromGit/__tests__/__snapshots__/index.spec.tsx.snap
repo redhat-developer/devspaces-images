@@ -68,6 +68,7 @@ exports[`GitRepoLocationInput snapshot 1`] = `
                 style={
                   {
                     "maxWidth": "500px",
+                    "minWidth": "70%",
                   }
                 }
               >
@@ -86,7 +87,6 @@ exports[`GitRepoLocationInput snapshot 1`] = `
                   placeholder="Enter HTTPS or SSH URL"
                   required={false}
                   type="text"
-                  value=""
                 />
               </div>
               <div

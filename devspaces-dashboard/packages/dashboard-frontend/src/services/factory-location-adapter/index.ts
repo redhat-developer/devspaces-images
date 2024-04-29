@@ -15,6 +15,7 @@ import { Location } from 'history';
 
 export interface FactoryLocation {
   readonly searchParams: URLSearchParams;
+  readonly path: string;
   readonly isHttpLocation: boolean;
   readonly isSshLocation: boolean;
   readonly toString: () => string;
@@ -27,6 +28,7 @@ export class FactoryLocationAdapter implements FactoryLocation {
   private readonly pathname: string;
 
   constructor(href: string) {
+    href = href.trim();
     if (!href.includes('?')) {
       href = href.replace('&', '?');
     }
@@ -61,6 +63,10 @@ export class FactoryLocationAdapter implements FactoryLocation {
 
   get searchParams(): URLSearchParams {
     return this.search;
+  }
+
+  get path(): string {
+    return this.pathname;
   }
 
   get isHttpLocation(): boolean {

@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AdditionalGitRemote snapshot 1`] = `
+<div
+  className="pf-l-flex"
+>
+  <div
+    className="pf-m-align-right"
+  >
+    <div
+      className="pf-c-form__group remoteName"
+    >
+      <div
+        className="pf-c-form__group-label"
+      >
+        <label
+          className="pf-c-form__label"
+        >
+          <span
+            className="pf-c-form__label-text"
+          >
+            Remote Name
+          </span>
+          <span
+            aria-hidden="true"
+            className="pf-c-form__label-required"
+          >
+             
+            *
+          </span>
+        </label>
+         
+      </div>
+      <div
+        className="pf-c-form__group-control"
+      >
+        <input
+          aria-invalid={false}
+          aria-label="Remote Name"
+          className="pf-c-form-control pf-m-success"
+          data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+          data-ouia-component-type="PF4/TextInput"
+          data-ouia-safe={true}
+          disabled={false}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onFocus={[Function]}
+          placeholder="origin"
+          required={false}
+          type="text"
+          value="test-1"
+        />
+        
+      </div>
+    </div>
+  </div>
+  <div
+    className="pf-m-grow pf-m-align-right"
+  >
+    <div
+      className="pf-c-form__group remoteURL"
+    >
+      <div
+        className="pf-c-form__group-label"
+      >
+        <label
+          className="pf-c-form__label"
+        >
+          <span
+            className="pf-c-form__label-text"
+          >
+            Remote URL
+          </span>
+          <span
+            aria-hidden="true"
+            className="pf-c-form__label-required"
+          >
+             
+            *
+          </span>
+        </label>
+         
+      </div>
+      <div
+        className="pf-c-form__group-control"
+      >
+        <input
+          aria-invalid={false}
+          aria-label="Remote URL"
+          className="pf-c-form-control pf-m-success"
+          data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+          data-ouia-component-type="PF4/TextInput"
+          data-ouia-safe={true}
+          disabled={false}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onFocus={[Function]}
+          placeholder="HTTP or SSH URL"
+          required={true}
+          type="text"
+          value="https://test-1.repo.git"
+        />
+        
+      </div>
+    </div>
+  </div>
+  <div
+    className=""
+  >
+    <div>
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-plain removeRemoteButton"
+        data-ouia-component-id="OUIA-Generated-Button-plain-1"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        data-testid="remove-remote"
+        disabled={false}
+        onClick={[Function]}
+        role={null}
+        type="button"
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 512 512"
+          width="1em"
+        >
+          <path
+            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zM124 296c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h264c6.6 0 12 5.4 12 12v56c0 6.6-5.4 12-12 12H124z"
+          />
+        </svg>
+      </button>
+      Remove Remote
+    </div>
+  </div>
+</div>
+`;

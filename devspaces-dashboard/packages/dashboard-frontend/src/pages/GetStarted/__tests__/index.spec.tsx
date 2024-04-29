@@ -21,7 +21,7 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 jest.mock('@/components/EditorSelector');
 jest.mock('@/pages/GetStarted/SamplesList');
-jest.mock('@/pages/GetStarted/ImportFromGit');
+jest.mock('@/components/ImportFromGit');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
