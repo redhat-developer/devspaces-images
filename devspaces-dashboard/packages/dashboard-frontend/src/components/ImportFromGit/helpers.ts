@@ -129,10 +129,12 @@ export function getGitRepoOptionsFromLocation(location: string): {
   const params = decodeURIComponent(factoryLoaderPath.split('?')[1] || '');
   const searchParams = new URLSearchParams(params);
   searchParams.delete('url');
-  let devfilePath = searchParams.get('override.devfileFilename') || undefined;
-  if (devfilePath === 'true') {
+  const devfilePath = searchParams.get('override.devfileFilename') || undefined;
+  if (devfilePath !== 'true' && devfilePath) {
+    searchParams.set('devfilePath', devfilePath);
+  }
+  if (searchParams.has('override.devfileFilename')) {
     searchParams.delete('override.devfileFilename');
-    devfilePath = undefined;
   }
   let remotes: GitRemote[] | undefined;
   const _remotes = searchParams.get('remotes') || undefined;

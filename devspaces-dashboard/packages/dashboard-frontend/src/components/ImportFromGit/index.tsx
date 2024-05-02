@@ -102,7 +102,7 @@ class ImportFromGit extends React.PureComponent<Props, State> {
 
   private handleCreate(): void {
     const { editorDefinition, editorImage } = this.props;
-    const { location } = this.state;
+    const location = decodeURIComponent(this.state.location);
 
     const factory = new FactoryLocationAdapter(location);
 

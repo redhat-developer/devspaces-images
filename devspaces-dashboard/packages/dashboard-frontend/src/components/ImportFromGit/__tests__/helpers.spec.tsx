@@ -237,7 +237,7 @@ describe('helpers', () => {
           const options = helpers.getGitRepoOptionsFromLocation(location);
           expect(options).toEqual({
             location:
-              'https://github.com/eclipse-che/che-dashboard/tree/main?remotes=%7B%7Btest-1%2Chttp%3A%2F%2Ftest-1.git%7D%7D&override.devfileFilename=devfile2.yaml',
+              'https://github.com/eclipse-che/che-dashboard/tree/main?remotes=%7B%7Btest-1%2Chttp%3A%2F%2Ftest-1.git%7D%7D&devfilePath=devfile2.yaml',
             hasSupportedGitService: true,
             gitBranch: 'main',
             remotes: [{ name: 'test-1', url: 'http://test-1.git' }],
@@ -263,7 +263,7 @@ describe('helpers', () => {
           const options = helpers.getGitRepoOptionsFromLocation(location);
           expect(options).toEqual({
             location:
-              'git@github.com:eclipse-che/che-dashboard.git?remotes=%7B%7Btest-1%2Chttp%3A%2F%2Ftest-1.git%7D%7D&override.devfileFilename=devfile2.yaml',
+              'git@github.com:eclipse-che/che-dashboard.git?remotes=%7B%7Btest-1%2Chttp%3A%2F%2Ftest-1.git%7D%7D&devfilePath=devfile2.yaml',
             hasSupportedGitService: false,
             gitBranch: undefined,
             remotes: [{ name: 'test-1', url: 'http://test-1.git' }],
@@ -279,7 +279,7 @@ describe('helpers', () => {
         const options = helpers.getGitRepoOptionsFromLocation(location);
         expect(options).toEqual({
           location:
-            'https://not-supported.com?remotes=%7B%7Btest-1%2Chttp%3A%2F%2Ftest-1.git%7D%7D&override.devfileFilename=devfile2.yaml',
+            'https://not-supported.com?remotes=%7B%7Btest-1%2Chttp%3A%2F%2Ftest-1.git%7D%7D&devfilePath=devfile2.yaml',
           hasSupportedGitService: false,
           gitBranch: undefined,
           remotes: [{ name: 'test-1', url: 'http://test-1.git' }],
