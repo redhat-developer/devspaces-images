@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/traefik/traefik/v2/pkg/log"
-	"github.com/traefik/traefik/v2/pkg/middlewares/capture"
+	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v3/pkg/logs"
+	"github.com/traefik/traefik/v3/pkg/middlewares/capture"
 	"github.com/vulcand/oxy/v2/utils"
 )
 
@@ -43,14 +44,6 @@ func (f *FieldHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 // AddServiceFields add service fields.
 func AddServiceFields(rw http.ResponseWriter, req *http.Request, next http.Handler, data *LogData) {
-	data.Core[ServiceURL] = req.URL // note that this is *not* the original incoming URL
-	data.Core[ServiceAddr] = req.URL.Host
-
-	next.ServeHTTP(rw, req)
-}
-
-// AddOriginFields add origin fields.
-func AddOriginFields(rw http.ResponseWriter, req *http.Request, next http.Handler, data *LogData) {
 	start := time.Now().UTC()
 
 	next.ServeHTTP(rw, req)
@@ -65,10 +58,21 @@ func AddOriginFields(rw http.ResponseWriter, req *http.Request, next http.Handle
 	ctx := req.Context()
 	capt, err := capture.FromContext(ctx)
 	if err != nil {
-		log.FromContext(log.With(ctx, log.Str(log.MiddlewareType, "AccessLogs"))).Errorf("Could not get Capture: %v", err)
+		log.Ctx(ctx).Error().Err(err).Str(logs.MiddlewareType, "AccessLogs").Msg("Could not get Capture")
 		return
 	}
 
 	data.Core[OriginStatus] = capt.StatusCode()
 	data.Core[OriginContentSize] = capt.ResponseSize()
+}
+
+// InitServiceFields init service fields.
+func InitServiceFields(rw http.ResponseWriter, req *http.Request, next http.Handler, data *LogData) {
+	// Because they are expected to be initialized when the logger is processing the data table,
+	// the origin fields are initialized in case the response is returned by Traefik itself, and not a service.
+	data.Core[OriginDuration] = time.Duration(0)
+	data.Core[OriginStatus] = 0
+	data.Core[OriginContentSize] = int64(0)
+
+	next.ServeHTTP(rw, req)
 }

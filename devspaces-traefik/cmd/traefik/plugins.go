@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/traefik/traefik/v2/pkg/config/static"
-	"github.com/traefik/traefik/v2/pkg/plugins"
+	"github.com/traefik/traefik/v3/pkg/config/static"
+	"github.com/traefik/traefik/v3/pkg/plugins"
 )
 
 const outputDir = "./plugins-storage/"
@@ -35,12 +35,12 @@ func initPlugins(staticCfg *static.Configuration) (*plugins.Client, map[string]p
 		var err error
 		client, err = plugins.NewClient(opts)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, fmt.Errorf("unable to create plugins client: %w", err)
 		}
 
 		err = plugins.SetupRemotePlugins(client, staticCfg.Experimental.Plugins)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, fmt.Errorf("unable to set up plugins environment: %w", err)
 		}
 
 		plgs = staticCfg.Experimental.Plugins

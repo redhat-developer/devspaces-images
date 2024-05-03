@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
 	"golang.org/x/net/http/httpguts"
 	"golang.org/x/net/http2"
 )
 
-func newSmartRoundTripper(transport *http.Transport, forwardingTimeouts *dynamic.ForwardingTimeouts) (http.RoundTripper, error) {
+func newSmartRoundTripper(transport *http.Transport, forwardingTimeouts *dynamic.ForwardingTimeouts) (*smartRoundTripper, error) {
 	transportHTTP1 := transport.Clone()
 
 	transportHTTP2, err := http2.ConfigureTransports(transport)
@@ -51,6 +51,12 @@ func newSmartRoundTripper(transport *http.Transport, forwardingTimeouts *dynamic
 type smartRoundTripper struct {
 	http2 *http.Transport
 	http  *http.Transport
+}
+
+func (m *smartRoundTripper) Clone() http.RoundTripper {
+	h := m.http.Clone()
+	h2 := m.http2.Clone()
+	return &smartRoundTripper{http: h, http2: h2}
 }
 
 func (m *smartRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {

@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/config/runtime"
-	"github.com/traefik/traefik/v2/pkg/config/static"
-	"github.com/traefik/traefik/v2/pkg/log"
-	"github.com/traefik/traefik/v2/pkg/version"
+	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/config/runtime"
+	"github.com/traefik/traefik/v3/pkg/config/static"
+	"github.com/traefik/traefik/v3/pkg/version"
 )
 
 type apiError struct {
@@ -76,7 +76,7 @@ func New(staticConfig static.Configuration, runtimeConfig *runtime.Configuration
 
 // createRouter creates API routes and router.
 func (h Handler) createRouter() *mux.Router {
-	router := mux.NewRouter()
+	router := mux.NewRouter().UseEncodedPath()
 
 	if h.staticConfig.API.Debug {
 		DebugHandler{}.Append(router)
@@ -138,7 +138,7 @@ func (h Handler) getRuntimeConfiguration(rw http.ResponseWriter, request *http.R
 
 	err := json.NewEncoder(rw).Encode(result)
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -149,7 +149,7 @@ func getProviderName(id string) string {
 
 func extractType(element interface{}) string {
 	v := reflect.ValueOf(element).Elem()
-	for i := 0; i < v.NumField(); i++ {
+	for i := range v.NumField() {
 		field := v.Field(i)
 
 		if field.Kind() == reflect.Map && field.Type().Elem() == reflect.TypeOf(dynamic.PluginConf{}) {

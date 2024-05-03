@@ -8,9 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ptypes "github.com/traefik/paerser/types"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/tls"
+	"github.com/traefik/traefik/v3/pkg/types"
 )
+
+func Bool(v bool) *bool       { return &v }
+func String(v string) *string { return &v }
 
 func TestDecodeConfiguration(t *testing.T) {
 	labels := map[string]string{
@@ -30,6 +34,7 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.checkperiod":                          "1s",
 		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.fallbackduration":                     "1s",
 		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.recoveryduration":                     "1s",
+		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.responsecode":                         "403",
 		"traefik.http.middlewares.Middleware5.digestauth.headerfield":                              "foobar",
 		"traefik.http.middlewares.Middleware5.digestauth.realm":                                    "foobar",
 		"traefik.http.middlewares.Middleware5.digestauth.removeheader":                             "true",
@@ -82,9 +87,9 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware8.headers.stsincludesubdomains":                        "true",
 		"traefik.http.middlewares.Middleware8.headers.stspreload":                                  "true",
 		"traefik.http.middlewares.Middleware8.headers.stsseconds":                                  "42",
-		"traefik.http.middlewares.Middleware9.ipwhitelist.ipstrategy.depth":                        "42",
-		"traefik.http.middlewares.Middleware9.ipwhitelist.ipstrategy.excludedips":                  "foobar, fiibar",
-		"traefik.http.middlewares.Middleware9.ipwhitelist.sourcerange":                             "foobar, fiibar",
+		"traefik.http.middlewares.Middleware9.ipallowlist.ipstrategy.depth":                        "42",
+		"traefik.http.middlewares.Middleware9.ipallowlist.ipstrategy.excludedips":                  "foobar, fiibar",
+		"traefik.http.middlewares.Middleware9.ipallowlist.sourcerange":                             "foobar, fiibar",
 		"traefik.http.middlewares.Middleware10.inflightreq.amount":                                 "42",
 		"traefik.http.middlewares.Middleware10.inflightreq.sourcecriterion.ipstrategy.depth":       "42",
 		"traefik.http.middlewares.Middleware10.inflightreq.sourcecriterion.ipstrategy.excludedips": "foobar, fiibar",
@@ -129,6 +134,7 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware16.retry.attempts":                                     "42",
 		"traefik.http.middlewares.Middleware16.retry.initialinterval":                              "1s",
 		"traefik.http.middlewares.Middleware17.stripprefix.prefixes":                               "foobar, fiibar",
+		"traefik.http.middlewares.Middleware17.stripprefix.forceslash":                             "true",
 		"traefik.http.middlewares.Middleware18.stripprefixregex.regex":                             "foobar, fiibar",
 		"traefik.http.middlewares.Middleware19.compress.minresponsebodybytes":                      "42",
 		"traefik.http.middlewares.Middleware20.plugin.tomato.aaa":                                  "foo1",
@@ -148,37 +154,43 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.services.Service0.loadbalancer.healthcheck.headers.name0":        "foobar",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.headers.name1":        "foobar",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.hostname":             "foobar",
-		"traefik.http.services.Service0.loadbalancer.healthcheck.interval":             "foobar",
+		"traefik.http.services.Service0.loadbalancer.healthcheck.interval":             "1s",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.path":                 "foobar",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.method":               "foobar",
+		"traefik.http.services.Service0.loadbalancer.healthcheck.status":               "401",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.port":                 "42",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.scheme":               "foobar",
-		"traefik.http.services.Service0.loadbalancer.healthcheck.timeout":              "foobar",
+		"traefik.http.services.Service0.loadbalancer.healthcheck.mode":                 "foobar",
+		"traefik.http.services.Service0.loadbalancer.healthcheck.timeout":              "1s",
 		"traefik.http.services.Service0.loadbalancer.healthcheck.followredirects":      "true",
 		"traefik.http.services.Service0.loadbalancer.passhostheader":                   "true",
-		"traefik.http.services.Service0.loadbalancer.responseforwarding.flushinterval": "foobar",
+		"traefik.http.services.Service0.loadbalancer.responseforwarding.flushinterval": "1s",
 		"traefik.http.services.Service0.loadbalancer.server.scheme":                    "foobar",
 		"traefik.http.services.Service0.loadbalancer.server.port":                      "8080",
 		"traefik.http.services.Service0.loadbalancer.sticky.cookie.name":               "foobar",
 		"traefik.http.services.Service0.loadbalancer.sticky.cookie.secure":             "true",
+		"traefik.http.services.Service0.loadbalancer.serversTransport":                 "foobar",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.headers.name0":        "foobar",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.headers.name1":        "foobar",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.hostname":             "foobar",
-		"traefik.http.services.Service1.loadbalancer.healthcheck.interval":             "foobar",
+		"traefik.http.services.Service1.loadbalancer.healthcheck.interval":             "1s",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.path":                 "foobar",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.method":               "foobar",
+		"traefik.http.services.Service1.loadbalancer.healthcheck.status":               "401",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.port":                 "42",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.scheme":               "foobar",
-		"traefik.http.services.Service1.loadbalancer.healthcheck.timeout":              "foobar",
+		"traefik.http.services.Service1.loadbalancer.healthcheck.mode":                 "foobar",
+		"traefik.http.services.Service1.loadbalancer.healthcheck.timeout":              "1s",
 		"traefik.http.services.Service1.loadbalancer.healthcheck.followredirects":      "true",
 		"traefik.http.services.Service1.loadbalancer.passhostheader":                   "true",
-		"traefik.http.services.Service1.loadbalancer.responseforwarding.flushinterval": "foobar",
+		"traefik.http.services.Service1.loadbalancer.responseforwarding.flushinterval": "1s",
 		"traefik.http.services.Service1.loadbalancer.server.scheme":                    "foobar",
 		"traefik.http.services.Service1.loadbalancer.server.port":                      "8080",
 		"traefik.http.services.Service1.loadbalancer.sticky":                           "false",
 		"traefik.http.services.Service1.loadbalancer.sticky.cookie.name":               "fui",
+		"traefik.http.services.Service1.loadbalancer.serversTransport":                 "foobar",
 
-		"traefik.tcp.middlewares.Middleware0.ipwhitelist.sourcerange":      "foobar, fiibar",
+		"traefik.tcp.middlewares.Middleware0.ipallowlist.sourcerange":      "foobar, fiibar",
 		"traefik.tcp.middlewares.Middleware2.inflightconn.amount":          "42",
 		"traefik.tcp.routers.Router0.rule":                                 "foobar",
 		"traefik.tcp.routers.Router0.priority":                             "42",
@@ -195,9 +207,11 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.tcp.services.Service0.loadbalancer.server.Port":           "42",
 		"traefik.tcp.services.Service0.loadbalancer.TerminationDelay":      "42",
 		"traefik.tcp.services.Service0.loadbalancer.proxyProtocol.version": "42",
+		"traefik.tcp.services.Service0.loadbalancer.serversTransport":      "foo",
 		"traefik.tcp.services.Service1.loadbalancer.server.Port":           "42",
 		"traefik.tcp.services.Service1.loadbalancer.TerminationDelay":      "42",
 		"traefik.tcp.services.Service1.loadbalancer.proxyProtocol":         "true",
+		"traefik.tcp.services.Service1.loadbalancer.serversTransport":      "foo",
 
 		"traefik.udp.routers.Router0.entrypoints":                "foobar, fiibar",
 		"traefik.udp.routers.Router0.service":                    "foobar",
@@ -205,6 +219,10 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.udp.routers.Router1.service":                    "foobar",
 		"traefik.udp.services.Service0.loadbalancer.server.Port": "42",
 		"traefik.udp.services.Service1.loadbalancer.server.Port": "42",
+
+		"traefik.tls.stores.default.defaultgeneratedcert.resolver":    "foobar",
+		"traefik.tls.stores.default.defaultgeneratedcert.domain.main": "foobar",
+		"traefik.tls.stores.default.defaultgeneratedcert.domain.sans": "foobar, fiibar",
 	}
 
 	configuration, err := DecodeConfiguration(labels)
@@ -242,7 +260,7 @@ func TestDecodeConfiguration(t *testing.T) {
 			},
 			Middlewares: map[string]*dynamic.TCPMiddleware{
 				"Middleware0": {
-					IPWhiteList: &dynamic.TCPIPWhiteList{
+					IPAllowList: &dynamic.TCPIPAllowList{
 						SourceRange: []string{"foobar", "fiibar"},
 					},
 				},
@@ -262,6 +280,7 @@ func TestDecodeConfiguration(t *testing.T) {
 						},
 						TerminationDelay: func(i int) *int { return &i }(42),
 						ProxyProtocol:    &dynamic.ProxyProtocol{Version: 42},
+						ServersTransport: "foo",
 					},
 				},
 				"Service1": {
@@ -273,6 +292,7 @@ func TestDecodeConfiguration(t *testing.T) {
 						},
 						TerminationDelay: func(i int) *int { return &i }(42),
 						ProxyProtocol:    &dynamic.ProxyProtocol{Version: 2},
+						ServersTransport: "foo",
 					},
 				},
 			},
@@ -458,7 +478,7 @@ func TestDecodeConfiguration(t *testing.T) {
 							"foobar",
 							"fiibar",
 						},
-						ForceSlash: true,
+						ForceSlash: Bool(true),
 					},
 				},
 				"Middleware18": {
@@ -497,6 +517,7 @@ func TestDecodeConfiguration(t *testing.T) {
 						CheckPeriod:      ptypes.Duration(time.Second),
 						FallbackDuration: ptypes.Duration(time.Second),
 						RecoveryDuration: ptypes.Duration(time.Second),
+						ResponseCode:     403,
 					},
 				},
 				"Middleware5": {
@@ -524,12 +545,12 @@ func TestDecodeConfiguration(t *testing.T) {
 				"Middleware7": {
 					ForwardAuth: &dynamic.ForwardAuth{
 						Address: "foobar",
-						TLS: &types.ClientTLS{
+						TLS: &dynamic.ClientTLS{
 							CA:                 "foobar",
-							CAOptional:         true,
 							Cert:               "foobar",
 							Key:                "foobar",
 							InsecureSkipVerify: true,
+							CAOptional:         Bool(true),
 						},
 						TrustForwardHeader: true,
 						AuthResponseHeaders: []string{
@@ -583,14 +604,14 @@ func TestDecodeConfiguration(t *testing.T) {
 							"foobar",
 							"fiibar",
 						},
-						SSLRedirect:          true,
-						SSLTemporaryRedirect: true,
-						SSLHost:              "foobar",
+						SSLRedirect:          Bool(true),
+						SSLTemporaryRedirect: Bool(true),
+						SSLHost:              String("foobar"),
 						SSLProxyHeaders: map[string]string{
 							"name0": "foobar",
 							"name1": "foobar",
 						},
-						SSLForceHost:            true,
+						SSLForceHost:            Bool(true),
 						STSSeconds:              42,
 						STSIncludeSubdomains:    true,
 						STSPreload:              true,
@@ -603,13 +624,13 @@ func TestDecodeConfiguration(t *testing.T) {
 						ContentSecurityPolicy:   "foobar",
 						PublicKey:               "foobar",
 						ReferrerPolicy:          "foobar",
-						FeaturePolicy:           "foobar",
+						FeaturePolicy:           String("foobar"),
 						PermissionsPolicy:       "foobar",
 						IsDevelopment:           true,
 					},
 				},
 				"Middleware9": {
-					IPWhiteList: &dynamic.IPWhiteList{
+					IPAllowList: &dynamic.IPAllowList{
 						SourceRange: []string{
 							"foobar",
 							"fiibar",
@@ -650,11 +671,13 @@ func TestDecodeConfiguration(t *testing.T) {
 						},
 						HealthCheck: &dynamic.ServerHealthCheck{
 							Scheme:   "foobar",
+							Mode:     "foobar",
 							Path:     "foobar",
 							Method:   "foobar",
+							Status:   401,
 							Port:     42,
-							Interval: "foobar",
-							Timeout:  "foobar",
+							Interval: ptypes.Duration(time.Second),
+							Timeout:  ptypes.Duration(time.Second),
 							Hostname: "foobar",
 							Headers: map[string]string{
 								"name0": "foobar",
@@ -664,8 +687,9 @@ func TestDecodeConfiguration(t *testing.T) {
 						},
 						PassHostHeader: func(v bool) *bool { return &v }(true),
 						ResponseForwarding: &dynamic.ResponseForwarding{
-							FlushInterval: "foobar",
+							FlushInterval: ptypes.Duration(time.Second),
 						},
+						ServersTransport: "foobar",
 					},
 				},
 				"Service1": {
@@ -678,11 +702,13 @@ func TestDecodeConfiguration(t *testing.T) {
 						},
 						HealthCheck: &dynamic.ServerHealthCheck{
 							Scheme:   "foobar",
+							Mode:     "foobar",
 							Path:     "foobar",
 							Method:   "foobar",
+							Status:   401,
 							Port:     42,
-							Interval: "foobar",
-							Timeout:  "foobar",
+							Interval: ptypes.Duration(time.Second),
+							Timeout:  ptypes.Duration(time.Second),
 							Hostname: "foobar",
 							Headers: map[string]string{
 								"name0": "foobar",
@@ -692,7 +718,21 @@ func TestDecodeConfiguration(t *testing.T) {
 						},
 						PassHostHeader: func(v bool) *bool { return &v }(true),
 						ResponseForwarding: &dynamic.ResponseForwarding{
-							FlushInterval: "foobar",
+							FlushInterval: ptypes.Duration(time.Second),
+						},
+						ServersTransport: "foobar",
+					},
+				},
+			},
+		},
+		TLS: &dynamic.TLSConfiguration{
+			Stores: map[string]tls.Store{
+				"default": {
+					DefaultGeneratedCert: &tls.GeneratedCert{
+						Resolver: "foobar",
+						Domain: &types.Domain{
+							Main: "foobar",
+							SANs: []string{"foobar", "fiibar"},
 						},
 					},
 				},
@@ -701,6 +741,7 @@ func TestDecodeConfiguration(t *testing.T) {
 	}
 
 	assert.Nil(t, configuration.HTTP.ServersTransports)
+	assert.Nil(t, configuration.TCP.ServersTransports)
 	assert.Equal(t, expected, configuration)
 }
 
@@ -737,7 +778,7 @@ func TestEncodeConfiguration(t *testing.T) {
 			},
 			Middlewares: map[string]*dynamic.TCPMiddleware{
 				"Middleware0": {
-					IPWhiteList: &dynamic.TCPIPWhiteList{
+					IPAllowList: &dynamic.TCPIPAllowList{
 						SourceRange: []string{"foobar", "fiibar"},
 					},
 				},
@@ -755,6 +796,7 @@ func TestEncodeConfiguration(t *testing.T) {
 								Port: "42",
 							},
 						},
+						ServersTransport: "foo",
 						TerminationDelay: func(i int) *int { return &i }(42),
 					},
 				},
@@ -765,6 +807,7 @@ func TestEncodeConfiguration(t *testing.T) {
 								Port: "42",
 							},
 						},
+						ServersTransport: "foo",
 						TerminationDelay: func(i int) *int { return &i }(42),
 					},
 				},
@@ -950,7 +993,7 @@ func TestEncodeConfiguration(t *testing.T) {
 							"foobar",
 							"fiibar",
 						},
-						ForceSlash: true,
+						ForceSlash: Bool(true),
 					},
 				},
 				"Middleware18": {
@@ -997,6 +1040,7 @@ func TestEncodeConfiguration(t *testing.T) {
 						CheckPeriod:      ptypes.Duration(time.Second),
 						FallbackDuration: ptypes.Duration(time.Second),
 						RecoveryDuration: ptypes.Duration(time.Second),
+						ResponseCode:     404,
 					},
 				},
 				"Middleware5": {
@@ -1024,12 +1068,12 @@ func TestEncodeConfiguration(t *testing.T) {
 				"Middleware7": {
 					ForwardAuth: &dynamic.ForwardAuth{
 						Address: "foobar",
-						TLS: &types.ClientTLS{
+						TLS: &dynamic.ClientTLS{
 							CA:                 "foobar",
-							CAOptional:         true,
 							Cert:               "foobar",
 							Key:                "foobar",
 							InsecureSkipVerify: true,
+							CAOptional:         Bool(true),
 						},
 						TrustForwardHeader: true,
 						AuthResponseHeaders: []string{
@@ -1083,14 +1127,14 @@ func TestEncodeConfiguration(t *testing.T) {
 							"foobar",
 							"fiibar",
 						},
-						SSLRedirect:          true,
-						SSLTemporaryRedirect: true,
-						SSLHost:              "foobar",
+						SSLRedirect:          Bool(true),
+						SSLTemporaryRedirect: Bool(true),
+						SSLHost:              String("foobar"),
 						SSLProxyHeaders: map[string]string{
 							"name0": "foobar",
 							"name1": "foobar",
 						},
-						SSLForceHost:            true,
+						SSLForceHost:            Bool(true),
 						STSSeconds:              42,
 						STSIncludeSubdomains:    true,
 						STSPreload:              true,
@@ -1103,13 +1147,13 @@ func TestEncodeConfiguration(t *testing.T) {
 						ContentSecurityPolicy:   "foobar",
 						PublicKey:               "foobar",
 						ReferrerPolicy:          "foobar",
-						FeaturePolicy:           "foobar",
+						FeaturePolicy:           String("foobar"),
 						PermissionsPolicy:       "foobar",
 						IsDevelopment:           true,
 					},
 				},
 				"Middleware9": {
-					IPWhiteList: &dynamic.IPWhiteList{
+					IPAllowList: &dynamic.IPAllowList{
 						SourceRange: []string{
 							"foobar",
 							"fiibar",
@@ -1143,9 +1187,10 @@ func TestEncodeConfiguration(t *testing.T) {
 							Scheme:   "foobar",
 							Path:     "foobar",
 							Method:   "foobar",
+							Status:   401,
 							Port:     42,
-							Interval: "foobar",
-							Timeout:  "foobar",
+							Interval: ptypes.Duration(time.Second),
+							Timeout:  ptypes.Duration(time.Second),
 							Hostname: "foobar",
 							Headers: map[string]string{
 								"name0": "foobar",
@@ -1154,8 +1199,9 @@ func TestEncodeConfiguration(t *testing.T) {
 						},
 						PassHostHeader: func(v bool) *bool { return &v }(true),
 						ResponseForwarding: &dynamic.ResponseForwarding{
-							FlushInterval: "foobar",
+							FlushInterval: ptypes.Duration(time.Second),
 						},
+						ServersTransport: "foobar",
 					},
 				},
 				"Service1": {
@@ -1170,9 +1216,10 @@ func TestEncodeConfiguration(t *testing.T) {
 							Scheme:   "foobar",
 							Path:     "foobar",
 							Method:   "foobar",
+							Status:   401,
 							Port:     42,
-							Interval: "foobar",
-							Timeout:  "foobar",
+							Interval: ptypes.Duration(time.Second),
+							Timeout:  ptypes.Duration(time.Second),
 							Hostname: "foobar",
 							Headers: map[string]string{
 								"name0": "foobar",
@@ -1181,7 +1228,21 @@ func TestEncodeConfiguration(t *testing.T) {
 						},
 						PassHostHeader: func(v bool) *bool { return &v }(true),
 						ResponseForwarding: &dynamic.ResponseForwarding{
-							FlushInterval: "foobar",
+							FlushInterval: ptypes.Duration(time.Second),
+						},
+						ServersTransport: "foobar",
+					},
+				},
+			},
+		},
+		TLS: &dynamic.TLSConfiguration{
+			Stores: map[string]tls.Store{
+				"default": {
+					DefaultGeneratedCert: &tls.GeneratedCert{
+						Resolver: "foobar",
+						Domain: &types.Domain{
+							Main: "foobar",
+							SANs: []string{"foobar", "fiibar"},
 						},
 					},
 				},
@@ -1209,6 +1270,7 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.CheckPeriod":                          "1000000000",
 		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.FallbackDuration":                     "1000000000",
 		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.RecoveryDuration":                     "1000000000",
+		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.ResponseCode":                         "404",
 		"traefik.HTTP.Middlewares.Middleware5.DigestAuth.HeaderField":                              "foobar",
 		"traefik.HTTP.Middlewares.Middleware5.DigestAuth.Realm":                                    "foobar",
 		"traefik.HTTP.Middlewares.Middleware5.DigestAuth.RemoveHeader":                             "true",
@@ -1261,9 +1323,10 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware8.Headers.STSIncludeSubdomains":                        "true",
 		"traefik.HTTP.Middlewares.Middleware8.Headers.STSPreload":                                  "true",
 		"traefik.HTTP.Middlewares.Middleware8.Headers.STSSeconds":                                  "42",
-		"traefik.HTTP.Middlewares.Middleware9.IPWhiteList.IPStrategy.Depth":                        "42",
-		"traefik.HTTP.Middlewares.Middleware9.IPWhiteList.IPStrategy.ExcludedIPs":                  "foobar, fiibar",
-		"traefik.HTTP.Middlewares.Middleware9.IPWhiteList.SourceRange":                             "foobar, fiibar",
+		"traefik.HTTP.Middlewares.Middleware9.IPAllowList.IPStrategy.Depth":                        "42",
+		"traefik.HTTP.Middlewares.Middleware9.IPAllowList.IPStrategy.ExcludedIPs":                  "foobar, fiibar",
+		"traefik.HTTP.Middlewares.Middleware9.IPAllowList.RejectStatusCode":                        "0",
+		"traefik.HTTP.Middlewares.Middleware9.IPAllowList.SourceRange":                             "foobar, fiibar",
 		"traefik.HTTP.Middlewares.Middleware10.InFlightReq.Amount":                                 "42",
 		"traefik.HTTP.Middlewares.Middleware10.InFlightReq.SourceCriterion.IPStrategy.Depth":       "42",
 		"traefik.HTTP.Middlewares.Middleware10.InFlightReq.SourceCriterion.IPStrategy.ExcludedIPs": "foobar, fiibar",
@@ -1326,37 +1389,42 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Routers.Router1.Rule":        "foobar",
 		"traefik.HTTP.Routers.Router1.Service":     "foobar",
 
+		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Headers.name0":        "foobar",
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Headers.name1":        "foobar",
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Hostname":             "foobar",
-		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Interval":             "foobar",
+		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Interval":             "1000000000",
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Path":                 "foobar",
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Method":               "foobar",
+		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Status":               "401",
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Port":                 "42",
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Scheme":               "foobar",
-		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Timeout":              "foobar",
+		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Timeout":              "1000000000",
 		"traefik.HTTP.Services.Service0.LoadBalancer.PassHostHeader":                   "true",
-		"traefik.HTTP.Services.Service0.LoadBalancer.ResponseForwarding.FlushInterval": "foobar",
+		"traefik.HTTP.Services.Service0.LoadBalancer.ResponseForwarding.FlushInterval": "1000000000",
 		"traefik.HTTP.Services.Service0.LoadBalancer.server.Port":                      "8080",
 		"traefik.HTTP.Services.Service0.LoadBalancer.server.Scheme":                    "foobar",
 		"traefik.HTTP.Services.Service0.LoadBalancer.Sticky.Cookie.Name":               "foobar",
 		"traefik.HTTP.Services.Service0.LoadBalancer.Sticky.Cookie.HTTPOnly":           "true",
 		"traefik.HTTP.Services.Service0.LoadBalancer.Sticky.Cookie.Secure":             "false",
+		"traefik.HTTP.Services.Service0.LoadBalancer.Sticky.Cookie.MaxAge":             "0",
+		"traefik.HTTP.Services.Service0.LoadBalancer.ServersTransport":                 "foobar",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Headers.name0":        "foobar",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Headers.name1":        "foobar",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Hostname":             "foobar",
-		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Interval":             "foobar",
+		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Interval":             "1000000000",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Path":                 "foobar",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Method":               "foobar",
+		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Status":               "401",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Port":                 "42",
 		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Scheme":               "foobar",
-		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Timeout":              "foobar",
+		"traefik.HTTP.Services.Service1.LoadBalancer.HealthCheck.Timeout":              "1000000000",
 		"traefik.HTTP.Services.Service1.LoadBalancer.PassHostHeader":                   "true",
-		"traefik.HTTP.Services.Service1.LoadBalancer.ResponseForwarding.FlushInterval": "foobar",
+		"traefik.HTTP.Services.Service1.LoadBalancer.ResponseForwarding.FlushInterval": "1000000000",
 		"traefik.HTTP.Services.Service1.LoadBalancer.server.Port":                      "8080",
 		"traefik.HTTP.Services.Service1.LoadBalancer.server.Scheme":                    "foobar",
-		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Headers.name0":        "foobar",
+		"traefik.HTTP.Services.Service1.LoadBalancer.ServersTransport":                 "foobar",
 
-		"traefik.TCP.Middlewares.Middleware0.IPWhiteList.SourceRange": "foobar, fiibar",
+		"traefik.TCP.Middlewares.Middleware0.IPAllowList.SourceRange": "foobar, fiibar",
 		"traefik.TCP.Middlewares.Middleware2.InFlightConn.Amount":     "42",
 		"traefik.TCP.Routers.Router0.Rule":                            "foobar",
 		"traefik.TCP.Routers.Router0.Priority":                        "42",
@@ -1371,9 +1439,17 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.TCP.Routers.Router1.TLS.Passthrough":                 "false",
 		"traefik.TCP.Routers.Router1.TLS.Options":                     "foo",
 		"traefik.TCP.Services.Service0.LoadBalancer.server.Port":      "42",
+		"traefik.TCP.Services.Service0.LoadBalancer.server.TLS":       "false",
+		"traefik.TCP.Services.Service0.LoadBalancer.ServersTransport": "foo",
 		"traefik.TCP.Services.Service0.LoadBalancer.TerminationDelay": "42",
 		"traefik.TCP.Services.Service1.LoadBalancer.server.Port":      "42",
+		"traefik.TCP.Services.Service1.LoadBalancer.server.TLS":       "false",
+		"traefik.TCP.Services.Service1.LoadBalancer.ServersTransport": "foo",
 		"traefik.TCP.Services.Service1.LoadBalancer.TerminationDelay": "42",
+
+		"traefik.TLS.Stores.default.DefaultGeneratedCert.Resolver":    "foobar",
+		"traefik.TLS.Stores.default.DefaultGeneratedCert.Domain.Main": "foobar",
+		"traefik.TLS.Stores.default.DefaultGeneratedCert.Domain.SANs": "foobar, fiibar",
 
 		"traefik.UDP.Routers.Router0.EntryPoints":                "foobar, fiibar",
 		"traefik.UDP.Routers.Router0.Service":                    "foobar",

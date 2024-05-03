@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/middlewares/replacepath"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/middlewares/replacepath"
 )
 
 func TestReplacePathRegex(t *testing.T) {
@@ -42,6 +42,28 @@ func TestReplacePathRegex(t *testing.T) {
 			},
 			expectedPath:    "/who-am-i/and/who-am-i",
 			expectedRawPath: "/who-am-i/and/who-am-i",
+			expectedHeader:  "/whoami/and/whoami",
+		},
+		{
+			desc: "empty replacement",
+			path: "/whoami/and/whoami",
+			config: dynamic.ReplacePathRegex{
+				Replacement: "",
+				Regex:       `/whoami`,
+			},
+			expectedPath:    "/and",
+			expectedRawPath: "/and",
+			expectedHeader:  "/whoami/and/whoami",
+		},
+		{
+			desc: "empty trimmed replacement",
+			path: "/whoami/and/whoami",
+			config: dynamic.ReplacePathRegex{
+				Replacement: " ",
+				Regex:       `/whoami`,
+			},
+			expectedPath:    "/and",
+			expectedRawPath: "/and",
 			expectedHeader:  "/whoami/and/whoami",
 		},
 		{

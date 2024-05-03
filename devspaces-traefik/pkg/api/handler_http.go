@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
+	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/traefik/traefik/v2/pkg/config/runtime"
-	"github.com/traefik/traefik/v2/pkg/log"
-	"github.com/traefik/traefik/v2/pkg/tls"
+	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v3/pkg/config/runtime"
+	"github.com/traefik/traefik/v3/pkg/tls"
 )
 
 type routerRepresentation struct {
@@ -69,7 +69,8 @@ func newMiddlewareRepresentation(name string, mi *runtime.MiddlewareInfo) middle
 func (h Handler) getRouters(rw http.ResponseWriter, request *http.Request) {
 	results := make([]routerRepresentation, 0, len(h.runtimeConfiguration.Routers))
 
-	criterion := newSearchCriterion(request.URL.Query())
+	query := request.URL.Query()
+	criterion := newSearchCriterion(query)
 
 	for name, rt := range h.runtimeConfiguration.Routers {
 		if keepRouter(name, rt, criterion) {
@@ -77,9 +78,7 @@ func (h Handler) getRouters(rw http.ResponseWriter, request *http.Request) {
 		}
 	}
 
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Name < results[j].Name
-	})
+	sortRouters(query, results)
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -93,13 +92,19 @@ func (h Handler) getRouters(rw http.ResponseWriter, request *http.Request) {
 
 	err = json.NewEncoder(rw).Encode(results[pageInfo.startIndex:pageInfo.endIndex])
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		writeError(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func (h Handler) getRouter(rw http.ResponseWriter, request *http.Request) {
-	routerID := mux.Vars(request)["routerID"]
+	scapedRouterID := mux.Vars(request)["routerID"]
+
+	routerID, err := url.PathUnescape(scapedRouterID)
+	if err != nil {
+		writeError(rw, fmt.Sprintf("unable to decode routerID %q: %s", scapedRouterID, err), http.StatusBadRequest)
+		return
+	}
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -111,9 +116,9 @@ func (h Handler) getRouter(rw http.ResponseWriter, request *http.Request) {
 
 	result := newRouterRepresentation(routerID, router)
 
-	err := json.NewEncoder(rw).Encode(result)
+	err = json.NewEncoder(rw).Encode(result)
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		writeError(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -121,7 +126,8 @@ func (h Handler) getRouter(rw http.ResponseWriter, request *http.Request) {
 func (h Handler) getServices(rw http.ResponseWriter, request *http.Request) {
 	results := make([]serviceRepresentation, 0, len(h.runtimeConfiguration.Services))
 
-	criterion := newSearchCriterion(request.URL.Query())
+	query := request.URL.Query()
+	criterion := newSearchCriterion(query)
 
 	for name, si := range h.runtimeConfiguration.Services {
 		if keepService(name, si, criterion) {
@@ -129,9 +135,7 @@ func (h Handler) getServices(rw http.ResponseWriter, request *http.Request) {
 		}
 	}
 
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Name < results[j].Name
-	})
+	sortServices(query, results)
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -145,13 +149,19 @@ func (h Handler) getServices(rw http.ResponseWriter, request *http.Request) {
 
 	err = json.NewEncoder(rw).Encode(results[pageInfo.startIndex:pageInfo.endIndex])
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		writeError(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func (h Handler) getService(rw http.ResponseWriter, request *http.Request) {
-	serviceID := mux.Vars(request)["serviceID"]
+	scapedServiceID := mux.Vars(request)["serviceID"]
+
+	serviceID, err := url.PathUnescape(scapedServiceID)
+	if err != nil {
+		writeError(rw, fmt.Sprintf("unable to decode serviceID %q: %s", scapedServiceID, err), http.StatusBadRequest)
+		return
+	}
 
 	rw.Header().Add("Content-Type", "application/json")
 
@@ -163,9 +173,9 @@ func (h Handler) getService(rw http.ResponseWriter, request *http.Request) {
 
 	result := newServiceRepresentation(serviceID, service)
 
-	err := json.NewEncoder(rw).Encode(result)
+	err = json.NewEncoder(rw).Encode(result)
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		writeError(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -173,7 +183,8 @@ func (h Handler) getService(rw http.ResponseWriter, request *http.Request) {
 func (h Handler) getMiddlewares(rw http.ResponseWriter, request *http.Request) {
 	results := make([]middlewareRepresentation, 0, len(h.runtimeConfiguration.Middlewares))
 
-	criterion := newSearchCriterion(request.URL.Query())
+	query := request.URL.Query()
+	criterion := newSearchCriterion(query)
 
 	for name, mi := range h.runtimeConfiguration.Middlewares {
 		if keepMiddleware(name, mi, criterion) {
@@ -181,9 +192,7 @@ func (h Handler) getMiddlewares(rw http.ResponseWriter, request *http.Request) {
 		}
 	}
 
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Name < results[j].Name
-	})
+	sortMiddlewares(query, results)
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -197,13 +206,19 @@ func (h Handler) getMiddlewares(rw http.ResponseWriter, request *http.Request) {
 
 	err = json.NewEncoder(rw).Encode(results[pageInfo.startIndex:pageInfo.endIndex])
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		writeError(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func (h Handler) getMiddleware(rw http.ResponseWriter, request *http.Request) {
-	middlewareID := mux.Vars(request)["middlewareID"]
+	scapedMiddlewareID := mux.Vars(request)["middlewareID"]
+
+	middlewareID, err := url.PathUnescape(scapedMiddlewareID)
+	if err != nil {
+		writeError(rw, fmt.Sprintf("unable to decode middlewareID %q: %s", scapedMiddlewareID, err), http.StatusBadRequest)
+		return
+	}
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -215,9 +230,9 @@ func (h Handler) getMiddleware(rw http.ResponseWriter, request *http.Request) {
 
 	result := newMiddlewareRepresentation(middlewareID, middleware)
 
-	err := json.NewEncoder(rw).Encode(result)
+	err = json.NewEncoder(rw).Encode(result)
 	if err != nil {
-		log.FromContext(request.Context()).Error(err)
+		log.Ctx(request.Context()).Error().Err(err).Send()
 		writeError(rw, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -227,7 +242,10 @@ func keepRouter(name string, item *runtime.RouterInfo, criterion *searchCriterio
 		return true
 	}
 
-	return criterion.withStatus(item.Status) && criterion.searchIn(item.Rule, name)
+	return criterion.withStatus(item.Status) &&
+		criterion.searchIn(item.Rule, name) &&
+		criterion.filterService(item.Service) &&
+		criterion.filterMiddleware(item.Middlewares)
 }
 
 func keepService(name string, item *runtime.ServiceInfo, criterion *searchCriterion) bool {

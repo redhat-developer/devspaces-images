@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/types"
 )
 
 func Test_parseRouterConfig(t *testing.T) {
@@ -80,7 +80,6 @@ func Test_parseRouterConfig(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -126,7 +125,7 @@ func Test_parseServiceConfig(t *testing.T) {
 					ServersScheme:    "protocol",
 					ServersTransport: "foobar@file",
 					PassHostHeader:   Bool(true),
-					NativeLB:         true,
+					NativeLB:         Bool(true),
 				},
 			},
 		},
@@ -155,7 +154,6 @@ func Test_parseServiceConfig(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -239,7 +237,6 @@ func Test_convertAnnotations(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 

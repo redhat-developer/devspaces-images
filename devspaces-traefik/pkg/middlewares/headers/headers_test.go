@@ -4,14 +4,17 @@ package headers
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httptrace"
+	"net/textproto"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/tracing"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func TestNew_withoutOptions(t *testing.T) {
@@ -56,7 +59,6 @@ func TestNew_allowedHosts(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -106,8 +108,93 @@ func Test_headers_getTracingInformation(t *testing.T) {
 		name:    "testing",
 	}
 
-	name, trace := mid.GetTracingInformation()
+	name, typeName, spanKind := mid.GetTracingInformation()
 
 	assert.Equal(t, "testing", name)
-	assert.Equal(t, tracing.SpanKindNoneEnum, trace)
+	assert.Equal(t, "Headers", typeName)
+	assert.Equal(t, trace.SpanKindInternal, spanKind)
+}
+
+// This test is an adapted version of net/http/httputil.Test1xxResponses test.
+func Test1xxResponses(t *testing.T) {
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Add("Link", "</style.css>; rel=preload; as=style")
+		h.Add("Link", "</script.js>; rel=preload; as=script")
+		w.WriteHeader(http.StatusEarlyHints)
+
+		h.Add("Link", "</foo.js>; rel=preload; as=script")
+		w.WriteHeader(http.StatusProcessing)
+
+		_, _ = w.Write([]byte("Hello"))
+	})
+
+	cfg := dynamic.Headers{
+		CustomResponseHeaders: map[string]string{
+			"X-Custom-Response-Header": "test_response",
+		},
+	}
+
+	mid, err := New(context.Background(), next, cfg, "testing")
+	require.NoError(t, err)
+
+	server := httptest.NewServer(mid)
+	t.Cleanup(server.Close)
+	frontendClient := server.Client()
+
+	checkLinkHeaders := func(t *testing.T, expected, got []string) {
+		t.Helper()
+
+		if len(expected) != len(got) {
+			t.Errorf("Expected %d link headers; got %d", len(expected), len(got))
+		}
+
+		for i := range expected {
+			if i >= len(got) {
+				t.Errorf("Expected %q link header; got nothing", expected[i])
+
+				continue
+			}
+
+			if expected[i] != got[i] {
+				t.Errorf("Expected %q link header; got %q", expected[i], got[i])
+			}
+		}
+	}
+
+	var respCounter uint8
+	trace := &httptrace.ClientTrace{
+		Got1xxResponse: func(code int, header textproto.MIMEHeader) error {
+			switch code {
+			case http.StatusEarlyHints:
+				checkLinkHeaders(t, []string{"</style.css>; rel=preload; as=style", "</script.js>; rel=preload; as=script"}, header["Link"])
+			case http.StatusProcessing:
+				checkLinkHeaders(t, []string{"</style.css>; rel=preload; as=style", "</script.js>; rel=preload; as=script", "</foo.js>; rel=preload; as=script"}, header["Link"])
+			default:
+				t.Error("Unexpected 1xx response")
+			}
+
+			respCounter++
+
+			return nil
+		},
+	}
+	req, _ := http.NewRequestWithContext(httptrace.WithClientTrace(context.Background(), trace), http.MethodGet, server.URL, nil)
+
+	res, err := frontendClient.Do(req)
+	assert.NoError(t, err)
+
+	defer res.Body.Close()
+
+	if respCounter != 2 {
+		t.Errorf("Expected 2 1xx responses; got %d", respCounter)
+	}
+	checkLinkHeaders(t, []string{"</style.css>; rel=preload; as=style", "</script.js>; rel=preload; as=script", "</foo.js>; rel=preload; as=script"}, res.Header["Link"])
+
+	body, _ := io.ReadAll(res.Body)
+	if string(body) != "Hello" {
+		t.Errorf("Read body %q; want Hello", body)
+	}
+
+	assert.Equal(t, "test_response", res.Header.Get("X-Custom-Response-Header"))
 }

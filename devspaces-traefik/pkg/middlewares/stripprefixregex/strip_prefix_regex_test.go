@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/middlewares/stripprefix"
-	"github.com/traefik/traefik/v2/pkg/testhelpers"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/middlewares/stripprefix"
+	"github.com/traefik/traefik/v3/pkg/testhelpers"
 )
 
 func TestStripPrefixRegex(t *testing.T) {
@@ -108,7 +108,6 @@ func TestStripPrefixRegex(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.path, func(t *testing.T) {
 			t.Parallel()
 

@@ -11,9 +11,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/config/runtime"
-	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/config/runtime"
+	"github.com/traefik/traefik/v3/pkg/config/static"
 )
 
 var updateExpected = flag.Bool("update_expected", false, "Update expected files in testdata")
@@ -127,7 +127,6 @@ func TestHandler_RawData(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -143,7 +142,7 @@ func TestHandler_RawData(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expected.statusCode, resp.StatusCode)
-			assert.Equal(t, resp.Header.Get("Content-Type"), "application/json")
+			assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 
 			contents, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
@@ -252,7 +251,6 @@ func TestHandler_GetMiddleware(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 

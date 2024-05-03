@@ -3,17 +3,19 @@ package tcp
 import (
 	"context"
 	"crypto/tls"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/config/runtime"
-	tcpmiddleware "github.com/traefik/traefik/v2/pkg/server/middleware/tcp"
-	"github.com/traefik/traefik/v2/pkg/server/service/tcp"
-	traefiktls "github.com/traefik/traefik/v2/pkg/tls"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/config/runtime"
+	tcpmiddleware "github.com/traefik/traefik/v3/pkg/server/middleware/tcp"
+	"github.com/traefik/traefik/v3/pkg/server/service/tcp"
+	tcp2 "github.com/traefik/traefik/v3/pkg/tcp"
+	traefiktls "github.com/traefik/traefik/v3/pkg/tls"
 )
 
 func TestRuntimeConfiguration(t *testing.T) {
@@ -264,10 +266,44 @@ func TestRuntimeConfiguration(t *testing.T) {
 						EntryPoints: []string{"web"},
 						Service:     "foo-service",
 						Rule:        "HostSNI(`foo.bar`)",
+						TLS:         &dynamic.RouterTCPTLSConfig{},
 					},
 				},
 			},
 			expectedError: 2,
+		},
+		{
+			desc: "Router with priority exceeding the max user-defined priority",
+			tcpServiceConfig: map[string]*runtime.TCPServiceInfo{
+				"foo-service": {
+					TCPService: &dynamic.TCPService{
+						LoadBalancer: &dynamic.TCPServersLoadBalancer{
+							Servers: []dynamic.TCPServer{
+								{
+									Port:    "8085",
+									Address: "127.0.0.1:8085",
+								},
+								{
+									Address: "127.0.0.1:8086",
+									Port:    "8086",
+								},
+							},
+						},
+					},
+				},
+			},
+			tcpRouterConfig: map[string]*runtime.TCPRouterInfo{
+				"bar": {
+					TCPRouter: &dynamic.TCPRouter{
+						EntryPoints: []string{"web"},
+						Service:     "foo-service",
+						Rule:        "HostSNI(`foo.bar`)",
+						TLS:         &dynamic.RouterTCPTLSConfig{},
+						Priority:    math.MaxInt,
+					},
+				},
+			},
+			expectedError: 1,
 		},
 		{
 			desc: "Router with HostSNI but no TLS",
@@ -298,8 +334,6 @@ func TestRuntimeConfiguration(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
-
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -311,7 +345,9 @@ func TestRuntimeConfiguration(t *testing.T) {
 				TCPServices: test.tcpServiceConfig,
 				TCPRouters:  test.tcpRouterConfig,
 			}
-			serviceManager := tcp.NewManager(conf)
+			dialerManager := tcp2.NewDialerManager(nil)
+			dialerManager.Update(map[string]*dynamic.TCPServersTransport{"default@internal": {}})
+			serviceManager := tcp.NewManager(conf, dialerManager)
 			tlsManager := traefiktls.NewManager()
 			tlsManager.UpdateConfigs(
 				context.Background(),
@@ -622,7 +658,7 @@ func TestDomainFronting(t *testing.T) {
 				Routers: test.routers,
 			}
 
-			serviceManager := tcp.NewManager(conf)
+			serviceManager := tcp.NewManager(conf, tcp2.NewDialerManager(nil))
 
 			tlsManager := traefiktls.NewManager()
 			tlsManager.UpdateConfigs(context.Background(), map[string]traefiktls.Store{}, test.tlsOptions, []*traefiktls.CertAndStores{})

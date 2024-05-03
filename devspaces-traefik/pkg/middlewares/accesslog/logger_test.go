@@ -3,6 +3,8 @@ package accesslog
 import (
 	"bytes"
 	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -20,9 +23,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ptypes "github.com/traefik/paerser/types"
-	"github.com/traefik/traefik/v2/pkg/middlewares/capture"
-	"github.com/traefik/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v3/pkg/middlewares/capture"
+	"github.com/traefik/traefik/v3/pkg/types"
 )
+
+const delta float64 = 1e-10
 
 var (
 	logFileNameSuffix       = "/traefik/logger/test.log"
@@ -71,7 +76,7 @@ func TestLogRotation(t *testing.T) {
 	halfDone := make(chan bool)
 	writeDone := make(chan bool)
 	go func() {
-		for i := 0; i < iterations; i++ {
+		for i := range iterations {
 			handler.ServeHTTP(recorder, req)
 			if i == iterations/2 {
 				halfDone <- true
@@ -175,7 +180,6 @@ func TestLoggerHeaderFields(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			logFile, err := os.CreateTemp(t.TempDir(), "*.log")
 			require.NoError(t, err)
@@ -277,7 +281,7 @@ func assertFloat64(exp float64) func(t *testing.T, actual interface{}) {
 	return func(t *testing.T, actual interface{}) {
 		t.Helper()
 
-		assert.Equal(t, exp, actual)
+		assert.InDelta(t, exp, actual, delta)
 	}
 }
 
@@ -321,7 +325,7 @@ func TestLoggerJSON(t *testing.T) {
 				ServiceURL:                assertString(testServiceName),
 				ClientUsername:            assertString(testUsername),
 				ClientHost:                assertString(testHostname),
-				ClientPort:                assertString(fmt.Sprintf("%d", testPort)),
+				ClientPort:                assertString(strconv.Itoa(testPort)),
 				ClientAddr:                assertString(fmt.Sprintf("%s:%d", testHostname, testPort)),
 				"level":                   assertString("info"),
 				"msg":                     assertString(""),
@@ -361,7 +365,7 @@ func TestLoggerJSON(t *testing.T) {
 				ServiceURL:                assertString(testServiceName),
 				ClientUsername:            assertString(testUsername),
 				ClientHost:                assertString(testHostname),
-				ClientPort:                assertString(fmt.Sprintf("%d", testPort)),
+				ClientPort:                assertString(strconv.Itoa(testPort)),
 				ClientAddr:                assertString(fmt.Sprintf("%s:%d", testHostname, testPort)),
 				"level":                   assertString("info"),
 				"msg":                     assertString(""),
@@ -370,6 +374,7 @@ func TestLoggerJSON(t *testing.T) {
 				Duration:                  assertFloat64NotZero(),
 				Overhead:                  assertFloat64NotZero(),
 				RetryAttempts:             assertFloat64(float64(testRetryAttempts)),
+				TLSClientSubject:          assertString("CN=foobar"),
 				TLSVersion:                assertString("1.3"),
 				TLSCipher:                 assertString("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"),
 				"time":                    assertNotEmpty(),
@@ -463,7 +468,6 @@ func TestLoggerJSON(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -681,7 +685,6 @@ func TestNewLogHandlerOutputStdout(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			// NOTE: It is not possible to run these cases in parallel because we capture Stdout
 
@@ -780,6 +783,9 @@ func doLoggingTLSOpt(t *testing.T, config *types.AccessLog, enableTLS bool) {
 		req.TLS = &tls.ConnectionState{
 			Version:     tls.VersionTLS13,
 			CipherSuite: tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			PeerCertificates: []*x509.Certificate{{
+				Subject: pkix.Name{CommonName: "foobar"},
+			}},
 		}
 	}
 

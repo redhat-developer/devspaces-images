@@ -97,29 +97,6 @@ which in turn will create the resulting routers, services, handlers, etc.
                       number: 80
     ```
 
-    ```yaml tab="Ingress v1beta1 (deprecated)"
-    apiVersion: networking.k8s.io/v1beta1
-    kind: Ingress
-    metadata:
-      name: myingress
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: web
-
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /bar
-                backend:
-                  serviceName: whoami
-                  servicePort: 80
-              - path: /foo
-                backend:
-                  serviceName: whoami
-                  servicePort: 80
-    ```
-
     ```yaml tab="Traefik"
     apiVersion: v1
     kind: ServiceAccount
@@ -147,9 +124,9 @@ which in turn will create the resulting routers, services, handlers, etc.
           serviceAccountName: traefik-ingress-controller
           containers:
             - name: traefik
-              image: traefik:v2.10
+              image: traefik:v3.0
               args:
-                - --entrypoints.web.address=:80
+                - --entryPoints.web.address=:80
                 - --providers.kubernetesingress
               ports:
                 - name: web
@@ -374,6 +351,14 @@ which in turn will create the resulting routers, services, handlers, etc.
     traefik.ingress.kubernetes.io/service.sticky.cookie.httponly: "true"
     ```
 
+??? info "`traefik.ingress.kubernetes.io/service.sticky.cookie.maxage`"
+
+    See [sticky sessions](../services/index.md#sticky-sessions) for more information.
+
+    ```yaml
+    traefik.ingress.kubernetes.io/service.sticky.cookie.maxage: 42
+    ```
+
 ## Path Types on Kubernetes 1.18+
 
 If the Kubernetes cluster version is 1.18+,
@@ -396,8 +381,8 @@ TLS can be enabled through the [HTTP options](../entrypoints.md#tls) of an Entry
 
 ```bash tab="CLI"
 # Static configuration
---entrypoints.websecure.address=:443
---entrypoints.websecure.http.tls
+--entryPoints.websecure.address=:443
+--entryPoints.websecure.http.tls
 ```
 
 ```yaml tab="File (YAML)"
@@ -500,29 +485,6 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
                       number: 80
     ```
 
-    ```yaml tab="Ingress v1beta1 (deprecated)"
-    apiVersion: networking.k8s.io/v1beta1
-    kind: Ingress
-    metadata:
-      name: myingress
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /bar
-                backend:
-                  serviceName: whoami
-                  servicePort: 80
-              - path: /foo
-                backend:
-                  serviceName: whoami
-                  servicePort: 80
-    ```
-
     ```yaml tab="Traefik"
     apiVersion: v1
     kind: ServiceAccount
@@ -550,10 +512,10 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
           serviceAccountName: traefik-ingress-controller
           containers:
             - name: traefik
-              image: traefik:v2.10
+              image: traefik:v3.0
               args:
-                - --entrypoints.websecure.address=:443
-                - --entrypoints.websecure.http.tls
+                - --entryPoints.websecure.address=:443
+                - --entryPoints.websecure.http.tls
                 - --providers.kubernetesingress
               ports:
                 - name: websecure
@@ -709,30 +671,6 @@ For more options, please refer to the available [annotations](#on-ingress).
                       number: 80
     ```
 
-    ```yaml tab="Ingress v1beta1 (deprecated)"
-    apiVersion: networking.k8s.io/v1beta1
-    kind: Ingress
-    metadata:
-      name: myingress
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        traefik.ingress.kubernetes.io/router.tls: true
-
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /bar
-                backend:
-                  serviceName: whoami
-                  servicePort: 80
-              - path: /foo
-                backend:
-                  serviceName: whoami
-                  servicePort: 80
-    ```
-
     ```yaml tab="Traefik"
     apiVersion: v1
     kind: ServiceAccount
@@ -760,9 +698,9 @@ For more options, please refer to the available [annotations](#on-ingress).
           serviceAccountName: traefik-ingress-controller
           containers:
             - name: traefik
-              image: traefik:v2.10
+              image: traefik:v3.0
               args:
-                - --entrypoints.websecure.address=:443
+                - --entryPoints.websecure.address=:443
                 - --providers.kubernetesingress
               ports:
                 - name: websecure
@@ -856,29 +794,6 @@ For more options, please refer to the available [annotations](#on-ingress).
       - secretName: supersecret
     ```
 
-    ```yaml tab="Ingress v1beta1 (deprecated)"
-    apiVersion: networking.k8s.io/v1beta1
-    kind: Ingress
-    metadata:
-      name: foo
-      namespace: production
-
-    spec:
-      rules:
-      - host: example.net
-        http:
-          paths:
-          - path: /bar
-            backend:
-              serviceName: service1
-              servicePort: 80
-      # Only selects which certificate(s) should be loaded from the secret, in order to terminate TLS.
-      # Doesn't enable TLS for that ingress (hence for the underlying router).
-      # Please see the TLS annotations on ingress made for that purpose.
-      tls:
-      - secretName: supersecret
-    ```
-
     ```yaml tab="Secret"
     apiVersion: v1
     kind: Secret
@@ -945,18 +860,6 @@ spec:
       name: stilton
       port:
         number: 80
-```
-
-```yaml tab="Ingress v1beta1 (deprecated)"
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
- name: cheese
-
-spec:
-  defaultBackend:
-    serviceName: stilton
-    serverPort: 80
 ```
 
 This ingress follows the Global Default Backend property of ingresses.

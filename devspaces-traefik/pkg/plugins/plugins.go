@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/rs/zerolog/log"
 )
 
 const localGoPath = "./plugins-local/"
@@ -21,38 +21,38 @@ func SetupRemotePlugins(client *Client, plugins map[string]Descriptor) error {
 
 	err = client.CleanArchives(plugins)
 	if err != nil {
-		return fmt.Errorf("failed to clean archives: %w", err)
+		return fmt.Errorf("unable to clean archives: %w", err)
 	}
 
 	ctx := context.Background()
 
 	for pAlias, desc := range plugins {
-		log.FromContext(ctx).Debugf("loading of plugin: %s: %s@%s", pAlias, desc.ModuleName, desc.Version)
+		log.Ctx(ctx).Debug().Msgf("Loading of plugin: %s: %s@%s", pAlias, desc.ModuleName, desc.Version)
 
 		hash, err := client.Download(ctx, desc.ModuleName, desc.Version)
 		if err != nil {
 			_ = client.ResetAll()
-			return fmt.Errorf("failed to download plugin %s: %w", desc.ModuleName, err)
+			return fmt.Errorf("unable to download plugin %s: %w", desc.ModuleName, err)
 		}
 
 		err = client.Check(ctx, desc.ModuleName, desc.Version, hash)
 		if err != nil {
 			_ = client.ResetAll()
-			return fmt.Errorf("failed to check archive integrity of the plugin %s: %w", desc.ModuleName, err)
+			return fmt.Errorf("unable to check archive integrity of the plugin %s: %w", desc.ModuleName, err)
 		}
 	}
 
 	err = client.WriteState(plugins)
 	if err != nil {
 		_ = client.ResetAll()
-		return fmt.Errorf("failed to write plugins state: %w", err)
+		return fmt.Errorf("unable to write plugins state: %w", err)
 	}
 
 	for _, desc := range plugins {
 		err = client.Unzip(desc.ModuleName, desc.Version)
 		if err != nil {
 			_ = client.ResetAll()
-			return fmt.Errorf("failed to unzip archive: %w", err)
+			return fmt.Errorf("unable to unzip archive: %w", err)
 		}
 	}
 
@@ -138,18 +138,28 @@ func checkLocalPluginManifest(descriptor LocalDescriptor) error {
 	var errs *multierror.Error
 
 	switch m.Type {
-	case "middleware", "provider":
-		// noop
+	case typeMiddleware:
+		if m.Runtime != runtimeYaegi && m.Runtime != runtimeWasm && m.Runtime != "" {
+			errs = multierror.Append(errs, fmt.Errorf("%s: unsupported runtime '%q'", descriptor.ModuleName, m.Runtime))
+		}
+
+	case typeProvider:
+		if m.Runtime != runtimeYaegi && m.Runtime != "" {
+			errs = multierror.Append(errs, fmt.Errorf("%s: unsupported runtime '%q'", descriptor.ModuleName, m.Runtime))
+		}
+
 	default:
 		errs = multierror.Append(errs, fmt.Errorf("%s: unsupported type %q", descriptor.ModuleName, m.Type))
 	}
 
-	if m.Import == "" {
-		errs = multierror.Append(errs, fmt.Errorf("%s: missing import", descriptor.ModuleName))
-	}
+	if m.IsYaegiPlugin() {
+		if m.Import == "" {
+			errs = multierror.Append(errs, fmt.Errorf("%s: missing import", descriptor.ModuleName))
+		}
 
-	if !strings.HasPrefix(m.Import, descriptor.ModuleName) {
-		errs = multierror.Append(errs, fmt.Errorf("the import %q must be related to the module name %q", m.Import, descriptor.ModuleName))
+		if !strings.HasPrefix(m.Import, descriptor.ModuleName) {
+			errs = multierror.Append(errs, fmt.Errorf("the import %q must be related to the module name %q", m.Import, descriptor.ModuleName))
+		}
 	}
 
 	if m.DisplayName == "" {

@@ -8,9 +8,13 @@ description: "Learn how to use IPWhiteList in HTTP middleware for limiting clien
 Limiting Clients to Specific IPs
 {: .subtitle }
 
-![IpWhiteList](../../assets/img/middleware/ipwhitelist.png)
+![IPWhiteList](../../assets/img/middleware/ipwhitelist.png)
 
-IPWhitelist accepts / refuses requests based on the client IP.
+IPWhiteList limits allowed requests based on the client IP.
+
+!!! warning
+
+    This middleware is deprecated, please use the [IPAllowList](./ipallowlist.md) middleware instead.
 
 ## Configuration Examples
 
@@ -37,18 +41,6 @@ spec:
 - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
 ```
 
-```json tab="Marathon"
-"labels": {
-  "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourcerange": "127.0.0.1/32,192.168.1.7"
-}
-```
-
-```yaml tab="Rancher"
-# Accepts request from defined IP
-labels:
-  - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
-```
-
 ```yaml tab="File (YAML)"
 # Accepts request from defined IP
 http:
@@ -70,6 +62,8 @@ http:
 ## Configuration Options
 
 ### `sourceRange`
+
+_Required_
 
 The `sourceRange` option sets the allowed IPs (or ranges of allowed IPs by using CIDR notation).
 
@@ -125,20 +119,6 @@ spec:
 - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.depth=2"
 ```
 
-```json tab="Marathon"
-"labels": {
-  "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourcerange": "127.0.0.1/32, 192.168.1.7",
-  "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.depth": "2"
-}
-```
-
-```yaml tab="Rancher"
-# Whitelisting Based on `X-Forwarded-For` with `depth=2`
-labels:
-  - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
-  - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.depth=2"
-```
-
 ```yaml tab="File (YAML)"
 # Whitelisting Based on `X-Forwarded-For` with `depth=2`
 http:
@@ -180,6 +160,7 @@ http:
 ```yaml tab="Docker"
 # Exclude from `X-Forwarded-For`
 labels:
+    - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourceRange=127.0.0.1/32, 192.168.1.0/24"
     - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.excludedips=127.0.0.1/32, 192.168.1.7"
 ```
 
@@ -192,6 +173,9 @@ metadata:
 spec:
   ipWhiteList:
     ipStrategy:
+      sourceRange:
+        - 127.0.0.1/32
+        - 192.168.1.0/24
       excludedIPs:
         - 127.0.0.1/32
         - 192.168.1.7
@@ -199,19 +183,8 @@ spec:
 
 ```yaml tab="Consul Catalog"
 # Exclude from `X-Forwarded-For`
+- "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.sourceRange=127.0.0.1/32, 192.168.1.0/24"
 - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.excludedips=127.0.0.1/32, 192.168.1.7"
-```
-
-```json tab="Marathon"
-"labels": {
-  "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.excludedips": "127.0.0.1/32, 192.168.1.7"
-}
-```
-
-```yaml tab="Rancher"
-# Exclude from `X-Forwarded-For`
-labels:
-  - "traefik.http.middlewares.test-ipwhitelist.ipwhitelist.ipstrategy.excludedips=127.0.0.1/32, 192.168.1.7"
 ```
 
 ```yaml tab="File (YAML)"
@@ -220,16 +193,20 @@ http:
   middlewares:
     test-ipwhitelist:
       ipWhiteList:
+        sourceRange:
+          - 127.0.0.1/32
+          - 192.168.1.0/24
         ipStrategy:
           excludedIPs:
-            - "127.0.0.1/32"
-            - "192.168.1.7"
+            - 127.0.0.1/32
+            - 192.168.1.7
 ```
 
 ```toml tab="File (TOML)"
 # Exclude from `X-Forwarded-For`
 [http.middlewares]
   [http.middlewares.test-ipwhitelist.ipWhiteList]
+    sourceRange = ["127.0.0.1/32", "192.168.1.0/24"]
     [http.middlewares.test-ipwhitelist.ipWhiteList.ipStrategy]
       excludedIPs = ["127.0.0.1/32", "192.168.1.7"]
 ```

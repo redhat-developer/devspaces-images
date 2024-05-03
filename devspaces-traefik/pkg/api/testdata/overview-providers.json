@@ -2,8 +2,7 @@
 	"features": {
 		"accessLog": false,
 		"metrics": "",
-		"tracing": "",
-		"hub": false
+		"tracing": ""
 	},
 	"http": {
 		"middlewares": {
@@ -24,12 +23,11 @@
 	},
 	"providers": [
 		"Docker",
+		"Swarm",
 		"File",
-		"Marathon",
 		"KubernetesIngress",
 		"KubernetesCRD",
 		"Rest",
-		"Rancher",
 		"plugin-test"
 	],
 	"tcp": {

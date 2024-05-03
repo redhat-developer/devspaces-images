@@ -1,15 +1,15 @@
 package headers
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/middlewares"
+	"github.com/vulcand/oxy/v2/forward"
 )
 
 // Header is a middleware that helps setup a few basic security features.
@@ -27,9 +27,6 @@ type Header struct {
 func NewHeader(next http.Handler, cfg dynamic.Headers) (*Header, error) {
 	hasCustomHeaders := cfg.HasCustomHeadersDefined()
 	hasCorsHeaders := cfg.HasCorsHeadersDefined()
-
-	ctx := log.With(context.Background(), log.Str(log.MiddlewareType, typeName))
-	handleDeprecation(ctx, &cfg)
 
 	regexes := make([]*regexp.Regexp, len(cfg.AccessControlAllowOriginListRegex))
 	for i, str := range cfg.AccessControlAllowOriginListRegex {
@@ -52,6 +49,7 @@ func NewHeader(next http.Handler, cfg dynamic.Headers) (*Header, error) {
 func (s *Header) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// Handle Cors headers and preflight if configured.
 	if isPreflight := s.processCorsHeaders(rw, req); isPreflight {
+		rw.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -61,7 +59,7 @@ func (s *Header) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	// If there is a next, call it.
 	if s.next != nil {
-		s.next.ServeHTTP(newResponseModifier(rw, req, s.PostRequestModifyResponseHeaders), req)
+		s.next.ServeHTTP(middlewares.NewResponseModifier(rw, req, s.PostRequestModifyResponseHeaders), req)
 	}
 }
 
@@ -70,6 +68,10 @@ func (s *Header) modifyCustomRequestHeaders(req *http.Request) {
 	// Loop through Custom request headers
 	for header, value := range s.headers.CustomRequestHeaders {
 		switch {
+		// Handling https://github.com/golang/go/commit/ecdbffd4ec68b509998792f120868fec319de59b.
+		case value == "" && header == forward.XForwardedFor:
+			req.Header[header] = nil
+
 		case value == "":
 			req.Header.Del(header)
 

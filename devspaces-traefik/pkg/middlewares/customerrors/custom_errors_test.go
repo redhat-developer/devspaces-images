@@ -3,14 +3,17 @@ package customerrors
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httptrace"
+	"net/textproto"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/testhelpers"
+	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v3/pkg/testhelpers"
 )
 
 func TestHandler(t *testing.T) {
@@ -154,7 +157,6 @@ func TestHandler(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -181,57 +183,92 @@ func TestHandler(t *testing.T) {
 	}
 }
 
+// This test is an adapted version of net/http/httputil.Test1xxResponses test.
+func Test1xxResponses(t *testing.T) {
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Add("Link", "</style.css>; rel=preload; as=style")
+		h.Add("Link", "</script.js>; rel=preload; as=script")
+		w.WriteHeader(http.StatusEarlyHints)
+
+		h.Add("Link", "</foo.js>; rel=preload; as=script")
+		w.WriteHeader(http.StatusProcessing)
+
+		h.Add("User-Agent", "foobar")
+		_, _ = w.Write([]byte("Hello"))
+		w.WriteHeader(http.StatusBadGateway)
+	})
+
+	serviceBuilderMock := &mockServiceBuilder{handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintln(w, "My error page.")
+	})}
+
+	config := dynamic.ErrorPage{Service: "error", Query: "/", Status: []string{"200"}}
+
+	errorPageHandler, err := New(context.Background(), next, config, serviceBuilderMock, "test")
+	require.NoError(t, err)
+
+	server := httptest.NewServer(errorPageHandler)
+	t.Cleanup(server.Close)
+	frontendClient := server.Client()
+
+	checkLinkHeaders := func(t *testing.T, expected, got []string) {
+		t.Helper()
+
+		if len(expected) != len(got) {
+			t.Errorf("Expected %d link headers; got %d", len(expected), len(got))
+		}
+
+		for i := range expected {
+			if i >= len(got) {
+				t.Errorf("Expected %q link header; got nothing", expected[i])
+
+				continue
+			}
+
+			if expected[i] != got[i] {
+				t.Errorf("Expected %q link header; got %q", expected[i], got[i])
+			}
+		}
+	}
+
+	var respCounter uint8
+	trace := &httptrace.ClientTrace{
+		Got1xxResponse: func(code int, header textproto.MIMEHeader) error {
+			switch code {
+			case http.StatusEarlyHints:
+				checkLinkHeaders(t, []string{"</style.css>; rel=preload; as=style", "</script.js>; rel=preload; as=script"}, header["Link"])
+			case http.StatusProcessing:
+				checkLinkHeaders(t, []string{"</style.css>; rel=preload; as=style", "</script.js>; rel=preload; as=script", "</foo.js>; rel=preload; as=script"}, header["Link"])
+			default:
+				t.Error("Unexpected 1xx response")
+			}
+
+			respCounter++
+
+			return nil
+		},
+	}
+	req, _ := http.NewRequestWithContext(httptrace.WithClientTrace(context.Background(), trace), http.MethodGet, server.URL, nil)
+
+	res, err := frontendClient.Do(req)
+	assert.NoError(t, err)
+
+	defer res.Body.Close()
+
+	if respCounter != 2 {
+		t.Errorf("Expected 2 1xx responses; got %d", respCounter)
+	}
+	checkLinkHeaders(t, []string{"</style.css>; rel=preload; as=style", "</script.js>; rel=preload; as=script", "</foo.js>; rel=preload; as=script"}, res.Header["Link"])
+
+	body, _ := io.ReadAll(res.Body)
+	assert.Equal(t, "My error page.\n", string(body))
+}
+
 type mockServiceBuilder struct {
 	handler http.Handler
 }
 
 func (m *mockServiceBuilder) BuildHTTP(_ context.Context, _ string) (http.Handler, error) {
 	return m.handler, nil
-}
-
-func TestNewResponseRecorder(t *testing.T) {
-	testCases := []struct {
-		desc     string
-		rw       http.ResponseWriter
-		expected http.ResponseWriter
-	}{
-		{
-			desc:     "Without Close Notify",
-			rw:       httptest.NewRecorder(),
-			expected: &codeModifierWithoutCloseNotify{},
-		},
-		{
-			desc:     "With Close Notify",
-			rw:       &mockRWCloseNotify{},
-			expected: &codeModifierWithCloseNotify{},
-		},
-	}
-
-	for _, test := range testCases {
-		test := test
-		t.Run(test.desc, func(t *testing.T) {
-			t.Parallel()
-
-			rec := newCodeModifier(test.rw, 0)
-			assert.IsType(t, rec, test.expected)
-		})
-	}
-}
-
-type mockRWCloseNotify struct{}
-
-func (m *mockRWCloseNotify) CloseNotify() <-chan bool {
-	panic("implement me")
-}
-
-func (m *mockRWCloseNotify) Header() http.Header {
-	panic("implement me")
-}
-
-func (m *mockRWCloseNotify) Write([]byte) (int, error) {
-	panic("implement me")
-}
-
-func (m *mockRWCloseNotify) WriteHeader(int) {
-	panic("implement me")
 }
