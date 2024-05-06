@@ -12,7 +12,7 @@
 # for a local build, see rhel.Dockerfile
 
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.20.12-5 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 USER 0
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
@@ -23,7 +23,8 @@ RUN source $REMOTE_SOURCES_DIR/devspaces-images-configbump/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-configbump/app/devspaces-configbump
 
 #hadolint ignore=SC3010
-RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
+RUN dnf -y install golang && \
+    export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
     # NOTE: cannot go mod download && go mod verify in Brew - use cachito instead
     go test -v  ./... && \
     # to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
@@ -32,13 +33,13 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     chmod 755 /usr/local/bin/configbump
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1161 as runtime
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as runtime
 #hadolint ignore=DL4006
-RUN microdnf -y install shadow-utils && \
+RUN dnf -y install shadow-utils && \
     adduser appuser && \
-    microdnf -y remove shadow-utils && \
-    microdnf -y update || true && \
-    microdnf -y clean all && rm -rf /var/cache/yum && \
+    dnf -y remove shadow-utils && \
+    dnf -y update || true && \
+    dnf -y clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 USER appuser

@@ -54,6 +54,8 @@ echo ".github/
 .travis
 .travis.yaml
 .gitattributes
+build/dockerfiles/brew.Dockerfile
+build/dockerfiles/rhel.Dockerfile
 build/scripts/
 tests/
 /container.yaml
