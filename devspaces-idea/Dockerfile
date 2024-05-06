@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2024 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -31,7 +31,7 @@
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8:8.9-1160 as ubi-builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as ubi-builder
 COPY --chown=0:0 asset-required-rpms.txt /tmp/asset-required-rpms.txt
 
 RUN mkdir -p /mnt/rootfs
@@ -83,7 +83,7 @@ RUN rm /mnt/rootfs/etc/hosts
 
 # Stage 2. Copy from build environment Projector assembly to the runtime. Projector runs in headless mode.
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1161
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 ENV HOME=/home/projector
 ENV PROJECTOR_ASSEMBLY_DIR /projector
 ENV PROJECTOR_CONFIG_DIR $HOME/.jetbrains
