@@ -54,6 +54,8 @@ echo ".github/
 .ci/
 .vscode/
 build/scripts/sync.sh
+build/dockerfiles/brew.Dockerfile
+build/dockerfiles/Dockerfile
 devfile.yaml
 /container.yaml
 /content_sets.*
