@@ -50,6 +50,8 @@ echo ".github/
 .git/
 .gitattributes
 build/scripts/sync.sh
+build/dockerfiles/brew.Dockerfile
+build/dockerfiles/rhel.Dockerfile
 /container.yaml
 /content_sets.*
 /cvp.yml
