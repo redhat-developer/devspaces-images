@@ -4,7 +4,6 @@
 
 [log]
   level = "DEBUG"
-  noColor = true
 
 [entryPoints]
   [entryPoints.websecure]
@@ -24,12 +23,10 @@
   [tcp.routers.router1]
     service = "service1"
     rule = "HostSNI(`snitest.net`)"
-    [tcp.routers.router1.tls]
 
   [tcp.routers.router2]
     service = "service2"
     rule = "HostSNI(`snitest.com`)"
-    [tcp.routers.router2.tls]
 
 [tcp.services]
   [tcp.services.service1]

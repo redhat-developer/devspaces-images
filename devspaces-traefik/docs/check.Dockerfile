@@ -1,8 +1,7 @@
-FROM alpine:3.18 as alpine
+FROM alpine:3.14 as alpine
 
 RUN apk --no-cache --no-progress add \
     build-base \
-    gcompat \
     libcurl \
     libxml2-dev \
     libxslt-dev \
@@ -14,8 +13,8 @@ RUN apk --no-cache --no-progress add \
     ruby-json \
     zlib-dev
 
-RUN gem install nokogiri --version 1.15.3 --no-document -- --use-system-libraries
-RUN gem install html-proofer --version 5.0.7 --no-document -- --use-system-libraries
+RUN gem install nokogiri --version 1.13.3 --no-document -- --use-system-libraries
+RUN gem install html-proofer --version 3.19.3 --no-document -- --use-system-libraries
 
 # After Ruby, some NodeJS YAY!
 RUN apk --no-cache --no-progress add \
@@ -23,9 +22,12 @@ RUN apk --no-cache --no-progress add \
     nodejs \
     npm
 
+# To handle 'not get uid/gid'
+RUN npm config set unsafe-perm true
+
 RUN npm install --global \
-    markdownlint@0.29.0 \
-    markdownlint-cli@0.35.0
+    markdownlint@0.22.0 \
+    markdownlint-cli@0.26.0
 
 # Finally the shell tools we need for later
 # tini helps to terminate properly all the parallelized tasks when sending CTRL-C

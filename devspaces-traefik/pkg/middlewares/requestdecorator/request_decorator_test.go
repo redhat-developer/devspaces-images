@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/traefik/traefik/v3/pkg/testhelpers"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/testhelpers"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func TestRequestHost(t *testing.T) {
@@ -38,6 +38,7 @@ func TestRequestHost(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -79,6 +80,7 @@ func TestRequestFlattening(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -171,6 +173,7 @@ func Test_parseHost(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 

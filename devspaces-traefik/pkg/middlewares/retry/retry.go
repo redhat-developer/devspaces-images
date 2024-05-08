@@ -12,18 +12,19 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/middlewares"
-	"github.com/traefik/traefik/v3/pkg/tracing"
-	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/middlewares"
+	"github.com/traefik/traefik/v2/pkg/tracing"
 )
 
 // Compile time validation that the response writer implements http interfaces correctly.
-var _ middlewares.Stateful = &responseWriter{}
+var _ middlewares.Stateful = &responseWriterWithCloseNotify{}
 
-const typeName = "Retry"
+const (
+	typeName = "Retry"
+)
 
 // Listener is used to inform about retry attempts.
 type Listener interface {
@@ -47,7 +48,7 @@ type retry struct {
 
 // New returns a new retry middleware.
 func New(ctx context.Context, next http.Handler, config dynamic.Retry, listener Listener, name string) (http.Handler, error) {
-	middlewares.GetLogger(ctx, name, typeName).Debug().Msg("Creating middleware")
+	log.FromContext(middlewares.GetLoggerCtx(ctx, name, typeName)).Debug("Creating middleware")
 
 	if config.Attempts <= 0 {
 		return nil, fmt.Errorf("incorrect (or empty) value for attempt (%d)", config.Attempts)
@@ -60,6 +61,10 @@ func New(ctx context.Context, next http.Handler, config dynamic.Retry, listener 
 		listener:        listener,
 		name:            name,
 	}, nil
+}
+
+func (r *retry) GetTracingInformation() (string, ext.SpanKindEnum) {
+	return r.name, tracing.SpanKindNoneEnum
 }
 
 func (r *retry) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -77,35 +82,12 @@ func (r *retry) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	attempts := 1
 
-	initialCtx := req.Context()
-	tracer := tracing.TracerFromContext(initialCtx)
-
-	var currentSpan trace.Span
 	operation := func() error {
-		if tracer != nil {
-			if currentSpan != nil {
-				currentSpan.End()
-			}
-			// Because multiple tracing spans may need to be created,
-			// the Retry middleware does not implement trace.Traceable,
-			// and creates directly a new span for each retry operation.
-			var tracingCtx context.Context
-			tracingCtx, currentSpan = tracer.Start(initialCtx, typeName, trace.WithSpanKind(trace.SpanKindInternal))
-
-			currentSpan.SetAttributes(attribute.String("traefik.middleware.name", r.name))
-			// Only add the attribute "http.resend_count" defined by semantic conventions starting from second attempt.
-			if attempts > 1 {
-				currentSpan.SetAttributes(semconv.HTTPResendCount(attempts - 1))
-			}
-
-			req = req.WithContext(tracingCtx)
-		}
-
 		shouldRetry := attempts < r.attempts
 		retryResponseWriter := newResponseWriter(rw, shouldRetry)
 
 		// Disable retries when the backend already received request data
-		clientTrace := &httptrace.ClientTrace{
+		trace := &httptrace.ClientTrace{
 			WroteHeaders: func() {
 				retryResponseWriter.DisableRetries()
 			},
@@ -113,9 +95,9 @@ func (r *retry) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 				retryResponseWriter.DisableRetries()
 			},
 		}
-		newCtx := httptrace.WithClientTrace(req.Context(), clientTrace)
+		newCtx := httptrace.WithClientTrace(req.Context(), trace)
 
-		r.next.ServeHTTP(retryResponseWriter, req.Clone(newCtx))
+		r.next.ServeHTTP(retryResponseWriter, req.WithContext(newCtx))
 
 		if !retryResponseWriter.ShouldRetry() {
 			return nil
@@ -126,23 +108,19 @@ func (r *retry) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return fmt.Errorf("attempt %d failed", attempts-1)
 	}
 
-	logger := middlewares.GetLogger(req.Context(), r.name, typeName)
-
 	backOff := backoff.WithContext(r.newBackOff(), req.Context())
 
 	notify := func(err error, d time.Duration) {
-		logger.Debug().Msgf("New attempt %d for request: %v", attempts, req.URL)
+		log.FromContext(middlewares.GetLoggerCtx(req.Context(), r.name, typeName)).
+			Debugf("New attempt %d for request: %v", attempts, req.URL)
 
 		r.listener.Retried(req, attempts)
 	}
 
 	err := backoff.RetryNotify(operation, backOff, notify)
 	if err != nil {
-		logger.Debug().Err(err).Msg("Final retry attempt failed")
-	}
-
-	if currentSpan != nil {
-		currentSpan.End()
+		log.FromContext(middlewares.GetLoggerCtx(req.Context(), r.name, typeName)).
+			Debugf("Final retry attempt failed: %v", err.Error())
 	}
 }
 
@@ -171,44 +149,57 @@ func (l Listeners) Retried(req *http.Request, attempt int) {
 	}
 }
 
-func newResponseWriter(rw http.ResponseWriter, shouldRetry bool) *responseWriter {
-	return &responseWriter{
+type responseWriter interface {
+	http.ResponseWriter
+	http.Flusher
+	ShouldRetry() bool
+	DisableRetries()
+}
+
+func newResponseWriter(rw http.ResponseWriter, shouldRetry bool) responseWriter {
+	responseWriter := &responseWriterWithoutCloseNotify{
 		responseWriter: rw,
 		headers:        make(http.Header),
 		shouldRetry:    shouldRetry,
 	}
+	if _, ok := rw.(http.CloseNotifier); ok {
+		return &responseWriterWithCloseNotify{
+			responseWriterWithoutCloseNotify: responseWriter,
+		}
+	}
+	return responseWriter
 }
 
-type responseWriter struct {
+type responseWriterWithoutCloseNotify struct {
 	responseWriter http.ResponseWriter
 	headers        http.Header
 	shouldRetry    bool
 	written        bool
 }
 
-func (r *responseWriter) ShouldRetry() bool {
+func (r *responseWriterWithoutCloseNotify) ShouldRetry() bool {
 	return r.shouldRetry
 }
 
-func (r *responseWriter) DisableRetries() {
+func (r *responseWriterWithoutCloseNotify) DisableRetries() {
 	r.shouldRetry = false
 }
 
-func (r *responseWriter) Header() http.Header {
+func (r *responseWriterWithoutCloseNotify) Header() http.Header {
 	if r.written {
 		return r.responseWriter.Header()
 	}
 	return r.headers
 }
 
-func (r *responseWriter) Write(buf []byte) (int, error) {
+func (r *responseWriterWithoutCloseNotify) Write(buf []byte) (int, error) {
 	if r.ShouldRetry() {
 		return len(buf), nil
 	}
 	return r.responseWriter.Write(buf)
 }
 
-func (r *responseWriter) WriteHeader(code int) {
+func (r *responseWriterWithoutCloseNotify) WriteHeader(code int) {
 	if r.ShouldRetry() && code == http.StatusServiceUnavailable {
 		// We get a 503 HTTP Status Code when there is no backend server in the pool
 		// to which the request could be sent.  Also, note that r.ShouldRetry()
@@ -218,7 +209,7 @@ func (r *responseWriter) WriteHeader(code int) {
 		r.DisableRetries()
 	}
 
-	if r.ShouldRetry() || r.written {
+	if r.ShouldRetry() {
 		return
 	}
 
@@ -232,17 +223,10 @@ func (r *responseWriter) WriteHeader(code int) {
 	}
 
 	r.responseWriter.WriteHeader(code)
-
-	// Handling informational headers.
-	// This allows to keep writing to r.headers map until a final status code is written.
-	if code >= 100 && code <= 199 {
-		return
-	}
-
 	r.written = true
 }
 
-func (r *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+func (r *responseWriterWithoutCloseNotify) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	hijacker, ok := r.responseWriter.(http.Hijacker)
 	if !ok {
 		return nil, nil, fmt.Errorf("%T is not a http.Hijacker", r.responseWriter)
@@ -250,8 +234,16 @@ func (r *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return hijacker.Hijack()
 }
 
-func (r *responseWriter) Flush() {
+func (r *responseWriterWithoutCloseNotify) Flush() {
 	if flusher, ok := r.responseWriter.(http.Flusher); ok {
 		flusher.Flush()
 	}
+}
+
+type responseWriterWithCloseNotify struct {
+	*responseWriterWithoutCloseNotify
+}
+
+func (r *responseWriterWithCloseNotify) CloseNotify() <-chan bool {
+	return r.responseWriter.(http.CloseNotifier).CloseNotify()
 }

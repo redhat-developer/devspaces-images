@@ -104,6 +104,8 @@ func TestClientTLS_CreateTLSConfig(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
+
 		t.Run(test.desc, func(t *testing.T) {
 			tlsConfig, err := test.clientTLS.CreateTLSConfig(context.Background())
 			if test.wantErr {

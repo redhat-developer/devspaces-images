@@ -12,27 +12,40 @@ Controlling connections
 
 ## Configuration Example
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 # As a Docker Label
 whoami:
   #  A container that exposes an API to show its IP address
   image: traefik/whoami
   labels:
-    # Create a middleware named `foo-ip-allowlist`
-    - "traefik.tcp.middlewares.foo-ip-allowlist.ipallowlist.sourcerange=127.0.0.1/32, 192.168.1.7"
-    # Apply the middleware named `foo-ip-allowlist` to the router named `router1`
-    - "traefik.tcp.routers.router1.middlewares=foo-ip-allowlist@docker"
+    # Create a middleware named `foo-ip-whitelist`
+    - "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
+    # Apply the middleware named `foo-ip-whitelist` to the router named `router1`
+    - "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@docker"
 ```
 
 ```yaml tab="Kubernetes IngressRoute"
 # As a Kubernetes Traefik IngressRoute
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: middlewaretcps.traefik.io
+spec:
+  group: traefik.io
+  version: v1alpha1
+  names:
+    kind: MiddlewareTCP
+    plural: middlewaretcps
+    singular: middlewaretcp
+  scope: Namespaced
+
 ---
 apiVersion: traefik.io/v1alpha1
 kind: MiddlewareTCP
 metadata:
-  name: foo-ip-allowlist
+  name: foo-ip-whitelist
 spec:
-  ipAllowList:
+  ipWhiteList:
     sourcerange:
       - 127.0.0.1/32
       - 192.168.1.7
@@ -47,14 +60,30 @@ spec:
   routes:
     # more fields...
     middlewares:
-      - name: foo-ip-allowlist
+      - name: foo-ip-whitelist
 ```
 
 ```yaml tab="Consul Catalog"
-# Create a middleware named `foo-ip-allowlist`
-- "traefik.tcp.middlewares.foo-ip-allowlist.ipallowlist.sourcerange=127.0.0.1/32, 192.168.1.7"
-# Apply the middleware named `foo-ip-allowlist` to the router named `router1`
-- "traefik.tcp.routers.router1.middlewares=foo-ip-allowlist@consulcatalog"
+# Create a middleware named `foo-ip-whitelist`
+- "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
+# Apply the middleware named `foo-ip-whitelist` to the router named `router1`
+- "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@consulcatalog"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7",
+  "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@marathon"
+}
+```
+
+```yaml tab="Rancher"
+# As a Rancher Label
+labels:
+  # Create a middleware named `foo-ip-whitelist`
+  - "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
+  # Apply the middleware named `foo-ip-whitelist` to the router named `router1`
+  - "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@rancher"
 ```
 
 ```toml tab="File (TOML)"
@@ -62,11 +91,11 @@ spec:
 [tcp.routers]
   [tcp.routers.router1]
     service = "myService"
-    middlewares = ["foo-ip-allowlist"]
+    middlewares = ["foo-ip-whitelist"]
     rule = "Host(`example.com`)"
 
 [tcp.middlewares]
-  [tcp.middlewares.foo-ip-allowlist.ipAllowList]
+  [tcp.middlewares.foo-ip-whitelist.ipWhiteList]
     sourceRange = ["127.0.0.1/32", "192.168.1.7"]
 
 [tcp.services]
@@ -85,12 +114,12 @@ tcp:
     router1:
       service: myService
       middlewares:
-        - "foo-ip-allowlist"
+        - "foo-ip-whitelist"
       rule: "Host(`example.com`)"
 
   middlewares:
-    foo-ip-allowlist:
-      ipAllowList:
+    foo-ip-whitelist:
+      ipWhiteList:
         sourceRange:
           - "127.0.0.1/32"
           - "192.168.1.7"
@@ -108,4 +137,4 @@ tcp:
 | Middleware                                | Purpose                                           | Area                        |
 |-------------------------------------------|---------------------------------------------------|-----------------------------|
 | [InFlightConn](inflightconn.md)           | Limits the number of simultaneous connections.    | Security, Request lifecycle |
-| [IPAllowList](ipallowlist.md)             | Limit the allowed client IPs.                     | Security, Request lifecycle |
+| [IPWhiteList](ipwhitelist.md)             | Limit the allowed client IPs.                     | Security, Request lifecycle |

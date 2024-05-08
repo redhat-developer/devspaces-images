@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ptypes "github.com/traefik/paerser/types"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/safe"
-	"github.com/traefik/traefik/v3/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/tls"
 )
 
 func TestProvider_Init(t *testing.T) {
@@ -69,53 +69,35 @@ func TestProvider_SetDefaults(t *testing.T) {
 
 func TestProvider_fetchConfigurationData(t *testing.T) {
 	tests := []struct {
-		desc       string
-		statusCode int
-		headers    map[string]string
-		expData    []byte
-		expErr     require.ErrorAssertionFunc
+		desc    string
+		handler func(rw http.ResponseWriter, req *http.Request)
+		expData []byte
+		expErr  bool
 	}{
 		{
-			desc:       "should return the fetched configuration data",
-			statusCode: http.StatusOK,
-			expData:    []byte("{}"),
-			expErr:     require.NoError,
-		},
-		{
-			desc:       "should send configured headers",
-			statusCode: http.StatusOK,
-			headers: map[string]string{
-				"Foo": "bar",
-				"Bar": "baz",
-			},
+			desc:    "should return the fetched configuration data",
 			expData: []byte("{}"),
-			expErr:  require.NoError,
+			handler: func(rw http.ResponseWriter, req *http.Request) {
+				rw.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprintf(rw, "{}")
+			},
 		},
 		{
-			desc:       "should return an error if endpoint does not return an OK status code",
-			statusCode: http.StatusInternalServerError,
-			expErr:     require.Error,
+			desc:   "should return an error if endpoint does not return an OK status code",
+			expErr: true,
+			handler: func(rw http.ResponseWriter, req *http.Request) {
+				rw.WriteHeader(http.StatusNoContent)
+			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			handlerCalled := false
-			srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-				handlerCalled = true
-
-				for k, v := range test.headers {
-					assert.Equal(t, v, req.Header.Get(k))
-				}
-
-				rw.WriteHeader(test.statusCode)
-				_, _ = rw.Write([]byte("{}"))
-			}))
-			defer srv.Close()
+			server := httptest.NewServer(http.HandlerFunc(test.handler))
+			defer server.Close()
 
 			provider := Provider{
-				Endpoint:     srv.URL,
-				Headers:      test.headers,
+				Endpoint:     server.URL,
 				PollInterval: ptypes.Duration(1 * time.Second),
 				PollTimeout:  ptypes.Duration(1 * time.Second),
 			}
@@ -124,9 +106,12 @@ func TestProvider_fetchConfigurationData(t *testing.T) {
 			require.NoError(t, err)
 
 			configData, err := provider.fetchConfigurationData()
-			test.expErr(t, err)
+			if test.expErr {
+				require.Error(t, err)
+				return
+			}
 
-			assert.True(t, handlerCalled)
+			require.NoError(t, err)
 			assert.Equal(t, test.expData, configData)
 		})
 	}
@@ -146,7 +131,7 @@ func TestProvider_decodeConfiguration(t *testing.T) {
 		},
 		{
 			desc:       "should return the decoded dynamic configuration",
-			configData: []byte(`{"tcp":{"routers":{"foo":{}}}}`),
+			configData: []byte("{\"tcp\":{\"routers\":{\"foo\":{}}}}"),
 			expConfig: &dynamic.Configuration{
 				HTTP: &dynamic.HTTPConfiguration{
 					Routers:           make(map[string]*dynamic.Router),
@@ -158,8 +143,7 @@ func TestProvider_decodeConfiguration(t *testing.T) {
 					Routers: map[string]*dynamic.TCPRouter{
 						"foo": {},
 					},
-					Services:          make(map[string]*dynamic.TCPService),
-					ServersTransports: map[string]*dynamic.TCPServersTransport{},
+					Services: make(map[string]*dynamic.TCPService),
 				},
 				TLS: &dynamic.TLSConfiguration{
 					Stores:  make(map[string]tls.Store),
@@ -215,9 +199,8 @@ func TestProvider_Provide(t *testing.T) {
 			ServersTransports: make(map[string]*dynamic.ServersTransport),
 		},
 		TCP: &dynamic.TCPConfiguration{
-			Routers:           make(map[string]*dynamic.TCPRouter),
-			Services:          make(map[string]*dynamic.TCPService),
-			ServersTransports: map[string]*dynamic.TCPServersTransport{},
+			Routers:  make(map[string]*dynamic.TCPRouter),
+			Services: make(map[string]*dynamic.TCPService),
 		},
 		TLS: &dynamic.TLSConfiguration{
 			Stores:  make(map[string]tls.Store),
@@ -268,5 +251,5 @@ func TestProvider_ProvideConfigurationOnlyOnceIfUnchanged(t *testing.T) {
 
 	time.Sleep(time.Second)
 
-	assert.Len(t, configurationChan, 1)
+	assert.Equal(t, 1, len(configurationChan))
 }

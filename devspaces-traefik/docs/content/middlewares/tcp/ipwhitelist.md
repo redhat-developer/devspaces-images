@@ -8,11 +8,7 @@ description: "Learn how to use IPWhiteList in TCP middleware for limiting client
 Limiting Clients to Specific IPs
 {: .subtitle }
 
-IPWhiteList accepts / refuses connections based on the client IP.
-
-!!! warning
-
-    This middleware is deprecated, please use the [IPAllowList](./ipallowlist.md) middleware instead.
+IPWhitelist accepts / refuses connections based on the client IP.
 
 ## Configuration Examples
 
@@ -37,6 +33,18 @@ spec:
 ```yaml tab="Consul Catalog"
 # Accepts request from defined IP
 - "traefik.tcp.middlewares.test-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.tcp.middlewares.test-ipwhitelist.ipwhitelist.sourcerange": "127.0.0.1/32,192.168.1.7"
+}
+```
+
+```yaml tab="Rancher"
+# Accepts request from defined IP
+labels:
+  - "traefik.tcp.middlewares.test-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
 ```
 
 ```toml tab="File (TOML)"

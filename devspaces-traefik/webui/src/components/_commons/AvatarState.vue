@@ -1,32 +1,16 @@
 <template>
-  <q-avatar
-    :color="state"
-    text-color="white"
-  >
-    <q-icon
-      v-if="state === 'positive'"
-      name="eva-checkmark-circle-2"
-    />
-    <q-icon
-      v-if="state === 'warning'"
-      name="eva-alert-circle"
-    />
-    <q-icon
-      v-if="state === 'negative'"
-      name="eva-alert-triangle"
-    />
+  <q-avatar :color="state" text-color="white">
+    <q-icon v-if="state === 'positive'" name="eva-checkmark-circle-2" />
+    <q-icon v-if="state === 'warning'" name="eva-alert-circle" />
+    <q-icon v-if="state === 'negative'" name="eva-alert-triangle" />
   </q-avatar>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-
-export default defineComponent({
+export default {
   name: 'AvatarState',
-  props: {
-    state: String
-  }
-})
+  props: ['state']
+}
 </script>
 
 <style scoped lang="scss">

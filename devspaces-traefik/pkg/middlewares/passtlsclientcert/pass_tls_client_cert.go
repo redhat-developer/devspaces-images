@@ -11,10 +11,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/middlewares"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/middlewares"
+	"github.com/traefik/traefik/v2/pkg/tracing"
 )
 
 const typeName = "PassClientTLSCert"
@@ -129,7 +130,7 @@ type passTLSClientCert struct {
 
 // New constructs a new PassTLSClientCert instance from supplied frontend header struct.
 func New(ctx context.Context, next http.Handler, config dynamic.PassTLSClientCert, name string) (http.Handler, error) {
-	middlewares.GetLogger(ctx, name, typeName).Debug().Msg("Creating middleware")
+	log.FromContext(middlewares.GetLoggerCtx(ctx, name, typeName)).Debug("Creating middleware")
 
 	return &passTLSClientCert{
 		next: next,
@@ -139,19 +140,19 @@ func New(ctx context.Context, next http.Handler, config dynamic.PassTLSClientCer
 	}, nil
 }
 
-func (p *passTLSClientCert) GetTracingInformation() (string, string, trace.SpanKind) {
-	return p.name, typeName, trace.SpanKindInternal
+func (p *passTLSClientCert) GetTracingInformation() (string, ext.SpanKindEnum) {
+	return p.name, tracing.SpanKindNoneEnum
 }
 
 func (p *passTLSClientCert) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	logger := middlewares.GetLogger(req.Context(), p.name, typeName)
-	ctx := logger.WithContext(req.Context())
+	ctx := middlewares.GetLoggerCtx(req.Context(), p.name, typeName)
+	logger := log.FromContext(ctx)
 
 	if p.pem {
 		if req.TLS != nil && len(req.TLS.PeerCertificates) > 0 {
 			req.Header.Set(xForwardedTLSClientCert, getCertificates(ctx, req.TLS.PeerCertificates))
 		} else {
-			logger.Warn().Msg("Tried to extract a certificate on a request without mutual TLS")
+			logger.Warn("Tried to extract a certificate on a request without mutual TLS")
 		}
 	}
 
@@ -160,7 +161,7 @@ func (p *passTLSClientCert) ServeHTTP(rw http.ResponseWriter, req *http.Request)
 			headerContent := p.getCertInfo(ctx, req.TLS.PeerCertificates)
 			req.Header.Set(xForwardedTLSClientCertInfo, url.QueryEscape(headerContent))
 		} else {
-			logger.Warn().Msg("Tried to extract a certificate on a request without mutual TLS")
+			logger.Warn("Tried to extract a certificate on a request without mutual TLS")
 		}
 	}
 
@@ -317,7 +318,7 @@ func writePart(ctx context.Context, content io.StringWriter, entry, prefix strin
 	if len(entry) > 0 {
 		_, err := content.WriteString(fmt.Sprintf("%s=%s%s", prefix, entry, subFieldSeparator))
 		if err != nil {
-			log.Ctx(ctx).Error().Err(err).Send()
+			log.FromContext(ctx).Error(err)
 		}
 	}
 }
@@ -346,7 +347,7 @@ func getCertificates(ctx context.Context, certs []*x509.Certificate) string {
 func extractCertificate(ctx context.Context, cert *x509.Certificate) string {
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw})
 	if certPEM == nil {
-		log.Ctx(ctx).Error().Msg("Cannot extract the certificate content")
+		log.FromContext(ctx).Error("Cannot extract the certificate content")
 		return ""
 	}
 

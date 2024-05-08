@@ -9,17 +9,17 @@ import (
 	"time"
 
 	"github.com/mailgun/ttlmap"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/middlewares"
-	"github.com/traefik/traefik/v3/pkg/middlewares/observability"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/middlewares"
+	"github.com/traefik/traefik/v2/pkg/tracing"
 	"github.com/vulcand/oxy/v2/utils"
-	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/time/rate"
 )
 
 const (
-	typeName   = "RateLimiter"
+	typeName   = "RateLimiterType"
 	maxSources = 65536
 )
 
@@ -45,10 +45,8 @@ type rateLimiter struct {
 
 // New returns a rate limiter middleware.
 func New(ctx context.Context, next http.Handler, config dynamic.RateLimit, name string) (http.Handler, error) {
-	logger := middlewares.GetLogger(ctx, name, typeName)
-	logger.Debug().Msg("Creating middleware")
-
-	ctxLog := logger.WithContext(ctx)
+	ctxLog := log.With(ctx, log.Str(log.MiddlewareName, name), log.Str(log.MiddlewareType, typeName))
+	log.FromContext(ctxLog).Debug("Creating middleware")
 
 	if config.SourceCriterion == nil ||
 		config.SourceCriterion.IPStrategy == nil &&
@@ -122,23 +120,23 @@ func New(ctx context.Context, next http.Handler, config dynamic.RateLimit, name 
 	}, nil
 }
 
-func (rl *rateLimiter) GetTracingInformation() (string, string, trace.SpanKind) {
-	return rl.name, typeName, trace.SpanKindInternal
+func (rl *rateLimiter) GetTracingInformation() (string, ext.SpanKindEnum) {
+	return rl.name, tracing.SpanKindNoneEnum
 }
 
-func (rl *rateLimiter) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	logger := middlewares.GetLogger(req.Context(), rl.name, typeName)
-	ctx := logger.WithContext(req.Context())
+func (rl *rateLimiter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := middlewares.GetLoggerCtx(r.Context(), rl.name, typeName)
+	logger := log.FromContext(ctx)
 
-	source, amount, err := rl.sourceMatcher.Extract(req)
+	source, amount, err := rl.sourceMatcher.Extract(r)
 	if err != nil {
-		logger.Error().Err(err).Msg("Could not extract source of request")
-		http.Error(rw, "could not extract source of request", http.StatusInternalServerError)
+		logger.Errorf("could not extract source of request: %v", err)
+		http.Error(w, "could not extract source of request", http.StatusInternalServerError)
 		return
 	}
 
 	if amount != 1 {
-		logger.Info().Msgf("ignoring token bucket amount > 1: %d", amount)
+		logger.Infof("ignoring token bucket amount > 1: %d", amount)
 	}
 
 	var bucket *rate.Limiter
@@ -152,28 +150,26 @@ func (rl *rateLimiter) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// because we want to update the expiryTime everytime we get the source,
 	// as the expiryTime is supposed to reflect the activity (or lack thereof) on that source.
 	if err := rl.buckets.Set(source, bucket, rl.ttl); err != nil {
-		logger.Error().Err(err).Msg("Could not insert/update bucket")
-		observability.SetStatusErrorf(req.Context(), "Could not insert/update bucket")
-		http.Error(rw, "could not insert/update bucket", http.StatusInternalServerError)
+		logger.Errorf("could not insert/update bucket: %v", err)
+		http.Error(w, "could not insert/update bucket", http.StatusInternalServerError)
 		return
 	}
 
 	res := bucket.Reserve()
 	if !res.OK() {
-		observability.SetStatusErrorf(req.Context(), "No bursty traffic allowed")
-		http.Error(rw, "No bursty traffic allowed", http.StatusTooManyRequests)
+		http.Error(w, "No bursty traffic allowed", http.StatusTooManyRequests)
 		return
 	}
 
 	delay := res.Delay()
 	if delay > rl.maxDelay {
 		res.Cancel()
-		rl.serveDelayError(ctx, rw, delay)
+		rl.serveDelayError(ctx, w, delay)
 		return
 	}
 
 	time.Sleep(delay)
-	rl.next.ServeHTTP(rw, req)
+	rl.next.ServeHTTP(w, r)
 }
 
 func (rl *rateLimiter) serveDelayError(ctx context.Context, w http.ResponseWriter, delay time.Duration) {
@@ -182,6 +178,6 @@ func (rl *rateLimiter) serveDelayError(ctx context.Context, w http.ResponseWrite
 	w.WriteHeader(http.StatusTooManyRequests)
 
 	if _, err := w.Write([]byte(http.StatusText(http.StatusTooManyRequests))); err != nil {
-		log.Ctx(ctx).Error().Err(err).Msg("Could not serve 429")
+		log.FromContext(ctx).Errorf("could not serve 429: %v", err)
 	}
 }

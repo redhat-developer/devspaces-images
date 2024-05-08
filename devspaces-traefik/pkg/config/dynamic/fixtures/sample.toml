@@ -40,10 +40,13 @@
     defaultRule = "foobar"
     exposedByDefault = true
     useBindPortIP = true
+    swarmMode = true
     network = "foobar"
+    swarmModeRefreshSeconds = 42
     httpClientTimeout = 42
     [providers.docker.tls]
       ca = "foobar"
+      caOptional = true
       cert = "foobar"
       key = "foobar"
       insecureSkipVerify = true
@@ -52,6 +55,29 @@
     watch = true
     filename = "foobar"
     debugLogGeneratedTemplate = true
+  [providers.marathon]
+    constraints = "foobar"
+    trace = true
+    watch = true
+    endpoint = "foobar"
+    defaultRule = "foobar"
+    exposedByDefault = true
+    dcosToken = "foobar"
+    dialerTimeout = 42
+    responseHeaderTimeout = 42
+    tlsHandshakeTimeout = 42
+    keepAlive = 42
+    forceTaskHostname = true
+    respectReadinessChecks = true
+    [providers.marathon.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+    [providers.marathon.basic]
+      httpBasicAuthUser = "foobar"
+      httpBasicPassword = "foobar"
   [providers.kubernetesIngress]
     endpoint = "foobar"
     token = "foobar"
@@ -72,6 +98,15 @@
     ingressClass = "foobar"
   [providers.rest]
     entryPoint = "foobar"
+  [providers.rancher]
+    constraints = "foobar"
+    watch = true
+    defaultRule = "foobar"
+    exposedByDefault = true
+    enableServiceHealthFilter = true
+    refreshSeconds = 42
+    intervalPoll = true
+    prefix = "foobar"
 
 [api]
   entryPoint = "foobar"
@@ -91,6 +126,14 @@
   [metrics.statsD]
     address = "foobar"
     pushInterval = "10s"
+  [metrics.influxDB]
+    address = "foobar"
+    protocol = "foobar"
+    pushInterval = "10s"
+    database = "foobar"
+    retentionPolicy = "foobar"
+    username = "foobar"
+    password = "foobar"
 
 [ping]
   entryPoint = "foobar"
@@ -122,29 +165,42 @@
 
 [tracing]
   serviceName = "foobar"
-  sampleRate = 42
-  [tracing.headers]
-    header1 = "foobar"
-    header2 = "foobar"
-  [tracing.globalAttributes]
-    attr1 = "foobar"
-    attr2 = "foobar"
-  [tracing.otlp.grpc]
-    endpoint = "foobar"
-    insecure = true
-    [tracing.otlp.grpc.tls]
-      ca = "foobar"
-      cert = "foobar"
-      key = "foobar"
-      insecureSkipVerify = true
-  [tracing.otlp.http]
-    endpoint = "foobar"
-    insecure = true
-    [tracing.otlp.http.tls]
-      ca = "foobar"
-      cert = "foobar"
-      key = "foobar"
-      insecureSkipVerify = true
+  spanNameLimit = 42
+  [tracing.jaeger]
+    samplingServerURL = "foobar"
+    samplingType = "foobar"
+    samplingParam = 42.0
+    localAgentHostPort = "foobar"
+    gen128Bit = true
+    propagation = "foobar"
+    traceContextHeaderName = "foobar"
+  [tracing.zipkin]
+    httpEndpoint = "foobar"
+    sameSpan = true
+    id128Bit = true
+    debug = true
+    sampleRate = 42.0
+  [tracing.datadog]
+    localAgentHostPort = "foobar"
+    localAgentSocket = "foobar"
+    globalTag = "foobar"
+    debug = true
+    prioritySampling = true
+    traceIDHeaderName = "foobar"
+    parentIDHeaderName = "foobar"
+    samplingPriorityHeaderName = "foobar"
+    bagagePrefixHeaderName = "foobar"
+  [tracing.instana]
+    localAgentHost = "foobar"
+    localAgentPort = 42
+    logLevel = "foobar"
+  [tracing.haystack]
+    localAgentHost = "foobar"
+    localAgentPort = 42
+    globalTag = "foobar"
+    traceIDHeaderName = "foobar"
+    parentIDHeaderName = "foobar"
+    spanIDHeaderName = "foobar"
 
 [hostResolver]
   cnameFlattening = true
@@ -237,6 +293,7 @@
         authRequestHeaders = ["foobar", "foobar"]
         [http.middlewares.Middleware15.forwardAuth.tls]
           ca = "foobar"
+          caOptional = true
           cert = "foobar"
           key = "foobar"
           insecureSkipVerify = true
@@ -302,11 +359,11 @@
       [http.middlewares.Middleware5.chain]
         middlewares = ["foobar", "foobar"]
     [http.middlewares.Middleware6]
-      [http.middlewares.Middleware6.ipAllowList]
+      [http.middlewares.Middleware6.ipWhiteList]
         sourceRange = ["foobar", "foobar"]
     [http.middlewares.Middleware7]
-      [http.middlewares.Middleware7.ipAllowList]
-        [http.middlewares.Middleware7.ipAllowList.ipStrategy]
+      [http.middlewares.Middleware7.ipWhiteList]
+        [http.middlewares.Middleware7.ipWhiteList.ipStrategy]
           depth = 42
           excludedIPs = ["foobar", "foobar"]
     [http.middlewares.Middleware8]
@@ -320,6 +377,10 @@
         addVaryHeader = true
         allowedHosts = ["foobar", "foobar"]
         hostsProxyHeaders = ["foobar", "foobar"]
+        sslRedirect = true
+        sslTemporaryRedirect = true
+        sslHost = "foobar"
+        sslForceHost = true
         stsSeconds = 42
         stsIncludeSubdomains = true
         stsPreload = true
@@ -332,6 +393,7 @@
         contentSecurityPolicy = "foobar"
         publicKey = "foobar"
         referrerPolicy = "foobar"
+        featurePolicy = "foobar"
         isDevelopment = true
         [http.middlewares.Middleware8.headers.customRequestHeaders]
           name0 = "foobar"
@@ -361,17 +423,16 @@
           url = "foobar"
         [http.services.Service0.loadBalancer.healthCheck]
           scheme = "foobar"
-          mode = "foobar"
           path = "foobar"
           port = 42
-          interval = "10s"
-          timeout = "10s"
+          interval = "foobar"
+          timeout = "foobar"
           hostname = "foobar"
           [http.services.Service0.loadBalancer.healthCheck.headers]
             name0 = "foobar"
             name1 = "foobar"
         [http.services.Service0.loadBalancer.responseForwarding]
-          flushInterval = "10s"
+          flushInterval = "foobar"
 
 [tcp]
   [tcp.routers]

@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/middlewares"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/middlewares"
 )
 
 const (
@@ -25,9 +26,9 @@ type redirectScheme struct {
 
 // NewRedirectScheme creates a new RedirectScheme middleware.
 func NewRedirectScheme(ctx context.Context, next http.Handler, conf dynamic.RedirectScheme, name string) (http.Handler, error) {
-	logger := middlewares.GetLogger(ctx, name, typeSchemeName)
-	logger.Debug().Msg("Creating middleware")
-	logger.Debug().Msgf("Setting up redirection to %s %s", conf.Scheme, conf.Port)
+	logger := log.FromContext(middlewares.GetLoggerCtx(ctx, name, typeSchemeName))
+	logger.Debug("Creating middleware")
+	logger.Debugf("Setting up redirection to %s %s", conf.Scheme, conf.Port)
 
 	if len(conf.Scheme) == 0 {
 		return nil, errors.New("you must provide a target scheme")
@@ -90,7 +91,7 @@ func (r *redirectScheme) clientRequestURL(req *http.Request) string {
 		case strings.EqualFold(xProto, schemeHTTPS), strings.EqualFold(xProto, "wss"):
 			scheme = schemeHTTPS
 		default:
-			middlewares.GetLogger(req.Context(), r.name, typeSchemeName).Debug().Msgf("Invalid X-Forwarded-Proto: %s", xProto)
+			log.FromContext(middlewares.GetLoggerCtx(req.Context(), r.name, typeSchemeName)).Debugf("invalid X-Forwarded-Proto: %s", xProto)
 		}
 	}
 

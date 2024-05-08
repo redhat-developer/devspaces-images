@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/vulcand/oxy/v2/utils"
 )
 
@@ -35,26 +35,26 @@ func GetSourceExtractor(ctx context.Context, sourceMatcher *dynamic.SourceCriter
 		}
 	}
 
-	logger := log.Ctx(ctx)
+	logger := log.FromContext(ctx)
 	if sourceMatcher.IPStrategy != nil {
 		strategy, err := sourceMatcher.IPStrategy.Get()
 		if err != nil {
 			return nil, err
 		}
 
-		logger.Debug().Msg("Using IPStrategy")
+		logger.Debug("Using IPStrategy")
 		return utils.ExtractorFunc(func(req *http.Request) (string, int64, error) {
 			return strategy.GetIP(req), 1, nil
 		}), nil
 	}
 
 	if sourceMatcher.RequestHeaderName != "" {
-		logger.Debug().Msg("Using RequestHeaderName")
+		logger.Debug("Using RequestHeaderName")
 		return utils.NewExtractor(fmt.Sprintf("request.header.%s", sourceMatcher.RequestHeaderName))
 	}
 
 	if sourceMatcher.RequestHost {
-		logger.Debug().Msg("Using RequestHost")
+		logger.Debug("Using RequestHost")
 		return utils.NewExtractor("request.host")
 	}
 

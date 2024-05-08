@@ -10,15 +10,19 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/config/static"
-	"github.com/traefik/traefik/v3/pkg/provider/docker"
-	"github.com/traefik/traefik/v3/pkg/provider/file"
-	"github.com/traefik/traefik/v3/pkg/provider/kubernetes/crd"
-	"github.com/traefik/traefik/v3/pkg/provider/kubernetes/ingress"
-	"github.com/traefik/traefik/v3/pkg/provider/rest"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/provider/docker"
+	"github.com/traefik/traefik/v2/pkg/provider/file"
+	"github.com/traefik/traefik/v2/pkg/provider/hub"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd"
+	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/ingress"
+	"github.com/traefik/traefik/v2/pkg/provider/marathon"
+	"github.com/traefik/traefik/v2/pkg/provider/rancher"
+	"github.com/traefik/traefik/v2/pkg/provider/rest"
+	"github.com/traefik/traefik/v2/pkg/tracing/jaeger"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func TestHandler_Overview(t *testing.T) {
@@ -169,24 +173,24 @@ func TestHandler_Overview(t *testing.T) {
 					},
 				},
 				TCPMiddlewares: map[string]*runtime.TCPMiddlewareInfo{
-					"ipallowlist1@myprovider": {
+					"ipwhitelist1@myprovider": {
 						TCPMiddleware: &dynamic.TCPMiddleware{
-							IPAllowList: &dynamic.TCPIPAllowList{
+							IPWhiteList: &dynamic.TCPIPWhiteList{
 								SourceRange: []string{"127.0.0.1/32"},
 							},
 						},
 						Status: runtime.StatusEnabled,
 					},
-					"ipallowlist2@myprovider": {
+					"ipwhitelist2@myprovider": {
 						TCPMiddleware: &dynamic.TCPMiddleware{
-							IPAllowList: &dynamic.TCPIPAllowList{
+							IPWhiteList: &dynamic.TCPIPWhiteList{
 								SourceRange: []string{"127.0.0.1/32"},
 							},
 						},
 					},
-					"ipallowlist3@myprovider": {
+					"ipwhitelist3@myprovider": {
 						TCPMiddleware: &dynamic.TCPMiddleware{
-							IPAllowList: &dynamic.TCPIPAllowList{
+							IPWhiteList: &dynamic.TCPIPWhiteList{
 								SourceRange: []string{"127.0.0.1/32"},
 							},
 						},
@@ -233,11 +237,12 @@ func TestHandler_Overview(t *testing.T) {
 				API:    &static.API{},
 				Providers: &static.Providers{
 					Docker:            &docker.Provider{},
-					Swarm:             &docker.SwarmProvider{},
 					File:              &file.Provider{},
+					Marathon:          &marathon.Provider{},
 					KubernetesIngress: &ingress.Provider{},
 					KubernetesCRD:     &crd.Provider{},
 					Rest:              &rest.Provider{},
+					Rancher:           &rancher.Provider{},
 					Plugin: map[string]static.PluginConf{
 						"test": map[string]interface{}{},
 					},
@@ -258,7 +263,10 @@ func TestHandler_Overview(t *testing.T) {
 				Metrics: &types.Metrics{
 					Prometheus: &types.Prometheus{},
 				},
-				Tracing: &static.Tracing{},
+				Tracing: &static.Tracing{
+					Jaeger: &jaeger.Config{},
+				},
+				Hub: &hub.Provider{},
 			},
 			confDyn: runtime.Configuration{},
 			expected: expected{
@@ -269,6 +277,7 @@ func TestHandler_Overview(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -284,7 +293,7 @@ func TestHandler_Overview(t *testing.T) {
 				return
 			}
 
-			assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+			assert.Equal(t, resp.Header.Get("Content-Type"), "application/json")
 			contents, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 

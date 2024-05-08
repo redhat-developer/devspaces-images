@@ -10,11 +10,11 @@ Adding Basic Authentication
 
 ![BasicAuth](../../assets/img/middleware/basicauth.png)
 
-The BasicAuth middleware grants access to services to authorized users only.
+The BasicAuth middleware restricts access to your services to known users.
 
 ## Configuration Examples
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 # Declaring the user list
 #
 # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
@@ -39,6 +39,18 @@ spec:
 
 ```yaml tab="Consul Catalog"
 - "traefik.http.middlewares.test-auth.basicauth.users=test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/,test2:$apr1$d9hr9HBB$4HxwgUir3HP4EsggP/QNo0"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.test-auth.basicauth.users": "test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/,test2:$apr1$d9hr9HBB$4HxwgUir3HP4EsggP/QNo0"
+}
+```
+
+```yaml tab="Rancher"
+# Declaring the user list
+labels:
+  - "traefik.http.middlewares.test-auth.basicauth.users=test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/,test2:$apr1$d9hr9HBB$4HxwgUir3HP4EsggP/QNo0"
 ```
 
 ```yaml tab="File (YAML)"
@@ -88,7 +100,7 @@ The `users` option is an array of authorized users. Each user must be declared u
     Please note that these keys are not hashed or encrypted in any way, and therefore is less secure than other methods.
     You can find more information on the [Kubernetes Basic Authentication Secret Documentation](https://kubernetes.io/docs/concepts/configuration/secret/#basic-authentication-secret)
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 # Declaring the user list
 #
 # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
@@ -145,6 +157,18 @@ data:
 - "traefik.http.middlewares.test-auth.basicauth.users=test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/,test2:$apr1$d9hr9HBB$4HxwgUir3HP4EsggP/QNo0"
 ```
 
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.test-auth.basicauth.users": "test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/,test2:$apr1$d9hr9HBB$4HxwgUir3HP4EsggP/QNo0"
+}
+```
+
+```yaml tab="Rancher"
+# Declaring the user list
+labels:
+  - "traefik.http.middlewares.test-auth.basicauth.users=test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/,test2:$apr1$d9hr9HBB$4HxwgUir3HP4EsggP/QNo0"
+```
+
 ```yaml tab="File (YAML)"
 # Declaring the user list
 http:
@@ -177,7 +201,7 @@ The file content is a list of `name:hashed-password`.
     - If both `users` and `usersFile` are provided, the two are merged. The contents of `usersFile` have precedence over the values in `users`.
     - Because it does not make much sense to refer to a file path on Kubernetes, the `usersFile` field doesn't exist for Kubernetes IngressRoute, and one should use the `secret` field instead.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.test-auth.basicauth.usersfile=/path/to/my/usersfile"
 ```
@@ -208,6 +232,17 @@ data:
 - "traefik.http.middlewares.test-auth.basicauth.usersfile=/path/to/my/usersfile"
 ```
 
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.test-auth.basicauth.usersfile": "/path/to/my/usersfile"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.test-auth.basicauth.usersfile=/path/to/my/usersfile"
+```
+
 ```yaml tab="File (YAML)"
 http:
   middlewares:
@@ -233,7 +268,7 @@ http:
 
 You can customize the realm for the authentication with the `realm` option. The default value is `traefik`.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.test-auth.basicauth.realm=MyRealm"
 ```
@@ -250,6 +285,17 @@ spec:
 
 ```json tab="Consul Catalog"
 - "traefik.http.middlewares.test-auth.basicauth.realm=MyRealm"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.test-auth.basicauth.realm": "MyRealm"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.test-auth.basicauth.realm=MyRealm"
 ```
 
 ```yaml tab="File (YAML)"
@@ -270,7 +316,7 @@ http:
 
 You can define a header field to store the authenticated user using the `headerField`option.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.my-auth.basicauth.headerField=X-WebAuth-User"
 ```
@@ -288,6 +334,12 @@ spec:
 
 ```json tab="Consul Catalog"
 - "traefik.http.middlewares.my-auth.basicauth.headerField=X-WebAuth-User"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.my-auth.basicauth.headerField": "X-WebAuth-User"
+}
 ```
 
 ```yaml tab="File (YAML)"
@@ -309,7 +361,7 @@ http:
 
 Set the `removeHeader` option to `true` to remove the authorization header before forwarding the request to your service. (Default value is `false`.)
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.test-auth.basicauth.removeheader=true"
 ```
@@ -326,6 +378,17 @@ spec:
 
 ```json tab="Consul Catalog"
 - "traefik.http.middlewares.test-auth.basicauth.removeheader=true"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.test-auth.basicauth.removeheader": "true"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.test-auth.basicauth.removeheader=true"
 ```
 
 ```yaml tab="File (YAML)"

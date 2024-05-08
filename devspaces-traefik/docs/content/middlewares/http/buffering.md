@@ -18,7 +18,7 @@ This can help services avoid large amounts of data (`multipart/form-data` for ex
 
 ## Configuration Examples
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 # Sets the maximum request body to 2MB
 labels:
   - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
@@ -38,6 +38,18 @@ spec:
 ```yaml tab="Consul Catalog"
 # Sets the maximum request body to 2MB
 - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes": "2000000"
+}
+```
+
+```yaml tab="Rancher"
+# Sets the maximum request body to 2MB
+labels:
+  - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
 ```
 
 ```yaml tab="File (YAML)"
@@ -66,7 +78,7 @@ The `maxRequestBodyBytes` option configures the maximum allowed body size for th
 
 If the request exceeds the allowed size, it is not forwarded to the service, and the client gets a `413` (Request Entity Too Large) response.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
 ```
@@ -83,6 +95,17 @@ spec:
 
 ```yaml tab="Consul Catalog"
 - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes": "2000000"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000"
 ```
 
 ```yaml tab="File (YAML)"
@@ -105,7 +128,7 @@ _Optional, Default=1048576_
 
 You can configure a threshold (in bytes) from which the request will be buffered on disk instead of in memory with the `memRequestBodyBytes` option.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.limit.buffering.memRequestBodyBytes=2000000"
 ```
@@ -122,6 +145,17 @@ spec:
 
 ```yaml tab="Consul Catalog"
 - "traefik.http.middlewares.limit.buffering.memRequestBodyBytes=2000000"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.limit.buffering.memRequestBodyBytes": "2000000"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.limit.buffering.memRequestBodyBytes=2000000"
 ```
 
 ```yaml tab="File (YAML)"
@@ -146,7 +180,7 @@ The `maxResponseBodyBytes` option configures the maximum allowed response size f
 
 If the response exceeds the allowed size, it is not forwarded to the client. The client gets a `500` (Internal Server Error) response instead.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.limit.buffering.maxResponseBodyBytes=2000000"
 ```
@@ -163,6 +197,17 @@ spec:
 
 ```yaml tab="Consul Catalog"
 - "traefik.http.middlewares.limit.buffering.maxResponseBodyBytes=2000000"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.limit.buffering.maxResponseBodyBytes": "2000000"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.limit.buffering.maxResponseBodyBytes=2000000"
 ```
 
 ```yaml tab="File (YAML)"
@@ -185,7 +230,7 @@ _Optional, Default=1048576_
 
 You can configure a threshold (in bytes) from which the response will be buffered on disk instead of in memory with the `memResponseBodyBytes` option.
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.http.middlewares.limit.buffering.memResponseBodyBytes=2000000"
 ```
@@ -202,6 +247,17 @@ spec:
 
 ```yaml tab="Consul Catalog"
 - "traefik.http.middlewares.limit.buffering.memResponseBodyBytes=2000000"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.http.middlewares.limit.buffering.memResponseBodyBytes": "2000000"
+}
+```
+
+```yaml tab="Rancher"
+labels:
+  - "traefik.http.middlewares.limit.buffering.memResponseBodyBytes=2000000"
 ```
 
 ```yaml tab="File (YAML)"
@@ -226,7 +282,7 @@ You can have the Buffering middleware replay the request using `retryExpression`
 
 ??? example "Retries once in the case of a network error"
 
-    ```yaml tab="Docker & Swarm"
+    ```yaml tab="Docker"
     labels:
       - "traefik.http.middlewares.limit.buffering.retryExpression=IsNetworkError() && Attempts() < 2"
     ```
@@ -243,6 +299,17 @@ You can have the Buffering middleware replay the request using `retryExpression`
 
     ```yaml tab="Consul Catalog"
     - "traefik.http.middlewares.limit.buffering.retryExpression=IsNetworkError() && Attempts() < 2"
+    ```
+
+    ```json tab="Marathon"
+    "labels": {
+      "traefik.http.middlewares.limit.buffering.retryExpression": "IsNetworkError() && Attempts() < 2"
+    }
+    ```
+
+    ```yaml tab="Rancher"
+    labels:
+      - "traefik.http.middlewares.limit.buffering.retryExpression=IsNetworkError() && Attempts() < 2"
     ```
 
     ```yaml tab="File (YAML)"

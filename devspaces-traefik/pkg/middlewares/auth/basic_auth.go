@@ -8,15 +8,16 @@ import (
 	"strings"
 
 	goauth "github.com/abbot/go-http-auth"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/middlewares"
-	"github.com/traefik/traefik/v3/pkg/middlewares/accesslog"
-	"github.com/traefik/traefik/v3/pkg/middlewares/observability"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/middlewares"
+	"github.com/traefik/traefik/v2/pkg/middlewares/accesslog"
+	"github.com/traefik/traefik/v2/pkg/tracing"
 )
 
 const (
-	typeNameBasic = "BasicAuth"
+	basicTypeName = "BasicAuth"
 )
 
 type basicAuth struct {
@@ -30,8 +31,7 @@ type basicAuth struct {
 
 // NewBasic creates a basicAuth middleware.
 func NewBasic(ctx context.Context, next http.Handler, authConfig dynamic.BasicAuth, name string) (http.Handler, error) {
-	middlewares.GetLogger(ctx, name, typeNameBasic).Debug().Msg("Creating middleware")
-
+	log.FromContext(middlewares.GetLoggerCtx(ctx, name, basicTypeName)).Debug("Creating middleware")
 	users, err := getUsers(authConfig.UsersFile, authConfig.Users, basicUserParser)
 	if err != nil {
 		return nil, err
@@ -55,12 +55,12 @@ func NewBasic(ctx context.Context, next http.Handler, authConfig dynamic.BasicAu
 	return ba, nil
 }
 
-func (b *basicAuth) GetTracingInformation() (string, string, trace.SpanKind) {
-	return b.name, typeNameBasic, trace.SpanKindInternal
+func (b *basicAuth) GetTracingInformation() (string, ext.SpanKindEnum) {
+	return b.name, tracing.SpanKindNoneEnum
 }
 
 func (b *basicAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	logger := middlewares.GetLogger(req.Context(), b.name, typeNameBasic)
+	logger := log.FromContext(middlewares.GetLoggerCtx(req.Context(), b.name, basicTypeName))
 
 	user, password, ok := req.BasicAuth()
 	if ok {
@@ -76,14 +76,14 @@ func (b *basicAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if !ok {
-		logger.Debug().Msg("Authentication failed")
-		observability.SetStatusErrorf(req.Context(), "Authentication failed")
+		logger.Debug("Authentication failed")
+		tracing.SetErrorWithEvent(req, "Authentication failed")
 
 		b.auth.RequireAuth(rw, req)
 		return
 	}
 
-	logger.Debug().Msg("Authentication succeeded")
+	logger.Debug("Authentication succeeded")
 	req.URL.User = url.User(user)
 
 	if b.headerField != "" {
@@ -91,7 +91,7 @@ func (b *basicAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if b.removeHeader {
-		logger.Debug().Msg("Removing authorization header")
+		logger.Debug("Removing authorization header")
 		req.Header.Del(authorizationHeader)
 	}
 	b.next.ServeHTTP(rw, req)

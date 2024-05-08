@@ -5,14 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/middlewares"
-	"github.com/traefik/traefik/v3/pkg/middlewares/observability"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/middlewares"
+	"github.com/traefik/traefik/v2/pkg/tracing"
 	"github.com/vulcand/oxy/v2/cbreaker"
-	"go.opentelemetry.io/otel/trace"
 )
 
 const typeName = "CircuitBreaker"
@@ -26,23 +24,19 @@ type circuitBreaker struct {
 func New(ctx context.Context, next http.Handler, confCircuitBreaker dynamic.CircuitBreaker, name string) (http.Handler, error) {
 	expression := confCircuitBreaker.Expression
 
-	logger := middlewares.GetLogger(ctx, name, typeName)
-	logger.Debug().Msg("Creating middleware")
-	logger.Debug().Msgf("Setting up with expression: %s", expression)
-
-	responseCode := confCircuitBreaker.ResponseCode
+	logger := log.FromContext(middlewares.GetLoggerCtx(ctx, name, typeName))
+	logger.Debug("Creating middleware")
+	logger.Debugf("Setting up with expression: %s", expression)
 
 	cbOpts := []cbreaker.Option{
 		cbreaker.Fallback(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			observability.SetStatusErrorf(req.Context(), "blocked by circuit-breaker (%q)", expression)
-			rw.WriteHeader(responseCode)
+			tracing.SetErrorWithEvent(req, "blocked by circuit-breaker (%q)", expression)
+			rw.WriteHeader(http.StatusServiceUnavailable)
 
-			if _, err := rw.Write([]byte(http.StatusText(responseCode))); err != nil {
-				log.Ctx(req.Context()).Error().Err(err).Send()
+			if _, err := rw.Write([]byte(http.StatusText(http.StatusServiceUnavailable))); err != nil {
+				log.FromContext(req.Context()).Error(err)
 			}
 		})),
-		cbreaker.Logger(logs.NewOxyWrapper(*logger)),
-		cbreaker.Verbose(logger.GetLevel() == zerolog.TraceLevel),
 	}
 
 	if confCircuitBreaker.CheckPeriod > 0 {
@@ -61,15 +55,14 @@ func New(ctx context.Context, next http.Handler, confCircuitBreaker dynamic.Circ
 	if err != nil {
 		return nil, err
 	}
-
 	return &circuitBreaker{
 		circuitBreaker: oxyCircuitBreaker,
 		name:           name,
 	}, nil
 }
 
-func (c *circuitBreaker) GetTracingInformation() (string, string, trace.SpanKind) {
-	return c.name, typeName, trace.SpanKindInternal
+func (c *circuitBreaker) GetTracingInformation() (string, ext.SpanKindEnum) {
+	return c.name, tracing.SpanKindNoneEnum
 }
 
 func (c *circuitBreaker) ServeHTTP(rw http.ResponseWriter, req *http.Request) {

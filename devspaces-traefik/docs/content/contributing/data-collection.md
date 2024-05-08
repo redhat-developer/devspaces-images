@@ -66,6 +66,7 @@ providers:
   docker:
     endpoint: "tcp://10.10.10.10:2375"
     exposedByDefault: true
+    swarmMode: true
 
     tls:
       ca: dockerCA
@@ -85,6 +86,7 @@ providers:
   docker:
     endpoint: "xxxx"
     exposedByDefault: true
+    swarmMode: true
 
     tls:
       ca: xxxx

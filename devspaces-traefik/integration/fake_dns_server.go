@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/miekg/dns"
-	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 type handler struct {
@@ -17,12 +17,14 @@ type handler struct {
 // Simplified version of the Challenge Test Server from Boulder
 // https://github.com/letsencrypt/boulder/blob/a6597b9f120207eff192c3e4107a7e49972a0250/test/challtestsrv/dnsone.go#L40
 func (s *handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
+	logger := log.WithoutContext()
+
 	m := new(dns.Msg)
 	m.SetReply(r)
 	m.Compress = false
 
 	for _, q := range r.Question {
-		log.Info().Msgf("Query -- [%s] %s", q.Name, dns.TypeToString[q.Qtype])
+		logger.Infof("Query -- [%s] %s", q.Name, dns.TypeToString[q.Qtype])
 
 		switch q.Qtype {
 		case dns.TypeA:
@@ -92,7 +94,7 @@ func (s *handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	m.Ns = append(m.Ns, auth)
 
 	if err := w.WriteMsg(m); err != nil {
-		log.Fatal().Err(err).Msg("Failed to write message")
+		logger.Fatalf("Failed to write message %v", err)
 	}
 }
 
@@ -104,9 +106,9 @@ func startFakeDNSServer(traefikIP string) *dns.Server {
 	}
 
 	go func() {
-		log.Info().Msg("Start a fake DNS server.")
+		log.WithoutContext().Infof("Start a fake DNS server.")
 		if err := srv.ListenAndServe(); err != nil {
-			log.Fatal().Err(err).Msg("Failed to set udp listener")
+			log.WithoutContext().Fatalf("Failed to set udp listener %v", err)
 		}
 	}()
 

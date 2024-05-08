@@ -1,10 +1,10 @@
 apiVersion: traefik.io/v1alpha1
 kind: MiddlewareTCP
 metadata:
-  name: ipallowlist
+  name: ipwhitelist
   namespace: default
 spec:
-  ipAllowList:
+  ipWhiteList:
     sourceRange:
       - 127.0.0.1/32
 
@@ -12,10 +12,10 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: MiddlewareTCP
 metadata:
-  name: ipallowlist
+  name: ipwhitelist
   namespace: foo
 spec:
-  ipAllowList:
+  ipWhiteList:
     sourceRange:
       - 127.0.0.1/32
 ---
@@ -36,9 +36,9 @@ spec:
           port: 8000
 
       middlewares:
-        - name: ipallowlist
-        - name: ipallowlist
+        - name: ipwhitelist
+        - name: ipwhitelist
           namespace: foo
-        - name: ipallowlist@file
-        - name: ipallowlist-foo@file
+        - name: ipwhitelist@file
+        - name: ipwhitelist-foo@file
           namespace: foo

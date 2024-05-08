@@ -3,7 +3,7 @@ package label
 
 import (
 	"github.com/traefik/paerser/parser"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 )
 
 // DecodeConfiguration converts the labels to a configuration.
@@ -12,11 +12,9 @@ func DecodeConfiguration(labels map[string]string) (*dynamic.Configuration, erro
 		HTTP: &dynamic.HTTPConfiguration{},
 		TCP:  &dynamic.TCPConfiguration{},
 		UDP:  &dynamic.UDPConfiguration{},
-		TLS:  &dynamic.TLSConfiguration{},
 	}
 
-	// When decoding the TLS configuration we are making sure that only the default TLS store can be configured.
-	err := parser.Decode(labels, conf, parser.DefaultRootName, "traefik.http", "traefik.tcp", "traefik.udp", "traefik.tls.stores.default")
+	err := parser.Decode(labels, conf, parser.DefaultRootName, "traefik.http", "traefik.tcp", "traefik.udp")
 	if err != nil {
 		return nil, err
 	}

@@ -8,4 +8,5 @@ type Stateful interface {
 	http.ResponseWriter
 	http.Hijacker
 	http.Flusher
+	http.CloseNotifier
 }

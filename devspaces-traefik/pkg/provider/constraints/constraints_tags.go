@@ -3,7 +3,6 @@ package constraints
 import (
 	"errors"
 	"regexp"
-	"slices"
 
 	"github.com/vulcand/predicate"
 )
@@ -48,7 +47,12 @@ func MatchTags(tags []string, expr string) (bool, error) {
 
 func tagFn(name string) constraintTagFunc {
 	return func(tags []string) bool {
-		return slices.Contains(tags, name)
+		for _, tag := range tags {
+			if tag == name {
+				return true
+			}
+		}
+		return false
 	}
 }
 
@@ -59,9 +63,13 @@ func tagRegexFn(expr string) constraintTagFunc {
 			return false
 		}
 
-		return slices.ContainsFunc(tags, func(tag string) bool {
-			return exp.MatchString(tag)
-		})
+		for _, tag := range tags {
+			if exp.MatchString(tag) {
+				return true
+			}
+		}
+
+		return false
 	}
 }
 

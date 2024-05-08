@@ -1,21 +1,14 @@
 <template>
   <q-avatar text-color="dark">
-    <q-icon
-      v-if="isTLS"
-      name="eva-shield"
-    />
+    <q-icon v-if="isTLS" name="eva-shield" />
   </q-avatar>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-
-export default defineComponent({
+export default {
   name: 'TLSState',
-  props: {
-    isTLS: Boolean
-  }
-})
+  props: ['isTLS']
+}
 </script>
 
 <style scoped lang="scss">

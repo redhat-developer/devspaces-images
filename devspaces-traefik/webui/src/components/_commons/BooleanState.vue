@@ -1,36 +1,18 @@
 <template>
   <div class="block-right-text">
-    <q-avatar
-      :color="value ? 'positive' : 'negative'"
-      text-color="white"
-    >
-      <q-icon
-        v-if="value"
-        name="eva-toggle-right"
-      />
-      <q-icon
-        v-if="!value"
-        name="eva-toggle-left"
-      />
+    <q-avatar :color="value ? 'positive' : 'negative'" text-color="white">
+      <q-icon v-if="value" name="eva-toggle-right" />
+      <q-icon v-if="!value" name="eva-toggle-left" />
     </q-avatar>
-    <div :class="['block-right-text-label', `block-right-text-label-${!!value}`]">
-      {{ value ? 'True' : 'False' }}
-    </div>
+    <div v-bind:class="['block-right-text-label', `block-right-text-label-${!!value}`]">{{value ? 'True' : 'False'}}</div>
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-
-export default defineComponent({
+export default {
   name: 'BooleanState',
-  props: {
-    value: {
-      type: Boolean,
-      default: true
-    }
-  }
-})
+  props: ['value']
+}
 </script>
 
 <style scoped lang="scss">

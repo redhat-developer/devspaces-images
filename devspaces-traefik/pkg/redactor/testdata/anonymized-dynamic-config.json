@@ -75,8 +75,8 @@
             "scheme": "foo",
             "path": "foo",
             "port": 42,
-            "interval": "1m51s",
-            "timeout": "1m51s",
+            "interval": "foo",
+            "timeout": "foo",
             "hostname": "xxxx",
             "followRedirects": true,
             "headers": {
@@ -85,7 +85,7 @@
           },
           "passHostHeader": true,
           "responseForwarding": {
-            "flushInterval": "1m51s"
+            "flushInterval": "foo"
           },
           "serversTransport": "foo"
         }
@@ -99,7 +99,8 @@
         "stripPrefix": {
           "prefixes": [
             "foo"
-          ]
+          ],
+          "forceSlash": true
         },
         "stripPrefixRegex": {
           "regex": [
@@ -118,7 +119,7 @@
             "foo"
           ]
         },
-        "ipAllowList": {
+        "ipWhiteList": {
           "sourceRange": [
             "xxxx"
           ],
@@ -160,6 +161,10 @@
           "hostsProxyHeaders": [
             "foo"
           ],
+          "sslRedirect": true,
+          "sslTemporaryRedirect": true,
+          "sslHost": "xxxx",
+          "sslForceHost": true,
           "stsSeconds": 42,
           "stsIncludeSubdomains": true,
           "stsPreload": true,
@@ -172,6 +177,7 @@
           "contentSecurityPolicy": "xxxx",
           "publicKey": "xxxx",
           "referrerPolicy": "foo",
+          "featurePolicy": "foo",
           "permissionsPolicy": "foo",
           "isDevelopment": true
         },
@@ -229,6 +235,7 @@
           "address": "xxxx",
           "tls": {
             "ca": "xxxx",
+            "caOptional": true,
             "cert": "xxxx",
             "key": "xxxx",
             "insecureSkipVerify": true
@@ -302,7 +309,9 @@
           "attempts": 42,
           "initialInterval": "42ns"
         },
-        "contentType": {},
+        "contentType": {
+          "autoDetect": true
+        },
         "plugin": {
           "foo": {
             "answer": {}
@@ -389,33 +398,13 @@
       },
       "foo": {
         "loadBalancer": {
+          "terminationDelay": 42,
           "proxyProtocol": {
             "version": 42
           },
           "servers": [
             {
               "address": "xxxx"
-            }
-          ],
-          "serversTransport": "foo"
-        }
-      }
-    },
-    "serversTransports": {
-      "foo": {
-        "dialKeepAlive": "42ns",
-        "dialTimeout": "42ns",
-        "terminationDelay": "42ns",
-        "tls": {
-          "serverName": "xxxx",
-          "insecureSkipVerify": true,
-          "rootCAs": [
-            "xxxx"
-          ],
-          "certificates": [
-            {
-              "certFile": "xxxx",
-              "keyFile": "xxxx"
             }
           ]
         }

@@ -7,7 +7,7 @@
         ],
         "service": "api@internal",
         "rule": "PathPrefix(`/api`)",
-        "priority": 9223372036854775806
+        "priority": 2147483646
       },
       "dashboard": {
         "entryPoints": [
@@ -19,7 +19,7 @@
         ],
         "service": "dashboard@internal",
         "rule": "PathPrefix(`/`)",
-        "priority": 9223372036854775805
+        "priority": 2147483645
       },
       "debug": {
         "entryPoints": [
@@ -27,7 +27,7 @@
         ],
         "service": "api@internal",
         "rule": "PathPrefix(`/debug`)",
-        "priority": 9223372036854775806
+        "priority": 2147483646
       },
       "ping": {
         "entryPoints": [
@@ -35,7 +35,7 @@
         ],
         "service": "ping@internal",
         "rule": "PathPrefix(`/ping`)",
-        "priority": 9223372036854775807
+        "priority": 2147483647
       },
       "prometheus": {
         "entryPoints": [
@@ -43,7 +43,7 @@
         ],
         "service": "prometheus@internal",
         "rule": "PathPrefix(`/metrics`)",
-        "priority": 9223372036854775807
+        "priority": 2147483647
       },
       "rest": {
         "entryPoints": [
@@ -51,16 +51,8 @@
         ],
         "service": "rest@internal",
         "rule": "PathPrefix(`/api/providers`)",
-        "priority": 9223372036854775807
+        "priority": 2147483647
       }
-    },
-    "services": {
-      "api": {},
-      "dashboard": {},
-      "noop": {},
-      "ping": {},
-      "prometheus": {},
-      "rest": {}
     },
     "middlewares": {
       "dashboard_redirect": {
@@ -78,6 +70,14 @@
           ]
         }
       }
+    },
+    "services": {
+      "api": {},
+      "dashboard": {},
+      "noop": {},
+      "ping": {},
+      "prometheus": {},
+      "rest": {}
     }
   },
   "tcp": {},

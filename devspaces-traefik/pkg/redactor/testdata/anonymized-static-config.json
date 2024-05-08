@@ -17,18 +17,6 @@
       "idleConnTimeout": "1m51s"
     }
   },
-  "tcpServersTransport": {
-    "dialKeepAlive": "1m51s",
-    "dialTimeout": "1m51s",
-    "tls": {
-      "insecureSkipVerify": true,
-      "rootCAs": [
-        "xxxx",
-        "xxxx",
-        "xxxx"
-      ]
-    }
-  },
   "entryPoints": {
     "foobar": {
       "address": "xxxx",
@@ -89,45 +77,55 @@
   "providers": {
     "providersThrottleDuration": "1m51s",
     "docker": {
-      "exposedByDefault": true,
       "constraints": "Label(\"foo\", \"bar\")",
-      "allowEmptyServices": true,
-      "network": "MyNetwork",
-      "useBindPortIP": true,
       "watch": true,
-      "defaultRule": "xxxx",
       "endpoint": "xxxx",
+      "defaultRule": "xxxx",
       "tls": {
         "ca": "xxxx",
+        "caOptional": true,
         "cert": "xxxx",
         "key": "xxxx",
         "insecureSkipVerify": true
       },
+      "exposedByDefault": true,
+      "useBindPortIP": true,
+      "swarmMode": true,
+      "network": "MyNetwork",
+      "swarmModeRefreshSeconds": "42ns",
       "httpClientTimeout": "42ns"
-    },
-    "swarm": {
-      "exposedByDefault": true,
-      "constraints": "Label(\"foo\", \"bar\")",
-      "allowEmptyServices": true,
-      "network": "MyNetwork",
-      "useBindPortIP": true,
-      "watch": true,
-      "defaultRule": "xxxx",
-      "endpoint": "xxxx",
-      "tls": {
-        "ca": "xxxx",
-        "cert": "xxxx",
-        "key": "xxxx",
-        "insecureSkipVerify": true
-      },
-      "httpClientTimeout": "42ns",
-      "refreshSeconds": "42ns"
     },
     "file": {
       "directory": "file Directory",
       "watch": true,
       "filename": "file Filename",
       "debugLogGeneratedTemplate": true
+    },
+    "marathon": {
+      "constraints": "Label(\"foo\", \"bar\")",
+      "trace": true,
+      "watch": true,
+      "endpoint": "xxxx",
+      "defaultRule": "xxxx",
+      "exposedByDefault": true,
+      "dcosToken": "xxxx",
+      "tls": {
+        "ca": "xxxx",
+        "caOptional": true,
+        "cert": "xxxx",
+        "key": "xxxx",
+        "insecureSkipVerify": true
+      },
+      "dialerTimeout": "42ns",
+      "responseHeaderTimeout": "42ns",
+      "tlsHandshakeTimeout": "42ns",
+      "keepAlive": "42ns",
+      "forceTaskHostname": true,
+      "basic": {
+        "httpBasicAuthUser": "xxxx",
+        "httpBasicPassword": "xxxx"
+      },
+      "respectReadinessChecks": true
     },
     "kubernetesIngress": {
       "endpoint": "xxxx",
@@ -172,6 +170,16 @@
     "rest": {
       "insecure": true
     },
+    "rancher": {
+      "constraints": "Label(\"foo\", \"bar\")",
+      "watch": true,
+      "defaultRule": "xxxx",
+      "exposedByDefault": true,
+      "enableServiceHealthFilter": true,
+      "refreshSeconds": 42,
+      "intervalPoll": true,
+      "prefix": "xxxx"
+    },
     "consulCatalog": {
       "constraints": "Label(\"foo\", \"bar\")",
       "endpoint": {
@@ -181,6 +189,7 @@
         "token": "xxxx",
         "tls": {
           "ca": "xxxx",
+          "caOptional": true,
           "cert": "xxxx",
           "key": "xxxx",
           "insecureSkipVerify": true
@@ -198,6 +207,7 @@
       "cache": true,
       "exposedByDefault": true,
       "defaultRule": "xxxx",
+      "namespace": "xxxx",
       "namespaces": [
         "xxxx",
         "xxxx"
@@ -223,10 +233,12 @@
       "token": "xxxx",
       "tls": {
         "ca": "xxxx",
+        "caOptional": true,
         "cert": "xxxx",
         "key": "xxxx",
         "insecureSkipVerify": true
       },
+      "namespace": "xxxx",
       "namespaces": [
         "xxxx",
         "xxxx"
@@ -236,6 +248,7 @@
       "rootKey": "xxxx",
       "tls": {
         "ca": "xxxx",
+        "caOptional": true,
         "cert": "xxxx",
         "key": "xxxx",
         "insecureSkipVerify": true
@@ -252,6 +265,7 @@
       "rootKey": "xxxx",
       "tls": {
         "ca": "xxxx",
+        "caOptional": true,
         "cert": "xxxx",
         "key": "xxxx",
         "insecureSkipVerify": true
@@ -265,6 +279,7 @@
       "pollTimeout": "42ns",
       "tls": {
         "ca": "xxxx",
+        "caOptional": true,
         "cert": "xxxx",
         "key": "xxxx",
         "insecureSkipVerify": true
@@ -301,6 +316,17 @@
       "addEntryPointsLabels": true,
       "addServicesLabels": true,
       "prefix": "MyPrefix"
+    },
+    "influxDB": {
+      "address": "xxxx",
+      "protocol": "xxxx",
+      "pushInterval": "42ns",
+      "database": "myDB",
+      "retentionPolicy": "12",
+      "username": "xxxx",
+      "password": "xxxx",
+      "addEntryPointsLabels": true,
+      "addServicesLabels": true
     }
   },
   "ping": {
@@ -310,12 +336,8 @@
   },
   "log": {
     "level": "Level",
-    "format": "json",
     "filePath": "xxxx",
-    "maxSize": 5,
-    "maxAge": 3,
-    "maxBackups": 4,
-    "compress": true
+    "format": "json"
   },
   "accessLog": {
     "filePath": "xxxx",
@@ -344,14 +366,55 @@
   },
   "tracing": {
     "serviceName": "myServiceName",
-    "globalAttributes": {
-      "foobar": "foobar"
+    "spanNameLimit": 42,
+    "jaeger": {
+      "samplingServerURL": "xxxx",
+      "samplingType": "foobar",
+      "samplingParam": 42,
+      "localAgentHostPort": "xxxx",
+      "gen128Bit": true,
+      "propagation": "foobar",
+      "traceContextHeaderName": "foobar",
+      "collector": {
+        "endpoint": "xxxx",
+        "user": "xxxx",
+        "password": "xxxx"
+      },
+      "disableAttemptReconnecting": true
     },
-    "sampleRate": 42,
-    "otlp": {
-      "http": {
-        "endpoint": "xxxx"
-      }
+    "zipkin": {
+      "httpEndpoint": "xxxx",
+      "sameSpan": true,
+      "id128Bit": true,
+      "sampleRate": 42
+    },
+    "datadog": {
+      "localAgentHostPort": "xxxx",
+      "localAgentSocket": "xxxx",
+      "globalTag": "foobar",
+      "debug": true,
+      "prioritySampling": true,
+      "traceIDHeaderName": "foobar",
+      "parentIDHeaderName": "foobar",
+      "samplingPriorityHeaderName": "foobar",
+      "bagagePrefixHeaderName": "foobar"
+    },
+    "instana": {
+      "localAgentHost": "xxxx",
+      "logLevel": "foobar"
+    },
+    "haystack": {
+      "localAgentHost": "xxxx",
+      "globalTag": "foobar",
+      "traceIDHeaderName": "foobar",
+      "parentIDHeaderName": "foobar",
+      "spanIDHeaderName": "foobar",
+      "baggagePrefixHeaderName": "foobar"
+    },
+    "elastic": {
+      "serverURL": "xxxx",
+      "secretToken": "xxxx",
+      "serviceEnvironment": "foobar"
     }
   },
   "hostResolver": {

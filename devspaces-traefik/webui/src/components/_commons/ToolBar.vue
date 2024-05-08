@@ -1,57 +1,23 @@
 <template>
   <q-toolbar class="row no-wrap items-center">
-    <q-tabs
-      align="left"
-      inline-label
-      indicator-color="transparent"
-      stretch
-    >
-      <q-route-tab
-        :to="`/${protocol}/routers`"
-        no-caps
-        :label="`${protocolLabel} Routers`"
-      >
-        <q-badge
-          v-if="routerTotal !== 0"
-          align="middle"
-          :label="routerTotal"
-          class="q-ml-sm"
-        />
+    <q-tabs align="left" inline-label indicator-color="transparent" stretch>
+      <q-route-tab :to="`/${protocol}/routers`" no-caps :label="`${protocolLabel} Routers`">
+        <q-badge v-if="routerTotal !== 0" align="middle" :label="routerTotal" class="q-ml-sm"/>
       </q-route-tab>
-      <q-route-tab
-        :to="`/${protocol}/services`"
-        no-caps
-        :label="`${protocolLabel} Services`"
-      >
-        <q-badge
-          v-if="servicesTotal !== 0"
-          align="middle"
-          :label="servicesTotal"
-          class="q-ml-sm"
-        />
+      <q-route-tab :to="`/${protocol}/services`" no-caps :label="`${protocolLabel} Services`">
+        <q-badge v-if="servicesTotal !== 0" align="middle" :label="servicesTotal" class="q-ml-sm"/>
       </q-route-tab>
-      <q-route-tab
-        v-if="protocol !== 'udp'"
-        :to="`/${protocol}/middlewares`"
-        no-caps
-        :label="`${protocolLabel} Middlewares`"
-      >
-        <q-badge
-          v-if="middlewaresTotal !== 0"
-          align="middle"
-          :label="middlewaresTotal"
-          class="q-ml-sm"
-        />
+      <q-route-tab v-if="protocol !== 'udp'" :to="`/${protocol}/middlewares`" no-caps :label="`${protocolLabel} Middlewares`">
+        <q-badge v-if="middlewaresTotal !== 0" align="middle" :label="middlewaresTotal" class="q-ml-sm"/>
       </q-route-tab>
     </q-tabs>
   </q-toolbar>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-import { useStore, mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
-export default defineComponent({
+export default {
   name: 'ToolBar',
   data () {
     return {
@@ -81,16 +47,6 @@ export default defineComponent({
       return (data && data.middlewares && data.middlewares.total) || 0
     }
   },
-  created () {
-    this.refreshAll()
-    this.intervalRefresh = setInterval(this.onGetAll, this.intervalRefreshTime)
-  },
-  beforeUnmount () {
-    const $store = useStore()
-
-    clearInterval(this.intervalRefresh)
-    $store.commit('core/getOverviewClear')
-  },
   methods: {
     ...mapActions('core', { getOverview: 'getOverview' }),
     refreshAll () {
@@ -108,8 +64,16 @@ export default defineComponent({
           console.log('Error -> toolbar/overview', error)
         })
     }
+  },
+  created () {
+    this.refreshAll()
+    this.intervalRefresh = setInterval(this.onGetAll, this.intervalRefreshTime)
+  },
+  beforeDestroy () {
+    clearInterval(this.intervalRefresh)
+    this.$store.commit('core/getOverviewClear')
   }
-})
+}
 </script>
 
 <style scoped lang="scss">
@@ -118,8 +82,6 @@ export default defineComponent({
   .q-toolbar {
     min-height: 48px;
     padding: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
   }
 
   .body--dark .q-toolbar {
@@ -127,7 +89,7 @@ export default defineComponent({
   }
 
   .q-tabs {
-    :deep(.q-tabs__content) {
+    /deep/ .q-tabs__content {
       .q-tab__label {
         color: $app-text-grey;
         font-size: 16px;

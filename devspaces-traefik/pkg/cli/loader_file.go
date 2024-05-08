@@ -4,10 +4,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rs/zerolog/log"
 	"github.com/traefik/paerser/cli"
 	"github.com/traefik/paerser/file"
 	"github.com/traefik/paerser/flag"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 // FileLoader loads a configuration from a file.
@@ -52,10 +52,11 @@ func (f *FileLoader) Load(args []string, cmd *cli.Command) (bool, error) {
 		return false, nil
 	}
 
-	log.Printf("Configuration loaded from file: %s", configFile)
+	logger := log.WithoutContext()
+	logger.Printf("Configuration loaded from file: %s", configFile)
 
 	content, _ := os.ReadFile(configFile)
-	log.Debug().Str("configFile", configFile).Bytes("content", content).Send()
+	logger.Debug(string(content))
 
 	return true, nil
 }

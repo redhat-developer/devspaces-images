@@ -4,18 +4,17 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/traefik/traefik/v3/pkg/api"
-	"github.com/traefik/traefik/v3/pkg/api/dashboard"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/config/static"
-	"github.com/traefik/traefik/v3/pkg/metrics"
-	"github.com/traefik/traefik/v3/pkg/safe"
-	"github.com/traefik/traefik/v3/pkg/server/middleware"
+	"github.com/traefik/traefik/v2/pkg/api"
+	"github.com/traefik/traefik/v2/pkg/api/dashboard"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/metrics"
+	"github.com/traefik/traefik/v2/pkg/safe"
 )
 
 // ManagerFactory a factory of service manager.
 type ManagerFactory struct {
-	observabilityMgr *middleware.ObservabilityMgr
+	metricsRegistry metrics.Registry
 
 	roundTripperManager *RoundTripperManager
 
@@ -30,9 +29,9 @@ type ManagerFactory struct {
 }
 
 // NewManagerFactory creates a new ManagerFactory.
-func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *safe.Pool, observabilityMgr *middleware.ObservabilityMgr, roundTripperManager *RoundTripperManager, acmeHTTPHandler http.Handler) *ManagerFactory {
+func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *safe.Pool, metricsRegistry metrics.Registry, roundTripperManager *RoundTripperManager, acmeHTTPHandler http.Handler) *ManagerFactory {
 	factory := &ManagerFactory{
-		observabilityMgr:    observabilityMgr,
+		metricsRegistry:     metricsRegistry,
 		routinesPool:        routinesPool,
 		roundTripperManager: roundTripperManager,
 		acmeHTTPHandler:     acmeHTTPHandler,
@@ -73,7 +72,7 @@ func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *s
 
 // Build creates a service manager.
 func (f *ManagerFactory) Build(configuration *runtime.Configuration) *InternalHandlers {
-	svcManager := NewManager(configuration.Services, f.observabilityMgr, f.routinesPool, f.roundTripperManager)
+	svcManager := NewManager(configuration.Services, f.metricsRegistry, f.routinesPool, f.roundTripperManager)
 
 	var apiHandler http.Handler
 	if f.api != nil {

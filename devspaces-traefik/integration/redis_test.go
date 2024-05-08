@@ -8,63 +8,52 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
-	"testing"
 	"time"
 
+	"github.com/go-check/check"
 	"github.com/kvtools/redis"
 	"github.com/kvtools/valkeyrie"
 	"github.com/kvtools/valkeyrie/store"
 	"github.com/pmezard/go-difflib/difflib"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	"github.com/traefik/traefik/v3/integration/try"
-	"github.com/traefik/traefik/v3/pkg/api"
+	"github.com/traefik/traefik/v2/integration/try"
+	"github.com/traefik/traefik/v2/pkg/api"
+	checker "github.com/vdemeester/shakers"
 )
 
 // Redis test suites.
 type RedisSuite struct {
 	BaseSuite
-	kvClient       store.Store
-	redisEndpoints []string
+	kvClient  store.Store
+	redisAddr string
 }
 
-func TestRedisSuite(t *testing.T) {
-	suite.Run(t, new(RedisSuite))
-}
+func (s *RedisSuite) setupStore(c *check.C) {
+	s.createComposeProject(c, "redis")
+	s.composeUp(c)
 
-func (s *RedisSuite) SetupSuite() {
-	s.BaseSuite.SetupSuite()
-
-	s.createComposeProject("redis")
-	s.composeUp()
-
-	s.redisEndpoints = []string{}
-	s.redisEndpoints = append(s.redisEndpoints, net.JoinHostPort(s.getComposeServiceIP("redis"), "6379"))
+	s.redisAddr = net.JoinHostPort(s.getComposeServiceIP(c, "redis"), "6379")
 
 	kv, err := valkeyrie.NewStore(
 		context.Background(),
 		redis.StoreName,
-		s.redisEndpoints,
+		[]string{s.redisAddr},
 		&redis.Config{},
 	)
-	require.NoError(s.T(), err, "Cannot create store redis")
-
+	if err != nil {
+		c.Fatal("Cannot create store redis")
+	}
 	s.kvClient = kv
 
 	// wait for redis
 	err = try.Do(60*time.Second, try.KVExists(kv, "test"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *RedisSuite) TearDownSuite() {
-	s.BaseSuite.TearDownSuite()
-}
+func (s *RedisSuite) TestSimpleConfiguration(c *check.C) {
+	s.setupStore(c)
 
-func (s *RedisSuite) TestSimpleConfiguration() {
-	file := s.adaptFile("fixtures/redis/simple.toml", struct{ RedisAddress string }{
-		RedisAddress: strings.Join(s.redisEndpoints, ","),
-	})
+	file := s.adaptFile(c, "fixtures/redis/simple.toml", struct{ RedisAddress string }{s.redisAddr})
+	defer os.Remove(file)
 
 	data := map[string]string{
 		"traefik/http/routers/Router0/entryPoints/0": "web",
@@ -109,39 +98,44 @@ func (s *RedisSuite) TestSimpleConfiguration() {
 		"traefik/http/middlewares/compressor/compress":            "true",
 		"traefik/http/middlewares/striper/stripPrefix/prefixes/0": "foo",
 		"traefik/http/middlewares/striper/stripPrefix/prefixes/1": "bar",
+		"traefik/http/middlewares/striper/stripPrefix/forceSlash": "true",
 	}
 
 	for k, v := range data {
 		err := s.kvClient.Put(context.Background(), k, []byte(v), nil)
-		require.NoError(s.T(), err)
+		c.Assert(err, checker.IsNil)
 	}
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for traefik
-	err := try.GetRequest("http://127.0.0.1:8080/api/rawdata", 2*time.Second,
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 2*time.Second,
 		try.BodyContains(`"striper@redis":`, `"compressor@redis":`, `"srvcA@redis":`, `"srvcB@redis":`),
 	)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	resp, err := http.Get("http://127.0.0.1:8080/api/rawdata")
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	var obtained api.RunTimeRepresentation
 	err = json.NewDecoder(resp.Body).Decode(&obtained)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	got, err := json.MarshalIndent(obtained, "", "  ")
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	expectedJSON := filepath.FromSlash("testdata/rawdata-redis.json")
 
 	if *updateExpected {
 		err = os.WriteFile(expectedJSON, got, 0o666)
-		require.NoError(s.T(), err)
+		c.Assert(err, checker.IsNil)
 	}
 
 	expected, err := os.ReadFile(expectedJSON)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	if !bytes.Equal(expected, got) {
 		diff := difflib.UnifiedDiff{
@@ -153,6 +147,7 @@ func (s *RedisSuite) TestSimpleConfiguration() {
 		}
 
 		text, err := difflib.GetUnifiedDiffString(diff)
-		require.NoError(s.T(), err, text)
+		c.Assert(err, checker.IsNil)
+		c.Error(text)
 	}
 }

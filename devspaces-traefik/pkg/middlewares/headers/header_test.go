@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 )
 
 func TestNewHeader_customRequestHeader(t *testing.T) {
@@ -29,14 +29,11 @@ func TestNewHeader_customRequestHeader(t *testing.T) {
 			desc: "delete a header",
 			cfg: dynamic.Headers{
 				CustomRequestHeaders: map[string]string{
-					"X-Forwarded-For":         "",
 					"X-Custom-Request-Header": "",
 					"Foo":                     "",
 				},
 			},
-			expected: http.Header{
-				"X-Forwarded-For": nil,
-			},
+			expected: http.Header{},
 		},
 		{
 			desc: "override a header",
@@ -52,6 +49,7 @@ func TestNewHeader_customRequestHeader(t *testing.T) {
 	emptyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 

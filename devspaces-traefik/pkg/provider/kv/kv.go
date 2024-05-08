@@ -10,12 +10,11 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/kvtools/valkeyrie"
 	"github.com/kvtools/valkeyrie/store"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/config/kv"
-	"github.com/traefik/traefik/v3/pkg/job"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/kv"
+	"github.com/traefik/traefik/v2/pkg/job"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/safe"
 )
 
 // Provider holds configurations of the provider.
@@ -35,7 +34,7 @@ func (p *Provider) SetDefaults() {
 
 // Init the provider.
 func (p *Provider) Init(storeType, name string, config valkeyrie.Config) error {
-	ctx := log.With().Str(logs.ProviderName, name).Logger().WithContext(context.Background())
+	ctx := log.With(context.Background(), log.Str(log.ProviderName, name))
 
 	p.name = name
 
@@ -51,8 +50,8 @@ func (p *Provider) Init(storeType, name string, config valkeyrie.Config) error {
 
 // Provide allows the docker provider to provide configurations to traefik using the given configuration channel.
 func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.Pool) error {
-	logger := log.With().Str(logs.ProviderName, p.name).Logger()
-	ctx := logger.WithContext(context.Background())
+	ctx := log.With(context.Background(), log.Str(log.ProviderName, p.name))
+	logger := log.FromContext(ctx)
 
 	operation := func() error {
 		if _, err := p.kvClient.Exists(ctx, path.Join(p.RootKey, "qmslkjdfmqlskdjfmqlksjazçueznbvbwzlkajzebvkwjdcqmlsfj"), nil); err != nil {
@@ -62,9 +61,8 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 	}
 
 	notify := func(err error, time time.Duration) {
-		logger.Error().Err(err).Msgf("KV connection error, retrying in %s", time)
+		logger.Errorf("KV connection error: %+v, retrying in %s", err, time)
 	}
-
 	err := backoff.RetryNotify(safe.OperationWithRecover(operation), backoff.WithContext(job.NewBackOff(backoff.NewExponentialBackOff()), ctx), notify)
 	if err != nil {
 		return fmt.Errorf("cannot connect to KV server: %w", err)
@@ -72,7 +70,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 
 	configuration, err := p.buildConfiguration(ctx)
 	if err != nil {
-		logger.Error().Err(err).Msg("Cannot build the configuration")
+		logger.Errorf("Cannot build the configuration: %v", err)
 	} else {
 		configurationChan <- dynamic.Message{
 			ProviderName:  p.name,
@@ -81,11 +79,11 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 	}
 
 	pool.GoCtx(func(ctxPool context.Context) {
-		ctxLog := logger.With().Str(logs.ProviderName, p.name).Logger().WithContext(ctxPool)
+		ctxLog := log.With(ctxPool, log.Str(log.ProviderName, p.name))
 
 		err := p.watchKv(ctxLog, configurationChan)
 		if err != nil {
-			logger.Error().Err(err).Msg("Cannot retrieve data")
+			logger.Errorf("Cannot watch KV store: %v", err)
 		}
 	})
 
@@ -124,26 +122,20 @@ func (p *Provider) watchKv(ctx context.Context, configurationChan chan<- dynamic
 	}
 
 	notify := func(err error, time time.Duration) {
-		log.Ctx(ctx).Error().Err(err).Msgf("Provider error, retrying in %s", time)
+		log.FromContext(ctx).Errorf("KV connection error: %+v, retrying in %s", err, time)
 	}
 
-	return backoff.RetryNotify(safe.OperationWithRecover(operation),
+	err := backoff.RetryNotify(safe.OperationWithRecover(operation),
 		backoff.WithContext(job.NewBackOff(backoff.NewExponentialBackOff()), ctx), notify)
+	if err != nil {
+		return fmt.Errorf("cannot connect to KV server: %w", err)
+	}
+	return nil
 }
 
 func (p *Provider) buildConfiguration(ctx context.Context) (*dynamic.Configuration, error) {
 	pairs, err := p.kvClient.List(ctx, p.RootKey, nil)
 	if err != nil {
-		if errors.Is(err, store.ErrKeyNotFound) {
-			// This empty configuration satisfies the pkg/server/configurationwatcher.go isEmptyConfiguration func constraints,
-			// and will not be discarded by the configuration watcher.
-			return &dynamic.Configuration{
-				HTTP: &dynamic.HTTPConfiguration{
-					Routers: make(map[string]*dynamic.Router),
-				},
-			}, nil
-		}
-
 		return nil, err
 	}
 

@@ -9,8 +9,7 @@ import (
 
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/logs"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 // Account is used to store lets encrypt registration info.
@@ -57,8 +56,8 @@ func (a *Account) GetRegistration() *registration.Resource {
 func (a *Account) GetPrivateKey() crypto.PrivateKey {
 	privateKey, err := x509.ParsePKCS1PrivateKey(a.PrivateKey)
 	if err != nil {
-		log.Error().Str(logs.ProviderName, "acme").
-			Err(err).Msgf("Cannot unmarshal private key %+v", a.PrivateKey)
+		log.WithoutContext().WithField(log.ProviderName, "acme").
+			Errorf("Cannot unmarshal private key %+v: %v", a.PrivateKey, err)
 		return nil
 	}
 
@@ -67,7 +66,7 @@ func (a *Account) GetPrivateKey() crypto.PrivateKey {
 
 // GetKeyType used to determine which algo to used.
 func GetKeyType(ctx context.Context, value string) certcrypto.KeyType {
-	logger := log.Ctx(ctx)
+	logger := log.FromContext(ctx)
 
 	switch value {
 	case "EC256":
@@ -81,10 +80,10 @@ func GetKeyType(ctx context.Context, value string) certcrypto.KeyType {
 	case "RSA8192":
 		return certcrypto.RSA8192
 	case "":
-		logger.Info().Msgf("The key type is empty. Use default key type %v.", certcrypto.RSA4096)
+		logger.Infof("The key type is empty. Use default key type %v.", certcrypto.RSA4096)
 		return certcrypto.RSA4096
 	default:
-		logger.Info().Msgf("Unable to determine the key type value %q: falling back on %v.", value, certcrypto.RSA4096)
+		logger.Infof("Unable to determine the key type value %q: falling back on %v.", value, certcrypto.RSA4096)
 		return certcrypto.RSA4096
 	}
 }

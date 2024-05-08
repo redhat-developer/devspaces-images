@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 // +k8s:deepcopy-gen=true
@@ -16,7 +16,9 @@ import (
 // ClientTLS holds TLS specific configurations as client
 // CA, Cert and Key can be either path or file contents.
 type ClientTLS struct {
-	CA                 string `description:"TLS CA" json:"ca,omitempty" toml:"ca,omitempty" yaml:"ca,omitempty"`
+	CA string `description:"TLS CA" json:"ca,omitempty" toml:"ca,omitempty" yaml:"ca,omitempty"`
+	// Deprecated: TLS client authentication is a server side option (see https://github.com/golang/go/blob/740a490f71d026bb7d2d13cb8fa2d6d6e0572b70/src/crypto/tls/common.go#L634).
+	CAOptional         bool   `description:"TLS CA.Optional" json:"caOptional,omitempty" toml:"caOptional,omitempty" yaml:"caOptional,omitempty" export:"true"`
 	Cert               string `description:"TLS cert" json:"cert,omitempty" toml:"cert,omitempty" yaml:"cert,omitempty"`
 	Key                string `description:"TLS key" json:"key,omitempty" toml:"key,omitempty" yaml:"key,omitempty" loggable:"false"`
 	InsecureSkipVerify bool   `description:"TLS insecure skip verify" json:"insecureSkipVerify,omitempty" toml:"insecureSkipVerify,omitempty" yaml:"insecureSkipVerify,omitempty" export:"true"`
@@ -25,8 +27,12 @@ type ClientTLS struct {
 // CreateTLSConfig creates a TLS config from ClientTLS structures.
 func (c *ClientTLS) CreateTLSConfig(ctx context.Context) (*tls.Config, error) {
 	if c == nil {
-		log.Ctx(ctx).Warn().Msg("clientTLS is nil")
+		log.FromContext(ctx).Warnf("clientTLS is nil")
 		return nil, nil
+	}
+
+	if c.CAOptional {
+		log.FromContext(ctx).Warn("CAOptional is deprecated, TLS client authentication is a server side option.")
 	}
 
 	// Not initialized, to rely on system bundle.

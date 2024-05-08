@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -9,19 +8,12 @@ import (
 	"net"
 	"net/http"
 	"reflect"
-	"slices"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
-	"github.com/spiffe/go-spiffe/v2/bundle/x509bundle"
-	"github.com/spiffe/go-spiffe/v2/spiffeid"
-	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
-	"github.com/spiffe/go-spiffe/v2/svid/x509svid"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	traefiktls "github.com/traefik/traefik/v3/pkg/tls"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	traefiktls "github.com/traefik/traefik/v2/pkg/tls"
 	"golang.org/x/net/http2"
 )
 
@@ -34,18 +26,11 @@ func (t *h2cTransportWrapper) RoundTrip(req *http.Request) (*http.Response, erro
 	return t.Transport.RoundTrip(req)
 }
 
-// SpiffeX509Source allows to retrieve a x509 SVID and bundle.
-type SpiffeX509Source interface {
-	x509svid.Source
-	x509bundle.Source
-}
-
 // NewRoundTripperManager creates a new RoundTripperManager.
-func NewRoundTripperManager(spiffeX509Source SpiffeX509Source) *RoundTripperManager {
+func NewRoundTripperManager() *RoundTripperManager {
 	return &RoundTripperManager{
-		roundTrippers:    make(map[string]http.RoundTripper),
-		configs:          make(map[string]*dynamic.ServersTransport),
-		spiffeX509Source: spiffeX509Source,
+		roundTrippers: make(map[string]http.RoundTripper),
+		configs:       make(map[string]*dynamic.ServersTransport),
 	}
 }
 
@@ -54,8 +39,6 @@ type RoundTripperManager struct {
 	rtLock        sync.RWMutex
 	roundTrippers map[string]http.RoundTripper
 	configs       map[string]*dynamic.ServersTransport
-
-	spiffeX509Source SpiffeX509Source
 }
 
 // Update updates the roundtrippers configurations.
@@ -76,9 +59,9 @@ func (r *RoundTripperManager) Update(newConfigs map[string]*dynamic.ServersTrans
 		}
 
 		var err error
-		r.roundTrippers[configName], err = r.createRoundTripper(newConfig)
+		r.roundTrippers[configName], err = createRoundTripper(newConfig)
 		if err != nil {
-			log.Error().Err(err).Msgf("Could not configure HTTP Transport %s, fallback on default transport", configName)
+			log.WithoutContext().Errorf("Could not configure HTTP Transport %s, fallback on default transport: %v", configName, err)
 			r.roundTrippers[configName] = http.DefaultTransport
 		}
 	}
@@ -89,9 +72,9 @@ func (r *RoundTripperManager) Update(newConfigs map[string]*dynamic.ServersTrans
 		}
 
 		var err error
-		r.roundTrippers[newConfigName], err = r.createRoundTripper(newConfig)
+		r.roundTrippers[newConfigName], err = createRoundTripper(newConfig)
 		if err != nil {
-			log.Error().Err(err).Msgf("Could not configure HTTP Transport %s, fallback on default transport", newConfigName)
+			log.WithoutContext().Errorf("Could not configure HTTP Transport %s, fallback on default transport: %v", newConfigName, err)
 			r.roundTrippers[newConfigName] = http.DefaultTransport
 		}
 	}
@@ -99,7 +82,7 @@ func (r *RoundTripperManager) Update(newConfigs map[string]*dynamic.ServersTrans
 	r.configs = newConfigs
 }
 
-// Get gets a roundtripper by name.
+// Get get a roundtripper by name.
 func (r *RoundTripperManager) Get(name string) (http.RoundTripper, error) {
 	if len(name) == 0 {
 		name = "default@internal"
@@ -119,7 +102,7 @@ func (r *RoundTripperManager) Get(name string) (http.RoundTripper, error) {
 // For the settings that can't be configured in Traefik it uses the default http.Transport settings.
 // An exception to this is the MaxIdleConns setting as we only provide the option MaxIdleConnsPerHost in Traefik at this point in time.
 // Setting this value to the default of 100 could lead to confusing behavior and backwards compatibility issues.
-func (r *RoundTripperManager) createRoundTripper(cfg *dynamic.ServersTransport) (http.RoundTripper, error) {
+func createRoundTripper(cfg *dynamic.ServersTransport) (http.RoundTripper, error) {
 	if cfg == nil {
 		return nil, errors.New("no transport configuration given")
 	}
@@ -149,24 +132,7 @@ func (r *RoundTripperManager) createRoundTripper(cfg *dynamic.ServersTransport) 
 		transport.IdleConnTimeout = time.Duration(cfg.ForwardingTimeouts.IdleConnTimeout)
 	}
 
-	if cfg.Spiffe != nil {
-		if r.spiffeX509Source == nil {
-			return nil, errors.New("SPIFFE is enabled for this transport, but not configured")
-		}
-
-		spiffeAuthorizer, err := buildSpiffeAuthorizer(cfg.Spiffe)
-		if err != nil {
-			return nil, fmt.Errorf("unable to build SPIFFE authorizer: %w", err)
-		}
-
-		transport.TLSClientConfig = tlsconfig.MTLSClientConfig(r.spiffeX509Source, r.spiffeX509Source, spiffeAuthorizer)
-	}
-
 	if cfg.InsecureSkipVerify || len(cfg.RootCAs) > 0 || len(cfg.ServerName) > 0 || len(cfg.Certificates) > 0 || cfg.PeerCertURI != "" {
-		if transport.TLSClientConfig != nil {
-			return nil, errors.New("TLS and SPIFFE configuration cannot be defined at the same time")
-		}
-
 		transport.TLSClientConfig = &tls.Config{
 			ServerName:         cfg.ServerName,
 			InsecureSkipVerify: cfg.InsecureSkipVerify,
@@ -183,71 +149,13 @@ func (r *RoundTripperManager) createRoundTripper(cfg *dynamic.ServersTransport) 
 
 	// Return directly HTTP/1.1 transport when HTTP/2 is disabled
 	if cfg.DisableHTTP2 {
-		return &KerberosRoundTripper{
-			OriginalRoundTripper: transport,
-			new: func() http.RoundTripper {
-				return transport.Clone()
-			},
-		}, nil
+		return transport, nil
 	}
 
-	rt, err := newSmartRoundTripper(transport, cfg.ForwardingTimeouts)
-	if err != nil {
-		return nil, err
-	}
-	return &KerberosRoundTripper{
-		OriginalRoundTripper: rt,
-		new: func() http.RoundTripper {
-			return rt.Clone()
-		},
-	}, nil
+	return newSmartRoundTripper(transport, cfg.ForwardingTimeouts)
 }
 
-type KerberosRoundTripper struct {
-	new                  func() http.RoundTripper
-	OriginalRoundTripper http.RoundTripper
-}
-
-type stickyRoundTripper struct {
-	RoundTripper http.RoundTripper
-}
-
-type transportKeyType string
-
-var transportKey transportKeyType = "transport"
-
-func AddTransportOnContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, transportKey, &stickyRoundTripper{})
-}
-
-func (k *KerberosRoundTripper) RoundTrip(request *http.Request) (*http.Response, error) {
-	value, ok := request.Context().Value(transportKey).(*stickyRoundTripper)
-	if !ok {
-		return k.OriginalRoundTripper.RoundTrip(request)
-	}
-
-	if value.RoundTripper != nil {
-		return value.RoundTripper.RoundTrip(request)
-	}
-
-	resp, err := k.OriginalRoundTripper.RoundTrip(request)
-
-	// If we found that we are authenticating with Kerberos (Negotiate) or NTLM.
-	// We put a dedicated roundTripper in the ConnContext.
-	// This will stick the next calls to the same connection with the backend.
-	if err == nil && containsNTLMorNegotiate(resp.Header.Values("WWW-Authenticate")) {
-		value.RoundTripper = k.new()
-	}
-	return resp, err
-}
-
-func containsNTLMorNegotiate(h []string) bool {
-	return slices.ContainsFunc(h, func(s string) bool {
-		return strings.HasPrefix(s, "NTLM") || strings.HasPrefix(s, "Negotiate")
-	})
-}
-
-func createRootCACertPool(rootCAs []types.FileOrContent) *x509.CertPool {
+func createRootCACertPool(rootCAs []traefiktls.FileOrContent) *x509.CertPool {
 	if len(rootCAs) == 0 {
 		return nil
 	}
@@ -257,39 +165,11 @@ func createRootCACertPool(rootCAs []types.FileOrContent) *x509.CertPool {
 	for _, cert := range rootCAs {
 		certContent, err := cert.Read()
 		if err != nil {
-			log.Error().Err(err).Msg("Error while read RootCAs")
+			log.WithoutContext().Error("Error while read RootCAs", err)
 			continue
 		}
 		roots.AppendCertsFromPEM(certContent)
 	}
 
 	return roots
-}
-
-func buildSpiffeAuthorizer(cfg *dynamic.Spiffe) (tlsconfig.Authorizer, error) {
-	switch {
-	case len(cfg.IDs) > 0:
-		spiffeIDs := make([]spiffeid.ID, 0, len(cfg.IDs))
-		for _, rawID := range cfg.IDs {
-			id, err := spiffeid.FromString(rawID)
-			if err != nil {
-				return nil, fmt.Errorf("invalid SPIFFE ID: %w", err)
-			}
-
-			spiffeIDs = append(spiffeIDs, id)
-		}
-
-		return tlsconfig.AuthorizeOneOf(spiffeIDs...), nil
-
-	case cfg.TrustDomain != "":
-		trustDomain, err := spiffeid.TrustDomainFromString(cfg.TrustDomain)
-		if err != nil {
-			return nil, fmt.Errorf("invalid SPIFFE trust domain: %w", err)
-		}
-
-		return tlsconfig.AuthorizeMemberOf(trustDomain), nil
-
-	default:
-		return tlsconfig.AuthorizeAny(), nil
-	}
 }

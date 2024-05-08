@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"slices"
 	"strconv"
 	"strings"
 )
@@ -23,10 +22,8 @@ type pageInfo struct {
 }
 
 type searchCriterion struct {
-	Search         string `url:"search"`
-	Status         string `url:"status"`
-	ServiceName    string `url:"serviceName"`
-	MiddlewareName string `url:"middlewareName"`
+	Search string `url:"search"`
+	Status string `url:"status"`
 }
 
 func newSearchCriterion(query url.Values) *searchCriterion {
@@ -36,19 +33,12 @@ func newSearchCriterion(query url.Values) *searchCriterion {
 
 	search := query.Get("search")
 	status := query.Get("status")
-	serviceName := query.Get("serviceName")
-	middlewareName := query.Get("middlewareName")
 
-	if status == "" && search == "" && serviceName == "" && middlewareName == "" {
+	if status == "" && search == "" {
 		return nil
 	}
 
-	return &searchCriterion{
-		Search:         search,
-		Status:         status,
-		ServiceName:    serviceName,
-		MiddlewareName: middlewareName,
-	}
+	return &searchCriterion{Search: search, Status: status}
 }
 
 func (c *searchCriterion) withStatus(name string) bool {
@@ -60,32 +50,8 @@ func (c *searchCriterion) searchIn(values ...string) bool {
 		return true
 	}
 
-	return slices.ContainsFunc(values, func(v string) bool {
-		return strings.Contains(strings.ToLower(v), strings.ToLower(c.Search))
-	})
-}
-
-func (c *searchCriterion) filterService(name string) bool {
-	if c.ServiceName == "" {
-		return true
-	}
-
-	if strings.Contains(name, "@") {
-		return c.ServiceName == name
-	}
-
-	before, _, _ := strings.Cut(c.ServiceName, "@")
-
-	return before == name
-}
-
-func (c *searchCriterion) filterMiddleware(mns []string) bool {
-	if c.MiddlewareName == "" {
-		return true
-	}
-
-	for _, mn := range mns {
-		if c.MiddlewareName == mn {
+	for _, v := range values {
+		if strings.Contains(strings.ToLower(v), strings.ToLower(c.Search)) {
 			return true
 		}
 	}

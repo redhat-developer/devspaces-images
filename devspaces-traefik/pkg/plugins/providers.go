@@ -9,11 +9,10 @@ import (
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/provider"
-	"github.com/traefik/traefik/v3/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/provider"
+	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/yaegi/interp"
 )
 
@@ -45,7 +44,7 @@ func (p _PP) Stop() error {
 
 func ppSymbols() map[string]map[string]reflect.Value {
 	return map[string]map[string]reflect.Value{
-		"github.com/traefik/traefik/v3/pkg/plugins/plugins": {
+		"github.com/traefik/traefik/v2/pkg/plugins/plugins": {
 			"PP":  reflect.ValueOf((*PP)(nil)),
 			"_PP": reflect.ValueOf((*_PP)(nil)),
 		},
@@ -115,7 +114,7 @@ import (
 	"context"
 
 	` + basePkg + ` "` + builder.Import + `"
-	"github.com/traefik/traefik/v3/pkg/plugins"
+	"github.com/traefik/traefik/v2/pkg/plugins"
 )
 
 func NewWrapper(ctx context.Context, config *` + basePkg + `.Config, name string) (plugins.PP, error) {
@@ -159,21 +158,21 @@ func (p *Provider) Init() error {
 func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.Pool) error {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Error().Str(logs.ProviderName, p.name).Msgf("Panic inside the plugin %v", err)
+			log.WithoutContext().WithField(log.ProviderName, p.name).Errorf("panic inside the plugin %v", err)
 		}
 	}()
 
 	cfgChan := make(chan json.Marshaler)
 
 	pool.GoCtx(func(ctx context.Context) {
-		logger := log.Ctx(ctx).With().Str(logs.ProviderName, p.name).Logger()
+		logger := log.FromContext(log.With(ctx, log.Str(log.ProviderName, p.name)))
 
 		for {
 			select {
 			case <-ctx.Done():
 				err := p.pp.Stop()
 				if err != nil {
-					logger.Error().Err(err).Msg("Failed to stop the provider")
+					logger.Errorf("failed to stop the provider: %v", err)
 				}
 
 				return
@@ -181,14 +180,14 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 			case cfgPg := <-cfgChan:
 				marshalJSON, err := cfgPg.MarshalJSON()
 				if err != nil {
-					logger.Error().Err(err).Msg("Failed to marshal configuration")
+					logger.Errorf("failed to marshal configuration: %v", err)
 					continue
 				}
 
 				cfg := &dynamic.Configuration{}
 				err = json.Unmarshal(marshalJSON, cfg)
 				if err != nil {
-					logger.Error().Err(err).Msg("Failed to unmarshal configuration")
+					logger.Errorf("failed to unmarshal configuration: %v", err)
 					continue
 				}
 

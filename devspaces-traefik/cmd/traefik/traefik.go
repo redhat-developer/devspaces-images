@@ -5,11 +5,11 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"io"
 	stdlog "log"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sort"
 	"strings"
 	"syscall"
@@ -18,41 +18,40 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/go-acme/lego/v4/challenge"
 	gokitmetrics "github.com/go-kit/kit/metrics"
-	"github.com/rs/zerolog/log"
 	"github.com/sirupsen/logrus"
-	"github.com/spiffe/go-spiffe/v2/workloadapi"
 	"github.com/traefik/paerser/cli"
-	"github.com/traefik/traefik/v3/cmd"
-	"github.com/traefik/traefik/v3/cmd/healthcheck"
-	cmdVersion "github.com/traefik/traefik/v3/cmd/version"
-	tcli "github.com/traefik/traefik/v3/pkg/cli"
-	"github.com/traefik/traefik/v3/pkg/collector"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/config/static"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/metrics"
-	"github.com/traefik/traefik/v3/pkg/middlewares/accesslog"
-	"github.com/traefik/traefik/v3/pkg/provider/acme"
-	"github.com/traefik/traefik/v3/pkg/provider/aggregator"
-	"github.com/traefik/traefik/v3/pkg/provider/tailscale"
-	"github.com/traefik/traefik/v3/pkg/provider/traefik"
-	"github.com/traefik/traefik/v3/pkg/safe"
-	"github.com/traefik/traefik/v3/pkg/server"
-	"github.com/traefik/traefik/v3/pkg/server/middleware"
-	"github.com/traefik/traefik/v3/pkg/server/service"
-	"github.com/traefik/traefik/v3/pkg/tcp"
-	traefiktls "github.com/traefik/traefik/v3/pkg/tls"
-	"github.com/traefik/traefik/v3/pkg/tracing"
-	"github.com/traefik/traefik/v3/pkg/types"
-	"github.com/traefik/traefik/v3/pkg/version"
+	"github.com/traefik/traefik/v2/cmd"
+	"github.com/traefik/traefik/v2/cmd/healthcheck"
+	cmdVersion "github.com/traefik/traefik/v2/cmd/version"
+	tcli "github.com/traefik/traefik/v2/pkg/cli"
+	"github.com/traefik/traefik/v2/pkg/collector"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/metrics"
+	"github.com/traefik/traefik/v2/pkg/middlewares/accesslog"
+	"github.com/traefik/traefik/v2/pkg/provider/acme"
+	"github.com/traefik/traefik/v2/pkg/provider/aggregator"
+	"github.com/traefik/traefik/v2/pkg/provider/hub"
+	"github.com/traefik/traefik/v2/pkg/provider/traefik"
+	"github.com/traefik/traefik/v2/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/server"
+	"github.com/traefik/traefik/v2/pkg/server/middleware"
+	"github.com/traefik/traefik/v2/pkg/server/service"
+	traefiktls "github.com/traefik/traefik/v2/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/tracing"
+	"github.com/traefik/traefik/v2/pkg/tracing/jaeger"
+	"github.com/traefik/traefik/v2/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/version"
+	"github.com/vulcand/oxy/v2/roundrobin"
 )
 
 func main() {
 	// traefik config inits
 	tConfig := cmd.NewTraefikConfiguration()
 
-	loaders := []cli.ResourceLoader{&tcli.DeprecationLoader{}, &tcli.FileLoader{}, &tcli.FlagLoader{}, &tcli.EnvLoader{}}
+	loaders := []cli.ResourceLoader{&tcli.FileLoader{}, &tcli.FlagLoader{}, &tcli.EnvLoader{}}
 
 	cmdTraefik := &cli.Command{
 		Name: "traefik",
@@ -79,7 +78,7 @@ Complete documentation is available at https://traefik.io`,
 
 	err = cli.Execute(cmdTraefik)
 	if err != nil {
-		log.Error().Err(err).Msg("Command error")
+		stdlog.Println(err)
 		logrus.Exit(1)
 	}
 
@@ -87,24 +86,27 @@ Complete documentation is available at https://traefik.io`,
 }
 
 func runCmd(staticConfiguration *static.Configuration) error {
-	setupLogger(staticConfiguration)
+	configureLogging(staticConfiguration)
 
 	http.DefaultTransport.(*http.Transport).Proxy = http.ProxyFromEnvironment
+
+	if err := roundrobin.SetDefaultWeight(0); err != nil {
+		log.WithoutContext().Errorf("Could not set round robin default weight: %v", err)
+	}
 
 	staticConfiguration.SetEffectiveConfiguration()
 	if err := staticConfiguration.ValidateConfiguration(); err != nil {
 		return err
 	}
 
-	log.Info().Str("version", version.Version).
-		Msgf("Traefik version %s built on %s", version.Version, version.BuildDate)
+	log.WithoutContext().Infof("Traefik version %s built on %s", version.Version, version.BuildDate)
 
 	jsonConf, err := json.Marshal(staticConfiguration)
 	if err != nil {
-		log.Error().Err(err).Msg("Could not marshal static configuration")
-		log.Debug().Interface("staticConfiguration", staticConfiguration).Msg("Static configuration loaded [struct]")
+		log.WithoutContext().Errorf("Could not marshal static configuration: %v", err)
+		log.WithoutContext().Debugf("Static configuration loaded [struct] %#v", staticConfiguration)
 	} else {
-		log.Debug().RawJSON("staticConfiguration", jsonConf).Msg("Static configuration loaded [json]")
+		log.WithoutContext().Debugf("Static configuration loaded %s", string(jsonConf))
 	}
 
 	if staticConfiguration.Global.CheckNewVersion {
@@ -129,16 +131,16 @@ func runCmd(staticConfiguration *static.Configuration) error {
 
 	sent, err := daemon.SdNotify(false, "READY=1")
 	if !sent && err != nil {
-		log.Error().Err(err).Msg("Failed to notify")
+		log.WithoutContext().Errorf("Failed to notify: %v", err)
 	}
 
 	t, err := daemon.SdWatchdogEnabled(false)
 	if err != nil {
-		log.Error().Err(err).Msg("Could not enable Watchdog")
+		log.WithoutContext().Errorf("Could not enable Watchdog: %v", err)
 	} else if t != 0 {
 		// Send a ping each half time given
 		t /= 2
-		log.Info().Msgf("Watchdog activated with timer duration %s", t)
+		log.WithoutContext().Infof("Watchdog activated with timer duration %s", t)
 		safe.Go(func() {
 			tick := time.Tick(t)
 			for range tick {
@@ -149,17 +151,17 @@ func runCmd(staticConfiguration *static.Configuration) error {
 
 				if staticConfiguration.Ping == nil || errHealthCheck == nil {
 					if ok, _ := daemon.SdNotify(false, "WATCHDOG=1"); !ok {
-						log.Error().Msg("Fail to tick watchdog")
+						log.WithoutContext().Error("Fail to tick watchdog")
 					}
 				} else {
-					log.Error().Err(errHealthCheck).Send()
+					log.WithoutContext().Error(errHealthCheck)
 				}
 			}
 		})
 	}
 
 	svr.Wait()
-	log.Info().Msg("Shutting down")
+	log.WithoutContext().Info("Shutting down")
 	return nil
 }
 
@@ -188,28 +190,9 @@ func setupServer(staticConfiguration *static.Configuration) (*server.Server, err
 
 	acmeProviders := initACMEProvider(staticConfiguration, &providerAggregator, tlsManager, httpChallengeProvider, tlsChallengeProvider)
 
-	// Tailscale
-
-	tsProviders := initTailscaleProviders(staticConfiguration, &providerAggregator)
-
-	// Observability
-
-	metricRegistries := registerMetricClients(staticConfiguration.Metrics)
-	var semConvMetricRegistry *metrics.SemConvMetricsRegistry
-	if staticConfiguration.Metrics != nil && staticConfiguration.Metrics.OTLP != nil {
-		semConvMetricRegistry, err = metrics.NewSemConvMetricRegistry(ctx, staticConfiguration.Metrics.OTLP)
-		if err != nil {
-			return nil, fmt.Errorf("unable to create SemConv metric registry: %w", err)
-		}
-	}
-	metricsRegistry := metrics.NewMultiRegistry(metricRegistries)
-	accessLog := setupAccessLog(staticConfiguration.AccessLog)
-	tracer, tracerCloser := setupTracing(staticConfiguration.Tracing)
-	observabilityMgr := middleware.NewObservabilityMgr(*staticConfiguration, metricsRegistry, semConvMetricRegistry, accessLog, tracer, tracerCloser)
-
 	// Entrypoints
 
-	serverEntryPointsTCP, err := server.NewTCPEntryPoints(staticConfiguration.EntryPoints, staticConfiguration.HostResolver, metricsRegistry)
+	serverEntryPointsTCP, err := server.NewTCPEntryPoints(staticConfiguration.EntryPoints, staticConfiguration.HostResolver)
 	if err != nil {
 		return nil, err
 	}
@@ -219,15 +202,15 @@ func setupServer(staticConfiguration *static.Configuration) (*server.Server, err
 		return nil, err
 	}
 
-	if staticConfiguration.API != nil {
-		version.DisableDashboardAd = staticConfiguration.API.DisableDashboardAd
+	if staticConfiguration.Pilot != nil {
+		log.WithoutContext().Warn("Traefik Pilot has been removed.")
 	}
 
 	// Plugins
 
 	pluginBuilder, err := createPluginBuilder(staticConfiguration)
 	if err != nil {
-		log.Error().Err(err).Msg("Plugins are disabled because an error has occurred.")
+		log.WithoutContext().WithError(err).Error("Plugins are disabled because an error has occurred.")
 	}
 
 	// Providers plugins
@@ -248,35 +231,37 @@ func setupServer(staticConfiguration *static.Configuration) (*server.Server, err
 		}
 	}
 
-	// Service manager factory
+	// Traefik Hub
 
-	var spiffeX509Source *workloadapi.X509Source
-	if staticConfiguration.Spiffe != nil && staticConfiguration.Spiffe.WorkloadAPIAddr != "" {
-		log.Info().Str("workloadAPIAddr", staticConfiguration.Spiffe.WorkloadAPIAddr).
-			Msg("Waiting on SPIFFE SVID delivery")
-
-		spiffeX509Source, err = workloadapi.NewX509Source(
-			ctx,
-			workloadapi.WithClientOptions(
-				workloadapi.WithAddr(
-					staticConfiguration.Spiffe.WorkloadAPIAddr,
-				),
-			),
-		)
-		if err != nil {
-			return nil, fmt.Errorf("unable to create SPIFFE x509 source: %w", err)
+	if staticConfiguration.Hub != nil {
+		if err = providerAggregator.AddProvider(staticConfiguration.Hub); err != nil {
+			return nil, fmt.Errorf("adding Traefik Hub provider: %w", err)
 		}
-		log.Info().Msg("Successfully obtained SPIFFE SVID.")
+
+		// API is mandatory for Traefik Hub to access the dynamic configuration.
+		if staticConfiguration.API == nil {
+			staticConfiguration.API = &static.API{}
+		}
 	}
 
-	roundTripperManager := service.NewRoundTripperManager(spiffeX509Source)
-	dialerManager := tcp.NewDialerManager(spiffeX509Source)
+	// Metrics
+
+	metricRegistries := registerMetricClients(staticConfiguration.Metrics)
+	metricsRegistry := metrics.NewMultiRegistry(metricRegistries)
+
+	// Service manager factory
+
+	roundTripperManager := service.NewRoundTripperManager()
 	acmeHTTPHandler := getHTTPChallengeHandler(acmeProviders, httpChallengeProvider)
-	managerFactory := service.NewManagerFactory(*staticConfiguration, routinesPool, observabilityMgr, roundTripperManager, acmeHTTPHandler)
+	managerFactory := service.NewManagerFactory(*staticConfiguration, routinesPool, metricsRegistry, roundTripperManager, acmeHTTPHandler)
 
 	// Router factory
 
-	routerFactory := server.NewRouterFactory(*staticConfiguration, managerFactory, tlsManager, observabilityMgr, pluginBuilder, dialerManager)
+	accessLog := setupAccessLog(staticConfiguration.AccessLog)
+	tracer := setupTracing(staticConfiguration.Tracing)
+
+	chainBuilder := middleware.NewChainBuilder(metricsRegistry, accessLog, tracer)
+	routerFactory := server.NewRouterFactory(*staticConfiguration, managerFactory, tlsManager, chainBuilder, pluginBuilder, metricsRegistry)
 
 	// Watcher
 
@@ -307,14 +292,13 @@ func setupServer(staticConfiguration *static.Configuration) (*server.Server, err
 	// Server Transports
 	watcher.AddListener(func(conf dynamic.Configuration) {
 		roundTripperManager.Update(conf.HTTP.ServersTransports)
-		dialerManager.Update(conf.TCP.ServersTransports)
 	})
 
 	// Switch router
 	watcher.AddListener(switchRouter(routerFactory, serverEntryPointsTCP, serverEntryPointsUDP))
 
 	// Metrics
-	if metricsRegistry.IsEpEnabled() || metricsRegistry.IsRouterEnabled() || metricsRegistry.IsSvcEnabled() {
+	if metricsRegistry.IsEpEnabled() || metricsRegistry.IsSvcEnabled() {
 		var eps []string
 		for key := range serverEntryPointsTCP {
 			eps = append(eps, key)
@@ -327,20 +311,11 @@ func setupServer(staticConfiguration *static.Configuration) (*server.Server, err
 	// TLS challenge
 	watcher.AddListener(tlsChallengeProvider.ListenConfiguration)
 
-	// Certificate Resolvers
-
-	resolverNames := map[string]struct{}{}
-
 	// ACME
+	resolverNames := map[string]struct{}{}
 	for _, p := range acmeProviders {
 		resolverNames[p.ResolverName] = struct{}{}
 		watcher.AddListener(p.ListenConfiguration)
-	}
-
-	// Tailscale
-	for _, p := range tsProviders {
-		resolverNames[p.ResolverName] = struct{}{}
-		watcher.AddListener(p.HandleConfigUpdate)
 	}
 
 	// Certificate resolver logs
@@ -350,14 +325,16 @@ func setupServer(staticConfiguration *static.Configuration) (*server.Server, err
 				continue
 			}
 
-			if _, ok := resolverNames[rt.TLS.CertResolver]; !ok {
-				log.Error().Err(err).Str(logs.RouterName, rtName).Str("certificateResolver", rt.TLS.CertResolver).
-					Msg("Router uses a non-existent certificate resolver")
+			if _, ok := resolverNames[rt.TLS.CertResolver]; !ok &&
+				// "traefik-hub" is an allowed certificate resolver name in a Traefik Hub Experimental feature context.
+				// It is used to activate its own certificate resolution, even though it is not a "classical" traefik certificate resolver.
+				(staticConfiguration.Hub == nil || rt.TLS.CertResolver != "traefik-hub") {
+				log.WithoutContext().Errorf("the router %s uses a non-existent resolver: %s", rtName, rt.TLS.CertResolver)
 			}
 		}
 	})
 
-	return server.NewServer(routinesPool, serverEntryPointsTCP, serverEntryPointsUDP, watcher, observabilityMgr), nil
+	return server.NewServer(routinesPool, serverEntryPointsTCP, serverEntryPointsUDP, watcher, chainBuilder, accessLog), nil
 }
 
 func getHTTPChallengeHandler(acmeProviders []*acme.Provider, httpChallengeProvider http.Handler) http.Handler {
@@ -373,27 +350,16 @@ func getHTTPChallengeHandler(acmeProviders []*acme.Provider, httpChallengeProvid
 
 func getDefaultsEntrypoints(staticConfiguration *static.Configuration) []string {
 	var defaultEntryPoints []string
-
-	// Determines if at least one EntryPoint is configured to be used by default.
-	var hasDefinedDefaults bool
-	for _, ep := range staticConfiguration.EntryPoints {
-		if ep.AsDefault {
-			hasDefinedDefaults = true
-			break
-		}
-	}
-
 	for name, cfg := range staticConfiguration.EntryPoints {
-		// By default all entrypoints are considered.
-		// If at least one is flagged, then only flagged entrypoints are included.
-		if hasDefinedDefaults && !cfg.AsDefault {
+		// Traefik Hub entryPoint should not be part of the set of default entryPoints.
+		if hub.APIEntrypoint == name || hub.TunnelEntrypoint == name {
 			continue
 		}
 
 		protocol, err := cfg.GetProtocol()
 		if err != nil {
 			// Should never happen because Traefik should not start if protocol is invalid.
-			log.Error().Err(err).Msg("Invalid protocol")
+			log.WithoutContext().Errorf("Invalid protocol: %v", err)
 		}
 
 		if protocol != "udp" && name != static.DefaultInternalEntryPointName {
@@ -416,7 +382,7 @@ func switchRouter(routerFactory *server.RouterFactory, serverEntryPointsTCP serv
 	}
 }
 
-// initACMEProvider creates and registers acme.Provider instances corresponding to the configured ACME certificate resolvers.
+// initACMEProvider creates an acme provider from the ACME part of globalConfiguration.
 func initACMEProvider(c *static.Configuration, providerAggregator *aggregator.ProviderAggregator, tlsManager *traefiktls.Manager, httpChallengeProvider, tlsChallengeProvider challenge.Provider) []*acme.Provider {
 	localStores := map[string]*acme.LocalStore{}
 
@@ -439,7 +405,7 @@ func initACMEProvider(c *static.Configuration, providerAggregator *aggregator.Pr
 		}
 
 		if err := providerAggregator.AddProvider(p); err != nil {
-			log.Error().Err(err).Str("resolver", name).Msg("The ACME resolve is skipped from the resolvers list")
+			log.WithoutContext().Errorf("The ACME resolver %q is skipped from the resolvers list because: %v", name, err)
 			continue
 		}
 
@@ -453,27 +419,6 @@ func initACMEProvider(c *static.Configuration, providerAggregator *aggregator.Pr
 	return resolvers
 }
 
-// initTailscaleProviders creates and registers tailscale.Provider instances corresponding to the configured Tailscale certificate resolvers.
-func initTailscaleProviders(cfg *static.Configuration, providerAggregator *aggregator.ProviderAggregator) []*tailscale.Provider {
-	var providers []*tailscale.Provider
-	for name, resolver := range cfg.CertificatesResolvers {
-		if resolver.Tailscale == nil {
-			continue
-		}
-
-		tsProvider := &tailscale.Provider{ResolverName: name}
-
-		if err := providerAggregator.AddProvider(tsProvider); err != nil {
-			log.Error().Err(err).Str(logs.ProviderName, name).Msg("Unable to create Tailscale provider")
-			continue
-		}
-
-		providers = append(providers, tsProvider)
-	}
-
-	return providers
-}
-
 func registerMetricClients(metricsConfig *types.Metrics) []metrics.Registry {
 	if metricsConfig == nil {
 		return nil
@@ -482,59 +427,42 @@ func registerMetricClients(metricsConfig *types.Metrics) []metrics.Registry {
 	var registries []metrics.Registry
 
 	if metricsConfig.Prometheus != nil {
-		logger := log.With().Str(logs.MetricsProviderName, "prometheus").Logger()
-
-		prometheusRegister := metrics.RegisterPrometheus(logger.WithContext(context.Background()), metricsConfig.Prometheus)
+		ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "prometheus"))
+		prometheusRegister := metrics.RegisterPrometheus(ctx, metricsConfig.Prometheus)
 		if prometheusRegister != nil {
 			registries = append(registries, prometheusRegister)
-			logger.Debug().Msg("Configured Prometheus metrics")
+			log.FromContext(ctx).Debug("Configured Prometheus metrics")
 		}
 	}
 
 	if metricsConfig.Datadog != nil {
-		logger := log.With().Str(logs.MetricsProviderName, "datadog").Logger()
-
-		registries = append(registries, metrics.RegisterDatadog(logger.WithContext(context.Background()), metricsConfig.Datadog))
-		logger.Debug().
-			Str("address", metricsConfig.Datadog.Address).
-			Str("pushInterval", metricsConfig.Datadog.PushInterval.String()).
-			Msgf("Configured Datadog metrics")
+		ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "datadog"))
+		registries = append(registries, metrics.RegisterDatadog(ctx, metricsConfig.Datadog))
+		log.FromContext(ctx).Debugf("Configured Datadog metrics: pushing to %s once every %s",
+			metricsConfig.Datadog.Address, metricsConfig.Datadog.PushInterval)
 	}
 
 	if metricsConfig.StatsD != nil {
-		logger := log.With().Str(logs.MetricsProviderName, "statsd").Logger()
+		ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "statsd"))
+		registries = append(registries, metrics.RegisterStatsd(ctx, metricsConfig.StatsD))
+		log.FromContext(ctx).Debugf("Configured StatsD metrics: pushing to %s once every %s",
+			metricsConfig.StatsD.Address, metricsConfig.StatsD.PushInterval)
+	}
 
-		registries = append(registries, metrics.RegisterStatsd(logger.WithContext(context.Background()), metricsConfig.StatsD))
-		logger.Debug().
-			Str("address", metricsConfig.StatsD.Address).
-			Str("pushInterval", metricsConfig.StatsD.PushInterval.String()).
-			Msg("Configured StatsD metrics")
+	if metricsConfig.InfluxDB != nil {
+		ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "influxdb"))
+		registries = append(registries, metrics.RegisterInfluxDB(ctx, metricsConfig.InfluxDB))
+		log.FromContext(ctx).Debugf("Configured InfluxDB metrics: pushing to %s once every %s",
+			metricsConfig.InfluxDB.Address, metricsConfig.InfluxDB.PushInterval)
 	}
 
 	if metricsConfig.InfluxDB2 != nil {
-		logger := log.With().Str(logs.MetricsProviderName, "influxdb2").Logger()
-
-		influxDB2Register := metrics.RegisterInfluxDB2(logger.WithContext(context.Background()), metricsConfig.InfluxDB2)
+		ctx := log.With(context.Background(), log.Str(log.MetricsProviderName, "influxdb2"))
+		influxDB2Register := metrics.RegisterInfluxDB2(ctx, metricsConfig.InfluxDB2)
 		if influxDB2Register != nil {
 			registries = append(registries, influxDB2Register)
-			logger.Debug().
-				Str("address", metricsConfig.InfluxDB2.Address).
-				Str("bucket", metricsConfig.InfluxDB2.Bucket).
-				Str("organization", metricsConfig.InfluxDB2.Org).
-				Str("pushInterval", metricsConfig.InfluxDB2.PushInterval.String()).
-				Msg("Configured InfluxDB v2 metrics")
-		}
-	}
-
-	if metricsConfig.OTLP != nil {
-		logger := log.With().Str(logs.MetricsProviderName, "openTelemetry").Logger()
-
-		openTelemetryRegistry := metrics.RegisterOpenTelemetry(logger.WithContext(context.Background()), metricsConfig.OTLP)
-		if openTelemetryRegistry != nil {
-			registries = append(registries, openTelemetryRegistry)
-			logger.Debug().
-				Str("pushInterval", metricsConfig.OTLP.PushInterval.String()).
-				Msg("Configured OpenTelemetry metrics")
+			log.FromContext(ctx).Debugf("Configured InfluxDB v2 metrics: pushing to %s (%s org/%s bucket) once every %s",
+				metricsConfig.InfluxDB2.Address, metricsConfig.InfluxDB2.Org, metricsConfig.InfluxDB2.Bucket, metricsConfig.InfluxDB2.PushInterval)
 		}
 	}
 
@@ -562,25 +490,130 @@ func setupAccessLog(conf *types.AccessLog) *accesslog.Handler {
 
 	accessLoggerMiddleware, err := accesslog.NewHandler(conf)
 	if err != nil {
-		log.Warn().Err(err).Msg("Unable to create access logger")
+		log.WithoutContext().Warnf("Unable to create access logger: %v", err)
 		return nil
 	}
 
 	return accessLoggerMiddleware
 }
 
-func setupTracing(conf *static.Tracing) (*tracing.Tracer, io.Closer) {
+func setupTracing(conf *static.Tracing) *tracing.Tracing {
 	if conf == nil {
-		return nil, nil
+		return nil
 	}
 
-	tracer, closer, err := tracing.NewTracing(conf)
+	var backend tracing.Backend
+
+	if conf.Jaeger != nil {
+		backend = conf.Jaeger
+	}
+
+	if conf.Zipkin != nil {
+		if backend != nil {
+			log.WithoutContext().Error("Multiple tracing backend are not supported: cannot create Zipkin backend.")
+		} else {
+			backend = conf.Zipkin
+		}
+	}
+
+	if conf.Datadog != nil {
+		if backend != nil {
+			log.WithoutContext().Error("Multiple tracing backend are not supported: cannot create Datadog backend.")
+		} else {
+			backend = conf.Datadog
+		}
+	}
+
+	if conf.Instana != nil {
+		if backend != nil {
+			log.WithoutContext().Error("Multiple tracing backend are not supported: cannot create Instana backend.")
+		} else {
+			backend = conf.Instana
+		}
+	}
+
+	if conf.Haystack != nil {
+		if backend != nil {
+			log.WithoutContext().Error("Multiple tracing backend are not supported: cannot create Haystack backend.")
+		} else {
+			backend = conf.Haystack
+		}
+	}
+
+	if conf.Elastic != nil {
+		if backend != nil {
+			log.WithoutContext().Error("Multiple tracing backend are not supported: cannot create Elastic backend.")
+		} else {
+			backend = conf.Elastic
+		}
+	}
+
+	if backend == nil {
+		log.WithoutContext().Debug("Could not initialize tracing, using Jaeger by default")
+		defaultBackend := &jaeger.Config{}
+		defaultBackend.SetDefaults()
+		backend = defaultBackend
+	}
+
+	tracer, err := tracing.NewTracing(conf.ServiceName, conf.SpanNameLimit, backend)
 	if err != nil {
-		log.Warn().Err(err).Msg("Unable to create tracer")
-		return nil, nil
+		log.WithoutContext().Warnf("Unable to create tracer: %v", err)
+		return nil
+	}
+	return tracer
+}
+
+func configureLogging(staticConfiguration *static.Configuration) {
+	// configure default log flags
+	stdlog.SetFlags(stdlog.Lshortfile | stdlog.LstdFlags)
+
+	// configure log level
+	// an explicitly defined log level always has precedence. if none is
+	// given and debug mode is disabled, the default is ERROR, and DEBUG
+	// otherwise.
+	levelStr := "error"
+	if staticConfiguration.Log != nil && staticConfiguration.Log.Level != "" {
+		levelStr = strings.ToLower(staticConfiguration.Log.Level)
 	}
 
-	return tracer, closer
+	level, err := logrus.ParseLevel(levelStr)
+	if err != nil {
+		log.WithoutContext().Errorf("Error getting level: %v", err)
+	}
+	log.SetLevel(level)
+
+	var logFile string
+	if staticConfiguration.Log != nil && len(staticConfiguration.Log.FilePath) > 0 {
+		logFile = staticConfiguration.Log.FilePath
+	}
+
+	// configure log format
+	var formatter logrus.Formatter
+	if staticConfiguration.Log != nil && staticConfiguration.Log.Format == "json" {
+		formatter = &logrus.JSONFormatter{}
+	} else {
+		disableColors := len(logFile) > 0
+		formatter = &logrus.TextFormatter{DisableColors: disableColors, FullTimestamp: true, DisableSorting: true}
+	}
+	log.SetFormatter(formatter)
+
+	if len(logFile) > 0 {
+		dir := filepath.Dir(logFile)
+
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			log.WithoutContext().Errorf("Failed to create log path %s: %s", dir, err)
+		}
+
+		err = log.OpenFile(logFile)
+		logrus.RegisterExitHandler(func() {
+			if err := log.CloseFile(); err != nil {
+				log.WithoutContext().Errorf("Error while closing log: %v", err)
+			}
+		})
+		if err != nil {
+			log.WithoutContext().Errorf("Error while opening log file %s: %v", logFile, err)
+		}
+	}
 }
 
 func checkNewVersion() {
@@ -593,16 +626,16 @@ func checkNewVersion() {
 }
 
 func stats(staticConfiguration *static.Configuration) {
-	logger := log.With().Logger()
+	logger := log.WithoutContext()
 
 	if staticConfiguration.Global.SendAnonymousUsage {
-		logger.Info().Msg(`Stats collection is enabled.`)
-		logger.Info().Msg(`Many thanks for contributing to Traefik's improvement by allowing us to receive anonymous information from your configuration.`)
-		logger.Info().Msg(`Help us improve Traefik by leaving this feature on :)`)
-		logger.Info().Msg(`More details on: https://doc.traefik.io/traefik/contributing/data-collection/`)
+		logger.Info(`Stats collection is enabled.`)
+		logger.Info(`Many thanks for contributing to Traefik's improvement by allowing us to receive anonymous information from your configuration.`)
+		logger.Info(`Help us improve Traefik by leaving this feature on :)`)
+		logger.Info(`More details on: https://doc.traefik.io/traefik/contributing/data-collection/`)
 		collect(staticConfiguration)
 	} else {
-		logger.Info().Msg(`
+		logger.Info(`
 Stats collection is disabled.
 Help us improve Traefik by turning this feature on :)
 More details on: https://doc.traefik.io/traefik/contributing/data-collection/
@@ -615,7 +648,7 @@ func collect(staticConfiguration *static.Configuration) {
 	safe.Go(func() {
 		for time.Sleep(10 * time.Minute); ; <-ticker {
 			if err := collector.Collect(staticConfiguration); err != nil {
-				log.Debug().Err(err).Send()
+				log.WithoutContext().Debug(err)
 			}
 		}
 	})

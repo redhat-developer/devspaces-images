@@ -1,12 +1,9 @@
 <template>
-  <q-card
-    flat
-    bordered
-  >
+  <q-card flat bordered>
     <q-card-section>
       <div class="row items-center no-wrap">
         <div class="col text-center">
-          <q-avatar class="provider-logo" font-size="inherit">
+          <q-avatar class="provider-logo">
             <q-icon :name="`img:${getLogoPath}`" />
           </q-avatar>
         </div>
@@ -14,23 +11,16 @@
     </q-card-section>
     <q-card-section>
       <div class="text-h6 text-center text-weight-bold">
-        {{ getName }}
+        {{getName}}
       </div>
     </q-card-section>
   </q-card>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-
-export default defineComponent({
+export default {
   name: 'PanelProvider',
-  props: {
-    name: {
-      default: '',
-      type: String
-    }
-  },
+  props: ['name'],
   computed: {
     getName () {
       return this.name
@@ -39,22 +29,22 @@ export default defineComponent({
       const name = this.getName.toLowerCase()
 
       if (name.startsWith('plugin-')) {
-        return 'providers/plugin.svg'
+        return 'statics/providers/plugin.svg'
       }
       if (name.startsWith('consul-')) {
-        return 'providers/consul.svg'
+        return `statics/providers/consul.svg`
       }
       if (name.startsWith('consulcatalog-')) {
-        return 'providers/consulcatalog.svg'
+        return `statics/providers/consulcatalog.svg`
       }
       if (name.startsWith('nomad-')) {
-        return 'providers/nomad.svg'
+        return `statics/providers/nomad.svg`
       }
 
-      return `providers/${name}.svg`
+      return `statics/providers/${name}.svg`
     }
   }
-})
+}
 </script>
 
 <style scoped lang="scss">

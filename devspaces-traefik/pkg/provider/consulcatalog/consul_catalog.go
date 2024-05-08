@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 	"text/template"
 	"time"
 
@@ -12,16 +11,15 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/api/watch"
 	"github.com/hashicorp/go-hclog"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	"github.com/sirupsen/logrus"
 	ptypes "github.com/traefik/paerser/types"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/job"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/provider"
-	"github.com/traefik/traefik/v3/pkg/provider/constraints"
-	"github.com/traefik/traefik/v3/pkg/safe"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/job"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/provider"
+	"github.com/traefik/traefik/v2/pkg/provider/constraints"
+	"github.com/traefik/traefik/v2/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 // defaultTemplateRule is the default template for the default rule.
@@ -50,15 +48,25 @@ type itemData struct {
 type ProviderBuilder struct {
 	Configuration `yaml:",inline" export:"true"`
 
+	// Deprecated: use Namespaces option instead.
+	Namespace  string   `description:"Sets the namespace used to discover services (Consul Enterprise only)." json:"namespace,omitempty" toml:"namespace,omitempty" yaml:"namespace,omitempty"`
 	Namespaces []string `description:"Sets the namespaces used to discover services (Consul Enterprise only)." json:"namespaces,omitempty" toml:"namespaces,omitempty" yaml:"namespaces,omitempty"`
 }
 
 // BuildProviders builds Consul Catalog provider instances for the given namespaces configuration.
 func (p *ProviderBuilder) BuildProviders() []*Provider {
+	// We can warn about that, because we've already made sure before that
+	// Namespace and Namespaces are mutually exclusive.
+	if p.Namespace != "" {
+		log.WithoutContext().Warnf("Namespace option is deprecated, please use the Namespaces option instead.")
+	}
+
 	if len(p.Namespaces) == 0 {
 		return []*Provider{{
 			Configuration: p.Configuration,
 			name:          providerName,
+			// p.Namespace could very well be empty.
+			namespace: p.Namespace,
 		}}
 	}
 
@@ -89,7 +97,6 @@ type Configuration struct {
 	ConnectByDefault  bool            `description:"Consider every service as Connect capable by default." json:"connectByDefault,omitempty" toml:"connectByDefault,omitempty" yaml:"connectByDefault,omitempty" export:"true"`
 	ServiceName       string          `description:"Name of the Traefik service in Consul Catalog (needs to be registered via the orchestrator or manually)." json:"serviceName,omitempty" toml:"serviceName,omitempty" yaml:"serviceName,omitempty" export:"true"`
 	Watch             bool            `description:"Watch Consul API events." json:"watch,omitempty" toml:"watch,omitempty" yaml:"watch,omitempty" export:"true"`
-	StrictChecks      []string        `description:"A list of service health statuses to allow taking traffic." json:"strictChecks,omitempty" toml:"strictChecks,omitempty" yaml:"strictChecks,omitempty" export:"true"`
 }
 
 // SetDefaults sets the default values.
@@ -100,7 +107,6 @@ func (c *Configuration) SetDefaults() {
 	c.ExposedByDefault = true
 	c.DefaultRule = defaultTemplateRule
 	c.ServiceName = "traefik"
-	c.StrictChecks = defaultStrictChecks()
 }
 
 // Provider is the Consul Catalog provider implementation.
@@ -160,8 +166,8 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 	}
 
 	pool.GoCtx(func(routineCtx context.Context) {
-		logger := log.Ctx(routineCtx).With().Str(logs.ProviderName, p.name).Logger()
-		ctxLog := logger.WithContext(routineCtx)
+		ctxLog := log.With(routineCtx, log.Str(log.ProviderName, p.name))
+		logger := log.FromContext(ctxLog)
 
 		operation := func() error {
 			ctx, cancel := context.WithCancel(ctxLog)
@@ -188,7 +194,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 			// that gets resolved before the certificates are available
 			// will cause an error condition.
 			if p.ConnectAware && !certInfo.isReady() {
-				logger.Info().Msg("Waiting for Connect certificate before building first configuration")
+				logger.Infof("Waiting for Connect certificate before building first configuration")
 				select {
 				case <-ctx.Done():
 					return nil
@@ -236,12 +242,12 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 		}
 
 		notify := func(err error, time time.Duration) {
-			logger.Error().Err(err).Msgf("Provider error, retrying in %s", time)
+			logger.Errorf("Provider connection error %+v, retrying in %s", err, time)
 		}
 
 		err := backoff.RetryNotify(safe.OperationWithRecover(operation), backoff.WithContext(job.NewBackOff(backoff.NewExponentialBackOff()), ctxLog), notify)
 		if err != nil {
-			logger.Error().Err(err).Msg("Cannot retrieve data")
+			logger.Errorf("Cannot connect to consul catalog server %+v", err)
 		}
 	})
 
@@ -275,32 +281,32 @@ func (p *Provider) getConsulServicesData(ctx context.Context) ([]itemData, error
 
 	var data []itemData
 	for name, tags := range serviceNames {
-		logger := log.Ctx(ctx).With().Str("serviceName", name).Logger()
+		logger := log.FromContext(log.With(ctx, log.Str("serviceName", name)))
 
 		extraConf, err := p.getExtraConf(tagsToNeutralLabels(tags, p.Prefix))
 		if err != nil {
-			logger.Error().Err(err).Msg("Skip service")
+			logger.Errorf("Skip service: %v", err)
 			continue
 		}
 
 		if !extraConf.Enable {
-			logger.Debug().Msg("Filtering disabled item")
+			logger.Debug("Filtering disabled item")
 			continue
 		}
 
 		matches, err := constraints.MatchTags(tags, p.Constraints)
 		if err != nil {
-			logger.Error().Err(err).Msg("Error matching constraint expressions")
+			logger.Errorf("Error matching constraint expressions: %v", err)
 			continue
 		}
 
 		if !matches {
-			logger.Debug().Msgf("Container pruned by constraint expressions: %q", p.Constraints)
+			logger.Debugf("Container pruned by constraint expressions: %q", p.Constraints)
 			continue
 		}
 
 		if !p.ConnectAware && extraConf.ConsulCatalog.Connect {
-			logger.Debug().Msg("Filtering out Connect aware item, Connect support is not enabled")
+			logger.Debugf("Filtering out Connect aware item, Connect support is not enabled")
 			continue
 		}
 
@@ -340,7 +346,7 @@ func (p *Provider) getConsulServicesData(ctx context.Context) ([]itemData, error
 
 			extraConf, err := p.getExtraConf(item.Labels)
 			if err != nil {
-				log.Ctx(ctx).Error().Err(err).Msgf("Skip item %s", item.Name)
+				log.FromContext(ctx).Errorf("Skip item %s: %v", item.Name, err)
 				continue
 			}
 			item.ExtraConf = extraConf
@@ -418,9 +424,8 @@ func (p *Provider) watchServices(ctx context.Context) error {
 
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:       "consulcatalog",
-		Level:      hclog.LevelFromString(log.Logger.GetLevel().String()),
+		Level:      hclog.LevelFromString(logrus.GetLevel().String()),
 		JSONFormat: true,
-		Output:     logs.NoLevel(log.Logger, zerolog.DebugLevel),
 	})
 
 	errChan := make(chan error, 2)
@@ -450,13 +455,13 @@ func (p *Provider) watchServices(ctx context.Context) error {
 func rootsWatchHandler(ctx context.Context, dest chan<- []string) func(watch.BlockingParamVal, interface{}) {
 	return func(_ watch.BlockingParamVal, raw interface{}) {
 		if raw == nil {
-			log.Ctx(ctx).Error().Msg("Root certificate watcher called with nil")
+			log.FromContext(ctx).Errorf("Root certificate watcher called with nil")
 			return
 		}
 
 		v, ok := raw.(*api.CARootList)
 		if !ok || v == nil {
-			log.Ctx(ctx).Error().Msg("Invalid result for root certificate watcher")
+			log.FromContext(ctx).Errorf("Invalid result for root certificate watcher")
 			return
 		}
 
@@ -480,13 +485,13 @@ type keyPair struct {
 func leafWatcherHandler(ctx context.Context, dest chan<- keyPair) func(watch.BlockingParamVal, interface{}) {
 	return func(_ watch.BlockingParamVal, raw interface{}) {
 		if raw == nil {
-			log.Ctx(ctx).Error().Msg("Leaf certificate watcher called with nil")
+			log.FromContext(ctx).Errorf("Leaf certificate watcher called with nil")
 			return
 		}
 
 		v, ok := raw.(*api.LeafCert)
 		if !ok || v == nil {
-			log.Ctx(ctx).Error().Msg("Invalid result for leaf certificate watcher")
+			log.FromContext(ctx).Errorf("Invalid result for leaf certificate watcher")
 			return
 		}
 
@@ -526,9 +531,8 @@ func (p *Provider) watchConnectTLS(ctx context.Context) error {
 
 	hclogger := hclog.New(&hclog.LoggerOptions{
 		Name:       "consulcatalog",
-		Level:      hclog.LevelFromString(log.Logger.GetLevel().String()),
+		Level:      hclog.LevelFromString(logrus.GetLevel().String()),
 		JSONFormat: true,
-		Output:     logs.NoLevel(log.Logger, zerolog.DebugLevel),
 	})
 
 	errChan := make(chan error, 2)
@@ -569,7 +573,7 @@ func (p *Provider) watchConnectTLS(ctx context.Context) error {
 			leaf: leafCerts,
 		}
 		if newCertInfo.isReady() && !newCertInfo.equals(certInfo) {
-			log.Ctx(ctx).Debug().Msgf("Updating connect certs for service %s", p.ServiceName)
+			log.FromContext(ctx).Debugf("Updating connect certs for service %s", p.ServiceName)
 
 			certInfo = newCertInfo
 
@@ -579,21 +583,6 @@ func (p *Provider) watchConnectTLS(ctx context.Context) error {
 			}
 		}
 	}
-}
-
-// includesHealthStatus returns true if the status passed in exists in the configured StrictChecks configuration. Statuses are case insensitive.
-func (p *Provider) includesHealthStatus(status string) bool {
-	for _, s := range p.StrictChecks {
-		// If the "any" status is included, assume all health checks are included
-		if strings.EqualFold(s, api.HealthAny) {
-			return true
-		}
-
-		if strings.EqualFold(s, status) {
-			return true
-		}
-	}
-	return false
 }
 
 func createClient(namespace string, endpoint *EndpointConfig) (*api.Client, error) {

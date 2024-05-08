@@ -6,14 +6,12 @@ import (
 	"strings"
 
 	ptypes "github.com/traefik/paerser/types"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 // EntryPoint holds the entry point configuration.
 type EntryPoint struct {
 	Address          string                `description:"Entry point address." json:"address,omitempty" toml:"address,omitempty" yaml:"address,omitempty"`
-	ReusePort        bool                  `description:"Enables EntryPoints from the same or different processes listening on the same TCP/UDP port." json:"reusePort,omitempty" toml:"reusePort,omitempty" yaml:"reusePort,omitempty"`
-	AsDefault        bool                  `description:"Adds this EntryPoint to the list of default EntryPoints to be used on routers that don't have any Entrypoint defined." json:"asDefault,omitempty" toml:"asDefault,omitempty" yaml:"asDefault,omitempty"`
 	Transport        *EntryPointsTransport `description:"Configures communication between clients and Traefik." json:"transport,omitempty" toml:"transport,omitempty" yaml:"transport,omitempty" export:"true"`
 	ProxyProtocol    *ProxyProtocol        `description:"Proxy-Protocol configuration." json:"proxyProtocol,omitempty" toml:"proxyProtocol,omitempty" yaml:"proxyProtocol,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
 	ForwardedHeaders *ForwardedHeaders     `description:"Trust client forwarding headers." json:"forwardedHeaders,omitempty" toml:"forwardedHeaders,omitempty" yaml:"forwardedHeaders,omitempty" export:"true"`
@@ -59,10 +57,9 @@ func (ep *EntryPoint) SetDefaults() {
 
 // HTTPConfig is the HTTP configuration of an entry point.
 type HTTPConfig struct {
-	Redirections          *Redirections `description:"Set of redirection" json:"redirections,omitempty" toml:"redirections,omitempty" yaml:"redirections,omitempty" export:"true"`
-	Middlewares           []string      `description:"Default middlewares for the routers linked to the entry point." json:"middlewares,omitempty" toml:"middlewares,omitempty" yaml:"middlewares,omitempty" export:"true"`
-	TLS                   *TLSConfig    `description:"Default TLS configuration for the routers linked to the entry point." json:"tls,omitempty" toml:"tls,omitempty" yaml:"tls,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
-	EncodeQuerySemicolons bool          `description:"Defines whether request query semicolons should be URLEncoded." json:"encodeQuerySemicolons,omitempty" toml:"encodeQuerySemicolons,omitempty" yaml:"encodeQuerySemicolons,omitempty"`
+	Redirections *Redirections `description:"Set of redirection" json:"redirections,omitempty" toml:"redirections,omitempty" yaml:"redirections,omitempty" export:"true"`
+	Middlewares  []string      `description:"Default middlewares for the routers linked to the entry point." json:"middlewares,omitempty" toml:"middlewares,omitempty" yaml:"middlewares,omitempty" export:"true"`
+	TLS          *TLSConfig    `description:"Default TLS configuration for the routers linked to the entry point." json:"tls,omitempty" toml:"tls,omitempty" yaml:"tls,omitempty" label:"allowEmpty" file:"allowEmpty" export:"true"`
 }
 
 // HTTP2Config is the HTTP2 configuration of an entry point.
@@ -97,7 +94,7 @@ type RedirectEntryPoint struct {
 func (r *RedirectEntryPoint) SetDefaults() {
 	r.Scheme = "https"
 	r.Permanent = true
-	r.Priority = math.MaxInt - 1
+	r.Priority = math.MaxInt32 - 1
 }
 
 // TLSConfig is the default TLS configuration for all the routers associated to the concerned entry point.
@@ -124,10 +121,8 @@ type EntryPoints map[string]*EntryPoint
 
 // EntryPointsTransport configures communication between clients and Traefik.
 type EntryPointsTransport struct {
-	LifeCycle            *LifeCycle          `description:"Timeouts influencing the server life cycle." json:"lifeCycle,omitempty" toml:"lifeCycle,omitempty" yaml:"lifeCycle,omitempty" export:"true"`
-	RespondingTimeouts   *RespondingTimeouts `description:"Timeouts for incoming requests to the Traefik instance." json:"respondingTimeouts,omitempty" toml:"respondingTimeouts,omitempty" yaml:"respondingTimeouts,omitempty" export:"true"`
-	KeepAliveMaxTime     ptypes.Duration     `description:"Maximum duration before closing a keep-alive connection." json:"keepAliveMaxTime,omitempty" toml:"keepAliveMaxTime,omitempty" yaml:"keepAliveMaxTime,omitempty" export:"true"`
-	KeepAliveMaxRequests int                 `description:"Maximum number of requests before closing a keep-alive connection." json:"keepAliveMaxRequests,omitempty" toml:"keepAliveMaxRequests,omitempty" yaml:"keepAliveMaxRequests,omitempty" export:"true"`
+	LifeCycle          *LifeCycle          `description:"Timeouts influencing the server life cycle." json:"lifeCycle,omitempty" toml:"lifeCycle,omitempty" yaml:"lifeCycle,omitempty" export:"true"`
+	RespondingTimeouts *RespondingTimeouts `description:"Timeouts for incoming requests to the Traefik instance." json:"respondingTimeouts,omitempty" toml:"respondingTimeouts,omitempty" yaml:"respondingTimeouts,omitempty" export:"true"`
 }
 
 // SetDefaults sets the default values.

@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 const (
@@ -166,7 +166,7 @@ func doRequest(action timedAction, timeout time.Duration, request *http.Request,
 func applyCIMultiplier(timeout time.Duration) time.Duration {
 	ci := os.Getenv("CI")
 	if len(ci) > 0 {
-		log.Debug().Msgf("Apply CI multiplier: %d", CITimeoutMultiplier)
+		log.Debug("Apply CI multiplier:", CITimeoutMultiplier)
 		return time.Duration(float64(timeout) * CITimeoutMultiplier)
 	}
 	return timeout

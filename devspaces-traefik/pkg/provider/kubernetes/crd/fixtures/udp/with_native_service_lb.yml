@@ -10,6 +10,6 @@ spec:
 
   routes:
   - services:
-    - name: native-svc-udp
+    - name: native-svc
       port: 8000
       nativeLB: true

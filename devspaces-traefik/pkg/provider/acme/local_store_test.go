@@ -44,6 +44,7 @@ func TestLocalStore_GetAccount(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			s := NewLocalStore(test.filename)
 

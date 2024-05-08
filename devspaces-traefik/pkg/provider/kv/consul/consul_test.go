@@ -9,12 +9,18 @@ import (
 func TestNamespaces(t *testing.T) {
 	testCases := []struct {
 		desc               string
+		namespace          string
 		namespaces         []string
 		expectedNamespaces []string
 	}{
 		{
 			desc:               "no defined namespaces",
 			expectedNamespaces: []string{""},
+		},
+		{
+			desc:               "deprecated: use of defined namespace",
+			namespace:          "test-ns",
+			expectedNamespaces: []string{"test-ns"},
 		},
 		{
 			desc:               "use of 1 defined namespaces",
@@ -29,10 +35,13 @@ func TestNamespaces(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
+
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
 			pb := &ProviderBuilder{
+				Namespace:  test.namespace,
 				Namespaces: test.namespaces,
 			}
 

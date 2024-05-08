@@ -6,10 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/server/provider"
-	"github.com/traefik/traefik/v3/pkg/tcp"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/server/provider"
 )
 
 func TestManager_BuildTCP(t *testing.T) {
@@ -17,7 +16,6 @@ func TestManager_BuildTCP(t *testing.T) {
 		desc          string
 		serviceName   string
 		configs       map[string]*runtime.TCPServiceInfo
-		stConfigs     map[string]*dynamic.TCPServersTransport
 		providerName  string
 		expectedError string
 	}{
@@ -40,7 +38,6 @@ func TestManager_BuildTCP(t *testing.T) {
 		{
 			desc:        "no such host, server is skipped, error is logged",
 			serviceName: "test",
-			stConfigs:   map[string]*dynamic.TCPServersTransport{"default@internal": {}},
 			configs: map[string]*runtime.TCPServiceInfo{
 				"test": {
 					TCPService: &dynamic.TCPService{
@@ -105,7 +102,6 @@ func TestManager_BuildTCP(t *testing.T) {
 		{
 			desc:        "Server with correct host:port as address",
 			serviceName: "serviceName",
-			stConfigs:   map[string]*dynamic.TCPServersTransport{"default@internal": {}},
 			configs: map[string]*runtime.TCPServiceInfo{
 				"serviceName@provider-1": {
 					TCPService: &dynamic.TCPService{
@@ -124,7 +120,6 @@ func TestManager_BuildTCP(t *testing.T) {
 		{
 			desc:        "Server with correct ip:port as address",
 			serviceName: "serviceName",
-			stConfigs:   map[string]*dynamic.TCPServersTransport{"default@internal": {}},
 			configs: map[string]*runtime.TCPServiceInfo{
 				"serviceName@provider-1": {
 					TCPService: &dynamic.TCPService{
@@ -132,24 +127,6 @@ func TestManager_BuildTCP(t *testing.T) {
 							Servers: []dynamic.TCPServer{
 								{
 									Address: "192.168.0.12:80",
-								},
-							},
-						},
-					},
-				},
-			},
-			providerName: "provider-1",
-		},
-		{
-			desc:        "empty server address, server is skipped, error is logged",
-			serviceName: "serviceName",
-			configs: map[string]*runtime.TCPServiceInfo{
-				"serviceName@provider-1": {
-					TCPService: &dynamic.TCPService{
-						LoadBalancer: &dynamic.TCPServersLoadBalancer{
-							Servers: []dynamic.TCPServer{
-								{
-									Address: "",
 								},
 							},
 						},
@@ -194,60 +171,16 @@ func TestManager_BuildTCP(t *testing.T) {
 			},
 			providerName: "provider-1",
 		},
-		{
-			desc:        "user defined serversTransport reference",
-			serviceName: "serviceName",
-			stConfigs:   map[string]*dynamic.TCPServersTransport{"myServersTransport@provider-1": {}},
-			configs: map[string]*runtime.TCPServiceInfo{
-				"serviceName@provider-1": {
-					TCPService: &dynamic.TCPService{
-						LoadBalancer: &dynamic.TCPServersLoadBalancer{
-							Servers: []dynamic.TCPServer{
-								{
-									Address: "192.168.0.12:80",
-								},
-							},
-							ServersTransport: "myServersTransport@provider-1",
-						},
-					},
-				},
-			},
-			providerName: "provider-1",
-		},
-		{
-			desc:        "user defined serversTransport reference not found",
-			serviceName: "serviceName",
-			configs: map[string]*runtime.TCPServiceInfo{
-				"serviceName@provider-1": {
-					TCPService: &dynamic.TCPService{
-						LoadBalancer: &dynamic.TCPServersLoadBalancer{
-							Servers: []dynamic.TCPServer{
-								{
-									Address: "192.168.0.12:80",
-								},
-							},
-							ServersTransport: "myServersTransport@provider-1",
-						},
-					},
-				},
-			},
-			providerName:  "provider-1",
-			expectedError: "TCP dialer not found myServersTransport@provider-1",
-		},
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
-			dialerManager := tcp.NewDialerManager(nil)
-			if test.stConfigs != nil {
-				dialerManager.Update(test.stConfigs)
-			}
-
 			manager := NewManager(&runtime.Configuration{
 				TCPServices: test.configs,
-			}, dialerManager)
+			})
 
 			ctx := context.Background()
 			if len(test.providerName) > 0 {

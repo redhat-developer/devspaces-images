@@ -3,16 +3,13 @@ package tcpmiddleware
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/middlewares/tcp/inflightconn"
-	"github.com/traefik/traefik/v3/pkg/middlewares/tcp/ipallowlist"
-	"github.com/traefik/traefik/v3/pkg/middlewares/tcp/ipwhitelist"
-	"github.com/traefik/traefik/v3/pkg/server/provider"
-	"github.com/traefik/traefik/v3/pkg/tcp"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	inflightconn "github.com/traefik/traefik/v2/pkg/middlewares/tcp/inflightconn"
+	ipwhitelist "github.com/traefik/traefik/v2/pkg/middlewares/tcp/ipwhitelist"
+	"github.com/traefik/traefik/v2/pkg/server/provider"
+	"github.com/traefik/traefik/v2/pkg/tcp"
 )
 
 type middlewareStackType int
@@ -75,7 +72,7 @@ func checkRecursion(ctx context.Context, middlewareName string) (context.Context
 		currentStack = []string{}
 	}
 
-	if slices.Contains(currentStack, middlewareName) {
+	if inSlice(middlewareName, currentStack) {
 		return ctx, fmt.Errorf("could not instantiate middleware %s: recursion detected in %s", middlewareName, strings.Join(append(currentStack, middlewareName), "->"))
 	}
 
@@ -99,17 +96,8 @@ func (b *Builder) buildConstructor(ctx context.Context, middlewareName string) (
 
 	// IPWhiteList
 	if config.IPWhiteList != nil {
-		log.Warn().Msg("IPWhiteList is deprecated, please use IPAllowList instead.")
-
 		middleware = func(next tcp.Handler) (tcp.Handler, error) {
 			return ipwhitelist.New(ctx, next, *config.IPWhiteList, middlewareName)
-		}
-	}
-
-	// IPAllowList
-	if config.IPAllowList != nil {
-		middleware = func(next tcp.Handler) (tcp.Handler, error) {
-			return ipallowlist.New(ctx, next, *config.IPAllowList, middlewareName)
 		}
 	}
 
@@ -118,4 +106,13 @@ func (b *Builder) buildConstructor(ctx context.Context, middlewareName string) (
 	}
 
 	return middleware, nil
+}
+
+func inSlice(element string, stack []string) bool {
+	for _, value := range stack {
+		if value == element {
+			return true
+		}
+	}
+	return false
 }

@@ -55,7 +55,7 @@ func getFieldNames(rootName string, rootType reflect.Type) []string {
 		return nil
 	}
 
-	for i := range rootType.NumField() {
+	for i := 0; i < rootType.NumField(); i++ {
 		field := rootType.Field(i)
 
 		if !parser.IsExported(field) {

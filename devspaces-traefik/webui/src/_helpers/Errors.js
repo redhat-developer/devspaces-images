@@ -22,7 +22,7 @@ class Errors {
 
   static handleResponse (error) {
     console.log('handleResponse', error, error.response)
-    const body = error.response.data
+    let body = error.response.data
     if (error.response.status === 401) {
       // TODO - actions...
     }

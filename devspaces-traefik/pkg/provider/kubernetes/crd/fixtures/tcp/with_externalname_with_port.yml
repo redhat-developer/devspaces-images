@@ -11,5 +11,5 @@ spec:
   routes:
   - match: HostSNI(`foo.com`)
     services:
-    - name: external.service.with.port.tcp
+    - name: external.service.with.port
       port: 80

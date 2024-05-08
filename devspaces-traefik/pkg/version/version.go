@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-github/v28/github"
 	"github.com/gorilla/mux"
 	goversion "github.com/hashicorp/go-version"
-	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/unrolled/render"
 )
 
@@ -22,8 +22,7 @@ var (
 	BuildDate = "I don't remember exactly"
 	// StartDate holds the start date of traefik.
 	StartDate = time.Now()
-	// DisableDashboardAd disables ad in the dashboard.
-	DisableDashboardAd = false
+	// UUID instance uuid.
 )
 
 // Handler expose version routes.
@@ -38,20 +37,18 @@ func (v Handler) Append(router *mux.Router) {
 	router.Methods(http.MethodGet).Path("/api/version").
 		HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 			v := struct {
-				Version            string
-				Codename           string
-				StartDate          time.Time `json:"startDate"`
-				UUID               string    `json:"uuid,omitempty"`
-				DisableDashboardAd bool      `json:"disableDashboardAd,omitempty"`
+				Version   string
+				Codename  string
+				StartDate time.Time `json:"startDate"`
+				UUID      string    `json:"uuid,omitempty"`
 			}{
-				Version:            Version,
-				Codename:           Codename,
-				StartDate:          StartDate,
-				DisableDashboardAd: DisableDashboardAd,
+				Version:   Version,
+				Codename:  Codename,
+				StartDate: StartDate,
 			}
 
 			if err := templatesRenderer.JSON(response, http.StatusOK, v); err != nil {
-				log.Error().Err(err).Send()
+				log.WithoutContext().Error(err)
 			}
 		})
 }
@@ -62,36 +59,38 @@ func CheckNewVersion() {
 		return
 	}
 
+	logger := log.WithoutContext()
+
 	client := github.NewClient(nil)
 
 	updateURL, err := url.Parse("https://update.traefik.io/")
 	if err != nil {
-		log.Warn().Err(err).Msg("Error checking new version")
+		logger.Warnf("Error checking new version: %s", err)
 		return
 	}
 	client.BaseURL = updateURL
 
 	releases, resp, err := client.Repositories.ListReleases(context.Background(), "traefik", "traefik", nil)
 	if err != nil {
-		log.Warn().Err(err).Msg("Error checking new version")
+		logger.Warnf("Error checking new version: %s", err)
 		return
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Warn().Msgf("Error checking new version: status=%s", resp.Status)
+		logger.Warnf("Error checking new version: status=%s", resp.Status)
 		return
 	}
 
 	currentVersion, err := goversion.NewVersion(Version)
 	if err != nil {
-		log.Warn().Err(err).Msg("Error checking new version")
+		logger.Warnf("Error checking new version: %s", err)
 		return
 	}
 
 	for _, release := range releases {
 		releaseVersion, err := goversion.NewVersion(*release.TagName)
 		if err != nil {
-			log.Warn().Err(err).Msg("Error checking new version")
+			logger.Warnf("Error checking new version: %s", err)
 			return
 		}
 
@@ -100,7 +99,7 @@ func CheckNewVersion() {
 		}
 
 		if releaseVersion.GreaterThan(currentVersion) {
-			log.Warn().Err(err).Msgf("A new release has been found: %s. Please consider updating.", releaseVersion.String())
+			logger.Warnf("A new release has been found: %s. Please consider updating.", releaseVersion.String())
 			return
 		}
 	}

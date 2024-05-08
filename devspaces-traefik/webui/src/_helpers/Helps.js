@@ -1,4 +1,4 @@
-import { getProperty } from 'dot-prop'
+import { get } from 'dot-prop'
 
 class Helps {
   // Getters
@@ -11,7 +11,7 @@ class Helps {
   // ------------------------------------------------------------------------
 
   static get (obj, prop, def = undefined) {
-    return getProperty(obj, prop, def)
+    return get(obj, prop, def)
   }
 
   static hasIn (obj, prop) {
@@ -39,12 +39,13 @@ class Helps {
   }
 
   static removeEmptyObjects (objects) {
-    Object.entries(objects)
-      .filter(item => item[1] !== '')
-      .reduce((acc, item) => {
-        acc[item[0]] = item[1]
-        return acc
-      }, {})
+    const obj = {}
+    Object.entries(objects).map(item => {
+      if (item[1] !== '') {
+        obj[item[0]] = item[1]
+      }
+    })
+    return obj
   }
 
   // Helps -> Numbers

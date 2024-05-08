@@ -9,11 +9,8 @@
           "redirect-web-to-websecure"
         ],
         "service": "noop@internal",
-        "rule": "HostRegexp(`^.+$`)"
+        "rule": "HostRegexp(`{host:.+}`)"
       }
-    },
-    "services": {
-      "noop": {}
     },
     "middlewares": {
       "redirect-web-to-websecure": {
@@ -23,6 +20,9 @@
           "permanent": true
         }
       }
+    },
+    "services": {
+      "noop": {}
     }
   },
   "tcp": {},

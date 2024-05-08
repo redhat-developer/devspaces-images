@@ -1,5 +1,0 @@
-[accesslog]
-
-[entrypoints.test.http.tls]
-
-[providers.marathon]

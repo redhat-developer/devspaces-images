@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 )
 
 func TestRedirectSchemeHandler(t *testing.T) {
@@ -283,6 +283,8 @@ func TestRedirectSchemeHandler(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
+
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -331,7 +333,7 @@ func TestRedirectSchemeHandler(t *testing.T) {
 				schemeRegex := `^(https?):\/\/(\[[\w:.]+\]|[\w\._-]+)?(:\d+)?(.*)$`
 				re, _ := regexp.Compile(schemeRegex)
 
-				if re.MatchString(test.url) {
+				if re.Match([]byte(test.url)) {
 					match := re.FindStringSubmatch(test.url)
 					req.RequestURI = match[4]
 

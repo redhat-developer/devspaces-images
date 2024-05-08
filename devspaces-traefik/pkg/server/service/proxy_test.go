@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/traefik/traefik/v3/pkg/testhelpers"
+	"github.com/traefik/traefik/v2/pkg/testhelpers"
 )
 
 type staticTransport struct {
@@ -28,10 +28,10 @@ func BenchmarkProxy(b *testing.B) {
 	req := testhelpers.MustNewRequest(http.MethodGet, "http://foo.bar/", nil)
 
 	pool := newBufferPool()
-	handler := buildSingleHostProxy(req.URL, false, 0, &staticTransport{res}, pool)
+	handler, _ := buildProxy(Bool(false), nil, &staticTransport{res}, pool)
 
 	b.ReportAllocs()
-	for range b.N {
+	for i := 0; i < b.N; i++ {
 		handler.ServeHTTP(w, req)
 	}
 }

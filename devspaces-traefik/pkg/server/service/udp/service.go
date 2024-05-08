@@ -8,11 +8,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/server/provider"
-	"github.com/traefik/traefik/v3/pkg/udp"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/server/provider"
+	"github.com/traefik/traefik/v2/pkg/udp"
 )
 
 // Manager handles UDP services creation.
@@ -32,13 +31,12 @@ func NewManager(conf *runtime.Configuration) *Manager {
 // BuildUDP creates the UDP handler for the given service name.
 func (m *Manager) BuildUDP(rootCtx context.Context, serviceName string) (udp.Handler, error) {
 	serviceQualifiedName := provider.GetQualifiedName(rootCtx, serviceName)
-
-	logger := log.Ctx(rootCtx).With().Str(logs.ServiceName, serviceQualifiedName).Logger()
 	ctx := provider.AddInContext(rootCtx, serviceQualifiedName)
+	ctx = log.With(ctx, log.Str(log.ServiceName, serviceName))
 
 	conf, ok := m.configs[serviceQualifiedName]
 	if !ok {
-		return nil, fmt.Errorf("the UDP service %q does not exist", serviceQualifiedName)
+		return nil, fmt.Errorf("the udp service %q does not exist", serviceQualifiedName)
 	}
 
 	if conf.LoadBalancer != nil && conf.Weighted != nil {
@@ -47,49 +45,41 @@ func (m *Manager) BuildUDP(rootCtx context.Context, serviceName string) (udp.Han
 		return nil, err
 	}
 
+	logger := log.FromContext(ctx)
 	switch {
 	case conf.LoadBalancer != nil:
 		loadBalancer := udp.NewWRRLoadBalancer()
 
-		for index, server := range shuffle(conf.LoadBalancer.Servers, m.rand) {
-			srvLogger := logger.With().
-				Int(logs.ServerIndex, index).
-				Str("serverAddress", server.Address).Logger()
-
+		for name, server := range shuffle(conf.LoadBalancer.Servers, m.rand) {
 			if _, _, err := net.SplitHostPort(server.Address); err != nil {
-				srvLogger.Error().Err(err).Msg("Failed to split host port")
+				logger.Errorf("In udp service %q: %v", serviceQualifiedName, err)
 				continue
 			}
 
 			handler, err := udp.NewProxy(server.Address)
 			if err != nil {
-				srvLogger.Error().Err(err).Msg("Failed to create server")
+				logger.Errorf("In udp service %q server %q: %v", serviceQualifiedName, server.Address, err)
 				continue
 			}
 
 			loadBalancer.AddServer(handler)
-			srvLogger.Debug().Msg("Creating UDP server")
+			logger.WithField(log.ServerName, name).Debugf("Creating UDP server %d at %s", name, server.Address)
 		}
-
 		return loadBalancer, nil
-
 	case conf.Weighted != nil:
 		loadBalancer := udp.NewWRRLoadBalancer()
 
 		for _, service := range shuffle(conf.Weighted.Services, m.rand) {
-			handler, err := m.BuildUDP(ctx, service.Name)
+			handler, err := m.BuildUDP(rootCtx, service.Name)
 			if err != nil {
-				logger.Error().Err(err).Msg("Failed to build UDP handler")
+				logger.Errorf("In udp service %q: %v", serviceQualifiedName, err)
 				return nil, err
 			}
-
 			loadBalancer.AddWeightedServer(handler, service.Weight)
 		}
-
 		return loadBalancer, nil
-
 	default:
-		err := fmt.Errorf("the UDP service %q does not have any type defined", serviceQualifiedName)
+		err := fmt.Errorf("the udp service %q does not have any type defined", serviceQualifiedName)
 		conf.AddError(err, true)
 		return nil, err
 	}

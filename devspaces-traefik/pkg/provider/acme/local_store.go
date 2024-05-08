@@ -6,9 +6,8 @@ import (
 	"os"
 	"sync"
 
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/safe"
 )
 
 var _ Store = (*LocalStore)(nil)
@@ -53,7 +52,7 @@ func (s *LocalStore) get(resolverName string) (*StoredData, error) {
 		}
 
 		if hasData {
-			logger := log.With().Str(logs.ProviderName, "acme").Logger()
+			logger := log.WithoutContext().WithField(log.ProviderName, "acme")
 
 			f, err := os.Open(s.filename)
 			if err != nil {
@@ -77,7 +76,7 @@ func (s *LocalStore) get(resolverName string) (*StoredData, error) {
 			for _, storedData := range s.storedData {
 				for _, certificate := range storedData.Certificates {
 					if len(certificate.Certificate.Certificate) == 0 || len(certificate.Key) == 0 {
-						logger.Debug().Msgf("Deleting empty certificate %v for %v", certificate, certificate.Domain.ToStrArray())
+						logger.Debugf("Deleting empty certificate %v for %v", certificate, certificate.Domain.ToStrArray())
 						continue
 					}
 					certificates = append(certificates, certificate)
@@ -102,16 +101,16 @@ func (s *LocalStore) get(resolverName string) (*StoredData, error) {
 // listenSaveAction listens to a chan to store ACME data in json format into `LocalStore.filename`.
 func (s *LocalStore) listenSaveAction() {
 	safe.Go(func() {
-		logger := log.With().Str(logs.ProviderName, "acme").Logger()
+		logger := log.WithoutContext().WithField(log.ProviderName, "acme")
 		for object := range s.saveDataChan {
 			data, err := json.MarshalIndent(object, "", "  ")
 			if err != nil {
-				logger.Error().Err(err).Send()
+				logger.Error(err)
 			}
 
 			err = os.WriteFile(s.filename, data, 0o600)
 			if err != nil {
-				logger.Error().Err(err).Send()
+				logger.Error(err)
 			}
 		}
 	})

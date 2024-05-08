@@ -11,9 +11,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	th "github.com/traefik/traefik/v3/pkg/testhelpers"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	th "github.com/traefik/traefik/v2/pkg/testhelpers"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func TestRegisterPromState(t *testing.T) {
@@ -64,6 +64,7 @@ func TestRegisterPromState(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			actualNbRegistries := 0
 			for _, prom := range test.prometheusSlice {
@@ -104,11 +105,9 @@ func TestPrometheus(t *testing.T) {
 	}
 
 	prometheusRegistry.ConfigReloadsCounter().Add(1)
+	prometheusRegistry.ConfigReloadsFailureCounter().Add(1)
 	prometheusRegistry.LastConfigReloadSuccessGauge().Set(float64(time.Now().Unix()))
-	prometheusRegistry.
-		OpenConnectionsGauge().
-		With("entrypoint", "test", "protocol", "TCP").
-		Set(1)
+	prometheusRegistry.LastConfigReloadFailureGauge().Set(float64(time.Now().Unix()))
 
 	prometheusRegistry.
 		TLSCertsNotAfterTimestampGauge().
@@ -123,6 +122,10 @@ func TestPrometheus(t *testing.T) {
 		EntryPointReqDurationHistogram().
 		With("code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http", "entrypoint", "http").
 		Observe(1)
+	prometheusRegistry.
+		EntryPointOpenConnsGauge().
+		With("method", http.MethodGet, "protocol", "http", "entrypoint", "http").
+		Set(1)
 	prometheusRegistry.
 		EntryPointRespsBytesCounter().
 		With("code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http", "entrypoint", "http").
@@ -145,6 +148,10 @@ func TestPrometheus(t *testing.T) {
 		With("router", "demo", "service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Observe(10000)
 	prometheusRegistry.
+		RouterOpenConnsGauge().
+		With("router", "demo", "service", "service1", "method", http.MethodGet, "protocol", "http").
+		Set(1)
+	prometheusRegistry.
 		RouterRespsBytesCounter().
 		With("router", "demo", "service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Add(1)
@@ -165,6 +172,10 @@ func TestPrometheus(t *testing.T) {
 		ServiceReqDurationHistogram().
 		With("service", "service1", "code", strconv.Itoa(http.StatusOK), "method", http.MethodGet, "protocol", "http").
 		Observe(10000)
+	prometheusRegistry.
+		ServiceOpenConnsGauge().
+		With("service", "service1", "method", http.MethodGet, "protocol", "http").
+		Set(1)
 	prometheusRegistry.
 		ServiceRetriesCounter().
 		With("service", "service1").
@@ -196,25 +207,25 @@ func TestPrometheus(t *testing.T) {
 			assert: buildCounterAssert(t, configReloadsTotalName, 1),
 		},
 		{
+			name:   configReloadsFailuresTotalName,
+			assert: buildCounterAssert(t, configReloadsFailuresTotalName, 1),
+		},
+		{
 			name:   configLastReloadSuccessName,
 			assert: buildTimestampAssert(t, configLastReloadSuccessName),
 		},
 		{
-			name: openConnectionsName,
-			labels: map[string]string{
-				"protocol":   "TCP",
-				"entrypoint": "test",
-			},
-			assert: buildGaugeAssert(t, openConnectionsName, 1),
+			name:   configLastReloadFailureName,
+			assert: buildTimestampAssert(t, configLastReloadFailureName),
 		},
 		{
-			name: tlsCertsNotAfterTimestampName,
+			name: tlsCertsNotAfterTimestamp,
 			labels: map[string]string{
 				"cn":     "value",
 				"serial": "value",
 				"sans":   "value",
 			},
-			assert: buildTimestampAssert(t, tlsCertsNotAfterTimestampName),
+			assert: buildTimestampAssert(t, tlsCertsNotAfterTimestamp),
 		},
 		{
 			name: entryPointReqsTotalName,
@@ -236,6 +247,15 @@ func TestPrometheus(t *testing.T) {
 				"entrypoint": "http",
 			},
 			assert: buildHistogramAssert(t, entryPointReqDurationName, 1),
+		},
+		{
+			name: entryPointOpenConnsName,
+			labels: map[string]string{
+				"method":     http.MethodGet,
+				"protocol":   "http",
+				"entrypoint": "http",
+			},
+			assert: buildGaugeAssert(t, entryPointOpenConnsName, 1),
 		},
 		{
 			name: entryPointReqsBytesTotalName,
@@ -291,6 +311,16 @@ func TestPrometheus(t *testing.T) {
 			assert: buildHistogramAssert(t, routerReqDurationName, 1),
 		},
 		{
+			name: routerOpenConnsName,
+			labels: map[string]string{
+				"method":   http.MethodGet,
+				"protocol": "http",
+				"service":  "service1",
+				"router":   "demo",
+			},
+			assert: buildGaugeAssert(t, routerOpenConnsName, 1),
+		},
+		{
 			name: routerReqsBytesTotalName,
 			labels: map[string]string{
 				"code":     "200",
@@ -343,6 +373,15 @@ func TestPrometheus(t *testing.T) {
 			assert: buildHistogramAssert(t, serviceReqDurationName, 1),
 		},
 		{
+			name: serviceOpenConnsName,
+			labels: map[string]string{
+				"method":   http.MethodGet,
+				"protocol": "http",
+				"service":  "service1",
+			},
+			assert: buildGaugeAssert(t, serviceOpenConnsName, 1),
+		},
+		{
 			name: serviceRetriesTotalName,
 			labels: map[string]string{
 				"service": "service1",
@@ -380,6 +419,7 @@ func TestPrometheus(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			family := findMetricFamily(test.name, metricsFamilies)
 			if family == nil {
@@ -387,12 +427,12 @@ func TestPrometheus(t *testing.T) {
 				return
 			}
 
-			for _, label := range family.GetMetric()[0].GetLabel() {
-				val, ok := test.labels[label.GetName()]
+			for _, label := range family.Metric[0].Label {
+				val, ok := test.labels[*label.Name]
 				if !ok {
-					t.Errorf("%q metric contains unexpected label %q", test.name, label.GetName())
-				} else if val != label.GetValue() {
-					t.Errorf("label %q in metric %q has wrong value %q, expected %q", label.GetName(), test.name, label.GetValue(), val)
+					t.Errorf("%q metric contains unexpected label %q", test.name, *label.Name)
+				} else if val != *label.Value {
+					t.Errorf("label %q in metric %q has wrong value %q, expected %q", *label.Name, test.name, *label.Value, val)
 				}
 			}
 			test.assert(family)
@@ -643,7 +683,7 @@ func findMetricByLabelNamesValues(family *dto.MetricFamily, labelNamesValues ...
 		return nil
 	}
 
-	for _, metric := range family.GetMetric() {
+	for _, metric := range family.Metric {
 		if hasMetricAllLabelPairs(metric, labelNamesValues...) {
 			return metric
 		}
@@ -663,7 +703,7 @@ func hasMetricAllLabelPairs(metric *dto.Metric, labelNamesValues ...string) bool
 }
 
 func hasMetricLabelPair(metric *dto.Metric, labelName, labelValue string) bool {
-	for _, labelPair := range metric.GetLabel() {
+	for _, labelPair := range metric.Label {
 		if labelPair.GetName() == labelName && labelPair.GetValue() == labelValue {
 			return true
 		}
@@ -680,12 +720,12 @@ func assertCounterValue(t *testing.T, want float64, family *dto.MetricFamily, la
 		t.Error("metric must not be nil")
 		return
 	}
-	if metric.GetCounter() == nil {
+	if metric.Counter == nil {
 		t.Errorf("metric %s must be a counter", family.GetName())
 		return
 	}
 
-	if cv := metric.GetCounter().GetValue(); cv != want {
+	if cv := metric.Counter.GetValue(); cv != want {
 		t.Errorf("metric %s has value %v, want %v", family.GetName(), cv, want)
 	}
 }
@@ -694,7 +734,7 @@ func buildCounterAssert(t *testing.T, metricName string, expectedValue int) func
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if cv := int(family.GetMetric()[0].GetCounter().GetValue()); cv != expectedValue {
+		if cv := int(family.Metric[0].Counter.GetValue()); cv != expectedValue {
 			t.Errorf("metric %s has value %d, want %d", metricName, cv, expectedValue)
 		}
 	}
@@ -704,7 +744,7 @@ func buildGreaterThanCounterAssert(t *testing.T, metricName string, expectedMinV
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if cv := int(family.GetMetric()[0].GetCounter().GetValue()); cv < expectedMinValue {
+		if cv := int(family.Metric[0].Counter.GetValue()); cv < expectedMinValue {
 			t.Errorf("metric %s has value %d, want at least %d", metricName, cv, expectedMinValue)
 		}
 	}
@@ -714,7 +754,7 @@ func buildHistogramAssert(t *testing.T, metricName string, expectedSampleCount i
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if sc := int(family.GetMetric()[0].GetHistogram().GetSampleCount()); sc != expectedSampleCount {
+		if sc := int(family.Metric[0].Histogram.GetSampleCount()); sc != expectedSampleCount {
 			t.Errorf("metric %s has sample count value %d, want %d", metricName, sc, expectedSampleCount)
 		}
 	}
@@ -724,7 +764,7 @@ func buildGaugeAssert(t *testing.T, metricName string, expectedValue int) func(f
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if gv := int(family.GetMetric()[0].GetGauge().GetValue()); gv != expectedValue {
+		if gv := int(family.Metric[0].Gauge.GetValue()); gv != expectedValue {
 			t.Errorf("metric %s has value %d, want %d", metricName, gv, expectedValue)
 		}
 	}
@@ -734,7 +774,7 @@ func buildTimestampAssert(t *testing.T, metricName string) func(family *dto.Metr
 	t.Helper()
 
 	return func(family *dto.MetricFamily) {
-		if ts := time.Unix(int64(family.GetMetric()[0].GetGauge().GetValue()), 0); time.Since(ts) > time.Minute {
+		if ts := time.Unix(int64(family.Metric[0].Gauge.GetValue()), 0); time.Since(ts) > time.Minute {
 			t.Errorf("metric %s has wrong timestamp %v", metricName, ts)
 		}
 	}

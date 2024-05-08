@@ -7,7 +7,6 @@
 
 [log]
   level = "DEBUG"
-  noColor = true
 
 [entryPoints]
   [entryPoints.web]

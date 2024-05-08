@@ -6,16 +6,15 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"slices"
 	"strings"
 	"sync"
 
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/tls/generate"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/sirupsen/logrus"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/tls/generate"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 const (
@@ -69,13 +68,6 @@ func (m *Manager) UpdateConfigs(ctx context.Context, stores map[string]Store, co
 	defer m.lock.Unlock()
 
 	m.configs = configs
-	for optionName, option := range m.configs {
-		// Handle `PreferServerCipherSuites` depreciation
-		if option.PreferServerCipherSuites != nil {
-			log.Ctx(ctx).Warn().Msgf("TLSOption %q uses `PreferServerCipherSuites` option, but this option is deprecated and ineffective, please remove this option.", optionName)
-		}
-	}
-
 	m.storesConfig = stores
 	m.certs = certs
 
@@ -94,15 +86,15 @@ func (m *Manager) UpdateConfigs(ctx context.Context, stores map[string]Store, co
 	storesCertificates := make(map[string]map[string]*tls.Certificate)
 	for _, conf := range certs {
 		if len(conf.Stores) == 0 {
-			log.Ctx(ctx).Debug().MsgFunc(func() string {
-				return fmt.Sprintf("No store is defined to add the certificate %s, it will be added to the default store",
+			if log.GetLevel() >= logrus.DebugLevel {
+				log.FromContext(ctx).Debugf("No store is defined to add the certificate %s, it will be added to the default store.",
 					conf.Certificate.GetTruncatedCertificateName())
-			})
+			}
 			conf.Stores = []string{DefaultTLSStoreName}
 		}
 
 		for _, store := range conf.Stores {
-			logger := log.Ctx(ctx).With().Str(logs.TLSStoreName, store).Logger()
+			ctxStore := log.With(ctx, log.Str(log.TLSStoreName, store))
 
 			if _, ok := m.storesConfig[store]; !ok {
 				m.storesConfig[store] = Store{}
@@ -110,7 +102,7 @@ func (m *Manager) UpdateConfigs(ctx context.Context, stores map[string]Store, co
 
 			err := conf.Certificate.AppendCertificate(storesCertificates, store)
 			if err != nil {
-				logger.Error().Err(err).Msgf("Unable to append certificate %s to store", conf.Certificate.GetTruncatedCertificateName())
+				log.FromContext(ctxStore).Errorf("Unable to append certificate %s to store: %v", conf.Certificate.GetTruncatedCertificateName(), err)
 			}
 		}
 	}
@@ -130,12 +122,11 @@ func (m *Manager) UpdateConfigs(ctx context.Context, stores map[string]Store, co
 			continue
 		}
 
-		logger := log.Ctx(ctx).With().Str(logs.TLSStoreName, storeName).Logger()
-		ctxStore := logger.WithContext(ctx)
+		ctxStore := log.With(ctx, log.Str(log.TLSStoreName, storeName))
 
 		certificate, err := getDefaultCertificate(ctxStore, storeConfig, st)
 		if err != nil {
-			logger.Error().Err(err).Msg("Error while creating certificate store")
+			log.FromContext(ctxStore).Errorf("Error while creating certificate store: %v", err)
 		}
 
 		st.DefaultCertificate = certificate
@@ -190,10 +181,10 @@ func (m *Manager) Get(storeName, configName string) (*tls.Config, error) {
 	tlsConfig.GetCertificate = func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 		domainToCheck := types.CanonicalDomain(clientHello.ServerName)
 
-		if slices.Contains(clientHello.SupportedProtos, tlsalpn01.ACMETLS1Protocol) {
+		if isACMETLS(clientHello) {
 			certificate := acmeTLSStore.GetBestCertificate(clientHello)
 			if certificate == nil {
-				log.Debug().Msgf("TLS: no certificate for TLSALPN challenge: %s", domainToCheck)
+				log.WithoutContext().Debugf("TLS: no certificate for TLSALPN challenge: %s", domainToCheck)
 				// We want the user to eventually get the (alertUnrecognizedName) "unrecognized name" error.
 				// Unfortunately, if we returned an error here,
 				// since we can't use the unexported error (errNoCertificates) that our caller (config.getCertificate in crypto/tls) uses as a sentinel,
@@ -213,19 +204,19 @@ func (m *Manager) Get(storeName, configName string) (*tls.Config, error) {
 		}
 
 		if sniStrict {
-			log.Debug().Msgf("TLS: strict SNI enabled - No certificate found for domain: %q, closing connection", domainToCheck)
+			log.WithoutContext().Debugf("TLS: strict SNI enabled - No certificate found for domain: %q, closing connection", domainToCheck)
 			// Same comment as above, as in the isACMETLS case.
 			return nil, nil
 		}
 
 		if store == nil {
-			log.Error().Msgf("TLS: No certificate store found with this name: %q, closing connection", storeName)
+			log.WithoutContext().Errorf("TLS: No certificate store found with this name: %q, closing connection", storeName)
 
 			// Same comment as above, as in the isACMETLS case.
 			return nil, nil
 		}
 
-		log.Debug().Msgf("Serving default certificate for request: %q", domainToCheck)
+		log.WithoutContext().Debugf("Serving default certificate for request: %q", domainToCheck)
 		return store.DefaultCertificate, nil
 	}
 
@@ -318,7 +309,7 @@ func getDefaultCertificate(ctx context.Context, tlsStore Store, st *CertificateS
 		return defaultACMECert, nil
 	}
 
-	log.Ctx(ctx).Debug().Msg("No default certificate, fallback to the internal generated certificate")
+	log.FromContext(ctx).Debug("No default certificate, fallback to the internal generated certificate")
 	return defaultCert, nil
 }
 
@@ -427,4 +418,14 @@ func buildDefaultCertificate(defaultCertificate *Certificate) (*tls.Certificate,
 		return nil, fmt.Errorf("failed to load X509 key pair: %w", err)
 	}
 	return &cert, nil
+}
+
+func isACMETLS(clientHello *tls.ClientHelloInfo) bool {
+	for _, proto := range clientHello.SupportedProtos {
+		if proto == tlsalpn01.ACMETLS1Protocol {
+			return true
+		}
+	}
+
+	return false
 }

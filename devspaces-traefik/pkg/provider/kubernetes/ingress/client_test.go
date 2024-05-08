@@ -2,7 +2,7 @@ package ingress
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	netv1beta1 "k8s.io/api/networking/v1beta1"
 	kerror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kschema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -39,13 +40,14 @@ func TestTranslateNotFoundError(t *testing.T) {
 		},
 		{
 			desc:           "not a kubernetes not found error",
-			err:            errors.New("bar error"),
+			err:            fmt.Errorf("bar error"),
 			expectedExists: false,
-			expectedError:  errors.New("bar error"),
+			expectedError:  fmt.Errorf("bar error"),
 		},
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -123,6 +125,7 @@ func TestIsLoadBalancerIngressEquals(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -278,6 +281,75 @@ func TestClientIgnoresEmptyEndpointUpdates(t *testing.T) {
 		assert.Equal(t, "filled-endpoint", ep.Name)
 	case <-time.After(50 * time.Millisecond):
 		assert.Fail(t, "expected to receive event for filled endpoint")
+	}
+
+	select {
+	case <-eventCh:
+		assert.Fail(t, "received more than one event")
+	case <-time.After(50 * time.Millisecond):
+	}
+}
+
+func TestClientUsesCorrectServerVersion(t *testing.T) {
+	ingressV1Beta := &netv1beta1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "default",
+			Name:      "ingress-v1beta",
+		},
+	}
+
+	ingressV1 := &netv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "default",
+			Name:      "ingress-v1",
+		},
+	}
+
+	kubeClient := kubefake.NewSimpleClientset(ingressV1Beta, ingressV1)
+
+	discovery, _ := kubeClient.Discovery().(*discoveryfake.FakeDiscovery)
+	discovery.FakedServerVersion = &kversion.Info{
+		GitVersion: "v1.18.12+foobar",
+	}
+
+	stopCh := make(chan struct{})
+
+	client := newClientImpl(kubeClient)
+
+	eventCh, err := client.WatchAll(nil, stopCh)
+	require.NoError(t, err)
+
+	select {
+	case event := <-eventCh:
+		ingress, ok := event.(*netv1beta1.Ingress)
+		require.True(t, ok)
+
+		assert.Equal(t, "ingress-v1beta", ingress.Name)
+	case <-time.After(50 * time.Millisecond):
+		assert.Fail(t, "expected to receive event for ingress")
+	}
+
+	select {
+	case <-eventCh:
+		assert.Fail(t, "received more than one event")
+	case <-time.After(50 * time.Millisecond):
+	}
+
+	discovery.FakedServerVersion = &kversion.Info{
+		GitVersion: "v1.19",
+	}
+
+	eventCh, err = client.WatchAll(nil, stopCh)
+	require.NoError(t, err)
+
+	select {
+	case event := <-eventCh:
+		ingress, ok := event.(*netv1.Ingress)
+		require.True(t, ok)
+
+		assert.Equal(t, "ingress-v1", ingress.Name)
+	case <-time.After(50 * time.Millisecond):
+		assert.Fail(t, "expected to receive event for ingress")
 	}
 
 	select {

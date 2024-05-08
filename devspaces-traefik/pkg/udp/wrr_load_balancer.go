@@ -1,10 +1,10 @@
 package udp
 
 import (
-	"errors"
+	"fmt"
 	"sync"
 
-	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 type server struct {
@@ -34,7 +34,7 @@ func (b *WRRLoadBalancer) ServeUDP(conn *Conn) {
 	b.lock.Unlock()
 
 	if err != nil {
-		log.Error().Err(err).Msg("Error during load balancing")
+		log.WithoutContext().Errorf("Error during load balancing: %v", err)
 		conn.Close()
 		return
 	}
@@ -91,7 +91,7 @@ func gcd(a, b int) int {
 
 func (b *WRRLoadBalancer) next() (Handler, error) {
 	if len(b.servers) == 0 {
-		return nil, errors.New("no servers in the pool")
+		return nil, fmt.Errorf("no servers in the pool")
 	}
 
 	// The algorithm below may look messy,
@@ -101,7 +101,7 @@ func (b *WRRLoadBalancer) next() (Handler, error) {
 	// Maximum weight across all enabled servers
 	max := b.maxWeight()
 	if max == 0 {
-		return nil, errors.New("all servers have 0 weight")
+		return nil, fmt.Errorf("all servers have 0 weight")
 	}
 
 	// GCD across all enabled servers

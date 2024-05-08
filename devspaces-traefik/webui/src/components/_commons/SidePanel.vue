@@ -1,34 +1,27 @@
 <template>
   <div class="panel">
     <div
-      v-if="isOpen"
       class="panel-backdrop"
       @click="close"
-    />
+      v-if="isOpen"
+    ></div>
     <transition name="slide">
-      <div
-        v-if="isOpen"
-        class="panel-content"
-      >
-        <slot />
+      <div v-if="isOpen" class="panel-content">
+        <slot></slot>
       </div>
     </transition>
   </div>
 </template>
-
 <script>
-import { defineComponent } from 'vue'
 
-export default defineComponent({
-  props: {
-    isOpen: Boolean
-  },
+export default {
+  props: ['isOpen'],
   methods: {
     close () {
       this.$emit('onClose')
     }
   }
-})
+}
 </script>
 
 <style scoped lang="scss">

@@ -172,14 +172,6 @@ A Story of key & values
     |-------------------------------------------------------------------|----------|
     | `traefik/http/services/myservice/loadbalancer/healthcheck/method` | `foobar` |
 
-??? info "`traefik/http/services/<service_name>/loadbalancer/healthcheck/status`"
-
-    See [health check](../services/index.md#health-check) for more information.
-
-    | Key (Path)                                                        | Value |
-    |-------------------------------------------------------------------|-------|
-    | `traefik/http/services/myservice/loadbalancer/healthcheck/status` | `42`  |
-
 ??? info "`traefik/http/services/<service_name>/loadbalancer/healthcheck/port`"
 
     See [health check](../services/index.md#health-check) for more information.
@@ -244,14 +236,6 @@ A Story of key & values
     |-----------------------------------------------------------------------|--------|
     | `traefik/http/services/myservice/loadbalancer/sticky/cookie/samesite` | `none` |
 
-??? info "`traefik/http/services/<service_name>/loadbalancer/sticky/cookie/maxage`"
-
-    See [sticky sessions](../services/index.md#sticky-sessions) for more information.
-
-    | Key (Path)                                                          | Value |
-    |---------------------------------------------------------------------|-------|
-    | `traefik/http/services/myservice/loadbalancer/sticky/cookie/maxage` | `42`  |
-
 ??? info "`traefik/http/services/<service_name>/loadbalancer/responseforwarding/flushinterval`"
 
     See [response forwarding](../services/index.md#response-forwarding) for more information.
@@ -313,12 +297,6 @@ A Story of key & values
     | Key (Path)                                                             | Value  |
     |------------------------------------------------------------------------|--------|
     | `traefik/http/services/<service_name>/weighted/sticky/cookie/httpOnly` | `true` |
-
-??? info "`traefik/http/services/<service_name>/weighted/sticky/cookie/maxage`"
-
-    | Key (Path)                                                           | Value |
-    |----------------------------------------------------------------------|-------|
-    | `traefik/http/services/<service_name>/weighted/sticky/cookie/maxage` | `42`  |
 
 ### Middleware
 
@@ -427,6 +405,14 @@ You can declare TCP Routers and/or Services using KV.
     | Key (Path)                                                         | Value            |
     |--------------------------------------------------------------------|------------------|
     | `traefik/tcp/services/mytcpservice/loadbalancer/servers/0/address` | `xx.xx.xx.xx:xx` |
+
+??? info "`traefik/tcp/services/<service_name>/loadbalancer/terminationdelay`"
+
+    See [termination delay](../services/index.md#termination-delay) for more information.
+
+    | Key (Path)                                                        | Value |
+    |-------------------------------------------------------------------|-------|
+    | `traefik/tcp/services/mytcpservice/loadbalancer/terminationdelay` | `100` |
     
 ??? info "`traefik/tcp/services/<service_name>/loadbalancer/proxyprotocol/version`"
 
@@ -435,15 +421,6 @@ You can declare TCP Routers and/or Services using KV.
     | Key (Path)                                                             | Value |
     |------------------------------------------------------------------------|-------|
     | `traefik/tcp/services/mytcpservice/loadbalancer/proxyprotocol/version` | `1`   |
-
-??? info "`traefik/tcp/services/<service_name>/loadbalancer/serverstransport`"
-
-    Allows to reference a ServersTransport resource that is defined either with the File provider or the Kubernetes CRD one.
-    See [serverstransport](../services/index.md#serverstransport_2) for more information.
-
-    | Key (Path)                                                      | Value         |
-    |-----------------------------------------------------------------|---------------|
-    | `traefik/tcp/services/myservice/loadbalancer/serverstransport` | `foobar@file` |
 
 ??? info "`traefik/tcp/services/<service_name>/weighted/services/<n>/name`"
 

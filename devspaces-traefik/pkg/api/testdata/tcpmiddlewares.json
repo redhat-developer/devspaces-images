@@ -1,37 +1,37 @@
 [
 	{
-		"ipAllowList": {
+		"ipWhiteList": {
 			"sourceRange": ["127.0.0.1/32"]
 		},
-		"name": "ipallowlist1@anotherprovider",
+		"name": "ipwhitelist1@anotherprovider",
 		"provider": "anotherprovider",
 		"status": "enabled",
-		"type": "ipallowlist",
+		"type": "ipwhitelist",
 		"usedBy": [
 			"bar@myprovider"
 		]
 	},
 	{
-		"ipAllowList": {
+		"ipWhiteList": {
 			"sourceRange": ["127.0.0.1/32"]
 		},
-		"name": "ipallowlist1@myprovider",
+		"name": "ipwhitelist1@myprovider",
 		"provider": "myprovider",
 		"status": "enabled",
-		"type": "ipallowlist",
+		"type": "ipwhitelist",
 		"usedBy": [
 			"bar@myprovider",
 			"test@myprovider"
 		]
 	},
 	{
-		"ipAllowList": {
+		"ipWhiteList": {
 			"sourceRange": ["127.0.0.2/32"]
 		},
-		"name": "ipallowlist2@myprovider",
+		"name": "ipwhitelist2@myprovider",
 		"provider": "myprovider",
 		"status": "enabled",
-		"type": "ipallowlist",
+		"type": "ipwhitelist",
 		"usedBy": [
 			"test@myprovider"
 		]

@@ -28,6 +28,8 @@ func TestSaveRetries(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
+
 		t.Run(fmt.Sprintf("%d retries", test.requestAttempt), func(t *testing.T) {
 			t.Parallel()
 			saveRetries := &SaveRetries{}

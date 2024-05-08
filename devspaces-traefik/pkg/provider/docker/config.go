@@ -8,41 +8,30 @@ import (
 	"strings"
 
 	dockertypes "github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/config/label"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/provider"
-	"github.com/traefik/traefik/v3/pkg/provider/constraints"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/label"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/provider"
+	"github.com/traefik/traefik/v2/pkg/provider/constraints"
 )
 
-type DynConfBuilder struct {
-	Shared
-	apiClient client.APIClient
-}
-
-func NewDynConfBuilder(configuration Shared, apiClient client.APIClient) *DynConfBuilder {
-	return &DynConfBuilder{Shared: configuration, apiClient: apiClient}
-}
-
-func (p *DynConfBuilder) build(ctx context.Context, containersInspected []dockerData) *dynamic.Configuration {
+func (p *Provider) buildConfiguration(ctx context.Context, containersInspected []dockerData) *dynamic.Configuration {
 	configurations := make(map[string]*dynamic.Configuration)
 
 	for _, container := range containersInspected {
 		containerName := getServiceName(container) + "-" + container.ID
-
-		logger := log.Ctx(ctx).With().Str("container", containerName).Logger()
-		ctxContainer := logger.WithContext(ctx)
+		ctxContainer := log.With(ctx, log.Str("container", containerName))
 
 		if !p.keepContainer(ctxContainer, container) {
 			continue
 		}
 
+		logger := log.FromContext(ctxContainer)
+
 		confFromLabel, err := label.DecodeConfiguration(container.Labels)
 		if err != nil {
-			logger.Error().Err(err).Send()
+			logger.Error(err)
 			continue
 		}
 
@@ -52,7 +41,7 @@ func (p *DynConfBuilder) build(ctx context.Context, containersInspected []docker
 
 			err := p.buildTCPServiceConfiguration(ctxContainer, container, confFromLabel.TCP)
 			if err != nil {
-				logger.Error().Err(err).Send()
+				logger.Error(err)
 				continue
 			}
 			provider.BuildTCPRouterConfiguration(ctxContainer, confFromLabel.TCP)
@@ -63,7 +52,7 @@ func (p *DynConfBuilder) build(ctx context.Context, containersInspected []docker
 
 			err := p.buildUDPServiceConfiguration(ctxContainer, container, confFromLabel.UDP)
 			if err != nil {
-				logger.Error().Err(err).Send()
+				logger.Error(err)
 				continue
 			}
 			provider.BuildUDPRouterConfiguration(ctxContainer, confFromLabel.UDP)
@@ -78,7 +67,7 @@ func (p *DynConfBuilder) build(ctx context.Context, containersInspected []docker
 
 		err = p.buildServiceConfiguration(ctxContainer, container, confFromLabel.HTTP)
 		if err != nil {
-			logger.Error().Err(err).Send()
+			logger.Error(err)
 			continue
 		}
 
@@ -102,14 +91,15 @@ func (p *DynConfBuilder) build(ctx context.Context, containersInspected []docker
 	return provider.Merge(ctx, configurations)
 }
 
-func (p *DynConfBuilder) buildTCPServiceConfiguration(ctx context.Context, container dockerData, configuration *dynamic.TCPConfiguration) error {
+func (p *Provider) buildTCPServiceConfiguration(ctx context.Context, container dockerData, configuration *dynamic.TCPConfiguration) error {
 	serviceName := getServiceName(container)
 
 	if len(configuration.Services) == 0 {
-		configuration.Services = map[string]*dynamic.TCPService{
-			serviceName: {
-				LoadBalancer: new(dynamic.TCPServersLoadBalancer),
-			},
+		configuration.Services = make(map[string]*dynamic.TCPService)
+		lb := &dynamic.TCPServersLoadBalancer{}
+		lb.SetDefaults()
+		configuration.Services[serviceName] = &dynamic.TCPService{
+			LoadBalancer: lb,
 		}
 	}
 
@@ -118,7 +108,7 @@ func (p *DynConfBuilder) buildTCPServiceConfiguration(ctx context.Context, conta
 	}
 
 	for name, service := range configuration.Services {
-		ctx := log.Ctx(ctx).With().Str(logs.ServiceName, name).Logger().WithContext(ctx)
+		ctx := log.With(ctx, log.Str(log.ServiceName, name))
 		if err := p.addServerTCP(ctx, container, service.LoadBalancer); err != nil {
 			return fmt.Errorf("service %q error: %w", name, err)
 		}
@@ -127,7 +117,7 @@ func (p *DynConfBuilder) buildTCPServiceConfiguration(ctx context.Context, conta
 	return nil
 }
 
-func (p *DynConfBuilder) buildUDPServiceConfiguration(ctx context.Context, container dockerData, configuration *dynamic.UDPConfiguration) error {
+func (p *Provider) buildUDPServiceConfiguration(ctx context.Context, container dockerData, configuration *dynamic.UDPConfiguration) error {
 	serviceName := getServiceName(container)
 
 	if len(configuration.Services) == 0 {
@@ -142,7 +132,7 @@ func (p *DynConfBuilder) buildUDPServiceConfiguration(ctx context.Context, conta
 	}
 
 	for name, service := range configuration.Services {
-		ctx := log.Ctx(ctx).With().Str(logs.ServiceName, name).Logger().WithContext(ctx)
+		ctx := log.With(ctx, log.Str(log.ServiceName, name))
 		if err := p.addServerUDP(ctx, container, service.LoadBalancer); err != nil {
 			return fmt.Errorf("service %q error: %w", name, err)
 		}
@@ -151,7 +141,7 @@ func (p *DynConfBuilder) buildUDPServiceConfiguration(ctx context.Context, conta
 	return nil
 }
 
-func (p *DynConfBuilder) buildServiceConfiguration(ctx context.Context, container dockerData, configuration *dynamic.HTTPConfiguration) error {
+func (p *Provider) buildServiceConfiguration(ctx context.Context, container dockerData, configuration *dynamic.HTTPConfiguration) error {
 	serviceName := getServiceName(container)
 
 	if len(configuration.Services) == 0 {
@@ -168,7 +158,7 @@ func (p *DynConfBuilder) buildServiceConfiguration(ctx context.Context, containe
 	}
 
 	for name, service := range configuration.Services {
-		ctx := log.Ctx(ctx).With().Str(logs.ServiceName, name).Logger().WithContext(ctx)
+		ctx := log.With(ctx, log.Str(log.ServiceName, name))
 		if err := p.addServer(ctx, container, service.LoadBalancer); err != nil {
 			return fmt.Errorf("service %q error: %w", name, err)
 		}
@@ -177,33 +167,33 @@ func (p *DynConfBuilder) buildServiceConfiguration(ctx context.Context, containe
 	return nil
 }
 
-func (p *DynConfBuilder) keepContainer(ctx context.Context, container dockerData) bool {
-	logger := log.Ctx(ctx)
+func (p *Provider) keepContainer(ctx context.Context, container dockerData) bool {
+	logger := log.FromContext(ctx)
 
 	if !container.ExtraConf.Enable {
-		logger.Debug().Msg("Filtering disabled container")
+		logger.Debug("Filtering disabled container")
 		return false
 	}
 
 	matches, err := constraints.MatchLabels(container.Labels, p.Constraints)
 	if err != nil {
-		logger.Error().Err(err).Msg("Error matching constraints expression")
+		logger.Errorf("Error matching constraints expression: %v", err)
 		return false
 	}
 	if !matches {
-		logger.Debug().Msgf("Container pruned by constraint expression: %q", p.Constraints)
+		logger.Debugf("Container pruned by constraint expression: %q", p.Constraints)
 		return false
 	}
 
 	if !p.AllowEmptyServices && container.Health != "" && container.Health != dockertypes.Healthy {
-		logger.Debug().Msg("Filtering unhealthy or starting container")
+		logger.Debug("Filtering unhealthy or starting container")
 		return false
 	}
 
 	return true
 }
 
-func (p *DynConfBuilder) addServerTCP(ctx context.Context, container dockerData, loadBalancer *dynamic.TCPServersLoadBalancer) error {
+func (p *Provider) addServerTCP(ctx context.Context, container dockerData, loadBalancer *dynamic.TCPServersLoadBalancer) error {
 	if loadBalancer == nil {
 		return errors.New("load-balancer is not defined")
 	}
@@ -229,7 +219,7 @@ func (p *DynConfBuilder) addServerTCP(ctx context.Context, container dockerData,
 	return nil
 }
 
-func (p *DynConfBuilder) addServerUDP(ctx context.Context, container dockerData, loadBalancer *dynamic.UDPServersLoadBalancer) error {
+func (p *Provider) addServerUDP(ctx context.Context, container dockerData, loadBalancer *dynamic.UDPServersLoadBalancer) error {
 	if loadBalancer == nil {
 		return errors.New("load-balancer is not defined")
 	}
@@ -255,7 +245,7 @@ func (p *DynConfBuilder) addServerUDP(ctx context.Context, container dockerData,
 	return nil
 }
 
-func (p *DynConfBuilder) addServer(ctx context.Context, container dockerData, loadBalancer *dynamic.ServersLoadBalancer) error {
+func (p *Provider) addServer(ctx context.Context, container dockerData, loadBalancer *dynamic.ServersLoadBalancer) error {
 	if loadBalancer == nil {
 		return errors.New("load-balancer is not defined")
 	}
@@ -285,8 +275,8 @@ func (p *DynConfBuilder) addServer(ctx context.Context, container dockerData, lo
 	return nil
 }
 
-func (p *DynConfBuilder) getIPPort(ctx context.Context, container dockerData, serverPort string) (string, string, error) {
-	logger := log.Ctx(ctx)
+func (p *Provider) getIPPort(ctx context.Context, container dockerData, serverPort string) (string, string, error) {
+	logger := log.FromContext(ctx)
 
 	var ip, port string
 	usedBound := false
@@ -295,9 +285,9 @@ func (p *DynConfBuilder) getIPPort(ctx context.Context, container dockerData, se
 		portBinding, err := p.getPortBinding(container, serverPort)
 		switch {
 		case err != nil:
-			logger.Info().Msgf("Unable to find a binding for container %q, falling back on its internal IP/Port.", container.Name)
+			logger.Infof("Unable to find a binding for container %q, falling back on its internal IP/Port.", container.Name)
 		case portBinding.HostIP == "0.0.0.0" || len(portBinding.HostIP) == 0:
-			logger.Info().Msgf("Cannot determine the IP address (got %q) for %q's binding, falling back on its internal IP/Port.", portBinding.HostIP, container.Name)
+			logger.Infof("Cannot determine the IP address (got %q) for %q's binding, falling back on its internal IP/Port.", portBinding.HostIP, container.Name)
 		default:
 			ip = portBinding.HostIP
 			port = portBinding.HostPort
@@ -317,8 +307,8 @@ func (p *DynConfBuilder) getIPPort(ctx context.Context, container dockerData, se
 	return ip, port, nil
 }
 
-func (p *DynConfBuilder) getIPAddress(ctx context.Context, container dockerData) string {
-	logger := log.Ctx(ctx)
+func (p Provider) getIPAddress(ctx context.Context, container dockerData) string {
+	logger := log.FromContext(ctx)
 
 	netNotFound := false
 	if container.ExtraConf.Docker.Network != "" {
@@ -330,7 +320,7 @@ func (p *DynConfBuilder) getIPAddress(ctx context.Context, container dockerData)
 			}
 
 			netNotFound = true
-			logger.Warn().Msgf("Could not find network named %q for container %q. Maybe you're missing the project's prefix in the label?", container.ExtraConf.Docker.Network, container.Name)
+			logger.Debugf("Could not find network named %q for container %q. Maybe you're missing the project's prefix in the label?", container.ExtraConf.Docker.Network, container.Name)
 		}
 	}
 
@@ -348,19 +338,25 @@ func (p *DynConfBuilder) getIPAddress(ctx context.Context, container dockerData)
 	}
 
 	if container.NetworkSettings.NetworkMode.IsContainer() {
-		connectedContainer := container.NetworkSettings.NetworkMode.ConnectedContainer()
-		containerInspected, err := p.apiClient.ContainerInspect(context.Background(), connectedContainer)
+		dockerClient, err := p.createClient()
 		if err != nil {
-			logger.Warn().Err(err).Msgf("Unable to get IP address for container %s: failed to inspect container ID %s", container.Name, connectedContainer)
+			logger.Warnf("Unable to get IP address: %s", err)
 			return ""
 		}
 
-		// Check connected container for traefik.docker.network,
-		// falling back to the network specified on the current container.
-		containerParsed := parseContainer(containerInspected)
-		extraConf, err := p.extractLabels(containerParsed)
+		connectedContainer := container.NetworkSettings.NetworkMode.ConnectedContainer()
+		containerInspected, err := dockerClient.ContainerInspect(context.Background(), connectedContainer)
 		if err != nil {
-			logger.Warn().Err(err).Msgf("Unable to get IP address for container %s : failed to get extra configuration for container %s", container.Name, containerInspected.Name)
+			logger.Warnf("Unable to get IP address for container %s : Failed to inspect container ID %s, error: %s", container.Name, connectedContainer, err)
+			return ""
+		}
+
+		// Check connected container for traefik.docker.network, falling back to
+		// the network specified on the current container.
+		containerParsed := parseContainer(containerInspected)
+		extraConf, err := p.getConfiguration(containerParsed)
+		if err != nil {
+			logger.Warnf("Unable to get IP address for container %s : failed to get extra configuration for container %s: %s", container.Name, containerInspected.Name, err)
 			return ""
 		}
 
@@ -374,18 +370,17 @@ func (p *DynConfBuilder) getIPAddress(ctx context.Context, container dockerData)
 
 	for _, network := range container.NetworkSettings.Networks {
 		if netNotFound {
-			logger.Warn().Msgf("Defaulting to first available network (%q) for container %q.", network, container.Name)
+			logger.Warnf("Defaulting to first available network (%q) for container %q.", network, container.Name)
 		}
 		return network.Addr
 	}
 
-	logger.Warn().Msg("Unable to find the IP address.")
+	logger.Warn("Unable to find the IP address.")
 	return ""
 }
 
-func (p *DynConfBuilder) getPortBinding(container dockerData, serverPort string) (*nat.PortBinding, error) {
+func (p *Provider) getPortBinding(container dockerData, serverPort string) (*nat.PortBinding, error) {
 	port := getPort(container, serverPort)
-
 	for netPort, portBindings := range container.NetworkSettings.Ports {
 		if strings.EqualFold(string(netPort), port+"/TCP") || strings.EqualFold(string(netPort), port+"/UDP") {
 			for _, p := range portBindings {
@@ -395,4 +390,37 @@ func (p *DynConfBuilder) getPortBinding(container dockerData, serverPort string)
 	}
 
 	return nil, fmt.Errorf("unable to find the external IP:Port for the container %q", container.Name)
+}
+
+func getPort(container dockerData, serverPort string) string {
+	if len(serverPort) > 0 {
+		return serverPort
+	}
+
+	var ports []nat.Port
+	for port := range container.NetworkSettings.Ports {
+		ports = append(ports, port)
+	}
+
+	less := func(i, j nat.Port) bool {
+		return i.Int() < j.Int()
+	}
+	nat.Sort(ports, less)
+
+	if len(ports) > 0 {
+		min := ports[0]
+		return min.Port()
+	}
+
+	return ""
+}
+
+func getServiceName(container dockerData) string {
+	serviceName := container.ServiceName
+
+	if values, err := getStringMultipleStrict(container.Labels, labelDockerComposeProject, labelDockerComposeService); err == nil {
+		serviceName = values[labelDockerComposeService] + "_" + values[labelDockerComposeProject]
+	}
+
+	return provider.Normalize(serviceName)
 }

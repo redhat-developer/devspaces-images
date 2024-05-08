@@ -10,15 +10,13 @@ import (
 	"unicode"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/logs"
-	"github.com/traefik/traefik/v3/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
-// Merge merges multiple configurations.
+// Merge Merges multiple configurations.
 func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration) *dynamic.Configuration {
-	logger := log.Ctx(ctx)
+	logger := log.FromContext(ctx)
 
 	configuration := &dynamic.Configuration{
 		HTTP: &dynamic.HTTPConfiguration{
@@ -28,17 +26,13 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 			ServersTransports: make(map[string]*dynamic.ServersTransport),
 		},
 		TCP: &dynamic.TCPConfiguration{
-			Routers:           make(map[string]*dynamic.TCPRouter),
-			Services:          make(map[string]*dynamic.TCPService),
-			Middlewares:       make(map[string]*dynamic.TCPMiddleware),
-			ServersTransports: make(map[string]*dynamic.TCPServersTransport),
+			Routers:     make(map[string]*dynamic.TCPRouter),
+			Services:    make(map[string]*dynamic.TCPService),
+			Middlewares: make(map[string]*dynamic.TCPMiddleware),
 		},
 		UDP: &dynamic.UDPConfiguration{
 			Routers:  make(map[string]*dynamic.UDPRouter),
 			Services: make(map[string]*dynamic.UDPService),
-		},
-		TLS: &dynamic.TLSConfiguration{
-			Stores: make(map[string]tls.Store),
 		},
 	}
 
@@ -68,12 +62,6 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 
 	transportsToDelete := map[string]struct{}{}
 	transports := map[string][]string{}
-
-	transportsTCPToDelete := map[string]struct{}{}
-	transportsTCP := map[string][]string{}
-
-	storesToDelete := map[string]struct{}{}
-	stores := map[string][]string{}
 
 	var sortedKeys []string
 	for key := range configurations {
@@ -118,13 +106,6 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 			}
 		}
 
-		for transportName, transport := range conf.TCP.ServersTransports {
-			transportsTCP[transportName] = append(transportsTCP[transportName], root)
-			if !AddTransportTCP(configuration.TCP, transportName, transport) {
-				transportsTCPToDelete[transportName] = struct{}{}
-			}
-		}
-
 		for serviceName, service := range conf.UDP.Services {
 			servicesUDP[serviceName] = append(servicesUDP[serviceName], root)
 			if !AddServiceUDP(configuration.UDP, serviceName, service) {
@@ -152,95 +133,66 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 				middlewaresTCPToDelete[middlewareName] = struct{}{}
 			}
 		}
-
-		for storeName, store := range conf.TLS.Stores {
-			stores[storeName] = append(stores[storeName], root)
-			if !AddStore(configuration.TLS, storeName, store) {
-				storesToDelete[storeName] = struct{}{}
-			}
-		}
 	}
 
 	for serviceName := range servicesToDelete {
-		logger.Error().Str(logs.ServiceName, serviceName).
-			Interface("configuration", services[serviceName]).
-			Msg("Service defined multiple times with different configurations")
+		logger.WithField(log.ServiceName, serviceName).
+			Errorf("Service defined multiple times with different configurations in %v", services[serviceName])
 		delete(configuration.HTTP.Services, serviceName)
 	}
 
 	for routerName := range routersToDelete {
-		logger.Error().Str(logs.RouterName, routerName).
-			Interface("configuration", routers[routerName]).
-			Msg("Router defined multiple times with different configurations")
+		logger.WithField(log.RouterName, routerName).
+			Errorf("Router defined multiple times with different configurations in %v", routers[routerName])
 		delete(configuration.HTTP.Routers, routerName)
 	}
 
 	for transportName := range transportsToDelete {
-		logger.Error().Str(logs.ServersTransportName, transportName).
-			Interface("configuration", transports[transportName]).
-			Msg("ServersTransport defined multiple times with different configurations")
+		logger.WithField(log.ServersTransportName, transportName).
+			Errorf("ServersTransport defined multiple times with different configurations in %v", transports[transportName])
 		delete(configuration.HTTP.ServersTransports, transportName)
 	}
 
 	for serviceName := range servicesTCPToDelete {
-		logger.Error().Str(logs.ServiceName, serviceName).
-			Interface("configuration", servicesTCP[serviceName]).
-			Msg("Service TCP defined multiple times with different configurations")
+		logger.WithField(log.ServiceName, serviceName).
+			Errorf("Service TCP defined multiple times with different configurations in %v", servicesTCP[serviceName])
 		delete(configuration.TCP.Services, serviceName)
 	}
 
 	for routerName := range routersTCPToDelete {
-		logger.Error().Str(logs.RouterName, routerName).
-			Interface("configuration", routersTCP[routerName]).
-			Msg("Router TCP defined multiple times with different configurations")
+		logger.WithField(log.RouterName, routerName).
+			Errorf("Router TCP defined multiple times with different configurations in %v", routersTCP[routerName])
 		delete(configuration.TCP.Routers, routerName)
 	}
 
-	for transportName := range transportsTCPToDelete {
-		logger.Error().Str(logs.ServersTransportName, transportName).
-			Interface("configuration", transportsTCP[transportName]).
-			Msg("ServersTransport TCP defined multiple times with different configurations")
-		delete(configuration.TCP.ServersTransports, transportName)
-	}
-
 	for serviceName := range servicesUDPToDelete {
-		logger.Error().Str(logs.ServiceName, serviceName).
-			Interface("configuration", servicesUDP[serviceName]).
-			Msg("UDP service defined multiple times with different configurations")
+		logger.WithField(log.ServiceName, serviceName).
+			Errorf("UDP service defined multiple times with different configurations in %v", servicesUDP[serviceName])
 		delete(configuration.UDP.Services, serviceName)
 	}
 
 	for routerName := range routersUDPToDelete {
-		logger.Error().Str(logs.RouterName, routerName).
-			Interface("configuration", routersUDP[routerName]).
-			Msg("UDP router defined multiple times with different configurations")
+		logger.WithField(log.RouterName, routerName).
+			Errorf("UDP router defined multiple times with different configurations in %v", routersUDP[routerName])
 		delete(configuration.UDP.Routers, routerName)
 	}
 
 	for middlewareName := range middlewaresToDelete {
-		logger.Error().Str(logs.MiddlewareName, middlewareName).
-			Interface("configuration", middlewares[middlewareName]).
-			Msg("Middleware defined multiple times with different configurations")
+		logger.WithField(log.MiddlewareName, middlewareName).
+			Errorf("Middleware defined multiple times with different configurations in %v", middlewares[middlewareName])
 		delete(configuration.HTTP.Middlewares, middlewareName)
 	}
 
 	for middlewareName := range middlewaresTCPToDelete {
-		logger.Error().Str(logs.MiddlewareName, middlewareName).
-			Interface("configuration", middlewaresTCP[middlewareName]).
-			Msg("TCP Middleware defined multiple times with different configurations")
+		logger.WithField(log.MiddlewareName, middlewareName).
+			Errorf("TCP Middleware defined multiple times with different configurations in %v", middlewaresTCP[middlewareName])
 		delete(configuration.TCP.Middlewares, middlewareName)
-	}
-
-	for storeName := range storesToDelete {
-		logger.Error().Str("storeName", storeName).
-			Msgf("TLS store defined multiple times with different configurations in %v", stores[storeName])
-		delete(configuration.TLS.Stores, storeName)
 	}
 
 	return configuration
 }
 
-// AddServiceTCP adds a service to a configuration.
+// AddServiceTCP Adds a service to a configurations.
 func AddServiceTCP(configuration *dynamic.TCPConfiguration, serviceName string, service *dynamic.TCPService) bool {
 	if _, ok := configuration.Services[serviceName]; !ok {
 		configuration.Services[serviceName] = service
@@ -265,7 +217,7 @@ func AddServiceTCP(configuration *dynamic.TCPConfiguration, serviceName string, 
 	return true
 }
 
-// AddRouterTCP adds a router to a configuration.
+// AddRouterTCP Adds a router to a configurations.
 func AddRouterTCP(configuration *dynamic.TCPConfiguration, routerName string, router *dynamic.TCPRouter) bool {
 	if _, ok := configuration.Routers[routerName]; !ok {
 		configuration.Routers[routerName] = router
@@ -275,7 +227,7 @@ func AddRouterTCP(configuration *dynamic.TCPConfiguration, routerName string, ro
 	return reflect.DeepEqual(configuration.Routers[routerName], router)
 }
 
-// AddMiddlewareTCP adds a middleware to a configuration.
+// AddMiddlewareTCP Adds a middleware to a configurations.
 func AddMiddlewareTCP(configuration *dynamic.TCPConfiguration, middlewareName string, middleware *dynamic.TCPMiddleware) bool {
 	if _, ok := configuration.Middlewares[middlewareName]; !ok {
 		configuration.Middlewares[middlewareName] = middleware
@@ -283,16 +235,6 @@ func AddMiddlewareTCP(configuration *dynamic.TCPConfiguration, middlewareName st
 	}
 
 	return reflect.DeepEqual(configuration.Middlewares[middlewareName], middleware)
-}
-
-// AddTransportTCP adds a servers transport to a configuration.
-func AddTransportTCP(configuration *dynamic.TCPConfiguration, transportName string, transport *dynamic.TCPServersTransport) bool {
-	if _, ok := configuration.ServersTransports[transportName]; !ok {
-		configuration.ServersTransports[transportName] = transport
-		return true
-	}
-
-	return reflect.DeepEqual(configuration.ServersTransports[transportName], transport)
 }
 
 // AddServiceUDP adds a service to a configuration.
@@ -330,7 +272,7 @@ func AddRouterUDP(configuration *dynamic.UDPConfiguration, routerName string, ro
 	return reflect.DeepEqual(configuration.Routers[routerName], router)
 }
 
-// AddService adds a service to a configuration.
+// AddService Adds a service to a configurations.
 func AddService(configuration *dynamic.HTTPConfiguration, serviceName string, service *dynamic.Service) bool {
 	if _, ok := configuration.Services[serviceName]; !ok {
 		configuration.Services[serviceName] = service
@@ -355,7 +297,7 @@ func AddService(configuration *dynamic.HTTPConfiguration, serviceName string, se
 	return true
 }
 
-// AddRouter adds a router to a configuration.
+// AddRouter Adds a router to a configurations.
 func AddRouter(configuration *dynamic.HTTPConfiguration, routerName string, router *dynamic.Router) bool {
 	if _, ok := configuration.Routers[routerName]; !ok {
 		configuration.Routers[routerName] = router
@@ -365,7 +307,7 @@ func AddRouter(configuration *dynamic.HTTPConfiguration, routerName string, rout
 	return reflect.DeepEqual(configuration.Routers[routerName], router)
 }
 
-// AddTransport adds a servers transport to a configuration.
+// AddTransport Adds a transport to a configurations.
 func AddTransport(configuration *dynamic.HTTPConfiguration, transportName string, transport *dynamic.ServersTransport) bool {
 	if _, ok := configuration.ServersTransports[transportName]; !ok {
 		configuration.ServersTransports[transportName] = transport
@@ -375,7 +317,7 @@ func AddTransport(configuration *dynamic.HTTPConfiguration, transportName string
 	return reflect.DeepEqual(configuration.ServersTransports[transportName], transport)
 }
 
-// AddMiddleware adds a middleware to a configuration.
+// AddMiddleware Adds a middleware to a configurations.
 func AddMiddleware(configuration *dynamic.HTTPConfiguration, middlewareName string, middleware *dynamic.Middleware) bool {
 	if _, ok := configuration.Middlewares[middlewareName]; !ok {
 		configuration.Middlewares[middlewareName] = middleware
@@ -385,17 +327,7 @@ func AddMiddleware(configuration *dynamic.HTTPConfiguration, middlewareName stri
 	return reflect.DeepEqual(configuration.Middlewares[middlewareName], middleware)
 }
 
-// AddStore adds a middleware to a configurations.
-func AddStore(configuration *dynamic.TLSConfiguration, storeName string, store tls.Store) bool {
-	if _, ok := configuration.Stores[storeName]; !ok {
-		configuration.Stores[storeName] = store
-		return true
-	}
-
-	return reflect.DeepEqual(configuration.Stores[storeName], store)
-}
-
-// MakeDefaultRuleTemplate creates the default rule template.
+// MakeDefaultRuleTemplate Creates the default rule template.
 func MakeDefaultRuleTemplate(defaultRule string, funcMap template.FuncMap) (*template.Template, error) {
 	defaultFuncMap := sprig.TxtFuncMap()
 	defaultFuncMap["normalize"] = Normalize
@@ -407,22 +339,21 @@ func MakeDefaultRuleTemplate(defaultRule string, funcMap template.FuncMap) (*tem
 	return template.New("defaultRule").Funcs(defaultFuncMap).Parse(defaultRule)
 }
 
-// BuildTCPRouterConfiguration builds a router configuration.
+// BuildTCPRouterConfiguration Builds a router configuration.
 func BuildTCPRouterConfiguration(ctx context.Context, configuration *dynamic.TCPConfiguration) {
 	for routerName, router := range configuration.Routers {
-		loggerRouter := log.Ctx(ctx).With().Str(logs.RouterName, routerName).Logger()
-
+		loggerRouter := log.FromContext(ctx).WithField(log.RouterName, routerName)
 		if len(router.Rule) == 0 {
 			delete(configuration.Routers, routerName)
-			loggerRouter.Error().Msg("Empty rule")
+			loggerRouter.Errorf("Empty rule")
 			continue
 		}
 
-		if router.Service == "" {
+		if len(router.Service) == 0 {
 			if len(configuration.Services) > 1 {
 				delete(configuration.Routers, routerName)
-				loggerRouter.Error().
-					Msg("Could not define the service name for the router: too many services")
+				loggerRouter.
+					Error("Could not define the service name for the router: too many services")
 				continue
 			}
 
@@ -433,19 +364,18 @@ func BuildTCPRouterConfiguration(ctx context.Context, configuration *dynamic.TCP
 	}
 }
 
-// BuildUDPRouterConfiguration builds a router configuration.
+// BuildUDPRouterConfiguration Builds a router configuration.
 func BuildUDPRouterConfiguration(ctx context.Context, configuration *dynamic.UDPConfiguration) {
 	for routerName, router := range configuration.Routers {
-		loggerRouter := log.Ctx(ctx).With().Str(logs.RouterName, routerName).Logger()
-
-		if router.Service != "" {
+		loggerRouter := log.FromContext(ctx).WithField(log.RouterName, routerName)
+		if len(router.Service) > 0 {
 			continue
 		}
 
 		if len(configuration.Services) > 1 {
 			delete(configuration.Routers, routerName)
 			loggerRouter.
-				Error().Msg("Could not define the service name for the router: too many services")
+				Error("Could not define the service name for the router: too many services")
 			continue
 		}
 
@@ -456,11 +386,11 @@ func BuildUDPRouterConfiguration(ctx context.Context, configuration *dynamic.UDP
 	}
 }
 
-// BuildRouterConfiguration builds a router configuration.
+// BuildRouterConfiguration Builds a router configuration.
 func BuildRouterConfiguration(ctx context.Context, configuration *dynamic.HTTPConfiguration, defaultRouterName string, defaultRuleTpl *template.Template, model interface{}) {
 	if len(configuration.Routers) == 0 {
 		if len(configuration.Services) > 1 {
-			log.Ctx(ctx).Info().Msg("Could not create a router for the container: too many services")
+			log.FromContext(ctx).Info("Could not create a router for the container: too many services")
 		} else {
 			configuration.Routers = make(map[string]*dynamic.Router)
 			configuration.Routers[defaultRouterName] = &dynamic.Router{}
@@ -468,32 +398,28 @@ func BuildRouterConfiguration(ctx context.Context, configuration *dynamic.HTTPCo
 	}
 
 	for routerName, router := range configuration.Routers {
-		loggerRouter := log.Ctx(ctx).With().Str(logs.RouterName, routerName).Logger()
-
+		loggerRouter := log.FromContext(ctx).WithField(log.RouterName, routerName)
 		if len(router.Rule) == 0 {
 			writer := &bytes.Buffer{}
 			if err := defaultRuleTpl.Execute(writer, model); err != nil {
-				loggerRouter.Error().Err(err).Msg("Error while parsing default rule")
+				loggerRouter.Errorf("Error while parsing default rule: %v", err)
 				delete(configuration.Routers, routerName)
 				continue
 			}
 
 			router.Rule = writer.String()
 			if len(router.Rule) == 0 {
-				loggerRouter.Error().Msg("Undefined rule")
+				loggerRouter.Error("Undefined rule")
 				delete(configuration.Routers, routerName)
 				continue
 			}
-
-			// Flag default rule routers to add the denyRouterRecursion middleware.
-			router.DefaultRule = true
 		}
 
-		if router.Service == "" {
+		if len(router.Service) == 0 {
 			if len(configuration.Services) > 1 {
 				delete(configuration.Routers, routerName)
-				loggerRouter.Error().
-					Msg("Could not define the service name for the router: too many services")
+				loggerRouter.
+					Error("Could not define the service name for the router: too many services")
 				continue
 			}
 
@@ -504,7 +430,7 @@ func BuildRouterConfiguration(ctx context.Context, configuration *dynamic.HTTPCo
 	}
 }
 
-// Normalize replaces all special chars with `-`.
+// Normalize Replace all special chars with `-`.
 func Normalize(name string) string {
 	fargs := func(c rune) bool {
 		return !unicode.IsLetter(c) && !unicode.IsNumber(c)

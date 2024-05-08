@@ -163,7 +163,6 @@ providers:
 _Optional, Default=""_
 
 Token is used to provide a per-request ACL token, if Nomad ACLs are enabled.
-The appropriate ACL privilege for this token is 'read-job', as outlined in the [Nomad documentation on ACL](https://developer.hashicorp.com/nomad/tutorials/access-control/access-control-policies).
 
 ```yaml tab="File (YAML)"
 providers:
@@ -378,13 +377,6 @@ providers:
 # ...
 ```
 
-??? info "Default rule and Traefik service"
-
-    The exposure of the Traefik container, combined with the default rule mechanism,
-    can lead to create a router targeting itself in a loop.
-    In this case, to prevent an infinite loop,
-    Traefik adds an internal middleware to refuse the request if it comes from the same router.
-
 ### `constraints`
 
 _Optional, Default=""_
@@ -448,7 +440,7 @@ providers:
 
 For additional information, refer to [Restrict the Scope of Service Discovery](./overview.md#restrict-the-scope-of-service-discovery).
 
-### `namespaces`
+### `namespace`
 
 ??? warning "Deprecated in favor of the [`namespaces`](#namespaces) option."
 
@@ -511,28 +503,4 @@ providers:
 ```bash tab="CLI"
 --providers.nomad.namespaces=ns1,ns2
 # ...
-```
-
-### `allowEmptyServices`
-
-_Optional, Default: false_
-
-If the parameter is set to `true`,
-it allows the creation of an empty [servers load balancer](../routing/services/index.md#servers-load-balancer) if the targeted Nomad service has no endpoints available. This results in a `503` HTTP response instead of a `404`.
-
-```yaml tab="File (YAML)"
-providers:
-  nomad:
-    allowEmptyServices: true
-    # ...
-```
-
-```toml tab="File (TOML)"
-[providers.nomad]
-  allowEmptyServices = true
-  # ...
-```
-
-```bash tab="CLI"
---providers.nomad.allowEmptyServices=true
 ```

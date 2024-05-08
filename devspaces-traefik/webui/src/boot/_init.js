@@ -1,14 +1,10 @@
 import { APP } from '../_helpers/APP'
 import errors from '../_helpers/Errors'
-import resize from '../_directives/resize'
 
-export default async ({ app, router }) => {
-  // Directives
-  app.directive('resize', resize)
-
+export default async ({ Vue }) => {
   // Router
   // ----------------------------------------------
-  router.beforeEach(async (to, from, next) => {
+  APP.router.beforeEach(async (to, from, next) => {
     // Set APP
     APP.routeTo = to
     APP.routeFrom = from

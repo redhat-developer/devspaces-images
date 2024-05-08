@@ -9,126 +9,164 @@ import (
 	"os"
 	"strings"
 	"syscall"
-	"testing"
 	"time"
 
-	"github.com/rs/zerolog/log"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	"github.com/traefik/traefik/v3/integration/try"
+	"github.com/go-check/check"
+	"github.com/traefik/traefik/v2/integration/try"
+	"github.com/traefik/traefik/v2/pkg/log"
+	checker "github.com/vdemeester/shakers"
 )
 
-const traefikTestAccessLogFileRotated = traefikTestAccessLogFile + ".rotated"
+const (
+	traefikTestLogFileRotated       = traefikTestLogFile + ".rotated"
+	traefikTestAccessLogFileRotated = traefikTestAccessLogFile + ".rotated"
+)
 
 // Log rotation integration test suite.
 type LogRotationSuite struct{ BaseSuite }
 
-func TestLogRorationSuite(t *testing.T) {
-	suite.Run(t, new(LogRotationSuite))
+func (s *LogRotationSuite) SetUpSuite(c *check.C) {
+	s.createComposeProject(c, "access_log")
+	s.composeUp(c)
 }
 
-func (s *LogRotationSuite) SetupSuite() {
-	s.BaseSuite.SetupSuite()
-
-	os.Remove(traefikTestAccessLogFile)
-	os.Remove(traefikTestLogFile)
-	os.Remove(traefikTestAccessLogFileRotated)
-
-	s.createComposeProject("access_log")
-	s.composeUp()
-}
-
-func (s *LogRotationSuite) TearDownSuite() {
-	s.BaseSuite.TearDownSuite()
+func (s *LogRotationSuite) TearDownSuite(c *check.C) {
+	s.composeDown(c)
 
 	generatedFiles := []string{
 		traefikTestLogFile,
+		traefikTestLogFileRotated,
 		traefikTestAccessLogFile,
 		traefikTestAccessLogFileRotated,
 	}
 
 	for _, filename := range generatedFiles {
 		if err := os.Remove(filename); err != nil {
-			log.Warn().Err(err).Send()
+			log.WithoutContext().Warning(err)
 		}
 	}
 }
 
-func (s *LogRotationSuite) TestAccessLogRotation() {
+func (s *LogRotationSuite) TestAccessLogRotation(c *check.C) {
 	// Start Traefik
-	cmd, _ := s.cmdTraefik(withConfigFile("fixtures/access_log/access_log_base.toml"))
-	defer s.displayTraefikLogFile(traefikTestLogFile)
+	cmd, display := s.traefikCmd(withConfigFile("fixtures/access_log_config.toml"))
+	defer display(c)
+	defer displayTraefikLogFile(c, traefikTestLogFile)
+
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	// Verify Traefik started ok
-	s.verifyEmptyErrorLog("traefik.log")
+	verifyEmptyErrorLog(c, "traefik.log")
 
-	s.waitForTraefik("server1")
+	waitForTraefik(c, "server1")
 
 	// Make some requests
 	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/", nil)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	req.Host = "frontend1.docker.local"
 
 	err = try.Request(req, 500*time.Millisecond, try.StatusCodeIs(http.StatusOK), try.HasBody())
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Rename access log
 	err = os.Rename(traefikTestAccessLogFile, traefikTestAccessLogFileRotated)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// in the midst of the requests, issue SIGUSR1 signal to server process
 	err = cmd.Process.Signal(syscall.SIGUSR1)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// continue issuing requests
 	err = try.Request(req, 500*time.Millisecond, try.StatusCodeIs(http.StatusOK), try.HasBody())
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	err = try.Request(req, 500*time.Millisecond, try.StatusCodeIs(http.StatusOK), try.HasBody())
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	// Verify access.log.rotated output as expected
-	s.logAccessLogFile(traefikTestAccessLogFileRotated)
-	lineCount := s.verifyLogLines(traefikTestAccessLogFileRotated, 0, true)
-	assert.GreaterOrEqual(s.T(), lineCount, 1)
+	logAccessLogFile(c, traefikTestAccessLogFileRotated)
+	lineCount := verifyLogLines(c, traefikTestAccessLogFileRotated, 0, true)
+	c.Assert(lineCount, checker.GreaterOrEqualThan, 1)
 
 	// make sure that the access log file is at least created before we do assertions on it
 	err = try.Do(1*time.Second, func() error {
 		_, err := os.Stat(traefikTestAccessLogFile)
 		return err
 	})
-	assert.NoError(s.T(), err, "access log file was not created in time")
+	c.Assert(err, checker.IsNil, check.Commentf("access log file was not created in time"))
 
 	// Verify access.log output as expected
-	s.logAccessLogFile(traefikTestAccessLogFile)
-	lineCount = s.verifyLogLines(traefikTestAccessLogFile, lineCount, true)
-	assert.Equal(s.T(), 3, lineCount)
+	logAccessLogFile(c, traefikTestAccessLogFile)
+	lineCount = verifyLogLines(c, traefikTestAccessLogFile, lineCount, true)
+	c.Assert(lineCount, checker.Equals, 3)
 
-	s.verifyEmptyErrorLog(traefikTestLogFile)
+	verifyEmptyErrorLog(c, traefikTestLogFile)
 }
 
-func (s *LogRotationSuite) logAccessLogFile(fileName string) {
+func (s *LogRotationSuite) TestTraefikLogRotation(c *check.C) {
+	// Start Traefik
+	cmd, display := s.traefikCmd(withConfigFile("fixtures/traefik_log_config.toml"))
+	defer display(c)
+	defer displayTraefikLogFile(c, traefikTestLogFile)
+
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
+
+	waitForTraefik(c, "server1")
+
+	// Rename traefik log
+	err = os.Rename(traefikTestLogFile, traefikTestLogFileRotated)
+	c.Assert(err, checker.IsNil)
+
+	// issue SIGUSR1 signal to server process
+	err = cmd.Process.Signal(syscall.SIGUSR1)
+	c.Assert(err, checker.IsNil)
+
+	err = cmd.Process.Signal(syscall.SIGTERM)
+	c.Assert(err, checker.IsNil)
+
+	// Allow time for switch to be processed
+	err = try.Do(3*time.Second, func() error {
+		_, err = os.Stat(traefikTestLogFile)
+		return err
+	})
+	c.Assert(err, checker.IsNil)
+
+	// we have at least 6 lines in traefik.log.rotated
+	lineCount := verifyLogLines(c, traefikTestLogFileRotated, 0, false)
+
+	// GreaterOrEqualThan used to ensure test doesn't break
+	// If more log entries are output on startup
+	c.Assert(lineCount, checker.GreaterOrEqualThan, 5)
+
+	// Verify traefik.log output as expected
+	lineCount = verifyLogLines(c, traefikTestLogFile, lineCount, false)
+	c.Assert(lineCount, checker.GreaterOrEqualThan, 7)
+}
+
+func logAccessLogFile(c *check.C, fileName string) {
 	output, err := os.ReadFile(fileName)
-	require.NoError(s.T(), err)
-	log.Info().Msgf("Contents of file %s\n%s", fileName, string(output))
+	c.Assert(err, checker.IsNil)
+	c.Logf("Contents of file %s\n%s", fileName, string(output))
 }
 
-func (s *LogRotationSuite) verifyEmptyErrorLog(name string) {
+func verifyEmptyErrorLog(c *check.C, name string) {
 	err := try.Do(5*time.Second, func() error {
 		traefikLog, e2 := os.ReadFile(name)
 		if e2 != nil {
 			return e2
 		}
-		assert.Empty(s.T(), string(traefikLog))
-
+		c.Assert(string(traefikLog), checker.HasLen, 0)
 		return nil
 	})
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *LogRotationSuite) verifyLogLines(fileName string, countInit int, accessLog bool) int {
+func verifyLogLines(c *check.C, fileName string, countInit int, accessLog bool) int {
 	rotated, err := os.Open(fileName)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	rotatedLog := bufio.NewScanner(rotated)
 	count := countInit
 	for rotatedLog.Scan() {
@@ -136,7 +174,7 @@ func (s *LogRotationSuite) verifyLogLines(fileName string, countInit int, access
 		if accessLog {
 			if len(line) > 0 {
 				if !strings.Contains(line, "/api/rawdata") {
-					s.CheckAccessLogFormat(line, count)
+					CheckAccessLogFormat(c, line, count)
 					count++
 				}
 			}

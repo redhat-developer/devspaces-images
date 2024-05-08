@@ -10,25 +10,15 @@
       rounded
       unelevated
       :options="[
-        {label: 'All Status', value: ''},
-        {label: 'Success', value: 'enabled'},
-        {label: 'Warnings', value: 'warning'},
-        {label: 'Errors', value: 'disabled'}
-      ]"
+          {label: 'All Status', value: ''},
+          {label: 'Success', value: 'enabled'},
+          {label: 'Warnings', value: 'warning'},
+          {label: 'Errors', value: 'disabled'}
+        ]"
     />
     <q-space />
-    <q-input
-      v-model="getFilter"
-      rounded
-      dense
-      outlined
-      type="search"
-      debounce="500"
-      placeholder="Search"
-      :bg-color="$q.dark.isActive ? undefined : 'white'"
-      class="bar-search"
-    >
-      <template #append>
+    <q-input v-model="getFilter" rounded dense outlined type="search" debounce="500" placeholder="Search" :bg-color="$q.dark.isActive ? undefined : 'white'" class="bar-search">
+      <template v-slot:append>
         <q-icon name="eva-search-outline" />
       </template>
     </q-input>
@@ -36,14 +26,20 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
 import Helps from '../../_helpers/Helps'
 
-export default defineComponent({
+export default {
   name: 'ToolBarTable',
-  props: {
-    status: String,
-    filter: String
+  props: ['status', 'filter'],
+  components: {
+
+  },
+  data () {
+    return {
+    }
+  },
+  mounted () {
+    this.routeToState(this.$route)
   },
   computed: {
     getStatus: {
@@ -70,9 +66,6 @@ export default defineComponent({
       this.routeToState(to)
     }
   },
-  mounted () {
-    this.routeToState(this.$route)
-  },
   methods: {
     routeToState (route) {
       for (const query in route.query) {
@@ -88,8 +81,11 @@ export default defineComponent({
         })
       })
     }
+  },
+  created () {
+
   }
-})
+}
 </script>
 
 <style scoped lang="scss">
@@ -97,7 +93,7 @@ export default defineComponent({
 
   .q-toolbar {
     padding: 0;
-    :deep(.bar-toggle) {
+    /deep/ .bar-toggle {
       .q-btn {
         font-weight: 600;
         margin-right: 12px;
@@ -107,13 +103,9 @@ export default defineComponent({
         &.bg-app-toggle {
           color: $accent !important;
         }
-
-        .body--dark &.bg-app-toggle {
-          color: lighten($accent, 25%) !important;
-        }
       }
     }
-    :deep(.bar-search) {
+    /deep/ .bar-search {
       .q-field__inner {
         .q-field__control {
           border-radius: 12px;

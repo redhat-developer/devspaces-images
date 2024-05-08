@@ -4,9 +4,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/logs"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 // Status of the router/service.
@@ -14,12 +13,6 @@ const (
 	StatusEnabled  = "enabled"
 	StatusDisabled = "disabled"
 	StatusWarning  = "warning"
-)
-
-// Status of the servers.
-const (
-	StatusUp   = "UP"
-	StatusDown = "DOWN"
 )
 
 // Configuration holds the information about the currently running traefik instance.
@@ -117,6 +110,8 @@ func (c *Configuration) PopulateUsedBy() {
 		return
 	}
 
+	logger := log.WithoutContext()
+
 	for routerName, routerInfo := range c.Routers {
 		// lazily initialize Status in case caller forgot to do it
 		if routerInfo.Status == "" {
@@ -125,7 +120,7 @@ func (c *Configuration) PopulateUsedBy() {
 
 		providerName := getProviderName(routerName)
 		if providerName == "" {
-			log.Error().Str(logs.RouterName, routerName).Msg("Router name is not fully qualified")
+			logger.WithField(log.RouterName, routerName).Error("router name is not fully qualified")
 			continue
 		}
 
@@ -170,7 +165,7 @@ func (c *Configuration) PopulateUsedBy() {
 
 		providerName := getProviderName(routerName)
 		if providerName == "" {
-			log.Error().Str(logs.RouterName, routerName).Msg("TCP router name is not fully qualified")
+			logger.WithField(log.RouterName, routerName).Error("tcp router name is not fully qualified")
 			continue
 		}
 
@@ -207,7 +202,7 @@ func (c *Configuration) PopulateUsedBy() {
 
 		providerName := getProviderName(routerName)
 		if providerName == "" {
-			log.Error().Str(logs.RouterName, routerName).Msg("UDP router name is not fully qualified")
+			logger.WithField(log.RouterName, routerName).Error("udp router name is not fully qualified")
 			continue
 		}
 
@@ -226,6 +221,15 @@ func (c *Configuration) PopulateUsedBy() {
 
 		sort.Strings(c.UDPServices[k].UsedBy)
 	}
+}
+
+func contains(entryPoints []string, entryPointName string) bool {
+	for _, name := range entryPoints {
+		if name == entryPointName {
+			return true
+		}
+	}
+	return false
 }
 
 func getProviderName(elementName string) string {

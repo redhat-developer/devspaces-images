@@ -75,8 +75,6 @@ const (
 	TLSVersion = "TLSVersion"
 	// TLSCipher is the cipher used in the request.
 	TLSCipher = "TLSCipher"
-	// TLSClientSubject is the string representation of the TLS client certificate's Subject.
-	TLSClientSubject = "TLSClientSubject"
 )
 
 // These are written out in the default case when no config is provided to specify keys of interest.
@@ -120,7 +118,6 @@ func init() {
 	allCoreKeys[RetryAttempts] = struct{}{}
 	allCoreKeys[TLSVersion] = struct{}{}
 	allCoreKeys[TLSCipher] = struct{}{}
-	allCoreKeys[TLSClientSubject] = struct{}{}
 }
 
 // CoreLogData holds the fields computed from the request/response.

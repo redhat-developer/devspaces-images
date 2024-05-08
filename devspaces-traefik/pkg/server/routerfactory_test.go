@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/config/static"
-	"github.com/traefik/traefik/v3/pkg/server/middleware"
-	"github.com/traefik/traefik/v3/pkg/server/service"
-	"github.com/traefik/traefik/v3/pkg/tcp"
-	th "github.com/traefik/traefik/v3/pkg/testhelpers"
-	"github.com/traefik/traefik/v3/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/metrics"
+	"github.com/traefik/traefik/v2/pkg/server/middleware"
+	"github.com/traefik/traefik/v2/pkg/server/service"
+	th "github.com/traefik/traefik/v2/pkg/testhelpers"
+	"github.com/traefik/traefik/v2/pkg/tls"
 )
 
 func TestReuseService(t *testing.T) {
@@ -48,14 +48,12 @@ func TestReuseService(t *testing.T) {
 		),
 	)
 
-	roundTripperManager := service.NewRoundTripperManager(nil)
+	roundTripperManager := service.NewRoundTripperManager()
 	roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
-	managerFactory := service.NewManagerFactory(staticConfig, nil, nil, roundTripperManager, nil)
+	managerFactory := service.NewManagerFactory(staticConfig, nil, metrics.NewVoidRegistry(), roundTripperManager, nil)
 	tlsManager := tls.NewManager()
 
-	dialerManager := tcp.NewDialerManager(nil)
-	dialerManager.Update(map[string]*dynamic.TCPServersTransport{"default@internal": {}})
-	factory := NewRouterFactory(staticConfig, managerFactory, tlsManager, nil, nil, dialerManager)
+	factory := NewRouterFactory(staticConfig, managerFactory, tlsManager, middleware.NewChainBuilder(nil, nil, nil), nil, metrics.NewVoidRegistry())
 
 	entryPointsHandlers, _ := factory.CreateRouters(runtime.NewConfig(dynamic.Configuration{HTTP: dynamicConfigs}))
 
@@ -170,6 +168,8 @@ func TestServerResponseEmptyBackend(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
+
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -184,15 +184,12 @@ func TestServerResponseEmptyBackend(t *testing.T) {
 				},
 			}
 
-			roundTripperManager := service.NewRoundTripperManager(nil)
+			roundTripperManager := service.NewRoundTripperManager()
 			roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
-			managerFactory := service.NewManagerFactory(staticConfig, nil, nil, roundTripperManager, nil)
+			managerFactory := service.NewManagerFactory(staticConfig, nil, metrics.NewVoidRegistry(), roundTripperManager, nil)
 			tlsManager := tls.NewManager()
 
-			dialerManager := tcp.NewDialerManager(nil)
-			dialerManager.Update(map[string]*dynamic.TCPServersTransport{"default@internal": {}})
-			observabiltyMgr := middleware.NewObservabilityMgr(staticConfig, nil, nil, nil, nil, nil)
-			factory := NewRouterFactory(staticConfig, managerFactory, tlsManager, observabiltyMgr, nil, dialerManager)
+			factory := NewRouterFactory(staticConfig, managerFactory, tlsManager, middleware.NewChainBuilder(nil, nil, nil), nil, metrics.NewVoidRegistry())
 
 			entryPointsHandlers, _ := factory.CreateRouters(runtime.NewConfig(dynamic.Configuration{HTTP: test.config(testServer.URL)}))
 
@@ -228,14 +225,14 @@ func TestInternalServices(t *testing.T) {
 		),
 	)
 
-	roundTripperManager := service.NewRoundTripperManager(nil)
+	roundTripperManager := service.NewRoundTripperManager()
 	roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
-	managerFactory := service.NewManagerFactory(staticConfig, nil, nil, roundTripperManager, nil)
+	managerFactory := service.NewManagerFactory(staticConfig, nil, metrics.NewVoidRegistry(), roundTripperManager, nil)
 	tlsManager := tls.NewManager()
 
-	dialerManager := tcp.NewDialerManager(nil)
-	dialerManager.Update(map[string]*dynamic.TCPServersTransport{"default@internal": {}})
-	factory := NewRouterFactory(staticConfig, managerFactory, tlsManager, nil, nil, dialerManager)
+	voidRegistry := metrics.NewVoidRegistry()
+
+	factory := NewRouterFactory(staticConfig, managerFactory, tlsManager, middleware.NewChainBuilder(voidRegistry, nil, nil), nil, voidRegistry)
 
 	entryPointsHandlers, _ := factory.CreateRouters(runtime.NewConfig(dynamic.Configuration{HTTP: dynamicConfigs}))
 

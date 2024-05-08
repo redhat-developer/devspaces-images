@@ -11,5 +11,5 @@ spec:
   routes:
   - match: HostSNI(`foo.com`)
     services:
-    - name: external-svc-tcp
+    - name: external-svc
       port: 8000

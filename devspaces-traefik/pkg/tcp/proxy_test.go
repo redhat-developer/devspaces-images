@@ -3,6 +3,7 @@ package tcp
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"testing"
@@ -11,7 +12,7 @@ import (
 	"github.com/pires/go-proxyproto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 )
 
 func fakeRedis(t *testing.T, listener net.Listener) {
@@ -19,6 +20,7 @@ func fakeRedis(t *testing.T, listener net.Listener) {
 
 	for {
 		conn, err := listener.Accept()
+		fmt.Println("Accept on server")
 		require.NoError(t, err)
 
 		for {
@@ -52,9 +54,7 @@ func TestCloseWrite(t *testing.T) {
 	_, port, err := net.SplitHostPort(backendListener.Addr().String())
 	require.NoError(t, err)
 
-	dialer := tcpDialer{&net.Dialer{}, 10 * time.Millisecond}
-
-	proxy, err := NewProxy(":"+port, nil, dialer)
+	proxy, err := NewProxy(":"+port, 10*time.Millisecond, nil)
 	require.NoError(t, err)
 
 	proxyListener, err := net.Listen("tcp", ":0")
@@ -104,6 +104,8 @@ func TestProxyProtocol(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
+
 		t.Run(test.desc, func(t *testing.T) {
 			backendListener, err := net.Listen("tcp", ":0")
 			require.NoError(t, err)
@@ -131,9 +133,7 @@ func TestProxyProtocol(t *testing.T) {
 			_, port, err := net.SplitHostPort(proxyBackendListener.Addr().String())
 			require.NoError(t, err)
 
-			dialer := tcpDialer{&net.Dialer{}, 10 * time.Millisecond}
-
-			proxy, err := NewProxy(":"+port, &dynamic.ProxyProtocol{Version: test.version}, dialer)
+			proxy, err := NewProxy(":"+port, 10*time.Millisecond, &dynamic.ProxyProtocol{Version: test.version})
 			require.NoError(t, err)
 
 			proxyListener, err := net.Listen("tcp", ":0")
@@ -168,6 +168,45 @@ func TestProxyProtocol(t *testing.T) {
 			assert.Equal(t, "PONG", buffer.String())
 
 			assert.Equal(t, test.version, version)
+		})
+	}
+}
+
+func TestLookupAddress(t *testing.T) {
+	testCases := []struct {
+		desc          string
+		address       string
+		expectAddr    assert.ComparisonAssertionFunc
+		expectRefresh assert.ValueAssertionFunc
+	}{
+		{
+			desc:          "IP doesn't need refresh",
+			address:       "8.8.4.4:53",
+			expectAddr:    assert.Equal,
+			expectRefresh: assert.NotNil,
+		},
+		{
+			desc:          "Hostname needs refresh",
+			address:       "dns.google:53",
+			expectAddr:    assert.NotEqual,
+			expectRefresh: assert.Nil,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			proxy, err := NewProxy(test.address, 10*time.Millisecond, nil)
+			require.NoError(t, err)
+
+			test.expectRefresh(t, proxy.tcpAddr)
+
+			conn, err := proxy.dialBackend()
+			require.NoError(t, err)
+
+			test.expectAddr(t, test.address, conn.RemoteAddr().String())
 		})
 	}
 }

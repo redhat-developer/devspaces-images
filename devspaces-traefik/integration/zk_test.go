@@ -8,18 +8,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"testing"
 	"time"
 
+	"github.com/go-check/check"
 	"github.com/kvtools/valkeyrie"
 	"github.com/kvtools/valkeyrie/store"
 	"github.com/kvtools/zookeeper"
 	"github.com/pmezard/go-difflib/difflib"
-	"github.com/rs/zerolog/log"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	"github.com/traefik/traefik/v3/integration/try"
-	"github.com/traefik/traefik/v3/pkg/api"
+	"github.com/traefik/traefik/v2/integration/try"
+	"github.com/traefik/traefik/v2/pkg/api"
+	checker "github.com/vdemeester/shakers"
 )
 
 // Zk test suites.
@@ -29,17 +27,11 @@ type ZookeeperSuite struct {
 	zookeeperAddr string
 }
 
-func TestZookeeperSuite(t *testing.T) {
-	suite.Run(t, new(ZookeeperSuite))
-}
+func (s *ZookeeperSuite) setupStore(c *check.C) {
+	s.createComposeProject(c, "zookeeper")
+	s.composeUp(c)
 
-func (s *ZookeeperSuite) SetupSuite() {
-	s.BaseSuite.SetupSuite()
-
-	s.createComposeProject("zookeeper")
-	s.composeUp()
-
-	s.zookeeperAddr = net.JoinHostPort(s.getComposeServiceIP("zookeeper"), "2181")
+	s.zookeeperAddr = net.JoinHostPort(s.getComposeServiceIP(c, "zookeeper"), "2181")
 
 	var err error
 	s.kvClient, err = valkeyrie.NewStore(
@@ -50,19 +42,20 @@ func (s *ZookeeperSuite) SetupSuite() {
 			ConnectionTimeout: 10 * time.Second,
 		},
 	)
-	require.NoError(s.T(), err, "Cannot create store zookeeper")
+	if err != nil {
+		c.Fatal("Cannot create store zookeeper")
+	}
 
 	// wait for zk
 	err = try.Do(60*time.Second, try.KVExists(s.kvClient, "test"))
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 }
 
-func (s *ZookeeperSuite) TearDownSuite() {
-	s.BaseSuite.TearDownSuite()
-}
+func (s *ZookeeperSuite) TestSimpleConfiguration(c *check.C) {
+	s.setupStore(c)
 
-func (s *ZookeeperSuite) TestSimpleConfiguration() {
-	file := s.adaptFile("fixtures/zookeeper/simple.toml", struct{ ZkAddress string }{s.zookeeperAddr})
+	file := s.adaptFile(c, "fixtures/zookeeper/simple.toml", struct{ ZkAddress string }{s.zookeeperAddr})
+	defer os.Remove(file)
 
 	data := map[string]string{
 		"traefik/http/routers/Router0/entryPoints/0": "web",
@@ -107,39 +100,44 @@ func (s *ZookeeperSuite) TestSimpleConfiguration() {
 		"traefik/http/middlewares/compressor/compress":            "",
 		"traefik/http/middlewares/striper/stripPrefix/prefixes/0": "foo",
 		"traefik/http/middlewares/striper/stripPrefix/prefixes/1": "bar",
+		"traefik/http/middlewares/striper/stripPrefix/forceSlash": "true",
 	}
 
 	for k, v := range data {
 		err := s.kvClient.Put(context.Background(), k, []byte(v), nil)
-		require.NoError(s.T(), err)
+		c.Assert(err, checker.IsNil)
 	}
 
-	s.traefikCmd(withConfigFile(file))
+	cmd, display := s.traefikCmd(withConfigFile(file))
+	defer display(c)
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
 
 	// wait for traefik
-	err := try.GetRequest("http://127.0.0.1:8080/api/rawdata", 5*time.Second,
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 2*time.Second,
 		try.BodyContains(`"striper@zookeeper":`, `"compressor@zookeeper":`, `"srvcA@zookeeper":`, `"srvcB@zookeeper":`),
 	)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	resp, err := http.Get("http://127.0.0.1:8080/api/rawdata")
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	var obtained api.RunTimeRepresentation
 	err = json.NewDecoder(resp.Body).Decode(&obtained)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 	got, err := json.MarshalIndent(obtained, "", "  ")
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	expectedJSON := filepath.FromSlash("testdata/rawdata-zk.json")
 
 	if *updateExpected {
 		err = os.WriteFile(expectedJSON, got, 0o666)
-		require.NoError(s.T(), err)
+		c.Assert(err, checker.IsNil)
 	}
 
 	expected, err := os.ReadFile(expectedJSON)
-	require.NoError(s.T(), err)
+	c.Assert(err, checker.IsNil)
 
 	if !bytes.Equal(expected, got) {
 		diff := difflib.UnifiedDiff{
@@ -151,7 +149,7 @@ func (s *ZookeeperSuite) TestSimpleConfiguration() {
 		}
 
 		text, err := difflib.GetUnifiedDiffString(diff)
-		require.NoError(s.T(), err)
-		log.Info().Msg(text)
+		c.Assert(err, checker.IsNil)
+		c.Error(text)
 	}
 }

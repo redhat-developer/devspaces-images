@@ -7,7 +7,7 @@ To proactively prevent services from being overwhelmed with high load, the numbe
 
 ## Configuration Examples
 
-```yaml tab="Docker & Swarm"
+```yaml tab="Docker"
 labels:
   - "traefik.tcp.middlewares.test-inflightconn.inflightconn.amount=10"
 ```
@@ -25,6 +25,18 @@ spec:
 ```yaml tab="Consul Catalog"
 # Limiting to 10 simultaneous connections
 - "traefik.tcp.middlewares.test-inflightconn.inflightconn.amount=10"
+```
+
+```json tab="Marathon"
+"labels": {
+  "traefik.tcp.middlewares.test-inflightconn.inflightconn.amount": "10"
+}
+```
+
+```yaml tab="Rancher"
+# Limiting to 10 simultaneous connections.
+labels:
+  - "traefik.tcp.middlewares.test-inflightconn.inflightconn.amount=10"
 ```
 
 ```yaml tab="File (YAML)"

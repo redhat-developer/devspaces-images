@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: IngressClass
 metadata:
   name: traefik-keep
@@ -7,7 +7,7 @@ spec:
 
 ---
 kind: Ingress
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 metadata:
   name: "whoami-keep-route"
 spec:
@@ -18,14 +18,11 @@ spec:
       paths:
       - path: "/keep"
         backend:
-          service:
-            name: whoami
-            port:
-              number: 80
-        pathType: Prefix
+          serviceName: "whoami"
+          servicePort: 80
 
 ---
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: IngressClass
 metadata:
   name: traefik-drop
@@ -34,7 +31,7 @@ spec:
 
 ---
 kind: Ingress
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 metadata:
   name: "whoami-drop-route"
 spec:
@@ -45,14 +42,11 @@ spec:
       paths:
       - path: "/drop"
         backend:
-          service:
-            name: whoami
-            port:
-              number: 80
-        pathType: Prefix
+          serviceName: "whoami"
+          servicePort: 80
 
 ---
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: IngressClass
 metadata:
   name: traefik-not-ingress-controller
@@ -61,7 +55,7 @@ spec:
 
 ---
 kind: Ingress
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 metadata:
   name: "whoami-drop-ingress"
 spec:
@@ -72,8 +66,5 @@ spec:
       paths:
       - path: "/ingress"
         backend:
-          service:
-            name: whoami
-            port:
-              number: 80
-        pathType: Prefix
+          serviceName: "whoami"
+          servicePort: 80

@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/config/dynamic"
-	"github.com/traefik/traefik/v3/pkg/provider"
-	"github.com/traefik/traefik/v3/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/provider"
+	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/unrolled/render"
 )
 
@@ -48,14 +48,14 @@ func (p *Provider) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	configuration := new(dynamic.Configuration)
 
 	if err := json.NewDecoder(req.Body).Decode(configuration); err != nil {
-		log.Error().Err(err).Msg("Error parsing configuration")
+		log.WithoutContext().Errorf("Error parsing configuration %+v", err)
 		http.Error(rw, fmt.Sprintf("%+v", err), http.StatusBadRequest)
 		return
 	}
 
 	p.configurationChan <- dynamic.Message{ProviderName: "rest", Configuration: configuration}
 	if err := templatesRenderer.JSON(rw, http.StatusOK, configuration); err != nil {
-		log.Error().Err(err).Send()
+		log.WithoutContext().Error(err)
 	}
 }
 

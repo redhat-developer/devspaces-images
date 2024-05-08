@@ -121,11 +121,13 @@ func TestLoadBalancing(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
 			balancer := NewWRRLoadBalancer()
 			for server, weight := range test.serversWeight {
+				server := server
 				balancer.AddWeightServer(HandlerFunc(func(conn WriteCloser) {
 					_, err := conn.Write([]byte(server))
 					require.NoError(t, err)
@@ -133,7 +135,7 @@ func TestLoadBalancing(t *testing.T) {
 			}
 
 			conn := &fakeConn{writeCall: make(map[string]int)}
-			for range test.totalCall {
+			for i := 0; i < test.totalCall; i++ {
 				balancer.ServeTCP(conn)
 			}
 

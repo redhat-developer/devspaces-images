@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/rs/zerolog/log"
+	"github.com/traefik/traefik/v2/pkg/log"
 )
 
 func (s *Server) configureSignals() {
@@ -22,10 +22,16 @@ func (s *Server) listenSignals(ctx context.Context) {
 			return
 		case sig := <-s.signals:
 			if sig == syscall.SIGUSR1 {
-				log.Info().Msgf("Closing and re-opening log files for rotation: %+v", sig)
+				log.WithoutContext().Infof("Closing and re-opening log files for rotation: %+v", sig)
 
-				if err := s.observabilityMgr.RotateAccessLogs(); err != nil {
-					log.Error().Err(err).Msg("Error rotating access log")
+				if s.accessLoggerMiddleware != nil {
+					if err := s.accessLoggerMiddleware.Rotate(); err != nil {
+						log.WithoutContext().Errorf("Error rotating access log: %v", err)
+					}
+				}
+
+				if err := log.RotateFile(); err != nil {
+					log.WithoutContext().Errorf("Error rotating traefik log: %v", err)
 				}
 			}
 		}

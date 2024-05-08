@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/rs/zerolog/log"
-	"github.com/traefik/traefik/v3/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/safe"
 )
 
 // CertificateStore store for dynamic certificates.
@@ -40,7 +40,7 @@ func (c CertificateStore) getDefaultCertificateDomains() []string {
 
 	x509Cert, err := x509.ParseCertificate(c.DefaultCertificate.Certificate[0])
 	if err != nil {
-		log.Error().Err(err).Msg("Could not parse default certificate")
+		log.WithoutContext().Errorf("Could not parse default certificate: %v", err)
 		return allCerts
 	}
 
@@ -81,7 +81,7 @@ func (c *CertificateStore) GetBestCertificate(clientHello *tls.ClientHelloInfo) 
 		// If no ServerName is provided, Check for local IP address matches
 		host, _, err := net.SplitHostPort(clientHello.Conn.LocalAddr().String())
 		if err != nil {
-			log.Debug().Err(err).Msg("Could not split host/port")
+			log.WithoutContext().Debugf("Could not split host/port: %v", err)
 		}
 		serverName = strings.TrimSpace(host)
 	}

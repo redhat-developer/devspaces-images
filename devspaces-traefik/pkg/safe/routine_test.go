@@ -2,7 +2,7 @@ package safe
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -63,6 +63,7 @@ func TestPoolWithCtx(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			// These subtests cannot be run in parallel, since the testRoutine
 			// is shared across the subtests.
@@ -145,7 +146,7 @@ func TestOperationWithRecoverPanic(t *testing.T) {
 
 func TestOperationWithRecoverError(t *testing.T) {
 	operation := func() error {
-		return errors.New("ERROR")
+		return fmt.Errorf("ERROR")
 	}
 	err := backoff.Retry(OperationWithRecover(operation), &backoff.StopBackOff{})
 	if err == nil {

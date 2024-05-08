@@ -6,15 +6,14 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/traefik/traefik/v3/pkg/config/runtime"
-	"github.com/traefik/traefik/v3/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/config/static"
 )
 
 func TestHandler_EntryPoints(t *testing.T) {
@@ -171,21 +170,6 @@ func TestHandler_EntryPoints(t *testing.T) {
 			},
 		},
 		{
-			desc: "one entry point by id containing slash",
-			path: "/api/entrypoints/" + url.PathEscape("foo / bar"),
-			conf: static.Configuration{
-				Global: &static.Global{},
-				API:    &static.API{},
-				EntryPoints: map[string]*static.EntryPoint{
-					"foo / bar": {Address: ":81"},
-				},
-			},
-			expected: expected{
-				statusCode: http.StatusOK,
-				jsonFile:   "testdata/entrypoint-foo-slash-bar.json",
-			},
-		},
-		{
 			desc: "one entry point by id, that does not exist",
 			path: "/api/entrypoints/foo",
 			conf: static.Configuration{
@@ -210,6 +194,7 @@ func TestHandler_EntryPoints(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -227,7 +212,7 @@ func TestHandler_EntryPoints(t *testing.T) {
 				return
 			}
 
-			assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
+			assert.Equal(t, resp.Header.Get("Content-Type"), "application/json")
 			contents, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 
@@ -255,7 +240,7 @@ func TestHandler_EntryPoints(t *testing.T) {
 
 func generateEntryPoints(nb int) map[string]*static.EntryPoint {
 	eps := make(map[string]*static.EntryPoint, nb)
-	for i := range nb {
+	for i := 0; i < nb; i++ {
 		eps[fmt.Sprintf("ep%2d", i)] = &static.EntryPoint{
 			Address: ":" + strconv.Itoa(i),
 		}

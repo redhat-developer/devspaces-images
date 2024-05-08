@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/stretchr/testify/assert"
-	"github.com/traefik/traefik/v3/pkg/safe"
-	"github.com/traefik/traefik/v3/pkg/types"
+	"github.com/traefik/traefik/v2/pkg/safe"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func TestGetUncheckedCertificates(t *testing.T) {
@@ -166,6 +166,7 @@ func TestGetUncheckedCertificates(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -217,6 +218,13 @@ func TestProvider_sanitizeDomains(t *testing.T) {
 			expectedDomains: nil,
 		},
 		{
+			desc:            "no DNSChallenge",
+			domains:         types.Domain{Main: "*.traefik.wtf", SANs: []string{"foo.traefik.wtf"}},
+			dnsChallenge:    nil,
+			expectedErr:     "unable to generate a wildcard certificate in ACME provider for domain \"*.traefik.wtf,foo.traefik.wtf\" : ACME needs a DNSChallenge",
+			expectedDomains: nil,
+		},
+		{
 			desc:            "unauthorized wildcard with SAN",
 			domains:         types.Domain{Main: "*.*.traefik.wtf", SANs: []string{"foo.traefik.wtf"}},
 			dnsChallenge:    &DNSChallenge{},
@@ -240,6 +248,7 @@ func TestProvider_sanitizeDomains(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -421,6 +430,7 @@ func TestDeleteUnnecessaryDomains(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -494,6 +504,7 @@ func TestIsAccountMatchingCaServer(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
@@ -569,13 +580,14 @@ func TestInitAccount(t *testing.T) {
 		},
 	}
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
 			acmeProvider := Provider{account: test.account, Configuration: &Configuration{Email: test.email, KeyType: test.keyType}}
 
 			actualAccount, err := acmeProvider.initAccount(context.Background())
-			assert.NoError(t, err, "Init account in error")
+			assert.Nil(t, err, "Init account in error")
 			assert.Equal(t, test.expectedAccount.Email, actualAccount.Email, "unexpected email account")
 			assert.Equal(t, test.expectedAccount.KeyType, actualAccount.KeyType, "unexpected keyType account")
 		})
@@ -627,6 +639,7 @@ func Test_getCertificateRenewDurations(t *testing.T) {
 		},
 	}
 	for _, test := range testCases {
+		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 

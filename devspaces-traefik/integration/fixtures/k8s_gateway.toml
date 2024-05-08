@@ -4,7 +4,6 @@
 
 [log]
   level = "DEBUG"
-  noColor = true
 
 [api]
   insecure = true
@@ -27,4 +26,3 @@
     address = ":8443"
 
 [providers.kubernetesGateway]
-    experimentalChannel = true
