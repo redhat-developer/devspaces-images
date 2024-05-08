@@ -70,23 +70,18 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-cat << EOT >> "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
+sed_in_place() {
+    SHORT_UNAME=$(uname -s)
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "$@"
+  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+    sed -i "$@"
+  fi
+}
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
-    PRODNAME="devspaces" \\
-    COMPNAME="${MIDSTM_NAME}-rhel8"
-LABEL summary="\$SUMMARY" \\
-      description="\$DESCRIPTION" \\
-      io.k8s.description="\$DESCRIPTION" \\
-      io.k8s.display-name="\$DESCRIPTION" \\
-      io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
-      com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
-      name="\$PRODNAME/\$COMPNAME" \\
-      version="${DS_VERSION}" \\
-      license="EPLv2" \\
-      maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
-      io.openshift.expose-services="" \\
-      usage=""
-EOT
+sed_in_place -r \
+  `# Update DevSpaces version for Dockerfile` \
+  -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
+  "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
+
 echo "Converted Dockerfile"
