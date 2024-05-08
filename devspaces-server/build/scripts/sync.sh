@@ -52,6 +52,7 @@ echo ".github/
 dockerfiles/
 assets/branding/
 build/scripts/sync.sh
+build/dockerfiles
 /container.yaml
 /content_sets.*
 /cvp.yml
@@ -165,33 +166,22 @@ else
 fi
 generateFetchArtifactsPNCYaml
 
-# NOTE: upstream Dockerfile is in non-standard path (not build/dockerfiles/Dockerfile) because project has multiple container builds
-sed ${SOURCEDIR}/build/dockerfiles/Dockerfile -r \
-    -e 's@/home/user/eclipse-che@/home/user/devspaces@g' \
-	`# insert logic to unpack asset-*.tgz` \
-    -e 's@ADD eclipse-che .+@# see fetch-artifacts-pnc.yaml\nCOPY artifacts/assembly-main.tar.gz /tmp/assembly-main.tar.gz\nRUN tar xzf /tmp/assembly-main.tar.gz --strip-components=1 -C /home/user/devspaces; rm -f /tmp/assembly-main.tar.gz\n@g' \
-    -e 's@chmod g\\+w /home/user/cacerts@chmod 777 /home/user/cacerts@g' \
-> ${TARGETDIR}/Dockerfile
-cat << EOT >> ${TARGETDIR}/Dockerfile
-ENV SUMMARY="Red Hat OpenShift Dev Spaces server container" \\
-    DESCRIPTION="Red Hat OpenShift Dev Spaces server container" \\
-    PRODNAME="devspaces" \\
-    COMPNAME="server-rhel8"
-LABEL summary="\$SUMMARY" \\
-      description="\$DESCRIPTION" \\
-      io.k8s.description="\$DESCRIPTION" \\
-      io.k8s.display-name="\$DESCRIPTION" \\
-      io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
-      com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
-      name="\$PRODNAME/\$COMPNAME" \\
-      version="${DS_VERSION}" \\
-      pnc_artifact_id="${pnc_artifact_id}" \\
-      pnc_build_id="${pnc_build_id}" \\
-      license="EPLv2" \\
-      maintainer="Nick Boldt <nboldt@redhat.com>" \\
-      io.openshift.expose-services="" \\
-      usage=""
-EOT
+sed_in_place() {
+    SHORT_UNAME=$(uname -s)
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "$@"
+  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+    sed -i "$@"
+  fi
+}
+
+sed_in_place -r \
+  `# Update DevSpaces version for Dockerfile` \
+  -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
+  -e "s/pnc_artifact_id=.*/pnc_artifact_id=\"$pnc_artifact_id\" \\\/" \
+  -e "s/pnc_build_id=.*/pnc_build_id=\"$pnc_build_id\" \\\/" \
+  "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
+
 echo "Converted Dockerfile"
 
 # add ignore for the tarball in mid and downstream
