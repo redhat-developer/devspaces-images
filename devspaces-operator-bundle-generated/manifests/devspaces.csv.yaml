@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8c167e5d52bcd680a4908470f1f593c69b7dcfd83678de2f7a260c7826860c7f
-    createdAt: "2024-04-05T20:10:08+00:00"
+    createdAt: "2024-05-10T20:49:41+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
@@ -825,7 +825,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:44598103c4cf27687ee9d9f51da6acd647c73e0c29b9b514f618027d6d098d8a
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:5db120f6b5fc9454f6e749a90756873ff66ff7208c4daf1cd7da8a28827ca778
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:8069ee0f8ef4a4022d769c0b3a2d649b0674101f28628bdafb640ca07dad4d71
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCNAK
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:a2011539928c2f8440aaaf619fb763eb3da16422e07908286867e70703d55dde
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCNAK
@@ -858,6 +858,10 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: ghcr.io/ansible/ansible_workspace_env_reference@sha256:f02448b3b8423cfedf2773bb2dc8c21e2bf3a00c3df6e501916af2c5467a93f2
+                  value: ghcr.io/ansible/ansible-workspace-env-reference@sha256:f02448b3b8423cfedf2773bb2dc8c21e2bf3a00c3df6e501916af2c5467a93f2
+                - name: ghcr.io/ansible/ansible_workspace_env_reference@sha256:f02448b3b8423cfedf2773bb2dc8c21e2bf3a00c3df6e501916af2c5467a93f2
+                  value: ghcr.io/ansible/ansible-workspace-env-reference@sha256:f02448b3b8423cfedf2773bb2dc8c21e2bf3a00c3df6e501916af2c5467a93f2
                 image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8c167e5d52bcd680a4908470f1f593c69b7dcfd83678de2f7a260c7826860c7f
                 imagePullPolicy: Always
                 livenessProbe:
@@ -1037,7 +1041,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:44598103c4cf27687ee9d9f51da6acd647c73e0c29b9b514f618027d6d098d8a
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:5db120f6b5fc9454f6e749a90756873ff66ff7208c4daf1cd7da8a28827ca778
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:8069ee0f8ef4a4022d769c0b3a2d649b0674101f28628bdafb640ca07dad4d71
   - name: devspaces_code_devfile_registry_image_gmxdcnak
     image: registry.redhat.io/devspaces/code-rhel8@sha256:a2011539928c2f8440aaaf619fb763eb3da16422e07908286867e70703d55dde
   - name: devspaces_code_plugin_registry_image_gmxdcnak
