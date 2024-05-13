@@ -398,22 +398,8 @@ describe('Starting steps, starting a workspace', () => {
 
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-    // should report the error
-    const expectAlertItem = expect.objectContaining({
-      title: 'Failed to open the workspace',
-      children: 'The workspace status changed unexpectedly to "Stopping".',
-      actionCallbacks: [
-        expect.objectContaining({
-          title: 'Restart',
-          callback: expect.any(Function),
-        }),
-        expect.objectContaining({
-          title: 'Restart with default devfile',
-          callback: expect.any(Function),
-        }),
-      ],
-    });
-    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+    // should not report any error
+    expect(mockOnError).not.toHaveBeenCalled();
 
     // should not start the workspace
     expect(mockStartWorkspace).not.toHaveBeenCalled();
@@ -518,22 +504,8 @@ describe('Starting steps, starting a workspace', () => {
 
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-    // should report the error
-    const expectAlertItem = expect.objectContaining({
-      title: 'Failed to open the workspace',
-      children: 'The workspace status changed unexpectedly to "Failing".',
-      actionCallbacks: [
-        expect.objectContaining({
-          title: 'Restart',
-          callback: expect.any(Function),
-        }),
-        expect.objectContaining({
-          title: 'Restart with default devfile',
-          callback: expect.any(Function),
-        }),
-      ],
-    });
-    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+    // should not report any error
+    expect(mockOnError).not.toHaveBeenCalled();
 
     expect(mockStartWorkspace).not.toHaveBeenCalled();
     expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -617,22 +589,8 @@ describe('Starting steps, starting a workspace', () => {
 
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-    // should report the error
-    const expectAlertItem = expect.objectContaining({
-      title: 'Failed to open the workspace',
-      children: 'The workspace status changed unexpectedly to "Failing".',
-      actionCallbacks: [
-        expect.objectContaining({
-          title: 'Restart',
-          callback: expect.any(Function),
-        }),
-        expect.objectContaining({
-          title: 'Restart with default devfile',
-          callback: expect.any(Function),
-        }),
-      ],
-    });
-    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+    // should not report any error
+    expect(mockOnError).not.toHaveBeenCalled();
 
     expect(mockOnNextStep).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();
@@ -655,22 +613,8 @@ describe('Starting steps, starting a workspace', () => {
 
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-    // should report the error
-    const expectAlertItem = expect.objectContaining({
-      title: 'Failed to open the workspace',
-      children: 'The workspace status changed unexpectedly to "Stopping".',
-      actionCallbacks: [
-        expect.objectContaining({
-          title: 'Restart',
-          callback: expect.any(Function),
-        }),
-        expect.objectContaining({
-          title: 'Restart with default devfile',
-          callback: expect.any(Function),
-        }),
-      ],
-    });
-    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+    // should not report any error
+    expect(mockOnError).not.toHaveBeenCalled();
 
     expect(mockOnNextStep).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();

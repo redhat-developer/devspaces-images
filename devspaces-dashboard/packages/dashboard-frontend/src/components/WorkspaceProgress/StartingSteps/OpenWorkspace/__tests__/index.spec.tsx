@@ -151,14 +151,58 @@ describe('Starting steps, opening an editor', () => {
     });
   });
 
-  test('workspace is FAILING', async () => {
+  test('workspace status change from STOPPING to RUNNING', async () => {
+    isAvailableEndpointMock.mockResolvedValue(true);
+
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
         workspaces: [
           new DevWorkspaceBuilder()
             .withName(workspaceName)
             .withNamespace(namespace)
-            .withStatus({ phase: 'FAILING' })
+            .withStatus({ phase: 'STOPPING' })
+            .build(),
+        ],
+      })
+      .build();
+    const { reRenderComponent } = renderComponent(store);
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    expect(mockOnError).not.toHaveBeenCalledWith();
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+    expect(mockOnRestart).not.toHaveBeenCalled();
+
+    const storeNext = new FakeStoreBuilder()
+      .withDevWorkspaces({
+        workspaces: [
+          new DevWorkspaceBuilder()
+            .withName(workspaceName)
+            .withNamespace(namespace)
+            .withStatus({ phase: 'RUNNING', mainUrl: 'main-url' })
+            .build(),
+        ],
+      })
+      .build();
+    reRenderComponent(storeNext);
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    expect(mockLocationReplace).toHaveBeenCalledWith('main-url');
+
+    expect(mockOnNextStep).toHaveBeenCalled();
+    expect(mockOnError).not.toHaveBeenCalled();
+    expect(mockOnRestart).not.toHaveBeenCalled();
+  });
+
+  test('workspace is FAILED', async () => {
+    const store = new FakeStoreBuilder()
+      .withDevWorkspaces({
+        workspaces: [
+          new DevWorkspaceBuilder()
+            .withName(workspaceName)
+            .withNamespace(namespace)
+            .withStatus({ phase: 'FAILED' })
             .build(),
         ],
       })
@@ -171,7 +215,7 @@ describe('Starting steps, opening an editor', () => {
     // should report the error
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to open the workspace',
-      children: 'The workspace status changed unexpectedly to "Failing".',
+      children: 'The workspace status changed unexpectedly to "Failed".',
       actionCallbacks: [
         expect.objectContaining({
           title: 'Restart',

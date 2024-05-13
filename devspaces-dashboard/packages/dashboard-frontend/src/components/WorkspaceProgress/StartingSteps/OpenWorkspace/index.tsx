@@ -31,7 +31,7 @@ import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import { WorkspaceParams } from '@/Routes/routes';
 import { isAvailableEndpoint } from '@/services/helpers/api-ping';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
-import { AlertItem, LoaderTab } from '@/services/helpers/types';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
 import { Workspace, WorkspaceAdapter } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
@@ -132,9 +132,18 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
     }
 
     if (!workspace.isRunning) {
-      throw new Error(
-        workspace.error || `The workspace status changed unexpectedly to "${workspace.status}".`,
-      );
+      if (
+        workspace.status === DevWorkspaceStatus.FAILED ||
+        workspace.status === DevWorkspaceStatus.TERMINATING
+      ) {
+        throw new Error(
+          workspace.error || `The workspace status changed unexpectedly to "${workspace.status}".`,
+        );
+      }
+
+      // it's possible for the workspace to be restarted before the IDE URL is available
+      // in this case we need to wait for all conditions to be met
+      return false;
     }
 
     if (!workspace.ideUrl) {

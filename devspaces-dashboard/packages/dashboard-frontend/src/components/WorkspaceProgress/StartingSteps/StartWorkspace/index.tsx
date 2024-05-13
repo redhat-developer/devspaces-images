@@ -176,12 +176,7 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
     }
 
     if (
-      workspaceStatusIs(
-        workspace,
-        DevWorkspaceStatus.TERMINATING,
-        DevWorkspaceStatus.STOPPING,
-        DevWorkspaceStatus.FAILING,
-      ) ||
+      workspaceStatusIs(workspace, DevWorkspaceStatus.TERMINATING) ||
       (this.state.shouldStart === false &&
         workspaceStatusIs(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED))
     ) {
