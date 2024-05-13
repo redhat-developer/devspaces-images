@@ -191,6 +191,7 @@ export class DevWorkspaceApiService implements IDevWorkspaceApi {
       },
       (error: unknown) => {
         logger.warn(error, `Stopped watching ${path}.`);
+        request.destroy();
       },
     );
 

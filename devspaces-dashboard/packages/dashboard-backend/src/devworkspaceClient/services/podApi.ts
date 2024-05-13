@@ -60,7 +60,10 @@ export class PodApiService implements IPodApi {
       queryParams,
       (eventPhase: string, apiObj: V1Pod | V1Status) =>
         this.handleWatchMessage(eventPhase, apiObj, listener, params),
-      (error: unknown) => this.handleWatchError(error, path),
+      (error: unknown) => {
+        this.handleWatchError(error, path);
+        request.destroy();
+      },
     );
 
     this.stopWatch = () => request.destroy();

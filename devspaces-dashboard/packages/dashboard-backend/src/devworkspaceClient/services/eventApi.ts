@@ -60,7 +60,10 @@ export class EventApiService implements IEventApi {
       queryParams,
       (eventPhase: string, apiObj: CoreV1Event | V1Status) =>
         this.handleWatchMessage(eventPhase, apiObj, listener, params),
-      (error: unknown) => this.handleWatchError(error, path),
+      (error: unknown) => {
+        this.handleWatchError(error, path);
+        request.destroy();
+      },
     );
 
     this.stopWatch = () => request.destroy();
