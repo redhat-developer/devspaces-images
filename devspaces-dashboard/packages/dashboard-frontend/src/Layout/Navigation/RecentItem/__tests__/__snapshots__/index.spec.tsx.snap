@@ -19,6 +19,7 @@ exports[`Navigation Item snapshot with RUNNING correctly 1`] = `
       aria-current={null}
       className="pf-c-nav__link navItem"
       data-testid="/namespace/workspace"
+      id="/namespace/workspace"
       onClick={[Function]}
       tabIndex={null}
     >
@@ -27,7 +28,7 @@ exports[`Navigation Item snapshot with RUNNING correctly 1`] = `
       >
         <div>
           Mock Workspace status indicator, status: 
-          RUNNING
+          Stopped
         </div>
         <div
           data-testid="patternfly-tooltip"
@@ -52,7 +53,7 @@ exports[`Navigation Item snapshot with RUNNING correctly 1`] = `
         </div>
       </span>
       <div>
-        Mock NavigationItemWorkspaceActions
+        RecentItemWorkspaceActions
       </div>
     </a>
   </li>
@@ -78,6 +79,7 @@ exports[`Navigation Item snapshot with STOPPED status 1`] = `
       aria-current={null}
       className="pf-c-nav__link navItem"
       data-testid="/namespace/workspace"
+      id="/namespace/workspace"
       onClick={[Function]}
       tabIndex={null}
     >
@@ -86,7 +88,7 @@ exports[`Navigation Item snapshot with STOPPED status 1`] = `
       >
         <div>
           Mock Workspace status indicator, status: 
-          STOPPED
+          Stopped
         </div>
         <div
           data-testid="patternfly-tooltip"
@@ -111,7 +113,7 @@ exports[`Navigation Item snapshot with STOPPED status 1`] = `
         </div>
       </span>
       <div>
-        Mock NavigationItemWorkspaceActions
+        RecentItemWorkspaceActions
       </div>
     </a>
   </li>

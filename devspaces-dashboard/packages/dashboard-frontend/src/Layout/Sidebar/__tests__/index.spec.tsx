@@ -13,7 +13,7 @@
 import { createMemoryHistory } from 'history';
 import React from 'react';
 
-import Sidebar from '@/Layout/Sidebar';
+import { Sidebar } from '@/Layout/Sidebar';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 
 jest.mock('@/Layout/Navigation');

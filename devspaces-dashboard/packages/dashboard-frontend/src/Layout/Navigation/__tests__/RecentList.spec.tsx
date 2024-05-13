@@ -12,7 +12,6 @@
 
 import { Nav } from '@patternfly/react-core';
 import { render, RenderResult, screen } from '@testing-library/react';
-import { createHashHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
@@ -45,12 +44,11 @@ describe('Navigation Recent List', () => {
   });
 
   function renderComponent(store: Store, workspaces: Workspace[]): RenderResult {
-    const history = createHashHistory();
     return render(
       <Provider store={store}>
         <MemoryRouter>
           <Nav onSelect={() => jest.fn()} theme="light">
-            <NavigationRecentList workspaces={workspaces} activePath="" history={history} />
+            <NavigationRecentList workspaces={workspaces} activePath="" />
           </Nav>
         </MemoryRouter>
       </Provider>,
@@ -80,14 +78,13 @@ describe('Navigation Recent List', () => {
     const store = createFakeStore();
     const { rerender } = renderComponent(store, workspaces);
 
-    const history = createHashHistory();
     // change workspaces order
     [workspaces[0], workspaces[2]] = [workspaces[2], workspaces[0]];
     rerender(
       <Provider store={store}>
         <MemoryRouter>
           <Nav onSelect={() => jest.fn()} theme="light">
-            <NavigationRecentList workspaces={workspaces} activePath="" history={history} />
+            <NavigationRecentList workspaces={workspaces} activePath="" />
           </Nav>
         </MemoryRouter>
       </Provider>,

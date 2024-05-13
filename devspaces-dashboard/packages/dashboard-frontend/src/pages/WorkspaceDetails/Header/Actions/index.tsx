@@ -10,98 +10,52 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common from '@eclipse-che/common';
-import { AlertVariant } from '@patternfly/react-core';
-import { History } from 'history';
 import React from 'react';
 
-import { ActionContextType, WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
-import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
-import { lazyInject } from '@/inversify.config';
-import ButtonAction from '@/pages/WorkspaceDetails/Header/Actions/Button';
-import DropdownActions from '@/pages/WorkspaceDetails/Header/Actions/Dropdown';
-import { AppAlerts } from '@/services/alerts/appAlerts';
-import getRandomString from '@/services/helpers/random';
-import {
-  DeprecatedWorkspaceStatus,
-  DevWorkspaceStatus,
-  WorkspaceAction,
-  WorkspaceStatus,
-} from '@/services/helpers/types';
+import { WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
+import { WorkspaceActionsDeleteButton } from '@/contexts/WorkspaceActions/DeleteButton';
+import { WorkspaceActionsDropdown } from '@/contexts/WorkspaceActions/Dropdown';
+import { Workspace } from '@/services/workspace-adapter';
 
 type Props = {
-  workspaceUID: string;
-  workspaceName: string;
-  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
-  history: History;
+  workspace: Workspace;
 };
 
-export class HeaderActionSelect extends React.PureComponent<Props> {
-  @lazyInject(AppAlerts)
-  private appAlerts: AppAlerts;
-
+export class WorkspaceDetailsHeaderActions extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
   }
 
-  private async handleSelectedAction(
-    selectedAction: WorkspaceAction,
-    context: ActionContextType,
-  ): Promise<void> {
-    try {
-      if (selectedAction === WorkspaceAction.DELETE_WORKSPACE) {
-        try {
-          await context.showConfirmation([this.props.workspaceName]);
-        } catch (e) {
-          return;
-        }
-      }
-      const nextPath = await context.handleAction(selectedAction, this.props.workspaceUID);
-      if (!nextPath) {
-        return;
-      }
-      this.props.history.push(nextPath);
-    } catch (e) {
-      const errorMessage = common.helpers.errors.getMessage(e);
-      this.showAlert(errorMessage);
-      console.warn(errorMessage);
-    }
-  }
-
-  private showAlert(message: string): void {
-    this.appAlerts.showAlert({
-      key: 'workspace-details-' + getRandomString(4),
-      title: message,
-      variant: AlertVariant.warning,
-    });
-  }
-
   render(): React.ReactNode {
-    const { history, status } = this.props;
+    const { workspace } = this.props;
 
     return (
-      <WorkspaceActionsProvider history={history}>
-        <WorkspaceActionsConsumer>
-          {context => {
-            if (status === 'Deprecated') {
-              return (
-                <ButtonAction
-                  context={context}
-                  onAction={(action, context) => this.handleSelectedAction(action, context)}
-                />
-              );
-            }
-            const { ...props } = this.props;
+      <WorkspaceActionsConsumer>
+        {context => {
+          if (workspace.status === 'Deprecated') {
             return (
-              <DropdownActions
-                {...props}
+              <WorkspaceActionsDeleteButton
                 context={context}
-                onAction={(action, context) => this.handleSelectedAction(action, context)}
+                workspace={this.props.workspace}
+                onAction={async () => {
+                  // no-op
+                }}
               />
             );
-          }}
-        </WorkspaceActionsConsumer>
-      </WorkspaceActionsProvider>
+          }
+          return (
+            <WorkspaceActionsDropdown
+              context={context}
+              position="right"
+              toggle="dropdown-toggle"
+              workspace={this.props.workspace}
+              onAction={async () => {
+                // no-op
+              }}
+            />
+          );
+        }}
+      </WorkspaceActionsConsumer>
     );
   }
 }

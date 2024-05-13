@@ -14,7 +14,6 @@ import React from 'react';
 
 import { ToggleBarsType } from '..';
 
-/* istanbul ignore next */
 const defaultValue: ToggleBarsType = {
   hideAll: () => {
     console.info('Navigation and top bars are hidden');

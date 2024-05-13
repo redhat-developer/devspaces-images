@@ -22,7 +22,7 @@ export type Props = {
   history: History;
 };
 
-export default class Sidebar extends React.PureComponent<Props> {
+export class Sidebar extends React.PureComponent<Props> {
   public render(): React.ReactElement {
     const { isNavOpen, history } = this.props;
 

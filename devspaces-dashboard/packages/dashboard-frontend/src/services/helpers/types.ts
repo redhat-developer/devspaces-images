@@ -93,15 +93,12 @@ export enum WorkspaceDetailsTab {
 }
 
 export enum WorkspaceAction {
+  DELETE_WORKSPACE = 'Delete Workspace',
   OPEN_IDE = 'Open',
+  RESTART_WORKSPACE = 'Restart Workspace',
   START_DEBUG_AND_OPEN_LOGS = 'Open in Debug mode',
   START_IN_BACKGROUND = 'Start in background',
   STOP_WORKSPACE = 'Stop Workspace',
-  DELETE_WORKSPACE = 'Delete Workspace',
-  ADD_PROJECT = 'Add Project',
-  ADD_CUSTOM_WORKSPACE = 'Add Workspace',
-  RESTART_WORKSPACE = 'Restart Workspace',
-  WORKSPACE_DETAILS = 'Workspace Details',
 }
 
 export enum UserPreferencesTab {

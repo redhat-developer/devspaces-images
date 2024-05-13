@@ -15,11 +15,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import Fallback from '@/components/Fallback';
-import { WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
-import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
-import { lazyInject } from '@/inversify.config';
 import WorkspacesList from '@/pages/WorkspacesList';
-import { AppAlerts } from '@/services/alerts/appAlerts';
 import { AppState } from '@/store';
 import { selectBranding } from '@/store/Branding/selectors';
 import * as WorkspacesStore from '@/store/Workspaces';
@@ -28,9 +24,6 @@ import { selectAllWorkspaces, selectIsLoading } from '@/store/Workspaces/selecto
 type Props = MappedProps & { history: History };
 
 export class WorkspacesListContainer extends React.PureComponent<Props> {
-  @lazyInject(AppAlerts)
-  private appAlerts: AppAlerts;
-
   render() {
     const { branding, history, allWorkspaces, isLoading } = this.props;
 
@@ -38,22 +31,7 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
       return Fallback;
     }
 
-    return (
-      <WorkspaceActionsProvider history={history}>
-        <WorkspaceActionsConsumer>
-          {context => (
-            <WorkspacesList
-              branding={branding}
-              history={history}
-              workspaces={allWorkspaces}
-              onAction={(action, uid) => context.handleAction(action, uid)}
-              showConfirmation={wantDelete => context.showConfirmation(wantDelete)}
-              toDelete={context.toDelete}
-            />
-          )}
-        </WorkspaceActionsConsumer>
-      </WorkspaceActionsProvider>
-    );
+    return <WorkspacesList branding={branding} history={history} workspaces={allWorkspaces} />;
   }
 }
 

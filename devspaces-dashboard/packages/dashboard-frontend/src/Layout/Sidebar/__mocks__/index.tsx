@@ -14,7 +14,7 @@ import React from 'react';
 
 import { Props } from '@/Layout/Sidebar';
 
-export default class Sidebar extends React.PureComponent<Props> {
+export class Sidebar extends React.PureComponent<Props> {
   public render(): React.ReactElement {
     return (
       <div>

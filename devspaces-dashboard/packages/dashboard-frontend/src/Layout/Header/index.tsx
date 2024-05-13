@@ -27,7 +27,7 @@ type State = {
   isVisible: boolean;
 };
 
-export default class Header extends React.PureComponent<Props, State> {
+export class Header extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 

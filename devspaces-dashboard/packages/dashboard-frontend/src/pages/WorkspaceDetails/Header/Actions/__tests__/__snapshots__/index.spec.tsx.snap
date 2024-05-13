@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WorkspaceDetailsHeaderActions snapshot 1`] = `
+<div
+  data-testid="workspace-actions-dropdown"
+>
+  <button
+    data-testid="workspace-actions-dropdown-open-workspace-button"
+    disabled={false}
+    onClick={[Function]}
+  >
+    Open
+  </button>
+</div>
+`;

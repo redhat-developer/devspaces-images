@@ -19,11 +19,7 @@ import NavigationMainList from '@/Layout/Navigation/MainList';
 import NavigationRecentList from '@/Layout/Navigation/RecentList';
 import { ROUTE } from '@/Routes/routes';
 import { buildGettingStartedLocation, buildWorkspacesLocation } from '@/services/helpers/location';
-import {
-  DeprecatedWorkspaceStatus,
-  DevWorkspaceStatus,
-  WorkspaceStatus,
-} from '@/services/helpers/types';
+import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import * as WorkspacesStore from '@/store/Workspaces';
 import { selectAllWorkspaces, selectRecentWorkspaces } from '@/store/Workspaces/selectors';
@@ -36,9 +32,7 @@ export interface NavigationItemObject {
 export interface NavigationRecentItemObject {
   to: string;
   label: string;
-  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
-  workspaceUID: string;
-  isDevWorkspace: boolean;
+  workspace: Workspace;
 }
 
 type Props = MappedProps & {
@@ -80,13 +74,13 @@ export class Navigation extends React.PureComponent<Props, State> {
   }
 
   private handleNavSelect(selected: {
-    groupId: React.ReactText;
-    itemId: React.ReactText;
+    groupId: string | number;
+    itemId: string | number;
     to: string;
     event: React.FormEvent<HTMLInputElement>;
   }): void {
     const activeLocation = {
-      pathname: selected.itemId as string,
+      pathname: selected.itemId,
     } as Location;
     this.setState({
       activeLocation,
@@ -107,17 +101,13 @@ export class Navigation extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { recentWorkspaces, history } = this.props;
+    const { recentWorkspaces } = this.props;
     const { activeLocation } = this.state;
 
     return (
       <Nav aria-label="Navigation" onSelect={selected => this.handleNavSelect(selected)}>
         <NavigationMainList activePath={activeLocation.pathname} />
-        <NavigationRecentList
-          workspaces={recentWorkspaces}
-          activePath={activeLocation.pathname}
-          history={history}
-        />
+        <NavigationRecentList workspaces={recentWorkspaces} activePath={activeLocation.pathname} />
       </Nav>
     );
   }

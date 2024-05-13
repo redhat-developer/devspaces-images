@@ -10,16 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router';
 
 import { BrandingData } from '@/services/bootstrap/branding.constant';
-import { WorkspaceAction } from '@/services/helpers/types';
 import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
@@ -33,6 +30,9 @@ jest.mock('@/components/Head', () => {
   return FakeHead;
 });
 jest.mock('@/components/Workspace/Status/Indicator');
+jest.mock('@/contexts/WorkspaceActions');
+jest.mock('@/contexts/WorkspaceActions/BulkDeleteButton');
+jest.mock('@/contexts/WorkspaceActions/Dropdown');
 
 const history = createMemoryHistory();
 
@@ -43,16 +43,9 @@ const brandingData = {
 } as BrandingData;
 
 let workspaces: Workspace[];
-let isDeleted: string[];
-
-let mockOnAction = jest.fn();
-let mockShowConfirmation = jest.fn();
 
 describe('Workspaces List Page', () => {
   beforeEach(() => {
-    mockOnAction.mockResolvedValue(undefined);
-    mockShowConfirmation.mockResolvedValue(undefined);
-
     workspaces = [0, 1, 2, 3, 4]
       .map(i =>
         new DevWorkspaceBuilder()
@@ -62,7 +55,6 @@ describe('Workspaces List Page', () => {
           .build(),
       )
       .map(workspace => constructWorkspace(workspace));
-    isDeleted = [];
   });
 
   afterEach(() => {
@@ -96,300 +88,79 @@ describe('Workspaces List Page', () => {
   });
 
   describe('Toolbar', () => {
-    describe('Select All Checkbox', () => {
-      it('should select all rows', () => {
-        renderComponent();
+    it('should select all rows', () => {
+      renderComponent();
 
-        const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
-        const rowCheckboxes = screen.getAllByRole('checkbox', { name: /select row/i });
+      const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
+      const rowCheckboxes = screen.getAllByRole('checkbox', { name: /select row/i });
 
-        rowCheckboxes.forEach(checkbox => {
-          expect(checkbox).not.toBeChecked();
-        });
+      rowCheckboxes.forEach(checkbox => {
+        expect(checkbox).not.toBeChecked();
+      });
 
-        // select all workspaces
-        userEvent.click(selectAllCheckbox);
+      // select all workspaces
+      userEvent.click(selectAllCheckbox);
 
-        rowCheckboxes.forEach(checkbox => {
-          expect(checkbox).toBeChecked();
-        });
+      rowCheckboxes.forEach(checkbox => {
+        expect(checkbox).toBeChecked();
+      });
 
-        // deselect all workspaces
-        userEvent.click(selectAllCheckbox);
+      // deselect all workspaces
+      userEvent.click(selectAllCheckbox);
 
-        rowCheckboxes.forEach(checkbox => {
-          expect(checkbox).not.toBeChecked();
-        });
+      rowCheckboxes.forEach(checkbox => {
+        expect(checkbox).not.toBeChecked();
       });
     });
 
-    describe('Workspaces Filter', () => {
-      it('should filter rows', () => {
-        renderComponent();
-
-        const searchbox = screen.getByRole('searchbox');
-        const searchButton = screen.getByRole('button', { name: /filter workspaces/i });
-
-        const rows = screen.getAllByRole('row');
-        // including the header row
-        expect(rows.length).toEqual(workspaces.length + 1);
-
-        userEvent.type(searchbox, workspaces[0].devfile.metadata.name!);
-        userEvent.click(searchButton);
-
-        const rowsFiltered = screen.getAllByRole('row');
-        // including the header row
-        expect(rowsFiltered.length).toEqual(2);
-      });
-    });
-
-    describe('Bulk Delete Button', () => {
-      it('should emit event if confirmed', async () => {
-        renderComponent();
-
-        const deleteSelectedButton = screen.getByRole('button', {
-          name: /delete selected workspaces/i,
-        });
-
-        const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
-
-        userEvent.click(checkboxes[0]);
-        userEvent.click(checkboxes[1]);
-        userEvent.click(checkboxes[2]);
-
-        expect(deleteSelectedButton).toBeEnabled();
-        userEvent.click(deleteSelectedButton);
-
-        await waitFor(() => expect(mockOnAction).toHaveBeenCalledTimes(3));
-
-        expect(mockOnAction).toHaveBeenCalledWith(
-          WorkspaceAction.DELETE_WORKSPACE,
-          workspaces[0].uid,
-        );
-        expect(mockOnAction).toHaveBeenCalledWith(
-          WorkspaceAction.DELETE_WORKSPACE,
-          workspaces[1].uid,
-        );
-        expect(mockOnAction).toHaveBeenCalledWith(
-          WorkspaceAction.DELETE_WORKSPACE,
-          workspaces[2].uid,
-        );
-      });
-
-      it('should not emit event if not confirmed', async () => {
-        mockShowConfirmation = jest.fn().mockRejectedValue(undefined);
-        renderComponent();
-
-        const deleteSelectedButton = screen.getByRole('button', {
-          name: /delete selected workspaces/i,
-        });
-
-        const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
-
-        userEvent.click(checkboxes[0]);
-        userEvent.click(checkboxes[1]);
-        userEvent.click(checkboxes[2]);
-
-        expect(deleteSelectedButton).toBeEnabled();
-        userEvent.click(deleteSelectedButton);
-
-        await waitFor(() => expect(mockOnAction).not.toHaveBeenCalled());
-      });
-    });
-
-    it('should bulk delete visible workspaces only', async () => {
+    it('should filter rows', () => {
       renderComponent();
 
       const searchbox = screen.getByRole('searchbox');
       const searchButton = screen.getByRole('button', { name: /filter workspaces/i });
 
-      userEvent.type(searchbox, workspaces[0].devfile.metadata.name!);
+      const rows = screen.getAllByRole('row');
+      // including the header row
+      expect(rows.length).toEqual(workspaces.length + 1);
+
+      userEvent.type(searchbox, workspaces[0].name);
+      userEvent.click(searchButton);
+
+      const rowsFiltered = screen.getAllByRole('row');
+      // including the header row
+      expect(rowsFiltered.length).toEqual(2);
+    });
+
+    it('should bulk select visible workspaces only', async () => {
+      renderComponent();
+
+      const searchbox = screen.getByRole('searchbox');
+      const searchButton = screen.getByRole('button', { name: /filter workspaces/i });
+
+      userEvent.type(searchbox, workspaces[0].name);
       userEvent.click(searchButton);
 
       const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all/i });
       userEvent.click(selectAllCheckbox);
 
-      const bulkDeleteButton = screen.getByRole('button', { name: /delete selected workspaces/i });
-      userEvent.click(bulkDeleteButton);
-
-      await waitFor(() => expect(mockOnAction).toHaveBeenCalledTimes(1));
-      expect(mockOnAction).toHaveBeenCalledWith(
-        WorkspaceAction.DELETE_WORKSPACE,
-        workspaces[0].devfile.metadata.name,
-      );
-    });
-
-    it('should expose correct number of workspaces to delete https://github.com/eclipse/che/issues/19057', async () => {
-      let wantToDelete: string[] = [];
-      mockOnAction = jest.fn().mockImplementation((action: string, workspaceName: string) => {
-        workspaces = workspaces.filter(
-          workspace => workspace.devfile.metadata.name !== workspaceName,
-        );
-        wantToDelete = workspaces.map(workspace => workspace.devfile.metadata.name!);
-        return Promise.resolve();
-      });
-      const { rerender } = renderComponent();
-
-      /* delete one workspace */
-
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-
-      const deleteAction = screen.getByRole('menuitem', { name: /delete workspace/i });
-      userEvent.click(deleteAction);
-
-      // wait for the workspace is deleted
-      await waitFor(() => expect(mockOnAction).toHaveBeenCalled());
-
-      mockShowConfirmation.mockClear();
-      rerender(getComponent());
-
-      /* select all and delete the rest of workspaces */
-
-      const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
-      userEvent.click(selectAllCheckbox);
-
-      const deleteSelectedButton = screen.getByRole('button', {
-        name: /delete selected workspaces/i,
-      });
-      expect(deleteSelectedButton).toBeEnabled();
-      userEvent.click(deleteSelectedButton);
-
-      expect(mockShowConfirmation).toHaveBeenCalledWith(wantToDelete);
+      const bulkDeleteElem = screen.getByTestId('workspace-actions-bulk-delete');
+      const workspacesNumber = within(bulkDeleteElem).getByTestId('workspaces-number');
+      expect(workspacesNumber).toHaveTextContent('1');
     });
   });
 
   describe('Table', () => {
-    it('should handle workspaces that are being deleted', () => {
-      // mute the outputs
-      console.error = jest.fn();
-
-      const { rerender } = renderComponent();
-
-      const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
-      expect(checkboxes[0]).not.toBeChecked();
-
-      isDeleted = [workspaces[0].uid];
-      rerender(getComponent());
-
-      expect(checkboxes[0]).toBeChecked();
-    });
-
-    it('should open actions under kebab button', () => {
+    it('should select a row', () => {
       renderComponent();
 
-      // no menu items at all initially
-      let menuItems = screen.queryAllByRole('menuitem');
-      expect(menuItems.length).toEqual(0);
+      const rowCheckboxes = screen.getAllByRole('checkbox', { name: /select row/i });
 
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-      expect(actionButtons[0]).toBeEnabled();
+      const rowCheckbox = rowCheckboxes[0];
+      expect(rowCheckbox).not.toBeChecked();
 
-      // check number of menu items shown
-      menuItems = screen.getAllByRole('menuitem');
-      expect(menuItems.length).toEqual(5);
+      userEvent.click(rowCheckbox);
 
-      // check state of action buttons
-      const startDebugAction = screen.getByRole('menuitem', { name: /debug mode/i });
-      expect(startDebugAction).toBeEnabled();
-
-      const openInBackgroundAction = screen.getByRole('menuitem', { name: /background/i });
-      expect(openInBackgroundAction).toBeEnabled();
-
-      const restartAction = screen.getByRole('menuitem', { name: /restart/i });
-      expect(restartAction).toHaveAttribute('aria-disabled', 'true');
-
-      const stopAction = screen.getByRole('menuitem', { name: /stop workspace/i });
-      expect(stopAction).toHaveAttribute('aria-disabled', 'true');
-
-      const deleteAction = screen.getByRole('menuitem', { name: /delete workspace/i });
-      expect(deleteAction).toBeEnabled();
-    });
-
-    it('should not open the kebab menu while workspace is being deleted', () => {
-      // deleting first workspace
-      isDeleted = [workspaces[0].uid];
-      renderComponent();
-
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-      expect(actionButtons[0]).toBeDisabled();
-    });
-
-    it('should handle "Restart in Debug mode" action', () => {
-      renderComponent();
-
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-
-      const startDebugAction = screen.getByRole('menuitem', { name: /debug mode/i });
-      userEvent.click(startDebugAction);
-
-      expect(mockOnAction).toHaveBeenCalledWith(
-        WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,
-        workspaces[0].uid,
-      );
-    });
-
-    it('should handle "Start in Background" action', () => {
-      renderComponent();
-
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-
-      const openInBackgroundAction = screen.getByRole('menuitem', { name: /background/i });
-      userEvent.click(openInBackgroundAction);
-
-      expect(mockOnAction).toHaveBeenCalledWith(
-        WorkspaceAction.START_IN_BACKGROUND,
-        workspaces[0].uid,
-      );
-    });
-
-    it('should handle "Stop Workspace" action', () => {
-      workspaces[0] = constructWorkspace(
-        new DevWorkspaceBuilder()
-          .withUID('workspace-0')
-          .withName('workspace-0')
-          .withNamespace('user')
-          .withStatus({ phase: 'RUNNING' })
-          .build(),
-      );
-
-      renderComponent();
-
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-
-      const stopAction = screen.getByRole('menuitem', { name: /stop workspace/i });
-      userEvent.click(stopAction);
-
-      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.STOP_WORKSPACE, workspaces[0].uid);
-    });
-
-    it('should handle "Delete Workspace" action', async () => {
-      renderComponent();
-
-      const actionButtons = screen.getAllByRole('button', { name: /actions/i });
-      // click the kebab button on the first workspace row
-      userEvent.click(actionButtons[0]);
-
-      const deleteAction = screen.getByRole('menuitem', { name: /delete workspace/i });
-      userEvent.click(deleteAction);
-
-      await waitFor(() => expect(mockOnAction).toHaveBeenCalled());
-
-      expect(mockOnAction).toHaveBeenCalledWith(
-        WorkspaceAction.DELETE_WORKSPACE,
-        workspaces[0].uid,
-      );
+      expect(rowCheckbox).toBeChecked();
     });
   });
 
@@ -428,9 +199,6 @@ function getComponent(_workspaces = workspaces): React.ReactElement {
         branding={brandingData}
         history={history}
         workspaces={_workspaces}
-        onAction={mockOnAction}
-        showConfirmation={mockShowConfirmation}
-        toDelete={isDeleted}
       ></WorkspacesList>
     </Router>
   );

@@ -11,10 +11,9 @@
  */
 
 import { NavGroup, NavList } from '@patternfly/react-core';
-import { History } from 'history';
 import React from 'react';
 
-import NavigationRecentItem from '@/Layout/Navigation/RecentItem';
+import { NavigationRecentItem } from '@/Layout/Navigation/RecentItem';
 import { ROUTE } from '@/Routes/routes';
 import { Workspace } from '@/services/workspace-adapter';
 
@@ -23,7 +22,6 @@ import { NavigationRecentItemObject } from '.';
 function buildRecentWorkspacesItems(
   workspaces: Array<Workspace>,
   activePath: string,
-  history: History,
 ): Array<React.ReactElement> {
   return workspaces.map(workspace => {
     const workspaceName = workspace.name;
@@ -35,26 +33,17 @@ function buildRecentWorkspacesItems(
     const item: NavigationRecentItemObject = {
       to: navigateTo,
       label: workspaceName,
-      status: workspace.status,
-      workspaceUID: workspace.uid,
-      isDevWorkspace: workspace.isDevWorkspace,
+      workspace,
     };
-    return (
-      <NavigationRecentItem key={item.to} item={item} activePath={activePath} history={history} />
-    );
+    return <NavigationRecentItem key={item.to} item={item} activePath={activePath} />;
   });
 }
 
 function NavigationRecentList(props: {
   workspaces: Array<Workspace>;
   activePath: string;
-  history: History;
 }): React.ReactElement {
-  const recentWorkspaceItems = buildRecentWorkspacesItems(
-    props.workspaces,
-    props.activePath,
-    props.history,
-  );
+  const recentWorkspaceItems = buildRecentWorkspacesItems(props.workspaces, props.activePath);
   return (
     <NavList>
       <NavGroup title="RECENT WORKSPACES" style={{ marginTop: '25px' }}>

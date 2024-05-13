@@ -32,3 +32,8 @@
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
+
+.actionsDropdownCell {
+  width: 80px !important;
+  max-width: 80px !important;
+}

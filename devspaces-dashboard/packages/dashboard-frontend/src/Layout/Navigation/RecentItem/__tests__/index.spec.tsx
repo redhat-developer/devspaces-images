@@ -11,34 +11,35 @@
  */
 
 import { Nav } from '@patternfly/react-core';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 
 import { NavigationRecentItemObject } from '@/Layout/Navigation';
-import NavigationRecentItem from '@/Layout/Navigation/RecentItem';
+import { NavigationRecentItem } from '@/Layout/Navigation/RecentItem';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import { WorkspaceStatus } from '@/services/helpers/types';
+import { constructWorkspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 jest.mock('@/components/Workspace/Status/Indicator');
-jest.mock('@/Layout/Navigation/RecentItemWorkspaceActions', () => {
-  return {
-    __esModule: true,
-    default: () => <div>Mock NavigationItemWorkspaceActions</div>,
-  };
-});
+jest.mock('@/Layout/Navigation/RecentItem/WorkspaceActions');
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
 describe('Navigation Item', () => {
+  const workspace = constructWorkspace(
+    new DevWorkspaceBuilder()
+      .withName('workspace')
+      .withUID('test-wksp-id')
+      .withStatus({ phase: 'STOPPED' })
+      .build(),
+  );
   const item: NavigationRecentItemObject = {
-    status: WorkspaceStatus.STOPPED,
-    label: 'workspace',
-    to: '/namespace/workspace',
-    isDevWorkspace: false,
-    workspaceUID: 'test-wksp-id',
+    label: workspace.name,
+    to: `/namespace/${workspace.name}`,
+    workspace,
   };
 
   afterEach(() => {
@@ -47,14 +48,14 @@ describe('Navigation Item', () => {
 
   test('snapshot with STOPPED status', () => {
     const status = WorkspaceStatus.STOPPED;
-    const snapshot = createSnapshot(Object.assign({}, item, { status }), '', true);
+    const snapshot = createSnapshot(Object.assign({}, item, { status }), '');
 
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
   test('snapshot with RUNNING correctly', () => {
     const status = WorkspaceStatus.RUNNING;
-    const snapshot = createSnapshot(Object.assign({}, item, { status }), '', true);
+    const snapshot = createSnapshot(Object.assign({}, item, { status }), '');
 
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
@@ -109,23 +110,13 @@ describe('Navigation Item', () => {
   });
 });
 
-function getComponent(
-  item: NavigationRecentItemObject,
-  activeItem = '',
-  isDefaultExpanded = false,
-): React.ReactElement {
+function getComponent(item: NavigationRecentItemObject, activeItem = ''): React.ReactElement {
   const store = new FakeStoreBuilder().build();
-  const history = createMemoryHistory();
   return (
     <Provider store={store}>
       <MemoryRouter>
         <Nav>
-          <NavigationRecentItem
-            isDefaultExpanded={isDefaultExpanded}
-            item={item}
-            activePath={activeItem}
-            history={history}
-          />
+          <NavigationRecentItem item={item} activePath={activeItem} />
         </Nav>
       </MemoryRouter>
     </Provider>

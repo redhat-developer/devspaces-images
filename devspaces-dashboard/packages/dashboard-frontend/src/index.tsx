@@ -20,6 +20,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import App from '@/App';
+import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
 import PreloadData from '@/services/bootstrap';
 import configureStore from '@/store/configureStore';
 
@@ -44,7 +45,9 @@ async function startApp(): Promise<void> {
 
   ReactDOM.render(
     <Provider store={store}>
-      <App history={history} />
+      <WorkspaceActionsProvider history={history}>
+        <App history={history} />
+      </WorkspaceActionsProvider>
     </Provider>,
     ROOT,
   );

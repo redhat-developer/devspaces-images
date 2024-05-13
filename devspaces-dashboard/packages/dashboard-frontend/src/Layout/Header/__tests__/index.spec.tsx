@@ -16,7 +16,7 @@ import { createHashHistory } from 'history';
 import React from 'react';
 import renderer from 'react-test-renderer';
 
-import Header from '..';
+import { Header } from '..';
 
 jest.mock('../Tools', () => {
   const FakeTools = (props: { logout: () => void; changeTheme: () => void }) => (

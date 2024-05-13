@@ -14,7 +14,7 @@ import React from 'react';
 
 import { Props } from '@/Layout/Header';
 
-export default class Header extends React.PureComponent<Props> {
+export class Header extends React.PureComponent<Props> {
   public render(): React.ReactElement {
     return (
       <div>

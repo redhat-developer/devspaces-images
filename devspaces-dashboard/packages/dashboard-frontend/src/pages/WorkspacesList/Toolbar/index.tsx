@@ -23,22 +23,22 @@ import {
 import { EllipsisVIcon, PlusCircleIcon, SearchIcon } from '@patternfly/react-icons';
 import React from 'react';
 
+import { WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
+import { WorkspaceActionsBulkDeleteButton } from '@/contexts/WorkspaceActions/BulkDeleteButton';
 import styles from '@/pages/WorkspacesList/Toolbar/index.module.css';
 import match from '@/services/helpers/filter';
 import { Workspace } from '@/services/workspace-adapter';
 
 type Props = {
+  selected: string[];
   selectedAll: boolean;
   workspaces: Workspace[];
-  enabledDelete: boolean;
   onAddWorkspace: () => void;
   onBulkDelete: () => Promise<void>;
   onFilter: (filtered: Workspace[]) => void;
   onToggleSelectAll: (checked: boolean) => void;
 };
 type State = {
-  enabledDelete: boolean;
-  selectedAll: boolean;
   filterValue: string;
 };
 
@@ -47,8 +47,6 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
     super(props);
 
     this.state = {
-      enabledDelete: this.props.enabledDelete,
-      selectedAll: this.props.selectedAll,
       filterValue: '',
     };
   }
@@ -76,9 +74,6 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
   }
 
   private handleToggleSelectAll(isChecked: boolean): void {
-    this.setState({
-      selectedAll: isChecked,
-    });
     this.props.onToggleSelectAll(isChecked);
   }
 
@@ -98,7 +93,7 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
   }
 
   private async handleBulkDelete(): Promise<void> {
-    this.props.onBulkDelete();
+    return this.props.onBulkDelete();
   }
 
   private handleAddWorkspace(): void {
@@ -109,27 +104,13 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
     this.handleKeyboardEvents();
   }
 
-  public componentDidUpdate(prevProps: Props): void {
-    if (
-      this.props.selectedAll !== prevProps.selectedAll &&
-      this.props.selectedAll !== this.state.selectedAll
-    ) {
-      this.setState({
-        selectedAll: this.props.selectedAll,
-      });
-    }
-    if (
-      this.props.enabledDelete !== prevProps.enabledDelete &&
-      this.props.enabledDelete !== this.state.enabledDelete
-    ) {
-      this.setState({
-        enabledDelete: this.props.enabledDelete,
-      });
-    }
-  }
-
   public render(): React.ReactElement {
-    const { selectedAll, filterValue, enabledDelete } = this.state;
+    const { workspaces, selected, selectedAll } = this.props;
+    const { filterValue } = this.state;
+
+    const workspacesSelected = workspaces.filter(workspace => selected.includes(workspace.uid));
+
+    const isDeleteDisabled = workspacesSelected.length === 0;
 
     const checkboxItem = (
       <ToolbarItem variant="bulk-select" className={styles.toolbarCheckbox}>
@@ -171,14 +152,18 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
         toggleIcon={<EllipsisVIcon />}
       >
         <ToolbarItem>
-          <Button
-            variant="primary"
-            aria-label="Delete selected workspaces"
-            isDisabled={enabledDelete === false}
-            onClick={() => this.handleBulkDelete()}
-          >
-            Delete
-          </Button>
+          <WorkspaceActionsConsumer>
+            {context => {
+              return (
+                <WorkspaceActionsBulkDeleteButton
+                  context={context}
+                  isDisabled={isDeleteDisabled}
+                  workspaces={workspacesSelected}
+                  onAction={async () => this.handleBulkDelete()}
+                />
+              );
+            }}
+          </WorkspaceActionsConsumer>
         </ToolbarItem>
         <ToolbarItem
           alignment={{ md: 'alignRight', lg: 'alignRight', xl: 'alignRight', '2xl': 'alignRight' }}

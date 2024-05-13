@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RecentItemWorkspaceActions snapshot 1`] = `
+<div
+  onClick={[Function]}
+>
+  <div
+    data-testid="workspace-actions-dropdown"
+  >
+    <button
+      data-testid="workspace-actions-dropdown-open-workspace-button"
+      disabled={false}
+      onClick={[Function]}
+    >
+      Open
+    </button>
+  </div>
+</div>
+`;

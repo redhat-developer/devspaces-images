@@ -10,8 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
@@ -21,21 +19,23 @@ import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 import WorkspacesListToolbar from '..';
 
+jest.mock('@/contexts/WorkspaceActions');
+jest.mock('@/contexts/WorkspaceActions/BulkDeleteButton');
+
 let workspaces: Workspace[];
 let isSelectedAll: boolean;
-let isEnabledDelete: boolean;
 const mockOnAddWorkspace = jest.fn();
 const mockOnBulkDelete = jest.fn();
 const mockOnFilter = jest.fn();
 const mockOnToggleSelectAll = jest.fn();
 
 describe('Workspaces List Toolbar', () => {
-  function renderComponent(): RenderResult {
+  function renderComponent(selected: string[] = []): RenderResult {
     return render(
       <WorkspacesListToolbar
         workspaces={workspaces}
+        selected={selected}
         selectedAll={isSelectedAll}
-        enabledDelete={isEnabledDelete}
         onAddWorkspace={() => mockOnAddWorkspace()}
         onBulkDelete={() => mockOnBulkDelete()}
         onFilter={filtered => mockOnFilter(filtered)}
@@ -54,7 +54,6 @@ describe('Workspaces List Toolbar', () => {
       )
       .map(workspace => constructWorkspace(workspace));
     isSelectedAll = false;
-    isEnabledDelete = false;
   });
 
   afterEach(() => {
@@ -86,18 +85,13 @@ describe('Workspaces List Toolbar', () => {
     expect(addButton).toBeEnabled();
   });
 
-  it('should emit event when selecting all workspaces', () => {
+  it('should emit event when selecting all workspaces', async () => {
     renderComponent();
 
     const checkbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
 
     userEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
     expect(mockOnToggleSelectAll).toHaveBeenCalledWith(true);
-
-    userEvent.click(checkbox);
-    expect(checkbox).not.toBeChecked();
-    expect(mockOnToggleSelectAll).toHaveBeenCalledWith(false);
   });
 
   it('should emit event when filtering workspaces', () => {
@@ -113,8 +107,8 @@ describe('Workspaces List Toolbar', () => {
   });
 
   it('should emit event when deleting selected workspaces', () => {
-    isEnabledDelete = true;
-    renderComponent();
+    const selected = [workspaces[0].name, workspaces[1].name, workspaces[2].name];
+    renderComponent(selected);
 
     const deleteButton = screen.getByRole('button', { name: /delete selected workspaces/i });
 

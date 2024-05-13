@@ -17,10 +17,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { WorkspaceStatusIndicator } from '@/components/Workspace/Status/Indicator';
+import { WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
+import { WorkspaceActionsDropdown } from '@/contexts/WorkspaceActions/Dropdown';
 import devfileApi from '@/services/devfileApi';
 import { formatDate, formatRelativeDate } from '@/services/helpers/dates';
 import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
-import { DevWorkspaceStatus, WorkspaceDetailsTab } from '@/services/helpers/types';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 
 export interface RowData extends IRow {
@@ -58,20 +60,11 @@ export function buildRows(
       const isDeleted = toDelete.includes(workspace.uid);
 
       const overviewPageLocation = buildDetailsLocation(workspace);
-      const devfilePageLocation = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
-
       const ideLoaderLocation = buildIdeLoaderLocation(workspace);
 
       try {
         rows.push(
-          buildRow(
-            workspace,
-            isSelected,
-            isDeleted,
-            overviewPageLocation,
-            devfilePageLocation,
-            ideLoaderLocation,
-          ),
+          buildRow(workspace, isSelected, isDeleted, overviewPageLocation, ideLoaderLocation),
         );
       } catch (e) {
         console.warn('Skip workspace: ', e);
@@ -94,7 +87,6 @@ export function buildRow(
   isSelected: boolean,
   isDeleted: boolean,
   overviewPageLocation: Location,
-  devfilePageLocation: Location,
   ideLoaderLocation: Location,
 ): RowData {
   if (!workspace.name) {
@@ -141,47 +133,51 @@ export function buildRow(
 
   const projectsList = projects.join(', \n') || '-';
 
+  /* action: Open */
   let action: React.ReactElement | string;
   if (workspace.isDeprecated) {
+    action = <></>;
+  } else if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
+    action = 'deleting...';
+  } else {
     action = (
       <Button
         variant="link"
         isInline
         isSmall
-        component={props => <Link {...props} to={devfilePageLocation} />}
+        component={props => (
+          <Link {...props} to={ideLoaderLocation} rel="noreferrer" target={workspace.uid} />
+        )}
       >
-        Convert
+        Open
       </Button>
     );
-  } else if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
-    action = 'deleting...';
-  } else {
-    if (workspace.isDevWorkspace) {
-      action = (
-        <Button
-          variant="link"
-          isInline
-          isSmall
-          component={props => (
-            <Link {...props} to={ideLoaderLocation} rel="noreferrer" target={workspace.uid} />
-          )}
-        >
-          Open
-        </Button>
-      );
-    } else {
-      action = (
-        <Button
-          variant="link"
-          isInline
-          isSmall
-          component={props => <Link {...props} to={ideLoaderLocation} />}
-        >
-          Open
-        </Button>
-      );
-    }
   }
+
+  /* Actions dropdown */
+  const actionsDropdown = (
+    <WorkspaceActionsConsumer>
+      {context => {
+        return (
+          <WorkspaceActionsDropdown
+            context={context}
+            isDisabled={
+              workspace.isDeprecated ||
+              isDeleted ||
+              workspace.status === DevWorkspaceStatus.TERMINATING
+            }
+            isPlain
+            position="right"
+            toggle="kebab-toggle"
+            workspace={workspace}
+            onAction={async () => {
+              // no-op
+            }}
+          />
+        );
+      }}
+    </WorkspaceActionsConsumer>
+  );
 
   return {
     cells: [
@@ -206,6 +202,10 @@ export function buildRow(
         // Cell is hidden only on Sm
         title: action,
         key: 'open-ide-hidden-sm',
+      },
+      {
+        title: actionsDropdown,
+        key: 'actions-dropdown',
       },
     ],
     props: {
