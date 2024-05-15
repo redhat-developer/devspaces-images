@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8c167e5d52bcd680a4908470f1f593c69b7dcfd83678de2f7a260c7826860c7f
-    createdAt: "2024-05-13T11:46:48+00:00"
+    createdAt: "2024-05-15T22:14:35+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
@@ -422,11 +422,11 @@ spec:
     * Bundled Plugin and Devfile registries
 
     Use `oc edit checluster/devspaces -n openshift-devspaces` to update Red Hat OpenShift Dev Spaces default installation options.
-    See more in the [Installation guide](https://www.eclipse.org/che/docs/che-7/installation-guide/configuring-the-che-installation/).
+    See more in the [Installation guide](https://www.eclipse.org/che/docs/stable/administration-guide/configuring-che/).
 
     ### Certificates
     Operator uses a default router certificate to secure Red Hat OpenShift Dev Spaces routes.
-    Follow the [guide](https://www.eclipse.org/che/docs/che-7/installation-guide/importing-untrusted-tls-certificates/)
+    Follow the [guide](https://www.eclipse.org/che/docs/stable/administration-guide/importing-untrusted-tls-certificates/)
     to import certificates into Red Hat OpenShift Dev Spaces.
   displayName: Red Hat OpenShift Dev Spaces
   icon:
@@ -853,7 +853,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:a3f2ace0a2b97ff38b88bf143b74164a27506f3e27eb29e5ed6eeb3dfe0830da
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:cc6e5929c62f772975287b30940b1d20976bf9fb6aca77484aa06594e1312445
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:2f8413c92dd5c3230165e00dbd696630ee9d819d75542f1a0c966771608b0bc7
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1065,4 +1065,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:a3f2ace0a2b97ff38b88bf143b74164a27506f3e27eb29e5ed6eeb3dfe0830da
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:cc6e5929c62f772975287b30940b1d20976bf9fb6aca77484aa06594e1312445
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:2f8413c92dd5c3230165e00dbd696630ee9d819d75542f1a0c966771608b0bc7
