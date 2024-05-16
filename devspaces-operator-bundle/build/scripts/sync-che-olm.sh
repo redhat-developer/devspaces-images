@@ -234,6 +234,38 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		echo "    ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
 
+  # https://issues.redhat.com/browse/CRW-6352
+  CHE_LINKS=(
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-che/
+    https://www.eclipse.org/che/docs/stable/administration-guide/importing-untrusted-tls-certificates/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-microsoft-azure-devops-services
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/
+    https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/
+  )
+  DEVSPACES_LINKS=(
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#importing-untrusted-tls-certificates
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-the-bitbucket-cloud
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-1-for-a-bitbucket-server
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-microsoft-azure-devops-services
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-the-bitbucket-cloud
+    https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.13/html/administration_guide/configuring-devspaces#configuring-oauth-1-for-a-bitbucket-server
+  )
+  for (( i=1; i<=${#CHE_LINKS[@]}; i++ ))
+  do
+    sed -e "s|${CHE_LINKS[$i]}|${DEVSPACES_LINKS[$i]}|g" -i "${CSVFILE}"
+  done
+
   # Ensure that internal devfile registry is enabled by default in downstream
   # See https://github.com/eclipse/che/issues/22485
   ALM_EXAMPLES=$(yq -r '.metadata.annotations["alm-examples"]' "${TARGETDIR}/manifests/devspaces.csv.yaml")
