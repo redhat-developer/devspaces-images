@@ -249,17 +249,17 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
     "https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/"
   )
   DEVSPACES_LINKS=(
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#importing-untrusted-tls-certificates"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-the-bitbucket-cloud"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-1-for-a-bitbucket-server"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-microsoft-azure-devops-services"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-the-bitbucket-cloud"
-    "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-1-for-a-bitbucket-server"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#importing-untrusted-tls-certificates"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-the-bitbucket-cloud"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-1-for-a-bitbucket-server"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-microsoft-azure-devops-services"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-the-bitbucket-cloud"
+    "https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}/html/administration_guide/configuring-devspaces#configuring-oauth-1-for-a-bitbucket-server"
   )
   for (( i=0; i<${#CHE_LINKS[@]}; i++ ))
   do
