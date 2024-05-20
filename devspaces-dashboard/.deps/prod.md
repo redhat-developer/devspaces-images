@@ -5,9 +5,9 @@
 | [`@babel/runtime@7.23.2`](https://github.com/babel/babel.git) | MIT | #10718 |
 | [`@devfile/api@2.2.2-1700686170`](https://github.com/GIT_USER_ID/GIT_REPO_ID.git) | Apache-2.0 | clearlydefined |
 | [`@eclipse-che/che-devworkspace-generator@7.79.0-next-1427c19`](git+https://github.com/eclipse-che/che-devfile-registry.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.86.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.86.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.86.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.87.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.87.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.87.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@fastify/accept-negotiator@1.1.0`](git+https://github.com/fastify/accept-negotiator.git) | MIT | clearlydefined |
 | [`@fastify/ajv-compiler@3.5.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@fastify/busboy@2.0.0`](https://github.com/fastify/busboy.git) | MIT | clearlydefined |
@@ -200,7 +200,7 @@
 | [`joycon@3.1.1`](https://github.com/egoist/joycon.git) | MIT | clearlydefined |
 | [`js-tokens@4.0.0`](https://github.com/lydell/js-tokens.git) | MIT | #2401 |
 | [`js-yaml@4.1.0`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
-| [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT |  |
+| [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT | #14597 |
 | [`json-schema-ref-resolver@1.0.1`](git+https://github.com/fastify/json-schema-ref-resolver.git) | MIT | clearlydefined |
 | [`json-schema-resolver@2.0.0`](git+https://github.com/Eomm/json-schema-resolver.git) | MIT | clearlydefined |
 | [`json-schema-traverse@1.0.0`](git+https://github.com/epoberezkin/json-schema-traverse.git) | MIT | clearlydefined |
@@ -253,7 +253,7 @@
 | [`path-to-regexp@1.8.0`](https://github.com/pillarjs/path-to-regexp.git) | MIT | clearlydefined |
 | [`pbkdf2@3.1.2`](https://github.com/crypto-browserify/pbkdf2.git) | MIT | clearlydefined |
 | [`performance-now@2.1.0`](git://github.com/braveg1rl/performance-now.git) | MIT | clearlydefined |
-| [`picocolors@1.0.0`](https://github.com/alexeyraspopov/picocolors.git) | ISC | clearlydefined |
+| [`picocolors@1.0.0`](https://github.com/alexeyraspopov/picocolors.git) | ISC | #14718 |
 | [`pino-abstract-transport@1.1.0`](git+https://github.com/pinojs/pino-abstract-transport.git) | MIT | clearlydefined |
 | [`pino-pretty@10.2.3`](git+ssh://git@github.com/pinojs/pino-pretty.git) | MIT | clearlydefined |
 | [`pino-std-serializers@6.2.2`](git+ssh://git@github.com/pinojs/pino-std-serializers.git) | MIT | clearlydefined |

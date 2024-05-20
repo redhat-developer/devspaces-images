@@ -89,7 +89,7 @@
 | [`@nodelib/fs.stat@2.0.5`](https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.stat) | MIT | clearlydefined |
 | [`@nodelib/fs.walk@1.2.8`](https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.walk) | MIT | clearlydefined |
 | [`@npmcli/arborist@6.2.3`](https://github.com/npm/cli.git) | ISC | clearlydefined |
-| [`@npmcli/fs@3.1.0`](https://github.com/npm/fs.git) | ISC | clearlydefined |
+| [`@npmcli/fs@3.1.0`](https://github.com/npm/fs.git) | ISC | #14656 |
 | [`@npmcli/git@4.1.0`](https://github.com/npm/git.git) | ISC | #8724 |
 | [`@npmcli/installed-package-contents@2.0.2`](https://github.com/npm/installed-package-contents.git) | ISC | clearlydefined |
 | [`@npmcli/map-workspaces@3.0.4`](https://github.com/npm/map-workspaces.git) | ISC | #7603 |
@@ -260,7 +260,7 @@
 | [`before-after-hook@2.2.3`](https://github.com/gr2m/before-after-hook.git) | Apache-2.0 | clearlydefined |
 | [`big-integer@1.6.51`](git@github.com:peterolson/BigInteger.js.git) | Unlicense | #2439 |
 | [`big.js@5.2.2`](https://github.com/MikeMcl/big.js.git) | MIT | clearlydefined |
-| [`bin-links@4.0.3`](https://github.com/npm/bin-links.git) | ISC | clearlydefined |
+| [`bin-links@4.0.3`](https://github.com/npm/bin-links.git) | ISC | #14651 |
 | [`binary-extensions@2.2.0`](https://github.com/sindresorhus/binary-extensions.git) | MIT | clearlydefined |
 | [`bl@4.1.0`](https://github.com/rvagg/bl.git) | MIT | clearlydefined |
 | [`boolbase@1.0.0`](https://github.com/fb55/boolbase) | ISC | clearlydefined |
@@ -592,7 +592,7 @@
 | [`jsesc@2.5.2`](https://github.com/mathiasbynens/jsesc.git) | MIT | clearlydefined |
 | [`json-buffer@3.0.1`](git://github.com/dominictarr/json-buffer.git) | MIT | clearlydefined |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
-| [`json-parse-even-better-errors@3.0.0`](https://github.com/npm/json-parse-even-better-errors.git) | MIT | clearlydefined |
+| [`json-parse-even-better-errors@3.0.0`](https://github.com/npm/json-parse-even-better-errors.git) | MIT | #14658 |
 | [`json-stable-stringify-without-jsonify@1.0.1`](git://github.com/samn/json-stable-stringify.git) | MIT | clearlydefined |
 | [`json-stringify-nice@1.1.4`](https://github.com/isaacs/json-stringify-nice) | ISC | clearlydefined |
 | [`json5@2.2.3`](git+https://github.com/json5/json5.git) | MIT | #2126 |
