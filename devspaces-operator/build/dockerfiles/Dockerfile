@@ -35,7 +35,6 @@ COPY go.sum go.sum
 # Copy the go source
 COPY main.go main.go
 COPY vendor/ vendor/
-COPY mocks/ mocks/
 COPY api/ api/
 COPY config/ config/
 COPY controllers/ controllers/
