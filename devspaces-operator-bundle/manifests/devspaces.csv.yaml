@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.14
-    createdAt: "2024-05-20T23:08:45+00:00"
+    createdAt: "2024-05-21T00:02:55+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
@@ -848,7 +848,7 @@ spec:
                           {"add": ["SETGID", "SETUID"]}}'
                       - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
                         value: '[{"name": "universal-developer-image", "container":
-                          {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:9761308dfd6fa96a2f9a0d8d45db607011d413ea2eb00d50e1e1d542a3b3bc8f"}}]'
+                          {"image": "registry.redhat.io/devspaces/udi-rhel8@sha256:3986cb1f071591c9ba4a5db3a59d8f1ff86c4b8b0b462f19d121b8394cdde727"}}]'
                       - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
                         value: che-incubator/che-code/latest
                       - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES
@@ -881,28 +881,16 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.14
                       - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.14
-                      - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCNIK
-                        value: registry.redhat.io/devspaces/code-rhel8:3.15
                       - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.14
-                      - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCNIK
-                        value: registry.redhat.io/devspaces/code-rhel8:3.15
                       - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.14
-                      - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCNIK
-                        value: registry.redhat.io/devspaces/idea-rhel8:3.15
                       - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.14
-                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCNIK
-                        value: registry.redhat.io/devspaces/idea-rhel8:3.15
                       - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.14
-                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCNIK
-                        value: registry.redhat.io/devspaces/udi-rhel8:3.15
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.14
-                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCNIK
-                        value: registry.redhat.io/devspaces/udi-rhel8:3.15
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
                         value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.12
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
