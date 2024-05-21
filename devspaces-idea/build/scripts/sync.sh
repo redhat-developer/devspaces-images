@@ -57,6 +57,7 @@ compatible-ide.json
 /content_sets.*
 /cvp.yml
 /cvp-owners.yml
+/Dockerfile
 devfile.yaml
 devfiles/
 doc/
@@ -118,24 +119,9 @@ cat << EOT > "${TARGETDIR}"/compatible-ide.json
 ]
 EOT
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+sed_in_place -r \
+  `# Update DevSpaces version for Dockerfile` \
+  -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
+  "${TARGETDIR}"/Dockerfile
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \\
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \\
-    PRODNAME="devspaces" \\
-    COMPNAME="${MIDSTM_NAME}-rhel8"
-
-LABEL summary="\$SUMMARY" \\
-      description="\$DESCRIPTION" \\
-      io.k8s.description="\$DESCRIPTION" \\
-      io.k8s.display-name="\$DESCRIPTION" \\
-      io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
-      com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
-      name="\$PRODNAME/\$COMPNAME" \\
-      version="${DS_VERSION}" \\
-      license="EPLv2" \\
-      maintainer="Vladyslav Zhukovskyi <vzhukovs@redhat.com>" \\
-      io.openshift.expose-services="" \\
-      usage=""
-EOT
 echo "Converted Dockerfile"
