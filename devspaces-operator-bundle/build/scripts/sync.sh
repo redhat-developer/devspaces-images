@@ -118,6 +118,7 @@ api/
 build/
 config/
 controllers/
+editors-definitions/
 Dependencies.md
 devfile.yaml
 devfiles.yaml

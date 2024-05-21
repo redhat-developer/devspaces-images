@@ -96,6 +96,20 @@ UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@${UDI_IMAGE_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
+CODE_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://registry.redhat.io/devspaces/code-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep -v "source" | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
+CODE_IMAGE_DIGEST=$(skopeo inspect docker://registry.redhat.io/devspaces/code-rhel8:${CODE_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
+CODE_IMAGE="registry.redhat.io/devspaces/code-rhel8@${CODE_IMAGE_DIGEST}"
+IDEA_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://registry.redhat.io/devspaces/idea-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
+IDEA_IMAGE_DIGEST=$(skopeo inspect docker://registry.redhat.io/devspaces/idea-rhel8:${IDEA_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
+IDEA_IMAGE="registry.redhat.io/devspaces/idea-rhel8@${IDEA_IMAGE_DIGEST}"
+
+EDITORS_DEFINITIONS_ENV_VAR="[
+{ name: \"RELATED_IMAGE_editor_definition_che_idea_2022_1_idea_rhel8\", value: \"${UDI_IMAGE}\"},
+{ name: \"RELATED_IMAGE_editor_definition_che_idea_2022_1_idea_rhel8_injector\", value: \"${IDEA_IMAGE}\"},
+{ name: \"RELATED_IMAGE_editor_definition_che_code_latest_che_code_runtime_description\", value: \"${UDI_IMAGE}\"},
+{ name: \"RELATED_IMAGE_editor_definition_che_code_latest_che_code_injector\", value: \"${CODE_IMAGE}\"}
+]"
+
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
 #  Copyright (c) 2018-$(date +%Y) Red Hat, Inc.
@@ -361,6 +375,12 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
 	echo "Converted (yq #3) ${CSVFILE}"
+
+  # https://github.com/eclipse-che/che/issues/22932
+  # Update editors definitions environment variables in csv
+  yq -riY "del(.spec.install.spec.deployments[].spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${CSVFILE}"
+  yq -riY "(.spec.install.spec.deployments[].spec.template.spec.containers[0].env ) += [${EDITORS_DEFINITIONS_ENV_VAR}]" "${CSVFILE}"
+  echo "Converted (yq #3) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	bash -e "${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
