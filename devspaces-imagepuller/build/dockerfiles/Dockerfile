@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.20.12-5 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 ENV GOPATH=/go/ \
     GO111MODULE=on
 
@@ -34,13 +34,14 @@ RUN if [[ ${BOOTSTRAP} != "false" ]]; then \
 COPY . .
 
 # to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
-RUN adduser appuser && \
-    make build 
+RUN dnf -y install golang make && \
+  adduser appuser && \
+  make build 
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1161
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 USER root
-RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+RUN dnf -y update && dnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 # CRW-528 copy actual cert
 COPY --from=builder /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/pki/ca-trust/extracted/pem/
 # CRW-528 copy symlink to the above cert
