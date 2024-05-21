@@ -1,5 +1,5 @@
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM registry.redhat.io/rhel8-6-els/rhel:8.6-1440 as builder
+FROM registry.access.redhat.com/ubi8-minimal:8.9-1161 as builder
 USER 0
 
 # cachito
@@ -12,7 +12,8 @@ RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.
 
 # CRW-3531 note: build fails when run with python39 and nodejs:16; so stick with python2 and nodejs:12
 ENV NODEJS_VERSION="12:8020020200326104117/development"
-RUN dnf -y -q install python2 golang make gcc-c++ openssl-devel && \
+RUN microdnf -y install dnf && \
+    dnf -y -q install python2 golang make gcc-c++ openssl-devel && \
     dnf -y -q module install nodejs:$NODEJS_VERSION && \
     yarn config set nodedir /usr
 
@@ -32,14 +33,14 @@ RUN go generate && \
     go build ./cmd/traefik
 
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM registry.redhat.io/rhel8-6-els/rhel:8.6-1440 
+FROM registry.access.redhat.com/ubi8-minimal:8.9-1161 
 
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/traefik /traefik
 
 RUN chmod 755 /traefik && \
-    dnf -y update || true && \ 
-    dnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" 
+    microdnf -y update || true && \ 
+    microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" 
 
 EXPOSE 80
 VOLUME ["/tmp"]
