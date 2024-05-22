@@ -25,6 +25,8 @@ ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
     NPM_CONFIG_NODEDIR=/usr
 
+ENV CXXFLAGS='-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT'
+
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 
@@ -231,6 +233,8 @@ WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
     NPM_CONFIG_NODEDIR=/usr
+
+ENV CXXFLAGS='-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT'
 
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
