@@ -29,6 +29,7 @@ import {
 } from '@/components/WorkspaceProgress/ProgressStep';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import { lazyInject } from '@/inversify.config';
 import devfileApi from '@/services/devfileApi';
 import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import {
@@ -37,8 +38,9 @@ import {
   USE_DEFAULT_DEVFILE,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
-import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
 import { AlertItem } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
@@ -70,6 +72,9 @@ export type State = ProgressStepState & {
 
 class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   protected readonly name = 'Generating a DevWorkspace from the Devfile';
+
+  @lazyInject(TabManager)
+  private readonly tabManager: TabManager;
 
   constructor(props: Props) {
     super(props);
@@ -243,6 +248,10 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
       const nextLocation = buildIdeLoaderLocation(workspace);
       this.props.history.location.pathname = nextLocation.pathname;
       this.props.history.location.search = '';
+
+      const url = toHref(this.props.history, nextLocation);
+      this.tabManager.rename(url);
+
       return true;
     }
 

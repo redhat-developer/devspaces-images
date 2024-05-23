@@ -13,16 +13,19 @@
 import { Button } from '@patternfly/react-core';
 import { IRow, SortByDirection } from '@patternfly/react-table';
 import { Location } from 'history';
+import { History } from 'history';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { WorkspaceStatusIndicator } from '@/components/Workspace/Status/Indicator';
 import { WorkspaceActionsConsumer } from '@/contexts/WorkspaceActions';
 import { WorkspaceActionsDropdown } from '@/contexts/WorkspaceActions/Dropdown';
+import { container } from '@/inversify.config';
 import devfileApi from '@/services/devfileApi';
 import { formatDate, formatRelativeDate } from '@/services/helpers/dates';
-import { buildDetailsLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
+import { buildDetailsLocation, buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
 import { DevWorkspaceStatus } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 
 export interface RowData extends IRow {
@@ -32,6 +35,7 @@ export interface RowData extends IRow {
 }
 
 export function buildRows(
+  history: History,
   workspaces: Workspace[],
   toDelete: string[],
   filtered: string[],
@@ -62,10 +66,10 @@ export function buildRows(
       const overviewPageLocation = buildDetailsLocation(workspace);
       const ideLoaderLocation = buildIdeLoaderLocation(workspace);
 
+      const ideLoaderHref = toHref(history, ideLoaderLocation);
+
       try {
-        rows.push(
-          buildRow(workspace, isSelected, isDeleted, overviewPageLocation, ideLoaderLocation),
-        );
+        rows.push(buildRow(workspace, isSelected, isDeleted, overviewPageLocation, ideLoaderHref));
       } catch (e) {
         console.warn('Skip workspace: ', e);
       }
@@ -87,7 +91,7 @@ export function buildRow(
   isSelected: boolean,
   isDeleted: boolean,
   overviewPageLocation: Location,
-  ideLoaderLocation: Location,
+  ideLoaderHref: string,
 ): RowData {
   if (!workspace.name) {
     throw new Error('Empty workspace name.');
@@ -140,15 +144,9 @@ export function buildRow(
   } else if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
     action = 'deleting...';
   } else {
+    const tabManager = container.get(TabManager);
     action = (
-      <Button
-        variant="link"
-        isInline
-        isSmall
-        component={props => (
-          <Link {...props} to={ideLoaderLocation} rel="noreferrer" target={workspace.uid} />
-        )}
-      >
+      <Button variant="link" isInline isSmall onClick={() => tabManager.open(ideLoaderHref)}>
         Open
       </Button>
     );

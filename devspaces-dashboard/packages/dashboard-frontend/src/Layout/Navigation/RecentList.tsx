@@ -12,6 +12,7 @@
 
 import { NavGroup, NavList } from '@patternfly/react-core';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 import { NavigationRecentItem } from '@/Layout/Navigation/RecentItem';
 import { ROUTE } from '@/Routes/routes';
@@ -19,31 +20,38 @@ import { Workspace } from '@/services/workspace-adapter';
 
 import { NavigationRecentItemObject } from '.';
 
-function buildRecentWorkspacesItems(
-  workspaces: Array<Workspace>,
-  activePath: string,
-): Array<React.ReactElement> {
-  return workspaces.map(workspace => {
-    const workspaceName = workspace.name;
-    const namespace = workspace.namespace;
-    const navigateTo = ROUTE.IDE_LOADER.replace(':namespace', namespace).replace(
-      ':workspaceName',
-      workspaceName,
-    );
-    const item: NavigationRecentItemObject = {
-      to: navigateTo,
-      label: workspaceName,
-      workspace,
-    };
-    return <NavigationRecentItem key={item.to} item={item} activePath={activePath} />;
-  });
+function RecentWorkspaceItem(props: {
+  workspace: Workspace;
+  activePath: string;
+}): React.ReactElement {
+  const workspaceName = props.workspace.name;
+  const namespace = props.workspace.namespace;
+  const navigateTo = ROUTE.IDE_LOADER.replace(':namespace', namespace).replace(
+    ':workspaceName',
+    workspaceName,
+  );
+  const item: NavigationRecentItemObject = {
+    to: navigateTo,
+    label: workspaceName,
+    workspace: props.workspace,
+  };
+  const history = useHistory();
+  return <NavigationRecentItem history={history} item={item} activePath={props.activePath} />;
 }
 
 function NavigationRecentList(props: {
-  workspaces: Array<Workspace>;
   activePath: string;
+  workspaces: Array<Workspace>;
 }): React.ReactElement {
-  const recentWorkspaceItems = buildRecentWorkspacesItems(props.workspaces, props.activePath);
+  const recentWorkspaceItems = props.workspaces.map(workspace => {
+    return (
+      <RecentWorkspaceItem
+        key={workspace.name}
+        workspace={workspace}
+        activePath={props.activePath}
+      />
+    );
+  });
   return (
     <NavList>
       <NavGroup title="RECENT WORKSPACES" style={{ marginTop: '25px' }}>

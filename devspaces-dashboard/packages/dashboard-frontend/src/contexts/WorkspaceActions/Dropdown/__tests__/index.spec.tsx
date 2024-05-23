@@ -360,7 +360,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(
         screen.getByRole('menuitem', { name: 'Action: ' + WorkspaceAction.OPEN_IDE }),
-      ).toHaveAttribute('aria-disabled', 'true');
+      ).toHaveAttribute('aria-disabled', 'false');
       expect(
         screen.getByRole('menuitem', {
           name: 'Action: ' + WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,
@@ -388,7 +388,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(
         screen.getByRole('menuitem', { name: 'Action: ' + WorkspaceAction.OPEN_IDE }),
-      ).toHaveAttribute('aria-disabled', 'true');
+      ).toHaveAttribute('aria-disabled', 'false');
       expect(
         screen.getByRole('menuitem', {
           name: 'Action: ' + WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,
@@ -416,7 +416,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(
         screen.getByRole('menuitem', { name: 'Action: ' + WorkspaceAction.OPEN_IDE }),
-      ).toHaveAttribute('aria-disabled', 'true');
+      ).toHaveAttribute('aria-disabled', 'false');
       expect(
         screen.getByRole('menuitem', {
           name: 'Action: ' + WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,
@@ -472,7 +472,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(
         screen.getByRole('menuitem', { name: 'Action: ' + WorkspaceAction.OPEN_IDE }),
-      ).toHaveAttribute('aria-disabled', 'true');
+      ).toHaveAttribute('aria-disabled', 'false');
       expect(
         screen.getByRole('menuitem', {
           name: 'Action: ' + WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,

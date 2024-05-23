@@ -158,7 +158,7 @@ export class WorkspaceActionsDropdown extends React.PureComponent<Props, State> 
     };
 
     return [
-      getItem(WorkspaceAction.OPEN_IDE, isTerminating || isStopped === false),
+      getItem(WorkspaceAction.OPEN_IDE, isTerminating),
       getItem(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, isTerminating || isStopped === false),
       getItem(WorkspaceAction.START_IN_BACKGROUND, isTerminating || isStopped === false),
       getItem(WorkspaceAction.RESTART_WORKSPACE, isTerminating || isStopped),

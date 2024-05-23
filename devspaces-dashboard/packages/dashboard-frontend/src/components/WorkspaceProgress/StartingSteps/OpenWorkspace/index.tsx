@@ -28,10 +28,12 @@ import {
 } from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace/prepareRestart';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import { lazyInject } from '@/inversify.config';
 import { WorkspaceParams } from '@/Routes/routes';
 import { isAvailableEndpoint } from '@/services/helpers/api-ping';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace, WorkspaceAdapter } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
@@ -46,6 +48,9 @@ export type State = ProgressStepState;
 
 class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
   protected readonly name = 'Open IDE';
+
+  @lazyInject(TabManager)
+  private readonly tabManager: TabManager;
 
   constructor(props: Props) {
     super(props);
@@ -153,7 +158,7 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
 
     const isAvailable = await isAvailableEndpoint(workspace.ideUrl);
     if (isAvailable) {
-      window.location.replace(workspace.ideUrl);
+      this.tabManager.replace(workspace.ideUrl);
       return true;
     }
 

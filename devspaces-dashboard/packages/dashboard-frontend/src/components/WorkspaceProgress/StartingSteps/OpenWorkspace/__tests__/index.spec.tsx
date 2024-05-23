@@ -18,10 +18,12 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '@/components/WorkspaceProgress/const';
+import { container } from '@/inversify.config';
 import { WorkspaceParams } from '@/Routes/routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import { getDefer } from '@/services/helpers/deferred';
 import { AlertItem } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
@@ -41,8 +43,6 @@ const mockOnRestart = jest.fn();
 const mockOnError = jest.fn();
 const mockOnHideError = jest.fn();
 
-const mockLocationReplace = jest.fn();
-
 const namespace = 'che-user';
 const workspaceName = 'test-workspace';
 const matchParams: WorkspaceParams = {
@@ -51,9 +51,12 @@ const matchParams: WorkspaceParams = {
 };
 
 describe('Starting steps, opening an editor', () => {
+  let tabManager: TabManager;
+
   beforeEach(() => {
-    delete (window as any).location;
-    (window.location as any) = { replace: mockLocationReplace };
+    container.snapshot();
+    tabManager = container.get(TabManager);
+    tabManager.replace = jest.fn();
 
     jest.useFakeTimers();
   });
@@ -62,6 +65,7 @@ describe('Starting steps, opening an editor', () => {
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
+    container.restore();
   });
 
   describe('workspace not found', () => {
@@ -188,7 +192,7 @@ describe('Starting steps, opening an editor', () => {
 
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-    expect(mockLocationReplace).toHaveBeenCalledWith('main-url');
+    await waitFor(() => expect(tabManager.replace).toHaveBeenCalledWith('main-url'));
 
     expect(mockOnNextStep).toHaveBeenCalled();
     expect(mockOnError).not.toHaveBeenCalled();
@@ -256,7 +260,7 @@ describe('Starting steps, opening an editor', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // wait for opening IDE url
-      await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
+      await waitFor(() => expect(tabManager.replace).toHaveBeenCalledWith('main-url'));
     });
 
     test(`mainUrl is propagated after some time`, async () => {
@@ -295,7 +299,7 @@ describe('Starting steps, opening an editor', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // wait for opening IDE url
-      await waitFor(() => expect(mockLocationReplace).toHaveBeenCalledWith('main-url'));
+      await waitFor(() => expect(tabManager.replace).toHaveBeenCalledWith('main-url'));
 
       expect(mockOnError).not.toHaveBeenCalled();
     });
@@ -324,7 +328,7 @@ describe('Starting steps, opening an editor', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // IDE is not opened
-      expect(mockLocationReplace).not.toHaveBeenCalled();
+      expect(tabManager.replace).not.toHaveBeenCalled();
     });
 
     test('mainUrl is propagated after some time', async () => {
@@ -363,7 +367,7 @@ describe('Starting steps, opening an editor', () => {
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
       // IDE is not opened
-      expect(mockLocationReplace).not.toHaveBeenCalled();
+      expect(tabManager.replace).not.toHaveBeenCalled();
     });
   });
 

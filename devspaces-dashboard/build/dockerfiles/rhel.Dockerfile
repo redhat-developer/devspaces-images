@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-102 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-110 as builder
 # hadolint ignore=DL3002
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
@@ -20,7 +20,7 @@ RUN npm i -g yarn; yarn install
 RUN yarn build
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-102
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-110
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006

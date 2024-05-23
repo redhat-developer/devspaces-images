@@ -20,18 +20,20 @@ import { WebsocketClient } from '@/services/backend-client/websocketClient';
 import { IssuesReporterService } from '@/services/bootstrap/issuesReporter';
 import { WarningsReporterService } from '@/services/bootstrap/warningsReporter';
 import { WorkspaceStoppedDetector } from '@/services/bootstrap/workspaceStoppedDetector';
+import { TabManager } from '@/services/tabManager';
 import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 import { DevWorkspaceDefaultPluginsHandler } from '@/services/workspace-client/devworkspace/DevWorkspaceDefaultPluginsHandler';
 
 const container = new Container();
 const { lazyInject } = getDecorators(container);
 
-container.bind(IssuesReporterService).toSelf().inSingletonScope();
-container.bind(WebsocketClient).toSelf().inSingletonScope();
-container.bind(DevWorkspaceClient).toSelf().inSingletonScope();
 container.bind(AppAlerts).toSelf().inSingletonScope();
+container.bind(DevWorkspaceClient).toSelf().inSingletonScope();
 container.bind(DevWorkspaceDefaultPluginsHandler).toSelf().inSingletonScope();
-container.bind(WorkspaceStoppedDetector).toSelf().inSingletonScope();
+container.bind(IssuesReporterService).toSelf().inSingletonScope();
+container.bind(TabManager).toSelf().inSingletonScope();
 container.bind(WarningsReporterService).toSelf().inSingletonScope();
+container.bind(WebsocketClient).toSelf().inSingletonScope();
+container.bind(WorkspaceStoppedDetector).toSelf().inSingletonScope();
 
 export { container, lazyInject };

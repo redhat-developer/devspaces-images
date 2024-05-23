@@ -205,7 +205,10 @@ describe('WorkspaceActionsProvider', () => {
       await jest.advanceTimersByTimeAsync(1000);
 
       expect(window.open).toHaveBeenCalledTimes(1);
-      expect(window.open).toHaveBeenCalledWith('/ide/user-che/wksp-1234', '1234');
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('/ide/user-che/wksp-1234'),
+        expect.stringContaining('/ide/user-che/wksp-1234'),
+      );
     });
 
     test('start debug and open logs', async () => {
@@ -227,7 +230,10 @@ describe('WorkspaceActionsProvider', () => {
         { 'debug-workspace-start': true },
       );
 
-      expect(window.open).toHaveBeenCalledWith('/ide/user-che/wksp-5678?tab=Logs', '5678');
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('/ide/user-che/wksp-5678?tab=Logs'),
+        expect.stringContaining('/ide/user-che/wksp-5678?tab=Logs'),
+      );
     });
 
     test('start in background', async () => {

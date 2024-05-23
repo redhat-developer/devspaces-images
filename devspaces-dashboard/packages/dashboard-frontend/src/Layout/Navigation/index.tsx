@@ -107,7 +107,7 @@ export class Navigation extends React.PureComponent<Props, State> {
     return (
       <Nav aria-label="Navigation" onSelect={selected => this.handleNavSelect(selected)}>
         <NavigationMainList activePath={activeLocation.pathname} />
-        <NavigationRecentList workspaces={recentWorkspaces} activePath={activeLocation.pathname} />
+        <NavigationRecentList activePath={activeLocation.pathname} workspaces={recentWorkspaces} />
       </Nav>
     );
   }

@@ -25,13 +25,15 @@ import {
 } from '@/components/WorkspaceProgress/ProgressStep';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
+import { lazyInject } from '@/inversify.config';
 import {
   buildFactoryParams,
   FactoryParams,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
-import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
 import { AlertItem } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import * as DevfileRegistriesStore from '@/store/DevfileRegistries';
@@ -59,6 +61,9 @@ export type State = ProgressStepState & {
 
 class CreatingStepApplyResources extends ProgressStep<Props, State> {
   protected readonly name = 'Applying resources';
+
+  @lazyInject(TabManager)
+  private readonly tabManager: TabManager;
 
   constructor(props: Props) {
     super(props);
@@ -189,6 +194,10 @@ class CreatingStepApplyResources extends ProgressStep<Props, State> {
       const nextLocation = buildIdeLoaderLocation(targetWorkspace);
       this.props.history.location.pathname = nextLocation.pathname;
       this.props.history.location.search = '';
+
+      const url = toHref(this.props.history, nextLocation);
+      this.tabManager.rename(url);
+
       return true;
     }
 

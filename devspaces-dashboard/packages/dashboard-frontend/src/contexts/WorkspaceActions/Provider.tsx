@@ -15,8 +15,10 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { WorkspaceActionsDeleteConfirmation } from '@/contexts/WorkspaceActions/DeleteConfirmation';
+import { lazyInject } from '@/inversify.config';
 import { buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
 import { LoaderTab, WorkspaceAction } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import * as WorkspacesStore from '@/store/Workspaces';
@@ -41,6 +43,9 @@ export type State = {
 };
 
 class WorkspaceActionsProvider extends React.Component<Props, State> {
+  @lazyInject(TabManager)
+  private readonly tabManager: TabManager;
+
   private deleting: Set<string> = new Set();
 
   constructor(props: Props) {
@@ -56,9 +61,9 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
   /**
    * open the action in a new tab for DevWorkspaces
    */
-  private handleLocation(location: Location, workspace: Workspace): void {
+  private handleLocation(location: Location): void {
     const link = toHref(this.props.history, location);
-    window.open(link, workspace.uid);
+    this.tabManager.open(link);
   }
 
   private async deleteWorkspace(workspace: Workspace): Promise<void> {
@@ -105,7 +110,7 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
 
     switch (action) {
       case WorkspaceAction.OPEN_IDE: {
-        this.handleLocation(buildIdeLoaderLocation(workspace), workspace);
+        this.handleLocation(buildIdeLoaderLocation(workspace));
         break;
       }
       case WorkspaceAction.START_DEBUG_AND_OPEN_LOGS: {
@@ -113,7 +118,7 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
         await this.props.startWorkspace(workspace, {
           'debug-workspace-start': true,
         });
-        this.handleLocation(buildIdeLoaderLocation(workspace, LoaderTab.Logs), workspace);
+        this.handleLocation(buildIdeLoaderLocation(workspace, LoaderTab.Logs));
         break;
       }
       case WorkspaceAction.START_IN_BACKGROUND:

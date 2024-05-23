@@ -20,7 +20,7 @@ export type Props = {
   text: string;
 };
 
-export class TitleWithHover extends React.PureComponent<Props> {
+export class TitleWithHover extends React.Component<Props> {
   public render(): React.ReactElement {
     const { text } = this.props;
 
