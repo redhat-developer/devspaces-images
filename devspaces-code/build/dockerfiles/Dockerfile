@@ -18,7 +18,7 @@ FROM quay.io/devspaces/machineexec-rhel8:3.12 as machine-exec
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-102 as linux-libc-ubi8-builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-110 as linux-libc-ubi8-builder
 
 USER root
 
@@ -157,7 +157,7 @@ RUN yarn \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8/ubi:8.9-1160 AS ubi-builder
+FROM registry.access.redhat.com/ubi8/ubi:8.10-901 AS ubi-builder
 
 RUN mkdir -p /mnt/rootfs
 RUN yum install --installroot /mnt/rootfs brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
@@ -187,7 +187,7 @@ COPY --chmod=755 /build/remote-config /mnt/rootfs/remote/data/Machine/
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1161
+FROM registry.access.redhat.com/ubi8-minimal:8.10-896
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che
 USER 1001
