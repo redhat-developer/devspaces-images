@@ -10,7 +10,7 @@
 #
 
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.20.12-5 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
 ARG SKIP_TESTS="false"
@@ -20,6 +20,8 @@ USER root
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-operator/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator
+
+RUN dnf -y install golang
 
 RUN mkdir -p /tmp/devworkspace-operator/templates/ && \
     mv $REMOTE_SOURCES_DIR/DEV_WORKSPACE_CONTROLLER/app/deploy/deployment/* /tmp/devworkspace-operator/templates/
@@ -47,7 +49,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.9-1161
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 
 COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
