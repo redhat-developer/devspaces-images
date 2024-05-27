@@ -2,47 +2,23 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 
 | Packages | Resolved CQs |
 | --- | --- |
-| `@babel/runtime-corejs3@7.22.10` | transitive dependency |
-| `@csstools/media-query-list-parser@2.1.4` | transitive dependency |
 | `@csstools/selector-specificity@3.0.0` | transitive dependency |
-| `@devfile/api@2.2.2-1700686170` | N/A |
-| `@eslint/js@8.53.0` | transitive dependency |
-| `@nrwl/nx-darwin-arm64@15.9.7` | transitive dependency |
-| `@nrwl/nx-darwin-x64@15.9.7` | transitive dependency |
-| `@nrwl/nx-linux-arm-gnueabihf@15.9.7` | transitive dependency |
-| `@nrwl/nx-linux-arm64-gnu@15.9.7` | transitive dependency |
-| `@nrwl/nx-linux-arm64-musl@15.9.7` | transitive dependency |
-| `@nrwl/nx-win32-arm64-msvc@15.9.7` | transitive dependency |
-| `@nrwl/nx-win32-x64-msvc@15.9.7` | transitive dependency |
-| `@octokit/plugin-enterprise-rest@6.0.1` | transitive dependency |
-| `@sigstore/bundle@1.1.0` | transitive dependency |
-| `@sigstore/sign@1.0.0` | transitive dependency |
-| `@sigstore/sign@1.0.0` | transitive dependency |
-| `@testing-library/dom@7.31.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.2) |
-| `@typescript-eslint/eslint-plugin@6.10.0` | transitive dependency |
-| `@typescript-eslint/parser@6.4.0` | transitive dependency |
-| `@typescript-eslint/scope-manager@6.4.0` | transitive dependency |
-| `@typescript-eslint/type-utils@6.4.0` | transitive dependency |
-| `@typescript-eslint/types@6.4.0` | transitive dependency |
-| `@typescript-eslint/typescript-estree@6.10.0` | transitive dependency |
-| `@typescript-eslint/utils@6.4.0` | transitive dependency |
-| `@typescript-eslint/visitor-keys@6.4.0` | transitive dependency |
-| `agentkeepalive@4.5.0` | transitive dependency |
-| `asynciterator.prototype@1.0.0` | transitive dependency |
-| `es-iterator-helpers@1.0.12` | transitive dependency |
-| `es-iterator-helpers@1.0.12` | transitive dependency |
-| `eslint-config-prettier@9.0.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint-config-prettier/9.0.0) |
-| `eslint@8.53.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint/8.53.0) |
+| `@lerna/create@8.1.3` | transitive dependency |
+| `@nrwl/devkit@19.0.7` | transitive dependency |
+| `@nrwl/tao@19.0.7` | transitive dependency |
+| `@nx/devkit@19.0.7` | transitive dependency |
+| `@nx/nx-darwin-arm64@19.0.7` | transitive dependency |
+| `@nx/nx-darwin-x64@19.0.7` | transitive dependency |
+| `@nx/nx-freebsd-x64@19.0.7` | transitive dependency |
+| `@nx/nx-linux-arm-gnueabihf@19.0.7` | transitive dependency |
+| `@nx/nx-linux-arm64-gnu@19.0.7` | transitive dependency |
+| `@nx/nx-linux-arm64-musl@19.0.7` | transitive dependency |
+| `@nx/nx-linux-x64-gnu@19.0.7` | transitive dependency |
+| `@nx/nx-linux-x64-musl@19.0.7` | transitive dependency |
+| `@nx/nx-win32-arm64-msvc@19.0.7` | transitive dependency |
+| `@nx/nx-win32-x64-msvc@19.0.7` | transitive dependency |
+| `@testing-library/dom@7.31.2` | transitive dependency |
 | `fsevents@2.3.3` | transitive dependency |
-| `inquirer@8.2.6` | transitive dependency |
-| `jackspeak@2.3.0` | transitive dependency |
-| `normalize-package-data@3.0.3` | transitive dependency |
-| `npm-install-checks@6.2.0` | transitive dependency |
-| `postcss-reduce-initial@6.0.0` | transitive dependency |
-| `prettier@3.0.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/prettier/3.0.2) |
-| `sigstore@1.9.0` | transitive dependency |
-| `string-width-cjs@4.2.3` | transitive dependency |
-| `strip-ansi-cjs@6.0.1` | transitive dependency |
-| `terser@5.24.0` | transitive dependency |
-| `webpack-merge@5.10.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/webpack-merge/5.10.0) |
-| `wrap-ansi-cjs@7.0.0` | transitive dependency |
+| `lerna@8.1.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/lerna/8.1.3) |
+| `node-gyp@10.1.0` | transitive dependency |
+| `nx@19.0.7` | transitive dependency |

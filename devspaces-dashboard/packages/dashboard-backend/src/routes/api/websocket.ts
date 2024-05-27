@@ -11,7 +11,6 @@
  */
 
 import { api } from '@eclipse-che/common';
-import { SocketStream } from '@fastify/websocket';
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import WebSocket from 'ws';
 
@@ -28,8 +27,7 @@ export function registerWebsocket(instance: FastifyInstance) {
   });
 }
 
-function webSocketHandler(connection: SocketStream, request: FastifyRequest): void {
-  const ws = connection.socket;
+function webSocketHandler(ws: WebSocket, request: FastifyRequest): void {
   const subscriptionManager = new SubscriptionManager(ws);
 
   const token = getToken(request);

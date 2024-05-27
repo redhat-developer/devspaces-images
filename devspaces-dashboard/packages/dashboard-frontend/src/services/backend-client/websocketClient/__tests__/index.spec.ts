@@ -94,7 +94,7 @@ describe('websocketClient', () => {
 
         const serverMockNext = new WS('ws://localhost/dashboard/api/websocket');
         const wsNext = await serverMockNext.connected;
-        await delay();
+        await delay(300);
 
         expect(wsNext).toBeDefined();
         expect(handleConnectionOpen).toBeCalledTimes(2);

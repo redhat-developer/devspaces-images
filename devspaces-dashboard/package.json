@@ -37,7 +37,7 @@
     "patch": "${PWD}/run/patch.sh $@"
   },
   "devDependencies": {
-    "lerna": "^6"
+    "lerna": "^8.1.3"
   },
   "resolutions": {
     "@adobe/css-tools": "^4.3.2",
