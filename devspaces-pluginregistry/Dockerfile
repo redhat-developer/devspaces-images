@@ -16,7 +16,7 @@
 # The directory is located at /tmp/opt/ovsx/node_modules
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-102 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1716503936 as builder
 
 # hadolint ignore=DL3002
 USER root
@@ -57,7 +57,7 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry
 #
 
 # https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-58.1712921790
+FROM registry.redhat.io/rhel8/postgresql-15:1-66.1716503937
 USER 0
 WORKDIR /
 
