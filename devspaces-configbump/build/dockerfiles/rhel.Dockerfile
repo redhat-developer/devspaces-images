@@ -11,7 +11,7 @@
 # This container build creates configbump binary in a container
 # see also brew.Dockerfile
 
-# https://registry.access.redhat.com/ubi8/go-toolset
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 USER 0
 ENV GOPATH=/go/ \
@@ -30,7 +30,7 @@ RUN dnf -y install golang && \
     cp configbump /usr/local/bin/configbump && \
     chmod 755 /usr/local/bin/configbump
 
-# https://registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as runtime
 #hadolint ignore=DL4006
 RUN dnf -y install shadow-utils && \

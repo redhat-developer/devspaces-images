@@ -1,4 +1,4 @@
-# https://registry.access.redhat.com/ubi8-minimal 
+# https://registry.access.redhat.com/rhel8-6-els/rhel
 FROM registry.redhat.io/rhel8-6-els/rhel:8.6-1440 as builder
 USER 0
 
@@ -31,7 +31,7 @@ ENV CGO_ENABLED=1
 RUN go generate && \
     go build ./cmd/traefik
 
-# https://registry.access.redhat.com/ubi8-minimal 
+# https://registry.access.redhat.com/rhel8-6-els/rhel
 FROM registry.redhat.io/rhel8-6-els/rhel:8.6-1440 
 
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
