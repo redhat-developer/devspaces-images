@@ -30,7 +30,7 @@
 #       * asset-ide-packaging.tar.gz - IDE packaging downloaded previously;
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
-# https://registry.access.redhat.com/ubi8/ubi
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as ubi-builder
 COPY --chown=0:0 asset-required-rpms.txt /tmp/asset-required-rpms.txt
 
@@ -82,7 +82,7 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/projector" "/mnt/rootfs/etc/pa
 RUN rm /mnt/rootfs/etc/hosts
 
 # Stage 2. Copy from build environment Projector assembly to the runtime. Projector runs in headless mode.
-# https://registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 ENV HOME=/home/projector
 ENV PROJECTOR_ASSEMBLY_DIR /projector
