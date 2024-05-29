@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://registry.access.redhat.com/rhel8/go-toolset
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
@@ -27,7 +27,7 @@ RUN dnf -y install golang && \
     cp -rf /etc/passwd /rootfs/etc && \
     cp -rf /che-machine-exec/che-machine-exec /rootfs/go/bin
 
-# https://registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as runtime
 COPY --from=builder /rootfs /
 RUN dnf install -y openssl; dnf clean -y all

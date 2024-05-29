@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# https://registry.access.redhat.com/rhel8/go-toolset
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 ENV GOPATH=/go/ \
     GO111MODULE=on
@@ -27,7 +27,7 @@ RUN dnf -y install golang make && \
     adduser appuser && \
     make build 
 
-# https://registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 USER root
 RUN dnf -y update && dnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
