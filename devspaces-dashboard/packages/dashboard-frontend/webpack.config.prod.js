@@ -60,7 +60,7 @@ const config = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].[hash].css',
+      filename: '[name].[fullhash:8].css',
     }),
     new webpack.DefinePlugin({
       __isBrowser__: 'true',

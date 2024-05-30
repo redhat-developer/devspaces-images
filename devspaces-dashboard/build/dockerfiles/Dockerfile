@@ -37,15 +37,20 @@ RUN yarn install --network-timeout 3600000
 COPY packages/ /dashboard/packages
 RUN yarn build
 
+# leave only production dependencies
+RUN yarn workspace @eclipse-che/dashboard-backend install --production
+
 FROM docker.io/node:18.19.1-alpine3.19
 
 RUN apk --no-cache add curl
 
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
+ENV BACKEND_NODE_MODULES=/dashboard/packages/dashboard-backend/node_modules/
 ENV DEVFILE_REGISTRY=/dashboard/packages/devfile-registry
 
 COPY --from=builder ${BACKEND_LIB} /backend
+COPY --from=builder ${BACKEND_NODE_MODULES} /backend/node_modules
 COPY --from=builder ${FRONTEND_LIB} /public
 COPY --from=builder ${DEVFILE_REGISTRY} /public/dashboard/devfile-registry
 

@@ -31,7 +31,7 @@ const config = {
       if (pathData.chunk.name === 'service-worker') {
         return '[name].js';
       }
-      return '[name].[hash].js';
+      return '[name].[fullhash:8].js';
     },
     chunkFilename: '[name].[chunkhash].js',
     globalObject: 'this',

@@ -12,7 +12,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = () => {
   return {
@@ -44,42 +44,22 @@ module.exports = () => {
       alias: {
         // alias for absolute imports (see tsconfig.json)
         '@': path.resolve(__dirname, 'src/'),
-        
+
         // not everything we need is exported from the package
         // so we need to alias the rest
         '@devfile/api/api': path.resolve(__dirname, '../../node_modules/@devfile/api/api.ts'),
       },
     },
     resolveLoader: {},
-    plugins: [
-      new webpack.ProgressPlugin(),
-      new CopyPlugin({
-        patterns: [
-          {
-            from: path.resolve(
-              '..',
-              '..',
-              'node_modules',
-              '@fastify/swagger-ui',
-              'static',
-              'logo.svg',
-            ),
-            to: 'server/static',
-          },
-        ],
-      }),
-      new CopyPlugin({
-        patterns: [
-          {
-            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger-ui', 'static'),
-            to: 'static',
-          },
-        ],
-      }),
-    ],
+    plugins: [new webpack.ProgressPlugin()],
     node: {
       __dirname: false,
     },
-    target: 'node',
+    externalsPresets: { node: true },
+    externals: [
+      nodeExternals({
+        allowlist: [/^@devfile\/api/],
+      }),
+    ],
   };
 };

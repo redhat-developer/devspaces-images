@@ -3,9 +3,14 @@
   "version": "7.87.0",
   "description": "Dashboard for Eclipse Che",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/dashboard-backend/**"
+    ]
+  },
   "bugs": {
     "url": "https://github.com/eclipse/che/issues"
   },
