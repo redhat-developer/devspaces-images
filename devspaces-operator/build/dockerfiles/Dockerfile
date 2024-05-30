@@ -50,8 +50,8 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.10-896
 
-RUN dnf update -y && \
-    dnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+RUN microdnf update -y && \
+    microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
