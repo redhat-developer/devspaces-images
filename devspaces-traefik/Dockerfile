@@ -13,7 +13,7 @@ RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.
 # CRW-3531 note: build fails when run with python39 and nodejs:16; so stick with python2 and nodejs:12
 ENV NODEJS_VERSION="12:8020020200326104117/development"
 RUN microdnf -y install dnf && \
-    dnf -y -q install python2 golang make gcc-c++ openssl-devel && \
+    dnf -y -q install python2 golang-1.20.12 make gcc-c++ openssl-devel && \
     dnf -y -q module install nodejs:$NODEJS_VERSION && \
     yarn config set nodedir /usr
 
