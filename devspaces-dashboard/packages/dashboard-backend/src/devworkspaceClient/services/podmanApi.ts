@@ -176,7 +176,7 @@ export class PodmanApiService implements IPodmanApi {
 
         if (username && password) {
           // `|| true` ensures that `podman login` won't fail if credentials are invalid
-          externalDockerRegistriesPodmanLoginCommand += `podman login ${registry} -u ${username} -p ${password} || true\n`;
+          externalDockerRegistriesPodmanLoginCommand += `podman login ${registry} -u '${username}' -p '${password}' || true\n`;
         }
       }
     }

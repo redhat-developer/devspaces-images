@@ -73,7 +73,7 @@ describe('podman Config API Service', () => {
         'sh',
         '-c',
         expect.stringContaining(
-          'podman login registry1 -u user1 -p password1 || true\npodman login registry2 -u user2 -p password2 || true',
+          "podman login registry1 -u 'user1' -p 'password1' || true\npodman login registry2 -u 'user2' -p 'password2' || true",
         ),
       ]),
       expect.anything(),
