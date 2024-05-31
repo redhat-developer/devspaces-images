@@ -85,7 +85,7 @@ RUN ./index.sh > /build/devfiles/index.json && cp /build/devfiles/index.json /bu
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://registry.access.redhat.com/ubi8/httpd-24
-FROM registry.access.redhat.com/ubi8/httpd-24:1 AS registry
+FROM registry.access.redhat.com/ubi8/httpd-24:1-323.1716503935 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
