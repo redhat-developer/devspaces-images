@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# insert RELATED_IMAGE_ fields for images referenced by the plugin and devfile registries
+# insert RELATED_IMAGE_ fields for images referenced by the devfile registry
 
 tmpfile=$(mktemp)
 echo ${image} | sed -r \
