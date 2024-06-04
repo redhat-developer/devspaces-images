@@ -18,7 +18,6 @@ import {
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { inject, injectable } from 'inversify';
-import { load } from 'js-yaml';
 import { cloneDeep, isEqual } from 'lodash';
 
 import * as DwApi from '@/services/backend-client/devWorkspaceApi';
@@ -37,7 +36,6 @@ import {
 import { delay } from '@/services/helpers/delay';
 import { isWebTerminal } from '@/services/helpers/devworkspace';
 import { DevWorkspaceStatus } from '@/services/helpers/types';
-import { fetchData } from '@/services/registry/fetchData';
 import { WorkspaceAdapter } from '@/services/workspace-adapter';
 import {
   devWorkspaceApiGroup,
@@ -679,7 +677,7 @@ export class DevWorkspaceClient {
   async checkForTemplatesUpdate(
     editorName: string,
     namespace: string,
-    pluginsByUrl: { [url: string]: devfileApi.Devfile } = {},
+    editors: devfileApi.Devfile[],
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     openVSXUrl: string | undefined,
@@ -692,32 +690,64 @@ export class DevWorkspaceClient {
 
     const patch: api.IPatch[] = [];
 
-    const url = managedTemplate.metadata?.annotations?.[REGISTRY_URL];
+    let editorReference = managedTemplate.metadata?.annotations?.[REGISTRY_URL];
 
-    if (!url || managedTemplate.metadata?.annotations?.[COMPONENT_UPDATE_POLICY] !== 'managed') {
+    if (
+      !editorReference ||
+      managedTemplate.metadata?.annotations?.[COMPONENT_UPDATE_POLICY] !== 'managed'
+    ) {
       console.log('Template is not managed');
       return patch;
     }
 
-    let plugin: devfileApi.Devfile | undefined;
-    if (pluginsByUrl[url]) {
-      plugin = pluginsByUrl[url];
-    } else {
-      const pluginContent = await fetchData<string>(url);
-      plugin = load(pluginContent) as devfileApi.Devfile;
-      pluginsByUrl[url] = plugin;
+    if (/^(https?:\/\/)/.test(editorReference)) {
+      // Define a regular expression pattern to match URLs containing 'plugin-registry/v3/plugins'
+      // and ending with 'devfile.yaml'. The part between 'v3/plugins/' and '/devfile.yaml' is captured.
+      const pluginRegistryURLPattern = /plugin-registry\/v3\/plugins\/(.+?)\/devfile\.yaml$/;
+      const match = editorReference.match(pluginRegistryURLPattern);
+
+      if (match) {
+        editorReference = match[1];
+        const annotations = {
+          [COMPONENT_UPDATE_POLICY]: 'managed',
+          [REGISTRY_URL]: editorReference,
+        };
+        // Create a patch to update the annotations by replacing plugin registry URL with the editor reference
+        patch.push({
+          op: 'replace',
+          path: '/metadata/annotations',
+          value: annotations,
+        });
+      } else {
+        console.log('Template is not managed');
+        return patch;
+      }
+    }
+
+    const originalEditor: devfileApi.Devfile | undefined = editors.find(editor => {
+      return (
+        editor.metadata?.attributes?.publisher +
+          '/' +
+          editor.metadata?.name +
+          '/' +
+          editor.metadata?.attributes?.version ===
+        editorReference
+      );
+    });
+    if (!originalEditor) {
+      return patch;
     }
 
     const spec: Partial<V1alpha2DevWorkspaceTemplateSpec> = {};
-    for (const key in plugin) {
+    for (const key in originalEditor) {
       if (key !== 'schemaVersion' && key !== 'metadata') {
         if (key === 'components') {
-          plugin.components?.forEach(component => {
+          originalEditor.components?.forEach(component => {
             if (component.container && !component.container.sourceMapping) {
               component.container.sourceMapping = '/projects';
             }
           });
-          spec.components = plugin.components;
+          spec.components = originalEditor.components;
           this.addEnvVarsToContainers(
             spec.components,
             pluginRegistryUrl,
@@ -726,7 +756,7 @@ export class DevWorkspaceClient {
             clusterConsole,
           );
         } else {
-          spec[key] = plugin[key];
+          spec[key] = originalEditor[key];
         }
       }
     }

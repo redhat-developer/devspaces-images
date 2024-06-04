@@ -54,7 +54,7 @@ describe('dwPlugins selectors', () => {
 
   it('should return all plugins and errors', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withDwPlugins(plugins, {}, false, 'default editor fetching error')
+      .withDwPlugins(plugins, {}, false, [], 'default editor fetching error')
       .build() as MockStoreEnhanced<
       AppState,
       ThunkDispatch<AppState, undefined, store.KnownAction>
@@ -68,7 +68,7 @@ describe('dwPlugins selectors', () => {
 
   it('should return array of plugins', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withDwPlugins(plugins, {}, false, 'default editor fetching error')
+      .withDwPlugins(plugins, {}, false, [], 'default editor fetching error')
       .build() as MockStoreEnhanced<
       AppState,
       ThunkDispatch<AppState, undefined, store.KnownAction>
@@ -95,7 +95,7 @@ describe('dwPlugins selectors', () => {
 
   it('should return an error related to default editor fetching', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withDwPlugins(plugins, {}, false, 'default editor fetching error')
+      .withDwPlugins(plugins, {}, false, [], 'default editor fetching error')
       .build() as MockStoreEnhanced<
       AppState,
       ThunkDispatch<AppState, undefined, store.KnownAction>

@@ -18,6 +18,7 @@ import { Store } from 'redux';
 
 import PreloadData from '@/services/bootstrap';
 import { BrandingData } from '@/services/bootstrap/branding.constant';
+import devfileApi from '@/services/devfileApi';
 import { che } from '@/services/models';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
@@ -68,7 +69,7 @@ describe('Dashboard bootstrap', () => {
 
   test('requests which should be sent', async () => {
     prepareMocks(mockPost, 1, namespace); // provisionNamespace
-    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, plugin-registry, default-editor, devfile-registry, getting-started-sample, devworkspaces, events, pods, cluster-config, ssh-key
+    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, default-editor, devfile-registry, getting-started-sample, devworkspaces, events, pods, cluster-config, ssh-key
 
     await preloadData.init();
 
@@ -80,7 +81,7 @@ describe('Dashboard bootstrap', () => {
       undefined,
     );
     // wait for all GET requests to be sent
-    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(15));
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(14));
 
     await waitFor(() =>
       expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/ssh-key', undefined),
@@ -93,10 +94,7 @@ describe('Dashboard bootstrap', () => {
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/server-config', undefined);
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/cluster-info');
     expect(mockGet).toHaveBeenCalledWith('/dashboard/api/userprofile/test-che', undefined);
-    expect(mockGet).toHaveBeenCalledWith('http://localhost/plugin-registry/v3/plugins/index.json');
-    expect(mockGet).toHaveBeenCalledWith(
-      'http://localhost/plugin-registry/v3/plugins/default-editor/devfile.yaml',
-    );
+    expect(mockGet).toHaveBeenCalledWith('/dashboard/api/editors', undefined);
     expect(mockGet).toHaveBeenCalledWith(
       'http://localhost/dashboard/devfile-registry/devfiles/index.json',
     );
@@ -134,6 +132,18 @@ describe('Dashboard bootstrap', () => {
 });
 
 function getStore(namespace: che.KubernetesNamespace): Store {
+  const editors = [
+    {
+      metadata: {
+        name: 'default-editor',
+        attributes: {
+          publisher: 'che-incubator',
+          version: 'latest',
+        },
+      },
+      schemaVersion: '2.2.2',
+    } as devfileApi.Devfile,
+  ];
   return new FakeStoreBuilder()
     .withBranding({
       configuration: {
@@ -146,10 +156,11 @@ function getStore(namespace: che.KubernetesNamespace): Store {
     .withInfrastructureNamespace([namespace])
     .withDwServerConfig({
       defaults: {
-        editor: 'default-editor',
+        editor: 'che-incubator/default-editor/latest',
       },
       pluginRegistryURL: 'http://localhost/plugin-registry/v3',
     } as api.IServerConfig)
+    .withDwPlugins({}, {}, false, editors, 'che-incubator/default-editor/latest')
     .build();
 }
 

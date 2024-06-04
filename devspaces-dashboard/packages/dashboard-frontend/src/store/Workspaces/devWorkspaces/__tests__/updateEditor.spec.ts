@@ -115,19 +115,19 @@ describe('updateEditor, functions', () => {
       icon: 'https://console-icon-url',
       title: 'Cluster console',
     };
-    const editorResourceUrl = 'http://editor-url';
     const editorId = 'che-incubator/che-code/latest';
-    const editors = {
-      [editorId]: {
-        url: editorResourceUrl,
-        plugin: {
-          schemaVersion: '2.2.0',
-          metadata: {
-            name: 'che-code',
+    const editors = [
+      {
+        schemaVersion: '2.2.0',
+        metadata: {
+          name: 'che-code',
+          attributes: {
+            publisher: 'che-incubator',
+            version: 'latest',
           },
-        } as devfileApi.Devfile,
-      },
-    };
+        },
+      } as devfileApi.Devfile,
+    ];
     let store: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
     beforeEach(() => {
       store = new FakeStoreBuilder()
@@ -140,7 +140,7 @@ describe('updateEditor, functions', () => {
           pluginRegistryInternalURL: 'https://internal.registry',
           pluginRegistryURL,
         })
-        .withDwPlugins({}, editors, false, undefined, editorId)
+        .withDwPlugins({}, {}, false, editors, undefined, editorId)
         .build();
     });
 
@@ -152,7 +152,7 @@ describe('updateEditor, functions', () => {
       expect(mockCheckForEditorUpdate).toHaveBeenCalledWith(
         'che-code',
         namespace,
-        { [editorResourceUrl]: editors[editorId].plugin },
+        editors,
         pluginRegistryURL,
         'https://internal.registry',
         'https://openvsx.org',
@@ -171,7 +171,7 @@ describe('updateEditor, functions', () => {
       expect(mockCheckForEditorUpdate).toHaveBeenCalledWith(
         'che-code',
         namespace,
-        { [editorResourceUrl]: editors[editorId].plugin },
+        editors,
         pluginRegistryURL,
         'https://internal.registry',
         'https://openvsx.org',

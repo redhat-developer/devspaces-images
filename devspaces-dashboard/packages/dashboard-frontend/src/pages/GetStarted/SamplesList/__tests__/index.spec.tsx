@@ -227,7 +227,7 @@ describe('Samples List', () => {
 
     test('default editor matches some resource', () => {
       const store = storeBuilder
-        .withDwPlugins({}, {}, false, undefined, 'che-incubator/che-idea/next')
+        .withDwPlugins({}, {}, false, [], undefined, 'che-incubator/che-idea/next')
         .build();
       renderComponent(store, undefined, undefined);
 

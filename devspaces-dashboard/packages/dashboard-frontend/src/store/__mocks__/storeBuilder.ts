@@ -380,6 +380,7 @@ export class FakeStoreBuilder {
     plugins: { [url: string]: PluginDefinition },
     editors: { [url: string]: PluginDefinition },
     isLoading = false,
+    cmEditors?: devfileApi.Devfile[],
     defaultEditorError?: string,
     defaultEditorName?: string,
   ) {
@@ -388,6 +389,7 @@ export class FakeStoreBuilder {
     this.state.dwPlugins.editors = Object.assign({}, editors);
     this.state.dwPlugins.isLoading = isLoading;
     this.state.dwPlugins.defaultEditorName = defaultEditorName;
+    this.state.dwPlugins.cmEditors = cmEditors;
 
     return this;
   }

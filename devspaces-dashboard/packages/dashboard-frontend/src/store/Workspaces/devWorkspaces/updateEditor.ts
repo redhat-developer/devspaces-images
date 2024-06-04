@@ -35,6 +35,7 @@ export async function updateEditor(editorName: string, getState: () => AppState)
   selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).forEach(dwEditor => {
     pluginsByUrl[dwEditor.url] = dwEditor.devfile;
   });
+  const editors = state.dwPlugins.cmEditors || [];
   const openVSXUrl = selectOpenVSXUrl(state);
   const pluginRegistryUrl = selectPluginRegistryUrl(state);
   const pluginRegistryInternalUrl = selectPluginRegistryInternalUrl(state);
@@ -46,7 +47,7 @@ export async function updateEditor(editorName: string, getState: () => AppState)
     const updates = await devWorkspaceClient.checkForTemplatesUpdate(
       editorName,
       namespace,
-      pluginsByUrl,
+      editors,
       pluginRegistryUrl,
       pluginRegistryInternalUrl,
       openVSXUrl,

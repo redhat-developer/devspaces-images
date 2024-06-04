@@ -27,6 +27,7 @@ import {
   CREATE_DEVWORKSPACETEMPLATE_DELAY,
   DEVWORKSPACE_RESOURSES_DELAY,
   devworkspaceResources,
+  editors,
   FACTORY_RESOLVER_DELAY,
   factoryResolver,
   namespace,
@@ -183,7 +184,7 @@ describe('Workspace creation time', () => {
             },
             pluginRegistryURL: 'http://localhost/plugin-registry/v3',
           } as api.IServerConfig)
-          .withDwPlugins(plugins, {}, false)
+          .withDwPlugins(plugins, {}, false, editors, '', 'che-incubator/che-code/insiders')
           .withDevfileRegistries({
             devfiles: {
               ['http://localhost/plugin-registry/v3/plugins/che-incubator/che-code/insiders/devfile.yaml']:

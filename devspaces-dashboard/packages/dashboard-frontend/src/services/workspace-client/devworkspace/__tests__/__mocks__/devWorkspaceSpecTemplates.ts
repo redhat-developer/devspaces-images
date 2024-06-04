@@ -12,73 +12,55 @@
 
 import devfileApi from '@/services/devfileApi';
 
-const getDevWorkspaceTemplate = (cpuLimit = '1500m'): devfileApi.DevWorkspaceTemplate => {
+const getVSCodeDevWorkspaceTemplate = (cpuLimit = '1500m'): devfileApi.DevWorkspaceTemplate => {
   return {
     apiVersion: 'workspace.devfile.io/v1alpha2',
     kind: 'DevWorkspaceTemplate',
     metadata: {
       annotations: {
         'che.eclipse.org/components-update-policy': 'managed',
-        'che.eclipse.org/plugin-registry-url':
-          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/eclipse/che-theia/next/devfile.yaml',
+        'che.eclipse.org/plugin-registry-url': 'che-incubator/che-code/latest',
       },
-      creationTimestamp: new Date('2021-11-24T17:11:37Z'),
+      creationTimestamp: new Date('2024-05-30T12:51:45Z'),
       generation: 1,
-      name: 'theia-ide-workspacee2ade80d625b4f3e',
+      name: 'che-code-empty-mm9t',
       namespace: 'admin-che',
-      resourceVersion: '3766',
-      uid: '106c3fa1-32c6-47ef-87e5-333de6914837',
+      ownerReferences: [
+        {
+          apiVersion: 'workspace.devfile.io/v1alpha2',
+          kind: 'devworkspace',
+          name: 'empty-mm9t',
+          uid: 'ca85c4f7-d36d-4f4a-8ce9-b8cf72aa8a37',
+        },
+      ],
+      resourceVersion: '7429',
+      uid: 'e4781884-a294-4719-966a-4a4dfce3b7ff',
     },
     spec: {
-      commands: [],
+      attributes: {
+        version: null,
+      },
+      commands: [
+        {
+          apply: {
+            component: 'che-code-injector',
+          },
+          id: 'init-container-command',
+        },
+        {
+          exec: {
+            commandLine:
+              'nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &',
+            component: 'che-code-runtime-description',
+          },
+          id: 'init-che-code-command',
+        },
+      ],
       components: [
         {
-          attributes: {
-            'app.kubernetes.io/component': 'che-theia',
-            'app.kubernetes.io/part-of': 'che-theia.eclipse.org',
-          },
           container: {
+            command: ['/entrypoint-init-container.sh'],
             cpuLimit,
-            cpuRequest: '100m',
-            endpoints: [],
-            env: [
-              {
-                name: 'CHE_DASHBOARD_URL',
-                value: 'http://localhost',
-              },
-              {
-                name: 'CHE_PLUGIN_REGISTRY_URL',
-                value: 'plugin-registry-url',
-              },
-              {
-                name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
-                value: 'plugin-registry-internal-url',
-              },
-            ],
-            image: 'quay.io/eclipse/che-theia:next',
-            memoryLimit: '512M',
-            mountSources: true,
-            sourceMapping: '/projects',
-            volumeMounts: [],
-          },
-          name: 'theia-ide',
-        },
-        {
-          name: 'plugins',
-          volume: {},
-        },
-        {
-          name: 'theia-local',
-          volume: {},
-        },
-        {
-          attributes: {
-            'app.kubernetes.io/component': 'machine-exec',
-            'app.kubernetes.io/part-of': 'che-theia.eclipse.org',
-          },
-          container: {
-            command: ['/go/bin/che-machine-exec', '--url', '127.0.0.1:3333'],
-            cpuLimit: '500m',
             cpuRequest: '30m',
             env: [
               {
@@ -94,64 +76,111 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m'): devfileApi.DevWorkspaceTem
                 value: 'plugin-registry-internal-url',
               },
             ],
-            image: 'quay.io/eclipse/che-machine-exec:next',
-            memoryLimit: '128Mi',
-            memoryRequest: '32Mi',
-            sourceMapping: '/projects',
-          },
-          name: 'che-machine-exec',
-        },
-        {
-          attributes: {
-            'app.kubernetes.io/component': 'remote-runtime-injector',
-            'app.kubernetes.io/part-of': 'che-theia.eclipse.org',
-          },
-          container: {
-            cpuLimit: '500m',
-            cpuRequest: '30m',
-            env: [
-              {
-                name: 'CHE_DASHBOARD_URL',
-                value: 'http://localhost',
-              },
-              {
-                name: 'CHE_PLUGIN_REGISTRY_URL',
-                value: 'plugin-registry-url',
-              },
-              {
-                name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
-                value: 'plugin-registry-internal-url',
-              },
-            ],
-            image: 'quay.io/eclipse/che-theia-endpoint-runtime-binary:next',
-            memoryLimit: '128Mi',
+            image: 'quay.io/che-incubator/che-code:latest',
+            memoryLimit: '256Mi',
             memoryRequest: '32Mi',
             sourceMapping: '/projects',
             volumeMounts: [
               {
-                name: 'plugins',
-                path: '/plugins',
-              },
-              {
-                name: 'remote-endpoint',
-                path: '/remote-endpoint',
+                name: 'checode',
+                path: '/checode',
               },
             ],
           },
-          name: 'remote-runtime-injector',
+          name: 'che-code-injector',
         },
         {
-          name: 'remote-endpoint',
-          volume: {
-            ephemeral: true,
+          attributes: {
+            'app.kubernetes.io/component': 'che-code-runtime',
+            'app.kubernetes.io/part-of': 'che-code.eclipse.org',
+            'controller.devfile.io/container-contribution': true,
           },
+          container: {
+            cpuLimit: '500m',
+            cpuRequest: '30m',
+            endpoints: [
+              {
+                attributes: {
+                  cookiesAuthEnabled: true,
+                  discoverable: false,
+                  type: 'main',
+                  urlRewriteSupported: true,
+                },
+                exposure: 'public',
+                name: 'che-code',
+                protocol: 'https',
+                secure: true,
+                targetPort: 3100,
+              },
+              {
+                attributes: {
+                  discoverable: false,
+                  urlRewriteSupported: false,
+                },
+                exposure: 'public',
+                name: 'code-redirect-1',
+                protocol: 'https',
+                targetPort: 13131,
+              },
+              {
+                attributes: {
+                  discoverable: false,
+                  urlRewriteSupported: false,
+                },
+                exposure: 'public',
+                name: 'code-redirect-2',
+                protocol: 'https',
+                targetPort: 13132,
+              },
+              {
+                attributes: {
+                  discoverable: false,
+                  urlRewriteSupported: false,
+                },
+                exposure: 'public',
+                name: 'code-redirect-3',
+                protocol: 'https',
+                targetPort: 13133,
+              },
+            ],
+            env: [
+              {
+                name: 'CHE_DASHBOARD_URL',
+                value: 'http://localhost',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_URL',
+                value: 'plugin-registry-url',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
+                value: 'plugin-registry-internal-url',
+              },
+            ],
+            image: 'quay.io/devfile/universal-developer-image:latest',
+            memoryLimit: '1024Mi',
+            memoryRequest: '256Mi',
+            sourceMapping: '/projects',
+            volumeMounts: [
+              {
+                name: 'checode',
+                path: '/checode',
+              },
+            ],
+          },
+          name: 'che-code-runtime-description',
+        },
+        {
+          name: 'checode',
+          volume: {},
         },
       ],
       events: {
+        postStart: ['init-che-code-command'],
         preStart: ['init-container-command'],
       },
     },
   };
 };
 
-export default getDevWorkspaceTemplate;
+export default getVSCodeDevWorkspaceTemplate;

@@ -33,6 +33,7 @@ export interface Plugin {
     devfile: string;
   };
   icon: string;
+  iconMediatype?: string;
   tags?: string[];
 }
 

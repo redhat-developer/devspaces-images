@@ -28,6 +28,7 @@ import { registerDevworkspaceResourcesRoute } from '@/routes/api/devworkspaceRes
 import { registerDevworkspacesRoutes } from '@/routes/api/devworkspaces';
 import { registerDevWorkspaceTemplates } from '@/routes/api/devworkspaceTemplates';
 import { registerDockerConfigRoutes } from '@/routes/api/dockerConfig';
+import { registerEditorsRoutes } from '@/routes/api/editors';
 import { registerEventsRoutes } from '@/routes/api/events';
 import { registerGettingStartedSamplesRoutes } from '@/routes/api/gettingStartedSample';
 import { registerGitConfigRoutes } from '@/routes/api/gitConfig';
@@ -116,6 +117,8 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
     registerGitConfigRoutes(server),
 
     registerGettingStartedSamplesRoutes(isLocalRun(), server),
+
+    registerEditorsRoutes(server),
 
     registerSShKeysRoutes(server),
 

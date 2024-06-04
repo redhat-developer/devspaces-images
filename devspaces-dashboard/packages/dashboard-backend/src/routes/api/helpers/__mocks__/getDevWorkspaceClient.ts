@@ -15,6 +15,7 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
+  V222Devfile,
   V222DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
@@ -25,6 +26,7 @@ import {
   IDevWorkspaceApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
+  IEditorsApi,
   IEventApi,
   IGitConfigApi,
   IKubeConfigApi,
@@ -100,6 +102,15 @@ export const stubEventsList: api.IEventList = {
   },
   items: [],
 };
+
+export const editorsArray: V222Devfile[] = [
+  {
+    schemaVersion: '2.2.2',
+    metadata: {
+      name: 'editor',
+    },
+  },
+];
 
 export const stubPodsList: api.IPodList = {
   apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -181,6 +192,9 @@ export function getDevWorkspaceClient(
     userProfileApi: {
       getUserProfile: _namespace => Promise.resolve(stubUserProfile),
     } as IUserProfileApi,
+    editorsApi: {
+      list: () => Promise.resolve(editorsArray),
+    } as IEditorsApi,
     eventApi: {
       listInNamespace: _namespace => Promise.resolve(stubEventsList),
       watchInNamespace: _namespace => Promise.resolve(),

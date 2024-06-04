@@ -49,7 +49,6 @@ import * as PodsStore from '@/store/Pods';
 import { selectPodsResourceVersion } from '@/store/Pods/selectors';
 import * as SanityCheckStore from '@/store/SanityCheck';
 import * as ServerConfigStore from '@/store/ServerConfig';
-import { selectPluginRegistryUrl } from '@/store/ServerConfig/selectors';
 import * as SshKeysStore from '@/store/SshKeys';
 import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
@@ -91,8 +90,7 @@ export default class Bootstrap {
 
     const results = await Promise.allSettled([
       this.fetchUserProfile(),
-      this.fetchPlugins(),
-      this.fetchDwPlugins(),
+      this.fetchPlugins().then(() => this.fetchDwPlugins()),
       this.fetchDefaultDwPlugins(),
       this.fetchRegistriesMetadata().then(() => this.fetchEmptyWorkspace()),
       this.fetchWorkspaces().then(() => {
@@ -269,9 +267,7 @@ export default class Bootstrap {
 
   private async fetchPlugins(): Promise<void> {
     const { requestPlugins } = PluginsStore.actionCreators;
-    const state = this.store.getState();
-    const pluginRegistryURL = selectPluginRegistryUrl(state);
-    await requestPlugins(pluginRegistryURL)(this.store.dispatch, this.store.getState, undefined);
+    await requestPlugins()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchDwPlugins(): Promise<void> {

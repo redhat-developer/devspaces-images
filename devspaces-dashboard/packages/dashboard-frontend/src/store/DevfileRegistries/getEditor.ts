@@ -10,8 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { dump } from 'js-yaml';
 import { ThunkDispatch } from 'redux-thunk';
 
+import devfileApi from '@/services/devfileApi';
 import { actionCreators, KnownAction } from '@/store/DevfileRegistries/index';
 import { AppState } from '@/store/index';
 
@@ -19,35 +21,45 @@ export async function getEditor(
   editorIdOrPath: string,
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
   getState: () => AppState,
-  pluginRegistryUrl?: string,
 ): Promise<{ content?: string; editorYamlUrl: string; error?: string }> {
   let editorYamlUrl: string;
 
+  const state = getState();
+
   if (/^(https?:\/\/)/.test(editorIdOrPath)) {
     editorYamlUrl = editorIdOrPath;
-  } else {
-    if (!pluginRegistryUrl) {
-      throw new Error('Plugin registry URL is required.');
+    let devfileObj = state.devfileRegistries.devfiles[editorYamlUrl];
+    if (devfileObj) {
+      const content = devfileObj.content;
+      const error = devfileObj.error;
+      return Object.assign({ content, editorYamlUrl, error });
     }
-    editorYamlUrl = `${pluginRegistryUrl}/plugins/${editorIdOrPath}/devfile.yaml`;
-  }
+    await dispatch(actionCreators.requestDevfile(editorYamlUrl));
 
-  const state = getState();
-  let devfileObj = state.devfileRegistries.devfiles[editorYamlUrl];
-  if (devfileObj) {
-    const content = devfileObj.content;
-    const error = devfileObj.error;
-    return Object.assign({ content, editorYamlUrl, error });
+    const nexState = getState();
+    devfileObj = nexState.devfileRegistries.devfiles[editorYamlUrl];
+    if (devfileObj) {
+      const content = devfileObj.content;
+      const error = devfileObj.error;
+      return Object.assign({ content, editorYamlUrl, error });
+    }
+    throw new Error(`Failed to fetch editor yaml by URL: ${editorYamlUrl}.`);
+  } else {
+    const editors = state.dwPlugins.cmEditors || [];
+    const editor: devfileApi.Devfile | undefined = editors.find(e => {
+      return (
+        e.metadata.attributes.publisher +
+          '/' +
+          e.metadata.name +
+          '/' +
+          e.metadata.attributes.version ===
+        editorIdOrPath
+      );
+    });
+    if (editor) {
+      return Object.assign({ content: dump(editor), editorYamlUrl: editorIdOrPath });
+    } else {
+      throw new Error(`Failed to fetch editor yaml by id: ${editorIdOrPath}.`);
+    }
   }
-  await dispatch(actionCreators.requestDevfile(editorYamlUrl));
-
-  const nexState = getState();
-  devfileObj = nexState.devfileRegistries.devfiles[editorYamlUrl];
-  if (devfileObj) {
-    const content = devfileObj.content;
-    const error = devfileObj.error;
-    return Object.assign({ content, editorYamlUrl, error });
-  }
-
-  throw new Error(`Failed to fetch editor yaml by URL: ${editorYamlUrl}.`);
 }

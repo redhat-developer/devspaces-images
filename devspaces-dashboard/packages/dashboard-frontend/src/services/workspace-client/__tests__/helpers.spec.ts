@@ -323,15 +323,32 @@ describe('Workspace-client helpers', () => {
           optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
             id: 'che-incubator/che-idea/next',
           });
-          const store = new FakeStoreBuilder()
-            .withDevfileRegistries({
-              devfiles: {
-                ['https://dummy-plugin-registry/plugins/che-incubator/che-idea/next/devfile.yaml']:
-                  {
-                    content: dump(editor),
-                  },
+
+          const editors = [
+            {
+              schemaVersion: '2.1.0',
+              metadata: {
+                name: 'che-idea',
+                namespace: 'che',
+                attributes: {
+                  publisher: 'che-incubator',
+                  version: 'next',
+                },
               },
-            })
+              components: [
+                {
+                  name: 'eclipse-ide',
+                  container: {
+                    image: 'docker.io/wsskeleton/eclipse-broadway',
+                    mountSources: true,
+                    memoryLimit: '2048M',
+                  },
+                },
+              ],
+            } as devfileApi.Devfile,
+          ];
+          const store = new FakeStoreBuilder()
+            .withDwPlugins({}, {}, false, editors, 'che-incubator/che-idea/next')
             .build();
 
           const customEditor = await getCustomEditor(
@@ -356,6 +373,31 @@ describe('Workspace-client helpers', () => {
               ],
             },
           });
+
+          const editors = [
+            {
+              schemaVersion: '2.1.0',
+              metadata: {
+                name: 'che-idea',
+                namespace: 'che',
+                attributes: {
+                  publisher: 'che-incubator',
+                  version: 'next',
+                },
+              },
+              components: [
+                {
+                  name: 'eclipse-ide',
+                  container: {
+                    image: 'docker.io/wsskeleton/eclipse-broadway',
+                    mountSources: true,
+                    memoryLimit: '2048M',
+                  },
+                },
+              ],
+            } as devfileApi.Devfile,
+          ];
+
           const store = new FakeStoreBuilder()
             .withDevfileRegistries({
               devfiles: {
@@ -365,6 +407,7 @@ describe('Workspace-client helpers', () => {
                   },
               },
             })
+            .withDwPlugins({}, {}, false, editors, 'che-incubator/che-idea/next')
             .build();
 
           const customEditor = await getCustomEditor(
@@ -377,12 +420,36 @@ describe('Workspace-client helpers', () => {
           expect(customEditor).toEqual(expect.stringContaining('memoryLimit: 1234Mi'));
         });
 
-        it('should throw the "missing metadata.name" error message', async () => {
+        it('should failed fetching editor without metadata.name attribute', async () => {
           // set an empty value as a name
           editor.metadata.name = '';
           optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({
             id: 'che-incubator/che-idea/next',
           });
+
+          const editors = [
+            {
+              schemaVersion: '2.1.0',
+              metadata: {
+                namespace: 'che',
+                attributes: {
+                  publisher: 'che-incubator',
+                  version: 'next',
+                },
+              },
+              components: [
+                {
+                  name: 'eclipse-ide',
+                  container: {
+                    image: 'docker.io/wsskeleton/eclipse-broadway',
+                    mountSources: true,
+                    memoryLimit: '2048M',
+                  },
+                },
+              ],
+            } as devfileApi.Devfile,
+          ];
+
           const store = new FakeStoreBuilder()
             .withDevfileRegistries({
               devfiles: {
@@ -392,6 +459,7 @@ describe('Workspace-client helpers', () => {
                   },
               },
             })
+            .withDwPlugins({}, {}, false, editors, 'che-incubator/che-idea/next')
             .build();
 
           let errorText: string | undefined;
@@ -407,7 +475,7 @@ describe('Workspace-client helpers', () => {
           }
 
           expect(errorText).toEqual(
-            'Failed to analyze the editor devfile, reason: Missing metadata.name attribute in the editor yaml file.',
+            'Failed to fetch editor yaml by id: che-incubator/che-idea/next.',
           );
         });
       });
@@ -515,8 +583,12 @@ function buildEditor(): devfileApi.Devfile {
   return {
     schemaVersion: '2.1.0',
     metadata: {
-      name: 'ws-skeleton/eclipseide/4.9.0',
+      name: 'che-idea',
       namespace: 'che',
+      attributes: {
+        publisher: 'che-incubator',
+        version: 'next',
+      },
     },
     components: [
       {

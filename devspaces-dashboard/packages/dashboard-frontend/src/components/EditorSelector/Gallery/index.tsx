@@ -107,6 +107,7 @@ export class EditorGallery extends React.PureComponent<Props, State> {
         return;
       }
 
+      const groupIconMediatype = editorsGroup[0].iconMediatype || '';
       const groupIcon = editorsGroup[0].icon;
       const groupName = editorsGroup[0].displayName || editorsGroup[0].name;
 
@@ -115,6 +116,7 @@ export class EditorGallery extends React.PureComponent<Props, State> {
           key={editorName}
           editorsGroup={editorsGroup}
           groupIcon={groupIcon}
+          groupIconMediatype={groupIconMediatype}
           groupName={groupName}
           selectedId={selectedId}
           onSelect={editorId => this.handleEditorSelect(editorId)}

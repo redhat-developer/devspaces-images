@@ -66,6 +66,18 @@ export const plugins = {
     } as devfileApi.Devfile,
   },
 };
+export const editors = [
+  {
+    schemaVersion: '2.2.2',
+    metadata: {
+      name: 'che-code',
+      attributes: {
+        publisher: 'che-incubator',
+        version: 'insiders',
+      },
+    },
+  } as devfileApi.Devfile,
+];
 export const devfileContent = dump({
   schemaVersion: '2.2.0',
   metadata: {

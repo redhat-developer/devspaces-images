@@ -26,7 +26,7 @@ exports[`Editor Selector Entry snapshot 1`] = `
     >
       <img
         className="editorIcon"
-        src="/v3/images/vscode.svg"
+        src="data:image/svg+xml;charset=utf-8,data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%252Fv3%252Fimages%252Fvscode.svg"
       />
       <div
         className="pf-c-label-group pf-m-vertical"

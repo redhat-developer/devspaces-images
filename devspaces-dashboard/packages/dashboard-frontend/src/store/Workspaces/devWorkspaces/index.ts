@@ -661,7 +661,7 @@ export const actionCreators: ActionCreators = {
           const error = selectSanityCheckError(getState());
           throw new Error(error);
         }
-        const response = await getEditor(defaultsEditor, dispatch, getState, pluginRegistryUrl);
+        const response = await getEditor(defaultsEditor, dispatch, getState);
         if (response.content) {
           editorContent = response.content;
           editorYamlUrl = response.editorYamlUrl;
@@ -842,7 +842,7 @@ export const actionCreators: ActionCreators = {
       // do we have an optional editor parameter ?
       let editor = params.cheEditor;
       if (editor) {
-        const response = await getEditor(editor, dispatch, getState, pluginRegistryUrl);
+        const response = await getEditor(editor, dispatch, getState);
         if (response.content) {
           editorContent = response.content;
           editorYamlUrl = response.editorYamlUrl;
@@ -869,7 +869,7 @@ export const actionCreators: ActionCreators = {
           if (!defaultsEditor) {
             throw new Error('Cannot define default editor');
           }
-          const response = await getEditor(defaultsEditor, dispatch, getState, pluginRegistryUrl);
+          const response = await getEditor(defaultsEditor, dispatch, getState);
           if (response.content) {
             editorContent = response.content;
             editorYamlUrl = response.editorYamlUrl;
@@ -893,7 +893,7 @@ export const actionCreators: ActionCreators = {
           devfileContent: dump(devfile),
           editorPath: undefined,
           editorId: undefined,
-          editorContent,
+          editorContent: editorContent,
         });
         const resources = loadResourcesContent(resourcesContent);
         devWorkspaceResource = resources.find(

@@ -140,7 +140,7 @@ export async function getCustomEditor(
     console.debug('Using the repository .che/che-editor.yaml file', cheEditorYaml);
 
     let repositoryEditorYaml: devfileApi.Devfile | undefined;
-    let repositoryEditorYamlUrl: string | undefined;
+    let editorReference: string | undefined;
     // it's an inlined editor, use the inline content
     if (cheEditorYaml.inline) {
       console.debug('Using the inline content of the repository editor');
@@ -151,17 +151,17 @@ export async function getCustomEditor(
 
       // registryUrl ?
       if (cheEditorYaml.registryUrl) {
-        repositoryEditorYamlUrl = `${cheEditorYaml.registryUrl}/plugins/${cheEditorYaml.id}/devfile.yaml`;
+        editorReference = `${cheEditorYaml.registryUrl}/plugins/${cheEditorYaml.id}/devfile.yaml`;
       } else {
-        repositoryEditorYamlUrl = `${pluginRegistryUrl}/plugins/${cheEditorYaml.id}/devfile.yaml`;
+        editorReference = cheEditorYaml.id;
       }
     } else if (cheEditorYaml.reference) {
       // load the content of this editor
       console.debug(`Loading editor from reference ${cheEditorYaml.reference}`);
-      repositoryEditorYamlUrl = cheEditorYaml.reference;
+      editorReference = cheEditorYaml.reference;
     }
-    if (repositoryEditorYamlUrl) {
-      const response = await getEditor(repositoryEditorYamlUrl, dispatch, getState);
+    if (editorReference) {
+      const response = await getEditor(editorReference, dispatch, getState);
       if (response.content) {
         const yaml = load(response.content);
         repositoryEditorYaml = isDevfileV2(yaml) ? yaml : undefined;

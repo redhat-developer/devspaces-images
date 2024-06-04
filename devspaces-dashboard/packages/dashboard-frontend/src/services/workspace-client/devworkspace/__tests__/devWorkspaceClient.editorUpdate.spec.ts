@@ -16,8 +16,13 @@ import { container } from '@/inversify.config';
 import { dashboardBackendPrefix } from '@/services/backend-client/const';
 import * as DwtApi from '@/services/backend-client/devWorkspaceTemplateApi';
 import devfileApi from '@/services/devfileApi';
-import getDevWorkspaceTemplate from '@/services/workspace-client/devworkspace/__tests__/__mocks__/devWorkspaceSpecTemplates';
-import { DevWorkspaceClient } from '@/services/workspace-client/devworkspace/devWorkspaceClient';
+import getVSCodeDevWorkspaceTemplate from '@/services/workspace-client/devworkspace/__tests__/__mocks__/devWorkspaceSpecTemplates';
+import getVSCodeEditorDefinition from '@/services/workspace-client/devworkspace/__tests__/__mocks__/editorDefinitions';
+import {
+  COMPONENT_UPDATE_POLICY,
+  DevWorkspaceClient,
+  REGISTRY_URL,
+} from '@/services/workspace-client/devworkspace/devWorkspaceClient';
 
 const mockFetchData = jest.fn();
 jest.mock('@/services/registry/fetchData', () => ({
@@ -34,25 +39,22 @@ describe('DevWorkspace client editor update', () => {
     jest.clearAllMocks();
   });
 
-  describe('has target plugin in store', () => {
+  describe('has target editor in store', () => {
     it('should return patch for an editor if it has been updated', async () => {
-      const template = getDevWorkspaceTemplate('1000m');
+      const template = getVSCodeDevWorkspaceTemplate('1000m');
       const mockPatch = mockAxios.get as jest.Mock;
       mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
-      // if cpuLimit changed from '1000m' to '2000m'
-      const newTemplate = getDevWorkspaceTemplate('2000m');
+      // if cpuLimit changed from '1000m' to '500m'
+      const newTemplate = getVSCodeDevWorkspaceTemplate('500m');
 
-      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
-
+      const editors: devfileApi.Devfile[] = [getVSCodeEditorDefinition() as devfileApi.Devfile];
       const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
         editorName,
         namespace,
-        {
-          [url]: newTemplate.spec as devfileApi.Devfile,
-        },
+        editors,
         pluginRegistryUrl,
         pluginRegistryInternalUrl,
         undefined,
@@ -72,23 +74,20 @@ describe('DevWorkspace client editor update', () => {
     });
 
     it(`should return an empty object if it hasn't been updated`, async () => {
-      const template = getDevWorkspaceTemplate('1000m');
+      const template = getVSCodeDevWorkspaceTemplate('500m');
       const mockPatch = mockAxios.get as jest.Mock;
       mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
       // if nothing changed
-      const newTemplate = getDevWorkspaceTemplate('1000m');
-
-      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
+      const newTemplate = getVSCodeDevWorkspaceTemplate('500m');
+      const editors: devfileApi.Devfile[] = [getVSCodeEditorDefinition() as devfileApi.Devfile];
 
       const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
         editorName,
         namespace,
-        {
-          [url]: newTemplate.spec as devfileApi.Devfile,
-        },
+        editors,
         pluginRegistryUrl,
         pluginRegistryInternalUrl,
         undefined,
@@ -102,41 +101,82 @@ describe('DevWorkspace client editor update', () => {
     });
   });
 
-  describe('don`t have target plugin in store', () => {
-    it('should return patch for an editor if it has been updated', async () => {
-      const template = getDevWorkspaceTemplate('1000m');
-      const mockGet = mockAxios.get as jest.Mock;
-      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+  describe('has no target editor in store', () => {
+    it(`should return an empty patch`, async () => {
+      const template = getVSCodeDevWorkspaceTemplate('1000m');
+      const mockPatch = mockAxios.get as jest.Mock;
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
-      // if cpuLimit changed from '1000m' to '2000m'
-      const newTemplate = getDevWorkspaceTemplate('2000m');
-      const mockPost = mockAxios.post as jest.Mock;
-      mockPost.mockResolvedValueOnce(
-        new Promise(resolve => resolve({ data: JSON.stringify(newTemplate.spec) })),
-      );
+      // if cpuLimit changed from '1000m' to '500m'
+      const newTemplate = getVSCodeDevWorkspaceTemplate('500m');
 
-      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
-
+      const editor = getVSCodeEditorDefinition() as devfileApi.Devfile;
+      editor.metadata.name = 'non-existing-editor';
+      const editors: devfileApi.Devfile[] = [editor];
       const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
         editorName,
         namespace,
-        {},
+        editors,
         pluginRegistryUrl,
         pluginRegistryInternalUrl,
         undefined,
       );
 
-      expect(mockGet).toHaveBeenCalledWith(
-        `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`,
+      expect(mockPatch.mock.calls).toEqual([
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
+      ]);
+
+      expect(patch).toEqual([]);
+    });
+  });
+
+  describe('DevWorkspaceTemplate with plugin registry URL', () => {
+    it('should return patch for an editor if it has been updated', async () => {
+      const template = getVSCodeDevWorkspaceTemplate('1000m');
+      template.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/che-incubator/che-code/latest/devfile.yaml',
+      };
+
+      const mockPatch = mockAxios.get as jest.Mock;
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+
+      // if cpuLimit changed from '1000m' to '500m'
+      const newTemplate = getVSCodeDevWorkspaceTemplate('500m');
+      newTemplate.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/che-incubator/che-code/latest/devfile.yaml',
+      };
+
+      const editors: devfileApi.Devfile[] = [getVSCodeEditorDefinition() as devfileApi.Devfile];
+      const editorName = newTemplate.metadata.name;
+
+      const patch = await client.checkForTemplatesUpdate(
+        editorName,
+        namespace,
+        editors,
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
         undefined,
       );
-      expect(mockPost).toHaveBeenCalledWith(expect.stringContaining('/data/resolver'), {
-        url: url,
-      });
+
+      expect(mockPatch.mock.calls).toEqual([
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
+      ]);
 
       expect(patch).toEqual([
+        {
+          op: 'replace',
+          path: '/metadata/annotations',
+          value: {
+            [COMPONENT_UPDATE_POLICY]: 'managed',
+            [REGISTRY_URL]: 'che-incubator/che-code/latest',
+          },
+        },
         {
           op: 'replace',
           path: '/spec',
@@ -145,44 +185,141 @@ describe('DevWorkspace client editor update', () => {
       ]);
     });
 
-    it(`should return an empty object if it hasn't been updated`, async () => {
-      const template = getDevWorkspaceTemplate('1000m');
-      const mockGet = mockAxios.get as jest.Mock;
-      mockGet.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+    it('should return an empty patch if registry URL does not match a default plugin registry URL', async () => {
+      const template = getVSCodeDevWorkspaceTemplate('1000m');
+      template.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/custom-registry/v3/plugins/che-incubator/che-code/latest/devfile.yaml',
+      };
 
-      // if nothing changed
-      const newTemplate = getDevWorkspaceTemplate('1000m');
-      const mockPost = mockAxios.post as jest.Mock;
-      mockPost.mockResolvedValueOnce(
-        new Promise(resolve => resolve({ data: JSON.stringify(newTemplate.spec) })),
-      );
-      const url = newTemplate.metadata.annotations?.['che.eclipse.org/plugin-registry-url'];
+      const mockPatch = mockAxios.get as jest.Mock;
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
 
+      // if cpuLimit changed from '1000m' to '500m'
+      const newTemplate = getVSCodeDevWorkspaceTemplate('500m');
+      newTemplate.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/custom-registry/v3/plugins/che-incubator/che-code/latest/devfile.yaml',
+      };
+
+      const editors: devfileApi.Devfile[] = [getVSCodeEditorDefinition() as devfileApi.Devfile];
       const editorName = newTemplate.metadata.name;
 
       const patch = await client.checkForTemplatesUpdate(
         editorName,
         namespace,
-        {},
+        editors,
         pluginRegistryUrl,
         pluginRegistryInternalUrl,
         undefined,
       );
 
-      expect(mockGet).toHaveBeenCalledWith(
-        `${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`,
-        undefined,
-      );
-      expect(mockPost).toHaveBeenCalledWith(expect.stringContaining('/data/resolver'), {
-        url: url,
-      });
+      expect(mockPatch.mock.calls).toEqual([
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
+      ]);
 
       expect(patch).toEqual([]);
+    });
+
+    it('should update annotations if registry URL matches a default plugin registry URL but no changes in a template', async () => {
+      const template = getVSCodeDevWorkspaceTemplate('500m');
+      template.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/che-incubator/che-code/latest/devfile.yaml',
+      };
+
+      const mockPatch = mockAxios.get as jest.Mock;
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+
+      // if cpuLimit changed from '1000m' to '500m'
+      const newTemplate = getVSCodeDevWorkspaceTemplate('500m');
+      newTemplate.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/che-incubator/che-code/latest/devfile.yaml',
+      };
+
+      const editors: devfileApi.Devfile[] = [getVSCodeEditorDefinition() as devfileApi.Devfile];
+      const editorName = newTemplate.metadata.name;
+
+      const patch = await client.checkForTemplatesUpdate(
+        editorName,
+        namespace,
+        editors,
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+        undefined,
+      );
+
+      expect(mockPatch.mock.calls).toEqual([
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
+      ]);
+
+      expect(patch).toEqual([
+        {
+          op: 'replace',
+          path: '/metadata/annotations',
+          value: {
+            [COMPONENT_UPDATE_POLICY]: 'managed',
+            [REGISTRY_URL]: 'che-incubator/che-code/latest',
+          },
+        },
+      ]);
+    });
+
+    it('should update annotations if registry URL matches a default plugin registry but editor id is not in local storage', async () => {
+      const template = getVSCodeDevWorkspaceTemplate('500m');
+      template.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/che-incubator/custom-editor/latest/devfile.yaml',
+      };
+
+      const mockPatch = mockAxios.get as jest.Mock;
+      mockPatch.mockResolvedValueOnce(new Promise(resolve => resolve({ data: template })));
+
+      // if cpuLimit changed from '1000m' to '500m'
+      const newTemplate = getVSCodeDevWorkspaceTemplate('1000m');
+      newTemplate.metadata.annotations = {
+        'che.eclipse.org/components-update-policy': 'managed',
+        'che.eclipse.org/plugin-registry-url':
+          'https://192.168.64.24.nip.io/plugin-registry/v3/plugins/che-incubator/custom-editor/latest/devfile.yaml',
+      };
+
+      const editors: devfileApi.Devfile[] = [getVSCodeEditorDefinition() as devfileApi.Devfile];
+      const editorName = newTemplate.metadata.name;
+
+      const patch = await client.checkForTemplatesUpdate(
+        editorName,
+        namespace,
+        editors,
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+        undefined,
+      );
+
+      expect(mockPatch.mock.calls).toEqual([
+        [`${dashboardBackendPrefix}/namespace/${namespace}/devworkspacetemplates/${editorName}`],
+      ]);
+
+      expect(patch).toEqual([
+        {
+          op: 'replace',
+          path: '/metadata/annotations',
+          value: {
+            [COMPONENT_UPDATE_POLICY]: 'managed',
+            [REGISTRY_URL]: 'che-incubator/custom-editor/latest',
+          },
+        },
+      ]);
     });
   });
 
   it('should patch target template', async () => {
-    const template = getDevWorkspaceTemplate('1000m');
+    const template = getVSCodeDevWorkspaceTemplate('1000m');
 
     const editorName = template.metadata.name;
 

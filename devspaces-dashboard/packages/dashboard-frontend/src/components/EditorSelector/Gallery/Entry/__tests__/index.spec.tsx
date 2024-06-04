@@ -34,7 +34,8 @@ const editorGroup: che.Plugin[] = [
     publisher: 'che-incubator',
     type: 'Che Editor',
     version: 'insiders',
-    icon: '/v3/images/vscode.svg',
+    icon: 'data:image/svg+xml;charset=utf-8,%2Fv3%2Fimages%2Fvscode.svg',
+    iconMediatype: 'image/svg+xml',
   },
   {
     id: 'che-incubator/che-code/latest',
@@ -47,11 +48,13 @@ const editorGroup: che.Plugin[] = [
     publisher: 'che-incubator',
     type: 'Che Editor',
     version: 'latest',
-    icon: '/v3/images/vscode.svg',
+    icon: 'data:image/svg+xml;charset=utf-8,%2Fv3%2Fimages%2Fvscode.svg',
+    iconMediatype: 'image/svg+xml',
   },
 ];
 
 const editorGroupIconSrc = editorGroup[0].icon;
+const editorGroupIconMediatype = editorGroup[0].iconMediatype || '';
 const editorGroupName = editorGroup[0].displayName as string;
 
 describe('Editor Selector Entry', () => {
@@ -225,6 +228,7 @@ function getComponent(
     <EditorSelectorEntry
       editorsGroup={editorGroup}
       groupIcon={editorGroupIconSrc}
+      groupIconMediatype={editorGroupIconMediatype}
       groupName={editorGroupName}
       selectedId={selectedEditorId}
       onSelect={mockOnSelect}

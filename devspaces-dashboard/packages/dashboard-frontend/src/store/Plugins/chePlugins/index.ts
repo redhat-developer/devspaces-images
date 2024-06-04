@@ -13,15 +13,13 @@
 import common from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
 
-import { getAxiosInstance } from '@/services/axios-wrapper/getAxiosInstance';
 import { che } from '@/services/models';
 import { AppThunk } from '@/store';
 import { createObject } from '@/store/helpers';
+import * as devWorkspacePlugins from '@/store/Plugins/devWorkspacePlugins';
 import { SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
-const axiosInstance = getAxiosInstance();
-
-export const EXCLUDED_TARGET_EDITOR_NAMES = ['dirigible', 'jupyter', 'eclipseide', 'code-server'];
+export const EXCLUDED_TARGET_EDITOR_NAMES = [''];
 
 export interface State {
   isLoading: boolean;
@@ -46,34 +44,47 @@ interface ReceivePluginsErrorAction {
 type KnownAction = RequestPluginsAction | ReceivePluginsAction | ReceivePluginsErrorAction;
 
 export type ActionCreators = {
-  requestPlugins: (registryUrl: string) => AppThunk<KnownAction, Promise<void>>;
+  requestPlugins: () => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
   requestPlugins:
-    (registryUrl: string): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
+    (): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
       try {
-        const response = await axiosInstance.get<che.Plugin[]>(`${registryUrl}/plugins/index.json`);
+        // request editors from config map
+        await dispatch(devWorkspacePlugins.actionCreators.requestEditors());
 
-        const plugins = response.data.map(plugin => {
+        const state = getState();
+        const editors = state.dwPlugins.cmEditors || [];
+        const editorsPlugins: che.Plugin[] = editors.map(editor => {
           return {
-            ...plugin,
-            icon: resolveLink(registryUrl, plugin.icon),
+            id:
+              editor.metadata.attributes.publisher +
+              '/' +
+              editor.metadata.name +
+              '/' +
+              editor.metadata.attributes.version,
+            name: editor.metadata.name,
+            description: editor.metadata.description,
+            displayName: editor.metadata.displayName,
+            publisher: editor.metadata.attributes.publisher,
+            type: 'Che Editor',
+            tags: editor.metadata.attributes.tags,
+            version: editor.metadata.attributes.version,
             links: {
-              devfile: resolveLink(registryUrl, plugin.links.devfile),
+              devfile: '',
             },
+            icon: editor.metadata.attributes.iconData,
+            iconMediatype: editor.metadata.attributes.iconMediatype,
           };
         });
-
         dispatch({
           type: 'RECEIVE_PLUGINS',
-          plugins,
+          plugins: editorsPlugins,
         });
       } catch (e) {
-        const errorMessage =
-          `Failed to fetch plugins from registry URL: ${registryUrl}, reason: ` +
-          common.helpers.errors.getMessage(e);
+        const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVE_PLUGINS_ERROR',
           error: errorMessage,

@@ -30,6 +30,7 @@ import { che } from '@/services/models';
 export type Props = {
   editorsGroup: che.Plugin[];
   groupIcon: string;
+  groupIconMediatype: string;
   groupName: string;
   selectedId: string;
   onSelect: (editorId: string) => void;
@@ -137,7 +138,7 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { groupIcon, groupName } = this.props;
+    const { groupIcon, groupIconMediatype, groupName } = this.props;
     const { isKebabOpen, isSelectedGroup, activeEditor } = this.state;
 
     const dropdownItems = this.buildDropdownItems();
@@ -145,6 +146,10 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
 
     const titleClassName = isSelectedGroup ? styles.activeCard : '';
 
+    const icon =
+      groupIconMediatype === 'image/svg+xml'
+        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(groupIcon)}`
+        : groupIcon;
     const hasTechPreviewTag =
       (activeEditor.tags || []).includes('tech-preview') === true ||
       /idea/i.test(activeEditor.id) === true;
@@ -171,7 +176,7 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
         selectableInputAriaLabel={areaLabel}
       >
         <CardHeader>
-          <img src={groupIcon} className={styles.editorIcon} />
+          <img src={icon} className={styles.editorIcon} />
           {tagsGroup}
           <CardActions>
             <Dropdown
