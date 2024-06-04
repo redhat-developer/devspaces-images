@@ -286,10 +286,13 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
   V1_EXAMPLE=$(echo "$ALM_EXAMPLES" | yq '(.[] | select(.apiVersion=="org.eclipse.che/v1"))')
   V2_EXAMPLE=$(echo "$ALM_EXAMPLES" | yq '(.[] | select(.apiVersion=="org.eclipse.che/v2"))')
   FIXED_V2_EXAMPLE=$(echo "$V2_EXAMPLE" | \
+    yq 'del(.spec.components.pluginRegistry.disableInternalRegistry)' | \
+    yq 'del(.spec.components.pluginRegistry | select(length == 0))') | \
     yq 'del(.spec.components.devfileRegistry.disableInternalRegistry)' | \
     yq 'del(.spec.components.devfileRegistry.externalDevfileRegistries)'| \
     yq 'del(.spec.components.devfileRegistry | select(length == 0))')
   FIXED_V1_EXAMPLE=$(echo "$V1_EXAMPLE" | \
+    yq 'del(.spec.server.externalPluginRegistry)' | \
     yq 'del(.spec.server.externalDevfileRegistry)' | \
     yq 'del(.spec.server.devfileRegistryUrl)'| \
     yq 'del(.spec.server.externalDevfileRegistries)'| \
