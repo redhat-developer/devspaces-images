@@ -96,11 +96,11 @@ UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@${UDI_IMAGE_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
-CODE_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://registry.redhat.io/devspaces/code-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep -v "source" | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
-CODE_IMAGE_DIGEST=$(skopeo inspect docker://registry.redhat.io/devspaces/code-rhel8:${CODE_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
+CODE_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/code-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
+CODE_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/devspaces/code-rhel8:${CODE_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
 CODE_IMAGE="registry.redhat.io/devspaces/code-rhel8@${CODE_IMAGE_DIGEST}"
-IDEA_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://registry.redhat.io/devspaces/idea-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
-IDEA_IMAGE_DIGEST=$(skopeo inspect docker://registry.redhat.io/devspaces/idea-rhel8:${IDEA_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
+IDEA_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/idea-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
+IDEA_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/devspaces/idea-rhel8:${IDEA_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
 IDEA_IMAGE="registry.redhat.io/devspaces/idea-rhel8@${IDEA_IMAGE_DIGEST}"
 
 EDITORS_DEFINITIONS_ENV_VAR="[
@@ -287,7 +287,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
   V2_EXAMPLE=$(echo "$ALM_EXAMPLES" | yq '(.[] | select(.apiVersion=="org.eclipse.che/v2"))')
   FIXED_V2_EXAMPLE=$(echo "$V2_EXAMPLE" | \
     yq 'del(.spec.components.pluginRegistry.disableInternalRegistry)' | \
-    yq 'del(.spec.components.pluginRegistry | select(length == 0))') | \
+    yq 'del(.spec.components.pluginRegistry | select(length == 0))' | \
     yq 'del(.spec.components.devfileRegistry.disableInternalRegistry)' | \
     yq 'del(.spec.components.devfileRegistry.externalDevfileRegistries)'| \
     yq 'del(.spec.components.devfileRegistry | select(length == 0))')
