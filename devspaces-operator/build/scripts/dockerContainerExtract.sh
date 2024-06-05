@@ -5,7 +5,6 @@ if [[ ! $1 ]]; then
   echo "Usage: $0 CONTAINER [tar-extraction-flags]"
   echo "Usage: $0 quay.io/devspaces/devspaces-operator-bundle:latest"
   echo "Usage: $0 quay.io/devspaces/devfileregistry-rhel8:latest var/www/html/*/external_images.txt"
-  echo "Usage: $0 quay.io/devspaces/pluginregistry-rhel8:latest var/www/html/*/external_images.txt"
   exit
 fi
 

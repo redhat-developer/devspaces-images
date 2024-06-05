@@ -61,6 +61,7 @@ echo ".github/
 .ci/
 .vscode/
 build/
+editors-definitions/
 devfiles.yaml
 /container.yaml
 /content_sets.*

@@ -68,6 +68,13 @@ UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@${UDI_IMAGE_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
+CODE_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/code-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep -v "source" | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
+CODE_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/devspaces/code-rhel8:${CODE_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
+CODE_IMAGE="registry.redhat.io/devspaces/code-rhel8@${CODE_IMAGE_DIGEST}"
+IDEA_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/idea-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
+IDEA_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/devspaces/idea-rhel8:${IDEA_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
+IDEA_IMAGE="registry.redhat.io/devspaces/idea-rhel8@${IDEA_IMAGE_DIGEST}"
+
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
 COPY_FOLDERS="api bundle config controllers hack pkg vendor version"
@@ -249,6 +256,15 @@ if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${DS_VERSION}" "${COPYRIGHT}"
 fi
 echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
+
+# https://github.com/eclipse-che/che/issues/22932
+yq -riY "del(.spec.install.spec.deployments[].spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${OPERATOR_DEPLOYMENT_YAML}"
+echo "Converted (yq #3) ${OPERATOR_DEPLOYMENT_YAML}"
+
+yq -riY "(.components[] | select(.name==\"che-code-injector\") | .container.image)=\"${CODE_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-code.yaml"
+yq -riY "(.components[] | select(.name==\"che-code-runtime-description\") | .container.image)=\"${UBI_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-code.yaml"
+yq -riY "(.components[] | select(.name==\"idea-rhel8-injector\") | .container.image)=\"${IDEA_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-idea.yaml"
+yq -riY "(.components[] | select(.name==\"idea-rhel8\") | .container.image)=\"${UBI_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-idea.yaml"
 
 # if sort the file, we'll lose all the comments
 yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"

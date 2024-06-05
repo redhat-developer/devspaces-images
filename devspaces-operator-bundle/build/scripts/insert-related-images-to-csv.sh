@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# insert RELATED_IMAGE_ fields for images referenced by the plugin and devfile registries
+# insert RELATED_IMAGE_ fields for images referenced by the devfile registry
 
 set -e
 # SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
@@ -51,13 +51,11 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 
-PLUGIN_REGISTRY_CONTAINERS=""
 DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # extract registry containers to get external_images.txt
     curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/product/containerExtract.sh && chmod +x containerExtract.sh
     ./containerExtract.sh quay.io/devspaces/devfileregistry-rhel8:${DS_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
-    ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${DS_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
     wait
 
     # CRW-3432 fail if we can't find the external_images.txt files
@@ -65,14 +63,10 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
       echo "[ERROR] Cannot resolve devfileregistry external_images.txt!"
       exit 2
     fi
-    if [[ ! $(cat /tmp/quay.io-devspaces-pluginregistry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt) ]]; then
-      echo "[ERROR] Cannot resolve pluginregistry external_images.txt!"
-      exit 3
-    fi
 
     # CRW-3177, CRW-3178 sort uniquely; replace quay refs with RHEC refs
     # remove ghcr.io/ansible/ansible-workspace-env-reference from EXTERNAL_IMAGES
-    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | \
+    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-devfileregistry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | \
       sed -r -e '/^ghcr\.io\/ansible\/ansible-workspace-env-reference/d' \
       -e "s#quay.io/devspaces/#registry.redhat.io/devspaces/#g" | sort -uV)
 
@@ -82,11 +76,10 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     echo "${EXTERNAL_IMAGES[@]}"
 popd >/dev/null
 # cleanup
-rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/
-$PODMAN rmi -f quay.io/devspaces/pluginregistry-rhel8:${DS_VERSION} quay.io/devspaces/devfileregistry-rhel8:${DS_VERSION} || true
+rm -fr $tmpdir /tmp/quay.io-devspaces-devfileregistry-rhel8-${DS_VERSION}*/
+$PODMAN rmi -f quay.io/devspaces/devfileregistry-rhel8:${DS_VERSION} || true
 # convert strings to arrays
 DEVFILE_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
-PLUGIN_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
 
 # same method used in both insert-related-images-to-csv.sh and sync-che-olm.sh
 insertEnvVar()
@@ -100,7 +93,6 @@ insertEnvVar()
 CSVFILE=${TARGETDIR}/manifests/devspaces.csv.yaml
 
 # The updated name should be like:
-# RELATED_IMAGE_devspaces_udi_plugin_registry_image_GIXDCMQK
 # RELATED_IMAGE_devspaces_udi_devfile_registry_image_GIXDCMQK
 # RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7_devfile_registry_image_G4XDGLRWBI______
 updateRelatedImageName() {
@@ -121,7 +113,6 @@ updateRelatedImageName() {
   done
 }
 
-updateRelatedImageName "plugin_registry_image" "${PLUGIN_REGISTRY_CONTAINERS[@]}"
 updateRelatedImageName "devfile_registry_image" "${DEVFILE_REGISTRY_CONTAINERS[@]}"
 
 # replace external devspaces refs with internal ones, and quay refs (from v2 devfiles) with RHEC ones

@@ -1,30 +1,15 @@
-#
-# Copyright (c) 2019-2024 Red Hat, Inc.
-# This program and the accompanying materials are made
-# available under the terms of the Eclipse Public License 2.0
-# which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-# SPDX-License-Identifier: EPL-2.0
-#
-# Contributors:
-#   Red Hat, Inc. - initial API and implementation
-#
-
 schemaVersion: 2.2.2
 metadata:
   name: che-code
   displayName: VS Code - Open Source
-  description: Microsoft Visual Studio Code - Open Source IDE for Eclipse Che - Insiders
-    build
-  tags:
-    - Tech-Preview
+  description: Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE
   attributes:
     publisher: che-incubator
-    version: insiders
-    title: Microsoft Visual Studio Code - Open Source IDE for Eclipse Che - Insiders
-      build
+    version: latest
+    title: Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE
     repository: https://github.com/che-incubator/che-code
-    firstPublicationDate: '2021-10-31'
+    firstPublicationDate: '2022-07-19'
+    skipMetaYaml: true
     iconMediatype: image/svg+xml
     iconData: |
       <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -75,8 +60,7 @@ commands:
   - id: init-che-code-command
     exec:
       component: che-code-runtime-description
-      commandLine: nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt
-        2>&1 &
+      commandLine: nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &
 events:
   preStart:
     - init-container-command
@@ -85,7 +69,7 @@ events:
 components:
   - name: che-code-injector
     container:
-      image: quay.io/che-incubator/che-code:insiders
+      image: registry.redhat.io/devspaces/code-rhel8:latest
       command:
         - /entrypoint-init-container.sh
       volumeMounts:
@@ -97,7 +81,7 @@ components:
       cpuRequest: 30m
   - name: che-code-runtime-description
     container:
-      image: quay.io/devfile/universal-developer-image:latest
+      image: registry.redhat.io/devspaces/udi-rhel8:latest
       memoryLimit: 1024Mi
       memoryRequest: 256Mi
       cpuLimit: 500m
