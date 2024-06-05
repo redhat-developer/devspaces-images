@@ -2,11 +2,13 @@ schemaVersion: 2.2.2
 metadata:
   name: che-code
   displayName: VS Code - Open Source
-  description: Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE
+  description: Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open
+    Source IDE
   attributes:
     publisher: che-incubator
     version: latest
-    title: Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE
+    title: Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source
+      IDE
     repository: https://github.com/che-incubator/che-code
     firstPublicationDate: '2022-07-19'
     skipMetaYaml: true
@@ -60,7 +62,8 @@ commands:
   - id: init-che-code-command
     exec:
       component: che-code-runtime-description
-      commandLine: nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &
+      commandLine: nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt
+        2>&1 &
 events:
   preStart:
     - init-container-command
@@ -69,7 +72,7 @@ events:
 components:
   - name: che-code-injector
     container:
-      image: registry.redhat.io/devspaces/code-rhel8:latest
+      image: registry.redhat.io/devspaces/code-rhel8@sha256:8500c15b9c8cdd399eed5d152360bf7ced9698a14e02c491f4bd7be85f550b41
       command:
         - /entrypoint-init-container.sh
       volumeMounts:
@@ -81,7 +84,7 @@ components:
       cpuRequest: 30m
   - name: che-code-runtime-description
     container:
-      image: registry.redhat.io/devspaces/udi-rhel8:latest
+      image: registry.redhat.io/ubi8/ubi-minimal:8.8
       memoryLimit: 1024Mi
       memoryRequest: 256Mi
       cpuLimit: 500m

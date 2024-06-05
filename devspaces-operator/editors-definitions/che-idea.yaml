@@ -2,7 +2,8 @@ schemaVersion: 2.2.2
 metadata:
   name: che-idea
   displayName: IntelliJ IDEA Community
-  description: Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community IDE
+  description: Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community
+    IDE
   tags:
     - Tech-Preview
   attributes:
@@ -66,7 +67,8 @@ commands:
   - id: init-che-idea-command
     exec:
       component: idea-rhel8
-      commandLine: nohup /projector/entrypoint-volume.sh > /projector/entrypoint-logs.txt 2>&1 &
+      commandLine: nohup /projector/entrypoint-volume.sh > /projector/entrypoint-logs.txt
+        2>&1 &
 events:
   preStart:
     - init-container-command
@@ -75,7 +77,7 @@ events:
 components:
   - name: idea-rhel8
     container:
-      image: registry.redhat.io/devspaces/udi-rhel8:latest
+      image: registry.redhat.io/ubi8/ubi-minimal:8.8
       env:
         - name: PROJECTOR_ASSEMBLY_DIR
           value: /projector
@@ -137,7 +139,7 @@ components:
     volume: {}
   - name: idea-rhel8-injector
     container:
-      image: registry.redhat.io/devspaces/idea-rhel8:latest
+      image: registry.redhat.io/devspaces/idea-rhel8@
       command:
         - /projector/entrypoint-init-container.sh
       env:
