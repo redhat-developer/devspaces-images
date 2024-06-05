@@ -258,7 +258,7 @@ fi
 echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # https://github.com/eclipse-che/che/issues/22932
-yq -riY "del(.spec.install.spec.deployments[].spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${OPERATOR_DEPLOYMENT_YAML}"
+yq -riY "del(.spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${OPERATOR_DEPLOYMENT_YAML}"
 echo "Converted (yq #3) ${OPERATOR_DEPLOYMENT_YAML}"
 
 yq -riY "(.components[] | select(.name==\"che-code-injector\") | .container.image)=\"${CODE_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-code.yaml"
