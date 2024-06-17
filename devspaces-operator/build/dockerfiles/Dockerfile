@@ -41,6 +41,7 @@ COPY api/ api/
 COPY config/ config/
 COPY controllers/ controllers/
 COPY pkg/ pkg/
+COPY editors-definitions /tmp/editors-definitions
 
 # build operator
 # to test FIPS compliance, run https://github.com/openshift/check-payload#scan-a-container-or-operator-image against a built image
@@ -56,6 +57,7 @@ RUN dnf update -y && \
 
 COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
+COPY --from=builder /tmp/editors-definitions /tmp/editors-definitions
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator/che-operator /manager
 
 ENTRYPOINT ["/manager"]
