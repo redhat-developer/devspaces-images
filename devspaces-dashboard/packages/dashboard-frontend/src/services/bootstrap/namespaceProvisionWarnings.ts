@@ -13,7 +13,7 @@
 import { container } from '@/inversify.config';
 import { WarningsReporterService } from '@/services/bootstrap/warningsReporter';
 import { AppState } from '@/store';
-import { selectAdvancedAuthorization, selectAutoProvision } from '@/store/ServerConfig/selectors';
+import { selectAutoProvision } from '@/store/ServerConfig/selectors';
 
 const warningsReporterService = container.get(WarningsReporterService);
 
@@ -24,23 +24,6 @@ export function checkNamespaceProvisionWarnings(getState: () => AppState): void 
     warningsReporterService.registerWarning(
       'autoProvisionWarning',
       `Automatic namespace provisioning is disabled. Namespace might not have been configured yet. Please, contact the administrator.`,
-    );
-  }
-
-  const advancedAuthorization = selectAdvancedAuthorization(state);
-  if (advancedAuthorization === undefined || Object.keys(advancedAuthorization).length === 0) {
-    return;
-  }
-  if (advancedAuthorization.allowGroups || advancedAuthorization.denyGroups) {
-    warningsReporterService.registerWarning(
-      'advancedAuthorizationGroupsWarning',
-      `Advanced authorization is enabled. User might not be allowed. Please, contact the administrator.`,
-    );
-  }
-  if (advancedAuthorization.allowUsers || advancedAuthorization.denyUsers) {
-    warningsReporterService.registerWarning(
-      'advancedAuthorizationUsersWarning',
-      `Advanced authorization is enabled. User might not be allowed. Please, contact the administrator.`,
     );
   }
 }

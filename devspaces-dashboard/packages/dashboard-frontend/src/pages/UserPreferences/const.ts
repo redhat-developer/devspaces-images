@@ -16,7 +16,7 @@ export const GIT_OAUTH_PROVIDERS: Record<api.GitOauthProvider, string> = {
   'azure-devops': 'Microsoft Azure DevOps',
   // Either Bitbucket Cloud or Bitbucket Server
   // https://github.com/eclipse-che/che-server/blob/main/wsmaster/che-core-api-auth-bitbucket/src/main/java/org/eclipse/che/security/oauth/BitbucketOAuthAuthenticator.java
-  'bitbucket-server': 'Bitbucket (OAuth 1.0)',
+  'bitbucket-server': 'Bitbucket',
   // Bitbucket Server only
   // https://github.com/eclipse-che/che-server/blob/main/wsmaster/che-core-api-auth-bitbucket/src/main/java/org/eclipse/che/security/oauth1/BitbucketServerOAuthAuthenticator.java
   bitbucket: 'Bitbucket',

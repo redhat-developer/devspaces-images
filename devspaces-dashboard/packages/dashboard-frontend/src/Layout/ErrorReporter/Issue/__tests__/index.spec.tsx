@@ -23,6 +23,16 @@ const brandingData = {
 } as BrandingData;
 
 describe('Issue component', () => {
+  it('should render the sessionExpired error', () => {
+    const issue = {
+      type: 'sessionExpired',
+      error: new Error('401 Unauthorized'),
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
   it('should render the SSO error', () => {
     const issue = {
       type: 'sso',
@@ -137,6 +147,16 @@ describe('Issue component', () => {
       type: 'workspaceStopped',
       error: new Error('workspaceStopped error message'),
       data: { ideLoaderPath: '', workspaceDetailsPath: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render namespace provision error', () => {
+    const issue = {
+      type: 'namespaceProvisioningError',
+      error: new Error('500 Internal Server Error'),
     } as Issue;
     const component = <IssueComponent branding={brandingData} issue={issue} />;
 

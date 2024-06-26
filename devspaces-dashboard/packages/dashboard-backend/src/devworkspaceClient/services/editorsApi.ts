@@ -28,6 +28,13 @@ const API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 const EDITOR_METADATA_LABEL_SELECTOR =
   'app.kubernetes.io/component=editor-definition,app.kubernetes.io/part-of=che.eclipse.org';
 
+export class EditorNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EditorNotFoundError';
+  }
+}
+
 export class EditorsApiService implements IEditorsApi {
   private readonly coreV1API: CoreV1API;
   constructor() {
@@ -87,5 +94,23 @@ export class EditorsApiService implements IEditorsApi {
     }
 
     return editors;
+  }
+
+  async get(id: string): Promise<V222Devfile> {
+    const editors = await this.list();
+    const matches = editors.filter(editor => {
+      const currId =
+        editor.metadata?.attributes.publisher +
+        '/' +
+        editor.metadata?.name +
+        '/' +
+        editor.metadata?.attributes.version;
+
+      return currId === id;
+    });
+    if (matches.length === 0) {
+      throw new EditorNotFoundError(`Editor with id: '${id}' not found`);
+    }
+    return matches[0];
   }
 }

@@ -15,6 +15,7 @@ import {
   IDevWorkspacePreferencesApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
+  IEditorsApi,
   IEventApi,
   IGettingStartedSampleApi,
   IGitConfigApi,
@@ -70,6 +71,10 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
     throw new Error('Method not implemented.');
   }
   get devWorkspacePreferencesApi(): IDevWorkspacePreferencesApi {
+    throw new Error('Method not implemented.');
+  }
+
+  get editorsApi(): IEditorsApi {
     throw new Error('Method not implemented.');
   }
 }

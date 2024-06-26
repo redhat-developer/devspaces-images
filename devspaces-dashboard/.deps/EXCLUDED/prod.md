@@ -9,7 +9,5 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | `blueimp-md5@2.19.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/blueimp-md5/2.19.0) |
 | `codemirror@5.65.16` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/codemirror/5.65.16) |
 | `cookie-signature@1.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/cookie-signature/1.2.1) |
-| `fast-uri@2.3.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fast-uri/2.3.0) |
 | `fastify@4.27.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/4.27.0) |
-| `inversify-react@1.1.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/inversify-react/1.1.1) |
 | `real-require@0.2.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/real-require/0.2.0) |

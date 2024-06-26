@@ -11,6 +11,7 @@
  */
 
 import common from '@eclipse-che/common';
+import { AxiosResponse } from 'axios';
 import { dump, load } from 'js-yaml';
 import { ThunkDispatch } from 'redux-thunk';
 
@@ -35,7 +36,14 @@ export function getErrorMessage(error: unknown): string {
       return 'Unexpected error type. Please report a bug.';
     }
 
-    errorMessage = `HTTP Error code ${code}. Endpoint which throws an error ${endpoint}. ${errorMessage}`;
+    const errorDetails = `HTTP Error code ${code}. Endpoint which throws an error ${endpoint}.`;
+    console.error(errorDetails);
+
+    if (common.helpers.errors.includesAxiosResponse(error) && error.response.data) {
+      errorMessage = error.response.data;
+    } else {
+      errorMessage = `${errorDetails} ${errorMessage}`;
+    }
   }
 
   if (isUnauthorized(error) || isForbidden(error)) {
@@ -98,8 +106,14 @@ function hasStatus(error: unknown, _status: number): boolean {
       return true;
     }
   } else if (typeof error === 'object' && error !== null) {
-    const { status, statusCode } = error as { [propName: string]: string | number };
-    if (statusCode == _status || status == _status) {
+    const { status, statusCode, response } = error as {
+      [propName: string]: string | number | unknown;
+    };
+    if (
+      statusCode == _status ||
+      status == _status ||
+      (response && (response as AxiosResponse).status == _status)
+    ) {
       return true;
     } else {
       try {

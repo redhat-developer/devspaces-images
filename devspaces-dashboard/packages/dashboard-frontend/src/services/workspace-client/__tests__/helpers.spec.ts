@@ -25,29 +25,63 @@ import {
 } from '@/services/workspace-client/helpers';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
+// mute console.error
+console.error = jest.fn();
+
 describe('Workspace-client helpers', () => {
   describe('get an error message', () => {
     it('should return the default error message', () => {
       expect(getErrorMessage(undefined)).toEqual('Check the browser logs message.');
     });
+
     it('should return the unknown error message', () => {
       expect(getErrorMessage({})).toEqual('Unexpected error type. Please report a bug.');
     });
+
     it('should return the error message', () => {
+      const message = getErrorMessage({
+        response: {
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {},
+          config: {},
+          data: 'Some error message',
+        },
+        request: {
+          responseURL: 'http://dummyurl.com',
+        },
+      });
+      expect(message).toEqual('Some error message');
+    });
+
+    it('should return the error details', () => {
       expect(
         getErrorMessage({
           response: {
-            status: 401,
+            status: 500,
           },
           request: {
             responseURL: 'http://dummyurl.com',
           },
         }),
       ).toEqual(
-        'HTTP Error code 401. Endpoint which throws an error http://dummyurl.com. Check the browser logs message.',
+        'HTTP Error code 500. Endpoint which throws an error http://dummyurl.com. Check the browser logs message.',
       );
     });
+
+    it('should report the Unauthorized (or Forbidden) error', () => {
+      const message = getErrorMessage({
+        response: {
+          status: 401,
+          request: {
+            responseURL: 'http://dummyurl.com',
+          },
+        },
+      });
+      expect(message).toContain('User session has expired. You need to re-login to the Dashboard.');
+    });
   });
+
   describe('checks for HTML login page in response data', () => {
     it('should return false without  HTML login page', () => {
       expect(
@@ -62,6 +96,7 @@ describe('Workspace-client helpers', () => {
         }),
       ).toBeFalsy();
     });
+
     it('should return true in the case with  HTML login page', () => {
       expect(
         hasLoginPage({
@@ -76,6 +111,7 @@ describe('Workspace-client helpers', () => {
       ).toBeTruthy();
     });
   });
+
   describe('checks for HTTP 401 Unauthorized response status code', () => {
     it('should return false in the case with HTTP 400 Bad Request', () => {
       expect(isUnauthorized('...HTTP Status 400 ....')).toBeFalsy();
@@ -101,6 +137,7 @@ describe('Workspace-client helpers', () => {
         }),
       ).toBeFalsy();
     });
+
     it('should return true in the case with HTTP 401 Unauthorized', () => {
       expect(isUnauthorized('...HTTP Status 401 ....')).toBeTruthy();
       expect(
@@ -126,6 +163,7 @@ describe('Workspace-client helpers', () => {
       ).toBeTruthy();
     });
   });
+
   describe('checks for HTTP 403 Forbidden response status code', () => {
     it('should return false in the case with HTTP 400 Bad Request', () => {
       expect(isForbidden('...HTTP Status 400 ....')).toBeFalsy();
@@ -151,6 +189,7 @@ describe('Workspace-client helpers', () => {
         }),
       ).toBeFalsy();
     });
+
     it('should return true in the case with HTTP 403 Forbidden', () => {
       expect(isForbidden('...HTTP Status 403 ....')).toBeTruthy();
       expect(
@@ -176,6 +215,7 @@ describe('Workspace-client helpers', () => {
       ).toBeTruthy();
     });
   });
+
   describe('checks for HTTP 500 Internal Server Error response status code', () => {
     it('should return false in the case with HTTP 400 Bad Request', () => {
       expect(isInternalServerError('...HTTP Status 400 ....')).toBeFalsy();
@@ -201,6 +241,7 @@ describe('Workspace-client helpers', () => {
         }),
       ).toBeFalsy();
     });
+
     it('should return true in the case with HTTP 500 Internal Server Error', () => {
       expect(isInternalServerError('...HTTP Status 500 ....')).toBeTruthy();
       expect(
@@ -479,6 +520,7 @@ describe('Workspace-client helpers', () => {
           );
         });
       });
+
       describe('from the custom registry', () => {
         it('should return an editor without changes', async () => {
           optionalFilesContent[CHE_EDITOR_YAML_PATH] = dump({

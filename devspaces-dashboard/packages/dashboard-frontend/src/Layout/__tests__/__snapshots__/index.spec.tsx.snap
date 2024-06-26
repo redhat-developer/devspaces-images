@@ -118,26 +118,6 @@ exports[`Layout component snapshot of the namespace provisioning error page 1`] 
               >
                 Namespace provisioning error
               </pre>
-              <p
-                className=""
-                data-ouia-component-id="OUIA-Generated-Text-3"
-                data-ouia-component-type="PF4/Text"
-                data-ouia-safe={true}
-                data-pf-content={true}
-              >
-                Please try 
-                <kbd
-                  className="keybinding"
-                >
-                  Shift
-                </kbd>
-                +
-                <kbd
-                  className="keybinding"
-                >
-                  Refresh
-                </kbd>
-              </p>
             </div>
           </div>
         </div>

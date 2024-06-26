@@ -41,6 +41,8 @@ export class IssueComponent extends React.PureComponent<Props> {
         return this.renderWorkspaceStoppedWithError(issue.error, issue.data);
       case 'workspaceStopped':
         return this.renderWorkspaceStopped(issue.data);
+      case 'namespaceProvisioningError':
+        return this.renderNamespaceProvisionError(issue.error);
       default:
         return this.renderUnknownError(issue.error);
     }
@@ -250,6 +252,24 @@ export class IssueComponent extends React.PureComponent<Props> {
           Your workspace is not running. {ideLoader} to continue using your workspace.
         </Text>
         {workspaceDetails}
+      </TextContent>
+    );
+  }
+
+  private renderNamespaceProvisionError(error: Error): React.ReactNode {
+    const errorTextbox = !error ? undefined : (
+      <Text component={TextVariants.pre} className={styles.errorMessage}>
+        {error.message}
+      </Text>
+    );
+
+    return (
+      <TextContent className={styles.messageContainer}>
+        <Text component={TextVariants.h1}>
+          <WarningTriangleIcon className={styles.warningIcon} />
+          Error
+        </Text>
+        {errorTextbox}
       </TextContent>
     );
   }

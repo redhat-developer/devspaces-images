@@ -82,7 +82,7 @@
 | [`immutable@4.3.4`](git://github.com/immutable-js/immutable-js.git) | MIT | #7353 |
 | [`inherits@2.0.4`](git://github.com/isaacs/inherits) | ISC | clearlydefined |
 | [`inversify-inject-decorators@3.1.0`](git+https://github.com/inversify/inversify-inject-decorators.git) | MIT | clearlydefined |
-| [`inversify-react@1.1.1`](https://github.com/Kukkimonsuta/inversify-react.git) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/inversify-react/1.1.1) |
+| [`inversify-react@1.1.1`](https://github.com/Kukkimonsuta/inversify-react.git) | Apache-2.0 | clearlydefined |
 | [`inversify@6.0.2`](https://github.com/inversify/InversifyJS.git) | MIT | clearlydefined |
 | [`is-plain-object@5.0.0`](https://github.com/jonschlinkert/is-plain-object.git) | MIT | clearlydefined |
 | [`isarray@0.0.1`](git://github.com/juliangruber/isarray.git) | MIT | clearlydefined |
