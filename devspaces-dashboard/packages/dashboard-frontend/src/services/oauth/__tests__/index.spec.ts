@@ -29,7 +29,7 @@ describe('OAuth service', () => {
   it('should not refresh token if no status section in devworkspace', async () => {
     const devWorkspace = new DevWorkspaceBuilder().build();
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -37,7 +37,7 @@ describe('OAuth service', () => {
     const status = {};
     const devWorkspace = new DevWorkspaceBuilder().withStatus(status).build();
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -45,7 +45,7 @@ describe('OAuth service', () => {
     const status = { mainUrl: 'https://mainUrl' };
     const devWorkspace = new DevWorkspaceBuilder().withStatus(status).build();
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -58,7 +58,7 @@ describe('OAuth service', () => {
       .withProjects(projects)
       .build();
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -78,7 +78,7 @@ describe('OAuth service', () => {
       .withProjects(projects)
       .build();
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).not.toHaveBeenCalled();
   });
@@ -102,7 +102,7 @@ describe('OAuth service', () => {
 
     refreshFactoryOauthTokenSpy.mockResolvedValueOnce();
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
   });
@@ -136,7 +136,7 @@ describe('OAuth service', () => {
 
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => false);
 
-    await OAuthService.refreshTokenIfNeeded(devWorkspace);
+    await OAuthService.refreshTokenIfProjectExists(devWorkspace);
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
     expect(mockOpenOAuthPage).not.toHaveBeenCalled();
@@ -178,7 +178,7 @@ describe('OAuth service', () => {
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
 
     try {
-      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+      await OAuthService.refreshTokenIfProjectExists(devWorkspace);
     } catch (e: any) {
       fail('it should not reach here');
     }
@@ -220,7 +220,7 @@ describe('OAuth service', () => {
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
 
     try {
-      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+      await OAuthService.refreshTokenIfProjectExists(devWorkspace);
     } catch (e: any) {
       fail('it should not reach here');
     }
@@ -263,7 +263,7 @@ describe('OAuth service', () => {
     jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
 
     try {
-      await OAuthService.refreshTokenIfNeeded(devWorkspace);
+      await OAuthService.refreshTokenIfProjectExists(devWorkspace);
     } catch (e: any) {
       expect(e.response.status).toBe(401);
     }

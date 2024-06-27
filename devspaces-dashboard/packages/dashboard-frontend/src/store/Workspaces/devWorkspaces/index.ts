@@ -306,7 +306,7 @@ export const actionCreators: ActionCreators = {
         return;
       }
       try {
-        await OAuthService.refreshTokenIfNeeded(workspace);
+        await OAuthService.refreshTokenIfProjectExists(workspace);
         await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
         if (!(await selectAsyncIsAuthorized(getState()))) {
           const error = selectSanityCheckError(getState());
