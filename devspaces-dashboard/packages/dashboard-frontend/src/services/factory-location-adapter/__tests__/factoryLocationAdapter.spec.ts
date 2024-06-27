@@ -34,6 +34,22 @@ describe('FactoryLocationAdapter Service', () => {
       expect(factoryLocation.isHttpLocation).toBeFalsy();
       expect(factoryLocation.isSshLocation).toBeTruthy();
     });
+    it('should determine the SSH location', () => {
+      const location = 'user1@repository.example.com:/home/user1/repositories/myrepo.git';
+
+      factoryLocation = new FactoryLocationAdapter(location);
+
+      expect(factoryLocation.isHttpLocation).toBeFalsy();
+      expect(factoryLocation.isSshLocation).toBeTruthy();
+    });
+    it('should determine the SSH location', () => {
+      const location = 'ssh://azuredevops.user.prv:22/tfs/collection/tools/git/ocp.gitops';
+
+      factoryLocation = new FactoryLocationAdapter(location);
+
+      expect(factoryLocation.isHttpLocation).toBeFalsy();
+      expect(factoryLocation.isSshLocation).toBeTruthy();
+    });
     it('should determine the Bitbucket-Server SSH location', () => {
       const location = 'ssh://git@bitbucket-server.com:7999/~user/repo.git';
 

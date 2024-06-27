@@ -3,9 +3,9 @@
 | Packages | License | Resolved CQs |
 | --- | --- | --- |
 | [`@babel/runtime@7.23.2`](https://github.com/babel/babel.git) | MIT | #10718 |
-| [`@eclipse-che/common@7.87.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.87.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.87.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.88.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.88.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.88.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@patternfly/react-core@4.278.0`](https://github.com/patternfly/patternfly-react.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-core/4.278.0) |
 | [`@patternfly/react-icons@4.93.7`](https://github.com/patternfly/patternfly-react.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-icons/4.93.7) |
 | `@patternfly/react-styles@4.92.8` | MIT | clearlydefined |
