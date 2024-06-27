@@ -27,22 +27,16 @@ export class OAuthService {
     }
   }
 
-  static async refreshTokenIfNeeded(workspace: devfileApi.DevWorkspace): Promise<void> {
-    // if workspace is not created yet, do not refresh token
-    if (!workspace.status || !workspace.status.mainUrl) {
-      return;
-    }
-    if (!workspace.spec.template.projects) {
-      return;
-    }
-
-    const project = workspace.spec.template.projects[0];
-    if (!project || !project.git) {
-      return;
-    }
+  static async refreshTokenIfProjectExists(workspace: devfileApi.DevWorkspace): Promise<void> {
+    // Find first git project.
+    let project = workspace.spec.template.projects?.find(project => !!project.git);
+    project = project || workspace.spec.template.starterProjects?.find(project => !!project.git);
+    project = project || workspace.spec.template.dependentProjects?.find(project => !!project.git);
 
     try {
-      await refreshFactoryOauthToken(project.git.remotes.origin);
+      if (project) {
+        await refreshFactoryOauthToken(project.git!.remotes.origin);
+      }
     } catch (e) {
       if (!common.helpers.errors.includesAxiosResponse(e)) {
         return;
