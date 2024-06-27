@@ -25,6 +25,7 @@ def sendSlack(slackTitle,slackText,slackChannel) {
 
 def buildNode = "x86_64-rhel8||ppc64le-rhel8"
 timeout(120) {
+    libraries { lib('TestUtil') }
     node("${buildNode}"){
         stage("Create branches") {
             wrap([$class: 'TimestamperBuildWrapper']) {
@@ -55,7 +56,7 @@ timeout(120) {
                     )
 
                     slackText = "Branches " + NEW_BRANCH + " have been created."
-                    sendSlack(slackText,"team-devspaces")
+                    pipelineUtil.sendStatusToSlack(this, slackText)
 
                     currentBuild.description+="done"
 
