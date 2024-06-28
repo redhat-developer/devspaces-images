@@ -29,6 +29,10 @@ import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 public class BitbucketOAuthAuthenticator extends OAuthAuthenticator {
   private final String bitbucketEndpoint;
 
+  private static final String BITBUCKET_CLOUD_ENDPOINT = "https://bitbucket.org";
+  private static final String BITBUCKET_NAME = "bitbucket";
+  private static final String BITBUCKET_SERVER_NAME = "bitbucket-server";
+
   public BitbucketOAuthAuthenticator(
       String bitbucketEndpoint,
       String clientId,
@@ -52,12 +56,15 @@ public class BitbucketOAuthAuthenticator extends OAuthAuthenticator {
 
   @Override
   public final String getOAuthProvider() {
-    return "bitbucket";
+    // Bitbucket Cloud and Bitbucket Server have different provider names.
+    return BITBUCKET_CLOUD_ENDPOINT.equals(bitbucketEndpoint)
+        ? BITBUCKET_NAME
+        : BITBUCKET_SERVER_NAME;
   }
 
   @Override
-  public OAuthToken getToken(String userId) throws IOException {
-    final OAuthToken token = super.getToken(userId);
+  public OAuthToken getOrRefreshToken(String userId) throws IOException {
+    final OAuthToken token = super.getOrRefreshToken(userId);
     // Need to check if token is valid for requests, if valid - return it to caller.
     try {
       if (token == null || isNullOrEmpty(token.getToken())) {
@@ -76,7 +83,7 @@ public class BitbucketOAuthAuthenticator extends OAuthAuthenticator {
    * @return Bitbucket Cloud or Server API request URL
    */
   private String getTestRequestUrl() {
-    return "https://bitbucket.org".equals(bitbucketEndpoint)
+    return BITBUCKET_CLOUD_ENDPOINT.equals(bitbucketEndpoint)
         ? "https://api.bitbucket.org/2.0/user"
         : bitbucketEndpoint + "/plugins/servlet/applinks/whoami";
   }
