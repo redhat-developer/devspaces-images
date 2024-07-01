@@ -15,15 +15,17 @@
 ############################# BUILD 1: libc-ubi8 ########################
 #########################################################################
 
-# https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-110.1719303984 as checode-linux-libc-ubi8-builder
+# https://registry.access.redhat.com/ubi8/nodejs-20
+FROM ubi8/nodejs-20:1-46.1719304017 as checode-linux-libc-ubi8-builder
 # hadolint ignore=DL3002
 USER root
 
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
-    NPM_CONFIG_NODEDIR=/usr
+    NPM_CONFIG_NODEDIR=/usr \
+    # workaround for https://github.com/nodejs/node/issues/51555
+    DISABLE_V8_COMPILE_CACHE=1
 
 ENV CXXFLAGS='-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT'
 
@@ -224,15 +226,17 @@ RUN yarn \
 ############################# BUILD 2: libc-ubi9 ########################
 #########################################################################
 
-# https://registry.access.redhat.com/ubi9/nodejs-18
-FROM ubi9/nodejs-18:1-112.1719561319 as checode-linux-libc-ubi9-builder
+# https://registry.access.redhat.com/ubi9/nodejs-20
+FROM ubi9/nodejs-20:1-48 as checode-linux-libc-ubi9-builder
 # hadolint ignore=DL3002
 USER root
 
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
-    NPM_CONFIG_NODEDIR=/usr
+    NPM_CONFIG_NODEDIR=/usr \
+    # workaround for https://github.com/nodejs/node/issues/51555
+    DISABLE_V8_COMPILE_CACHE=1
 
 ENV CXXFLAGS='-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT'
 
