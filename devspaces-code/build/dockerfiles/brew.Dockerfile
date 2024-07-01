@@ -225,7 +225,7 @@ RUN yarn \
 #########################################################################
 
 # https://registry.access.redhat.com/ubi9/nodejs-18
-FROM ubi9/nodejs-18:1-112 as checode-linux-libc-ubi9-builder
+FROM ubi9/nodejs-18:1-112.1719561319 as checode-linux-libc-ubi9-builder
 # hadolint ignore=DL3002
 USER root
 
