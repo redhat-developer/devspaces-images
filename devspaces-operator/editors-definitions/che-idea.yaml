@@ -139,7 +139,7 @@ components:
     volume: {}
   - name: idea-rhel8-injector
     container:
-      image: registry.redhat.io/devspaces/idea-rhel8@sha256:81de20664f6ab2fac3173cb197c4e3f63e06b9cc6e5daf5737e16f30508e5e00
+      image: registry.redhat.io/devspaces/idea-rhel8@
       command:
         - /projector/entrypoint-init-container.sh
       env:
