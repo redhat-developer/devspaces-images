@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1719303984 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-114 as builder
 # hadolint ignore=DL3002
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
@@ -21,7 +21,7 @@ RUN yarn build
 RUN yarn workspace @eclipse-che/dashboard-backend install --production
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1719303984
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-114
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006

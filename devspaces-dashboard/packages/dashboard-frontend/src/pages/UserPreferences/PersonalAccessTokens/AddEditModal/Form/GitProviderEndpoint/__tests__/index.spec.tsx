@@ -52,6 +52,19 @@ describe('GitProviderEndpoint', () => {
     expect(screen.queryByText('The URL is not valid.')).toBeFalsy();
   });
 
+  it('should handle a correct endpoint with the port part', () => {
+    const endpoint = 'https://bitbucket.org:8443';
+    renderComponent(undefined);
+
+    expect(mockOnChange).not.toHaveBeenCalled();
+
+    const input = screen.getByRole('textbox');
+    userEvent.paste(input, endpoint);
+
+    expect(mockOnChange).toHaveBeenCalledWith(expect.stringContaining(endpoint), true);
+    expect(screen.queryByText('The URL is not valid.')).toBeFalsy();
+  });
+
   it('should handle endpoint started with an incorrect protocol', () => {
     const endpoint = 'asdf://provider/endpoint';
     renderComponent(undefined);

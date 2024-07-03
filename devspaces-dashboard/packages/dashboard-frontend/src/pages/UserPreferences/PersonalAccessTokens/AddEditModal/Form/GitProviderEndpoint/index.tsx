@@ -99,7 +99,8 @@ export class GitProviderEndpoint extends React.PureComponent<Props, State> {
     validated: ValidatedOptions;
     sanitized: string;
   } {
-    const validationRe = /^https?:\/\/(?:(?:[a-z\d]+(?:-[a-z\d]+)*)\.)+[a-z]{2,}(?:\/[^\s]*)?$/i;
+    const validationRe =
+      /^https?:\/\/(?:(?:[a-z\d]+(?:-[a-z\d]+)*)\.)+[a-z]{2,}(?:\/[^\s]*)?(?::\d+)?$/i;
 
     if (validationRe.test(providerEndpoint) === false) {
       return {
