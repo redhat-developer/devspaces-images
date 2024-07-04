@@ -17,8 +17,8 @@ FROM quay.io/devspaces/machineexec-rhel8:3.12 as machine-exec
 #
 ##################################################################################################################
 
-# https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1719303984 as linux-libc-ubi8-builder
+# https://registry.access.redhat.com/ubi8/nodejs-20
+FROM registry.access.redhat.com/ubi8/nodejs-20:1-46.1719304017 as linux-libc-ubi8-builder
 
 USER root
 
@@ -43,7 +43,9 @@ RUN yum install -y libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 gi
 COPY code /checode-compilation
 WORKDIR /checode-compilation
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    # workaround for https://github.com/nodejs/node/issues/51555
+    DISABLE_V8_COMPILE_CACHE=1
 
 # Initialize a git repository for code build tools
 RUN git init .
@@ -83,8 +85,8 @@ RUN yarn \
 #
 ##################################################################################################################
 
-# https://registry.access.redhat.com/ubi9/nodejs-18
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-112.1719561319 as linux-libc-ubi9-builder
+# https://registry.access.redhat.com/ubi9/nodejs-20
+FROM registry.access.redhat.com/ubi9/nodejs-20:1-48 as linux-libc-ubi9-builder
 
 USER root
 
@@ -122,7 +124,9 @@ RUN \
 COPY code /checode-compilation
 WORKDIR /checode-compilation
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    # workaround for https://github.com/nodejs/node/issues/51555
+    DISABLE_V8_COMPILE_CACHE=1
 
 # Initialize a git repository for code build tools
 RUN git init .
