@@ -16,7 +16,7 @@
 #########################################################################
 
 # https://registry.access.redhat.com/ubi8/nodejs-20
-FROM ubi8/nodejs-20:1-46.1719304017 as checode-linux-libc-ubi8-builder
+FROM ubi8/nodejs-20:1-50 as checode-linux-libc-ubi8-builder
 # hadolint ignore=DL3002
 USER root
 
@@ -226,7 +226,7 @@ RUN yarn \
 #########################################################################
 
 # https://registry.access.redhat.com/ubi9/nodejs-20
-FROM ubi9/nodejs-20:1-48 as checode-linux-libc-ubi9-builder
+FROM ubi9/nodejs-20:1-48.1719561324 as checode-linux-libc-ubi9-builder
 # hadolint ignore=DL3002
 USER root
 
