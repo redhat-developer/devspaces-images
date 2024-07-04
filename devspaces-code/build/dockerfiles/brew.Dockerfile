@@ -39,7 +39,7 @@ COPY $REMOTE_SOURCES/devspaces-images-code/app/devspaces-code/build/dockerfiles/
 # hadolint ignore=DL3040,DL3041
 RUN \
     dnf -y -q module reset   python39; dnf -y -q module install python39:3.9 && \
-    dnf install -y libsecret-devel libsecret curl make cmake gcc gcc-c++ \
+    dnf install -y nodejs-devel libsecret-devel libsecret curl make cmake gcc gcc-c++ \
     git git-core-doc openssh openssl-devel ca-certificates \
     less libX11-devel libxkbcommon libxkbfile-devel libxkbfile bash tar gzip rsync patch tree jq
 
