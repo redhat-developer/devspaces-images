@@ -34,7 +34,7 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi
 # Enable pulp content sets to resolve libsecret & libxkbfile as rpm
 COPY ./build/dockerfiles/content_sets_pulp.repo /etc/yum.repos.d/
 
-RUN yum install -y libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
+RUN yum install -y nodejs-devel libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
     && yum -y clean all && rm -rf /var/cache/yum \
     && npm install -g yarn@1.22.17 \
     && npm install -g node-gyp@9.4.1
