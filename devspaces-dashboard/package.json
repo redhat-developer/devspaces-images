@@ -16,8 +16,8 @@
   },
   "homepage": "https://github.com/eclipse-che/che-dashboard",
   "engines": {
-    "yarn": ">=1.22",
-    "node": ">=16"
+    "yarn": ">=1.22.18",
+    "node": ">=18"
   },
   "license": "EPL-2.0",
   "scripts": {
