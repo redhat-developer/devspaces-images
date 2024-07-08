@@ -86,7 +86,7 @@ RUN yarn \
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi9/nodejs-20
-FROM registry.access.redhat.com/ubi9/nodejs-20:1-48.1719561324 as linux-libc-ubi9-builder
+FROM registry.access.redhat.com/ubi9/nodejs-20:1-48.1720017855 as linux-libc-ubi9-builder
 
 USER root
 
