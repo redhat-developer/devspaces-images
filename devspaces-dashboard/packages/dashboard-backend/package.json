@@ -11,7 +11,7 @@
     "lint:check": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}'",
     "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --fix",
     "start:debug": "nodemon --inspect lib/server/backend.js",
-    "test": "jest",
+    "test": "jest --silent=false",
     "test:watch": "yarn test --watch"
   },
   "contributors": [
