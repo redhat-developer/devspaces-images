@@ -163,7 +163,7 @@ describe('test storePathnameIfNeeded()', () => {
 
   test('empty path', () => {
     storePathIfNeeded('/');
-    expect(mockUpdate).toBeCalledTimes(0);
+    expect(mockUpdate).toHaveBeenCalledTimes(0);
   });
 });
 

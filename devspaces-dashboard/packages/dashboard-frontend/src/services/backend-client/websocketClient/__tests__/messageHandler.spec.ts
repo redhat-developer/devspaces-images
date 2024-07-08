@@ -42,9 +42,9 @@ describe('messageHandler', () => {
     } as MessageEvent<string>;
     messageHandler.notifyListeners(messageEvent);
 
-    expect(listener1).toBeCalledTimes(1);
-    expect(listener2).toBeCalledTimes(1);
-    expect(listener3).not.toBeCalled();
+    expect(listener1).toHaveBeenCalledTimes(1);
+    expect(listener2).toHaveBeenCalledTimes(1);
+    expect(listener3).not.toHaveBeenCalled();
 
     messageHandler.removeListener(api.webSocket.Channel.EVENT, listener1);
     messageHandler.removeListener(api.webSocket.Channel.DEV_WORKSPACE, listener3);
@@ -55,9 +55,9 @@ describe('messageHandler', () => {
 
     messageHandler.notifyListeners(messageEvent);
 
-    expect(listener1).not.toBeCalled();
-    expect(listener2).toBeCalledTimes(1);
-    expect(listener3).not.toBeCalled();
+    expect(listener1).not.toHaveBeenCalled();
+    expect(listener2).toHaveBeenCalledTimes(1);
+    expect(listener3).not.toHaveBeenCalled();
   });
 
   it('should not throw when removing a non-attached listeners', () => {

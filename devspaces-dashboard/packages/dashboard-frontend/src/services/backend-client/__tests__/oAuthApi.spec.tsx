@@ -37,7 +37,7 @@ describe('Open Authorization API', () => {
       });
       await getOAuthProviders();
 
-      expect(mockDelete).not.toBeCalled();
+      expect(mockDelete).not.toHaveBeenCalled();
       expect(mockGet).toHaveBeenCalledWith('/api/oauth');
     });
 
@@ -60,7 +60,7 @@ describe('Open Authorization API', () => {
 
       await getOAuthToken(oAuthProvider.name);
 
-      expect(mockDelete).not.toBeCalled();
+      expect(mockDelete).not.toHaveBeenCalled();
       expect(mockGet).toHaveBeenCalledWith('/api/oauth/token?oauth_provider=github');
     });
 
@@ -71,7 +71,7 @@ describe('Open Authorization API', () => {
 
       const res = await getOAuthToken(oAuthProvider.name);
 
-      expect(mockDelete).not.toBeCalled();
+      expect(mockDelete).not.toHaveBeenCalled();
       expect(res).toEqual(oAuthProviderToken);
     });
   });
@@ -82,7 +82,7 @@ describe('Open Authorization API', () => {
 
       await deleteOAuthToken(oAuthProvider.name);
 
-      expect(mockGet).not.toBeCalled();
+      expect(mockGet).not.toHaveBeenCalled();
       expect(mockDelete).toHaveBeenCalledWith('/api/oauth/token?oauth_provider=github');
     });
 
@@ -91,7 +91,7 @@ describe('Open Authorization API', () => {
 
       const res = await deleteOAuthToken(oAuthProvider.name);
 
-      expect(mockGet).not.toBeCalled();
+      expect(mockGet).not.toHaveBeenCalled();
       expect(res).toBeUndefined();
     });
   });

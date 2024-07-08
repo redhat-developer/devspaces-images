@@ -11,6 +11,83 @@ exports[`GitConfig snapshot with gitconfig 1`] = `
     className="pf-c-page__main-section"
   >
     <div
+      className="pf-c-toolbar"
+      data-ouia-component-id="OUIA-Generated-Toolbar-1"
+      data-ouia-component-type="PF4/Toolbar"
+      data-ouia-safe={true}
+      id="pf-random-id-0"
+      style={
+        {
+          "paddingBottom": 0,
+        }
+      }
+    >
+      <div
+        className="pf-c-toolbar__content"
+      >
+        <div
+          className="pf-c-toolbar__content-section"
+        >
+          <div
+            className="pf-c-toolbar__item pf-m-align-right"
+          >
+            <button
+              aria-disabled={false}
+              aria-label={null}
+              className="pf-c-button pf-m-link"
+              data-ouia-component-id="OUIA-Generated-Button-link-1"
+              data-ouia-component-type="PF4/Button"
+              data-ouia-safe={true}
+              disabled={false}
+              onClick={[Function]}
+              role={null}
+              type="button"
+            >
+              <span
+                className="pf-c-button__icon pf-m-start"
+              >
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style={
+                    {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 512 512"
+                  width="1em"
+                >
+                  <path
+                    d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                  />
+                </svg>
+              </span>
+              Import Git Configuration
+            </button>
+          </div>
+        </div>
+        <div
+          className="pf-c-toolbar__expandable-content"
+          id="pf-random-id-0-expandable-content-0"
+        >
+          <div
+            className="pf-c-toolbar__group"
+          />
+        </div>
+      </div>
+      <div
+        className="pf-c-toolbar__content pf-m-hidden"
+        hidden={true}
+      >
+        <div
+          className="pf-c-toolbar__group"
+        />
+      </div>
+    </div>
+    <div
       data-testid="git-config-form"
     >
       <span

@@ -51,7 +51,7 @@ describe('axiosWrapper', () => {
     ).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(1);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should retry 0 time without specific error message', async () => {
@@ -61,7 +61,7 @@ describe('axiosWrapper', () => {
     const result = await new AxiosWrapper(axiosInstance).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(1);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should retry 1 time with Bearer Token Authorization is required error message', async () => {
@@ -76,7 +76,7 @@ describe('axiosWrapper', () => {
     ).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(2);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(2);
   });
 
   it('should retry 1 time with Bearer Token Authorization is required axios response error message', async () => {
@@ -91,7 +91,7 @@ describe('axiosWrapper', () => {
     ).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(2);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(2);
   });
 
   it('should retry 1 time without specifc error message', async () => {
@@ -103,7 +103,7 @@ describe('axiosWrapper', () => {
     const result = await new AxiosWrapper(axiosInstance).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(2);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(2);
   });
 
   it('should retry 2 times with Bearer Token Authorization is required error message', async () => {
@@ -119,7 +119,7 @@ describe('axiosWrapper', () => {
     ).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(3);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(3);
   });
 
   it('should retry 2 times with Bearer Token Authorization is required axios response error message', async () => {
@@ -135,7 +135,7 @@ describe('axiosWrapper', () => {
     ).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(3);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(3);
   });
 
   it('should retry 2 times without specific error message', async () => {
@@ -148,7 +148,7 @@ describe('axiosWrapper', () => {
     const result = await new AxiosWrapper(axiosInstance).get('some-url');
 
     expect(result).toEqual(expectedData);
-    expect(axiosGetSpy).toBeCalledTimes(3);
+    expect(axiosGetSpy).toHaveBeenCalledTimes(3);
   });
 
   it('should fail after 3 times with Bearer Token Authorization is required error message', async () => {
@@ -165,7 +165,7 @@ describe('axiosWrapper', () => {
       fail('should fail');
     } catch (e: any) {
       expect(e.message).toEqual(bearerTokenAuthorizationIsRequiredErrorMsg);
-      expect(axiosGetSpy).toBeCalledTimes(4);
+      expect(axiosGetSpy).toHaveBeenCalledTimes(4);
     }
   });
 
@@ -184,7 +184,7 @@ describe('axiosWrapper', () => {
     } catch (e: any) {
       expect(common.helpers.errors.includesAxiosResponse(e)).toBeTruthy();
       expect(e.response.data).toEqual(bearerTokenAuthorizationIsRequiredErrorMsg);
-      expect(axiosGetSpy).toBeCalledTimes(4);
+      expect(axiosGetSpy).toHaveBeenCalledTimes(4);
     }
   });
 
@@ -200,7 +200,7 @@ describe('axiosWrapper', () => {
       fail('should fail');
     } catch (e: any) {
       expect(e.message).toEqual('error 4');
-      expect(axiosGetSpy).toBeCalledTimes(4);
+      expect(axiosGetSpy).toHaveBeenCalledTimes(4);
     }
   });
 
@@ -215,7 +215,7 @@ describe('axiosWrapper', () => {
       await new AxiosWrapper(axiosInstance).get('some-url');
       fail('should fail');
     } catch (e: any) {
-      expect(delaySpy).toBeCalledTimes(3);
+      expect(delaySpy).toHaveBeenCalledTimes(3);
       expect(delaySpy.mock.calls).toEqual([[500], [1000], [2000]]);
     }
   });

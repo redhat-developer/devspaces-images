@@ -67,12 +67,10 @@ export class GitConfigApiService implements IGitConfigApi {
       throw createError(undefined, GITCONFIG_API_ERROR_LABEL, message);
     }
 
-    gitConfig.gitconfig.user.email = changedGitConfig.gitconfig.user.email;
-    gitConfig.gitconfig.user.name = changedGitConfig.gitconfig.user.name;
+    gitConfig.gitconfig = changedGitConfig.gitconfig;
 
     try {
       const gitconfigStr = this.fromGitConfig(gitConfig);
-
       const response = await this.coreV1API.patchNamespacedConfigMap(
         GITCONFIG_CONFIGMAP,
         namespace,
@@ -133,9 +131,7 @@ export class GitConfigApiService implements IGitConfigApi {
 
     return {
       resourceVersion,
-      gitconfig: {
-        user: { name: gitconfig.user.name, email: gitconfig.user.email },
-      },
+      gitconfig,
     };
   }
 }

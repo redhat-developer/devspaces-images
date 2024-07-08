@@ -103,6 +103,6 @@ describe('Edit Registry Modal', () => {
     const cancelButton = screen.getByTestId('cancel-button');
     userEvent.click(cancelButton);
 
-    expect(mockOnCancel).toBeCalled();
+    expect(mockOnCancel).toHaveBeenCalled();
   });
 });

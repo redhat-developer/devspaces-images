@@ -15,17 +15,13 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import {
-  SUBMIT_INVALID_FORM,
-  SUBMIT_VALID_FORM,
-} from '@/pages/UserPreferences/SshKeys/AddModal/Form/__mocks__';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 
-import { SshKeysAddModal } from '..';
+import { GitConfigAddModal } from '..';
 
 const { renderComponent } = getComponentRenderer(getComponent);
 
-jest.mock('../Form');
+jest.mock('@/pages/UserPreferences/GitConfig/GitConfigImport');
 
 const mockOnSave = jest.fn();
 const mockOnClose = jest.fn();
@@ -75,7 +71,7 @@ describe('AddModal', () => {
 
       expect(
         screen.queryByRole('heading', {
-          name: 'Add SSH Keys',
+          name: 'Import Git Configuration',
         }),
       ).toBeTruthy();
     });
@@ -96,19 +92,17 @@ describe('AddModal', () => {
     });
   });
 
-  describe('should handle saving SSH key', () => {
+  describe('should handle saving git configuration', () => {
     const isOpen = true;
 
-    it('should handle valid SSH key', () => {
+    it('should handle valid git configuration', () => {
       renderComponent(isOpen);
 
       // expect add button to be disabled
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeDisabled();
 
-      const SubmitValidFormButton = screen.getByRole('button', {
-        name: SUBMIT_VALID_FORM,
-      });
+      const SubmitValidFormButton = screen.getByTestId('submit-valid-git-config');
       userEvent.click(SubmitValidFormButton);
 
       // expect add button to be enabled
@@ -120,16 +114,14 @@ describe('AddModal', () => {
       expect(mockOnSave).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle invalid SSH key', () => {
+    it('should handle invalid git configuration', () => {
       renderComponent(isOpen);
 
       // expect add button to be enabled
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeDisabled();
 
-      const SubmitInvalidFormButton = screen.getByRole('button', {
-        name: SUBMIT_INVALID_FORM,
-      });
+      const SubmitInvalidFormButton = screen.getByTestId('submit-invalid-git-config');
       userEvent.click(SubmitInvalidFormButton);
 
       // expect add button to be disabled
@@ -139,5 +131,12 @@ describe('AddModal', () => {
 });
 
 function getComponent(isOpen: boolean): React.ReactElement {
-  return <SshKeysAddModal isOpen={isOpen} onSaveSshKey={mockOnSave} onCloseModal={mockOnClose} />;
+  return (
+    <GitConfigAddModal
+      gitConfig={undefined}
+      isOpen={isOpen}
+      onSave={mockOnSave}
+      onCloseModal={mockOnClose}
+    />
+  );
 }

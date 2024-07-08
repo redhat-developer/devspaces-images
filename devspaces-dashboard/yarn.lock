@@ -386,7 +386,7 @@
     reflect-metadata "^0.1.13"
 
 "@eclipse-che/common@file:packages/common":
-  version "7.87.0-next"
+  version "7.88.0-next"
 
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"

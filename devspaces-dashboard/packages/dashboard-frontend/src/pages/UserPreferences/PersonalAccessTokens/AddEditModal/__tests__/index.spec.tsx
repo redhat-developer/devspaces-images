@@ -58,7 +58,7 @@ describe('AddEditModal', () => {
     expect(closeButton).toBeTruthy();
 
     userEvent.click(closeButton!);
-    expect(mockOnClose).toBeCalledTimes(1);
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   it('should handle click on Cancel button', () => {
@@ -68,7 +68,7 @@ describe('AddEditModal', () => {
     expect(cancelButton).toBeTruthy();
 
     userEvent.click(cancelButton!);
-    expect(mockOnClose).toBeCalledTimes(1);
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   describe('modal in add mode', () => {
@@ -154,7 +154,7 @@ describe('AddEditModal', () => {
       userEvent.click(addButton);
 
       // expect onSave to be called
-      expect(mockOnSave).toBeCalledTimes(1);
+      expect(mockOnSave).toHaveBeenCalledTimes(1);
     });
 
     it('should handle invalid personal access token', () => {

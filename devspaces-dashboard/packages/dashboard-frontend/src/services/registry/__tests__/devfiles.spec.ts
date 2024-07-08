@@ -216,7 +216,7 @@ describe('fetch registry metadata', () => {
       expect(mockFetchRemoteData).toHaveBeenCalledWith(
         'https://eclipse-che.github.io/che-devfile-registry/7.71.0/index',
       );
-      expect(console.warn).toBeCalledTimes(2);
+      expect(console.warn).toHaveBeenCalledTimes(2);
       expect(mockSessionStorageServiceUpdate).toHaveBeenCalledWith(
         SessionStorageKey.EXTERNAL_REGISTRIES,
         JSON.stringify({
@@ -256,8 +256,8 @@ describe('fetch registry metadata', () => {
       expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
         SessionStorageKey.EXTERNAL_REGISTRIES,
       );
-      expect(mockFetchRemoteData).not.toBeCalled();
-      expect(mockSessionStorageServiceUpdate).not.toBeCalled();
+      expect(mockFetchRemoteData).not.toHaveBeenCalled();
+      expect(mockSessionStorageServiceUpdate).not.toHaveBeenCalled();
       expect(resolved).toEqual([metadata]);
     });
 
@@ -391,7 +391,7 @@ describe('fetch registry metadata', () => {
         SessionStorageKey.EXTERNAL_REGISTRIES,
       );
       expect(mockFetchRemoteData).toHaveBeenCalledWith('https://registry.devfile.io/index');
-      expect(console.warn).toBeCalledTimes(2);
+      expect(console.warn).toHaveBeenCalledTimes(2);
       expect(mockSessionStorageServiceUpdate).toHaveBeenCalledWith(
         SessionStorageKey.EXTERNAL_REGISTRIES,
         JSON.stringify({
@@ -431,8 +431,8 @@ describe('fetch registry metadata', () => {
       expect(mockSessionStorageServiceGet).toHaveBeenCalledWith(
         SessionStorageKey.EXTERNAL_REGISTRIES,
       );
-      expect(mockFetchRemoteData).not.toBeCalled();
-      expect(mockSessionStorageServiceUpdate).not.toBeCalled();
+      expect(mockFetchRemoteData).not.toHaveBeenCalled();
+      expect(mockSessionStorageServiceUpdate).not.toHaveBeenCalled();
       expect(resolved).toEqual([metadata]);
     });
 

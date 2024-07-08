@@ -82,7 +82,7 @@ describe('User Menu', () => {
     const logoutItem = screen.getByRole('menuitem', { name: /logout/i });
     fireEvent.click(logoutItem);
 
-    expect(mockLogout).toBeCalled();
+    expect(mockLogout).toHaveBeenCalled();
   });
 });
 

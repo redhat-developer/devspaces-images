@@ -46,7 +46,7 @@ describe('websocketClient', () => {
         const ws = await serverMock.connected;
 
         expect(ws).toBeDefined();
-        expect(handleConnectionOpen).toBeCalledTimes(1);
+        expect(handleConnectionOpen).toHaveBeenCalledTimes(1);
       });
 
       it('should reconnect to websocket when server closes the connection', async () => {
@@ -59,7 +59,7 @@ describe('websocketClient', () => {
         const ws = await serverMock.connected;
 
         expect(ws).toBeDefined();
-        expect(handleConnectionOpen).toBeCalledTimes(1);
+        expect(handleConnectionOpen).toHaveBeenCalledTimes(1);
 
         serverMock.close();
         await serverMock.closed;
@@ -68,7 +68,7 @@ describe('websocketClient', () => {
         const wsNext = await serverMockNext.connected;
 
         expect(wsNext).toBeDefined();
-        expect(handleConnectionOpen).toBeCalledTimes(2);
+        expect(handleConnectionOpen).toHaveBeenCalledTimes(2);
       });
 
       it('should reconnect to websocket when receives "error" event', async () => {
@@ -85,19 +85,19 @@ describe('websocketClient', () => {
         const ws = await serverMock.connected;
 
         expect(ws).toBeDefined();
-        expect(handleConnectionOpen).toBeCalledTimes(1);
+        expect(handleConnectionOpen).toHaveBeenCalledTimes(1);
 
         serverMock.error();
         await serverMock.closed;
 
-        expect(handleConnectionError).toBeCalledTimes(1);
+        expect(handleConnectionError).toHaveBeenCalledTimes(1);
 
         const serverMockNext = new WS('ws://localhost/dashboard/api/websocket');
         const wsNext = await serverMockNext.connected;
         await delay(1000);
 
         expect(wsNext).toBeDefined();
-        expect(handleConnectionOpen).toBeCalledTimes(2);
+        expect(handleConnectionOpen).toHaveBeenCalledTimes(2);
       });
 
       it('should return the same connection ready promise when called', async () => {
@@ -130,12 +130,12 @@ describe('websocketClient', () => {
         const ws = await serverMock.connected;
 
         expect(ws).toBeDefined();
-        expect(handleConnectionClose).toBeCalledTimes(0);
+        expect(handleConnectionClose).toHaveBeenCalledTimes(0);
 
         serverMock.close();
         await serverMock.closed;
 
-        expect(handleConnectionClose).toBeCalledTimes(1);
+        expect(handleConnectionClose).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -151,11 +151,11 @@ describe('websocketClient', () => {
         const ws = await serverMock.connected;
 
         expect(ws).toBeDefined();
-        expect(handleConnectionError).toBeCalledTimes(0);
+        expect(handleConnectionError).toHaveBeenCalledTimes(0);
 
         serverMock.error();
 
-        expect(handleConnectionError).toBeCalledTimes(1);
+        expect(handleConnectionError).toHaveBeenCalledTimes(1);
       });
 
       describe('past event notification', () => {
@@ -173,7 +173,7 @@ describe('websocketClient', () => {
           const handleConnectionError = jest.fn();
           websocketClient.addConnectionEventListener(ConnectionEvent.ERROR, handleConnectionError);
 
-          expect(handleConnectionError).toBeCalledTimes(0);
+          expect(handleConnectionError).toHaveBeenCalledTimes(0);
         });
 
         it('should call the listener', async () => {
@@ -194,7 +194,7 @@ describe('websocketClient', () => {
             true,
           );
 
-          expect(handleConnectionError).toBeCalledTimes(1);
+          expect(handleConnectionError).toHaveBeenCalledTimes(1);
         });
       });
     });
@@ -210,7 +210,7 @@ describe('websocketClient', () => {
       const ws = await serverMock.connected;
 
       expect(ws).toBeDefined();
-      expect(handleConnectionOpen).toBeCalledTimes(1);
+      expect(handleConnectionOpen).toHaveBeenCalledTimes(1);
 
       websocketClient.removeConnectionEventListener(ConnectionEvent.OPEN, handleConnectionOpen);
 
@@ -221,7 +221,7 @@ describe('websocketClient', () => {
       const wsNext = await serverMockNext.connected;
 
       expect(wsNext).toBeDefined();
-      expect(handleConnectionOpen).toBeCalledTimes(1);
+      expect(handleConnectionOpen).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -246,7 +246,7 @@ describe('websocketClient', () => {
           getResourceVersion,
         });
 
-        expect(addSubscriptionSpy).toBeCalledTimes(1);
+        expect(addSubscriptionSpy).toHaveBeenCalledTimes(1);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         expect(serverMock).toHaveReceivedMessages([
@@ -273,7 +273,7 @@ describe('websocketClient', () => {
           getResourceVersion,
         });
 
-        expect(addSubscriptionSpy).toBeCalledTimes(1);
+        expect(addSubscriptionSpy).toHaveBeenCalledTimes(1);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         expect(serverMock).toHaveReceivedMessages([]);
@@ -295,7 +295,7 @@ describe('websocketClient', () => {
           getResourceVersion,
         });
 
-        expect(addSubscriptionSpy).toBeCalledTimes(1);
+        expect(addSubscriptionSpy).toHaveBeenCalledTimes(1);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         expect(serverMock).toHaveReceivedMessages([]);

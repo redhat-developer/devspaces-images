@@ -348,7 +348,7 @@ describe('Common steps, check running workspaces limit', () => {
         await jest.runOnlyPendingTimersAsync();
 
         // switch to the next step
-        await waitFor(() => expect(mockOnNextStep).toBeCalled());
+        await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
         expect(mockOnError).not.toHaveBeenCalled();
         expect(mockOnRestart).not.toHaveBeenCalled();
       });

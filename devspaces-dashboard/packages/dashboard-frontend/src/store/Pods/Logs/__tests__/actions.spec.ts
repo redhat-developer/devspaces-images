@@ -98,7 +98,7 @@ describe('Pod logs store, actions', () => {
 
       await appStore.dispatch(testStore.actionCreators.watchPodLogs(pod));
 
-      expect(websocketClient.connect).toBeCalled();
+      expect(websocketClient.connect).toHaveBeenCalled();
       expect(websocketClient.addChannelMessageListener).toHaveBeenCalledWith(
         api.webSocket.Channel.LOGS,
         expect.any(Function),

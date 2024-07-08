@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitConfigForm snapshot with predefined git configuration 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="gitconfig"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          gitconfig
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <div>
+        <input
+          data-testid="submit-invalid-git-config"
+          onClick={[Function]}
+          type="button"
+          value="[user]
+    email="user-1@chetest.com"
+    name="User One"
+    "
+        />
+        <input
+          data-testid="submit-valid-git-config"
+          onClick={[Function]}
+          type="button"
+        />
+      </div>
+      
+    </div>
+  </div>
+</form>
+`;
+
+exports[`GitConfigForm snapshot without predefined git configuration 1`] = `
+<form
+  className="pf-c-form"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <div
+    className="pf-c-form__group"
+  >
+    <div
+      className="pf-c-form__group-label"
+    >
+      <label
+        className="pf-c-form__label"
+        htmlFor="gitconfig"
+      >
+        <span
+          className="pf-c-form__label-text"
+        >
+          gitconfig
+        </span>
+      </label>
+       
+    </div>
+    <div
+      className="pf-c-form__group-control"
+    >
+      <div>
+        <input
+          data-testid="submit-invalid-git-config"
+          onClick={[Function]}
+          type="button"
+        />
+        <input
+          data-testid="submit-valid-git-config"
+          onClick={[Function]}
+          type="button"
+        />
+      </div>
+      
+    </div>
+  </div>
+</form>
+`;

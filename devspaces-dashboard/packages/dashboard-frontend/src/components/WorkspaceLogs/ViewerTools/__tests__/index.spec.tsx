@@ -40,7 +40,7 @@ describe('The WorkspaceLogsTerminalTools component', () => {
     const downloadButton = screen.getByRole('button', { name: 'Download' });
     downloadButton.click();
 
-    expect(mockOnDownload).toBeCalled();
+    expect(mockOnDownload).toHaveBeenCalled();
   });
 
   it('should handle expand button click', () => {
@@ -49,16 +49,16 @@ describe('The WorkspaceLogsTerminalTools component', () => {
     const expandButton = screen.getByRole('button', { name: 'Expand' });
     expandButton.click();
 
-    expect(mockOnToggle).toBeCalledTimes(1);
-    expect(mockHideAll).toBeCalled();
+    expect(mockOnToggle).toHaveBeenCalledTimes(1);
+    expect(mockHideAll).toHaveBeenCalled();
 
     const compressButton = screen.queryByRole('button', { name: 'Compress' });
     expect(compressButton).not.toBeNull();
 
     compressButton?.click();
 
-    expect(mockShowAll).toBeCalled();
-    expect(mockOnToggle).toBeCalledTimes(2);
+    expect(mockShowAll).toHaveBeenCalled();
+    expect(mockOnToggle).toHaveBeenCalledTimes(2);
   });
 });
 
