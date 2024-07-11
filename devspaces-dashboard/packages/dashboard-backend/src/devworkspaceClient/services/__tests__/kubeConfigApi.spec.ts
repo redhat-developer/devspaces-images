@@ -27,6 +27,12 @@ const mockExecPrintenvHome = jest.fn().mockReturnValue({
   stdOut: homeUserDir,
   stdError: '',
 });
+
+const mockExecCatKubeConfig = jest.fn().mockReturnValue({
+  stdOut: '',
+  stdError: '',
+});
+
 const spyExec = jest
   .spyOn(helper, 'exec')
   .mockImplementation((...args: Parameters<typeof helper.exec>) => {
@@ -34,6 +40,13 @@ const spyExec = jest
     if (command.some(c => c === 'printenv HOME')) {
       // directory where to create the kubeconfig
       return mockExecPrintenvHome();
+    } else if (
+      command.some(c =>
+        c.startsWith(`[ -f ${kubeConfigDir}/config ] || cat ${kubeConfigDir}/config`),
+      )
+    ) {
+      // file empty
+      return mockExecCatKubeConfig();
     } else if (command.some(c => c.startsWith('mkdir -p'))) {
       // crete the directory
       return Promise.resolve();
@@ -83,7 +96,7 @@ describe('Kubernetes Config API Service', () => {
 
   test('injecting kubeconfig', async () => {
     await kubeConfigService.injectKubeConfig(namespace, 'wksp-id');
-    expect(spyExec).toHaveBeenCalledTimes(4);
+    expect(spyExec).toHaveBeenCalledTimes(5);
 
     // should attempt to resolve the KUBECONFIG env variable
     expect(spyExec).toHaveBeenNthCalledWith(
@@ -115,9 +128,19 @@ describe('Kubernetes Config API Service', () => {
       expect.anything(),
     );
 
-    // should sync the kubeconfig to the container
+    // should output the kubeconfig if exist (here it does not exist)
     expect(spyExec).toHaveBeenNthCalledWith(
       4,
+      workspaceName,
+      namespace,
+      containerName,
+      ['sh', '-c', `[ -f ${kubeConfigDir}/config ] || cat ${kubeConfigDir}/config`],
+      expect.anything(),
+    );
+
+    // should sync the kubeconfig to the container
+    expect(spyExec).toHaveBeenNthCalledWith(
+      5,
       workspaceName,
       namespace,
       containerName,

@@ -17,8 +17,10 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import ProgressIndicator from '@/components/Progress';
 import { lazyInject } from '@/inversify.config';
+import { GitConfigAddModal } from '@/pages/UserPreferences/GitConfig/AddModal';
 import { GitConfigEmptyState } from '@/pages/UserPreferences/GitConfig/EmptyState';
 import { GitConfigForm } from '@/pages/UserPreferences/GitConfig/Form';
+import { GitConfigToolbar } from '@/pages/UserPreferences/GitConfig/Toolbar';
 import { AppAlerts } from '@/services/alerts/appAlerts';
 import { AppState } from '@/store';
 import * as GitConfigStore from '@/store/GitConfig';
@@ -30,9 +32,21 @@ import {
 
 export type Props = MappedProps;
 
-class GitConfig extends React.PureComponent<Props> {
+export type State = {
+  isAddEditOpen: boolean;
+};
+
+class GitConfig extends React.PureComponent<Props, State> {
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isAddEditOpen: false,
+    };
+  }
 
   public async componentDidMount(): Promise<void> {
     const { gitConfigIsLoading } = this.props;
@@ -84,18 +98,41 @@ class GitConfig extends React.PureComponent<Props> {
     }
   }
 
+  private handleCloseAddEditModal(): void {
+    this.setState({
+      isAddEditOpen: false,
+    });
+  }
+
   public render(): React.ReactElement {
     const { gitConfigIsLoading, gitConfig } = this.props;
+    const { isAddEditOpen } = this.state;
 
     const isEmpty = gitConfig === undefined;
 
     return (
       <React.Fragment>
         <ProgressIndicator isLoading={gitConfigIsLoading} />
+        <GitConfigAddModal
+          gitConfig={gitConfig}
+          isOpen={isAddEditOpen}
+          onCloseModal={() => this.handleCloseAddEditModal()}
+          onSave={async gitConfig => {
+            await this.handleSave(gitConfig);
+            this.handleCloseAddEditModal();
+          }}
+        />
         {isEmpty ? (
           <GitConfigEmptyState />
         ) : (
           <PageSection>
+            <GitConfigToolbar
+              onAdd={() => {
+                this.setState({
+                  isAddEditOpen: true,
+                });
+              }}
+            />
             <GitConfigForm
               gitConfig={gitConfig}
               isLoading={gitConfigIsLoading}

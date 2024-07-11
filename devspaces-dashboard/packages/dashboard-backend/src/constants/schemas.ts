@@ -150,19 +150,6 @@ export const gitConfigSchema: JSONSchema7 = {
   properties: {
     gitconfig: {
       type: 'object',
-      properties: {
-        user: {
-          type: 'object',
-          properties: {
-            name: {
-              type: 'string',
-            },
-            email: {
-              type: 'string',
-            },
-          },
-        },
-      },
     },
     resourceVersion: {
       type: 'string',

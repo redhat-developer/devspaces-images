@@ -50,7 +50,7 @@ describe('DeleteModal', () => {
     expect(closeButton).toBeTruthy();
 
     userEvent.click(closeButton!);
-    expect(mockOnCloseModal).toBeCalledTimes(1);
+    expect(mockOnCloseModal).toHaveBeenCalledTimes(1);
   });
 
   it('should handle click on Cancel button', () => {
@@ -60,7 +60,7 @@ describe('DeleteModal', () => {
     expect(cancelButton).toBeTruthy();
 
     userEvent.click(cancelButton!);
-    expect(mockOnCloseModal).toBeCalledTimes(1);
+    expect(mockOnCloseModal).toHaveBeenCalledTimes(1);
   });
 
   it('should handle clicks on checkbox and Delete button', () => {
@@ -77,7 +77,7 @@ describe('DeleteModal', () => {
     expect(deleteButton).toBeEnabled();
 
     userEvent.click(deleteButton!);
-    expect(mockOnDelete).toBeCalledTimes(1);
+    expect(mockOnDelete).toHaveBeenCalledTimes(1);
   });
 });
 

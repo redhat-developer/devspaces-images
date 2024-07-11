@@ -9,9 +9,15 @@
 #
 # Note: if we used a UBI image we could keep this current with
 # https://github.com/eclipse-che/che-release/blob/main/.github/workflows/update-base-images.yml
-FROM registry.ci.openshift.org/openshift/release:golang-1.18
+FROM registry.ci.openshift.org/openshift/release:golang-1.20
 
 SHELL ["/bin/bash", "-c"]
+
+# Temporary workaround since mirror.centos.org is down and can be replaced with vault.centos.org
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo && \
+    sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo && \
+    sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+
 
 # Install yq, kubectl, chectl cli.
 RUN yum install --assumeyes -d1 python3-pip  httpd-tools nodejs && \

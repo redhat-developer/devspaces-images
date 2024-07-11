@@ -1,11 +1,11 @@
-schemaVersion: 2.1.0
+schemaVersion: 2.2.2
 metadata:
   name: che-dashboard
   generateName: che-dashboard-
 components:
   - name: tools
     container:
-      image: quay.io/devfile/universal-developer-image:ubi8-7e57123
+      image: quay.io/devfile/universal-developer-image:ubi8-2554ed2
       memoryLimit: 10G
       memoryRequest: 512Mi
       cpuRequest: 1000m

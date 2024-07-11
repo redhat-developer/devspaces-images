@@ -17,8 +17,8 @@ FROM quay.io/devspaces/machineexec-rhel8:3.12 as machine-exec
 #
 ##################################################################################################################
 
-# https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1719303984 as linux-libc-ubi8-builder
+# https://registry.access.redhat.com/ubi8/nodejs-20
+FROM registry.access.redhat.com/ubi8/nodejs-20:1-50 as linux-libc-ubi8-builder
 
 USER root
 
@@ -34,7 +34,7 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi
 # Enable pulp content sets to resolve libsecret & libxkbfile as rpm
 COPY ./build/dockerfiles/content_sets_pulp.repo /etc/yum.repos.d/
 
-RUN yum install -y libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
+RUN yum install -y nodejs-devel libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
     && yum -y clean all && rm -rf /var/cache/yum \
     && npm install -g yarn@1.22.17 \
     && npm install -g node-gyp@9.4.1
@@ -43,7 +43,9 @@ RUN yum install -y libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 gi
 COPY code /checode-compilation
 WORKDIR /checode-compilation
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    # workaround for https://github.com/nodejs/node/issues/51555
+    DISABLE_V8_COMPILE_CACHE=1
 
 # Initialize a git repository for code build tools
 RUN git init .
@@ -83,8 +85,8 @@ RUN yarn \
 #
 ##################################################################################################################
 
-# https://registry.access.redhat.com/ubi9/nodejs-18
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-112.1719561319 as linux-libc-ubi9-builder
+# https://registry.access.redhat.com/ubi9/nodejs-20
+FROM registry.access.redhat.com/ubi9/nodejs-20:1-48.1720017855 as linux-libc-ubi9-builder
 
 USER root
 
@@ -122,7 +124,9 @@ RUN \
 COPY code /checode-compilation
 WORKDIR /checode-compilation
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    # workaround for https://github.com/nodejs/node/issues/51555
+    DISABLE_V8_COMPILE_CACHE=1
 
 # Initialize a git repository for code build tools
 RUN git init .
@@ -157,7 +161,7 @@ RUN yarn \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
 
 # https://registry.access.redhat.com/ubi8/ubi
-FROM registry.access.redhat.com/ubi8/ubi:8.10-901 AS ubi-builder
+FROM registry.access.redhat.com/ubi8/ubi:8.10-1020 AS ubi-builder
 
 RUN mkdir -p /mnt/rootfs
 RUN yum install --installroot /mnt/rootfs brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
@@ -187,7 +191,7 @@ COPY --chmod=755 /build/remote-config /mnt/rootfs/remote/data/Machine/
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.10-896
+FROM registry.access.redhat.com/ubi8-minimal:8.10-1018
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che
 USER 1001

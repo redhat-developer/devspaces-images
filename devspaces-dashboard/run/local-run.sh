@@ -157,6 +157,10 @@ if [ "$GATEWAY" == "true" ]; then
   fi
 fi
 
+if [ ! -d packages/dashboard-backend/node_modules/@eclipse-che/common/lib ]; then
+  ln -sr packages/common/lib packages/dashboard-backend/node_modules/@eclipse-che/common/lib
+fi
+
 # relative path from backend package
 FRONTEND_RESOURCES=../../../../$DASHBOARD_FRONTEND/lib/public
 $PRERUN_COMMAND &

@@ -34,7 +34,7 @@ describe('Kubernetes namespace API', () => {
       await getKubernetesNamespace();
 
       expect(mockGet).toHaveBeenCalledWith('/api/kubernetes/namespace', undefined);
-      expect(mockPost).not.toBeCalled();
+      expect(mockPost).not.toHaveBeenCalled();
     });
 
     it('should return a list of namespaces', async () => {
@@ -53,7 +53,7 @@ describe('Kubernetes namespace API', () => {
       });
       await provisionKubernetesNamespace();
 
-      expect(mockGet).not.toBeCalled();
+      expect(mockGet).not.toHaveBeenCalled();
       expect(mockPost).toHaveBeenCalledWith(
         '/api/kubernetes/namespace/provision',
         undefined,

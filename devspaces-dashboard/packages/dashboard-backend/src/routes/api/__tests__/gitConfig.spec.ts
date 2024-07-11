@@ -64,6 +64,11 @@ describe('Gitconfig Routes', () => {
             name: 'user-che',
             email: 'user@che',
           },
+          alias: {
+            co: 'checkout',
+            st: 'status',
+            br: 'branch',
+          },
         },
         resourceVersion: '123456789',
       } as api.IGitConfig);

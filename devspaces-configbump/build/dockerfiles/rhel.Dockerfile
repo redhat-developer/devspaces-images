@@ -12,7 +12,7 @@
 # see also brew.Dockerfile
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1260 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290 as builder
 USER 0
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
@@ -31,7 +31,7 @@ RUN dnf -y install golang && \
     chmod 755 /usr/local/bin/configbump
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1260 as runtime
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290 as runtime
 #hadolint ignore=DL4006
 RUN dnf -y install shadow-utils && \
     adduser appuser && \

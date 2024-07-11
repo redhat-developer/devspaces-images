@@ -40,24 +40,24 @@ RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ && cp ./resour
 ======= START BOOTSTRAP BUILD =======>
 STEP 1/13: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
 STEP 2/13: USER 0
---> 2c5dee2045ae
+--> 735e2306aaac
 STEP 3/13: ARG BOOTSTRAP=true
---> 0ac446621431
+--> bcae10109686
 STEP 4/13: ENV BOOTSTRAP=${BOOTSTRAP}
---> 5ef79fc0721c
+--> 76cbdc735002
 STEP 5/13: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
---> 04606fdf85a9
+--> 4911f6b3dd39
 STEP 6/13: COPY ./build/dockerfiles/rhel.install.sh /tmp
---> 64308b5b3f72
+--> eec6263f265d
 STEP 7/13: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
 Upgraded:
   chkconfig-1.19.2-1.el8.x86_64                                                 
 Installed:
   mpdecimal-2.5.1-3.el8.x86_64                                                  
-  python3.11-3.11.9-1.el8_10.x86_64                                             
-  python3.11-devel-3.11.9-1.el8_10.x86_64                                       
-  python3.11-libs-3.11.9-1.el8_10.x86_64                                        
+  python3.11-3.11.9-2.el8_10.x86_64                                             
+  python3.11-devel-3.11.9-2.el8_10.x86_64                                       
+  python3.11-libs-3.11.9-2.el8_10.x86_64                                        
   python3.11-pip-22.3.1-5.el8.noarch                                            
   python3.11-pip-wheel-22.3.1-5.el8.noarch                                      
   python3.11-setuptools-65.5.1-2.el8.noarch                                     
@@ -79,15 +79,15 @@ Upgraded:
   glibc-langpack-en-2.28-251.el8_10.2.x86_64                                    
   glibc-locale-source-2.28-251.el8_10.2.x86_64                                  
   glibc-minimal-langpack-2.28-251.el8_10.2.x86_64                               
-  httpd-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64                         
-  httpd-devel-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64                   
-  httpd-filesystem-2.4.37-64.module+el8.10.0+21332+dfb1b40e.noarch              
-  httpd-tools-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64                   
+  httpd-2.4.37-65.module+el8.10.0+21982+14717793.x86_64                         
+  httpd-devel-2.4.37-65.module+el8.10.0+21982+14717793.x86_64                   
+  httpd-filesystem-2.4.37-65.module+el8.10.0+21982+14717793.noarch              
+  httpd-tools-2.4.37-65.module+el8.10.0+21982+14717793.x86_64                   
   libcurl-7.61.1-34.el8.x86_64                                                  
   libcurl-devel-7.61.1-34.el8.x86_64                                            
-  mod_ldap-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64                      
-  mod_session-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64                   
-  mod_ssl-1:2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64                     
+  mod_ldap-2.4.37-65.module+el8.10.0+21982+14717793.x86_64                      
+  mod_session-2.4.37-65.module+el8.10.0+21982+14717793.x86_64                   
+  mod_ssl-1:2.4.37-65.module+el8.10.0+21982+14717793.x86_64                     
   perl-Git-2.43.5-1.el8_10.noarch                                               
   procps-ng-3.3.15-14.el8.x86_64                                                
 Installed:
@@ -105,7 +105,7 @@ Installed:
   containers-common-2:1-81.module+el8.10.0+21962+8143777b.x86_64                
   copy-jdk-configs-4.0-2.el8.noarch                                             
   criu-3.18-5.module+el8.10.0+21962+8143777b.x86_64                             
-  cups-libs-1:2.2.6-57.el8.x86_64                                               
+  cups-libs-1:2.2.6-60.el8_10.x86_64                                            
   dconf-0.28.0-4.el8.x86_64                                                     
   dejavu-sans-mono-fonts-2.35-7.el8.noarch                                      
   fribidi-1.0.4-9.el8.x86_64                                                    
@@ -126,7 +126,7 @@ Installed:
   java-17-openjdk-1:17.0.11.0.9-2.el8.x86_64                                    
   java-17-openjdk-headless-1:17.0.11.0.9-2.el8.x86_64                           
   javapackages-filesystem-5.3.0-1.module+el8+2447+6f56d9a6.noarch               
-  jq-1.6-8.el8.x86_64                                                           
+  jq-1.6-9.el8_10.x86_64                                                        
   kmod-25-20.el8.x86_64                                                         
   lcms2-2.9-2.el8.x86_64                                                        
   libXcomposite-0.4.4-14.el8.x86_64                                             
@@ -173,7 +173,7 @@ Installed:
   rest-0.8.1-2.el8.x86_64                                                       
   runc-1:1.1.12-1.module+el8.10.0+21974+acd2159c.x86_64                         
   shared-mime-info-1.9-4.el8.x86_64                                             
-  skopeo-2:1.14.3-2.module+el8.10.0+21962+8143777b.x86_64                       
+  skopeo-2:1.14.4-1.module+el8.10.0+21995+81e8507c.x86_64                       
   slirp4netns-1.2.3-1.module+el8.10.0+21962+8143777b.x86_64                     
   ttmkfdir-3.0.9-54.el8.x86_64                                                  
   tzdata-java-2024a-1.el8.noarch                                                
@@ -255,11 +255,11 @@ Upgraded:
   gmp-1:6.1.2-11.el8.x86_64                                                     
   gnutls-3.6.16-8.el8_9.3.x86_64                                                
   gpgme-1.13.1-12.el8.x86_64                                                    
-  kernel-headers-4.18.0-553.5.1.el8_10.x86_64                                   
+  kernel-headers-4.18.0-553.8.1.el8_10.x86_64                                   
   kmod-libs-25-20.el8.x86_64                                                    
-  krb5-devel-1.18.2-27.el8_10.x86_64                                            
-  krb5-libs-1.18.2-27.el8_10.x86_64                                             
-  less-530-2.el8_9.x86_64                                                       
+  krb5-devel-1.18.2-28.el8_10.x86_64                                            
+  krb5-libs-1.18.2-28.el8_10.x86_64                                             
+  less-530-3.el8_10.x86_64                                                      
   libX11-1.6.8-8.el8.x86_64                                                     
   libX11-common-1.6.8-8.el8.noarch                                              
   libX11-devel-1.6.8-8.el8.x86_64                                               
@@ -271,9 +271,9 @@ Upgraded:
   libcap-2.48-6.el8_9.x86_64                                                    
   libdnf-0.63.0-19.el8.x86_64                                                   
   libfdisk-2.32.1-46.el8.x86_64                                                 
-  libkadm5-1.18.2-27.el8_10.x86_64                                              
+  libkadm5-1.18.2-28.el8_10.x86_64                                              
   libmount-2.32.1-46.el8.x86_64                                                 
-  libnghttp2-1.33.0-5.el8_9.x86_64                                              
+  libnghttp2-1.33.0-6.el8_10.1.x86_64                                           
   libpq-13.11-1.el8.x86_64                                                      
   libpq-devel-13.11-1.el8.x86_64                                                
   librepo-1.14.2-5.el8.x86_64                                                   
@@ -285,9 +285,10 @@ Upgraded:
   libtalloc-2.4.1-0.el8.x86_64                                                  
   libtiff-4.0.9-31.el8.x86_64                                                   
   libtiff-devel-4.0.9-31.el8.x86_64                                             
-  libtirpc-1.1.4-10.el8.x86_64                                                  
+  libtirpc-1.1.4-12.el8_10.x86_64                                               
   libuuid-2.32.1-46.el8.x86_64                                                  
   libuuid-devel-2.32.1-46.el8.x86_64                                            
+  libuv-1:1.41.1-2.el8_10.x86_64                                                
   libwebp-1.0.0-9.el8_9.1.x86_64                                                
   libwebp-devel-1.0.0-9.el8_9.1.x86_64                                          
   libxml2-2.9.7-18.el8_10.1.x86_64                                              
@@ -296,11 +297,13 @@ Upgraded:
   ncurses-6.1-10.20180224.el8.x86_64                                            
   ncurses-base-6.1-10.20180224.el8.noarch                                       
   ncurses-libs-6.1-10.20180224.el8.x86_64                                       
+  openldap-2.4.46-19.el8_10.x86_64                                              
+  openldap-devel-2.4.46-19.el8_10.x86_64                                        
   openssh-8.0p1-24.el8.x86_64                                                   
   openssh-clients-8.0p1-24.el8.x86_64                                           
   p11-kit-0.23.22-2.el8.x86_64                                                  
   p11-kit-trust-0.23.22-2.el8.x86_64                                            
-  pam-1.3.1-33.el8.x86_64                                                       
+  pam-1.3.1-34.el8_10.x86_64                                                    
   perl-HTTP-Tiny-0.074-3.el8.noarch                                             
   platform-python-3.6.8-62.el8_10.x86_64                                        
   python3-cloud-what-1.28.42-1.el8.x86_64                                       
@@ -308,6 +311,7 @@ Upgraded:
   python3-dnf-plugins-core-4.0.21-25.el8.noarch                                 
   python3-gpg-1.13.1-12.el8.x86_64                                              
   python3-hawkey-0.63.0-19.el8.x86_64                                           
+  python3-idna-2.5-7.el8_10.noarch                                              
   python3-libdnf-0.63.0-19.el8.x86_64                                           
   python3-librepo-1.14.2-5.el8.x86_64                                           
   python3-libs-3.6.8-62.el8_10.x86_64                                           
@@ -324,7 +328,7 @@ Upgraded:
   python38-pip-wheel-19.3.1-7.module+el8.9.0+19642+a12b4af6.noarch              
   python38-setuptools-41.6.0-5.module+el8.9.0+19592+4b459c9b.noarch             
   python38-setuptools-wheel-41.6.0-5.module+el8.9.0+19592+4b459c9b.noarch       
-  redhat-release-8.10-0.2.el8.x86_64                                            
+  redhat-release-8.10-0.3.el8.x86_64                                            
   rpm-4.14.3-31.el8.x86_64                                                      
   rpm-build-libs-4.14.3-31.el8.x86_64                                           
   rpm-libs-4.14.3-31.el8.x86_64                                                 
@@ -334,9 +338,9 @@ Upgraded:
   sqlite-libs-3.26.0-19.el8_9.x86_64                                            
   subscription-manager-1.28.42-1.el8.x86_64                                     
   subscription-manager-rhsm-certificates-20220623-1.el8.noarch                  
-  systemd-239-82.el8.x86_64                                                     
-  systemd-libs-239-82.el8.x86_64                                                
-  systemd-pam-239-82.el8.x86_64                                                 
+  systemd-239-82.el8_10.1.x86_64                                                
+  systemd-libs-239-82.el8_10.1.x86_64                                           
+  systemd-pam-239-82.el8_10.1.x86_64                                            
   tpm2-tss-2.3.2-6.el8.x86_64                                                   
   tzdata-2024a-1.el8.noarch                                                     
   util-linux-2.32.1-46.el8.x86_64                                               
@@ -405,7 +409,7 @@ criu-3.18-5.module+el8.10.0+21962+8143777b.x86_64
 crypto-policies-20230731-1.git3177e06.el8.noarch
 crypto-policies-scripts-20230731-1.git3177e06.el8.noarch
 cryptsetup-libs-2.3.7-7.el8.x86_64
-cups-libs-2.2.6-57.el8.x86_64
+cups-libs-2.2.6-60.el8_10.x86_64
 curl-7.61.1-34.el8.x86_64
 cyrus-sasl-2.1.27-6.el8_5.x86_64
 cyrus-sasl-devel-2.1.27-6.el8_5.x86_64
@@ -504,10 +508,10 @@ gzip-1.9-13.el8_5.x86_64
 harfbuzz-1.7.5-4.el8.x86_64
 hicolor-icon-theme-0.17-2.el8.noarch
 hostname-3.20-6.el8.x86_64
-httpd-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64
-httpd-devel-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64
-httpd-filesystem-2.4.37-64.module+el8.10.0+21332+dfb1b40e.noarch
-httpd-tools-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64
+httpd-2.4.37-65.module+el8.10.0+21982+14717793.x86_64
+httpd-devel-2.4.37-65.module+el8.10.0+21982+14717793.x86_64
+httpd-filesystem-2.4.37-65.module+el8.10.0+21982+14717793.noarch
+httpd-tools-2.4.37-65.module+el8.10.0+21982+14717793.x86_64
 hunspell-1.6.2-1.el8.x86_64
 hunspell-en-0.20140811.1-12.el8.noarch
 hunspell-en-GB-0.20140811.1-12.el8.noarch
@@ -520,19 +524,19 @@ javapackages-filesystem-5.3.0-1.module+el8+2447+6f56d9a6.noarch
 java-17-openjdk-17.0.11.0.9-2.el8.x86_64
 java-17-openjdk-headless-17.0.11.0.9-2.el8.x86_64
 jbigkit-libs-2.1-14.el8.x86_64
-jq-1.6-8.el8.x86_64
+jq-1.6-9.el8_10.x86_64
 json-c-0.13.1-3.el8.x86_64
 json-glib-1.4.4-1.el8.x86_64
-kernel-headers-4.18.0-553.5.1.el8_10.x86_64
+kernel-headers-4.18.0-553.8.1.el8_10.x86_64
 keyutils-libs-1.5.10-9.el8.x86_64
 keyutils-libs-devel-1.5.10-9.el8.x86_64
 kmod-25-20.el8.x86_64
 kmod-libs-25-20.el8.x86_64
-krb5-devel-1.18.2-27.el8_10.x86_64
-krb5-libs-1.18.2-27.el8_10.x86_64
+krb5-devel-1.18.2-28.el8_10.x86_64
+krb5-libs-1.18.2-28.el8_10.x86_64
 langpacks-en-1.0-12.el8.noarch
 lcms2-2.9-2.el8.x86_64
-less-530-2.el8_9.x86_64
+less-530-3.el8_10.x86_64
 libICE-1.0.9-15.el8.x86_64
 libSM-1.2.3-1.el8.x86_64
 libX11-1.6.8-8.el8.x86_64
@@ -595,7 +599,7 @@ libidn2-2.2.0-1.el8.x86_64
 libipt-1.6.1-8.el8.x86_64
 libjpeg-turbo-1.5.3-12.el8.x86_64
 libjpeg-turbo-devel-1.5.3-12.el8.x86_64
-libkadm5-1.18.2-27.el8_10.x86_64
+libkadm5-1.18.2-28.el8_10.x86_64
 libksba-1.3.5-9.el8_7.x86_64
 libmetalink-0.1.3-7.el8.x86_64
 libmodman-2.0.1-17.el8.x86_64
@@ -603,7 +607,7 @@ libmodulemd-2.13.0-1.el8.x86_64
 libmount-2.32.1-46.el8.x86_64
 libmpc-1.1.0-9.1.el8.x86_64
 libnet-1.1.6-15.el8.x86_64
-libnghttp2-1.33.0-5.el8_9.x86_64
+libnghttp2-1.33.0-6.el8_10.1.x86_64
 libnl3-3.7.0-1.el8.x86_64
 libnsl2-1.2.0-2.20180605git4a062cf.el8.x86_64
 libpath_utils-0.2.1-40.el8.x86_64
@@ -642,7 +646,7 @@ libtasn1-4.13-4.el8_7.x86_64
 libthai-0.1.27-2.el8.x86_64
 libtiff-4.0.9-31.el8.x86_64
 libtiff-devel-4.0.9-31.el8.x86_64
-libtirpc-1.1.4-10.el8.x86_64
+libtirpc-1.1.4-12.el8_10.x86_64
 libtool-ltdl-2.4.6-25.el8.x86_64
 libunistring-0.9.9-3.el8.x86_64
 libusbx-1.0.23-4.el8.x86_64
@@ -650,7 +654,7 @@ libuser-0.62-25.el8.x86_64
 libutempter-1.1.6-14.el8.x86_64
 libuuid-2.32.1-46.el8.x86_64
 libuuid-devel-2.32.1-46.el8.x86_64
-libuv-1.41.1-1.el8_4.x86_64
+libuv-1.41.1-2.el8_10.x86_64
 libverto-0.3.2-2.el8.x86_64
 libverto-devel-0.3.2-2.el8.x86_64
 libwayland-client-1.21.0-1.el8.x86_64
@@ -683,9 +687,9 @@ mariadb-connector-c-config-3.1.11-2.el8_3.noarch
 mariadb-connector-c-devel-3.1.11-2.el8_3.x86_64
 mod_auth_gssapi-1.6.1-9.el8.x86_64
 mod_http2-1.15.7-10.module+el8.10.0+21653+eaff63f0.x86_64
-mod_ldap-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64
-mod_session-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64
-mod_ssl-2.4.37-64.module+el8.10.0+21332+dfb1b40e.x86_64
+mod_ldap-2.4.37-65.module+el8.10.0+21982+14717793.x86_64
+mod_session-2.4.37-65.module+el8.10.0+21982+14717793.x86_64
+mod_ssl-2.4.37-65.module+el8.10.0+21982+14717793.x86_64
 mpdecimal-2.5.1-3.el8.x86_64
 mpfr-3.1.6-1.el8.x86_64
 ncurses-6.1-10.20180224.el8.x86_64
@@ -711,8 +715,8 @@ nss_wrapper-libs-1.1.13-1.el8.x86_64
 ocaml-srpm-macros-5-4.el8.noarch
 oniguruma-6.8.2-3.el8.x86_64
 openblas-srpm-macros-2-2.el8.noarch
-openldap-2.4.46-18.el8.x86_64
-openldap-devel-2.4.46-18.el8.x86_64
+openldap-2.4.46-19.el8_10.x86_64
+openldap-devel-2.4.46-19.el8_10.x86_64
 openssh-8.0p1-24.el8.x86_64
 openssh-clients-8.0p1-24.el8.x86_64
 openssl-1.1.1k-12.el8_9.x86_64
@@ -721,7 +725,7 @@ openssl-libs-1.1.1k-12.el8_9.x86_64
 openssl-pkcs11-0.4.10-3.el8.x86_64
 p11-kit-0.23.22-2.el8.x86_64
 p11-kit-trust-0.23.22-2.el8.x86_64
-pam-1.3.1-33.el8.x86_64
+pam-1.3.1-34.el8_10.x86_64
 pango-1.42.4-8.el8.x86_64
 passwd-0.80-4.el8.x86_64
 patch-2.7.6-11.el8.x86_64
@@ -799,7 +803,7 @@ python3-ethtool-0.14-5.el8.x86_64
 python3-gobject-base-3.28.3-2.el8.x86_64
 python3-gpg-1.13.1-12.el8.x86_64
 python3-hawkey-0.63.0-19.el8.x86_64
-python3-idna-2.5-5.el8.noarch
+python3-idna-2.5-7.el8_10.noarch
 python3-iniparse-0.4-31.el8.noarch
 python3-inotify-0.9.6-13.el8.noarch
 python3-libcomps-0.1.18-1.el8.x86_64
@@ -819,9 +823,9 @@ python3-syspurpose-1.28.42-1.el8.x86_64
 python3-systemd-234-8.el8.x86_64
 python3-unbound-1.16.2-5.el8_9.6.x86_64
 python3-urllib3-1.24.2-7.el8.noarch
-python3.11-3.11.9-1.el8_10.x86_64
-python3.11-devel-3.11.9-1.el8_10.x86_64
-python3.11-libs-3.11.9-1.el8_10.x86_64
+python3.11-3.11.9-2.el8_10.x86_64
+python3.11-devel-3.11.9-2.el8_10.x86_64
+python3.11-libs-3.11.9-2.el8_10.x86_64
 python3.11-pip-22.3.1-5.el8.noarch
 python3.11-pip-wheel-22.3.1-5.el8.noarch
 python3.11-setuptools-65.5.1-2.el8.noarch
@@ -838,7 +842,7 @@ python-srpm-macros-3-45.el8.noarch
 qt5-srpm-macros-5.15.3-1.el8.noarch
 readline-7.0-10.el8.x86_64
 redhat-logos-httpd-84.5-2.el8.noarch
-redhat-release-8.10-0.2.el8.x86_64
+redhat-release-8.10-0.3.el8.x86_64
 redhat-rpm-config-131-1.el8.noarch
 rest-0.8.1-2.el8.x86_64
 rootfiles-8.1-22.el8.noarch
@@ -853,7 +857,7 @@ sed-4.5-5.el8.x86_64
 setup-2.12.2-9.el8.noarch
 shadow-utils-4.6-22.el8.x86_64
 shared-mime-info-1.9-4.el8.x86_64
-skopeo-1.14.3-2.module+el8.10.0+21962+8143777b.x86_64
+skopeo-1.14.4-1.module+el8.10.0+21995+81e8507c.x86_64
 slirp4netns-1.2.3-1.module+el8.10.0+21962+8143777b.x86_64
 sqlite-3.26.0-19.el8_9.x86_64
 sqlite-devel-3.26.0-19.el8_9.x86_64
@@ -861,9 +865,9 @@ sqlite-libs-3.26.0-19.el8_9.x86_64
 sscg-3.0.0-7.el8.x86_64
 subscription-manager-1.28.42-1.el8.x86_64
 subscription-manager-rhsm-certificates-20220623-1.el8.noarch
-systemd-239-82.el8.x86_64
-systemd-libs-239-82.el8.x86_64
-systemd-pam-239-82.el8.x86_64
+systemd-239-82.el8_10.1.x86_64
+systemd-libs-239-82.el8_10.1.x86_64
+systemd-pam-239-82.el8_10.1.x86_64
 tar-1.30-9.el8.x86_64
 tcl-8.6.8-2.el8.x86_64
 tpm2-tss-2.3.2-6.el8.x86_64
@@ -897,14 +901,14 @@ Collecting yq
   Downloading yq-3.4.3-py3-none-any.whl (18 kB)
 Collecting argcomplete
   Downloading argcomplete-3.4.0-py3-none-any.whl (42 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.0 MB/s eta 0:00:00
 Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
 Collecting pip
   Downloading pip-24.1.1-py3-none-any.whl (1.8 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 55.5 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 52.8 MB/s eta 0:00:00
 Collecting PyYAML>=5.3.1
   Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 480.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 396.1 MB/s eta 0:00:00
 Collecting xmltodict>=0.11.0
   Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
 Collecting tomlkit>=0.11.6
@@ -914,40 +918,22 @@ Successfully installed PyYAML-6.0.1 argcomplete-3.4.0 pip-24.1.1 tomlkit-0.12.5 
 python: Python 3.8.17
 yq: yq 3.4.3
 jq: jq-1.6
---> b0896b5b10d6
+--> c398aab507d8
 STEP 8/13: RUN npm install --location=global yarn
 
-added 1 package in 562ms
---> c3fcf3e3db37
+added 1 package in 712ms
+--> b307a1b53ec1
 STEP 9/13: COPY ./build.sh ./*.yml ./*.yaml ./*.js ./*.json /build/
---> be72e8442b24
+--> 48cf89fa748a
 STEP 10/13: COPY ./build /build/build/
---> 3b1eb1dbfb07
+--> c1fc464b927c
 STEP 11/13: WORKDIR /build/
---> 8a15d288b34d
+--> f8b0dee0d390
 STEP 12/13: RUN SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --offline --skip-oci-image
 Load /build/job-config.json [1]
 Generate artifacts
 🎉 Successfully generated in /build/output. Took a few seconds.
-
-Test entrypoint.sh
-[1m
---- Running tests for entrypoint.sh: /build/build/dockerfiles/test_entrypoint.sh[0m
-[1m
-- Should replace image references in external_images.txt with RELATED_IMAGE env vars[0m
---------------------------Digest map--------------------------
-Key: registry.redhat.io/devspaces/udi-rhel8:2.16 Value: @sha256:becfa80ae0e0e86f815e8981c071a68952b6a488298d7525751585538a14d88e
---------------------------------------------------------------
-[32m[PASS][0m Test passed!
-[1m
-- Should replace image references in che-code devfile.yaml with RELATED_IMAGE env vars [0m
---------------------------Digest map--------------------------
-Key: registry.redhat.io/devspaces/udi-rhel8:3.5 Value: @sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b
-Key: registry.redhat.io/devspaces/code-rhel8:3.5 Value: @sha256:debc18de31a6b3b575e42cc485f6c2241ee4d3d6988fad4e4e9837edba24f89f
-Key: registry.redhat.io/devspaces/udi-rhel8:2.16 Value: @sha256:becfa80ae0e0e86f815e8981c071a68952b6a488298d7525751585538a14d88e
---------------------------------------------------------------
-[32m[PASS][0m Test passed!
---> c66f0a1918dd
+--> 3df636617bfd
 STEP 13/13: RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ && cp ./resources.tgz /tmp/resources/
 ./output/v3/
 ./output/v3/external_images.txt
@@ -963,33 +949,33 @@ STEP 13/13: RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ &&
 ./output/v3/plugins/index.json
 ./output/v3/resources/
 COMMIT pluginregistry:tmp
---> 037935937067
+--> bc22d4b05bab
 Successfully tagged localhost/pluginregistry:tmp
-037935937067d264acbbc80b2e4d44f10bb4fcc94cce7fb26d0ba3d6a9ef76be
+bc22d4b05bab76e0156312f38c30de73732975fc5b7790f2dcbe1bb1c918339e
 <======= END BOOTSTRAP BUILD =======
 Downloading root-local.tgz
 Downloading resources.tgz
 Downloading openvsx-server.tar.gz
 Downloading ovsx.tar.gz
-7de650ba969008944d66d8c2ce06c931a6cde8288a12b6fde54658e4a7e68664
+a78fc1aa44a2aa92e42c52edee791fa7d4a30ba4bf17e8323ba02e2f34b59a57
 pluginregistryBuilder
 Untagged: localhost/pluginregistry:tmp
-Deleted: 037935937067d264acbbc80b2e4d44f10bb4fcc94cce7fb26d0ba3d6a9ef76be
-Deleted: c66f0a1918dd76191ca0d096084b294d382911d91904022b468aba861ac1a36b
-Deleted: 8a15d288b34d28cf72325c239caa32446ee68f54a16b4458259a840d14b27a8c
-Deleted: 3b1eb1dbfb07a108fdfff0c105162e7cc7686acb21a5a5b9a0c68b1ff36c34f4
-Deleted: be72e8442b242fa5b8724c957c15c5944bd7136590165ed85016ca6c4b0bbdc5
-Deleted: c3fcf3e3db373474b211faf618604243b4b3ee69dd293c3937f486416d01f9a3
-Deleted: b0896b5b10d64a077df91ed612b672fa756da33acd8deab4b476669fcc6e2100
-Deleted: 64308b5b3f72b094b92815c87941c9f7e2c01ad6e596b35a1569829e2f9cca95
-Deleted: 04606fdf85a9190171e3bb5075cbeb6195643069953b289123d74e82ea13bdb1
-Deleted: 5ef79fc0721c28b0bf6690981975f0e01f12cf3281267f1848a01e47d4b62bf1
-Deleted: 0ac446621431b648e9d06a1a0581dbcedb3765b87df2c3766d0821dba1934b55
-Deleted: 2c5dee2045aede48f80ac7054b56cfe8740b6969050ea6720359a5ec5c5f7ce2
+Deleted: bc22d4b05bab76e0156312f38c30de73732975fc5b7790f2dcbe1bb1c918339e
+Deleted: 3df636617bfd1aae673ad0af07842ae247d7e9c85525af454e560172f5778bd9
+Deleted: f8b0dee0d3903b9796551bea60d36aa06ef1de6b3eec55dc3fbf6be1dcff56e6
+Deleted: c1fc464b927c91e66f82b8ed4a7d4b707a51776a4f0329150da4267d4e429edd
+Deleted: 48cf89fa748aa5c9a06423f271005df2911c4d8f3a96f0686bc78346f940b99a
+Deleted: b307a1b53ec1c7f9a4004f2337de5dfeb27f466c782d84d8cd70379148822827
+Deleted: c398aab507d88ef6c2c80255d9e66c6638d948681459cd60ae987a443c24211c
+Deleted: eec6263f265d3107b15f44b1077deee2e3aee1780e4223032b290e587366c57e
+Deleted: 4911f6b3dd39cda93c54192eadf5dcf440ea25511215d90b7228429cc113f1b6
+Deleted: 76cbdc735002d0890600918af61f33f8ec1eb5fed8c544a7d15a89bc5aa5a45d
+Deleted: bcae10109686f361f3ab582db1f219e10a483eda56a112bc59fa67f34e8c8f6d
+Deleted: 735e2306aaaca1f03c685e3d3eb5ca9396616187cae6a8e356071bd0647386e5
 Load /mnt/hudson_workspace/workspace/DS_CI/sync-to-downstream_3.x/targetdwn/devspaces-pluginregistry/job-config.json
 REGISTRY_VERSION 3.16
 CHE_OPENVSX_TAG che-openvsx-v0.14.5
-STEP 1/14: FROM registry.access.redhat.com/ubi8/ubi:8.10-901 AS builder
+STEP 1/14: FROM registry.access.redhat.com/ubi8/ubi:8.10-1020 AS builder
 STEP 2/14: RUN yum install java-17-openjdk-devel git jq unzip curl -y --nodocs &&     yum update -q -y 
 Updating Subscription Management repositories.
 Unable to read consumer identity
@@ -997,8 +983,8 @@ Unable to read consumer identity
 This system is not registered with an entitlement server. You can use subscription-manager to register.
 
 Red Hat Universal Base Image 8 (RPMs) - BaseOS  3.8 MB/s | 720 kB     00:00    
-Red Hat Universal Base Image 8 (RPMs) - AppStre  15 MB/s | 3.2 MB     00:00    
-Red Hat Universal Base Image 8 (RPMs) - CodeRea 1.2 MB/s | 184 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre  13 MB/s | 3.2 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea 1.0 MB/s | 185 kB     00:00    
 Package curl-7.61.1-34.el8.x86_64 is already installed.
 Dependencies resolved.
 ========================================================================================================
@@ -1007,7 +993,7 @@ Dependencies resolved.
 Installing:
  git                         x86_64  2.43.5-1.el8_10                         ubi-8-appstream-rpms   92 k
  java-17-openjdk-devel       x86_64  1:17.0.11.0.9-2.el8                     ubi-8-appstream-rpms  5.1 M
- jq                          x86_64  1.6-8.el8                               ubi-8-appstream-rpms  203 k
+ jq                          x86_64  1.6-9.el8_10                            ubi-8-appstream-rpms  203 k
  unzip                       x86_64  6.0-46.el8                              ubi-8-baseos-rpms     196 k
 Installing dependencies:
  adwaita-cursor-theme        noarch  3.28.0-3.el8                            ubi-8-appstream-rpms  647 k
@@ -1021,7 +1007,7 @@ Installing dependencies:
  cairo-gobject               x86_64  1.15.12-6.el8                           ubi-8-appstream-rpms   33 k
  colord-libs                 x86_64  1.4.2-1.el8                             ubi-8-appstream-rpms  236 k
  copy-jdk-configs            noarch  4.0-2.el8                               ubi-8-appstream-rpms   31 k
- cups-libs                   x86_64  1:2.2.6-57.el8                          ubi-8-baseos-rpms     436 k
+ cups-libs                   x86_64  1:2.2.6-60.el8_10                       ubi-8-baseos-rpms     437 k
  dejavu-fonts-common         noarch  2.35-7.el8                              ubi-8-baseos-rpms      74 k
  dejavu-sans-mono-fonts      noarch  2.35-7.el8                              ubi-8-baseos-rpms     447 k
  emacs-filesystem            noarch  1:26.1-11.el8                           ubi-8-baseos-rpms      70 k
@@ -1046,7 +1032,7 @@ Installing dependencies:
  javapackages-filesystem     noarch  5.3.0-1.module+el8+2447+6f56d9a6        ubi-8-appstream-rpms   30 k
  jbigkit-libs                x86_64  2.1-14.el8                              ubi-8-appstream-rpms   55 k
  lcms2                       x86_64  2.9-2.el8                               ubi-8-appstream-rpms  165 k
- less                        x86_64  530-2.el8_9                             ubi-8-baseos-rpms     164 k
+ less                        x86_64  530-3.el8_10                            ubi-8-baseos-rpms     164 k
  libX11                      x86_64  1.6.8-8.el8                             ubi-8-appstream-rpms  612 k
  libX11-common               noarch  1.6.8-8.el8                             ubi-8-appstream-rpms  158 k
  libXau                      x86_64  1.0.9-3.el8                             ubi-8-appstream-rpms   37 k
@@ -1165,153 +1151,153 @@ Install  145 Packages
 Total download size: 114 M
 Installed size: 391 M
 Downloading Packages:
-(1/145): avahi-libs-0.7-27.el8.x86_64.rpm       727 kB/s |  62 kB     00:00    
-(2/145): dejavu-fonts-common-2.35-7.el8.noarch. 824 kB/s |  74 kB     00:00    
-(3/145): cups-libs-2.2.6-57.el8.x86_64.rpm      3.7 MB/s | 436 kB     00:00    
-(4/145): emacs-filesystem-26.1-11.el8.noarch.rp 2.3 MB/s |  70 kB     00:00    
-(5/145): fontpackages-filesystem-1.44-22.el8.no 1.0 MB/s |  16 kB     00:00    
-(6/145): fontconfig-2.13.1-4.el8.x86_64.rpm      10 MB/s | 274 kB     00:00    
-(7/145): dejavu-sans-mono-fonts-2.35-7.el8.noar 7.6 MB/s | 447 kB     00:00    
-(8/145): glib-networking-2.56.1-1.1.el8.x86_64. 8.5 MB/s | 155 kB     00:00    
-(9/145): gdk-pixbuf2-2.36.12-6.el8_10.x86_64.rp  18 MB/s | 466 kB     00:00    
-(10/145): freetype-2.9.1-9.el8.x86_64.rpm       7.4 MB/s | 394 kB     00:00    
-(11/145): gsettings-desktop-schemas-3.32.0-6.el  24 MB/s | 633 kB     00:00    
-(12/145): groff-base-1.22.3-18.el8.x86_64.rpm    28 MB/s | 1.0 MB     00:00    
-(13/145): less-530-2.el8_9.x86_64.rpm           8.8 MB/s | 164 kB     00:00    
-(14/145): libgusb-0.3.0-1.el8.x86_64.rpm        3.1 MB/s |  49 kB     00:00    
-(15/145): libedit-3.1-23.20170329cvs.el8.x86_64 4.0 MB/s | 102 kB     00:00    
-(16/145): libpkgconf-1.4.2-1.el8.x86_64.rpm     2.2 MB/s |  35 kB     00:00    
-(17/145): libmodman-2.0.1-17.el8.x86_64.rpm     1.6 MB/s |  36 kB     00:00    
-(18/145): libpng-1.6.34-5.el8.x86_64.rpm        7.6 MB/s | 126 kB     00:00    
-(19/145): libproxy-0.4.15-5.2.el8.x86_64.rpm    4.7 MB/s |  74 kB     00:00    
-(20/145): lksctp-tools-1.0.18-3.el8.x86_64.rpm  6.2 MB/s | 100 kB     00:00    
-(21/145): libsoup-2.62.3-5.el8.x86_64.rpm        17 MB/s | 425 kB     00:00    
-(22/145): ncurses-6.1-10.20180224.el8.x86_64.rp  21 MB/s | 387 kB     00:00    
-(23/145): openssh-8.0p1-24.el8.x86_64.rpm        23 MB/s | 526 kB     00:00    
-(24/145): openssh-clients-8.0p1-24.el8.x86_64.r  23 MB/s | 646 kB     00:00    
-(25/145): openssl-1.1.1k-12.el8_9.x86_64.rpm     32 MB/s | 711 kB     00:00    
-(26/145): perl-Carp-1.42-396.el8.noarch.rpm     1.9 MB/s |  30 kB     00:00    
-(27/145): perl-Data-Dumper-2.167-399.el8.x86_64 3.7 MB/s |  58 kB     00:00    
-(28/145): perl-Errno-1.28-422.el8.x86_64.rpm    4.8 MB/s |  77 kB     00:00    
-(29/145): perl-Encode-2.97-3.el8.x86_64.rpm      49 MB/s | 1.5 MB     00:00    
-(30/145): perl-Exporter-5.72-396.el8.noarch.rpm 2.0 MB/s |  34 kB     00:00    
+(1/145): dejavu-fonts-common-2.35-7.el8.noarch. 859 kB/s |  74 kB     00:00    
+(2/145): avahi-libs-0.7-27.el8.x86_64.rpm       680 kB/s |  62 kB     00:00    
+(3/145): cups-libs-2.2.6-60.el8_10.x86_64.rpm   3.7 MB/s | 437 kB     00:00    
+(4/145): emacs-filesystem-26.1-11.el8.noarch.rp 2.8 MB/s |  70 kB     00:00    
+(5/145): fontpackages-filesystem-1.44-22.el8.no 986 kB/s |  16 kB     00:00    
+(6/145): dejavu-sans-mono-fonts-2.35-7.el8.noar 7.5 MB/s | 447 kB     00:00    
+(7/145): fontconfig-2.13.1-4.el8.x86_64.rpm     6.4 MB/s | 274 kB     00:00    
+(8/145): freetype-2.9.1-9.el8.x86_64.rpm         14 MB/s | 394 kB     00:00    
+(9/145): glib-networking-2.56.1-1.1.el8.x86_64. 7.3 MB/s | 155 kB     00:00    
+(10/145): gdk-pixbuf2-2.36.12-6.el8_10.x86_64.r  12 MB/s | 466 kB     00:00    
+(11/145): groff-base-1.22.3-18.el8.x86_64.rpm    27 MB/s | 1.0 MB     00:00    
+(12/145): libedit-3.1-23.20170329cvs.el8.x86_64 6.1 MB/s | 102 kB     00:00    
+(13/145): less-530-3.el8_10.x86_64.rpm          4.8 MB/s | 164 kB     00:00    
+(14/145): gsettings-desktop-schemas-3.32.0-6.el  13 MB/s | 633 kB     00:00    
+(15/145): libgusb-0.3.0-1.el8.x86_64.rpm        2.3 MB/s |  49 kB     00:00    
+(16/145): libmodman-2.0.1-17.el8.x86_64.rpm     1.7 MB/s |  36 kB     00:00    
+(17/145): libpkgconf-1.4.2-1.el8.x86_64.rpm     2.2 MB/s |  35 kB     00:00    
+(18/145): libpng-1.6.34-5.el8.x86_64.rpm        7.0 MB/s | 126 kB     00:00    
+(19/145): libsoup-2.62.3-5.el8.x86_64.rpm        19 MB/s | 425 kB     00:00    
+(20/145): libproxy-0.4.15-5.2.el8.x86_64.rpm    2.5 MB/s |  74 kB     00:00    
+(21/145): lksctp-tools-1.0.18-3.el8.x86_64.rpm  5.8 MB/s | 100 kB     00:00    
+(22/145): ncurses-6.1-10.20180224.el8.x86_64.rp  18 MB/s | 387 kB     00:00    
+(23/145): openssh-clients-8.0p1-24.el8.x86_64.r  29 MB/s | 646 kB     00:00    
+(24/145): openssh-8.0p1-24.el8.x86_64.rpm        19 MB/s | 526 kB     00:00    
+(25/145): openssl-1.1.1k-12.el8_9.x86_64.rpm     27 MB/s | 711 kB     00:00    
+(26/145): perl-Carp-1.42-396.el8.noarch.rpm     1.6 MB/s |  30 kB     00:00    
+(27/145): perl-Data-Dumper-2.167-399.el8.x86_64 2.9 MB/s |  58 kB     00:00    
+(28/145): perl-Exporter-5.72-396.el8.noarch.rpm 1.9 MB/s |  34 kB     00:00    
+(29/145): perl-Errno-1.28-422.el8.x86_64.rpm    3.5 MB/s |  77 kB     00:00    
+(30/145): perl-Encode-2.97-3.el8.x86_64.rpm      42 MB/s | 1.5 MB     00:00    
 (31/145): perl-File-Path-2.15-2.el8.noarch.rpm  2.1 MB/s |  38 kB     00:00    
-(32/145): perl-File-Temp-0.230.600-1.el8.noarch 4.0 MB/s |  63 kB     00:00    
-(33/145): perl-Getopt-Long-2.50-4.el8.noarch.rp 3.3 MB/s |  63 kB     00:00    
-(34/145): perl-HTTP-Tiny-0.074-3.el8.noarch.rpm 3.7 MB/s |  59 kB     00:00    
-(35/145): perl-IO-1.38-422.el8.x86_64.rpm       8.7 MB/s | 142 kB     00:00    
-(36/145): perl-MIME-Base64-3.15-396.el8.x86_64. 2.0 MB/s |  31 kB     00:00    
-(37/145): perl-PathTools-3.74-1.el8.x86_64.rpm  5.6 MB/s |  90 kB     00:00    
+(32/145): perl-File-Temp-0.230.600-1.el8.noarch 3.4 MB/s |  63 kB     00:00    
+(33/145): perl-Getopt-Long-2.50-4.el8.noarch.rp 3.9 MB/s |  63 kB     00:00    
+(34/145): perl-IO-1.38-422.el8.x86_64.rpm       8.4 MB/s | 142 kB     00:00    
+(35/145): perl-HTTP-Tiny-0.074-3.el8.noarch.rpm 1.9 MB/s |  59 kB     00:00    
+(36/145): perl-MIME-Base64-3.15-396.el8.x86_64. 1.4 MB/s |  31 kB     00:00    
+(37/145): perl-PathTools-3.74-1.el8.x86_64.rpm  4.9 MB/s |  90 kB     00:00    
 (38/145): perl-Pod-Escapes-1.07-395.el8.noarch. 1.3 MB/s |  20 kB     00:00    
 (39/145): perl-Pod-Perldoc-3.28-396.el8.noarch. 5.6 MB/s |  88 kB     00:00    
-(40/145): perl-Pod-Simple-3.35-395.el8.noarch.r  12 MB/s | 213 kB     00:00    
+(40/145): perl-Pod-Simple-3.35-395.el8.noarch.r 9.6 MB/s | 213 kB     00:00    
 (41/145): perl-Pod-Usage-1.69-395.el8.noarch.rp 2.2 MB/s |  34 kB     00:00    
-(42/145): perl-Scalar-List-Utils-1.49-2.el8.x86 4.3 MB/s |  68 kB     00:00    
-(43/145): perl-Socket-2.027-3.el8.x86_64.rpm    3.0 MB/s |  59 kB     00:00    
-(44/145): perl-Term-ANSIColor-4.06-396.el8.noar 3.0 MB/s |  46 kB     00:00    
-(45/145): perl-Storable-3.11-3.el8.x86_64.rpm   4.2 MB/s |  98 kB     00:00    
+(42/145): perl-Scalar-List-Utils-1.49-2.el8.x86 4.2 MB/s |  68 kB     00:00    
+(43/145): perl-Socket-2.027-3.el8.x86_64.rpm    3.3 MB/s |  59 kB     00:00    
+(44/145): perl-Term-ANSIColor-4.06-396.el8.noar 2.9 MB/s |  46 kB     00:00    
+(45/145): perl-Storable-3.11-3.el8.x86_64.rpm   4.0 MB/s |  98 kB     00:00    
 (46/145): perl-Term-Cap-1.17-395.el8.noarch.rpm 1.5 MB/s |  23 kB     00:00    
 (47/145): perl-Text-ParseWords-3.30-395.el8.noa 1.2 MB/s |  18 kB     00:00    
-(48/145): perl-Time-Local-1.280-1.el8.noarch.rp 2.2 MB/s |  34 kB     00:00    
-(49/145): perl-Text-Tabs+Wrap-2013.0523-395.el8 1.4 MB/s |  24 kB     00:00    
+(48/145): perl-Text-Tabs+Wrap-2013.0523-395.el8 1.5 MB/s |  24 kB     00:00    
+(49/145): perl-Time-Local-1.280-1.el8.noarch.rp 2.0 MB/s |  34 kB     00:00    
 (50/145): perl-Unicode-Normalize-1.25-396.el8.x 3.9 MB/s |  82 kB     00:00    
-(51/145): perl-constant-1.33-396.el8.noarch.rpm 1.6 MB/s |  25 kB     00:00    
-(52/145): perl-macros-5.26.3-422.el8.x86_64.rpm 3.2 MB/s |  73 kB     00:00    
-(53/145): perl-libs-5.26.3-422.el8.x86_64.rpm    36 MB/s | 1.6 MB     00:00    
-(54/145): perl-interpreter-5.26.3-422.el8.x86_6  99 MB/s | 6.3 MB     00:00    
-(55/145): perl-parent-0.237-1.el8.noarch.rpm    468 kB/s |  20 kB     00:00    
-(56/145): perl-threads-2.21-2.el8.x86_64.rpm    1.9 MB/s |  61 kB     00:00    
-(57/145): perl-podlators-4.11-1.el8.noarch.rpm  2.8 MB/s | 118 kB     00:00    
-(58/145): perl-threads-shared-1.58-2.el8.x86_64 2.1 MB/s |  48 kB     00:00    
-(59/145): pkgconf-1.4.2-1.el8.x86_64.rpm        2.4 MB/s |  38 kB     00:00    
+(51/145): perl-constant-1.33-396.el8.noarch.rpm 747 kB/s |  25 kB     00:00    
+(52/145): perl-libs-5.26.3-422.el8.x86_64.rpm    44 MB/s | 1.6 MB     00:00    
+(53/145): perl-macros-5.26.3-422.el8.x86_64.rpm 4.2 MB/s |  73 kB     00:00    
+(54/145): perl-podlators-4.11-1.el8.noarch.rpm  5.6 MB/s | 118 kB     00:00    
+(55/145): perl-parent-0.237-1.el8.noarch.rpm    802 kB/s |  20 kB     00:00    
+(56/145): perl-threads-shared-1.58-2.el8.x86_64 3.1 MB/s |  48 kB     00:00    
+(57/145): perl-interpreter-5.26.3-422.el8.x86_6  59 MB/s | 6.3 MB     00:00    
+(58/145): pkgconf-1.4.2-1.el8.x86_64.rpm        1.5 MB/s |  38 kB     00:00    
+(59/145): perl-threads-2.21-2.el8.x86_64.rpm    1.4 MB/s |  61 kB     00:00    
 (60/145): pkgconf-m4-1.4.2-1.el8.noarch.rpm     1.1 MB/s |  17 kB     00:00    
 (61/145): pkgconf-pkg-config-1.4.2-1.el8.x86_64 1.0 MB/s |  15 kB     00:00    
-(62/145): shared-mime-info-1.9-4.el8.x86_64.rpm  19 MB/s | 329 kB     00:00    
-(63/145): abattis-cantarell-fonts-0.0.25-6.el8. 9.0 MB/s | 156 kB     00:00    
-(64/145): unzip-6.0-46.el8.x86_64.rpm           8.5 MB/s | 196 kB     00:00    
-(65/145): adwaita-cursor-theme-3.28.0-3.el8.noa  27 MB/s | 647 kB     00:00    
-(66/145): at-spi2-atk-2.26.2-1.el8.x86_64.rpm   4.8 MB/s |  89 kB     00:00    
-(67/145): atk-2.28.1-1.el8.x86_64.rpm            16 MB/s | 272 kB     00:00    
-(68/145): at-spi2-core-2.28.0-1.el8.x86_64.rpm  8.7 MB/s | 169 kB     00:00    
-(69/145): cairo-gobject-1.15.12-6.el8.x86_64.rp 2.1 MB/s |  33 kB     00:00    
-(70/145): cairo-1.15.12-6.el8.x86_64.rpm         36 MB/s | 719 kB     00:00    
-(71/145): colord-libs-1.4.2-1.el8.x86_64.rpm     14 MB/s | 236 kB     00:00    
-(72/145): copy-jdk-configs-4.0-2.el8.noarch.rpm 2.0 MB/s |  31 kB     00:00    
-(73/145): graphite2-1.3.10-10.el8.x86_64.rpm    6.6 MB/s | 122 kB     00:00    
-(74/145): hicolor-icon-theme-0.17-2.el8.noarch. 3.2 MB/s |  48 kB     00:00    
-(75/145): dconf-0.28.0-4.el8.x86_64.rpm         3.0 MB/s | 108 kB     00:00    
-(76/145): adwaita-icon-theme-3.28.0-3.el8.noarc  86 MB/s |  11 MB     00:00    
-(77/145): javapackages-filesystem-5.3.0-1.modul 1.1 MB/s |  30 kB     00:00    
-(78/145): jasper-libs-2.0.14-5.el8.x86_64.rpm   5.6 MB/s | 167 kB     00:00    
-(79/145): lcms2-2.9-2.el8.x86_64.rpm            9.1 MB/s | 165 kB     00:00    
-(80/145): libXau-1.0.9-3.el8.x86_64.rpm         2.1 MB/s |  37 kB     00:00    
-(81/145): jbigkit-libs-2.1-14.el8.x86_64.rpm    2.5 MB/s |  55 kB     00:00    
-(82/145): libXcursor-1.1.15-3.el8.x86_64.rpm    2.3 MB/s |  36 kB     00:00    
-(83/145): libXdamage-1.1.4-14.el8.x86_64.rpm    1.1 MB/s |  27 kB     00:00    
-(84/145): libXext-1.3.4-1.el8.x86_64.rpm        3.0 MB/s |  45 kB     00:00    
-(85/145): libXcomposite-0.4.4-14.el8.x86_64.rpm 835 kB/s |  29 kB     00:00    
-(86/145): libXft-2.3.3-1.el8.x86_64.rpm         4.3 MB/s |  67 kB     00:00    
-(87/145): libXfixes-5.0.3-7.el8.x86_64.rpm      955 kB/s |  25 kB     00:00    
-(88/145): libXinerama-1.1.4-1.el8.x86_64.rpm    1.0 MB/s |  16 kB     00:00    
-(89/145): libXi-1.7.10-1.el8.x86_64.rpm         1.4 MB/s |  49 kB     00:00    
-(90/145): libXrandr-1.5.2-1.el8.x86_64.rpm      2.1 MB/s |  34 kB     00:00    
-(91/145): libXrender-0.9.10-7.el8.x86_64.rpm    2.1 MB/s |  33 kB     00:00    
-(92/145): libXtst-1.2.3-7.el8.x86_64.rpm        1.4 MB/s |  22 kB     00:00    
-(93/145): libdatrie-0.2.9-7.el8.x86_64.rpm      1.9 MB/s |  33 kB     00:00    
-(94/145): libfontenc-1.1.3-8.el8.x86_64.rpm     2.4 MB/s |  37 kB     00:00    
-(95/145): libepoxy-1.5.8-1.el8.x86_64.rpm       9.6 MB/s | 225 kB     00:00    
-(96/145): libjpeg-turbo-1.5.3-12.el8.x86_64.rpm 9.8 MB/s | 157 kB     00:00    
-(97/145): libthai-0.1.27-2.el8.x86_64.rpm        12 MB/s | 203 kB     00:00    
-(98/145): libxcb-1.13.1-1.el8.x86_64.rpm        9.6 MB/s | 229 kB     00:00    
-(99/145): libxkbcommon-0.9.1-1.el8.x86_64.rpm   4.4 MB/s | 116 kB     00:00    
-(100/145): lua-5.3.4-12.el8.x86_64.rpm           12 MB/s | 192 kB     00:00    
-(101/145): perl-Digest-1.17-395.el8.noarch.rpm  1.7 MB/s |  27 kB     00:00    
-(102/145): perl-Digest-MD5-2.55-396.el8.x86_64. 2.3 MB/s |  37 kB     00:00    
-(103/145): pango-1.42.4-8.el8.x86_64.rpm        9.2 MB/s | 297 kB     00:00    
-(104/145): perl-Error-0.17025-2.el8.noarch.rpm  3.0 MB/s |  46 kB     00:00    
-(105/145): perl-IO-Socket-IP-0.39-5.el8.noarch. 3.0 MB/s |  47 kB     00:00    
-(106/145): perl-Mozilla-CA-20160104-7.module+el 1.0 MB/s |  15 kB     00:00    
-(107/145): perl-Net-SSLeay-1.88-2.module+el8.6.  21 MB/s | 379 kB     00:00    
-(108/145): perl-TermReadKey-2.37-7.el8.x86_64.r 2.6 MB/s |  40 kB     00:00    
-(109/145): perl-IO-Socket-SSL-2.066-4.module+el 7.8 MB/s | 298 kB     00:00    
-(110/145): perl-URI-1.73-3.el8.noarch.rpm       4.7 MB/s | 116 kB     00:00    
-(111/145): rest-0.8.1-2.el8.x86_64.rpm          4.5 MB/s |  71 kB     00:00    
-(112/145): perl-libnet-3.11-3.el8.noarch.rpm    5.5 MB/s | 121 kB     00:00    
-(113/145): ttmkfdir-3.0.9-54.el8.x86_64.rpm     2.8 MB/s |  62 kB     00:00    
-(114/145): xkeyboard-config-2.28-1.el8.noarch.r  39 MB/s | 782 kB     00:00    
-(115/145): xorg-x11-font-utils-7.5-41.el8.x86_6 4.4 MB/s | 104 kB     00:00    
-(116/145): xorg-x11-fonts-Type1-7.5-19.el8.noar  29 MB/s | 522 kB     00:00    
-(117/145): fribidi-1.0.4-9.el8.x86_64.rpm       5.5 MB/s |  89 kB     00:00    
-(118/145): gtk-update-icon-cache-3.22.30-11.el8 1.4 MB/s |  33 kB     00:00    
-(119/145): java-17-openjdk-17.0.11.0.9-2.el8.x8  26 MB/s | 462 kB     00:00    
-(120/145): gtk3-3.22.30-11.el8.x86_64.rpm       107 MB/s | 4.5 MB     00:00    
-(121/145): libwayland-client-1.21.0-1.el8.x86_6 2.6 MB/s |  41 kB     00:00    
-(122/145): java-17-openjdk-devel-17.0.11.0.9-2.  85 MB/s | 5.1 MB     00:00    
-(123/145): libwayland-cursor-1.21.0-1.el8.x86_6 1.6 MB/s |  26 kB     00:00    
-(124/145): libwayland-egl-1.21.0-1.el8.x86_64.r 1.3 MB/s |  20 kB     00:00    
-(125/145): nspr-4.35.0-1.el8_8.x86_64.rpm       8.8 MB/s | 143 kB     00:00    
-(126/145): tzdata-java-2024a-1.el8.noarch.rpm    10 MB/s | 187 kB     00:00    
-(127/145): alsa-lib-1.2.10-2.el8.x86_64.rpm      24 MB/s | 501 kB     00:00    
-(128/145): gdk-pixbuf2-modules-2.36.12-6.el8_10 6.9 MB/s | 109 kB     00:00    
-(129/145): git-2.43.5-1.el8_10.x86_64.rpm       5.9 MB/s |  92 kB     00:00    
-(130/145): git-core-doc-2.43.5-1.el8_10.noarch.  83 MB/s | 3.1 MB     00:00    
-(131/145): harfbuzz-1.7.5-4.el8.x86_64.rpm       17 MB/s | 296 kB     00:00    
-(132/145): jq-1.6-8.el8.x86_64.rpm               12 MB/s | 203 kB     00:00    
-(133/145): git-core-2.43.5-1.el8_10.x86_64.rpm  116 MB/s |  11 MB     00:00    
-(134/145): libX11-1.6.8-8.el8.x86_64.rpm         24 MB/s | 612 kB     00:00    
-(135/145): libX11-common-1.6.8-8.el8.noarch.rpm 9.7 MB/s | 158 kB     00:00    
-(136/145): libtiff-4.0.9-31.el8.x86_64.rpm       11 MB/s | 190 kB     00:00    
-(137/145): nss-3.90.0-7.el8_10.x86_64.rpm        35 MB/s | 751 kB     00:00    
-(138/145): nss-softokn-3.90.0-7.el8_10.x86_64.r  51 MB/s | 1.2 MB     00:00    
-(139/145): nss-softokn-freebl-3.90.0-7.el8_10.x  21 MB/s | 376 kB     00:00    
-(140/145): nss-sysinit-3.90.0-7.el8_10.x86_64.r 4.7 MB/s |  76 kB     00:00    
-(141/145): oniguruma-6.8.2-3.el8.x86_64.rpm      11 MB/s | 188 kB     00:00    
-(142/145): nss-util-3.90.0-7.el8_10.x86_64.rpm  3.9 MB/s | 140 kB     00:00    
-(143/145): perl-Git-2.43.5-1.el8_10.noarch.rpm  4.8 MB/s |  79 kB     00:00    
-(144/145): java-17-openjdk-headless-17.0.11.0.9 131 MB/s |  47 MB     00:00    
-(145/145): pixman-0.38.4-4.el8.x86_64.rpm       3.9 MB/s | 258 kB     00:00    
+(62/145): unzip-6.0-46.el8.x86_64.rpm           8.8 MB/s | 196 kB     00:00    
+(63/145): abattis-cantarell-fonts-0.0.25-6.el8. 4.0 MB/s | 156 kB     00:00    
+(64/145): shared-mime-info-1.9-4.el8.x86_64.rpm 5.5 MB/s | 329 kB     00:00    
+(65/145): adwaita-cursor-theme-3.28.0-3.el8.noa  26 MB/s | 647 kB     00:00    
+(66/145): at-spi2-atk-2.26.2-1.el8.x86_64.rpm   4.3 MB/s |  89 kB     00:00    
+(67/145): atk-2.28.1-1.el8.x86_64.rpm            15 MB/s | 272 kB     00:00    
+(68/145): at-spi2-core-2.28.0-1.el8.x86_64.rpm  3.9 MB/s | 169 kB     00:00    
+(69/145): cairo-1.15.12-6.el8.x86_64.rpm         30 MB/s | 719 kB     00:00    
+(70/145): cairo-gobject-1.15.12-6.el8.x86_64.rp 1.8 MB/s |  33 kB     00:00    
+(71/145): colord-libs-1.4.2-1.el8.x86_64.rpm     13 MB/s | 236 kB     00:00    
+(72/145): copy-jdk-configs-4.0-2.el8.noarch.rpm 885 kB/s |  31 kB     00:00    
+(73/145): dconf-0.28.0-4.el8.x86_64.rpm         4.5 MB/s | 108 kB     00:00    
+(74/145): hicolor-icon-theme-0.17-2.el8.noarch. 3.0 MB/s |  48 kB     00:00    
+(75/145): graphite2-1.3.10-10.el8.x86_64.rpm    3.9 MB/s | 122 kB     00:00    
+(76/145): jasper-libs-2.0.14-5.el8.x86_64.rpm   9.4 MB/s | 167 kB     00:00    
+(77/145): javapackages-filesystem-5.3.0-1.modul 1.7 MB/s |  30 kB     00:00    
+(78/145): jbigkit-libs-2.1-14.el8.x86_64.rpm    3.3 MB/s |  55 kB     00:00    
+(79/145): lcms2-2.9-2.el8.x86_64.rpm            9.3 MB/s | 165 kB     00:00    
+(80/145): libXau-1.0.9-3.el8.x86_64.rpm         2.4 MB/s |  37 kB     00:00    
+(81/145): adwaita-icon-theme-3.28.0-3.el8.noarc  50 MB/s |  11 MB     00:00    
+(82/145): libXcomposite-0.4.4-14.el8.x86_64.rpm 484 kB/s |  29 kB     00:00    
+(83/145): libXcursor-1.1.15-3.el8.x86_64.rpm    680 kB/s |  36 kB     00:00    
+(84/145): libXfixes-5.0.3-7.el8.x86_64.rpm      1.1 MB/s |  25 kB     00:00    
+(85/145): libXdamage-1.1.4-14.el8.x86_64.rpm    996 kB/s |  27 kB     00:00    
+(86/145): libXext-1.3.4-1.el8.x86_64.rpm        1.4 MB/s |  45 kB     00:00    
+(87/145): libXft-2.3.3-1.el8.x86_64.rpm         4.0 MB/s |  67 kB     00:00    
+(88/145): libXrandr-1.5.2-1.el8.x86_64.rpm      2.0 MB/s |  34 kB     00:00    
+(89/145): libXinerama-1.1.4-1.el8.x86_64.rpm    617 kB/s |  16 kB     00:00    
+(90/145): libXi-1.7.10-1.el8.x86_64.rpm         1.3 MB/s |  49 kB     00:00    
+(91/145): libXrender-0.9.10-7.el8.x86_64.rpm    2.0 MB/s |  33 kB     00:00    
+(92/145): libXtst-1.2.3-7.el8.x86_64.rpm        953 kB/s |  22 kB     00:00    
+(93/145): libdatrie-0.2.9-7.el8.x86_64.rpm      1.6 MB/s |  33 kB     00:00    
+(94/145): libepoxy-1.5.8-1.el8.x86_64.rpm        11 MB/s | 225 kB     00:00    
+(95/145): libthai-0.1.27-2.el8.x86_64.rpm        10 MB/s | 203 kB     00:00    
+(96/145): libjpeg-turbo-1.5.3-12.el8.x86_64.rpm 4.8 MB/s | 157 kB     00:00    
+(97/145): libfontenc-1.1.3-8.el8.x86_64.rpm     1.0 MB/s |  37 kB     00:00    
+(98/145): libxcb-1.13.1-1.el8.x86_64.rpm         12 MB/s | 229 kB     00:00    
+(99/145): lua-5.3.4-12.el8.x86_64.rpm            11 MB/s | 192 kB     00:00    
+(100/145): libxkbcommon-0.9.1-1.el8.x86_64.rpm  3.7 MB/s | 116 kB     00:00    
+(101/145): perl-Digest-1.17-395.el8.noarch.rpm  1.4 MB/s |  27 kB     00:00    
+(102/145): pango-1.42.4-8.el8.x86_64.rpm         12 MB/s | 297 kB     00:00    
+(103/145): perl-Error-0.17025-2.el8.noarch.rpm  2.0 MB/s |  46 kB     00:00    
+(104/145): perl-IO-Socket-IP-0.39-5.el8.noarch. 1.7 MB/s |  47 kB     00:00    
+(105/145): perl-Digest-MD5-2.55-396.el8.x86_64. 909 kB/s |  37 kB     00:00    
+(106/145): perl-IO-Socket-SSL-2.066-4.module+el  14 MB/s | 298 kB     00:00    
+(107/145): perl-Mozilla-CA-20160104-7.module+el 964 kB/s |  15 kB     00:00    
+(108/145): perl-URI-1.73-3.el8.noarch.rpm       5.3 MB/s | 116 kB     00:00    
+(109/145): perl-Net-SSLeay-1.88-2.module+el8.6.  11 MB/s | 379 kB     00:00    
+(110/145): perl-TermReadKey-2.37-7.el8.x86_64.r 1.5 MB/s |  40 kB     00:00    
+(111/145): perl-libnet-3.11-3.el8.noarch.rpm    7.0 MB/s | 121 kB     00:00    
+(112/145): ttmkfdir-3.0.9-54.el8.x86_64.rpm     2.3 MB/s |  62 kB     00:00    
+(113/145): xkeyboard-config-2.28-1.el8.noarch.r  35 MB/s | 782 kB     00:00    
+(114/145): xorg-x11-font-utils-7.5-41.el8.x86_6 6.0 MB/s | 104 kB     00:00    
+(115/145): rest-0.8.1-2.el8.x86_64.rpm          1.5 MB/s |  71 kB     00:00    
+(116/145): xorg-x11-fonts-Type1-7.5-19.el8.noar  23 MB/s | 522 kB     00:00    
+(117/145): gtk-update-icon-cache-3.22.30-11.el8 1.0 MB/s |  33 kB     00:00    
+(118/145): fribidi-1.0.4-9.el8.x86_64.rpm       2.6 MB/s |  89 kB     00:00    
+(119/145): java-17-openjdk-17.0.11.0.9-2.el8.x8  20 MB/s | 462 kB     00:00    
+(120/145): gtk3-3.22.30-11.el8.x86_64.rpm        41 MB/s | 4.5 MB     00:00    
+(121/145): libwayland-client-1.21.0-1.el8.x86_6 2.5 MB/s |  41 kB     00:00    
+(122/145): libwayland-cursor-1.21.0-1.el8.x86_6 1.6 MB/s |  26 kB     00:00    
+(123/145): libwayland-egl-1.21.0-1.el8.x86_64.r 1.2 MB/s |  20 kB     00:00    
+(124/145): nspr-4.35.0-1.el8_8.x86_64.rpm       2.2 MB/s | 143 kB     00:00    
+(125/145): tzdata-java-2024a-1.el8.noarch.rpm   9.6 MB/s | 187 kB     00:00    
+(126/145): alsa-lib-1.2.10-2.el8.x86_64.rpm      23 MB/s | 501 kB     00:00    
+(127/145): gdk-pixbuf2-modules-2.36.12-6.el8_10 6.0 MB/s | 109 kB     00:00    
+(128/145): java-17-openjdk-devel-17.0.11.0.9-2.  18 MB/s | 5.1 MB     00:00    
+(129/145): git-2.43.5-1.el8_10.x86_64.rpm       3.4 MB/s |  92 kB     00:00    
+(130/145): git-core-doc-2.43.5-1.el8_10.noarch.  70 MB/s | 3.1 MB     00:00    
+(131/145): harfbuzz-1.7.5-4.el8.x86_64.rpm       13 MB/s | 296 kB     00:00    
+(132/145): jq-1.6-9.el8_10.x86_64.rpm            10 MB/s | 203 kB     00:00    
+(133/145): libX11-1.6.8-8.el8.x86_64.rpm         29 MB/s | 612 kB     00:00    
+(134/145): libX11-common-1.6.8-8.el8.noarch.rpm 9.1 MB/s | 158 kB     00:00    
+(135/145): git-core-2.43.5-1.el8_10.x86_64.rpm   63 MB/s |  11 MB     00:00    
+(136/145): libtiff-4.0.9-31.el8.x86_64.rpm      3.9 MB/s | 190 kB     00:00    
+(137/145): nss-3.90.0-7.el8_10.x86_64.rpm        12 MB/s | 751 kB     00:00    
+(138/145): nss-softokn-3.90.0-7.el8_10.x86_64.r  18 MB/s | 1.2 MB     00:00    
+(139/145): nss-softokn-freebl-3.90.0-7.el8_10.x  17 MB/s | 376 kB     00:00    
+(140/145): nss-sysinit-3.90.0-7.el8_10.x86_64.r 4.4 MB/s |  76 kB     00:00    
+(141/145): nss-util-3.90.0-7.el8_10.x86_64.rpm  6.4 MB/s | 140 kB     00:00    
+(142/145): perl-Git-2.43.5-1.el8_10.noarch.rpm  4.9 MB/s |  79 kB     00:00    
+(143/145): oniguruma-6.8.2-3.el8.x86_64.rpm     4.2 MB/s | 188 kB     00:00    
+(144/145): pixman-0.38.4-4.el8.x86_64.rpm        12 MB/s | 258 kB     00:00    
+(145/145): java-17-openjdk-headless-17.0.11.0.9  56 MB/s |  47 MB     00:00    
 --------------------------------------------------------------------------------
-Total                                            85 MB/s | 114 MB     00:01     
+Total                                            56 MB/s | 114 MB     00:02     
 Running transaction check
 Transaction check succeeded.
 Running transaction test
@@ -1427,7 +1413,7 @@ Running transaction
   Installing       : colord-libs-1.4.2-1.el8.x86_64                      85/145 
   Installing       : libedit-3.1-23.20170329cvs.el8.x86_64               86/145 
   Installing       : openssh-clients-8.0p1-24.el8.x86_64                 87/145 
-  Installing       : less-530-2.el8_9.x86_64                             88/145 
+  Installing       : less-530-3.el8_10.x86_64                            88/145 
   Installing       : git-core-2.43.5-1.el8_10.x86_64                     89/145 
   Installing       : git-core-doc-2.43.5-1.el8_10.noarch                 90/145 
   Installing       : groff-base-1.22.3-18.el8.x86_64                     91/145 
@@ -1478,7 +1464,7 @@ Running transaction
   Installing       : perl-Git-2.43.5-1.el8_10.noarch                    136/145 
   Installing       : git-2.43.5-1.el8_10.x86_64                         137/145 
   Installing       : avahi-libs-0.7-27.el8.x86_64                       138/145 
-  Installing       : cups-libs-1:2.2.6-57.el8.x86_64                    139/145 
+  Installing       : cups-libs-1:2.2.6-60.el8_10.x86_64                 139/145 
   Installing       : java-17-openjdk-headless-1:17.0.11.0.9-2.el8.x86   140/145 
   Running scriptlet: java-17-openjdk-headless-1:17.0.11.0.9-2.el8.x86   140/145 
   Installing       : gtk3-3.22.30-11.el8.x86_64                         141/145 
@@ -1486,7 +1472,7 @@ Running transaction
   Running scriptlet: java-17-openjdk-1:17.0.11.0.9-2.el8.x86_64         142/145 
   Installing       : java-17-openjdk-devel-1:17.0.11.0.9-2.el8.x86_64   143/145 
   Running scriptlet: java-17-openjdk-devel-1:17.0.11.0.9-2.el8.x86_64   143/145 
-  Installing       : jq-1.6-8.el8.x86_64                                144/145 
+  Installing       : jq-1.6-9.el8_10.x86_64                             144/145 
   Installing       : unzip-6.0-46.el8.x86_64                            145/145 
   Running scriptlet: nss-3.90.0-7.el8_10.x86_64                         145/145 
   Running scriptlet: copy-jdk-configs-4.0-2.el8.noarch                  145/145 
@@ -1501,7 +1487,7 @@ Running transaction
   Running scriptlet: shared-mime-info-1.9-4.el8.x86_64                  145/145 
   Running scriptlet: gdk-pixbuf2-2.36.12-6.el8_10.x86_64                145/145 
   Verifying        : avahi-libs-0.7-27.el8.x86_64                         1/145 
-  Verifying        : cups-libs-1:2.2.6-57.el8.x86_64                      2/145 
+  Verifying        : cups-libs-1:2.2.6-60.el8_10.x86_64                   2/145 
   Verifying        : dejavu-fonts-common-2.35-7.el8.noarch                3/145 
   Verifying        : dejavu-sans-mono-fonts-2.35-7.el8.noarch             4/145 
   Verifying        : emacs-filesystem-1:26.1-11.el8.noarch                5/145 
@@ -1512,7 +1498,7 @@ Running transaction
   Verifying        : glib-networking-2.56.1-1.1.el8.x86_64               10/145 
   Verifying        : groff-base-1.22.3-18.el8.x86_64                     11/145 
   Verifying        : gsettings-desktop-schemas-3.32.0-6.el8.x86_64       12/145 
-  Verifying        : less-530-2.el8_9.x86_64                             13/145 
+  Verifying        : less-530-3.el8_10.x86_64                            13/145 
   Verifying        : libedit-3.1-23.20170329cvs.el8.x86_64               14/145 
   Verifying        : libgusb-0.3.0-1.el8.x86_64                          15/145 
   Verifying        : libmodman-2.0.1-17.el8.x86_64                       16/145 
@@ -1633,7 +1619,7 @@ Running transaction
   Verifying        : git-core-2.43.5-1.el8_10.x86_64                    131/145 
   Verifying        : git-core-doc-2.43.5-1.el8_10.noarch                132/145 
   Verifying        : harfbuzz-1.7.5-4.el8.x86_64                        133/145 
-  Verifying        : jq-1.6-8.el8.x86_64                                134/145 
+  Verifying        : jq-1.6-9.el8_10.x86_64                             134/145 
   Verifying        : libX11-1.6.8-8.el8.x86_64                          135/145 
   Verifying        : libX11-common-1.6.8-8.el8.noarch                   136/145 
   Verifying        : libtiff-4.0.9-31.el8.x86_64                        137/145 
@@ -1660,7 +1646,7 @@ Installed:
   cairo-gobject-1.15.12-6.el8.x86_64                                            
   colord-libs-1.4.2-1.el8.x86_64                                                
   copy-jdk-configs-4.0-2.el8.noarch                                             
-  cups-libs-1:2.2.6-57.el8.x86_64                                               
+  cups-libs-1:2.2.6-60.el8_10.x86_64                                            
   dconf-0.28.0-4.el8.x86_64                                                     
   dejavu-fonts-common-2.35-7.el8.noarch                                         
   dejavu-sans-mono-fonts-2.35-7.el8.noarch                                      
@@ -1688,9 +1674,9 @@ Installed:
   java-17-openjdk-headless-1:17.0.11.0.9-2.el8.x86_64                           
   javapackages-filesystem-5.3.0-1.module+el8+2447+6f56d9a6.noarch               
   jbigkit-libs-2.1-14.el8.x86_64                                                
-  jq-1.6-8.el8.x86_64                                                           
+  jq-1.6-9.el8_10.x86_64                                                        
   lcms2-2.9-2.el8.x86_64                                                        
-  less-530-2.el8_9.x86_64                                                       
+  less-530-3.el8_10.x86_64                                                      
   libX11-1.6.8-8.el8.x86_64                                                     
   libX11-common-1.6.8-8.el8.noarch                                              
   libXau-1.0.9-3.el8.x86_64                                                     
@@ -1797,30 +1783,20 @@ Installed:
 Complete!
 
 Upgraded:
-  glibc-2.28-251.el8_10.2.x86_64                                                
-  glibc-common-2.28-251.el8_10.2.x86_64                                         
-  glibc-minimal-langpack-2.28-251.el8_10.2.x86_64                               
   libsemanage-2.9-9.el8_6.x86_64                                                
-  libxml2-2.9.7-18.el8_10.1.x86_64                                              
-  platform-python-3.6.8-62.el8_10.x86_64                                        
-  python3-libs-3.6.8-62.el8_10.x86_64                                           
-Installed:
-  glibc-gconv-extra-2.28-251.el8_10.2.x86_64                                    
-  glibc-langpack-en-2.28-251.el8_10.2.x86_64                                    
-  platform-python-pip-9.0.3-24.el8.noarch                                       
 
---> 4fb9dd1eea5f
+--> ab2a7f2e28ec
 STEP 3/14: ARG CHE_OPENVSX
---> 4f514477a18d
+--> 32cce101d42e
 STEP 4/14: ENV CHE_OPENVSX=${CHE_OPENVSX}
---> ba0ad3a344a1
+--> 34f29687f5fc
 STEP 5/14: ARG CHE_OPENVSX_TAG
---> b1366c8f9d9d
+--> 94a1976c6126
 STEP 6/14: ENV CHE_OPENVSX_TAG=${CHE_OPENVSX_TAG}
---> 73c797b3f127
+--> 97b47c09e27b
 STEP 7/14: RUN if [ -n "$CHE_OPENVSX" ]; then         cd /tmp;         curl -sSLo- ${CHE_OPENVSX} | tar xz;     else         cd /tmp;         git clone https://github.com/che-incubator/che-openvsx.git;         cd /tmp/che-openvsx;         git checkout ${CHE_OPENVSX_TAG};     fi
 branch 'che-openvsx-v0.14.5' set up to track 'origin/che-openvsx-v0.14.5'.
---> 2a8d0471e5e4
+--> 38ed077400e1
 STEP 8/14: RUN cd /tmp/che-openvsx/server && ./gradlew --no-daemon assemble &&     mkdir /openvsx-server &&     cp /tmp/che-openvsx/server/scripts/run-server.sh /openvsx-server &&     cp /tmp/che-openvsx/server/build/libs/openvsx-server.jar /openvsx-server
 Downloading https://services.gradle.org/distributions/gradle-8.1.1-bin.zip
 ...........10%............20%............30%............40%............50%............60%............70%............80%...........90%............100%
@@ -1847,20 +1823,20 @@ Daemon will be stopped at the end of the build
 > Task :jar
 > Task :assemble
 
-BUILD SUCCESSFUL in 57s
+BUILD SUCCESSFUL in 1m 17s
 5 actionable tasks: 5 executed
---> 44b244e1bcf5
+--> 18012479be1b
 STEP 9/14: RUN cd /openvsx-server && jar -xf openvsx-server.jar && rm openvsx-server.jar
---> 60acd1ae2280
+--> d517706daff0
 STEP 10/14: COPY /current_branch /current_branch
---> ba941035a78e
+--> 7689255b55d2
 STEP 11/14: COPY /openvsx-sync.json /openvsx-server/
---> d6f565dd68e8
+--> 8c6927c3547b
 STEP 12/14: COPY /build/scripts/download_vsix.sh /tmp
---> d2802f2ad9ca
+--> f7e1d486c9fc
 STEP 13/14: RUN     branch=$(cat /current_branch) &&     /tmp/download_vsix.sh -b $branch && mv /tmp/vsix /openvsx-server &&     rm /current_branch
 Scripts branch=devspaces-3-rhel-8
-Che Code version=1.91.0
+Che Code version=1.92.0
 Downloading https://open-vsx.org/api/donjayamanne/githistory/0.6.20/file/donjayamanne.githistory-0.6.20.vsix into donjayamanne folder...
 [1m
 🏃 Checking /tmp/vsix/donjayamanne.githistory-0.6.20.vsix[0m ... [32m✔[0m compatible.
@@ -1885,15 +1861,15 @@ Downloading https://open-vsx.org/api/usernamehw/indent-one-space/0.3.0/file/user
 Downloading https://open-vsx.org/api/redhat/vscode-xml/0.27.1/file/redhat.vscode-xml-0.27.1.vsix into redhat folder...
 [1m
 🏃 Checking /tmp/vsix/redhat.vscode-xml-0.27.1.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/redhat/vscode-yaml/1.14.0/file/redhat.vscode-yaml-1.14.0.vsix into redhat folder...
+Downloading https://open-vsx.org/api/redhat/vscode-yaml/1.15.0/file/redhat.vscode-yaml-1.15.0.vsix into redhat folder...
 [1m
-🏃 Checking /tmp/vsix/redhat.vscode-yaml-1.14.0.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/redhat.vscode-yaml-1.15.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/vscode/github-authentication/1.88.1/file/vscode.github-authentication-1.88.1.vsix into vscode folder...
 [1m
 🏃 Checking /tmp/vsix/vscode.github-authentication-1.88.1.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/GitHub/vscode-pull-request-github/0.88.1/file/GitHub.vscode-pull-request-github-0.88.1.vsix into GitHub folder...
+Downloading https://open-vsx.org/api/GitHub/vscode-pull-request-github/0.92.0/file/GitHub.vscode-pull-request-github-0.92.0.vsix into GitHub folder...
 [1m
-🏃 Checking /tmp/vsix/GitHub.vscode-pull-request-github-0.88.1.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/GitHub.vscode-pull-request-github-0.92.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/vscode/typescript-language-features/1.88.1/file/vscode.typescript-language-features-1.88.1.vsix into vscode folder...
 [1m
 🏃 Checking /tmp/vsix/vscode.typescript-language-features-1.88.1.vsix[0m ... [32m✔[0m compatible.
@@ -1906,24 +1882,24 @@ Downloading https://open-vsx.org/api/eclipse-cdt/cdt-gdb-vscode/0.0.108/file/ecl
 Downloading https://open-vsx.org/api/bmewburn/vscode-intelephense-client/1.10.4/file/bmewburn.vscode-intelephense-client-1.10.4.vsix into bmewburn folder...
 [1m
 🏃 Checking /tmp/vsix/bmewburn.vscode-intelephense-client-1.10.4.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/ms-python/python/2024.4.1/file/ms-python.python-2024.4.1.vsix into ms-python folder...
+Downloading https://open-vsx.org/api/ms-python/python/2024.8.1/file/ms-python.python-2024.8.1.vsix into ms-python folder...
 [1m
-🏃 Checking /tmp/vsix/ms-python.python-2024.4.1.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/ms-python.python-2024.8.1.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/ms-python/black-formatter/2024.2.0/file/ms-python.black-formatter-2024.2.0.vsix into ms-python folder...
 [1m
 🏃 Checking /tmp/vsix/ms-python.black-formatter-2024.2.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/ms-python/isort/2023.10.1/file/ms-python.isort-2023.10.1.vsix into ms-python folder...
 [1m
 🏃 Checking /tmp/vsix/ms-python.isort-2023.10.1.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/ms-toolsai/jupyter/2024.4.0/file/ms-toolsai.jupyter-2024.4.0.vsix into ms-toolsai folder...
+Downloading https://open-vsx.org/api/ms-toolsai/jupyter/2024.6.0/file/ms-toolsai.jupyter-2024.6.0.vsix into ms-toolsai folder...
 [1m
-🏃 Checking /tmp/vsix/ms-toolsai.jupyter-2024.4.0.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/ms-toolsai.jupyter-2024.6.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/ms-toolsai/jupyter-keymap/1.1.2/file/ms-toolsai.jupyter-keymap-1.1.2.vsix into ms-toolsai folder...
 [1m
 🏃 Checking /tmp/vsix/ms-toolsai.jupyter-keymap-1.1.2.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/ms-toolsai/jupyter-renderers/1.0.17/file/ms-toolsai.jupyter-renderers-1.0.17.vsix into ms-toolsai folder...
+Downloading https://open-vsx.org/api/ms-toolsai/jupyter-renderers/1.0.18/file/ms-toolsai.jupyter-renderers-1.0.18.vsix into ms-toolsai folder...
 [1m
-🏃 Checking /tmp/vsix/ms-toolsai.jupyter-renderers-1.0.17.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/ms-toolsai.jupyter-renderers-1.0.18.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/ms-toolsai/vscode-jupyter-cell-tags/0.1.9/file/ms-toolsai.vscode-jupyter-cell-tags-0.1.9.vsix into ms-toolsai folder...
 [1m
 🏃 Checking /tmp/vsix/ms-toolsai.vscode-jupyter-cell-tags-0.1.9.vsix[0m ... [32m✔[0m compatible.
@@ -1936,12 +1912,12 @@ Downloading https://open-vsx.org/api/golang/Go/0.41.4/file/golang.Go-0.41.4.vsix
 Downloading https://open-vsx.org/api/ms-kubernetes-tools/vscode-kubernetes-tools/1.3.16/file/ms-kubernetes-tools.vscode-kubernetes-tools-1.3.16.vsix into ms-kubernetes-tools folder...
 [1m
 🏃 Checking /tmp/vsix/ms-kubernetes-tools.vscode-kubernetes-tools-1.3.16.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/redhat/java/1.31.0/file/redhat.java-1.31.0.vsix into redhat folder...
+Downloading https://open-vsx.org/api/redhat/java/1.32.0/file/redhat.java-1.32.0.vsix into redhat folder...
 [1m
-🏃 Checking /tmp/vsix/redhat.java-1.31.0.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/vscjava/vscode-java-debug/0.57.0/file/vscjava.vscode-java-debug-0.57.0.vsix into vscjava folder...
+🏃 Checking /tmp/vsix/redhat.java-1.32.0.vsix[0m ... [32m✔[0m compatible.
+Downloading https://open-vsx.org/api/vscjava/vscode-java-debug/0.58.0/file/vscjava.vscode-java-debug-0.58.0.vsix into vscjava folder...
 [1m
-🏃 Checking /tmp/vsix/vscjava.vscode-java-debug-0.57.0.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/vscjava.vscode-java-debug-0.58.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/vscjava/vscode-java-test/0.41.1/file/vscjava.vscode-java-test-0.41.1.vsix into vscjava folder...
 [1m
 🏃 Checking /tmp/vsix/vscjava.vscode-java-test-0.41.1.vsix[0m ... [32m✔[0m compatible.
@@ -1966,24 +1942,25 @@ Downloading https://open-vsx.org/api/redhat/vscode-openshift-connector/linux-x64
 Downloading https://open-vsx.org/api/xdebug/php-debug/1.34.0/file/xdebug.php-debug-1.34.0.vsix into xdebug folder...
 [1m
 🏃 Checking /tmp/vsix/xdebug.php-debug-1.34.0.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/ms-dotnettools/vscode-dotnet-runtime/2.0.5/file/ms-dotnettools.vscode-dotnet-runtime-2.0.5.vsix into ms-dotnettools folder...
+Downloading https://open-vsx.org/api/ms-dotnettools/vscode-dotnet-runtime/2.0.9/file/ms-dotnettools.vscode-dotnet-runtime-2.0.9.vsix into ms-dotnettools folder...
 [1m
-🏃 Checking /tmp/vsix/ms-dotnettools.vscode-dotnet-runtime-2.0.5.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/muhammad-sammy/csharp/2.30.28/file/muhammad-sammy.csharp-2.30.28.vsix into muhammad-sammy folder...
+🏃 Checking /tmp/vsix/ms-dotnettools.vscode-dotnet-runtime-2.0.9.vsix[0m ... [32m✔[0m compatible.
+Downloading https://open-vsx.org/api/muhammad-sammy/csharp/2.34.12/file/muhammad-sammy.csharp-2.34.12.vsix into muhammad-sammy folder...
 [1m
-🏃 Checking /tmp/vsix/muhammad-sammy.csharp-2.30.28.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/SonarSource/sonarlint-vscode/4.5.1/file/SonarSource.sonarlint-vscode-4.5.1.vsix into SonarSource folder...
+🏃 Checking /tmp/vsix/muhammad-sammy.csharp-2.34.12.vsix[0m ... [32m✔[0m compatible.
+Downloading https://open-vsx.org/api/SonarSource/sonarlint-vscode/4.6.0/file/SonarSource.sonarlint-vscode-4.6.0.vsix into SonarSource folder...
 [1m
-🏃 Checking /tmp/vsix/SonarSource.sonarlint-vscode-4.5.1.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/SonarSource.sonarlint-vscode-4.6.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/vscode/git-base/1.88.1/file/vscode.git-base-1.88.1.vsix into vscode folder...
 [1m
 🏃 Checking /tmp/vsix/vscode.git-base-1.88.1.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/vscode/git/1.88.1/file/vscode.git-1.88.1.vsix into vscode folder...
 [1m
 🏃 Checking /tmp/vsix/vscode.git-1.88.1.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/dbaeumer/vscode-eslint/2.4.4/file/dbaeumer.vscode-eslint-2.4.4.vsix into dbaeumer folder...
+Downloading https://open-vsx.org/api/dbaeumer/vscode-eslint/3.0.10/file/dbaeumer.vscode-eslint-3.0.10.vsix into dbaeumer folder...
 [1m
-🏃 Checking /tmp/vsix/dbaeumer.vscode-eslint-2.4.4.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/dbaeumer.vscode-eslint-3.0.10.vsix[0m ... [32m✔[0m compatible.
+Attempt 1/5: Error while getting metadata for redhat/vscode-commons version 0.0.6
 Downloading https://open-vsx.org/api/redhat/vscode-commons/0.0.6/file/redhat.vscode-commons-0.0.6.vsix into redhat folder...
 [1m
 🏃 Checking /tmp/vsix/redhat.vscode-commons-0.0.6.vsix[0m ... [32m✔[0m compatible.
@@ -1999,63 +1976,63 @@ Downloading https://open-vsx.org/api/JFrog/jfrog-vscode-extension/2.10.1/file/JF
 Downloading https://open-vsx.org/api/SonatypeCommunity/vscode-iq-plugin/1.3.4/file/SonatypeCommunity.vscode-iq-plugin-1.3.4.vsix into SonatypeCommunity folder...
 [1m
 🏃 Checking /tmp/vsix/SonatypeCommunity.vscode-iq-plugin-1.3.4.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/GitLab/gitlab-workflow/4.14.0/file/GitLab.gitlab-workflow-4.14.0.vsix into GitLab folder...
+Downloading https://open-vsx.org/api/GitLab/gitlab-workflow/4.19.0/file/GitLab.gitlab-workflow-4.19.0.vsix into GitLab folder...
 [1m
-🏃 Checking /tmp/vsix/GitLab.gitlab-workflow-4.14.0.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/GitLab.gitlab-workflow-4.19.0.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/timonwong/shellcheck/0.37.1/file/timonwong.shellcheck-0.37.1.vsix into timonwong folder...
 [1m
 🏃 Checking /tmp/vsix/timonwong.shellcheck-0.37.1.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/redhat/ansible/24.5.2/file/redhat.ansible-24.5.2.vsix into redhat folder...
+Downloading https://open-vsx.org/api/redhat/ansible/24.8.1/file/redhat.ansible-24.8.1.vsix into redhat folder...
 [1m
-🏃 Checking /tmp/vsix/redhat.ansible-24.5.2.vsix[0m ... [32m✔[0m compatible.
+🏃 Checking /tmp/vsix/redhat.ansible-24.8.1.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/vscode/npm/1.88.1/file/vscode.npm-1.88.1.vsix into vscode folder...
 [1m
 🏃 Checking /tmp/vsix/vscode.npm-1.88.1.vsix[0m ... [32m✔[0m compatible.
 Downloading https://open-vsx.org/api/esbenp/prettier-vscode/10.4.0/file/esbenp.prettier-vscode-10.4.0.vsix into esbenp folder...
 [1m
 🏃 Checking /tmp/vsix/esbenp.prettier-vscode-10.4.0.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/eamodio/gitlens/15.0.4/file/eamodio.gitlens-15.0.4.vsix into eamodio folder...
+Downloading https://open-vsx.org/api/eamodio/gitlens/15.1.0/file/eamodio.gitlens-15.1.0.vsix into eamodio folder...
 [1m
-🏃 Checking /tmp/vsix/eamodio.gitlens-15.0.4.vsix[0m ... [32m✔[0m compatible.
-Downloading https://open-vsx.org/api/Continue/continue/linux-x64/0.8.38/file/Continue.continue-0.8.38@linux-x64.vsix into Continue folder...
+🏃 Checking /tmp/vsix/eamodio.gitlens-15.1.0.vsix[0m ... [32m✔[0m compatible.
+Downloading https://open-vsx.org/api/Continue/continue/linux-x64/0.8.42/file/Continue.continue-0.8.42@linux-x64.vsix into Continue folder...
 [1m
-🏃 Checking /tmp/vsix/Continue.continue-0.8.38.vsix[0m ... [32m✔[0m compatible.
---> 4664601fcc09
+🏃 Checking /tmp/vsix/Continue.continue-0.8.42.vsix[0m ... [32m✔[0m compatible.
+--> 434cdae9af98
 STEP 14/14: RUN tar -czvf openvsx-server.tar.gz openvsx-server 
 openvsx-server/
 openvsx-server/run-server.sh
 openvsx-server/vsix/
-openvsx-server/vsix/Continue.continue-0.8.38.vsix
+openvsx-server/vsix/Continue.continue-0.8.42.vsix
 openvsx-server/vsix/DavidAnson.vscode-markdownlint-0.55.0.vsix
-openvsx-server/vsix/GitHub.vscode-pull-request-github-0.88.1.vsix
-openvsx-server/vsix/GitLab.gitlab-workflow-4.14.0.vsix
+openvsx-server/vsix/GitHub.vscode-pull-request-github-0.92.0.vsix
+openvsx-server/vsix/GitLab.gitlab-workflow-4.19.0.vsix
 openvsx-server/vsix/JFrog.jfrog-vscode-extension-2.10.1.vsix
-openvsx-server/vsix/SonarSource.sonarlint-vscode-4.5.1.vsix
+openvsx-server/vsix/SonarSource.sonarlint-vscode-4.6.0.vsix
 openvsx-server/vsix/SonatypeCommunity.vscode-iq-plugin-1.3.4.vsix
 openvsx-server/vsix/adamhartford.vscode-base64-0.1.0.vsix
 openvsx-server/vsix/atlassian.atlascode-3.0.10.vsix
 openvsx-server/vsix/bmewburn.vscode-intelephense-client-1.10.4.vsix
-openvsx-server/vsix/dbaeumer.vscode-eslint-2.4.4.vsix
+openvsx-server/vsix/dbaeumer.vscode-eslint-3.0.10.vsix
 openvsx-server/vsix/donjayamanne.githistory-0.6.20.vsix
-openvsx-server/vsix/eamodio.gitlens-15.0.4.vsix
+openvsx-server/vsix/eamodio.gitlens-15.1.0.vsix
 openvsx-server/vsix/eclipse-cdt.cdt-gdb-vscode-0.0.108.vsix
 openvsx-server/vsix/esbenp.prettier-vscode-10.4.0.vsix
 openvsx-server/vsix/golang.Go-0.41.4.vsix
 openvsx-server/vsix/llvm-vs-code-extensions.vscode-clangd-0.1.28.vsix
-openvsx-server/vsix/ms-dotnettools.vscode-dotnet-runtime-2.0.5.vsix
+openvsx-server/vsix/ms-dotnettools.vscode-dotnet-runtime-2.0.9.vsix
 openvsx-server/vsix/ms-kubernetes-tools.vscode-kubernetes-tools-1.3.16.vsix
 openvsx-server/vsix/ms-python.black-formatter-2024.2.0.vsix
 openvsx-server/vsix/ms-python.isort-2023.10.1.vsix
-openvsx-server/vsix/ms-python.python-2024.4.1.vsix
-openvsx-server/vsix/ms-toolsai.jupyter-2024.4.0.vsix
+openvsx-server/vsix/ms-python.python-2024.8.1.vsix
+openvsx-server/vsix/ms-toolsai.jupyter-2024.6.0.vsix
 openvsx-server/vsix/ms-toolsai.jupyter-keymap-1.1.2.vsix
-openvsx-server/vsix/ms-toolsai.jupyter-renderers-1.0.17.vsix
+openvsx-server/vsix/ms-toolsai.jupyter-renderers-1.0.18.vsix
 openvsx-server/vsix/ms-toolsai.vscode-jupyter-cell-tags-0.1.9.vsix
 openvsx-server/vsix/ms-toolsai.vscode-jupyter-slideshow-0.1.6.vsix
-openvsx-server/vsix/muhammad-sammy.csharp-2.30.28.vsix
-openvsx-server/vsix/redhat.ansible-24.5.2.vsix
+openvsx-server/vsix/muhammad-sammy.csharp-2.34.12.vsix
+openvsx-server/vsix/redhat.ansible-24.8.1.vsix
 openvsx-server/vsix/redhat.fabric8-analytics-0.9.4.vsix
-openvsx-server/vsix/redhat.java-1.31.0.vsix
+openvsx-server/vsix/redhat.java-1.32.0.vsix
 openvsx-server/vsix/redhat.vscode-commons-0.0.6.vsix
 openvsx-server/vsix/redhat.vscode-microprofile-0.11.0.vsix
 openvsx-server/vsix/redhat.vscode-openshift-connector-1.14.0.vsix
@@ -2063,12 +2040,12 @@ openvsx-server/vsix/redhat.vscode-quarkus-1.17.0.vsix
 openvsx-server/vsix/redhat.vscode-redhat-account-0.2.0.vsix
 openvsx-server/vsix/redhat.vscode-tekton-pipelines-1.0.1.vsix
 openvsx-server/vsix/redhat.vscode-xml-0.27.1.vsix
-openvsx-server/vsix/redhat.vscode-yaml-1.14.0.vsix
+openvsx-server/vsix/redhat.vscode-yaml-1.15.0.vsix
 openvsx-server/vsix/robocorp.robotframework-lsp-1.12.0.vsix
 openvsx-server/vsix/shardulm94.trailing-spaces-0.4.1.vsix
 openvsx-server/vsix/timonwong.shellcheck-0.37.1.vsix
 openvsx-server/vsix/usernamehw.indent-one-space-0.3.0.vsix
-openvsx-server/vsix/vscjava.vscode-java-debug-0.57.0.vsix
+openvsx-server/vsix/vscjava.vscode-java-debug-0.58.0.vsix
 openvsx-server/vsix/vscjava.vscode-java-test-0.41.1.vsix
 openvsx-server/vsix/vscode.git-1.88.1.vsix
 openvsx-server/vsix/vscode.git-base-1.88.1.vsix
@@ -2819,46 +2796,46 @@ openvsx-server/org/springframework/boot/loader/jarmode/TestJarMode.class
 openvsx-server/org/springframework/boot/loader/util/
 openvsx-server/org/springframework/boot/loader/util/SystemPropertyUtils.class
 COMMIT che-openvsx:tmp
---> 7d5153ef28fc
+--> cc3549172c57
 Successfully tagged localhost/che-openvsx:tmp
-7d5153ef28fc45454ab561aa97e11c2ee1b257aab36e91c70e0dffc653f9d37e
-f0c3fea4ef1136bd0a06a423123a7f7d175487cacabeae2e9b4e72d6429a92b3
+cc3549172c5705cff8e0dcdc52afd9a675ebd986f300d22e58a45b44838fc97c
+af256a274677f1250c66080f683def84ea86608db35be92d3fe8e197a3ffa6e9
 che-openvsx_tmp
 Untagged: localhost/che-openvsx:tmp
-Deleted: 7d5153ef28fc45454ab561aa97e11c2ee1b257aab36e91c70e0dffc653f9d37e
-Deleted: 4664601fcc09c51b1fd97492e303fde59a1b4e0a0bdf4aaf33a60673a46c772c
-Deleted: d2802f2ad9caecb0d22f781dccbc8e9144f64dbb33c09f2429ca920f820771f2
-Deleted: d6f565dd68e8961bd86776111336529867276cad892a236d0f18693ef5787d83
-Deleted: ba941035a78e790641d20d05edfdf1742ac18c1bb5b326389a8b5a8d934d5a9b
-Deleted: 60acd1ae22807c1ac7ce1b3fe49d7ea8afdb02511f2d8c02d31d3a18c1137d91
-Deleted: 44b244e1bcf524ad9335e61b3af0a45dbed84065064ea02a850e4ac8cac15dae
-Deleted: 2a8d0471e5e4cebeed7c62fd7a2e3f93d53b143b9dc18fbf382acbf210ae9abf
-Deleted: 73c797b3f1279a58e93dcef9b9dc20272fe20fa973e87a230d5ea39c85e2104c
-Deleted: b1366c8f9d9da88374ade5a0e10d0fc01cae3a2356cf16ab754a8a6b4a987c81
-Deleted: ba0ad3a344a123ae4cc5acec27c8dd2f1d039809b6c749a18cf874e332ae9fe0
-Deleted: 4f514477a18d211be10ea1b106726fc0a548cbcbdea80a17e9cac039826cc0ff
-Deleted: 4fb9dd1eea5fb20897df4ce31f40c95c5064f9afc092012809332db4d9b03cbd
-STEP 1/4: FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1719303984 AS builder
+Deleted: cc3549172c5705cff8e0dcdc52afd9a675ebd986f300d22e58a45b44838fc97c
+Deleted: 434cdae9af985b2cc04405b5a840c916f44e3691f07ececc403bf6ead57dbb2f
+Deleted: f7e1d486c9fc056dd6e3a66d3106139893e3478f1b97cb7f70c1d8645f962d95
+Deleted: 8c6927c3547bec924a6cb08e73c4e815d37f7f2a3c68e160b4044e6ac50f7aa5
+Deleted: 7689255b55d2df18d9022fd0427834aba240b4903dcbfc4cbc600b01d40f3394
+Deleted: d517706daff0c74a3fbc24dca8bc4a1bdb4864829a0fbc91ded64b0f1e41fc97
+Deleted: 18012479be1b1bb17a50ccaff5e94de712928f207a87b2d57c22f8cdc6e36644
+Deleted: 38ed077400e1f73e46329f3369306f0cd25fd8281a54520c467683728b4379f8
+Deleted: 97b47c09e27b3049dadb955ba476ec8891ca7fa5971910178014884f2876ead5
+Deleted: 94a1976c6126818dae52ff6aeff03d63fd267e5ec4d02922f9756512d3f4181e
+Deleted: 34f29687f5fc86d414b0eee013f86ea8e33406c23a958ad664377ad8907ffc13
+Deleted: 32cce101d42e9b46f662b46d5f72beff29c843b5d09d45b75cbaf0c20808ea94
+Deleted: ab2a7f2e28ec78be2991dfa600b58c223a8631ad08e71cee97a93c35c3188440
+STEP 1/4: FROM registry.access.redhat.com/ubi8/nodejs-18:1-114 AS builder
 STEP 2/4: USER 1001
---> b84643aa78f6
+--> c1f0ab6c574c
 STEP 3/4: ENV npm_config_cache=/tmp/opt/cache
---> cabdca0c9086
+--> 12951ff9264a
 STEP 4/4: RUN mkdir -p /tmp/opt/cache &&     npm install --location=global ovsx@0.8.3 --prefix /tmp/opt/ovsx --cache /tmp/opt/cache && chmod -R g+rwX /tmp/opt/ovsx &&     tar -czf ovsx.tar.gz /tmp/opt/ovsx &&     chmod g+rwX /opt/app-root/src/ovsx.tar.gz
 
-added 168 packages in 8s
+added 168 packages in 11s
 
 38 packages are looking for funding
   run `npm fund` for details
 COMMIT che-ovsx:tmp
---> 15012ce945fa
+--> c8c4c57a7047
 Successfully tagged localhost/che-ovsx:tmp
-15012ce945fa1ee4a3415839b1901a2763d0952a3bf2891f7e94484474e7cc84
-2548d005363b3f213c1cd9d6c54d1ee126914ecb874dee700843dcaddc2e600c
+c8c4c57a704761988a0d85b9f8572ee18d31ca7fc4200aecfa722708fb5a3885
+687b641c7b675f6deec8a45ecdd8a778e18d826b4b7db83fbe63827a94938ad7
 che-ovsx_tmp
 Untagged: localhost/che-ovsx:tmp
-Deleted: 15012ce945fa1ee4a3415839b1901a2763d0952a3bf2891f7e94484474e7cc84
-Deleted: cabdca0c90864660956544360626d924e922bf1041bd11cde2bd2699f522bfa7
-Deleted: b84643aa78f6637c527e7d5f70ae9667a947eea570b49b8f97fc87dc25440c59
+Deleted: c8c4c57a704761988a0d85b9f8572ee18d31ca7fc4200aecfa722708fb5a3885
+Deleted: 12951ff9264a51e881dea728a6dd11c77f776a6ca00909ccce2878eb759d5e94
+Deleted: c1f0ab6c574c1ce35d15609d835818b0bb8a9005b5a67ad563e02899e844c8e5
 File already uploaded: root-local.tgz
 Uploading: resources.tgz
 Uploading: openvsx-server.tar.gz

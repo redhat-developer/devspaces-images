@@ -61,23 +61,23 @@ RUN ./index.sh > /build/devfiles/index.json && \
 ======= START BOOTSTRAP BUILD =======>
 STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
 STEP 2/23: USER 0
---> 0e9f5781196c
+--> ac174473d378
 STEP 3/23: ARG BOOTSTRAP=true
---> 94aca94e1231
+--> 2280aabf01d7
 STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
---> a113d4c2e9c4
+--> 6af65cc340f8
 STEP 5/23: ARG ALLOWED_REGISTRIES=""
---> 8be8ddab2456
+--> 5df75eca4289
 STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
---> be6bb2d99ac1
+--> d886d676a079
 STEP 7/23: ARG ALLOWED_TAGS=""
---> 7696fa302d0a
+--> aed5e35a99df
 STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
---> 6678332ea867
+--> afeebe79236b
 STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
---> d2661b21f4a2
+--> 0e4adc3d99ed
 STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
---> 7bd6ff9f7cc1
+--> b54c809d0e76
 STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
 Upgraded:
@@ -94,59 +94,59 @@ Installed:
   fuse-overlayfs-1.13-1.module+el8.10.0+21962+8143777b.x86_64                   
   fuse3-3.3.0-19.el8.x86_64                                                     
   fuse3-libs-3.3.0-19.el8.x86_64                                                
-  jq-1.6-8.el8.x86_64                                                           
+  jq-1.6-9.el8_10.x86_64                                                        
   kmod-25-20.el8.x86_64                                                         
   libnet-1.1.6-15.el8.x86_64                                                    
   libslirp-4.4.0-2.module+el8.10.0+21962+8143777b.x86_64                        
   mpdecimal-2.5.1-3.el8.x86_64                                                  
   oniguruma-6.8.2-3.el8.x86_64                                                  
   protobuf-c-1.3.0-8.el8.x86_64                                                 
-  python3.11-3.11.9-1.el8_10.x86_64                                             
-  python3.11-devel-3.11.9-1.el8_10.x86_64                                       
-  python3.11-libs-3.11.9-1.el8_10.x86_64                                        
+  python3.11-3.11.9-2.el8_10.x86_64                                             
+  python3.11-devel-3.11.9-2.el8_10.x86_64                                       
+  python3.11-libs-3.11.9-2.el8_10.x86_64                                        
   python3.11-pip-22.3.1-5.el8.noarch                                            
   python3.11-pip-wheel-22.3.1-5.el8.noarch                                      
   python3.11-setuptools-65.5.1-2.el8.noarch                                     
   python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
   runc-1:1.1.12-1.module+el8.10.0+21974+acd2159c.x86_64                         
-  skopeo-2:1.14.3-2.module+el8.10.0+21962+8143777b.x86_64                       
+  skopeo-2:1.14.4-1.module+el8.10.0+21995+81e8507c.x86_64                       
   slirp4netns-1.2.3-1.module+el8.10.0+21962+8143777b.x86_64                     
 
 Collecting yq
   Downloading yq-3.4.3-py3-none-any.whl (18 kB)
 Collecting argcomplete
   Downloading argcomplete-3.4.0-py3-none-any.whl (42 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.5 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.6/42.6 kB 5.8 MB/s eta 0:00:00
 Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
 Collecting pip
-  Downloading pip-24.1.1-py3-none-any.whl (1.8 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 55.4 MB/s eta 0:00:00
+  Downloading pip-24.1.2-py3-none-any.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 53.3 MB/s eta 0:00:00
 Collecting PyYAML>=5.3.1
   Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 407.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 282.9 MB/s eta 0:00:00
 Collecting xmltodict>=0.11.0
   Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
 Collecting tomlkit>=0.11.6
-  Downloading tomlkit-0.12.5-py3-none-any.whl (37 kB)
+  Downloading tomlkit-0.13.0-py3-none-any.whl (37 kB)
 Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
-Successfully installed PyYAML-6.0.1 argcomplete-3.4.0 pip-24.1.1 tomlkit-0.12.5 xmltodict-0.13.0 yq-3.4.3
+Successfully installed PyYAML-6.0.1 argcomplete-3.4.0 pip-24.1.2 tomlkit-0.13.0 xmltodict-0.13.0 yq-3.4.3
 python: Python 3.8.16
 yq: yq 3.4.3
 jq: jq-1.6
---> d6320857aa7e
+--> 25242f73ae10
 STEP 12/23: COPY ./build/scripts ./versions.json /build/
---> 8cb8b65ffe11
+--> 0a53b083fe88
 STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
---> 4c9e78ebae36
+--> b503be725a68
 STEP 14/23: COPY ./VERSION /
---> 2e1983530102
+--> bc425bf69a01
 STEP 15/23: COPY ./devfiles /build/devfiles
---> 4f2d46a0b95e
+--> 6f88f28940b5
 STEP 16/23: WORKDIR /build/
---> ce9561ac29e6
+--> e395522ef7a1
 STEP 17/23: RUN ./generate_devworkspace_templates.sh
 + @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
-added 31 packages from 83 contributors and audited 31 packages in 5.25s
+added 31 packages from 83 contributors and audited 31 packages in 4.451s
 
 1 package is looking for funding
   run `npm fund` for details
@@ -173,16 +173,16 @@ DevWorkspace che-code-golang was generated.
 DevWorkspace che-idea-golang was generated.
 DevWorkspace che-code-php-hello-world was generated.
 DevWorkspace che-idea-php-hello-world was generated.
---> 4eb31fd45a1e
+--> 98e13a647c49
 STEP 18/23: RUN chmod -R g+rwX /build/resources
---> b86b98c04064
+--> 23f72415d251
 STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
  = ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce PASS
  + registry.redhat.io/devspaces/code-rhel8:3.16 PASS - 3.16 allowed
  + registry.redhat.io/devspaces/idea-rhel8:3.16 PASS - 3.16 allowed
  + registry.redhat.io/devspaces/udi-rhel8:3.16 PASS - 3.16 allowed
  = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
---> 64b58699e671
+--> 9f0ca4be9798
 STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
 Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
 Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
@@ -194,44 +194,218 @@ Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
 Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
 Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
 Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
---> 4a91d55c8ed1
+--> b75d5e632081
 STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
---> 98fe5d1a8001
+--> ae0254166338
 STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
---> ab6003bd4f81
+--> be8263680df0
 STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
 COMMIT devfileregistry:tmp
---> 7cb58c57b0f3
+--> cc0020da20ae
 Successfully tagged localhost/devfileregistry:tmp
-7cb58c57b0f37309eb4805b714f83f7b90c14b2269ab44837c5853d1a11dfcb4
+cc0020da20ae97789dbf84b96d99cbca265e13b6aed665a639c783ce5874db81
 <======= END BOOTSTRAP BUILD =======
-Downloading root-local.tgz
-Downloading resources.tgz
+Downloading root-local.tgz from https://pkgs.devel.redhat.com/repo/
+Downloading resources.tgz from https://pkgs.devel.redhat.com/repo/
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/container.py	2024-07-07 18:22:43.000000000 -0400
++++ /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/container.py	2024-07-10 18:24:08.636952820 -0400
+@@ -155,7 +155,7 @@
+             return
+         if key not in self._map or not isinstance(self._map[key], tuple):
+             return
+-        OutOfOrderTableProxy(self, self._map[key])
++        OutOfOrderTableProxy.validate(self, self._map[key])
+ 
+     def append(
+         self, key: Key | str | None, item: Item, validate: bool = True
+@@ -323,8 +323,6 @@
+         if key is not None:
+             dict.__setitem__(self, key.key, item.value)
+ 
+-        return self
+-
+     def _remove_at(self, idx: int) -> None:
+         key = self._body[idx][0]
+         index = self._map.get(key)
+@@ -788,14 +786,26 @@
+ 
+ 
+ class OutOfOrderTableProxy(_CustomDict):
+-    def __init__(self, container: Container, indices: tuple[int]) -> None:
++    @staticmethod
++    def validate(container: Container, indices: tuple[int, ...]) -> None:
++        """Validate out of order tables in the given container"""
++        # Append all items to a temp container to see if there is any error
++        temp_container = Container(True)
++        for i in indices:
++            _, item = container._body[i]
++
++            if isinstance(item, Table):
++                for k, v in item.value.body:
++                    temp_container.append(k, v, validate=False)
++
++        temp_container._validate_out_of_order_table()
++
++    def __init__(self, container: Container, indices: tuple[int, ...]) -> None:
+         self._container = container
+         self._internal_container = Container(True)
+         self._tables = []
+         self._tables_map = {}
+ 
+-        original_parsing = container._parsed
+-        container.parsing(True)
+         for i in indices:
+             _, item = self._container._body[i]
+ 
+@@ -803,11 +813,11 @@
+                 self._tables.append(item)
+                 table_idx = len(self._tables) - 1
+                 for k, v in item.value.body:
+-                    self._internal_container.append(k, v, validate=False)
++                    self._internal_container._raw_append(k, v)
+                     self._tables_map[k] = table_idx
+                     if k is not None:
+                         dict.__setitem__(self, k.key, v)
+-        container.parsing(original_parsing)
++
+         self._internal_container._validate_out_of_order_table()
+ 
+     def unwrap(self) -> str:
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/exceptions.py /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/exceptions.py
+--- /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/exceptions.py	2024-07-07 18:22:43.000000000 -0400
++++ /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/exceptions.py	2024-07-10 18:24:08.636952820 -0400
+@@ -225,3 +225,10 @@
+             f"Invalid string: {delimiter}{repr_}{delimiter}. "
+             f"The character sequences {invalid_sequences} are invalid."
+         )
++
++
++class ConvertError(TypeError, ValueError, TOMLKitError):
++    """Raised when item() fails to convert a value.
++    It should be a TypeError, but due to historical reasons
++    it needs to subclass ValueError as well.
++    """
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/__init__.py	2024-07-07 18:22:43.000000000 -0400
++++ /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/__init__.py	2024-07-10 18:24:08.635952820 -0400
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.12.5"
++__version__ = "0.13.0"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages/tomlkit/items.py	2024-07-07 18:22:43.000000000 -0400
++++ /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages/tomlkit/items.py	2024-07-10 18:24:08.636952820 -0400
+@@ -33,6 +33,7 @@
+ from tomlkit._types import wrap_method
+ from tomlkit._utils import CONTROL_CHARS
+ from tomlkit._utils import escape_string
++from tomlkit.exceptions import ConvertError
+ from tomlkit.exceptions import InvalidStringError
+ 
+ 
+@@ -46,13 +47,6 @@
+ AT = TypeVar("AT", bound="AbstractTable")
+ 
+ 
+-class _ConvertError(TypeError, ValueError):
+-    """An internal error raised when item() fails to convert a value.
+-    It should be a TypeError, but due to historical reasons
+-    it needs to subclass ValueError as well.
+-    """
+-
+-
+ @overload
+ def item(value: bool, _parent: Item | None = ..., _sort_keys: bool = ...) -> Bool: ...
+ 
+@@ -206,16 +200,16 @@
+         for encoder in CUSTOM_ENCODERS:
+             try:
+                 rv = encoder(value)
+-            except TypeError:
++            except ConvertError:
+                 pass
+             else:
+                 if not isinstance(rv, Item):
+-                    raise _ConvertError(
+-                        f"Custom encoder returned {type(rv)}, not a subclass of Item"
++                    raise ConvertError(
++                        f"Custom encoder is expected to return an instance of Item, got {type(rv)}"
+                     )
+                 return rv
+ 
+-    raise _ConvertError(f"Invalid type {type(value)}")
++    raise ConvertError(f"Unable to convert an object of {type(value)} to a TOML item")
+ 
+ 
+ class StringType(Enum):
+@@ -958,9 +952,14 @@
+         return date.__new__(cls, year, month, day)
+ 
+     def __init__(
+-        self, year: int, month: int, day: int, trivia: Trivia, raw: str
++        self,
++        year: int,
++        month: int,
++        day: int,
++        trivia: Trivia | None = None,
++        raw: str = "",
+     ) -> None:
+-        super().__init__(trivia)
++        super().__init__(trivia or Trivia())
+ 
+         self._raw = raw
+ 
+@@ -1033,10 +1032,10 @@
+         second: int,
+         microsecond: int,
+         tzinfo: tzinfo | None,
+-        trivia: Trivia,
+-        raw: str,
++        trivia: Trivia | None = None,
++        raw: str = "",
+     ) -> None:
+-        super().__init__(trivia)
++        super().__init__(trivia or Trivia())
+ 
+         self._raw = raw
+ 
+Only in /tmp/tmp.nKyN2W5XH7/lib/python3.11/site-packages: tomlkit-0.12.5.dist-info
+Only in /tmp/tmp.65qKiy3Rxp/lib/python3.11/site-packages: tomlkit-0.13.0.dist-info
+***** END DIFF
 Untagged: localhost/devfileregistry:tmp
-Deleted: 7cb58c57b0f37309eb4805b714f83f7b90c14b2269ab44837c5853d1a11dfcb4
-Deleted: ab6003bd4f81612b3bedf2e4eb2a27b78b2ae5ce3f1809fba8d97298aa0e5272
-Deleted: 98fe5d1a8001a4ccfe91a19f1101b7d2c53e63f0ef7b48d8dd94abddeeae0585
-Deleted: 4a91d55c8ed1cd0f94082bfa9e452e8b97e8b5aefea09aa8e38e9e4c8d694064
-Deleted: 64b58699e6718cd4bdd02d327ff385a5c73b81306e8cf8bc140b573585acdc82
-Deleted: b86b98c0406453c11c3cebff1a0648e007fa0f5cec9c19c4d078a2350e41ea8b
-Deleted: 4eb31fd45a1e895b82d98e838a6fdde05aa2c66cbb4d8f13f1f2406a4508dbfc
-Deleted: ce9561ac29e6feec8a97c6487beaab15ccdacff3b6229ad58c89b2a6ec0db05e
-Deleted: 4f2d46a0b95e68243b5131c5ebdf8557739a5f8368c783b0bdfd33492bb09d31
-Deleted: 2e1983530102ed9373bfa7ffc950d5da028b605604c06558874b06e1f550686a
-Deleted: 4c9e78ebae36137cb2ce4b25ae67730f87b362f0910d043a63c5ce1a3dfd99a6
-Deleted: 8cb8b65ffe1109a7d5875b73cb877c07042979236c58ab954ae84601f3acd532
-Deleted: d6320857aa7e1e75f3be8b66b4e371c242ded4bd96c0ff4e4df788b537b5d5f5
-Deleted: 7bd6ff9f7cc1128a30cdeff8d97388f9b4bff4108146c6da23e5a96dcedaefc1
-Deleted: d2661b21f4a264f29cb5b99c0784f58363f9d1249e3faaf671f07b67084a2486
-Deleted: 6678332ea867e3e84d0c5cfb9352c9a4b951bf60ecd8b79d900adc63cb8c847d
-Deleted: 7696fa302d0a7450c45ad5015cad3a515368a978d5edfce29b1fc54ad2b6ef9a
-Deleted: be6bb2d99ac1470df28caedd71efbd8aeabf78999048c7725e37ef0e3627d985
-Deleted: 8be8ddab2456553cc1af856bc2b43d589c6c9cdac14572c4fa89f30e8ff2a73f
-Deleted: a113d4c2e9c4c2bfd0645500932992b30605613be9ad9363faf5caac1d74e22c
-Deleted: 94aca94e123103e3ea7ebb575d06ff68c9dabf0e4a7ec2dc791ef777b0d2ddad
-Deleted: 0e9f5781196c2e249ff34f80310e4ef057a0921cc45b92305d1b0cc3706e23af
-File already uploaded: root-local.tgz
+Deleted: cc0020da20ae97789dbf84b96d99cbca265e13b6aed665a639c783ce5874db81
+Deleted: be8263680df05fdda8ce6960547f86208f779400d379e896e679030cc07e8dce
+Deleted: ae0254166338cb6d295211bb7c0f0de58bb37a2d1c70f2450c7e00eecb96add5
+Deleted: b75d5e6320814246587ef0e1b47a26d47e0fecfb38a5ec08733eb13534a546bc
+Deleted: 9f0ca4be97982c6c2045ab9cd9aa7eb36a8264c54a1953505143ec085ccf3b00
+Deleted: 23f72415d2517298170cd72f81962853711e60d023e728de845ebbbebf08a59c
+Deleted: 98e13a647c4973912840d99790d3cf3b008869431607d61a33552d18ccb7b6fe
+Deleted: e395522ef7a1cd6ed0be1d0cfef5ea02569fb56afbe7f54bbaeee2c427aa9f7a
+Deleted: 6f88f28940b5c4417fcfc3917471717869c97abc9b6d3cd9889a171325e068d2
+Deleted: bc425bf69a0128472c90138a957b349cbc6079c37e9c1160e3e2b6410dd68e21
+Deleted: b503be725a68a4fc06df6cf96904f9b118ea773c8bc07695e41699f819e95161
+Deleted: 0a53b083fe884d6c968d6dd1e5eb3c57ad54c2975a6f57c29370c5b3aabf4080
+Deleted: 25242f73ae104ba28fa3b9c39522a479e332b74c39c25b9c87eb7bde870f4794
+Deleted: b54c809d0e76917614388f233d50a6676c238d0276db1b1053624d2ada6a2f89
+Deleted: 0e4adc3d99ed57e8139343eb8ca6a8d0a32b007540fc66623eb6e08ec400f182
+Deleted: afeebe79236b32e4dfba72ca9406a779a63e22f34c83b19e1e312035b9327819
+Deleted: aed5e35a99dfaac87f72396c2f515d04461f33289d907c7ce29a06647b3537a8
+Deleted: d886d676a0797b845b548b08fd9875097cd710db3c32cf401b7dd7c4e647d27c
+Deleted: 5df75eca42896eab91545936af3f9b50d72423ad960d02558134af8434fdcec2
+Deleted: 6af65cc340f88449f0e21f54326842c7eb2e36e2675e3d1784e5d7d3e269832e
+Deleted: 2280aabf01d71a6b41e6776d0774bd031f6d3d57d8c1f9c12abce580c65c6764
+Deleted: ac174473d3785d3f58130245add2141222d19dea16ee9c2b6dbd72ba65fbb480
+Uploading: root-local.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+Uploading: root-local.tgz
+Uploading: resources.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
 File already uploaded: resources.tgz
-All sources were already uploaded.
+Source upload succeeded. Don't forget to commit the sources file
 rm 'resources.tgz'
 rm 'root-local.tgz'

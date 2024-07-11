@@ -16,7 +16,7 @@
 # The directory is located at /tmp/opt/ovsx/node_modules
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-110.1719303984 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:1-114 as builder
 
 # hadolint ignore=DL3002
 USER root
@@ -57,7 +57,7 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry
 #
 
 # https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-66.1717586531
+FROM registry.redhat.io/rhel8/postgresql-15:1-70
 USER 0
 WORKDIR /
 
@@ -118,7 +118,6 @@ COPY /build/scripts/*.sh resources.tgz che-*.yaml /build/
 RUN chmod 755 /usr/local/bin/*.sh && \
     tar --no-same-owner -xvf /build/resources.tgz -C /build/ && \
     rm -rf /build/output/v3/che-editors.yaml && \
-    /build/list_referenced_images.sh /build/output/v3 --use-generated-content > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt && \
     chmod -R g+rwX /build && \
     cp -r /build/output/v3 /var/www/html/
 

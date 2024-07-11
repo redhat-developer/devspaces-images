@@ -12,7 +12,7 @@
 #
 
 # https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-66.1717586531
+FROM registry.redhat.io/rhel8/postgresql-15:1-70
 # rhel9-2-els is used for the build in Brew
 # FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 
@@ -81,7 +81,6 @@ COPY /build/scripts/*.sh resources.tgz che-*.yaml /build/
 RUN chmod 755 /usr/local/bin/*.sh && \
     tar --no-same-owner -xvf /build/resources.tgz -C /build/ && \
     rm -rf /build/output/v3/che-editors.yaml && \
-    /build/list_referenced_images.sh /build/output/v3 --use-generated-content > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt && \
     chmod -R g+rwX /build && \
     cp -r /build/output/v3 /var/www/html/
 

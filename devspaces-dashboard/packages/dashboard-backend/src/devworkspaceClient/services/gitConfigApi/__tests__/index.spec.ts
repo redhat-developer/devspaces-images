@@ -114,8 +114,8 @@ describe('Gitconfig API', () => {
         {
           data: {
             gitconfig: `[user]
-name="User Two"
 email="user-2@che"
+name="User Two"
 `,
           },
         },

@@ -267,7 +267,7 @@ describe('Creating steps, initializing', () => {
 
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
-    await waitFor(() => expect(mockOnError).not.toBeCalled());
+    await waitFor(() => expect(mockOnError).not.toHaveBeenCalled());
 
     expect(mockOnNextStep).toHaveBeenCalled();
   });

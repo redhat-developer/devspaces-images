@@ -1,0 +1,324 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitConfigUpload snapshot with content, validation is in the default state 1`] = `
+<div
+  className="pf-c-file-upload"
+  data-testid="git-configuration"
+  onBlur={[Function]}
+  onClick={[Function]}
+  onDragEnter={[Function]}
+  onDragLeave={[Function]}
+  onDragOver={[Function]}
+  onDragStart={[Function]}
+  onDrop={[Function]}
+  onFocus={[Function]}
+  onKeyDown={[Function]}
+  tabIndex={null}
+>
+  <div
+    className="pf-c-file-upload__file-select"
+  >
+    <div
+      className="pf-c-input-group"
+    >
+      <input
+        aria-describedby="git-configuration-browse-button"
+        aria-invalid={false}
+        aria-label="Upload the .gitconfig file"
+        className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
+        disabled={false}
+        id="git-configuration-filename"
+        name="git-configuration-filename"
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Upload the .gitconfig file"
+        readOnly={true}
+        required={false}
+        type="text"
+        value=""
+      />
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-control"
+        data-ouia-component-id="OUIA-Generated-Button-control-3"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={false}
+        id="git-configuration-browse-button"
+        onClick={[Function]}
+        role={null}
+        type="button"
+      >
+        Upload
+      </button>
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-control"
+        data-ouia-component-id="OUIA-Generated-Button-control-4"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={false}
+        onClick={[Function]}
+        role={null}
+        type="button"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+  <div
+    className="pf-c-file-upload__file-details"
+  >
+    <textarea
+      aria-invalid={false}
+      aria-label="File upload"
+      className="pf-c-form-control pf-m-resize-vertical"
+      disabled={false}
+      id="git-configuration"
+      name="git-configuration"
+      onChange={[Function]}
+      onClick={[Function]}
+      placeholder="Or paste the Git Configuration here"
+      readOnly={false}
+      required={true}
+      value="[user]
+	name = User One
+	email = user-1@chetest.com
+"
+    />
+  </div>
+  <input
+    autoComplete="off"
+    multiple={false}
+    onChange={[Function]}
+    onClick={[Function]}
+    style={
+      {
+        "display": "none",
+      }
+    }
+    tabIndex={-1}
+    type="file"
+  />
+</div>
+`;
+
+exports[`GitConfigUpload snapshot without content, validation is in the default state 1`] = `
+<div
+  className="pf-c-file-upload"
+  data-testid="git-configuration"
+  onBlur={[Function]}
+  onClick={[Function]}
+  onDragEnter={[Function]}
+  onDragLeave={[Function]}
+  onDragOver={[Function]}
+  onDragStart={[Function]}
+  onDrop={[Function]}
+  onFocus={[Function]}
+  onKeyDown={[Function]}
+  tabIndex={null}
+>
+  <div
+    className="pf-c-file-upload__file-select"
+  >
+    <div
+      className="pf-c-input-group"
+    >
+      <input
+        aria-describedby="git-configuration-browse-button"
+        aria-invalid={false}
+        aria-label="Upload the .gitconfig file"
+        className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
+        disabled={false}
+        id="git-configuration-filename"
+        name="git-configuration-filename"
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Upload the .gitconfig file"
+        readOnly={true}
+        required={false}
+        type="text"
+        value=""
+      />
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-control"
+        data-ouia-component-id="OUIA-Generated-Button-control-1"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={false}
+        id="git-configuration-browse-button"
+        onClick={[Function]}
+        role={null}
+        type="button"
+      >
+        Upload
+      </button>
+      <button
+        aria-disabled={true}
+        aria-label={null}
+        className="pf-c-button pf-m-control pf-m-disabled"
+        data-ouia-component-id="OUIA-Generated-Button-control-2"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={true}
+        onClick={[Function]}
+        role={null}
+        tabIndex={null}
+        type="button"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+  <div
+    className="pf-c-file-upload__file-details"
+  >
+    <textarea
+      aria-invalid={false}
+      aria-label="File upload"
+      className="pf-c-form-control pf-m-resize-vertical"
+      disabled={false}
+      id="git-configuration"
+      name="git-configuration"
+      onChange={[Function]}
+      onClick={[Function]}
+      placeholder="Or paste the Git Configuration here"
+      readOnly={false}
+      required={true}
+      value=""
+    />
+  </div>
+  <input
+    autoComplete="off"
+    multiple={false}
+    onChange={[Function]}
+    onClick={[Function]}
+    style={
+      {
+        "display": "none",
+      }
+    }
+    tabIndex={-1}
+    type="file"
+  />
+</div>
+`;
+
+exports[`GitConfigUpload snapshot, validation is in the error state 1`] = `
+<div
+  className="pf-c-file-upload"
+  data-testid="git-configuration"
+  onBlur={[Function]}
+  onClick={[Function]}
+  onDragEnter={[Function]}
+  onDragLeave={[Function]}
+  onDragOver={[Function]}
+  onDragStart={[Function]}
+  onDrop={[Function]}
+  onFocus={[Function]}
+  onKeyDown={[Function]}
+  tabIndex={null}
+>
+  <div
+    className="pf-c-file-upload__file-select"
+  >
+    <div
+      className="pf-c-input-group"
+    >
+      <input
+        aria-describedby="git-configuration-browse-button"
+        aria-invalid={false}
+        aria-label="Upload the .gitconfig file"
+        className="pf-c-form-control"
+        data-ouia-component-id="OUIA-Generated-TextInputBase-3"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe={true}
+        disabled={false}
+        id="git-configuration-filename"
+        name="git-configuration-filename"
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        placeholder="Upload the .gitconfig file"
+        readOnly={true}
+        required={false}
+        type="text"
+        value=""
+      />
+      <button
+        aria-disabled={false}
+        aria-label={null}
+        className="pf-c-button pf-m-control"
+        data-ouia-component-id="OUIA-Generated-Button-control-5"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={false}
+        id="git-configuration-browse-button"
+        onClick={[Function]}
+        role={null}
+        type="button"
+      >
+        Upload
+      </button>
+      <button
+        aria-disabled={true}
+        aria-label={null}
+        className="pf-c-button pf-m-control pf-m-disabled"
+        data-ouia-component-id="OUIA-Generated-Button-control-6"
+        data-ouia-component-type="PF4/Button"
+        data-ouia-safe={true}
+        disabled={true}
+        onClick={[Function]}
+        role={null}
+        tabIndex={null}
+        type="button"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+  <div
+    className="pf-c-file-upload__file-details"
+  >
+    <textarea
+      aria-invalid={true}
+      aria-label="File upload"
+      className="pf-c-form-control pf-m-resize-vertical"
+      disabled={false}
+      id="git-configuration"
+      name="git-configuration"
+      onChange={[Function]}
+      onClick={[Function]}
+      placeholder="Or paste the Git Configuration here"
+      readOnly={false}
+      required={true}
+      value=""
+    />
+  </div>
+  <input
+    autoComplete="off"
+    multiple={false}
+    onChange={[Function]}
+    onClick={[Function]}
+    style={
+      {
+        "display": "none",
+      }
+    }
+    tabIndex={-1}
+    type="file"
+  />
+</div>
+`;

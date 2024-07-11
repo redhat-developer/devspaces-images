@@ -75,8 +75,31 @@ export class KubeConfigApiService implements IKubeConfigApi {
           this.getServerConfig(),
         );
 
-        // if -f ${kubeConfigDirectory}/config is not found then sync kubeconfig to the container
-        const kubeConfig = this.setNamespaceInContext(this.kubeConfig, namespace);
+        // check if the kubeconfig is already mounted
+        if (container.volumeMounts?.some(vm => vm.mountPath === kubeConfigDirectory)) {
+          logger.info(
+            `Kubeconfig is already mounted in ${namespace}/${podName}/${containerName} skipping...`,
+          );
+          continue;
+        }
+        let kubeConfig = this.setNamespaceInContext(this.kubeConfig, namespace);
+
+        // Get the kubeconfig from the container
+        const { stdOut, stdError } = await exec(
+          podName,
+          namespace,
+          containerName,
+          ['sh', '-c', `[ -f ${kubeConfigDirectory}/config ] || cat ${kubeConfigDirectory}/config`],
+          this.getServerConfig(),
+        );
+
+        if (stdError !== '') {
+          logger.warn(`Error reading kubeconfig from container: ${stdError}`);
+        }
+        if (stdError === '' && stdOut !== '') {
+          kubeConfig = this.mergeKubeConfig(stdOut, kubeConfig);
+        }
+
         await exec(
           podName,
           namespace,
@@ -202,6 +225,39 @@ export class KubeConfigApiService implements IKubeConfigApi {
     } catch (e) {
       logger.error(e, 'Failed to parse kubeconfig');
       return kubeConfig;
+    }
+  }
+
+  private mergeKubeConfig(kubeconfigSource: string, generatedKubeconfig: string): string {
+    try {
+      const kubeConfigJson = JSON.parse(kubeconfigSource);
+      const generatedKubeConfigJson = JSON.parse(generatedKubeconfig);
+      for (const context of generatedKubeConfigJson.contexts) {
+        if (kubeConfigJson.contexts.find((c: any) => c.name === context.name)) {
+          kubeConfigJson.contexts = kubeConfigJson.contexts.filter(
+            (c: any) => c.name !== context.name,
+          );
+        }
+        kubeConfigJson.contexts.push(context);
+      }
+      for (const cluster of generatedKubeConfigJson.clusters) {
+        if (kubeConfigJson.clusters.find((c: any) => c.name === cluster.name)) {
+          kubeConfigJson.clusters = kubeConfigJson.clusters.filter(
+            (c: any) => c.name !== cluster.name,
+          );
+        }
+        kubeConfigJson.clusters.push(cluster);
+      }
+      for (const user of generatedKubeConfigJson.users) {
+        if (kubeConfigJson.users.find((c: any) => c.name === user.name)) {
+          kubeConfigJson.users = kubeConfigJson.users.filter((c: any) => c.name !== user.name);
+        }
+        kubeConfigJson.users.push(user);
+      }
+      return JSON.stringify(kubeConfigJson, undefined, '  ');
+    } catch (e) {
+      logger.error(e, 'Failed to merge kubeconfig');
+      return kubeconfigSource;
     }
   }
 }

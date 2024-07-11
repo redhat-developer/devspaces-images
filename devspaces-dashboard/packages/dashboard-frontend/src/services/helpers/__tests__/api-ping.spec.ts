@@ -40,8 +40,8 @@ describe('test API endpoints', () => {
   it('should return "false" if endpoint undefined', async () => {
     const isAvailable = await isAvailableEndpoint(undefined);
 
-    expect(delayMock).not.toBeCalled();
-    expect(console.error).not.toBeCalled();
+    expect(delayMock).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(isAvailable).toBeFalsy();
   });
 
@@ -53,8 +53,8 @@ describe('test API endpoints', () => {
 
     const isAvailable = await isAvailableEndpoint(endpoint);
 
-    expect(delayMock).not.toBeCalled();
-    expect(console.error).not.toBeCalled();
+    expect(delayMock).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(isAvailable).toBeTruthy();
   });
 
@@ -71,8 +71,8 @@ describe('test API endpoints', () => {
 
     const isAvailable = await isAvailableEndpoint(endpoint);
 
-    expect(delayMock).not.toBeCalled();
-    expect(console.error).not.toBeCalled();
+    expect(delayMock).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(isAvailable).toBeTruthy();
   });
 
@@ -89,8 +89,8 @@ describe('test API endpoints', () => {
 
     const isAvailable = await isAvailableEndpoint(endpoint);
 
-    expect(delayMock).not.toBeCalled();
-    expect(console.error).not.toBeCalled();
+    expect(delayMock).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(isAvailable).toBeTruthy();
   });
 
