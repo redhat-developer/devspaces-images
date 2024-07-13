@@ -16,7 +16,7 @@
 #########################################################################
 
 # https://registry.access.redhat.com/ubi8/nodejs-20
-FROM ubi8/nodejs-20:1-50 as checode-linux-libc-ubi8-builder
+FROM ubi8/nodejs-20:1-50.1720405266 as checode-linux-libc-ubi8-builder
 # hadolint ignore=DL3002
 USER root
 
