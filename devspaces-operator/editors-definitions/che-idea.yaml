@@ -8,7 +8,7 @@ metadata:
     - Tech-Preview
   attributes:
     publisher: che-incubator
-    version: 2022.1
+    version: latest
     title: Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community IDE
     repository: https://github.com/che-incubator/jetbrains-editor-images
     firstPublicationDate: '2022-01-11'
