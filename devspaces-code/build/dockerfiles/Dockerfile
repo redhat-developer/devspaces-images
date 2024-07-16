@@ -18,7 +18,7 @@ FROM quay.io/devspaces/machineexec-rhel8:3.12 as machine-exec
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi8/nodejs-20
-FROM registry.access.redhat.com/ubi8/nodejs-20:1-50 as linux-libc-ubi8-builder
+FROM registry.access.redhat.com/ubi8/nodejs-20:1-50.1720405266 as linux-libc-ubi8-builder
 
 USER root
 
@@ -86,7 +86,7 @@ RUN yarn \
 ##################################################################################################################
 
 # https://registry.access.redhat.com/ubi9/nodejs-20
-FROM registry.access.redhat.com/ubi9/nodejs-20:1-48.1719561324 as linux-libc-ubi9-builder
+FROM registry.access.redhat.com/ubi9/nodejs-20:1-48.1720017855 as linux-libc-ubi9-builder
 
 USER root
 
