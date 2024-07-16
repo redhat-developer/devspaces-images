@@ -15,6 +15,7 @@
 # The result is a node_modules directory that can be copied to the final image
 # The directory is located at /tmp/opt/ovsx/node_modules
 
+# https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222 as builder
 
 # hadolint ignore=DL3002
