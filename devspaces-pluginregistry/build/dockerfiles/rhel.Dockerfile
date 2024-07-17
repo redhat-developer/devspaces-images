@@ -1,49 +1,4 @@
 #
-# Copyright (c) 2024 Red Hat, Inc.
-# This program and the accompanying materials are made
-# available under the terms of the Eclipse Public License 2.0
-# which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-# SPDX-License-Identifier: EPL-2.0
-#
-# Contributors:
-#   Red Hat, Inc. - initial API and implementation
-#   IBM Corporation - implementation
-#
-
-# ovsx.Dockerfile is used to build the ovsx npm package and its dependencies using yarn
-# The result is a node_modules directory that can be copied to the final image
-# The directory is located at /tmp/opt/ovsx/node_modules
-
-# https://registry.access.redhat.com/ubi8/nodejs-18
-FROM registry.access.redhat.com/ubi8/nodejs-18:1-114.1720405264 as builder
-
-# hadolint ignore=DL3002
-USER root
-
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry 
-ENV NPM_CONFIG_NODEDIR=/usr
-
-# cachito:yarn step 1: copy cachito sources where we can use them;
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-
-# hadolint ignore=SC2086
-RUN source $REMOTE_SOURCES_DIR/devspaces-pluginregistry/cachito.env; \
-       cat $REMOTE_SOURCES_DIR/devspaces-pluginregistry/cachito.env 
-
-# cachito:yarn step 2: workaround for yarn not being installed in an executable path, taking yarn from the dashboard part
-# hadolint ignore=SC2086
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn
-
-# cachito:yarn step 3: install ovsx dependencies using yarn
-# put the node_modules of ovsx npm library into /tmp/opt/ovsx location so we can copy them to the final image
-RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry/cachito/ovsx \
- && yarn \
- && mkdir -p /tmp/opt/ovsx && cp -r $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry/cachito/ovsx/node_modules/. /tmp/opt/ovsx/node_modules \
- && echo "OVSX version:" \
- && /tmp/opt/ovsx/node_modules/.bin/ovsx --version
-
-#
 # Copyright (c) 2018-2024 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
@@ -56,8 +11,8 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry
 #   IBM Corporation - implementation
 #
 
-# https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-70
+# https://registry.access.redhat.com/rhel9-2-els/rhel
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290
 USER 0
 WORKDIR /
 
@@ -81,11 +36,14 @@ ENV BOOTSTRAP=${BOOTSTRAP}
 #    rhpkg new-sources root-local.tgz 
 
 # built in Brew, use tarball in lookaside cache; built locally with BOOTSTRAP = true, comment this out to create the tarball
-COPY root-local.tgz /tmp/root-local.tgz
+# COPY root-local.tgz /tmp/root-local.tgz
 
-COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/content_sets_rhel9.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+# Install postgresql and nodejs
+RUN dnf module install postgresql:15/server nodejs:18/development -y
 
 # Copy OpenVSX server files
 COPY --chown=0:0 /openvsx-server.tar.gz .
@@ -94,8 +52,10 @@ RUN tar --no-same-owner -xf openvsx-server.tar.gz && rm openvsx-server.tar.gz
 COPY /build/dockerfiles/application.yaml /openvsx-server/config/
 RUN chmod -R g+rwx /openvsx-server
 
-# Copy OVSX npm package from the previous stage
-COPY --from=builder --chown=0:0 /tmp/opt/ovsx /tmp/opt/ovsx
+# Copy OVSX npm package
+RUN mkdir -p /tmp/opt
+COPY --chown=0:0 /ovsx.tar.gz .
+RUN tar -xf ovsx.tar.gz -C / && rm ovsx.tar.gz && ls -la /tmp/opt/ovsx/bin/
 
 RUN \
     # Apply permissions to later change these files on httpd
@@ -118,6 +78,7 @@ COPY /build/scripts/*.sh resources.tgz che-*.yaml /build/
 RUN chmod 755 /usr/local/bin/*.sh && \
     tar --no-same-owner -xvf /build/resources.tgz -C /build/ && \
     rm -rf /build/output/v3/che-editors.yaml && \
+    /build/list_referenced_images.sh /build/output/v3 --use-generated-content > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt && \
     chmod -R g+rwX /build && \
     cp -r /build/output/v3 /var/www/html/
 
@@ -153,7 +114,7 @@ ENV LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     PGDATA=/var/lib/pgsql/15/data/database \
-    PATH="/tmp/opt/ovsx/node_modules/.bin:$PATH" \
+    PATH="/tmp/opt/ovsx/bin:$PATH" \
     # use a cached version of the license list and not go over the internet
     # it's needed for openvsx server when vsix is publishing on AirGap environment
     # https://issues.redhat.com/browse/CRW-3481
@@ -163,7 +124,7 @@ RUN \
     echo "======================" && \
     echo -n "node:  "; node --version && \
     echo "======================" \
-    echo -n "ovsx:  "; /tmp/opt/ovsx/node_modules/.bin/ovsx --version && \
+    echo -n "ovsx:  "; /tmp/opt/ovsx/bin/ovsx --version && \
     echo "======================"
 
 RUN chmod 777 /var/run/postgresql && \
@@ -187,19 +148,3 @@ ENV DS_BRANCH=${DS_BRANCH}
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat OpenShift Dev Spaces pluginregistry container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces pluginregistry container" \
-    PRODNAME="devspaces" \
-    COMPNAME="pluginregistry-rhel8"
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="3.16" \
-      license="EPLv2" \
-      maintainer="Valerii Svydenko <vsvydenk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""
