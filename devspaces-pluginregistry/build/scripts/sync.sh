@@ -104,15 +104,12 @@ popd >/dev/null || exit
 
 # transform Dockerfile
 # shellcheck disable=SC1004
-sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    -e 's|rhel8/postgresql-13:([0-9]+)(-[0-9.]+)|rhel8/postgresql-13:\1|g' \
+sed "${TARGETDIR}/build/dockerfiles/rhel.Dockerfile" --regexp-extended \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
     `# Enable offline build - copy in built binaries` \
     -e 's|# (COPY root-local.tgz)|\1|' \
-    `# only enable rhel8 here -- don't want centos or epel ` \
-    -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
     `# Replace ovsx installation part with the cachito friendly way` \
     -e '/# Copy OVSX npm package/,/^RUN tar -xf ovsx.tar.gz -C \/ && rm ovsx.tar.gz && ls -la \/tmp\/opt\/ovsx\/bin\//c\
 # Copy OVSX npm package from the previous stage\nCOPY --from=builder --chown=0:0 \/tmp\/opt\/ovsx \/tmp\/opt\/ovsx' \
