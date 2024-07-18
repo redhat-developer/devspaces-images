@@ -167,7 +167,6 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/ && yar
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/jake && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/json-language-features && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/json-language-features/server && yarn \
-    && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/markdown-language-features/server && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/markdown-language-features && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/markdown-math && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/media-preview && yarn \
@@ -386,7 +385,6 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/ && yar
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/jake && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/json-language-features && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/json-language-features/server && yarn \
-    && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/markdown-language-features/server && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/markdown-language-features && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/markdown-math && yarn \
     && cd $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-code/code/extensions/media-preview && yarn \

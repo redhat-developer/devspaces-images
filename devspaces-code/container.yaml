@@ -54,7 +54,6 @@ remote_sources:
         - path: devspaces-code/code/extensions/jake
         - path: devspaces-code/code/extensions/json-language-features
         - path: devspaces-code/code/extensions/json-language-features/server
-        - path: devspaces-code/code/extensions/markdown-language-features/server
         - path: devspaces-code/code/extensions/markdown-language-features
         - path: devspaces-code/code/extensions/markdown-math
         - path: devspaces-code/code/extensions/media-preview
