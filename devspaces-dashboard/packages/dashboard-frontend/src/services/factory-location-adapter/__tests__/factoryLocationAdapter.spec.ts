@@ -142,6 +142,10 @@ describe('FactoryLocationAdapter Service', () => {
         'https://git-test.com/dummy.git?remotes={{origin,https://git-test.com/origin.git},{upstream,https://git-test.com/upstream.git}}';
       expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
     });
+    it('should return true for https git url with whitespace', () => {
+      const location = 'https://git-test.com/dum my.git';
+      expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
+    });
   });
 
   it('should return factory reference without oauth params', () => {
