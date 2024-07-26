@@ -316,17 +316,9 @@ RUN \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh && \
     ########################################################################
-    # .NET (dotnet) 6.0 (s390x and x64 only) + 7.0 (ppc64le, s390x and x64 only) (Tech Preview)
+    # .NET (dotnet) 8.0 (Tech Preview)
     ########################################################################
-    # TODO: dotnet 6 will EOL Nov 12, 2024 - see https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core
-    # TODO: dotnet 7 will EOL May 14, 2024 - see https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core
-    if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0 dotnet-sdk-7.0; \
-    elif [[ "$(uname -m)" == 's390x' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0 dotnet-sdk-7.0; \
-    elif [[ "$(uname -m)" == 'ppc64le' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-7.0; \
-    fi && \
+    dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-8.0 && \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
     ########################################################################
