@@ -80,6 +80,7 @@ ENV \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk \
     JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
@@ -147,6 +148,7 @@ RUN \
         java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
             java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
             java-17-openjdk java-17-openjdk-devel java-17-openjdk-headless \
+            java-21-openjdk java-21-openjdk-devel java-21-openjdk-headless \
         nodejs npm nodejs-nodemon nss_wrapper \
         make cmake gcc gcc-c++ \
             llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb \
@@ -386,6 +388,8 @@ RUN \
     echo -n "Java 11:  "; /usr/lib/jvm/java-11-openjdk/bin/java -version; \
     echo "========" && \
     echo -n "Java 17:  "; /usr/lib/jvm/java-17-openjdk/bin/java -version; \
+    echo "========" && \
+    echo -n "Java 21:  "; /usr/lib/jvm/java-21-openjdk/bin/java -version; \
     echo "========" && \
     echo -n "mvn:    "; mvn -version; \
     echo "========" && \

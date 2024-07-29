@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2019-2022 Red Hat, Inc.
+# Copyright (c) 2019-2024 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -44,7 +44,8 @@ fi
 
 #############################################################################
 # use java 8 if USE_JAVA8 is set to 'true', 
-# use java 11 if USE_JAVA11 is set to 'true', 
+# use java 11 if USE_JAVA11 is set to 'true',
+# use java 21 if USE_JAVA21 is set to 'true', 
 # by default it is java 17
 #############################################################################
 rm -rf /home/tooling/.java/current
@@ -55,6 +56,9 @@ if [ "${USE_JAVA8}" == "true" ] && [ ! -z "${JAVA_HOME_8}" ]; then
 elif [ "${USE_JAVA11}" == "true" ] && [ ! -z "${JAVA_HOME_11}" ]; then
   ln -s "${JAVA_HOME_11}"/* /home/tooling/.java/current
   echo "Java environment set to ${JAVA_HOME_11}"
+elif [ "${USE_JAVA21}" == "true" ] && [ ! -z "${JAVA_HOME_21}" ]; then
+  ln -s "${JAVA_HOME_21}"/* /home/tooling/.java/current
+  echo "Java environment set to ${JAVA_HOME_21}"
 else
   ln -s "${JAVA_HOME_17}"/* /home/tooling/.java/current
   echo "Java environment set to ${JAVA_HOME_17}"
