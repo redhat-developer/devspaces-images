@@ -40,17 +40,15 @@ const spyExec = jest
     if (command.some(c => c === 'printenv HOME')) {
       // directory where to create the kubeconfig
       return mockExecPrintenvHome();
-    } else if (
-      command.some(c =>
-        c.startsWith(`[ -f ${kubeConfigDir}/config ] || cat ${kubeConfigDir}/config`),
-      )
-    ) {
+    } else if (command.some(c => c.startsWith(`cat ${kubeConfigDir}/config`))) {
       // file empty
       return mockExecCatKubeConfig();
     } else if (command.some(c => c.startsWith('mkdir -p'))) {
       // crete the directory
       return Promise.resolve();
-    } else if (command.some(c => c.startsWith(`[ -f ${homeUserDir}`))) {
+    } else if (
+      command.some(c => c.startsWith(`echo '`) && c.endsWith(`' > ${kubeConfigDir}/config`))
+    ) {
       // sync config
       return Promise.resolve();
     }
@@ -134,7 +132,7 @@ describe('Kubernetes Config API Service', () => {
       workspaceName,
       namespace,
       containerName,
-      ['sh', '-c', `[ -f ${kubeConfigDir}/config ] || cat ${kubeConfigDir}/config`],
+      ['sh', '-c', `cat ${kubeConfigDir}/config`],
       expect.anything(),
     );
 
@@ -144,7 +142,7 @@ describe('Kubernetes Config API Service', () => {
       workspaceName,
       namespace,
       containerName,
-      ['sh', '-c', `[ -f ${kubeConfigDir}/config ] || echo '${config}' > ${kubeConfigDir}/config`],
+      ['sh', '-c', `echo '${config}' > ${kubeConfigDir}/config`],
       expect.anything(),
     );
   });
