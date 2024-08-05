@@ -177,8 +177,7 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
 
     if (
       workspaceStatusIs(workspace, DevWorkspaceStatus.TERMINATING) ||
-      (this.state.shouldStart === false &&
-        workspaceStatusIs(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED))
+      (this.state.shouldStart === false && workspaceStatusIs(workspace, DevWorkspaceStatus.FAILED))
     ) {
       throw new Error(
         workspace.error || `The workspace status changed unexpectedly to "${workspace.status}".`,

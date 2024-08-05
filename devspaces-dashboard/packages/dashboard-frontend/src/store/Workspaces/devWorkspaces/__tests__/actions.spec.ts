@@ -217,6 +217,7 @@ describe('DevWorkspace store, actions', () => {
 
     it('should create REQUEST_DEVWORKSPACE, RECEIVE_DEVWORKSPACE and UPDATE_DEVWORKSPACE when fetching DevWorkspaces', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.metadata.resourceVersion = '1234';
 
       mockGetAllWorkspaces.mockResolvedValueOnce({
         workspaces: [devWorkspace],
@@ -283,6 +284,7 @@ describe('DevWorkspace store, actions', () => {
   describe('requestWorkspace', () => {
     it('should create REQUEST_DEVWORKSPACE and UPDATE_DEVWORKSPACE when updating DevWorkspace', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.metadata.resourceVersion = '1234';
 
       mockGetWorkspaceByName.mockResolvedValueOnce(devWorkspace);
       mockUpdate.mockResolvedValueOnce(devWorkspace);
@@ -784,6 +786,7 @@ describe('DevWorkspace store, actions', () => {
   describe('updateWorkspace', () => {
     it('should create REQUEST_DEVWORKSPACE and UPDATE_DEVWORKSPACE when updating a workspace annotation', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.metadata.resourceVersion = '1234';
 
       mockUpdate.mockResolvedValueOnce(devWorkspace);
 
@@ -826,6 +829,88 @@ describe('DevWorkspace store, actions', () => {
         {
           error: `Failed to update the workspace ${devWorkspace.metadata.name}, reason: Something unexpected happened.`,
           type: testStore.Type.RECEIVE_DEVWORKSPACE_ERROR,
+        },
+      ];
+
+      expect(actions).toStrictEqual(expectedActions);
+    });
+
+    it('should update workspace with older resourceVersion', async () => {
+      const oldDevWorkspace = new DevWorkspaceBuilder()
+        .withMetadata({
+          resourceVersion: '1234',
+        })
+        .withStatus({
+          devworkspaceId: '1234',
+        })
+        .build();
+      const newDevWorkspace = new DevWorkspaceBuilder()
+        .withMetadata({
+          resourceVersion: '5678',
+        })
+        .withStatus({
+          devworkspaceId: '1234',
+        })
+        .build();
+
+      // older devWorkspace is in the store
+      const store = storeBuilder.withDevWorkspaces({ workspaces: [oldDevWorkspace] }).build();
+
+      mockUpdate.mockResolvedValueOnce(newDevWorkspace);
+
+      await store.dispatch(testStore.actionCreators.updateWorkspace(newDevWorkspace));
+
+      const actions = store.getActions();
+
+      const expectedActions: Array<testStore.KnownAction> = [
+        {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
+          type: testStore.Type.UPDATE_DEVWORKSPACE,
+          workspace: newDevWorkspace,
+        },
+      ];
+
+      expect(actions).toStrictEqual(expectedActions);
+    });
+
+    it('should NOT update workspace with newer resourceVersion', async () => {
+      const oldDevWorkspace = new DevWorkspaceBuilder()
+        .withMetadata({
+          resourceVersion: '1234',
+        })
+        .withStatus({
+          devworkspaceId: '1234',
+        })
+        .build();
+      const newDevWorkspace = new DevWorkspaceBuilder()
+        .withMetadata({
+          resourceVersion: '5678',
+        })
+        .withStatus({
+          devworkspaceId: '1234',
+        })
+        .build();
+
+      // newer devWorkspace is already in the store
+      const store = storeBuilder.withDevWorkspaces({ workspaces: [newDevWorkspace] }).build();
+
+      mockUpdate.mockResolvedValueOnce(oldDevWorkspace);
+
+      await store.dispatch(testStore.actionCreators.updateWorkspace(oldDevWorkspace));
+
+      const actions = store.getActions();
+
+      const expectedActions: Array<testStore.KnownAction> = [
+        {
+          type: testStore.Type.REQUEST_DEVWORKSPACE,
+          check: AUTHORIZED,
+        },
+        {
+          type: testStore.Type.UPDATE_DEVWORKSPACE,
+          workspace: undefined,
         },
       ];
 
@@ -1241,6 +1326,7 @@ describe('DevWorkspace store, actions', () => {
   describe('handleWebSocketMessage', () => {
     it('should create ADD_DEVWORKSPACE when event phase equals ADDED', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.metadata.resourceVersion = '123';
 
       await store.dispatch(
         testStore.actionCreators.handleWebSocketMessage({
@@ -1267,6 +1353,7 @@ describe('DevWorkspace store, actions', () => {
 
     it('should create UPDATE_DEVWORKSPACE when event phase equals MODIFIED', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.metadata.resourceVersion = '123';
 
       await store.dispatch(
         testStore.actionCreators.handleWebSocketMessage({
@@ -1291,8 +1378,48 @@ describe('DevWorkspace store, actions', () => {
       expect(actions).toStrictEqual(expectedActions);
     });
 
+    it('should NOT create UPDATE_DEVWORKSPACE if devWorkspace resource version is old', async () => {
+      const oldDevWorkspace = new DevWorkspaceBuilder()
+        .withMetadata({
+          resourceVersion: '123',
+        })
+        .withStatus({
+          devworkspaceId: '123',
+        })
+        .build();
+      const newDevWorkspace = new DevWorkspaceBuilder()
+        .withMetadata({
+          resourceVersion: '456',
+        })
+        .withStatus({
+          devworkspaceId: '123',
+        })
+        .build();
+
+      const store = storeBuilder.withDevWorkspaces({ workspaces: [newDevWorkspace] }).build();
+
+      await store.dispatch(
+        testStore.actionCreators.handleWebSocketMessage({
+          eventPhase: api.webSocket.EventPhase.MODIFIED,
+          devWorkspace: oldDevWorkspace,
+        }),
+      );
+
+      const actions = store.getActions();
+
+      const expectedActions: Array<testStore.KnownAction> = [
+        {
+          type: testStore.Type.UPDATE_DEVWORKSPACE,
+          workspace: undefined,
+        },
+      ];
+
+      expect(actions).toStrictEqual(expectedActions);
+    });
+
     it('should create DELETE_DEVWORKSPACE when event phase equals DELETED', async () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.metadata.resourceVersion = '123';
 
       await store.dispatch(
         testStore.actionCreators.handleWebSocketMessage({

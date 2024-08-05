@@ -31,7 +31,10 @@ import { getDefer, IDeferred } from '@/services/helpers/deferred';
 import { delay } from '@/services/helpers/delay';
 import { DisposableCollection } from '@/services/helpers/disposable';
 import { FactoryParams } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { getNewerResourceVersion } from '@/services/helpers/resourceVersion';
+import {
+  compareStringsAsNumbers,
+  getNewerResourceVersion,
+} from '@/services/helpers/resourceVersion';
 import { DevWorkspaceStatus } from '@/services/helpers/types';
 import { isOAuthResponse, OAuthService } from '@/services/oauth';
 import { loadResourcesContent } from '@/services/registry/resources';
@@ -122,7 +125,7 @@ export interface ReceiveWorkspacesAction extends Action {
 
 export interface UpdateWorkspaceAction extends Action {
   type: Type.UPDATE_DEVWORKSPACE;
-  workspace: devfileApi.DevWorkspace;
+  workspace: devfileApi.DevWorkspace | undefined;
 }
 
 export interface DeleteWorkspaceAction extends Action {
@@ -530,9 +533,14 @@ export const actionCreators: ActionCreators = {
           throw new Error(error);
         }
         const updated = await getDevWorkspaceClient().update(workspace);
+
+        const prevWorkspace = getState().devWorkspaces.workspaces.find(
+          w => WorkspaceAdapter.getId(w) === WorkspaceAdapter.getId(updated),
+        );
+
         dispatch({
           type: Type.UPDATE_DEVWORKSPACE,
-          workspace: updated,
+          workspace: shouldUpdateDevWorkspace(prevWorkspace, updated) ? updated : undefined,
         });
       } catch (e) {
         const errorMessage =
@@ -995,7 +1003,8 @@ export const actionCreators: ActionCreators = {
           case api.webSocket.EventPhase.MODIFIED:
             dispatch({
               type: Type.UPDATE_DEVWORKSPACE,
-              workspace,
+              // update workspace only if it has newer resource version
+              workspace: shouldUpdateDevWorkspace(prevWorkspace, workspace) ? workspace : undefined,
             });
             break;
           case api.webSocket.EventPhase.DELETED:
@@ -1007,17 +1016,21 @@ export const actionCreators: ActionCreators = {
           default:
             console.warn(`Unknown event phase in message: `, message);
         }
-        dispatch({
-          type: Type.UPDATE_STARTED_WORKSPACES,
-          workspaces: [workspace],
-        });
+        if (shouldUpdateDevWorkspace(prevWorkspace, workspace)) {
+          // store workspace status only if the workspace has newer resource version
+          dispatch({
+            type: Type.UPDATE_STARTED_WORKSPACES,
+            workspaces: [workspace],
+          });
+        }
 
         // notify about workspace status changes
         const devworkspaceId = workspace.status?.devworkspaceId;
         const phase = workspace.status?.phase;
         const prevPhase = prevWorkspace?.status?.phase;
         const workspaceUID = WorkspaceAdapter.getUID(workspace);
-        if (phase && prevPhase !== phase) {
+        if (shouldUpdateDevWorkspace(prevWorkspace, workspace) && phase && prevPhase !== phase) {
+          // notify about workspace status changes only if the workspace has newer resource version
           const onStatusChangeListener = onStatusChangeCallbacks.get(workspaceUID);
 
           if (onStatusChangeListener) {
@@ -1077,19 +1090,26 @@ export const reducer: Reducer<State> = (
         isLoading: false,
         error: action.error,
       });
-    case Type.UPDATE_DEVWORKSPACE:
+    case Type.UPDATE_DEVWORKSPACE: {
+      const updatedWorkspace = action.workspace;
+      if (updatedWorkspace === undefined) {
+        return createObject<State>(state, {
+          isLoading: false,
+        });
+      }
       return createObject<State>(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace =>
-          WorkspaceAdapter.getUID(workspace) === WorkspaceAdapter.getUID(action.workspace)
-            ? action.workspace
+          WorkspaceAdapter.getUID(workspace) === WorkspaceAdapter.getUID(updatedWorkspace)
+            ? updatedWorkspace
             : workspace,
         ),
         resourceVersion: getNewerResourceVersion(
-          action.workspace.metadata.resourceVersion,
+          updatedWorkspace.metadata.resourceVersion,
           state.resourceVersion,
         ),
       });
+    }
     case Type.ADD_DEVWORKSPACE:
       return createObject<State>(state, {
         isLoading: false,
@@ -1169,4 +1189,24 @@ export const reducer: Reducer<State> = (
 // This function was added to make it easier to mock the DevWorkspaceClient in tests
 export function getDevWorkspaceClient(): DevWorkspaceClient {
   return container.get(DevWorkspaceClient);
+}
+
+// this is a helper function to prevent updating workspaces with older resource versions
+export function shouldUpdateDevWorkspace(
+  prevDevWorkspace: devfileApi.DevWorkspace | undefined,
+  devWorkspace: devfileApi.DevWorkspace,
+): boolean {
+  const prevResourceVersion = prevDevWorkspace?.metadata.resourceVersion;
+  const resourceVersion = devWorkspace.metadata.resourceVersion;
+  if (resourceVersion === undefined) {
+    return false;
+  }
+
+  if (prevResourceVersion === undefined) {
+    return true;
+  }
+  if (compareStringsAsNumbers(prevResourceVersion, resourceVersion) < 0) {
+    return true;
+  }
+  return false;
 }
