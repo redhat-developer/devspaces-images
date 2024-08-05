@@ -12,8 +12,8 @@
 
 import {
   V1alpha2DevWorkspace,
-  V222Devfile,
-  V222DevfileComponents,
+  V230Devfile,
+  V230DevfileComponents,
 } from '@devfile/api';
 import { CoreV1EventList, V1PodList } from '@kubernetes/client-node';
 import * as webSocket from './webSocket';
@@ -108,7 +108,7 @@ export interface IServerConfig {
   };
   defaults: {
     editor: string | undefined;
-    components: V222DevfileComponents[];
+    components: V230DevfileComponents[];
     plugins: IWorkspacesDefaultPlugins[];
     pvcStrategy: string | undefined;
   };
@@ -160,7 +160,7 @@ export interface IDevWorkspacePreferences {
   [key: string]: string | string[];
 }
 
-export type IEditors = Array<V222Devfile>;
+export type IEditors = Array<V230Devfile>;
 
 export type IEventList = CoreV1EventList;
 export type IPodList = V1PodList;

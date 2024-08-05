@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222Devfile } from '@devfile/api';
+import { V230Devfile } from '@devfile/api';
 import { V1ConfigMapList } from '@kubernetes/client-node/dist/gen/model/v1ConfigMapList';
 import http from 'http';
 import * as yaml from 'js-yaml';
@@ -50,7 +50,7 @@ export class EditorsApiService implements IEditorsApi {
     };
   }
 
-  async list(): Promise<V222Devfile[]> {
+  async list(): Promise<V230Devfile[]> {
     if (!this.env.NAMESPACE) {
       logger.warn('Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE');
       return [];
@@ -71,7 +71,7 @@ export class EditorsApiService implements IEditorsApi {
       throw createError(error, API_ERROR_LABEL, additionalMessage);
     }
 
-    const editors: V222Devfile[] = [];
+    const editors: V230Devfile[] = [];
 
     for (const cm of response.body.items) {
       if (cm.data === undefined) {
@@ -80,7 +80,7 @@ export class EditorsApiService implements IEditorsApi {
 
       for (const key in cm.data) {
         try {
-          const editor = yaml.load(cm.data[key]) as V222Devfile;
+          const editor = yaml.load(cm.data[key]) as V230Devfile;
           editors.push(editor);
         } catch (error) {
           logger.error(
@@ -96,7 +96,7 @@ export class EditorsApiService implements IEditorsApi {
     return editors;
   }
 
-  async get(id: string): Promise<V222Devfile> {
+  async get(id: string): Promise<V230Devfile> {
     const editors = await this.list();
     const matches = editors.filter(editor => {
       const currId =

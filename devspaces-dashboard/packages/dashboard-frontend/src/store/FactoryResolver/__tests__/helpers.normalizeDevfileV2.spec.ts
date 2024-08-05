@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222Devfile, V222DevfileComponents } from '@devfile/api';
+import { V230Devfile, V230DevfileComponents } from '@devfile/api';
 
 import { FactoryResolver } from '@/services/helpers/types';
 import { che } from '@/services/models';
@@ -67,7 +67,7 @@ describe('buildDevfileV2', () => {
 });
 
 describe('Normalize Devfile V2', () => {
-  let defaultComponents: V222DevfileComponents[];
+  let defaultComponents: V230DevfileComponents[];
 
   beforeEach(() => {
     defaultComponents = [
@@ -94,7 +94,7 @@ describe('Normalize Devfile V2', () => {
           name: 'custom-image',
         },
       ],
-    } as V222Devfile;
+    } as V230Devfile;
 
     const targetDevfile = normalizeDevfile(
       {
@@ -130,7 +130,7 @@ describe('Normalize Devfile V2', () => {
         version: '1.2.0',
       },
       components: [],
-    } as V222Devfile;
+    } as V230Devfile;
 
     const targetDevfile = normalizeDevfile(
       {
@@ -157,7 +157,7 @@ describe('Normalize Devfile V2', () => {
   it('should apply metadata name and namespace', () => {
     const devfile = {
       schemaVersion: '2.2.2',
-    } as V222Devfile;
+    } as V230Devfile;
 
     const targetDevfile = normalizeDevfile(
       {
@@ -180,7 +180,7 @@ describe('Normalize Devfile V2', () => {
         generateName: 'empty',
       },
       components: [],
-    } as V222Devfile;
+    } as V230Devfile;
 
     const targetDevfile = normalizeDevfile(
       {
@@ -218,7 +218,7 @@ describe('Normalize Devfile V2', () => {
           name: 'developer-image',
         },
       ],
-    } as V222Devfile;
+    } as V230Devfile;
     const factoryParams = {
       image: 'quay.io/devfile/universal-developer-image:test',
     };
@@ -253,7 +253,7 @@ describe('Normalize Devfile V2', () => {
       metadata: {
         generateName: 'empty',
       },
-    } as V222Devfile;
+    } as V230Devfile;
     const factoryParams = {
       image: 'quay.io/devfile/universal-developer-image:test',
     };

@@ -15,8 +15,8 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
-  V222Devfile,
-  V222DevfileComponents,
+  V230Devfile,
+  V230DevfileComponents,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { IncomingHttpHeaders } from 'http';
@@ -43,7 +43,7 @@ export const stubContainerBuild = {
   disableContainerBuildCapabilities: true,
 };
 export const stubDashboardWarning = 'Dashboard warning';
-export const stubDefaultComponents: V222DevfileComponents[] = [];
+export const stubDefaultComponents: V230DevfileComponents[] = [];
 export const stubDefaultEditor = undefined;
 export const stubDefaultPlugins: api.IWorkspacesDefaultPlugins[] = [];
 export const stubPluginRegistry = { openVSXURL: 'openvsx-url' };
@@ -103,7 +103,7 @@ export const stubEventsList: api.IEventList = {
   items: [],
 };
 
-export const editorsArray: V222Devfile[] = [
+export const editorsArray: V230Devfile[] = [
   {
     schemaVersion: '2.2.2',
     metadata: {

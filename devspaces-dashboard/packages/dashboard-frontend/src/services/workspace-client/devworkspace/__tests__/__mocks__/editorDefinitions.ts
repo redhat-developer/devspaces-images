@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222Devfile } from '@devfile/api';
+import { V230Devfile } from '@devfile/api';
 
-const getVSCodeEditorDefinition = (): V222Devfile => {
+const getVSCodeEditorDefinition = (): V230Devfile => {
   return {
     attributes: {
       version: null,

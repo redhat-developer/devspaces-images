@@ -14,7 +14,7 @@ import {
   V1alpha2DevWorkspaceSpecTemplateComponents,
   V1alpha2DevWorkspaceTemplateSpec,
   V1alpha2DevWorkspaceTemplateSpecComponents,
-  V222DevfileComponentsItemsContainer,
+  V230DevfileComponentsItemsContainer,
 } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import { inject, injectable } from 'inversify';
@@ -58,7 +58,7 @@ export const DEVWORKSPACE_DEVFILE = 'che.eclipse.org/devfile';
 
 export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
 
-export interface ICheEditorOverrideContainer extends V222DevfileComponentsItemsContainer {
+export interface ICheEditorOverrideContainer extends V230DevfileComponentsItemsContainer {
   name: string;
 }
 export interface ICheEditorYaml {

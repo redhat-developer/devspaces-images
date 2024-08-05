@@ -13,9 +13,9 @@
 import {
   V1alpha2DevWorkspace,
   V1alpha2DevWorkspaceTemplate,
-  V222DevfileComponents,
+  V230DevfileComponents,
 } from '@devfile/api';
-import { V222Devfile } from '@devfile/api';
+import { V230Devfile } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import { IncomingHttpHeaders } from 'http';
@@ -150,7 +150,7 @@ export type CheClusterCustomResourceSpecDevEnvironments = {
   containerBuildConfiguration?: {
     openShiftSecurityContextConstraint?: string;
   };
-  defaultComponents?: V222DevfileComponents[];
+  defaultComponents?: V230DevfileComponents[];
   defaultNamespace?: {
     autoProvision?: boolean;
     template?: string;
@@ -280,7 +280,7 @@ export interface IServerConfigApi {
    * Returns the default components applied to DevWorkspaces.
    * These default components are meant to be used when a Devfile does not contain any components.
    */
-  getDefaultComponents(cheCustomResource: CheClusterCustomResource): V222DevfileComponents[];
+  getDefaultComponents(cheCustomResource: CheClusterCustomResource): V230DevfileComponents[];
   /**
    * Returns the plugin registry.
    */
@@ -456,14 +456,14 @@ export interface IEditorsApi {
   /**
    * Reads all Editors from ConfigMaps.
    */
-  list(): Promise<Array<V222Devfile>>;
+  list(): Promise<Array<V230Devfile>>;
 
   /**
    * Returns an Editor from ConfigMap by its editorId.
    * @param id editorId in the format of publisher/name/version
    * @throws EditorNotFoundError if editor is not found
    */
-  get(id: string): Promise<V222Devfile>;
+  get(id: string): Promise<V230Devfile>;
 }
 
 export interface IShhKeysApi {

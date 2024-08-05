@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222DevfileComponents, V222DevfileProjects } from '@devfile/api';
+import { V230DevfileComponents, V230DevfileProjects } from '@devfile/api';
 import common, { api } from '@eclipse-che/common';
 import axios from 'axios';
 import { dump } from 'js-yaml';
@@ -127,7 +127,7 @@ export function buildDevfileV2(
       .replace(/^-+|-+$/g, '')
       .toLowerCase();
 
-    const devfileV2Project: V222DevfileProjects = {
+    const devfileV2Project: V230DevfileProjects = {
       attributes: {},
       name: projectName,
     };
@@ -166,7 +166,7 @@ export function buildDevfileV2(
 export function normalizeDevfile(
   data: FactoryResolver,
   location: string,
-  defaultComponents: V222DevfileComponents[],
+  defaultComponents: V230DevfileComponents[],
   namespace: string,
   factoryParams: Partial<FactoryParams>,
 ): devfileApi.Devfile {

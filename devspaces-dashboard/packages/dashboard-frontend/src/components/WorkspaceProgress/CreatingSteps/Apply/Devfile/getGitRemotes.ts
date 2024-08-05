@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222DevfileProjects, V222DevfileProjectsItemsGit } from '@devfile/api';
+import { V230DevfileProjects, V230DevfileProjectsItemsGit } from '@devfile/api';
 import common from '@eclipse-che/common';
 
 import { getProjectFromLocation } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getProjectFromLocation';
@@ -171,7 +171,7 @@ export function configureProjectRemotes(
 /**
  * Returns the Git project to replace remotes for
  */
-function getGitProjectForConfiguringRemotes(projects: V222DevfileProjects[] | undefined) {
+function getGitProjectForConfiguringRemotes(projects: V230DevfileProjects[] | undefined) {
   if (!projects) {
     return undefined;
   }
@@ -197,7 +197,7 @@ function getGitProjectForConfiguringRemotes(projects: V222DevfileProjects[] | un
  * @param newRemotes The array of new Git remotes to add
  */
 function addRemotesToProject(
-  gitProject: V222DevfileProjectsItemsGit,
+  gitProject: V230DevfileProjectsItemsGit,
   checkoutRemote: GitRemote,
   newRemotes: GitRemote[],
 ): void {

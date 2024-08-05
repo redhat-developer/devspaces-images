@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222DevfileComponents } from '@devfile/api';
+import { V230DevfileComponents } from '@devfile/api';
 import common from '@eclipse-che/common';
 import { dump, load } from 'js-yaml';
 import cloneDeep from 'lodash/cloneDeep';
@@ -83,7 +83,7 @@ export function getEditorImage(workspace: devfileApi.DevWorkspace): string | und
 }
 
 function updateComponents(
-  components: V222DevfileComponents[] | undefined,
+  components: V230DevfileComponents[] | undefined,
   editorImage: string,
 ): boolean {
   if (!components) {

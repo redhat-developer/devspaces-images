@@ -3,9 +3,9 @@
 | Packages | License | Resolved CQs |
 | --- | --- | --- |
 | [`@babel/runtime@7.23.2`](https://github.com/babel/babel.git) | MIT | #10718 |
-| [`@eclipse-che/common@7.88.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.88.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.88.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.90.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.90.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.90.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@patternfly/react-core@4.278.0`](https://github.com/patternfly/patternfly-react.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-core/4.278.0) |
 | [`@patternfly/react-icons@4.93.7`](https://github.com/patternfly/patternfly-react.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-icons/4.93.7) |
 | `@patternfly/react-styles@4.92.8` | MIT | clearlydefined |
@@ -98,6 +98,7 @@
 | [`mime-types@2.1.35`](https://github.com/jshttp/mime-types.git) | MIT | clearlydefined |
 | [`minimalistic-assert@1.0.1`](https://github.com/calvinmetcalf/minimalistic-assert.git) | ISC | clearlydefined |
 | [`minimalistic-crypto-utils@1.0.1`](git+ssh://git@github.com/indutny/minimalistic-crypto-utils.git) | MIT | clearlydefined |
+| [`multi-ini@2.3.2`](git://github.com/evangelion1204/multi-ini.git) | MIT | clearlydefined |
 | [`nanoid@3.3.7`](https://github.com/ai/nanoid.git) | MIT | #7571 |
 | [`object-assign@4.1.1`](https://github.com/sindresorhus/object-assign.git) | MIT | clearlydefined |
 | [`object-inspect@1.13.1`](git://github.com/inspect-js/object-inspect.git) | MIT | #11078 |
@@ -146,7 +147,7 @@
 | [`set-function-length@1.2.2`](git+https://github.com/ljharb/set-function-length.git) | MIT | #12772 |
 | [`sha.js@2.4.11`](git://github.com/crypto-browserify/sha.js.git) | (MIT AND BSD-3-Clause) | #1031 |
 | [`side-channel@1.0.6`](git+https://github.com/ljharb/side-channel.git) | MIT | clearlydefined |
-| [`source-map-js@1.0.2`](https://github.com/7rulnik/source-map-js.git) | BSD-3-Clause | #2412 |
+| [`source-map-js@1.0.2`](https://github.com/7rulnik/source-map-js.git) | BSD-3-Clause | #15401 |
 | [`stream-browserify@3.0.0`](git://github.com/browserify/stream-browserify.git) | MIT | clearlydefined |
 | [`string_decoder@1.3.0`](git://github.com/nodejs/string_decoder.git) | MIT | clearlydefined |
 | [`tabbable@5.3.3`](git+https://github.com/focus-trap/tabbable.git) | MIT | clearlydefined |

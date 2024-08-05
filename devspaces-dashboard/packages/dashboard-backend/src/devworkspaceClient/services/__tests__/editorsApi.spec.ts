@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V222Devfile } from '@devfile/api';
+import { V230Devfile } from '@devfile/api';
 import { V1ConfigMapList } from '@kubernetes/client-node/dist/gen/model/v1ConfigMapList';
 import http from 'http';
 import * as yaml from 'js-yaml';
@@ -70,7 +70,7 @@ describe('EditorsApiService', () => {
       (yaml.load as jest.Mock).mockReturnValue({ schemaVersion: '2.2.2' });
 
       const result = await editorsApiService.list();
-      expect(result).toEqual([{ schemaVersion: '2.2.2' } as V222Devfile]);
+      expect(result).toEqual([{ schemaVersion: '2.2.2' } as V230Devfile]);
       expect(coreV1API.listNamespacedConfigMap).toHaveBeenCalledWith(
         'test-namespace',
         undefined,
@@ -166,7 +166,7 @@ describe('EditorsApiService', () => {
             version: 'insiders',
           },
         },
-      } as V222Devfile);
+      } as V230Devfile);
     });
 
     it('should return matching editor yaml when provided with editorId when multiple editors exist', async () => {
@@ -232,7 +232,7 @@ describe('EditorsApiService', () => {
             version: 'latest',
           },
         },
-      } as V222Devfile);
+      } as V230Devfile);
     });
 
     it('should throw exception if no matching editor exists', async () => {

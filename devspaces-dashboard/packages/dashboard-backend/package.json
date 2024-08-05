@@ -26,8 +26,8 @@
   ],
   "license": "EPL-2.0",
   "dependencies": {
-    "@devfile/api": "2.2.2-1715367693",
-    "@eclipse-che/che-devworkspace-generator": "7.88.0-next-a2e5c63",
+    "@devfile/api": "2.3.0-1721400636",
+    "@eclipse-che/che-devworkspace-generator": "7.89.0-next-784dff2",
     "@eclipse-che/common": "file:../common",
     "@fastify/cors": "^9.0.1",
     "@fastify/error": "^3.4.1",

@@ -70,7 +70,7 @@
     "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
-    "@devfile/api": "2.2.2-1715367693",
+    "@devfile/api": "2.3.0-1721400636",
     "@eclipse-che/api": "^7.86.0",
     "@kubernetes/client-node": "^0.21.0",
     "@react-mock/state": "^0.1.8",
