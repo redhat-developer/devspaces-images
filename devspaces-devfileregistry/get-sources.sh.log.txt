@@ -1,0 +1,626 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 1dec11993951
+STEP 3/23: ARG BOOTSTRAP=true
+--> b0cb6f5cde38
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 2874c4a34e1e
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 866931c4a4bf
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 02500f8261ab
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 82559bda58ab
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 2b2bd91f47f7
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 996ba9cc1b3e
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 56aeb4cbf777
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-5.el8.x86_64             chkconfig-1.19.2-1.el8.x86_64           
+  dnf-4.7.0-20.el8.noarch              dnf-data-4.7.0-20.el8.noarch            
+  findutils-1:4.6.0-22.el8.x86_64      git-2.43.5-1.el8_10.x86_64              
+  git-core-2.43.5-1.el8_10.x86_64      git-core-doc-2.43.5-1.el8_10.noarch     
+  perl-Git-2.43.5-1.el8_10.noarch      python3-dnf-4.7.0-20.el8.noarch         
+  yum-4.7.0-20.el8.noarch             
+Installed:
+  containers-common-2:1-81.module+el8.10.0+21962+8143777b.x86_64                
+  criu-3.18-5.module+el8.10.0+21962+8143777b.x86_64                             
+  fuse-common-3.3.0-19.el8.x86_64                                               
+  fuse-overlayfs-1.13-1.module+el8.10.0+21962+8143777b.x86_64                   
+  fuse3-3.3.0-19.el8.x86_64                                                     
+  fuse3-libs-3.3.0-19.el8.x86_64                                                
+  jq-1.6-9.el8_10.x86_64                                                        
+  kmod-25-20.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-2.module+el8.10.0+21962+8143777b.x86_64                        
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-3.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.9-2.el8_10.x86_64                                             
+  python3.11-devel-3.11.9-2.el8_10.x86_64                                       
+  python3.11-libs-3.11.9-2.el8_10.x86_64                                        
+  python3.11-pip-22.3.1-5.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-5.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.12-1.module+el8.10.0+21974+acd2159c.x86_64                         
+  skopeo-2:1.14.4-1.module+el8.10.0+21995+81e8507c.x86_64                       
+  slirp4netns-1.2.3-1.module+el8.10.0+21962+8143777b.x86_64                     
+
+Collecting yq
+  Downloading yq-3.4.3-py3-none-any.whl (18 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.5.0-py3-none-any.whl (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.5/43.5 kB 5.8 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-24.2-py3-none-any.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 54.8 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (757 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.7/757.7 kB 404.6 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.13.0-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.1 argcomplete-3.5.0 pip-24.2 tomlkit-0.13.0 xmltodict-0.13.0 yq-3.4.3
+python: Python 3.8.16
+yq: yq 3.4.3
+jq: jq-1.6
+--> 287e5058bdaa
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 2b9c7394a383
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 9fb8b451160b
+STEP 14/23: COPY ./VERSION /
+--> 95d04ee0896a
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> fcdb0ac637d2
+STEP 16/23: WORKDIR /build/
+--> 5afbea938a25
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 83 contributors and audited 31 packages in 4.765s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 323145db230b
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> b6bfc11220dc
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.16 PASS - 3.16 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.16 PASS - 3.16 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.16 PASS - 3.16 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 987616f67e2f
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 0f026c902fa4
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> f7c0b8ce0410
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 4b13c89d1427
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 2189d2b165bd
+Successfully tagged localhost/devfileregistry:tmp
+2189d2b165bda5878c85d666c9ae63e917878d5208f88b07048b3e7d8678588a
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz from https://pkgs.devel.redhat.com/repo/
+Downloading resources.tgz from https://pkgs.devel.redhat.com/repo/
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.tQZpoFD3p8/bin/activate-global-python-argcomplete /tmp/tmp.HHccP00Elh/bin/activate-global-python-argcomplete
+--- /tmp/tmp.tQZpoFD3p8/bin/activate-global-python-argcomplete	2024-07-29 18:23:04.000000000 -0400
++++ /tmp/tmp.HHccP00Elh/bin/activate-global-python-argcomplete	2024-08-06 13:26:52.022473479 -0400
+@@ -1,154 +1,8 @@
+ #!/usr/bin/python3.11
+-# PYTHON_ARGCOMPLETE_OK
+-
+-# Copyright 2012-2023, Andrey Kislyuk and argcomplete contributors.
+-# Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+-
+-"""
+-Activate the generic bash-completion script or zsh completion autoload function for the argcomplete module.
+-"""
+-
+-import argparse
+-import os
+-import shutil
+-import site
+-import subprocess
++# -*- coding: utf-8 -*-
++import re
+ import sys
+-
+-import argcomplete
+-
+-zsh_shellcode = """
+-# Begin added by argcomplete
+-fpath=( {zsh_fpath} "${{fpath[@]}}" )
+-# End added by argcomplete
+-"""
+-
+-bash_shellcode = """
+-# Begin added by argcomplete
+-source "{activator}"
+-# End added by argcomplete
+-"""
+-
+-
+-def get_local_dir():
+-    try:
+-        return subprocess.check_output(["brew", "--prefix"]).decode().strip()
+-    except (FileNotFoundError, subprocess.CalledProcessError):
+-        return "/usr/local"
+-
+-
+-def get_zsh_system_dir():
+-    return f"{get_local_dir()}/share/zsh/site-functions"
+-
+-
+-def get_bash_system_dir():
+-    if "BASH_COMPLETION_COMPAT_DIR" in os.environ:
+-        return os.environ["BASH_COMPLETION_COMPAT_DIR"]
+-    elif sys.platform == "darwin":
+-        return f"{get_local_dir()}/etc/bash_completion.d"  # created by homebrew
+-    else:
+-        return "/etc/bash_completion.d"  # created by bash-completion
+-
+-
+-def get_activator_dir():
+-    return os.path.join(os.path.abspath(os.path.dirname(argcomplete.__file__)), "bash_completion.d")
+-
+-
+-def get_activator_path():
+-    return os.path.join(get_activator_dir(), "_python-argcomplete")
+-
+-
+-def install_to_destination(dest):
+-    activator = get_activator_path()
+-    if dest == "-":
+-        with open(activator) as fh:
+-            sys.stdout.write(fh.read())
+-        return
+-    destdir = os.path.dirname(dest)
+-    if not os.path.exists(destdir):
+-        try:
+-            os.makedirs(destdir, exist_ok=True)
+-        except Exception as e:
+-            parser.error(f"path {destdir} does not exist and could not be created: {e}")
+-    try:
+-        print(f"Installing {activator} to {dest}...", file=sys.stderr)
+-        shutil.copy(activator, dest)
+-        print("Installed.", file=sys.stderr)
+-    except Exception as e:
+-        parser.error(
+-            f"while installing to {dest}: {e}. Please run this command using sudo, or see --help for more options."
+-        )
+-
+-
+-def get_consent():
+-    if args.yes is True:
+-        return True
+-    while True:
+-        res = input("OK to proceed? [y/n] ")
+-        if res.lower() not in {"y", "n", "yes", "no"}:
+-            print('Please answer "yes" or "no".', file=sys.stderr)
+-        elif res.lower() in {"y", "yes"}:
+-            return True
+-        else:
+-            return False
+-
+-
+-def append_to_config_file(path, shellcode):
+-    if os.path.exists(path):
+-        with open(path, 'r') as fh:
+-            if shellcode in fh.read():
+-                print(f"The code already exists in the file {path}.", file=sys.stderr)
+-                return
+-        print(f"argcomplete needs to append to the file {path}. The following code will be appended:", file=sys.stderr)
+-        for line in shellcode.splitlines():
+-            print(">", line, file=sys.stderr)
+-        if not get_consent():
+-            print("Not added.", file=sys.stderr)
+-            return
+-    print(f"Adding shellcode to {path}...", file=sys.stderr)
+-    with open(path, "a") as fh:
+-        fh.write(shellcode)
+-    print("Added.", file=sys.stderr)
+-
+-
+-def link_user_rcfiles():
+-    # TODO: warn if running as superuser
+-    zsh_rcfile = os.path.join(os.path.expanduser(os.environ.get("ZDOTDIR", "~")), ".zshenv")
+-    append_to_config_file(zsh_rcfile, zsh_shellcode.format(zsh_fpath=get_activator_dir()))
+-
+-    bash_completion_user_file = os.path.expanduser("~/.bash_completion")
+-    append_to_config_file(bash_completion_user_file, bash_shellcode.format(activator=get_activator_path()))
+-
+-
+-parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+-parser.add_argument("-y", "--yes", help="automatically answer yes for all questions", action="store_true")
+-parser.add_argument("--dest", help='Specify the shell completion modules directory to install into, or "-" for stdout')
+-parser.add_argument("--user", help="Install into user directory", action="store_true")
+-argcomplete.autocomplete(parser)
+-args = parser.parse_args()
+-destinations = []
+-
+-if args.dest:
+-    if args.dest != "-" and not os.path.exists(args.dest):
+-        parser.error(f"directory {args.dest} was specified via --dest, but it does not exist")
+-    destinations.append(args.dest)
+-elif site.ENABLE_USER_SITE and site.USER_SITE in argcomplete.__file__:
+-    print(
+-        "Argcomplete was installed in the user site local directory. Defaulting to user installation.", file=sys.stderr
+-    )
+-    link_user_rcfiles()
+-elif sys.prefix != sys.base_prefix:
+-    print("Argcomplete was installed in a virtual environment. Defaulting to user installation.", file=sys.stderr)
+-    link_user_rcfiles()
+-elif args.user:
+-    link_user_rcfiles()
+-else:
+-    print("Defaulting to system-wide installation.", file=sys.stderr)
+-    destinations.append(f"{get_zsh_system_dir()}/_python-argcomplete")
+-    destinations.append(f"{get_bash_system_dir()}/python-argcomplete")
+-
+-for destination in destinations:
+-    install_to_destination(destination)
+-
+-if args.dest is None:
+-    print("Please restart your shell or source the installed file to activate it.", file=sys.stderr)
++from argcomplete.scripts.activate_global_python_argcomplete import main
++if __name__ == '__main__':
++    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
++    sys.exit(main())
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.tQZpoFD3p8/bin/python-argcomplete-check-easy-install-script /tmp/tmp.HHccP00Elh/bin/python-argcomplete-check-easy-install-script
+--- /tmp/tmp.tQZpoFD3p8/bin/python-argcomplete-check-easy-install-script	2024-07-29 18:23:04.000000000 -0400
++++ /tmp/tmp.HHccP00Elh/bin/python-argcomplete-check-easy-install-script	2024-08-06 13:26:52.023473479 -0400
+@@ -1,63 +1,8 @@
+ #!/usr/bin/python3.11
+-
+-# Copyright 2012-2023, Andrey Kislyuk and argcomplete contributors.
+-# Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+-
+-"""
+-This script is part of the Python argcomplete package (https://github.com/kislyuk/argcomplete).
+-It is used to check if an EASY-INSTALL-SCRIPT wrapper redirects to a script that contains the string
+-"PYTHON_ARGCOMPLETE_OK". If you have enabled global completion in argcomplete, the completion hook will run it every
+-time you press <TAB> in your shell.
+-
+-Usage:
+-    python-argcomplete-check-easy-install-script <input executable file>
+-"""
+-
++# -*- coding: utf-8 -*-
++import re
+ import sys
+-
+-if len(sys.argv) != 2:
+-    sys.exit(__doc__)
+-
+-sys.tracebacklimit = 0
+-
+-with open(sys.argv[1]) as fh:
+-    line1, head = fh.read(1024).split("\n", 1)[:2]
+-    if line1.startswith("#") and ("py" in line1 or "Py" in line1):
+-        import re
+-
+-        lines = head.split("\n", 12)
+-        for line in lines:
+-            if line.startswith("# EASY-INSTALL-SCRIPT"):
+-                import pkg_resources
+-
+-                dist, script = re.match("# EASY-INSTALL-SCRIPT: '(.+)','(.+)'", line).groups()
+-                if "PYTHON_ARGCOMPLETE_OK" in pkg_resources.get_distribution(dist).get_metadata("scripts/" + script):
+-                    exit(0)
+-            elif line.startswith("# EASY-INSTALL-ENTRY-SCRIPT"):
+-                dist, group, name = re.match("# EASY-INSTALL-ENTRY-SCRIPT: '(.+)','(.+)','(.+)'", line).groups()
+-                import pkgutil
+-
+-                import pkg_resources
+-
+-                module_name = pkg_resources.get_distribution(dist).get_entry_info(group, name).module_name
+-                with open(pkgutil.get_loader(module_name).get_filename()) as mod_fh:
+-                    if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
+-                        exit(0)
+-            elif line.startswith("# EASY-INSTALL-DEV-SCRIPT"):
+-                for line2 in lines:
+-                    if line2.startswith("__file__"):
+-                        filename = re.match("__file__ = '(.+)'", line2).group(1)
+-                        with open(filename) as mod_fh:
+-                            if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
+-                                exit(0)
+-            elif line.startswith("# PBR Generated"):
+-                module = re.search("from (.*) import", head).groups()[0]
+-                import pkgutil
+-
+-                import pkg_resources
+-
+-                with open(pkgutil.get_loader(module).get_filename()) as mod_fh:
+-                    if "PYTHON_ARGCOMPLETE_OK" in mod_fh.read(1024):
+-                        exit(0)
+-
+-exit(1)
++from argcomplete.scripts.python_argcomplete_check_easy_install_script import main
++if __name__ == '__main__':
++    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
++    sys.exit(main())
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.tQZpoFD3p8/bin/register-python-argcomplete /tmp/tmp.HHccP00Elh/bin/register-python-argcomplete
+--- /tmp/tmp.tQZpoFD3p8/bin/register-python-argcomplete	2024-07-29 18:23:04.000000000 -0400
++++ /tmp/tmp.HHccP00Elh/bin/register-python-argcomplete	2024-08-06 13:26:52.023473479 -0400
+@@ -1,71 +1,8 @@
+ #!/usr/bin/python3.11
+-# PYTHON_ARGCOMPLETE_OK
+-
+-# Copyright 2012-2023, Andrey Kislyuk and argcomplete contributors.
+-# Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+-
+-"""
+-Register a Python executable for use with the argcomplete module.
+-
+-To perform the registration, source the output of this script in your bash shell
+-(quote the output to avoid interpolation).
+-
+-Example:
+-
+-    $ eval "$(register-python-argcomplete my-favorite-script.py)"
+-
+-For Tcsh
+-
+-    $ eval `register-python-argcomplete --shell tcsh my-favorite-script.py`
+-
+-For Fish
+-
+-    $ register-python-argcomplete --shell fish my-favourite-script.py > ~/.config/fish/my-favourite-script.py.fish
+-"""
+-
+-import argparse
++# -*- coding: utf-8 -*-
++import re
+ import sys
+-
+-import argcomplete
+-
+-parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+-
+-parser.add_argument(
+-    "--no-defaults",
+-    dest="use_defaults",
+-    action="store_false",
+-    default=True,
+-    help="when no matches are generated, do not fallback to readline's default completion (affects bash only)",
+-)
+-parser.add_argument(
+-    "--complete-arguments",
+-    nargs=argparse.REMAINDER,
+-    help="arguments to call complete with; use of this option discards default options (affects bash only)",
+-)
+-parser.add_argument(
+-    "-s",
+-    "--shell",
+-    choices=("bash", "zsh", "tcsh", "fish", "powershell"),
+-    default="bash",
+-    help="output code for the specified shell",
+-)
+-parser.add_argument(
+-    "-e", "--external-argcomplete-script", help="external argcomplete script for auto completion of the executable"
+-)
+-
+-parser.add_argument("executable", nargs="+", help="executable to completed (when invoked by exactly this name)")
+-
+-argcomplete.autocomplete(parser)
+-
+-if len(sys.argv) == 1:
+-    parser.print_help()
+-    sys.exit(1)
+-
+-args = parser.parse_args()
+-
+-
+-sys.stdout.write(
+-    argcomplete.shellcode(
+-        args.executable, args.use_defaults, args.shell, args.complete_arguments, args.external_argcomplete_script
+-    )
+-)
++from argcomplete.scripts.register_python_argcomplete import main
++if __name__ == '__main__':
++    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
++    sys.exit(main())
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete
+--- /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete	2024-07-29 18:23:04.000000000 -0400
++++ /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete/bash_completion.d/_python-argcomplete	2024-08-06 13:26:52.084473479 -0400
+@@ -1,5 +1,6 @@
+ #compdef -default-
+ 
++# argcomplete global completion loader for zsh and bash
+ # Copyright 2012-2023, Andrey Kislyuk and argcomplete contributors.
+ # Licensed under the Apache License. See https://github.com/kislyuk/argcomplete for more info.
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages/argcomplete/completers.py /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete/completers.py
+--- /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages/argcomplete/completers.py	2024-07-29 18:23:04.000000000 -0400
++++ /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete/completers.py	2024-08-06 13:26:52.084473479 -0400
+@@ -22,7 +22,7 @@
+ 
+     def __call__(
+         self, *, prefix: str, action: argparse.Action, parser: argparse.ArgumentParser, parsed_args: argparse.Namespace
+-    ):
++    ) -> None:
+         raise NotImplementedError("This method should be implemented by a subclass.")
+ 
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages/argcomplete/finders.py /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete/finders.py
+--- /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages/argcomplete/finders.py	2024-07-29 18:23:04.000000000 -0400
++++ /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete/finders.py	2024-08-06 13:26:52.084473479 -0400
+@@ -7,10 +7,10 @@
+ import os
+ import sys
+ from collections.abc import Mapping
+-from typing import Callable, Dict, List, Optional, Sequence, Union
++from typing import Callable, Dict, List, Optional, Sequence, TextIO, Union
+ 
+ from . import io as _io
+-from .completers import ChoicesCompleter, FilesCompleter, SuppressCompleter
++from .completers import BaseCompleter, ChoicesCompleter, FilesCompleter, SuppressCompleter
+ from .io import debug, mute_stderr
+ from .lexers import split_line
+ from .packages._argparse import IntrospectiveArgumentParser, action_is_greedy, action_is_open, action_is_satisfied
+@@ -66,13 +66,13 @@
+         argument_parser: argparse.ArgumentParser,
+         always_complete_options: Union[bool, str] = True,
+         exit_method: Callable = os._exit,
+-        output_stream=None,
++        output_stream: Optional[TextIO] = None,
+         exclude: Optional[Sequence[str]] = None,
+         validator: Optional[Callable] = None,
+         print_suppressed: bool = False,
+         append_space: Optional[bool] = None,
+-        default_completer=FilesCompleter(),
+-    ):
++        default_completer: BaseCompleter = FilesCompleter(),
++    ) -> None:
+         """
+         :param argument_parser: The argument parser to autocomplete on
+         :param always_complete_options:
+@@ -132,6 +132,8 @@
+                 debug("Unable to open fd 8 for writing, quitting")
+                 exit_method(1)
+ 
++        assert output_stream is not None
++
+         ifs = os.environ.get("_ARGCOMPLETE_IFS", "\013")
+         if len(ifs) != 1:
+             debug("Invalid value for IFS, quitting [{v}]".format(v=ifs))
+Only in /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages/argcomplete: scripts
+Only in /tmp/tmp.tQZpoFD3p8/lib/python3.11/site-packages: argcomplete-3.4.0.dist-info
+Only in /tmp/tmp.HHccP00Elh/lib/python3.11/site-packages: argcomplete-3.5.0.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 2189d2b165bda5878c85d666c9ae63e917878d5208f88b07048b3e7d8678588a
+Deleted: 4b13c89d1427dfc40abea04bc0360e121b0e862433c0b23a6578edba38cd40bd
+Deleted: f7c0b8ce0410e0a79f94fd69ace49cf252a9fe24591bde221cfab807429cb917
+Deleted: 0f026c902fa4757883a9c0d3522ce85735539044bbb5de98d457e08116e2660a
+Deleted: 987616f67e2fdbb65bb60d661a03f0bde3cb56209bd516b122863dbd629f7399
+Deleted: b6bfc11220dcb7853e97670ee55db21351b5441ec07b7cab412c3d8e0f46ce19
+Deleted: 323145db230bd946984e522986ac18c5d095ddb1525b85ff43937ff7189c251c
+Deleted: 5afbea938a25f6216f2d12ac29bcefcdf51b8478359a20f3a139e6d0344e78fe
+Deleted: fcdb0ac637d22f0dd572c51d569f446e07d6968075715bbe2d23ad3bbd269899
+Deleted: 95d04ee0896a2f36f4ed8ec1d6fb1409b6db708ff023ae4dd0355432931ffb72
+Deleted: 9fb8b451160b641d0070d44361c6888e82a58d0b0f6ea6900833260fd1bd173f
+Deleted: 2b9c7394a3839d5bf099275d376da0db03a3556fdb746c74313a0d6db87e81e6
+Deleted: 287e5058bdaac7afb01c495da2d149a7b1021dc19f18afac1b43329a5fc90c61
+Deleted: 56aeb4cbf7775704d1e5094e6ccb77ee652b898178e736adb998bd0cd7efb9f0
+Deleted: 996ba9cc1b3efda34dafe23d82119b2a32f2c68cdb8efe0662967530f3674354
+Deleted: 2b2bd91f47f737f6adcfa16d2cde3cff78ab7e3fe7ed20c212e6cbd73293dca1
+Deleted: 82559bda58ab30da7296df42b3f4db33c801075e06c972351cdf63696f5f4cc0
+Deleted: 02500f8261ab8410f2949c34d0df6ce44aeedd57233a070c35c083c46493e755
+Deleted: 866931c4a4bf237dfea3157ddc62c697c13f3e7c995e4ddd8e960c00e107e3e8
+Deleted: 2874c4a34e1efc9209b8fa4dd719915f7c777db014e8da9bc2882570f4298c27
+Deleted: b0cb6f5cde38e11456c0e251b4d5fe04303cd8eab38c1283e6ed214cf8963369
+Deleted: 1dec1199395147b8d80df6456925068ce612659809680a8829bda5e104d04d14
+Uploading: root-local.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+Uploading: root-local.tgz
+Uploading: resources.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
