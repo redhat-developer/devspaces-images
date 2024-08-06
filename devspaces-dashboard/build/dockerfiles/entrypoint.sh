@@ -9,7 +9,9 @@
 #
 
 set -e
+
 echo 'Starting Dashboard backend server...'
+find /public/dashboard/devfile-registry/air-gap -type f \( -name "*.json" -o -name "*.yaml" \) -exec sed -i 's|CHE_DASHBOARD_INTERNAL_URL|'${CHE_DASHBOARD_INTERNAL_URL}'|g' {} \;
 start_server="node /backend/server/backend.js --publicFolder /public"
 $start_server &
 wait

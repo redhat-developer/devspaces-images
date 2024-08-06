@@ -21,6 +21,7 @@ import { registerCors } from '@/plugins/cors';
 import { registerStaticServer } from '@/plugins/staticServer';
 import { registerSwagger } from '@/plugins/swagger';
 import { registerWebSocket } from '@/plugins/webSocket';
+import { registerAirGapSampleRoute } from '@/routes/api/airGapSample';
 import { registerClusterConfigRoute } from '@/routes/api/clusterConfig';
 import { registerClusterInfoRoute } from '@/routes/api/clusterInfo';
 import { registerDataResolverRoute } from '@/routes/api/dataResolver';
@@ -67,6 +68,8 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
       }
     },
   );
+
+  server.register(import('@fastify/rate-limit'));
 
   return Promise.allSettled([
     registerWebSocket(server),
@@ -123,5 +126,7 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
     registerSShKeysRoutes(server),
 
     registerWorkspacePreferencesRoute(server),
+
+    registerAirGapSampleRoute(server),
   ]);
 }

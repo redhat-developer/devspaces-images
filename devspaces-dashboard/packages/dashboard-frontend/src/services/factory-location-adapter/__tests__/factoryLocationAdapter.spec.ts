@@ -146,6 +146,12 @@ describe('FactoryLocationAdapter Service', () => {
       const location = 'https://git-test.com/dum my.git';
       expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
     });
+    it('should return true for http internal url', () => {
+      const location =
+        'http://che-dashboard.eclipse-che.svc:8080/dashboard/api/airgap-sample/project/download?name=JBoss+EAP+8';
+      expect(FactoryLocationAdapter.isHttpLocation(location)).toBeTruthy();
+      expect(FactoryLocationAdapter.isSshLocation(location)).toBeFalsy();
+    });
   });
 
   it('should return factory reference without oauth params', () => {

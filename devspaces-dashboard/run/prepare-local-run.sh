@@ -29,6 +29,12 @@ parse_args() {
 
 parse_args "$@"
 
+if [[ "$(uname)" == "Linux" ]]; then
+    YQ_FLAGS="-r"
+else
+    YQ_FLAGS="e"
+fi
+
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
 CHE_SELF_SIGNED_MOUNT_PATH="${CHE_SELF_SIGNED_MOUNT_PATH:-$PWD/run/public-certs}"
 
@@ -66,11 +72,11 @@ if [ "$GATEWAY" == "true" ]; then
 
   echo 'Cluster access token not found.'
   echo 'Looking for staticClient for local start'
-  if kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].redirectURIs" - | grep $CHE_HOST/oauth/callback; then
+  if kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq ${YQ_FLAGS} ".staticClients[0].redirectURIs" - | grep $CHE_HOST/oauth/callback; then
     echo 'Found the staticClient for localStart'
   else
     echo 'Patching dex config map...'
-    UPDATED_CONFIG_YAML=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].redirectURIs[0] = \"$CHE_HOST/oauth/callback\"" -)
+    UPDATED_CONFIG_YAML=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq ${YQ_FLAGS} ".staticClients[0].redirectURIs[0] = \"$CHE_HOST/oauth/callback\"" -)
     dq_mid=\\\"
     yaml_esc="${UPDATED_CONFIG_YAML//\"/$dq_mid}"
     kubectl get configMaps/dex -n dex -o json | jq ".data[\"config.yaml\"] |= \"${yaml_esc}\"" | kubectl replace -f -
@@ -85,7 +91,7 @@ if [ "$GATEWAY" == "true" ]; then
   fi
 
   echo 'Looking for redirect_url for local start'
-  if kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq e ".[\"oauth-proxy.cfg\"]" - | grep $CHE_HOST/oauth/callback; then
+  if kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq ${YQ_FLAGS} ".[\"oauth-proxy.cfg\"]" - | grep $CHE_HOST/oauth/callback; then
     echo 'Found the redirect_url for localStart'
   else
     if kubectl get deployment/che-operator -n "$CHE_NAMESPACE" -o jsonpath="{.spec.replicas}" | grep 1; then
@@ -97,7 +103,7 @@ if [ "$GATEWAY" == "true" ]; then
     fi
 
     echo 'Patching che-gateway-config-oauth-proxy config map...'
-    CONFIG_YAML=$(kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq e ".[\"oauth-proxy.cfg\"]" - | sed "s/${CHE_HOST_ORIGIN//\//\\/}\/oauth\/callback/${CHE_HOST//\//\\/}\/oauth\/callback/g")
+    CONFIG_YAML=$(kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -n "$CHE_NAMESPACE" | yq ${YQ_FLAGS} ".[\"oauth-proxy.cfg\"]" - | sed "s/${CHE_HOST_ORIGIN//\//\\/}\/oauth\/callback/${CHE_HOST//\//\\/}\/oauth\/callback/g")
     kubectl get configMaps che-gateway-config-oauth-proxy -n "$CHE_NAMESPACE" -o json | jq ".data[\"oauth-proxy.cfg\"] |= \"${CONFIG_YAML//\"/\\\"}\"" | kubectl replace -f -
     # rollout che-server deployment
     echo 'Rolling out che-gateway deployment...'

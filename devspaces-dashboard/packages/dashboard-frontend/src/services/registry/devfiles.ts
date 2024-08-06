@@ -128,7 +128,10 @@ export function getRegistryIndexLocations(registryUrl: string, isExternal: boole
     const deprecatedIndexUrl = new URL('devfiles/index.json', registryUrl);
     registryIndexLocations.push(deprecatedIndexUrl.href);
   } else {
-    if (registryUrl.endsWith('/getting-started-sample/')) {
+    if (
+      registryUrl.endsWith('/getting-started-sample/') ||
+      registryUrl.endsWith('/airgap-sample/')
+    ) {
       const indexUrl = new URL(registryUrl.slice(0, -1));
       registryIndexLocations.push(indexUrl.href);
     } else {

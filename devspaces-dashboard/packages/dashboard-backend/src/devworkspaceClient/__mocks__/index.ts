@@ -11,6 +11,7 @@
  */
 
 import {
+  IAirGapSampleApi,
   IDevWorkspaceApi,
   IDevWorkspacePreferencesApi,
   IDevWorkspaceTemplateApi,
@@ -64,6 +65,11 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
   get gettingStartedSampleApi(): IGettingStartedSampleApi {
     throw new Error('Method not implemented.');
   }
+
+  get airGapSampleApi(): IAirGapSampleApi {
+    throw new Error('Method not implemented.');
+  }
+
   get gitConfigApi(): IGitConfigApi {
     throw new Error('Method not implemented.');
   }

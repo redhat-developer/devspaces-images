@@ -426,6 +426,7 @@ export interface IDevWorkspaceClient {
   userProfileApi: IUserProfileApi;
   gitConfigApi: IGitConfigApi;
   gettingStartedSampleApi: IGettingStartedSampleApi;
+  airGapSampleApi: IAirGapSampleApi;
   sshKeysApi: IShhKeysApi;
   devWorkspacePreferencesApi: IDevWorkspacePreferencesApi;
   editorsApi: IEditorsApi;
@@ -450,6 +451,23 @@ export interface IGettingStartedSampleApi {
    * Reads all the Getting Started Samples ConfigMaps.
    */
   list(): Promise<Array<api.IGettingStartedSample>>;
+}
+
+export interface IAirGapSampleApi {
+  /**
+   * Reads all the Air Gap samples.
+   */
+  list(): Promise<Array<api.IAirGapSample>>;
+
+  /**
+   * Downloads the Air Gap sample project by its name.
+   */
+  downloadProject(name: string): Promise<api.IStreamedFile>;
+
+  /**
+   * Reads the devfile content of the Air Gap sample by its name.
+   */
+  downloadDevfile(name: string): Promise<api.IStreamedFile>;
 }
 
 export interface IEditorsApi {

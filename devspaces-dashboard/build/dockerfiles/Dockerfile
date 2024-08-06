@@ -11,7 +11,8 @@
 FROM docker.io/node:18.19.1-alpine3.19 as builder
 
 # hadolint ignore=DL3018
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 py3-pip make g++ jq curl
+RUN pip3 install yq --break-system-packages
 
 # hadolint ignore=DL3059,SC1072
 RUN if ! [ type "yarn" &> /dev/null ]; then \
@@ -39,6 +40,11 @@ RUN yarn build
 
 # leave only production dependencies
 RUN yarn workspace @eclipse-che/dashboard-backend install --production
+
+# Prepare air-gapped resources
+# ARG GITHUB_TOKEN=$GITHUB_TOKEN
+COPY build/dockerfiles/airgap.sh /dashboard/airgap.sh
+RUN /dashboard/airgap.sh -d /dashboard/packages/devfile-registry/air-gap
 
 FROM docker.io/node:18.19.1-alpine3.19
 

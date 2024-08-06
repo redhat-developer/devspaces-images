@@ -51,6 +51,14 @@ parse_args() {
   done
 }
 
+SCRIPT_DIR=$(dirname "$0")
+
+if [[ "$(uname)" == "Linux" ]]; then
+    YQ_FLAGS="-r"
+else
+    YQ_FLAGS="e"
+fi
+
 FORCE_BUILD="false"
 CHE_IN_CHE="false"
 # Init Che Namespace with the default value if it's not set
@@ -89,6 +97,12 @@ fi
 if [ ! -d $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry ]; then
   echo "[INFO] Copy devfile registry"
   cp -r $DEVFILE_REGISTRY $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry
+
+  echo "[INFO] Downloading airgap projects"
+  . "${SCRIPT_DIR}/../build/dockerfiles/airgap.sh" \
+      -d "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap"
+
+  sed -i 's|CHE_DASHBOARD_INTERNAL_URL|http://localhost:8080|g' "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/devfiles/airgap.json"
 fi
 
 export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
@@ -99,8 +113,8 @@ if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
     echo 'Evaluated Dex ingress'
 
     echo 'Looking for staticClientID and  staticClientSecret...'
-    export CLIENT_ID=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].id" -)
-    export CLIENT_SECRET=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].secret" -)
+    export CLIENT_ID=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq ${YQ_FLAGS} ".staticClients[0].id" -)
+    export CLIENT_SECRET=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq ${YQ_FLAGS} ".staticClients[0].secret" -)
     echo 'Done.'
   fi
 fi

@@ -1,11 +1,13 @@
-[{
-  "displayName": "Empty Workspace",
-  "description": "Start an empty remote development environment and create files or clone a git repository afterwards",
-  "tags": [
-    "Empty"
-  ],
-  "icon": "/images/empty.svg",
-  "links": {
-    "v2": "/devfiles/empty.yaml"
+[
+  {
+    "displayName": "Empty Workspace",
+    "description": "Start an empty remote development environment and create files or clone a git repository afterwards",
+    "tags": [
+      "Empty"
+    ],
+    "icon": "/images/empty.svg",
+    "links": {
+      "v2": "/devfiles/empty.yaml"
+    }
   }
-}]
+]

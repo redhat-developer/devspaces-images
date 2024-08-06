@@ -1,0 +1,36 @@
+[
+  {
+    "displayName": "Sample_no_devfile_filename"
+  },
+  {
+    "displayName": "Sample_no_project_filename"
+  },
+  {
+    "displayName": "Sample_devfile_not_exists",
+    "devfile": {
+      "filename": "not-exists-defile.yaml"
+    }
+  },
+  {
+    "displayName": "Sample_project_not_exists",
+    "project": {
+      "zip": {
+        "filename": "not-exists-project.yaml"
+      }
+    }
+  },
+  {
+    "displayName": "Sample_devfile",
+    "devfile": {
+      "filename": "sample-devfile.yaml"
+    }
+  },
+  {
+    "displayName": "Sample_project",
+    "project": {
+      "zip": {
+        "filename": "sample-project.zip"
+      }
+    }
+  }
+]

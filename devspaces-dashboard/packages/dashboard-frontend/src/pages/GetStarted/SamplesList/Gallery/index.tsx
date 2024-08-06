@@ -33,7 +33,7 @@ export type PluginEditor = che.Plugin & {
   isDefault: boolean;
 };
 
-export const VISIBLE_TAGS = ['Community', 'Tech-Preview', 'Devfile.io'];
+export const VISIBLE_TAGS = ['Community', 'Tech-Preview', 'Devfile.io', 'AirGap'];
 
 export type Props = MappedProps & {
   metadataFiltered: DevfileRegistryMetadata[];

@@ -81,7 +81,7 @@ describe('Dashboard bootstrap', () => {
       undefined,
     );
     // wait for all GET requests to be sent
-    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(14));
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(15));
 
     await waitFor(() =>
       expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/ssh-key', undefined),
