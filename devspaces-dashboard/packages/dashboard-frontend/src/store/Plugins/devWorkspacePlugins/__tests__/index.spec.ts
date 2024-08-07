@@ -654,8 +654,6 @@ describe('dwPlugins store', () => {
             disableInternalRegistry: false,
             externalDevfileRegistries: [],
           },
-          devfileRegistryURL: '',
-          devfileRegistryInternalURL: '',
           pluginRegistryURL: '',
           pluginRegistryInternalURL: '',
         })

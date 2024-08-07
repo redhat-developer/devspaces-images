@@ -22,12 +22,10 @@ jest.mock('../helpers/getServiceAccountToken.ts');
 describe('Server Config Route', () => {
   let app: FastifyInstance;
   const pluginRegistryInternalURL = 'http://plugin-registry.internal';
-  const devfileRegistryInternalURL = 'http://devfile-registry.internal';
 
   beforeAll(async () => {
     const env = {
       CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL: pluginRegistryInternalURL,
-      CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL: devfileRegistryInternalURL,
     };
     app = await setup({ env });
   });
@@ -47,8 +45,6 @@ describe('Server Config Route', () => {
       defaults: { components: [], plugins: [], pvcStrategy: '' },
       pluginRegistry: { openVSXURL: 'openvsx-url' },
       timeouts: { inactivityTimeout: 0, runTimeout: 0, startTimeout: 0 },
-      devfileRegistryInternalURL: 'http://devfile-registry.internal',
-      devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc',
       networking: {
         auth: {
           advancedAuthorization: {},

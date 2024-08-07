@@ -127,7 +127,6 @@ export type CheClusterCustomResource = k8s.V1CustomResourceDefinition & {
     };
   };
   status: {
-    devfileRegistryURL: string;
     pluginRegistryURL: string;
   };
 };
@@ -264,10 +263,6 @@ export interface IServerConfigApi {
    * Returns default plugins
    */
   getDefaultPlugins(cheCustomResource: CheClusterCustomResource): api.IWorkspacesDefaultPlugins[];
-  /**
-   * Returns the default devfile registry URL.
-   */
-  getDefaultDevfileRegistryUrl(cheCustomResource: CheClusterCustomResource): string;
   /**
    * Returns the plugin registry URL.
    */

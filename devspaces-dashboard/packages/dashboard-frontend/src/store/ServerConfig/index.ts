@@ -93,8 +93,6 @@ const unloadedState: State = {
       autoProvision: true,
     },
     cheNamespace: '',
-    devfileRegistryURL: '',
-    devfileRegistryInternalURL: '',
     pluginRegistryURL: '',
     pluginRegistryInternalURL: '',
   },

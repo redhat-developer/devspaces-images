@@ -146,11 +146,6 @@ describe('Server Config API Service', () => {
     expect(res).toEqual('http://plugin-registry.eclipse-che.svc/v3');
   });
 
-  test('getting default devfile registry URL', () => {
-    const res = serverConfigService.getDefaultDevfileRegistryUrl(buildCustomResource());
-    expect(res).toEqual('http://devfile-registry.eclipse-che.svc/devfile-registry/');
-  });
-
   test('getting autoProvision value', () => {
     const res = serverConfigService.getAutoProvision(buildCustomResource());
     expect(res).toBeTruthy();
@@ -228,7 +223,6 @@ function buildCustomResource(options?: { openVSXURL?: string }): CheClusterCusto
       },
     },
     status: {
-      devfileRegistryURL: 'http://devfile-registry.eclipse-che.svc/devfile-registry',
       pluginRegistryURL: 'http://plugin-registry.eclipse-che.svc/v3',
     },
   } as CheClusterCustomResource;

@@ -111,15 +111,6 @@ export class ServerConfigApiService implements IServerConfigApi {
     return cheCustomResource.spec.devEnvironments?.defaultPlugins || [];
   }
 
-  getDefaultDevfileRegistryUrl(cheCustomResource: CheClusterCustomResource): string {
-    let devfileRegistryURL = cheCustomResource.status?.devfileRegistryURL || '';
-    if (devfileRegistryURL && !devfileRegistryURL.endsWith('/')) {
-      devfileRegistryURL += '/';
-    }
-
-    return devfileRegistryURL;
-  }
-
   getDefaultPluginRegistryUrl(cheCustomResource: CheClusterCustomResource): string {
     return cheCustomResource.status?.pluginRegistryURL || '';
   }

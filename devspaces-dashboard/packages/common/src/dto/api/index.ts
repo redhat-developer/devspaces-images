@@ -134,8 +134,6 @@ export interface IServerConfig {
   cheNamespace: string;
   pluginRegistryURL: string;
   pluginRegistryInternalURL: string;
-  devfileRegistryURL: string;
-  devfileRegistryInternalURL: string;
   dashboardLogo?: { base64data: string; mediatype: string };
 }
 

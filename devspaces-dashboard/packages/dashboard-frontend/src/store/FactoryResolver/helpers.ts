@@ -76,10 +76,6 @@ export async function grabLink(
 export function isDevfileRegistryLocation(location: string, config: api.IServerConfig): boolean {
   const devfileRegistries = [`${window.location.origin}${DEFAULT_REGISTRY}`];
 
-  if (config.devfileRegistryURL) {
-    devfileRegistries.push(config.devfileRegistryURL);
-  }
-
   const externalDevfileRegistries = config.devfileRegistry.externalDevfileRegistries.map(
     externalDevfileRegistry => externalDevfileRegistry.url,
   );

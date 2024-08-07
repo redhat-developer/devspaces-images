@@ -23,8 +23,6 @@ const tags = ['Server Config'];
 export function registerServerConfigRoute(instance: FastifyInstance) {
   const cheNamespace = process.env.CHECLUSTER_CR_NAMESPACE as string;
   const pluginRegistryInternalURL = process.env.CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL || '';
-  const devfileRegistryInternalURL =
-    process.env.CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL || '';
 
   instance.register(async server => {
     server.get(`${baseApiPath}/server-config`, getSchema({ tags }), async function () {
@@ -42,7 +40,6 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
       const pluginRegistry = serverConfigApi.getPluginRegistry(cheCustomResource);
       const pvcStrategy = serverConfigApi.getPvcStrategy(cheCustomResource);
       const pluginRegistryURL = serverConfigApi.getDefaultPluginRegistryUrl(cheCustomResource);
-      const devfileRegistryURL = serverConfigApi.getDefaultDevfileRegistryUrl(cheCustomResource);
       const externalDevfileRegistries =
         serverConfigApi.getExternalDevfileRegistries(cheCustomResource);
       const disableInternalRegistry =
@@ -75,8 +72,6 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
         cheNamespace,
         pluginRegistryURL,
         pluginRegistryInternalURL,
-        devfileRegistryURL,
-        devfileRegistryInternalURL,
       };
 
       if (dashboardLogo !== undefined) {

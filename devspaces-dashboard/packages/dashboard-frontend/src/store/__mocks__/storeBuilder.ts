@@ -82,8 +82,6 @@ export class FakeStoreBuilder {
           disableInternalRegistry: false,
           externalDevfileRegistries: [],
         },
-        devfileRegistryURL: '',
-        devfileRegistryInternalURL: '',
         pluginRegistryURL: '',
         pluginRegistryInternalURL: '',
       } as api.IServerConfig,

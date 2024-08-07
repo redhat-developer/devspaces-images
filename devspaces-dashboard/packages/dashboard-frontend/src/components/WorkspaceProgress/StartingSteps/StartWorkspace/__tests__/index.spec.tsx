@@ -84,8 +84,6 @@ const serverConfig: api.IServerConfig = {
     disableInternalRegistry: false,
     externalDevfileRegistries: [],
   },
-  devfileRegistryURL: '',
-  devfileRegistryInternalURL: '',
   pluginRegistryURL: '',
   pluginRegistryInternalURL: '',
 };

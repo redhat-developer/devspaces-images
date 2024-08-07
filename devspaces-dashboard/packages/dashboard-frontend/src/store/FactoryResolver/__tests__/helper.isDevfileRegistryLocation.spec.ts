@@ -16,10 +16,8 @@ import { DEFAULT_REGISTRY } from '@/store/DevfileRegistries';
 import { isDevfileRegistryLocation } from '@/store/FactoryResolver/helpers';
 
 describe('isDevfileRegistryLocation', () => {
-  const devfileRegistryURL = 'https://devfile-registry.dev';
   const externalDevfileRegistryURL = 'https://external-devfile-registry.dev';
   const config = {
-    devfileRegistryURL,
     devfileRegistry: {
       externalDevfileRegistries: [
         {
@@ -31,11 +29,6 @@ describe('isDevfileRegistryLocation', () => {
 
   test('default registry', () => {
     const location = `${window.location.origin}${DEFAULT_REGISTRY}devfiles/devfile.yaml`;
-    expect(isDevfileRegistryLocation(location, config)).toBe(true);
-  });
-
-  test('devfile registry', () => {
-    const location = `${devfileRegistryURL}/devfiles/devfile.yaml`;
     expect(isDevfileRegistryLocation(location, config)).toBe(true);
   });
 

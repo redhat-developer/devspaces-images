@@ -53,8 +53,6 @@ export const serverConfig: api.IServerConfig = {
     disableInternalRegistry: false,
     externalDevfileRegistries: [{ url: 'https://devfile.io/' }],
   },
-  devfileRegistryURL: '',
-  devfileRegistryInternalURL: '',
   pluginRegistryURL: 'https://test/plugin-registry/v3',
   pluginRegistryInternalURL: 'http://plugin-registry.eclipse-che.svc:8080/v3',
   dashboardLogo: {
