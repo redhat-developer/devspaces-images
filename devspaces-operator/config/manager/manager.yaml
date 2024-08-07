@@ -49,6 +49,8 @@ spec:
           env:
             - name: CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT
               value: ''
+            - name: CHE_DEFAULT_SPEC_COMPONENTS_DEVFILEREGISTRY_EXTERNAL_DEVFILE_REGISTRIES
+              value: '[{"url": "https://registry.devfile.io"}]'
             - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
               value: ''
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_CONTAINERSECURITYCONTEXT
