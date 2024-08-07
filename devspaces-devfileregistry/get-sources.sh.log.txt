@@ -1,0 +1,1094 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 2c9e59de9a8b
+STEP 3/23: ARG BOOTSTRAP=true
+--> 885466894390
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> fc3f6603c728
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> ae85490f75d6
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 5be17251f0e9
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 8f3b2024ddb9
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 1aebaaa42fe0
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 10ce9cd9baa9
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 427e17da1305
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-5.el8.x86_64             chkconfig-1.19.2-1.el8.x86_64           
+  dnf-4.7.0-20.el8.noarch              dnf-data-4.7.0-20.el8.noarch            
+  findutils-1:4.6.0-22.el8.x86_64      git-2.43.5-1.el8_10.x86_64              
+  git-core-2.43.5-1.el8_10.x86_64      git-core-doc-2.43.5-1.el8_10.noarch     
+  perl-Git-2.43.5-1.el8_10.noarch      python3-dnf-4.7.0-20.el8.noarch         
+  yum-4.7.0-20.el8.noarch             
+Installed:
+  containers-common-2:1-81.module+el8.10.0+21962+8143777b.x86_64                
+  criu-3.18-5.module+el8.10.0+21962+8143777b.x86_64                             
+  fuse-common-3.3.0-19.el8.x86_64                                               
+  fuse-overlayfs-1.13-1.module+el8.10.0+21962+8143777b.x86_64                   
+  fuse3-3.3.0-19.el8.x86_64                                                     
+  fuse3-libs-3.3.0-19.el8.x86_64                                                
+  jq-1.6-9.el8_10.x86_64                                                        
+  kmod-25-20.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-2.module+el8.10.0+21962+8143777b.x86_64                        
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-3.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.9-2.el8_10.x86_64                                             
+  python3.11-devel-3.11.9-2.el8_10.x86_64                                       
+  python3.11-libs-3.11.9-2.el8_10.x86_64                                        
+  python3.11-pip-22.3.1-5.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-5.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.12-1.module+el8.10.0+21974+acd2159c.x86_64                         
+  skopeo-2:1.14.4-1.module+el8.10.0+21995+81e8507c.x86_64                       
+  slirp4netns-1.2.3-1.module+el8.10.0+21962+8143777b.x86_64                     
+
+Collecting yq
+  Downloading yq-3.4.3-py3-none-any.whl (18 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.5.0-py3-none-any.whl (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.5/43.5 kB 5.9 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-24.2-py3-none-any.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 54.4 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (762 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 763.0/763.0 kB 322.2 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.13.0-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.2 argcomplete-3.5.0 pip-24.2 tomlkit-0.13.0 xmltodict-0.13.0 yq-3.4.3
+python: Python 3.8.16
+yq: yq 3.4.3
+jq: jq-1.6
+--> bc2b581ca84d
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 031959c6a6d9
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 3da838c59074
+STEP 14/23: COPY ./VERSION /
+--> 51585444569a
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> c10234261b2f
+STEP 16/23: WORKDIR /build/
+--> 5e72981d91b3
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 83 contributors and audited 31 packages in 3.949s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 39e18c18db99
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 7d9694a3fa8a
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.17 PASS - 3.17 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.17 PASS - 3.17 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.17 PASS - 3.17 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 96170aab9e63
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 6217d487c590
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 65b62c212988
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> decc12e5018f
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 37b501193649
+Successfully tagged localhost/devfileregistry:tmp
+37b50119364924762da73259d40be185e6aa08b84ce51f35addf812d033d5a17
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz from https://pkgs.devel.redhat.com/repo/
+Downloading resources.tgz from https://pkgs.devel.redhat.com/repo/
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/ansible__ansible-demo/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/ansible__ansible-demo/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/external_images_by_devfile.txt /tmp/tmp.Jcio2X80Ud/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.zstJcwFDdr/devfiles/external_images_by_devfile.txt	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/external_images_by_devfile.txt	2024-08-07 19:36:37.826398788 -0400
+@@ -1,44 +1,44 @@
+ ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.16	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/idea-rhel8:3.16	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.16	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.17	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/idea-rhel8:3.17	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/ansible-devspaces-demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/php-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.17	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-idea-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/external_images.txt /tmp/tmp.Jcio2X80Ud/devfiles/external_images.txt
+--- /tmp/tmp.zstJcwFDdr/devfiles/external_images.txt	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/external_images.txt	2024-08-07 19:36:37.826398788 -0400
+@@ -1,5 +1,5 @@
+ ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce
+-registry.redhat.io/devspaces/code-rhel8:3.16
+-registry.redhat.io/devspaces/idea-rhel8:3.16
+-registry.redhat.io/devspaces/udi-rhel8:3.16
++registry.redhat.io/devspaces/code-rhel8:3.17
++registry.redhat.io/devspaces/idea-rhel8:3.17
++registry.redhat.io/devspaces/udi-rhel8:3.17
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 3Gi
+             memoryRequest: 2Gi
+             cpuLimit: '4'
+@@ -128,7 +128,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 3Gi
+           memoryRequest: 2Gi
+           cpuLimit: '4'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-lombok__lombok-project-sample/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 3Gi
+             memoryRequest: 2Gi
+             cpuLimit: '4'
+@@ -147,7 +147,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 3Gi
+           memoryRequest: 2Gi
+           cpuLimit: '4'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             env:
+               - name: QUARKUS_HTTP_HOST
+                 value: 0.0.0.0
+@@ -147,7 +147,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           env:
+             - name: QUARKUS_HTTP_HOST
+               value: 0.0.0.0
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/java-maven-quarkus__quarkus-quickstarts/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             env:
+               - name: QUARKUS_HTTP_HOST
+                 value: 0.0.0.0
+@@ -166,7 +166,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           env:
+             - name: QUARKUS_HTTP_HOST
+               value: 0.0.0.0
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: nodejs
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             env:
+               - name: SECRET
+                 value: 220fd770-c028-480d-8f95-f84353c7d55a
+@@ -161,7 +161,7 @@
+     components:
+       - name: nodejs
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           env:
+             - name: SECRET
+               value: 220fd770-c028-480d-8f95-f84353c7d55a
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__nodejs-mongodb-sample/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.827398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: nodejs
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             env:
+               - name: SECRET
+                 value: 220fd770-c028-480d-8f95-f84353c7d55a
+@@ -180,7 +180,7 @@
+     components:
+       - name: nodejs
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           env:
+             - name: SECRET
+               value: 220fd770-c028-480d-8f95-f84353c7d55a
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__web-nodejs-sample/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             endpoints:
+               - exposure: public
+                 name: nodejs
+@@ -164,7 +164,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           endpoints:
+             - exposure: public
+               name: nodejs
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/nodejs__web-nodejs-sample/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             endpoints:
+               - exposure: public
+                 name: nodejs
+@@ -183,7 +183,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           endpoints:
+             - exposure: public
+               name: nodejs
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/python__python-hello-world/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: python
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             volumeMounts:
+               - name: venv
+                 path: /home/user/.venv
+@@ -124,7 +124,7 @@
+     components:
+       - name: python
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/python__python-hello-world/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: python
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             volumeMounts:
+               - name: venv
+                 path: /home/user/.venv
+@@ -143,7 +143,7 @@
+     components:
+       - name: python
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__cpp__c-plus-plus/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -109,7 +109,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__cpp__c-plus-plus/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -128,7 +128,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -145,7 +145,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__dotnet__dotnet-web-simple/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -164,7 +164,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__go__golang-health-check/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -134,7 +134,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__go__golang-health-check/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -153,7 +153,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__php__php-hello-world/devworkspace-che-code-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.16
++        image: registry.redhat.io/devspaces/code-rhel8:3.17
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -33,7 +33,7 @@
+         cpuRequest: 30m
+     - name: che-code-runtime-description
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         memoryLimit: 1024Mi
+         memoryRequest: 256Mi
+         cpuLimit: 500m
+@@ -92,7 +92,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -117,7 +117,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+diff --suppress-common-lines -u -r /tmp/tmp.zstJcwFDdr/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml /tmp/tmp.Jcio2X80Ud/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml
+--- /tmp/tmp.zstJcwFDdr/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml	2024-07-26 05:25:10.000000000 -0400
++++ /tmp/tmp.Jcio2X80Ud/devfiles/TP__php__php-hello-world/devworkspace-che-idea-latest.yaml	2024-08-07 19:36:37.826398788 -0400
+@@ -21,7 +21,7 @@
+   components:
+     - name: idea-rhel8
+       container:
+-        image: registry.redhat.io/devspaces/udi-rhel8:3.16
++        image: registry.redhat.io/devspaces/udi-rhel8:3.17
+         env:
+           - name: PROJECTOR_ASSEMBLY_DIR
+             value: /projector
+@@ -83,7 +83,7 @@
+       volume: {}
+     - name: idea-rhel8-injector
+       container:
+-        image: registry.redhat.io/devspaces/idea-rhel8:3.16
++        image: registry.redhat.io/devspaces/idea-rhel8:3.17
+         command:
+           - /projector/entrypoint-init-container.sh
+         env:
+@@ -111,7 +111,7 @@
+       components:
+         - name: tools
+           container:
+-            image: registry.redhat.io/devspaces/udi-rhel8:3.16
++            image: registry.redhat.io/devspaces/udi-rhel8:3.17
+             memoryLimit: 2Gi
+             memoryRequest: 1Gi
+             cpuLimit: '1'
+@@ -136,7 +136,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.16
++          image: registry.redhat.io/devspaces/udi-rhel8:3.17
+           memoryLimit: 2Gi
+           memoryRequest: 1Gi
+           cpuLimit: '1'
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/c-plus-plus.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/c-plus-plus.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/dotnet-web-simple.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/dotnet-web-simple.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/golang-health-check.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/golang-health-check.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/lombok-project-sample.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/lombok-project-sample.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/nodejs-mongodb-sample.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/nodejs-mongodb-sample.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/php-hello-world.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/php-hello-world.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/python-hello-world.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/python-hello-world.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/quarkus-quickstarts.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/quarkus-quickstarts.zip differ
+Binary files /tmp/tmp.zstJcwFDdr/resources/v2/web-nodejs-sample.zip and /tmp/tmp.Jcio2X80Ud/resources/v2/web-nodejs-sample.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 37b50119364924762da73259d40be185e6aa08b84ce51f35addf812d033d5a17
+Deleted: decc12e5018fd4c2ecab2d7ca2dd4c56899bbc74fb2f735aec78a4b5e0db83f7
+Deleted: 65b62c2129886b9b7a0b3f4acd5e3b2696115de981ede9475d1caf0ac28e8917
+Deleted: 6217d487c590405c4ae12ad2e3d10d6629fcaa2fb3958067549bf23701f384e4
+Deleted: 96170aab9e637ad0b6d7e5daccc42af5997fb0bf37bd3b1117feb0d71dba508e
+Deleted: 7d9694a3fa8a7d91cd8d62ee6186a81a4044b264217375270e911d43faa12855
+Deleted: 39e18c18db99d1737250cb405bdce6839645bc572ba69553ecb27c91c7c822b5
+Deleted: 5e72981d91b3c9d80fd6c891bbca62b74410bf781517d90151495d6f156428bb
+Deleted: c10234261b2f9e38b2178a913c75c5d1136a2c62299d78d801d5e06918f0857c
+Deleted: 51585444569a0fc999981ed5fa9d01aabdbb1359ec0392e23788088d508e65a5
+Deleted: 3da838c590746e03072f51e29caf22f1ad4891fc30d36ad418910956516254d5
+Deleted: 031959c6a6d9dc15428537b5993a5b51073a7b156c13d118d91052dbe0eadd02
+Deleted: bc2b581ca84dd0c3595b33d48093f144a9c0e80103457a5500a7a599a5f84367
+Deleted: 427e17da13054c7cb867808761374b44d6ce5c937b4d36cdbeff7391b7668e53
+Deleted: 10ce9cd9baa9f486bd08a2950393351c2829c721fc41f7f397662ef514a09093
+Deleted: 1aebaaa42fe054ac25a12dc21a2a8ec26cb514c211a6d60354ba079a6841b073
+Deleted: 8f3b2024ddb9c3a9d9abfd8e09a782334d6b12518daa33d276604364a1c87ad8
+Deleted: 5be17251f0e95ced19f70b0a395852f285874cacb9c1255a547c90e0034ea047
+Deleted: ae85490f75d6d59a9823b3c0a44aedb24466183295b4a9bbdd15d6ce2fee06e1
+Deleted: fc3f6603c7286677e9dab079367546f4e216ea6aca53147e265d3cfbddeedc6a
+Deleted: 8854668943900915b78b29651f159fee0ec1fee954c79ab88761272d08f8bf95
+Deleted: 2c9e59de9a8b75fb0a8a5073a8a25006352485e675fa0f5054dd09eae42454d3
+Uploading: root-local.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+File already uploaded: root-local.tgz
+Uploading: resources.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
