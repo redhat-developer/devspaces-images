@@ -58,8 +58,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:d5d7d103e384f95a562c38ff27ae2fa0dbe3ac276a0ac13f2617f497e8881e70
-    createdAt: "2024-07-29T15:42:06+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1d880e5a0e32f5841dbe71694fb50e366b99a74b4daa655bcfd035ec6a517141
+    createdAt: "2024-08-07T14:16:47+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
@@ -86,8 +86,8 @@ spec:
   customresourcedefinitions:
     owned:
     - description: 'The `CheCluster` custom resource allows defining and managing Red Hat OpenShift Dev Spaces server installation. Based on these settings, the  Operator automatically creates and maintains
-        several ConfigMaps: `che`, `plugin-registry`, `devfile-registry` that will contain the appropriate environment variables of the various components of the installation. These generated ConfigMaps
-        must NOT be updated manually.'
+        several ConfigMaps: `che`, `plugin-registry` that will contain the appropriate environment variables of the various components of the installation. These generated ConfigMaps must NOT be updated
+        manually.'
       displayName: Red Hat OpenShift Dev Spaces instance Specification
       kind: CheCluster
       name: checlusters.org.eclipse.che
@@ -187,7 +187,7 @@ spec:
         path: cheVersion
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: The public URL of the internal devfile registry.
+      - description: Deprecated the public URL of the internal devfile registry.
         displayName: Devfile registry URL
         path: devfileRegistryURL
         x-descriptors:
@@ -790,6 +790,8 @@ spec:
                 env:
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_DASHBOARD_HEADERMESSAGE_TEXT
                   value: ''
+                - name: CHE_DEFAULT_SPEC_COMPONENTS_DEVFILEREGISTRY_EXTERNAL_DEVFILE_REGISTRIES
+                  value: '[{"url": "https://registry.devfile.io"}]'
                 - name: CHE_DEFAULT_SPEC_COMPONENTS_PLUGINREGISTRY_OPENVSXURL
                   value: ''
                 - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_CONTAINERSECURITYCONTEXT
@@ -823,7 +825,7 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:ebbc40d712b7c4fed50dda1f2217596e97659c06969b057975a747d2fed68e28
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:22b7db9e27955ff2c1c92dd1095681dbaa59369885d88eb6930c34f5224fc637
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:4e1f2dd26f6665b5112f3e6a3574cd20ab78f35446b5bb705c4f7aadde02197a
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:dd81e8db11758e9defc8e04d8d485c5103d1fd83b0ab0097a5b7b1eef2a71eda
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCNQK
@@ -858,7 +860,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:d5d7d103e384f95a562c38ff27ae2fa0dbe3ac276a0ac13f2617f497e8881e70
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1d880e5a0e32f5841dbe71694fb50e366b99a74b4daa655bcfd035ec6a517141
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1028,14 +1030,14 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.14.0
   relatedImages:
-  - name: devspaces-rhel8-operator-d5d7d103e384f95a562c38ff27ae2fa0dbe3ac276a0ac13f2617f497e8881e70-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:d5d7d103e384f95a562c38ff27ae2fa0dbe3ac276a0ac13f2617f497e8881e70
+  - name: devspaces-rhel8-operator-1d880e5a0e32f5841dbe71694fb50e366b99a74b4daa655bcfd035ec6a517141-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1d880e5a0e32f5841dbe71694fb50e366b99a74b4daa655bcfd035ec6a517141
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:d5d7d103e384f95a562c38ff27ae2fa0dbe3ac276a0ac13f2617f497e8881e70
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1d880e5a0e32f5841dbe71694fb50e366b99a74b4daa655bcfd035ec6a517141
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:ebbc40d712b7c4fed50dda1f2217596e97659c06969b057975a747d2fed68e28
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:22b7db9e27955ff2c1c92dd1095681dbaa59369885d88eb6930c34f5224fc637
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:4e1f2dd26f6665b5112f3e6a3574cd20ab78f35446b5bb705c4f7aadde02197a
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:dd81e8db11758e9defc8e04d8d485c5103d1fd83b0ab0097a5b7b1eef2a71eda
   - name: devspaces_code_devfile_registry_image_gmxdcnqk
