@@ -13,6 +13,7 @@ def List GH_REPOS = [
     'devspaces-chectl'
     ]
 
+/*
 def sendSlack(slackTitle,slackText,slackChannel) {
     def message = [
         text: slackText,
@@ -22,10 +23,10 @@ def sendSlack(slackTitle,slackText,slackChannel) {
 
     slackSend(channel: slackChannel, attachments: [message])
 }
+*/
 
 def buildNode = "x86_64-rhel8||ppc64le-rhel8"
 timeout(120) {
-    libraries { lib('TestUtil') }
     node("${buildNode}"){
         stage("Create branches") {
             wrap([$class: 'TimestamperBuildWrapper']) {
@@ -55,8 +56,8 @@ timeout(120) {
                     ./tagRelease.sh --clean -t ''' + DS_VERSION_NEXT + ''' --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + MIDSTM_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
                     )
 
-                    slackText = "Branches " + NEW_BRANCH + " have been created."
-                    pipelineUtil.sendStatusToSlack(this, slackText)
+                    // slackText = "Branches " + NEW_BRANCH + " have been created."
+                    // sendSlack(slackText,"team-devspaces")
 
                     currentBuild.description+="done"
 
