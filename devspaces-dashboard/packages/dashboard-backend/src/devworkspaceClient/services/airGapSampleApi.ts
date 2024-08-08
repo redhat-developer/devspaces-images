@@ -39,23 +39,23 @@ export class AirGapSampleApiService implements IAirGapSampleApi {
     return this.samples;
   }
 
-  async downloadProject(name: string): Promise<api.IStreamedFile> {
-    const sample = this.samples.find(sample => sample.displayName === name);
+  async downloadProject(id: string): Promise<api.IStreamedFile> {
+    const sample = this.samples.find(sample => sample.id === id);
     if (sample) {
       return this.download(sample.project?.zip?.filename);
     }
 
-    console.error(`Sample not found: ${name} `);
+    console.error(`Sample not found: ${id} `);
     throw new Error(`Sample not found`);
   }
 
-  async downloadDevfile(name: string): Promise<api.IStreamedFile> {
-    const sample = this.samples.find(sample => sample.displayName === name);
+  async downloadDevfile(id: string): Promise<api.IStreamedFile> {
+    const sample = this.samples.find(sample => sample.id === id);
     if (sample) {
       return this.download(sample.devfile?.filename);
     }
 
-    console.error(`Sample not found: ${name} `);
+    console.error(`Sample not found: ${id} `);
     throw new Error(`Sample not found`);
   }
 

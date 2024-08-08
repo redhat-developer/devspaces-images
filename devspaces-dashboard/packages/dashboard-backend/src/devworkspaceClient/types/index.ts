@@ -455,14 +455,14 @@ export interface IAirGapSampleApi {
   list(): Promise<Array<api.IAirGapSample>>;
 
   /**
-   * Downloads the Air Gap sample project by its name.
+   * Downloads the Air Gap sample project by its id.
    */
-  downloadProject(name: string): Promise<api.IStreamedFile>;
+  downloadProject(id: string): Promise<api.IStreamedFile>;
 
   /**
-   * Reads the devfile content of the Air Gap sample by its name.
+   * Reads the devfile content of the Air Gap sample by its id.
    */
-  downloadDevfile(name: string): Promise<api.IStreamedFile>;
+  downloadDevfile(id: string): Promise<api.IStreamedFile>;
 }
 
 export interface IEditorsApi {
