@@ -829,13 +829,13 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:dd81e8db11758e9defc8e04d8d485c5103d1fd83b0ab0097a5b7b1eef2a71eda
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCNQK
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:05a2e09c78ca2ebf2b394f8981339869784d9c4a33c13b0a902dc0684129ebff
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:9f5824832836c3a8dfa93393f18a9888a1b7d25868faf8bae6342e9240723fa5
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCNQK
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:d0971d0d9ff7c5acb43e3660cfc2fe0deef4db0aa6108b4e0327f6599f4f8872
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCNQK
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:2c0af17964f1b84a7c42fd99e856cb002a23df82a6f5228c3269f9b55950911b
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_injector
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:05a2e09c78ca2ebf2b394f8981339869784d9c4a33c13b0a902dc0684129ebff
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:9f5824832836c3a8dfa93393f18a9888a1b7d25868faf8bae6342e9240723fa5
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_runtime_description
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:2c0af17964f1b84a7c42fd99e856cb002a23df82a6f5228c3269f9b55950911b
                 - name: RELATED_IMAGE_editor_definition_che_idea_2022_1_idea_rhel8
@@ -1041,13 +1041,13 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:dd81e8db11758e9defc8e04d8d485c5103d1fd83b0ab0097a5b7b1eef2a71eda
   - name: devspaces_code_devfile_registry_image_gmxdcnqk
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:05a2e09c78ca2ebf2b394f8981339869784d9c4a33c13b0a902dc0684129ebff
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:9f5824832836c3a8dfa93393f18a9888a1b7d25868faf8bae6342e9240723fa5
   - name: devspaces_idea_devfile_registry_image_gmxdcnqk
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:d0971d0d9ff7c5acb43e3660cfc2fe0deef4db0aa6108b4e0327f6599f4f8872
   - name: devspaces_udi_devfile_registry_image_gmxdcnqk
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:2c0af17964f1b84a7c42fd99e856cb002a23df82a6f5228c3269f9b55950911b
   - name: editor_definition_che_code_latest_che_code_injector
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:05a2e09c78ca2ebf2b394f8981339869784d9c4a33c13b0a902dc0684129ebff
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:9f5824832836c3a8dfa93393f18a9888a1b7d25868faf8bae6342e9240723fa5
   - name: editor_definition_che_code_latest_che_code_runtime_description
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:2c0af17964f1b84a7c42fd99e856cb002a23df82a6f5228c3269f9b55950911b
   - name: editor_definition_che_idea_2022_1_idea_rhel8
