@@ -66,7 +66,7 @@ describe('AirGap Sample Route', () => {
       } as unknown as DevWorkspaceClient;
     });
 
-    const res = await app.inject().get(`${baseApiPath}/airgap-sample/devfile/download?name=sample`);
+    const res = await app.inject().get(`${baseApiPath}/airgap-sample/devfile/download?id=sample`);
 
     expect(res.statusCode).toEqual(200);
     expect(res.headers['content-type']).toEqual('application/octet-stream');
@@ -92,7 +92,7 @@ describe('AirGap Sample Route', () => {
       } as unknown as DevWorkspaceClient;
     });
 
-    const res = await app.inject().get(`${baseApiPath}/airgap-sample/project/download?name=sample`);
+    const res = await app.inject().get(`${baseApiPath}/airgap-sample/project/download?id=sample`);
 
     expect(res.statusCode).toEqual(200);
     expect(res.headers['content-type']).toEqual('application/octet-stream');

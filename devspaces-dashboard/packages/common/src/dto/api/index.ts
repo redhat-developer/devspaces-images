@@ -190,6 +190,7 @@ export interface IGettingStartedSample {
 }
 
 export interface IAirGapSample extends IGettingStartedSample {
+  id: string;
   project?: { zip?: { filename?: string } };
   devfile?: { filename?: string };
 }

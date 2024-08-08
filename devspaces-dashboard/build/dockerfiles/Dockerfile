@@ -42,9 +42,8 @@ RUN yarn build
 RUN yarn workspace @eclipse-che/dashboard-backend install --production
 
 # Prepare air-gapped resources
-# ARG GITHUB_TOKEN=$GITHUB_TOKEN
-COPY build/dockerfiles/airgap.sh /dashboard/airgap.sh
-RUN /dashboard/airgap.sh -d /dashboard/packages/devfile-registry/air-gap
+COPY scripts/airgap.sh /dashboard/airgap.sh
+RUN /dashboard/airgap.sh -i /dashboard/packages/devfile-registry/air-gap/index.json
 
 FROM docker.io/node:18.19.1-alpine3.19
 

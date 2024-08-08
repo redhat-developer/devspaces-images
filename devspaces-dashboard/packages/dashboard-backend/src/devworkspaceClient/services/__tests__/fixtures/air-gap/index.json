@@ -1,17 +1,21 @@
 [
   {
+    "id": "Sample_no_devfile_filename",
     "displayName": "Sample_no_devfile_filename"
   },
   {
+    "id": "Sample_no_project_filename",
     "displayName": "Sample_no_project_filename"
   },
   {
+    "id": "Sample_devfile_not_exists",
     "displayName": "Sample_devfile_not_exists",
     "devfile": {
       "filename": "not-exists-defile.yaml"
     }
   },
   {
+    "id": "Sample_project_not_exists",
     "displayName": "Sample_project_not_exists",
     "project": {
       "zip": {
@@ -20,12 +24,14 @@
     }
   },
   {
+    "id": "Sample_devfile",
     "displayName": "Sample_devfile",
     "devfile": {
       "filename": "sample-devfile.yaml"
     }
   },
   {
+    "id": "Sample_project",
     "displayName": "Sample_project",
     "project": {
       "zip": {

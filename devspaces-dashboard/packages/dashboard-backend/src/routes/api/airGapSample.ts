@@ -43,16 +43,16 @@ export function registerAirGapSampleRoute(instance: FastifyInstance) {
       `${baseApiPath}/airgap-sample/devfile/download`,
       Object.assign(rateLimitConfig, getSchema({ tags })),
       async function (request: FastifyRequest, reply: FastifyReply) {
-        const name = (request.query as { name: string })['name'];
-        if (!name) {
-          return reply.status(400).send('Sample name is required.');
+        const sampleId = (request.query as { id: string })['id'];
+        if (!sampleId) {
+          return reply.status(400).send('Sample id is required.');
         }
 
         const token = getServiceAccountToken();
         const { airGapSampleApi } = getDevWorkspaceClient(token);
 
         try {
-          const iStreamedFile = await airGapSampleApi.downloadDevfile(name);
+          const iStreamedFile = await airGapSampleApi.downloadDevfile(sampleId);
           reply.header('Content-Type', 'application/octet-stream');
           reply.header('Content-Length', iStreamedFile.size);
           return reply.send(iStreamedFile.stream);
@@ -67,16 +67,16 @@ export function registerAirGapSampleRoute(instance: FastifyInstance) {
       `${baseApiPath}/airgap-sample/project/download`,
       Object.assign(rateLimitConfig, getSchema({ tags })),
       async function (request: FastifyRequest, reply: FastifyReply) {
-        const name = (request.query as { name: string })['name'];
-        if (!name) {
-          return reply.status(400).send('Sample name is required.');
+        const sampleId = (request.query as { id: string })['id'];
+        if (!sampleId) {
+          return reply.status(400).send('Sample id is required.');
         }
 
         const token = getServiceAccountToken();
         const { airGapSampleApi } = getDevWorkspaceClient(token);
 
         try {
-          const iStreamedFile = await airGapSampleApi.downloadProject(name);
+          const iStreamedFile = await airGapSampleApi.downloadProject(sampleId);
           reply.header('Content-Type', 'application/octet-stream');
           reply.header('Content-Length', iStreamedFile.size);
           return reply.send(iStreamedFile.stream);
