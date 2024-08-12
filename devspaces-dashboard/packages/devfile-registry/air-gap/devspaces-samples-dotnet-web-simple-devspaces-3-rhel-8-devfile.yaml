@@ -1,0 +1,52 @@
+schemaVersion: 2.2.2
+metadata:
+  name: dotnet
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      memoryLimit: '2Gi'
+      memoryRequest: '1Gi'
+      cpuLimit: '1'
+      cpuRequest: '0.5'
+      mountSources: true
+      endpoints:
+        - exposure: public
+          name: 'hello-endpoint'
+          protocol: https
+          targetPort: 5032
+      volumeMounts:
+        - name: nuget
+          path: /home/user/.nuget
+  - name: nuget
+    volume:
+      size: 1G
+commands:
+  - id: 1-update-dependencies
+    exec:
+      label: 1.Update dependencies
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+      commandLine: "dotnet restore"
+      group:
+        kind: build
+  - id: 2-build
+    exec:
+      label: 2.Build
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+      commandLine: "dotnet build"
+      group:
+        kind: build
+  - id: 3-run
+    exec:
+      label: 3.Run
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/dotnet-web-simple
+      commandLine: "dotnet run"
+      group:
+        kind: run
+projects:
+  - name: dotnet-web-simple
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=dotnet

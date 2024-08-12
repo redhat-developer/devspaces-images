@@ -1,0 +1,71 @@
+schemaVersion: 2.2.2
+metadata:
+  name: nodejs-web-app
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      endpoints:
+        - exposure: public
+          name: nodejs
+          protocol: https
+          targetPort: 3000
+      memoryLimit: '1Gi'
+      memoryRequest: '512Mi'
+      cpuLimit: '0.5'
+      cpuRequest: '0.25'
+      mountSources: true
+      volumeMounts:
+        - name: npm
+          path: /home/user/.npm
+  - name: npm
+    volume:
+      size: 1G
+commands:
+  - id: 1-dependencies
+    exec:
+      label: "Download dependencies"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+      commandLine: "npm install"
+      group:
+        kind: build
+  - id: 2-run
+    exec:
+      label: "Run the web app"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+      commandLine: "nodemon app.js"
+      group:
+        kind: run
+  - id: 3-install-and-run
+    exec:
+      label: "Run the web app (and download dependencies)"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+      commandLine: "npm install; nodemon app.js"
+      group:
+        kind: run
+  - id: 4-debug
+    exec:
+      label: "Run the web app (debugging enabled)"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+      commandLine: "nodemon --inspect app.js"
+      group:
+        kind: debug
+        isDefault: true
+  - id: 5-stopapp
+    exec:
+      label: "Stop the web app"
+      component: tools
+      commandLine: >-
+        node_server_pids=$(pgrep -fx '.*nodemon (--inspect )?app.js' | tr "\\n" "
+        ") && echo "Stopping node server with PIDs: ${node_server_pids}" &&  kill
+        -15 ${node_server_pids} &>/dev/null && echo 'Done.'
+      group:
+        kind: run
+projects:
+  - name: web-nodejs-sample
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=nodejs-express

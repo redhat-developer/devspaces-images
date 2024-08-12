@@ -1,0 +1,24 @@
+schemaVersion: 2.2.2
+metadata:
+  name: php-hello-world
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      memoryLimit: '2Gi'
+      memoryRequest: '1Gi'
+      cpuLimit: '1'
+      cpuRequest: '0.5'
+commands:
+  - id: run
+    exec:
+      label: "Run the application"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/php-hello-world
+      commandLine: php hello-world.php
+      group:
+        kind: run
+projects:
+  - name: php-hello-world
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=php

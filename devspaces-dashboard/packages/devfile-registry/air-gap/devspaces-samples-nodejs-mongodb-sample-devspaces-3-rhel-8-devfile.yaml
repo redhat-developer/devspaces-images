@@ -1,0 +1,68 @@
+schemaVersion: 2.2.2
+metadata:
+  name: nodejs-mongodb
+components:
+  - name: nodejs
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      env:
+        - name: SECRET
+          value: 220fd770-c028-480d-8f95-f84353c7d55a
+        - name: NODE_ENV
+          value: production
+      endpoints:
+        - exposure: public
+          name: nodejs
+          targetPort: 8080
+          protocol: https
+      memoryLimit: '1Gi'
+      memoryRequest: '512Mi'
+      cpuLimit: '2'
+      cpuRequest: '1'
+      mountSources: true
+      volumeMounts:
+        - name: npm
+          path: /home/user/.npm
+  - name: npm
+    volume:
+      size: 1G
+  - name: mongo
+    container:
+      image: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+      env:
+        - name: MONGODB_USER
+          value: user
+        - name: MONGODB_PASSWORD
+          value: password
+        - name: MONGODB_DATABASE
+          value: guestbook
+        - name: MONGODB_ADMIN_PASSWORD
+          value: password
+      endpoints:
+        - name: mongodb
+          exposure: internal
+          targetPort: 27017
+      memoryLimit: '512Mi'
+      memoryRequest: '256Mi'
+      cpuLimit: '1'
+      cpuRequest: '0.25'
+      mountSources: false
+      volumeMounts:
+        - name: mongo-storage
+          path: /var/lib/mongodb/data
+  - name: mongo-storage
+    volume:
+      size: 1G
+commands:
+  - id: 1-run
+    exec:
+      label: "Run the application"
+      component: nodejs
+      workingDir: ${PROJECTS_ROOT}/nodejs-mongodb-sample
+      commandLine: "npm install && node --inspect=9229 app.js"
+      group:
+        kind: run
+projects:
+  - name: nodejs-mongodb-sample
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=nodejs-mongodb

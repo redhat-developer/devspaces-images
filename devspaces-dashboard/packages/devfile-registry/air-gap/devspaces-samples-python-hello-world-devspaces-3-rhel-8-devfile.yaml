@@ -1,0 +1,31 @@
+schemaVersion: 2.2.2
+metadata:
+  name: python-hello-world
+components:
+  - name: python
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      volumeMounts:
+        - name: venv
+          path: /home/user/.venv
+      memoryLimit: '2Gi'
+      memoryRequest: '1Gi'
+      cpuLimit: '2'
+      cpuRequest: '1'
+      mountSources: true
+  - name: venv
+    volume:
+      size: 1G
+commands:
+  - id: run
+    exec:
+      label: "Run the application"
+      component: python
+      workingDir: ${PROJECTS_ROOT}/python-hello-world
+      commandLine: python -m venv .venv && . .venv/bin/activate && python hello-world.py
+      group:
+        kind: run
+projects:
+  - name: python-hello-world
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=python

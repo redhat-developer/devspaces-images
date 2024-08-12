@@ -1,0 +1,41 @@
+schemaVersion: 2.2.2
+metadata:
+  name: golang
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      memoryLimit: '2Gi'
+      memoryRequest: '1Gi'
+      cpuLimit: '1'
+      cpuRequest: '0.5'
+      mountSources: true
+      env:
+        - name: GOCACHE
+          value: /tmp/.cache
+      endpoints:
+        - exposure: public
+          name: 'health-check'
+          protocol: https
+          targetPort: 8080
+commands:
+  - id: build
+    exec:
+      label: 1.Build
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/golang-health-check
+      commandLine: go build
+      group:
+        kind: build
+  - id: run
+    exec:
+      label: 2.Run
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/golang-health-check
+      commandLine: ./golang-health-check
+      group:
+        kind: run
+projects:
+  - name: golang-health-check
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=go
