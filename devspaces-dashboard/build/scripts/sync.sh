@@ -90,7 +90,7 @@ SAMPLES_OUTPUT_DIR="${TARGETDIR}/packages/devfile-registry/air-gap"
 sed -i "s|tree/devspaces-[0-9.]-rhel-8|tree/${SCRIPTS_BRANCH}|g" "${SRC_SAMPLES_JSON}"
 # Copy new samples
 rm -rf "${SAMPLES_OUTPUT_DIR}"
-. "${TARGETDIR}/build/scripts/airgap.sh" -i "${SRC_SAMPLES_JSON}" -o "${SAMPLES_OUTPUT_DIR}"
+. "${TARGETDIR}/scripts/airgap.sh" -i "${SRC_SAMPLES_JSON}" -o "${SAMPLES_OUTPUT_DIR}"
 
 # get yarn version + download it for use in Brew; cannot use `npm i -g yarn` downstream so must install it this way
 if [[ $GET_YARN -eq 1 ]]; then
