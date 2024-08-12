@@ -62,6 +62,7 @@ echo ".github/
 .gitattributes
 packages/dashboard-frontend/assets/branding/
 packages/devfile-registry/air-gap/index.json
+samples/index.json
 build/scripts/
 container.yaml
 /content_sets.*
