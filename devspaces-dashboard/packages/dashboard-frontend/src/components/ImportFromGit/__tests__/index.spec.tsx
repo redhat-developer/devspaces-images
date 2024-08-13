@@ -32,6 +32,9 @@ const defaultEditorId = 'che-incubator/che-code/next';
 const editorId = 'che-incubator/che-code/insiders';
 const editorImage = 'custom-editor-image';
 
+// mute the outputs
+console.error = jest.fn();
+
 describe('GitRepoLocationInput', () => {
   let store: Store;
 

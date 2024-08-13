@@ -203,11 +203,20 @@ export function normalizeDevfile(
   }
 
   if (devfile.components && devfile.components.length > 0) {
-    // apply the custom image from factory params
-    if (factoryParams.image && devfile.components[0].container?.image) {
-      devfile.components[0].container.image = factoryParams.image;
+    if (devfile.components[0].container) {
+      // apply the custom image from factory params
+      if (factoryParams.image && devfile.components[0].container.image) {
+        devfile.components[0].container.image = factoryParams.image;
+      }
+      // apply the custom memoryLimit from factory params
+      if (factoryParams.memoryLimit) {
+        devfile.components[0].container.memoryLimit = factoryParams.memoryLimit;
+      }
+      // apply the custom cpuLimit from factory params
+      if (factoryParams.cpuLimit) {
+        devfile.components[0].container.cpuLimit = factoryParams.cpuLimit;
+      }
     }
-
     // temporary solution for fix che-server serialization bug with empty volume
     devfile.components.forEach(component => {
       if (Object.keys(component).length === 1 && component.name) {

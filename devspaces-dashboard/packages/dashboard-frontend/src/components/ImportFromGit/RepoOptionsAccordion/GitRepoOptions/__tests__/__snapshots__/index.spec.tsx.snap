@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitRepoOptions snapshot with all values 1`] = `
+<form
+  className="pf-c-form pf-m-horizontal"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <div
+    data-testid="git-branch-component"
+  >
+    <div>
+      Git Branch
+    </div>
+    <div
+      data-testid="git-branch"
+    >
+      test-git-branch
+    </div>
+    <button
+      onClick={[Function]}
+    >
+      Git Branch Change
+    </button>
+  </div>
+  <div>
+    <div>
+      Git Remotes
+    </div>
+    <div
+      data-testid="git-remotes"
+    >
+      [{"name":"test","url":"http://test"}]
+    </div>
+    <button
+      onClick={[Function]}
+    >
+      Git Remotes Change
+    </button>
+  </div>
+  <div>
+    <div>
+      Devfile Path
+    </div>
+    <div
+      data-testid="devfile-path"
+    >
+      test-devfile-path
+    </div>
+    <button
+      onClick={[Function]}
+    >
+      Devfile Path Change
+    </button>
+  </div>
+</form>
+`;
+
+exports[`GitRepoOptions snapshot with default values 1`] = `
+<form
+  className="pf-c-form pf-m-horizontal"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <div
+    data-testid="git-branch-component"
+  >
+    <div>
+      Git Branch
+    </div>
+    <div
+      data-testid="git-branch"
+    />
+    <button
+      onClick={[Function]}
+    >
+      Git Branch Change
+    </button>
+  </div>
+  <div>
+    <div>
+      Git Remotes
+    </div>
+    <div
+      data-testid="git-remotes"
+    >
+      undefined
+    </div>
+    <button
+      onClick={[Function]}
+    >
+      Git Remotes Change
+    </button>
+  </div>
+  <div>
+    <div>
+      Devfile Path
+    </div>
+    <div
+      data-testid="devfile-path"
+    />
+    <button
+      onClick={[Function]}
+    >
+      Devfile Path Change
+    </button>
+  </div>
+</form>
+`;

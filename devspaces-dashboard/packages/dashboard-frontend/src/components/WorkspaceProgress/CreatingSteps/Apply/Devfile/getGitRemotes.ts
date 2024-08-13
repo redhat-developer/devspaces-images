@@ -72,7 +72,7 @@ function parseRemotes(remotes: string): string[] {
   try {
     return JSON.parse(sanitizeValue(remotes));
   } catch (e) {
-    throw `Unable to parse remotes attribute. ${common.helpers.errors.getMessage(e)}`;
+    throw `Unable to parse remotes '${remotes}'. ${common.helpers.errors.getMessage(e)}`;
   }
 }
 

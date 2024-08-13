@@ -11,10 +11,6 @@
  */
 
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionToggle,
   Button,
   ButtonVariant,
   Flex,
@@ -35,13 +31,8 @@ import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { GitRepoOptions } from '@/components/ImportFromGit/GitRepoOptions';
-import {
-  getGitRepoOptionsFromLocation,
-  setGitRepoOptionsToLocation,
-  validateLocation,
-} from '@/components/ImportFromGit/helpers';
-import { GitRemote } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getGitRemotes';
+import { validateLocation } from '@/components/ImportFromGit/helpers';
+import RepoOptionsAccordion from '@/components/ImportFromGit/RepoOptionsAccordion';
 import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import { EDITOR_ATTR, EDITOR_IMAGE_ATTR } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { buildUserPreferencesLocation } from '@/services/helpers/location';
@@ -49,8 +40,6 @@ import { UserPreferencesTab } from '@/services/helpers/types';
 import { AppState } from '@/store';
 import { selectSshKeys } from '@/store/SshKeys/selectors';
 import * as WorkspacesStore from '@/store/Workspaces';
-
-type AccordionId = 'options';
 
 const FIELD_ID = 'git-repo-url';
 
@@ -63,13 +52,8 @@ export type State = {
   hasSshKeys: boolean;
   location: string;
   locationValidated: ValidatedOptions;
-  expandedId: AccordionId | undefined;
-  gitBranch: string | undefined;
-  remotes: GitRemote[] | undefined;
   remotesValidated: ValidatedOptions;
-  devfilePath: string | undefined;
   isFocused: boolean;
-  hasSupportedGitService: boolean;
 };
 
 class ImportFromGit extends React.PureComponent<Props, State> {
@@ -80,13 +64,8 @@ class ImportFromGit extends React.PureComponent<Props, State> {
       hasSshKeys: this.props.sshKeys.length > 0,
       locationValidated: ValidatedOptions.default,
       location: '',
-      expandedId: undefined,
-      gitBranch: undefined,
-      remotes: undefined,
       remotesValidated: ValidatedOptions.default,
-      devfilePath: undefined,
       isFocused: false,
-      hasSupportedGitService: false,
     };
   }
 
@@ -95,16 +74,14 @@ class ImportFromGit extends React.PureComponent<Props, State> {
     if (!isFocused && (location !== prevState.location || prevState.isFocused)) {
       const inputElement = document.getElementById(FIELD_ID) as HTMLInputElement;
       if (inputElement) {
-        inputElement.value = decodeURIComponent(location);
+        inputElement.value = location;
       }
     }
   }
 
   private handleCreate(): void {
     const { editorDefinition, editorImage } = this.props;
-    const location = decodeURIComponent(this.state.location);
-
-    const factory = new FactoryLocationAdapter(location);
+    const factory = new FactoryLocationAdapter(this.state.location);
 
     // add the editor definition and editor image to the URL
     // if they are not already there
@@ -122,15 +99,12 @@ class ImportFromGit extends React.PureComponent<Props, State> {
   }
 
   private handleChange(location: string): void {
-    if (this.state.location === location.trim()) {
+    location = location.trim();
+    if (this.state.location === location) {
       return;
     }
     const validated = validateLocation(location, this.state.hasSshKeys);
     this.setState({ locationValidated: validated, location });
-    if (validated !== ValidatedOptions.success) {
-      return;
-    }
-    this.setState(getGitRepoOptionsFromLocation(location) as State);
   }
 
   private getErrorMessage(location: string): string | React.ReactNode {
@@ -157,7 +131,7 @@ class ImportFromGit extends React.PureComponent<Props, State> {
   }
 
   public buildForm(): React.JSX.Element {
-    const location = decodeURIComponent(this.state.location);
+    const { location } = this.state;
     const { locationValidated, remotesValidated } = this.state;
 
     const buttonDisabled =
@@ -216,72 +190,9 @@ class ImportFromGit extends React.PureComponent<Props, State> {
     );
   }
 
-  private handleToggle(id: AccordionId): void {
-    const { expandedId } = this.state;
-    this.setState({
-      expandedId: expandedId === id ? undefined : id,
-    });
-  }
-
-  private handleGitRepoOptionsChange(
-    gitBranch: string | undefined,
-    remotes: GitRemote[] | undefined,
-    devfilePath: string | undefined,
-    isValid: boolean,
-  ): void {
-    const state = setGitRepoOptionsToLocation(
-      { gitBranch, remotes, devfilePath },
-      {
-        location: this.state.location,
-        gitBranch: this.state.gitBranch,
-        remotes: this.state.remotes,
-        devfilePath: this.state.devfilePath,
-      },
-    ) as State;
-    state.remotesValidated = isValid ? ValidatedOptions.success : ValidatedOptions.error;
-    this.setState(state);
-  }
-
-  public buildGitRepoOptions(): React.JSX.Element {
-    const { expandedId, remotes, devfilePath, gitBranch, hasSupportedGitService } = this.state;
-
-    return (
-      <Accordion asDefinitionList={false}>
-        <AccordionItem>
-          <AccordionToggle
-            onClick={() => {
-              this.handleToggle('options');
-            }}
-            isExpanded={expandedId === 'options'}
-            id="accordion-item-options"
-          >
-            Git Repo Options
-          </AccordionToggle>
-
-          <AccordionContent isHidden={expandedId !== 'options'} data-testid="options-content">
-            <Panel>
-              <PanelMain>
-                <PanelMainBody>
-                  <GitRepoOptions
-                    gitBranch={gitBranch}
-                    remotes={remotes}
-                    devfilePath={devfilePath}
-                    hasSupportedGitService={hasSupportedGitService}
-                    onChange={(gitBranch, remotes, devfilePath, isValid) =>
-                      this.handleGitRepoOptionsChange(gitBranch, remotes, devfilePath, isValid)
-                    }
-                  />
-                </PanelMainBody>
-              </PanelMain>
-            </Panel>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    );
-  }
-
   public render() {
-    const { locationValidated } = this.state;
+    const { history } = this.props;
+    const { locationValidated, location } = this.state;
     return (
       <Panel>
         <PanelHeader>
@@ -292,7 +203,16 @@ class ImportFromGit extends React.PureComponent<Props, State> {
         </PanelMain>
         {locationValidated === ValidatedOptions.success && (
           <PanelMain>
-            <PanelMainBody>{this.buildGitRepoOptions()}</PanelMainBody>
+            <PanelMainBody>
+              <RepoOptionsAccordion
+                location={location}
+                history={history}
+                onChange={(location: string, remotesValidated: ValidatedOptions) => {
+                  const locationValidated = validateLocation(location, this.state.hasSshKeys);
+                  this.setState({ location, remotesValidated, locationValidated });
+                }}
+              />
+            </PanelMainBody>
           </PanelMain>
         )}
       </Panel>
