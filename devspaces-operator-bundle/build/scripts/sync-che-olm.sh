@@ -388,14 +388,9 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
     SAMPLE_ORG="$(echo "${SAMPLE_URL}" | cut -d '/' -f 4)"
     SAMPLE_REPOSITORY="$(echo "${SAMPLE_URL}" | cut -d '/' -f 5)"
     SAMPLE_REF="$(echo "${SAMPLE_URL}" | cut -d '/' -f 7)"
-    curl -sSL \
-        -H "Authorization: token ${GITHUB_TOKEN}" \
-        -H "Accept: application/vnd.github.raw+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        "https://api.github.com/repos/${SAMPLE_ORG}/${SAMPLE_REPOSITORY}/contents/devfile.yaml?ref=${SAMPLE_REF}" \
-        -o "/tmp/devfile.yaml"
-    if [[ $(cat /tmp/devfile.yaml) == *"404"* ]] || [[ $(cat /tmp/devfile.yaml) == *"401"* ]] || [[ $(cat /tmp/devfile.yaml) == *"Not Found"* ]]; then
-        echo "[ERROR] Could not load devfile.yaml from ${SAMPLE_URL}"
+    curl -sSL https://raw.githubusercontent.com/${SAMPLE_ORG}/${SAMPLE_REPOSITORY}/${SAMPLE_REF}/devfile.yaml --output /tmp/devfile.yaml
+    if [[ $(cat /tmp/devfile.yaml) == *"404"* ]] || [[ $(cat /tmp/devfile.yaml) == *"Not Found"* ]]; then
+        echo "[ERROR] Could not load https://raw.githubusercontent.com/${SAMPLE_ORG}/${SAMPLE_REPOSITORY}/${SAMPLE_REF}/devfile.yaml"
         exit 1
     fi
 
@@ -405,9 +400,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
       COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml)
       CONTAINER_IMAGE=$(yq -r '.components['${CONTAINER_INDEX}'].container.image' /tmp/devfile.yaml)
       if [[ ! ${CONTAINER_IMAGE} == "null" ]]; then
-        ENV_NAME="RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}"
-        ENV_VALUE="${CONTAINER_IMAGE}"
-        ENV="{name: \"${ENV_NAME}\", value: \"${ENV_VALUE}\"}"
+        ENV="{name: \"RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}\", value: \"${CONTAINER_IMAGE}\"}"
         yq -riY "(.spec.install.spec.deployments[].spec.template.spec.containers[0].env ) += [${ENV}]" "${CSVFILE}"
       fi
 
