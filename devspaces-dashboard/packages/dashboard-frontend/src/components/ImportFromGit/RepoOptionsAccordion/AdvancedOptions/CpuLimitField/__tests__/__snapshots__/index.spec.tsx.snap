@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CpuLimitField 2Gi snapshot 1`] = `
+<div
+  className="pf-c-form__group"
+>
+  <div
+    className="pf-c-form__group-label"
+  >
+    <label
+      className="pf-c-form__label"
+    >
+      <span
+        className="pf-c-form__label-text"
+      >
+        CPU Limit (2 cores)
+      </span>
+    </label>
+     
+  </div>
+  <div
+    className="pf-c-form__group-control"
+  >
+    <input
+      data-testid="cpu-limit-slider"
+      onChange={[Function]}
+      type="range"
+      value={2}
+    />
+    
+  </div>
+</div>
+`;

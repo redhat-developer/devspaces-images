@@ -20,6 +20,8 @@ export const POLICIES_CREATE_ATTR = 'policies.create';
 export const STORAGE_TYPE_ATTR = 'storageType';
 export const REMOTES_ATTR = 'remotes';
 export const IMAGE_ATTR = 'image';
+export const CPU_LIMIT_ATTR = 'cpuLimit';
+export const MEMORY_LIMIT_ATTR = 'memoryLimit';
 export const EDITOR_IMAGE_ATTR = 'editor-image';
 export const USE_DEFAULT_DEVFILE = 'useDefaultDevfile';
 export const DEBUG_WORKSPACE_START = 'debugWorkspaceStart';
@@ -33,6 +35,8 @@ export const PROPAGATE_FACTORY_ATTRS = [
   STORAGE_TYPE_ATTR,
   REMOTES_ATTR,
   IMAGE_ATTR,
+  CPU_LIMIT_ATTR,
+  MEMORY_LIMIT_ATTR,
   EDITOR_IMAGE_ATTR,
 ];
 export const OVERRIDE_ATTR_PREFIX = 'override.';
@@ -51,6 +55,8 @@ export type FactoryParams = {
   editorImage: string | undefined;
   remotes: string | undefined;
   image: string | undefined;
+  cpuLimit: string | undefined;
+  memoryLimit: string | undefined;
   useDefaultDevfile: boolean;
   debugWorkspaceStart: boolean;
 };
@@ -73,6 +79,8 @@ export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams
     remotes: getRemotes(searchParams),
     useDevWorkspaceResources: getDevworkspaceResourcesUrl(searchParams) !== undefined,
     image: getImage(searchParams),
+    cpuLimit: getCpuLimit(searchParams),
+    memoryLimit: getMemoryLimit(searchParams),
     useDefaultDevfile: isSafeWorkspaceStart(searchParams) !== undefined,
     debugWorkspaceStart: isDebugWorkspaceStart(searchParams) !== undefined,
   };
@@ -155,6 +163,14 @@ function isOverrideAttr(attr: string): attr is string {
 
 function getImage(searchParams: URLSearchParams): string | undefined {
   return searchParams.get(IMAGE_ATTR) || undefined;
+}
+
+function getMemoryLimit(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(MEMORY_LIMIT_ATTR) || undefined;
+}
+
+function getCpuLimit(searchParams: URLSearchParams): string | undefined {
+  return searchParams.get(CPU_LIMIT_ATTR) || undefined;
 }
 
 function isSafeWorkspaceStart(searchParams: URLSearchParams): string | undefined {

@@ -22,6 +22,11 @@ export async function getFactoryResolver(
   if (url.indexOf(' ') !== -1) {
     url = encodeURI(url);
   }
+  // In the case of the Azure repository, the search parameters are encoded twice and need to be decoded.
+  if (url.indexOf('?') !== -1) {
+    const [path, search] = url.split('?');
+    url = `${path}?${decodeURIComponent(search)}`;
+  }
   const response = await axios.post(
     `${cheServerPrefix}/factory/resolver`,
     Object.assign({}, overrideParams, { url }),

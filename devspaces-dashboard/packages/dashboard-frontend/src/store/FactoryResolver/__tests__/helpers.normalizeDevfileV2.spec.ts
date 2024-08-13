@@ -204,6 +204,94 @@ describe('Normalize Devfile V2', () => {
     );
   });
 
+  it('should apply the custom memoryLimit from factory params', () => {
+    const devfile = {
+      schemaVersion: '2.2.2',
+      metadata: {
+        generateName: 'empty',
+      },
+      components: [
+        {
+          container: {
+            image: 'quay.io/devfile/custom-developer-image:custom',
+          },
+          name: 'developer-image',
+        },
+      ],
+    } as V230Devfile;
+    const factoryParams = {
+      memoryLimit: '4Gi',
+    };
+
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
+      'http://dummy-registry/devfiles/empty.yaml',
+      defaultComponents,
+      'che',
+      factoryParams,
+    );
+
+    expect(targetDevfile).toEqual(
+      expect.objectContaining({
+        components: [
+          {
+            container: {
+              image: 'quay.io/devfile/custom-developer-image:custom',
+              memoryLimit: '4Gi',
+            },
+            name: 'developer-image',
+          },
+        ],
+      }),
+    );
+  });
+
+  it('should apply the custom cpuLimit from factory params', () => {
+    const devfile = {
+      schemaVersion: '2.2.2',
+      metadata: {
+        generateName: 'empty',
+      },
+      components: [
+        {
+          container: {
+            image: 'quay.io/devfile/custom-developer-image:custom',
+          },
+          name: 'developer-image',
+        },
+      ],
+    } as V230Devfile;
+    const factoryParams = {
+      cpuLimit: '2',
+    };
+
+    const targetDevfile = normalizeDevfile(
+      {
+        devfile,
+      } as FactoryResolver,
+      'http://dummy-registry/devfiles/empty.yaml',
+      defaultComponents,
+      'che',
+      factoryParams,
+    );
+
+    expect(targetDevfile).toEqual(
+      expect.objectContaining({
+        components: [
+          {
+            container: {
+              image: 'quay.io/devfile/custom-developer-image:custom',
+              cpuLimit: '2',
+            },
+            name: 'developer-image',
+          },
+        ],
+      }),
+    );
+  });
+
   it('should apply the custom image from factory params', () => {
     const devfile = {
       schemaVersion: '2.2.2',

@@ -46,10 +46,13 @@ describe('Factory API', () => {
       mockPost.mockResolvedValueOnce({
         data: expect.anything(),
       });
-      await getFactoryResolver(location, {});
+      await getFactoryResolver(
+        'https://test.azure.com/_git/public-repo?version=GBtest%2Fbranch',
+        {},
+      );
 
       expect(mockPost).toHaveBeenCalledWith('/api/factory/resolver', {
-        url: 'https://github.com/eclipse-che/che-dashboard.git',
+        url: 'https://test.azure.com/_git/public-repo?version=GBtest/branch',
       });
     });
 
