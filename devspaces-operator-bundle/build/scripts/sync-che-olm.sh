@@ -384,6 +384,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
   SAMPLE_URLS=(
     $(yq -r '.[] | .url' /tmp/samples.json)
   )
+  RELATED_IMAGES_ENV=""
   for SAMPLE_URL in "${SAMPLE_URLS[@]}"; do
     SAMPLE_ORG="$(echo "${SAMPLE_URL}" | cut -d '/' -f 4)"
     SAMPLE_REPOSITORY="$(echo "${SAMPLE_URL}" | cut -d '/' -f 5)"
@@ -394,19 +395,34 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
         exit 1
     fi
 
-    SAMPLE_NAME=$(yq -r '.metadata.name' /tmp/devfile.yaml | sed 's|-|_|g')
     CONTAINER_INDEX=0
     while [ "${CONTAINER_INDEX}" -lt "$(yq -r '.components | length' "/tmp/devfile.yaml")" ]; do
-      COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml)
+      CONTAINER_IMAGE_ENV_NAME=""
       CONTAINER_IMAGE=$(yq -r '.components['${CONTAINER_INDEX}'].container.image' /tmp/devfile.yaml)
-      if [[ ! ${CONTAINER_IMAGE} == "null" ]]; then
-        ENV="{name: \"RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}\", value: \"${CONTAINER_IMAGE}\"}"
-        yq -riY "(.spec.install.spec.deployments[].spec.template.spec.containers[0].env ) += [${ENV}]" "${CSVFILE}"
+      if [[ ${CONTAINER_IMAGE} == *"@"*  ]]; then
+        # We don't need to encode the image name if it contains a digest
+        SAMPLE_NAME=$(yq -r '.metadata.name' /tmp/devfile.yaml | sed 's|-|_|g')
+        COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml)
+        CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}"
+      elif [[ ${CONTAINER_IMAGE} == *":"* ]]; then
+        # Encode the image name if it contains a tag
+        # It is used in dashboard to replace the image in the devfile.yaml at startup
+        CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_$(echo "${CONTAINER_IMAGE}" | base64 -w 0 | sed 's|=|____|g')"
+      fi
+
+      if [[ -n ${CONTAINER_IMAGE_ENV_NAME} ]]; then
+        ENV="{name: \"${CONTAINER_IMAGE_ENV_NAME}\", value: \"${CONTAINER_IMAGE}\"}"
+        if [[ -z ${RELATED_IMAGES_ENV} ]]; then
+          RELATED_IMAGES_ENV="${ENV}"
+        elif [[ ! ${RELATED_IMAGES_ENV} =~ ${CONTAINER_IMAGE_ENV_NAME} ]]; then
+          RELATED_IMAGES_ENV="${RELATED_IMAGES_ENV}, ${ENV}"
+        fiz
       fi
 
       CONTAINER_INDEX=$((CONTAINER_INDEX+1))
     done
   done
+  yq -riY "(.spec.install.spec.deployments[].spec.template.spec.containers[0].env ) += [${RELATED_IMAGES_ENV}]" "${CSVFILE}"
   echo "Converted (yq #4) ${CSVFILE}"
 
 	# insert replaces: field
