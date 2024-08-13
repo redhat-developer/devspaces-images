@@ -407,7 +407,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
       elif [[ ${CONTAINER_IMAGE} == *":"* ]]; then
         # Encode the image name if it contains a tag
         # It is used in dashboard to replace the image in the devfile.yaml at startup
-        CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_$(echo "${CONTAINER_IMAGE}" | base64 -w 0 | sed 's|=|____|g')"
+        CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_encoded_$(echo "${CONTAINER_IMAGE}" | base64 -w 0 | sed 's|=|____|g')"
       fi
 
       if [[ -n ${CONTAINER_IMAGE_ENV_NAME} ]]; then
