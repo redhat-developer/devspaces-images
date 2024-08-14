@@ -481,7 +481,7 @@ exports[`LoaderProgress workspace creation flow snapshot 1`] = `
 </div>
 `;
 
-exports[`LoaderProgress workspace staring flow snapshot 1`] = `
+exports[`LoaderProgress workspace starting flow snapshot 1`] = `
 <div
   className="progress pf-c-wizard"
 >
@@ -535,7 +535,7 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
       <nav
         aria-label="Workspace Progress Steps"
         className="pf-c-wizard__nav pf-m-expanded"
-        data-ouia-component-id="OUIA-Generated-WizardNav-20"
+        data-ouia-component-id="OUIA-Generated-WizardNav-24"
         data-ouia-component-type="PF4/WizardNav"
         data-ouia-safe={true}
       >
@@ -549,7 +549,7 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
               aria-current="step"
               aria-disabled={null}
               className="pf-c-wizard__nav-link pf-m-current"
-              data-ouia-component-id="OUIA-Generated-WizardNavItem-78"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-94"
               data-ouia-component-type="PF4/WizardNavItem"
               data-ouia-safe={true}
               disabled={false}
@@ -599,7 +599,7 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
               aria-current={false}
               aria-disabled={null}
               className="pf-c-wizard__nav-link"
-              data-ouia-component-id="OUIA-Generated-WizardNavItem-79"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-95"
               data-ouia-component-type="PF4/WizardNavItem"
               data-ouia-safe={true}
               disabled={false}
@@ -649,7 +649,7 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
               aria-current={false}
               aria-disabled={null}
               className="pf-c-wizard__nav-link"
-              data-ouia-component-id="OUIA-Generated-WizardNavItem-80"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-96"
               data-ouia-component-type="PF4/WizardNavItem"
               data-ouia-safe={true}
               disabled={false}
@@ -699,7 +699,7 @@ exports[`LoaderProgress workspace staring flow snapshot 1`] = `
               aria-current={false}
               aria-disabled={null}
               className="pf-c-wizard__nav-link"
-              data-ouia-component-id="OUIA-Generated-WizardNavItem-81"
+              data-ouia-component-id="OUIA-Generated-WizardNavItem-97"
               data-ouia-component-type="PF4/WizardNavItem"
               data-ouia-safe={true}
               disabled={false}

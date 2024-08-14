@@ -24,11 +24,11 @@ describe('SSH Keys Route', () => {
   let app: FastifyInstance;
   const namespace = 'user-che';
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     app = await setup();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     teardown(app);
     jest.clearAllMocks();
   });

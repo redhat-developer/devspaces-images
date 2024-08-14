@@ -13,7 +13,6 @@
 import {
   IAirGapSampleApi,
   IDevWorkspaceApi,
-  IDevWorkspacePreferencesApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEditorsApi,
@@ -27,6 +26,7 @@ import {
   IServerConfigApi,
   IShhKeysApi,
   IUserProfileApi,
+  IWorkspacePreferencesApi,
 } from '@/devworkspaceClient/types';
 
 import { IDevWorkspaceClient } from '..';
@@ -76,7 +76,7 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
   get sshKeysApi(): IShhKeysApi {
     throw new Error('Method not implemented.');
   }
-  get devWorkspacePreferencesApi(): IDevWorkspacePreferencesApi {
+  get workspacePreferencesApi(): IWorkspacePreferencesApi {
     throw new Error('Method not implemented.');
   }
 

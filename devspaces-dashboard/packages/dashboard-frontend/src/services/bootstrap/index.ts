@@ -54,6 +54,7 @@ import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
 import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
 import { selectDevWorkspacesResourceVersion } from '@/store/Workspaces/devWorkspaces/selectors';
+import { workspacePreferencesActionCreators } from '@/store/Workspaces/Preferences';
 
 /**
  * This class executes initial instructions
@@ -105,6 +106,7 @@ export default class Bootstrap {
       }),
       this.fetchClusterConfig().then(() => this.updateFavicon()),
       this.fetchSshKeys(),
+      this.fetchWorkspacePreferences(),
     ]);
 
     const errors = results
@@ -443,5 +445,13 @@ export default class Bootstrap {
   private async fetchSshKeys(): Promise<void> {
     const { requestSshKeys } = SshKeysStore.actionCreators;
     await requestSshKeys()(this.store.dispatch, this.store.getState, undefined);
+  }
+
+  private async fetchWorkspacePreferences(): Promise<void> {
+    await workspacePreferencesActionCreators.requestPreferences()(
+      this.store.dispatch,
+      this.store.getState,
+      undefined,
+    );
   }
 }

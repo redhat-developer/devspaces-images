@@ -16,7 +16,7 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
-import getComponentRenderer, { waitFor } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
 import {
   DEV_WORKSPACE_ATTR,
   ERROR_CODE_ATTR,
@@ -52,6 +52,9 @@ describe('Creating steps, initializing', () => {
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
       .withSshKeys({
         keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
+      .withWorkspacePreferences({
+        'trusted-sources': '*',
       })
       .build();
 
@@ -197,7 +200,9 @@ describe('Creating steps, initializing', () => {
   });
 
   test('no pre-created infrastructure namespaces', async () => {
-    const storeNoNamespace = new FakeStoreBuilder().build();
+    const storeNoNamespace = new FakeStoreBuilder()
+      .withWorkspacePreferences({ 'trusted-sources': '*' })
+      .build();
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
     });
@@ -231,6 +236,7 @@ describe('Creating steps, initializing', () => {
       .withSshKeys({
         keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
       })
+      .withWorkspacePreferences({ 'trusted-sources': '*' })
       .build();
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
@@ -258,6 +264,7 @@ describe('Creating steps, initializing', () => {
   test('no SSH keys with Git+HTTPS factory URL', async () => {
     const store = new FakeStoreBuilder()
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withWorkspacePreferences({ 'trusted-sources': '*' })
       .build();
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
@@ -276,6 +283,7 @@ describe('Creating steps, initializing', () => {
     const factoryUrl = 'git@github.com:eclipse-che/che-dashboard.git';
     const store = new FakeStoreBuilder()
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withWorkspacePreferences({ 'trusted-sources': '*' })
       .build();
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
@@ -313,6 +321,60 @@ describe('Creating steps, initializing', () => {
       '_blank',
     );
     expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('source URL is not trusted', async () => {
+    const store = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withSshKeys({
+        keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
+      .withWorkspacePreferences({
+        'trusted-sources': ['some-trusted-source'],
+      })
+      .build();
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    renderComponent(store, searchParams);
+
+    const stepTitle = screen.getByTestId('step-title');
+    expect(stepTitle.textContent).not.toContain('untrusted source');
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    const stepTitleNext = screen.getByTestId('step-title');
+    expect(stepTitleNext.textContent).toContain('untrusted source');
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('samples are trusted', async () => {
+    const store = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withSshKeys({
+        keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
+      .withWorkspacePreferences({
+        'trusted-sources': ['some-trusted-source'],
+      })
+      .build();
+    const searchParams = new URLSearchParams({
+      [DEV_WORKSPACE_ATTR]: 'devworkspace-resources-url',
+    });
+
+    renderComponent(store, searchParams);
+
+    const stepTitle = screen.getByTestId('step-title');
+    expect(stepTitle.textContent).not.toContain('untrusted source');
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    const stepTitleNext = screen.getByTestId('step-title');
+    expect(stepTitleNext.textContent).not.toContain('untrusted source');
+
+    expect(mockOnNextStep).toHaveBeenCalled();
   });
 });
 

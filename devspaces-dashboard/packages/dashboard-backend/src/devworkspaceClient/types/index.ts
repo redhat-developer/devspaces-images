@@ -365,11 +365,11 @@ export interface IUserProfileApi {
   getUserProfile(namespace: string): Promise<api.IUserProfile | undefined>;
 }
 
-export interface IDevWorkspacePreferencesApi {
+export interface IWorkspacePreferencesApi {
   /**
    * Returns workspace preferences object that contains skip-authorisation info.
    */
-  getWorkspacePreferences(namespace: string): Promise<api.IDevWorkspacePreferences>;
+  getWorkspacePreferences(namespace: string): Promise<api.IWorkspacePreferences>;
 
   /**
    * Removes the target provider from skip-authorisation property from the workspace preferences object.
@@ -378,6 +378,19 @@ export interface IDevWorkspacePreferencesApi {
     namespace: string,
     provider: api.GitProvider,
   ): Promise<void>;
+
+  /**
+   * Updates list of trusted sources in the workspace preferences object.
+   */
+  addTrustedSource(
+    namespace: string,
+    source: api.TrustedSourceAll | api.TrustedSourceUrl,
+  ): Promise<void>;
+
+  /**
+   * Removes all trusted sources from the workspace preferences object.
+   */
+  removeTrustedSources(namespace: string): Promise<void>;
 }
 
 export interface IPersonalAccessTokenApi {
@@ -423,7 +436,7 @@ export interface IDevWorkspaceClient {
   gettingStartedSampleApi: IGettingStartedSampleApi;
   airGapSampleApi: IAirGapSampleApi;
   sshKeysApi: IShhKeysApi;
-  devWorkspacePreferencesApi: IDevWorkspacePreferencesApi;
+  workspacePreferencesApi: IWorkspacePreferencesApi;
   editorsApi: IEditorsApi;
 }
 
