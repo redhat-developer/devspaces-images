@@ -39,7 +39,6 @@ const gitOauth = [
 ] as IGitOauth[];
 
 const mockGetOAuthProviders = jest.fn().mockResolvedValue(gitOauth);
-const mockGetDevWorkspacePreferences = jest.fn().mockResolvedValue({});
 const mockGetOAuthToken = jest.fn().mockImplementation(provider => {
   if (provider === 'github') {
     return new Promise(resolve => resolve('github-token'));
@@ -68,7 +67,6 @@ jest.mock('@/services/backend-client/oAuthApi', () => {
   return {
     getOAuthProviders: (...args: unknown[]) => mockGetOAuthProviders(...args),
     getOAuthToken: (...args: unknown[]) => mockGetOAuthToken(...args),
-    getDevWorkspacePreferences: (...args: unknown[]) => mockGetDevWorkspacePreferences(...args),
   };
 });
 jest.mock('@/services/backend-client/personalAccessTokenApi', () => {

@@ -17,6 +17,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
 
+import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
 import { ROUTE } from '@/Routes/routes';
 import getComponentRenderer, {
   screen,
@@ -28,6 +29,7 @@ import {
   buildFactoryParams,
   DEV_WORKSPACE_ATTR,
   FACTORY_URL_ATTR,
+  FactoryParams,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { buildIdeLoaderLocation } from '@/services/helpers/location';
 import { constructWorkspace } from '@/services/workspace-adapter';
@@ -56,6 +58,21 @@ const mockOnTabChange = jest.fn();
 describe('LoaderProgress', () => {
   let history: MemoryHistory;
   let searchParams: URLSearchParams;
+  let store: Store;
+
+  beforeEach(() => {
+    store = new FakeStoreBuilder()
+      .withWorkspacePreferences({
+        'trusted-sources': '*',
+      })
+      .build();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.clearAllMocks();
+  });
 
   describe('workspace creation flow', () => {
     const factoryUrl = 'https://factory-url';
@@ -71,15 +88,12 @@ describe('LoaderProgress', () => {
     });
 
     test('snapshot', () => {
-      const store = new FakeStoreBuilder().build();
       const snapshot = createSnapshot(history, store, searchParams, false);
       expect(snapshot).toMatchSnapshot();
     });
 
     describe('steps number', () => {
       test('flow with devfile', () => {
-        const store = new FakeStoreBuilder().build();
-
         renderComponent(history, store, searchParams, false);
 
         const steps = getSteps();
@@ -101,8 +115,6 @@ describe('LoaderProgress', () => {
       });
 
       test('flow with resources', () => {
-        const store = new FakeStoreBuilder().build();
-
         searchParams.append(DEV_WORKSPACE_ATTR, 'resources-location');
         renderComponent(history, store, searchParams, false);
 
@@ -137,8 +149,6 @@ describe('LoaderProgress', () => {
 
       describe('onError', () => {
         test('alert notification for the active step', () => {
-          const store = new FakeStoreBuilder().build();
-
           renderComponent(history, store, searchParams, false);
 
           /* no alert notification */
@@ -161,8 +171,6 @@ describe('LoaderProgress', () => {
         });
 
         test('handle error for an non-active step', () => {
-          const store = new FakeStoreBuilder().build();
-
           renderComponent(history, store, searchParams, false);
 
           /* no alert notification */
@@ -180,8 +188,6 @@ describe('LoaderProgress', () => {
 
       describe('onNextStep', () => {
         test('on active step', async () => {
-          const store = new FakeStoreBuilder().build();
-
           renderComponent(history, store, searchParams, false);
 
           const steps = getSteps();
@@ -206,8 +212,6 @@ describe('LoaderProgress', () => {
         });
 
         test('on non-active step', async () => {
-          const store = new FakeStoreBuilder().build();
-
           renderComponent(history, store, searchParams, false);
 
           const steps = getSteps();
@@ -234,8 +238,6 @@ describe('LoaderProgress', () => {
 
       describe('onRestart', () => {
         test('on active step, during creation flow', async () => {
-          const store = new FakeStoreBuilder().build();
-
           const factoryParams = buildFactoryParams(searchParams);
           const localState: Partial<State> = {
             alertItems: [],
@@ -282,8 +284,6 @@ describe('LoaderProgress', () => {
             initialEntries: [location],
           });
 
-          const store = new FakeStoreBuilder().build();
-
           const factoryParams = buildFactoryParams(searchParams);
           const localState: Partial<State> = {
             alertItems: [],
@@ -328,8 +328,6 @@ describe('LoaderProgress', () => {
         });
 
         test('on non-active step', async () => {
-          const store = new FakeStoreBuilder().build();
-
           const factoryParams = buildFactoryParams(searchParams);
           const localState: Partial<State> = {
             alertItems: [],
@@ -366,12 +364,51 @@ describe('LoaderProgress', () => {
         });
       });
     });
+
+    test('untrusted source', async () => {
+      const store = new FakeStoreBuilder()
+        .withWorkspacePreferences({
+          'trusted-sources': ['some-trusted-source'],
+        })
+        .build();
+
+      searchParams.append(FACTORY_URL_ATTR, 'devfile-location');
+      renderComponent(history, store, searchParams, false);
+
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+      const modal = screen.queryByRole('dialog');
+      expect(modal).not.toBeNull();
+    });
+
+    test('samples are trusted', async () => {
+      const registryLocation = 'https://external-registries-location/';
+      const store = new FakeStoreBuilder()
+        .withDevfileRegistries({
+          registries: {
+            [registryLocation]: {},
+          },
+        })
+        .withWorkspacePreferences({
+          'trusted-sources': ['some-trusted-source'],
+        })
+        .build();
+
+      searchParams.set(FACTORY_URL_ATTR, `${registryLocation}devfile-location`);
+      renderComponent(history, store, searchParams, false);
+
+      await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+      const modal = screen.queryByRole('dialog');
+      expect(modal).toBeNull();
+    });
   });
 
-  describe('workspace staring flow', () => {
+  describe('workspace starting flow', () => {
     const namespace = 'che-user';
     const workspaceName = 'project-1';
     let devWorkspace: devfileApi.DevWorkspace;
+    const factoryUrl = 'https://factory-url';
 
     beforeEach(() => {
       devWorkspace = new DevWorkspaceBuilder()
@@ -402,7 +439,6 @@ describe('LoaderProgress', () => {
     });
 
     test('snapshot', () => {
-      const store = new FakeStoreBuilder().build();
       const snapshot = createSnapshot(history, store, searchParams, false);
       expect(snapshot).toMatchSnapshot();
     });
@@ -443,6 +479,9 @@ describe('LoaderProgress', () => {
               workspaceName,
             },
           },
+          factoryParams: {
+            sourceUrl: factoryUrl,
+          } as FactoryParams,
         });
 
         const steps = getSteps();

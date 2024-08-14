@@ -33,6 +33,7 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import { validateLocation } from '@/components/ImportFromGit/helpers';
 import RepoOptionsAccordion from '@/components/ImportFromGit/RepoOptionsAccordion';
+import UntrustedSourceModal from '@/components/UntrustedSourceModal';
 import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import { EDITOR_ATTR, EDITOR_IMAGE_ATTR } from '@/services/helpers/factoryFlow/buildFactoryParams';
 import { buildUserPreferencesLocation } from '@/services/helpers/location';
@@ -54,6 +55,7 @@ export type State = {
   locationValidated: ValidatedOptions;
   remotesValidated: ValidatedOptions;
   isFocused: boolean;
+  isConfirmationOpen: boolean;
 };
 
 class ImportFromGit extends React.PureComponent<Props, State> {
@@ -66,6 +68,7 @@ class ImportFromGit extends React.PureComponent<Props, State> {
       location: '',
       remotesValidated: ValidatedOptions.default,
       isFocused: false,
+      isConfirmationOpen: false,
     };
   }
 
@@ -79,7 +82,24 @@ class ImportFromGit extends React.PureComponent<Props, State> {
     }
   }
 
+  private openConfirmationDialog(): void {
+    this.setState({ isConfirmationOpen: true });
+  }
+
+  private handleConfirmationOnClose(): void {
+    this.setState({ isConfirmationOpen: false });
+  }
+
+  private handleConfirmationOnContinue(): void {
+    this.setState({ isConfirmationOpen: false });
+    this.startFactory();
+  }
+
   private handleCreate(): void {
+    this.openConfirmationDialog();
+  }
+
+  private startFactory(): void {
     const { editorDefinition, editorImage } = this.props;
     const factory = new FactoryLocationAdapter(this.state.location);
 
@@ -192,30 +212,38 @@ class ImportFromGit extends React.PureComponent<Props, State> {
 
   public render() {
     const { history } = this.props;
-    const { locationValidated, location } = this.state;
+    const { isConfirmationOpen, location, locationValidated } = this.state;
     return (
-      <Panel>
-        <PanelHeader>
-          <Title headingLevel="h3">Import from Git</Title>
-        </PanelHeader>
-        <PanelMain>
-          <PanelMainBody>{this.buildForm()}</PanelMainBody>
-        </PanelMain>
-        {locationValidated === ValidatedOptions.success && (
+      <>
+        <UntrustedSourceModal
+          location={location}
+          isOpen={isConfirmationOpen}
+          onContinue={() => this.handleConfirmationOnContinue()}
+          onClose={() => this.handleConfirmationOnClose()}
+        />
+        <Panel>
+          <PanelHeader>
+            <Title headingLevel="h3">Import from Git</Title>
+          </PanelHeader>
           <PanelMain>
-            <PanelMainBody>
-              <RepoOptionsAccordion
-                location={location}
-                history={history}
-                onChange={(location: string, remotesValidated: ValidatedOptions) => {
-                  const locationValidated = validateLocation(location, this.state.hasSshKeys);
-                  this.setState({ location, remotesValidated, locationValidated });
-                }}
-              />
-            </PanelMainBody>
+            <PanelMainBody>{this.buildForm()}</PanelMainBody>
           </PanelMain>
-        )}
-      </Panel>
+          {locationValidated === ValidatedOptions.success && (
+            <PanelMain>
+              <PanelMainBody>
+                <RepoOptionsAccordion
+                  location={location}
+                  history={history}
+                  onChange={(location: string, remotesValidated: ValidatedOptions) => {
+                    const locationValidated = validateLocation(location, this.state.hasSshKeys);
+                    this.setState({ location, remotesValidated, locationValidated });
+                  }}
+                />
+              </PanelMainBody>
+            </PanelMain>
+          )}
+        </Panel>
+      </>
     );
   }
 }

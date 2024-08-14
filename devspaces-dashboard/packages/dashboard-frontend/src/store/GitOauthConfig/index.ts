@@ -16,12 +16,14 @@ import { Action, Reducer } from 'redux';
 import { provisionKubernetesNamespace } from '@/services/backend-client/kubernetesNamespaceApi';
 import {
   deleteOAuthToken,
-  deleteSkipOauthProvider,
-  getDevWorkspacePreferences,
   getOAuthProviders,
   getOAuthToken,
 } from '@/services/backend-client/oAuthApi';
 import { fetchTokens } from '@/services/backend-client/personalAccessTokenApi';
+import {
+  deleteSkipOauthProvider,
+  getWorkspacePreferences,
+} from '@/services/backend-client/workspacePreferencesApi';
 import { IGitOauth } from '@/store/GitOauthConfig/types';
 import { createObject } from '@/store/helpers';
 import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
@@ -105,7 +107,7 @@ export const actionCreators: ActionCreators = {
 
       const defaultKubernetesNamespace = selectDefaultNamespace(getState());
       try {
-        const devWorkspacePreferences = await getDevWorkspacePreferences(
+        const devWorkspacePreferences = await getWorkspacePreferences(
           defaultKubernetesNamespace.name,
         );
 

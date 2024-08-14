@@ -69,7 +69,7 @@ describe('Dashboard bootstrap', () => {
 
   test('requests which should be sent', async () => {
     prepareMocks(mockPost, 1, namespace); // provisionNamespace
-    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, default-editor, devfile-registry, getting-started-sample, devworkspaces, events, pods, cluster-config, ssh-key
+    prepareMocks(mockGet, 16, []); // branding, namespace, prefetch, server-config, cluster-info, userprofile, default-editor, devfile-registry, getting-started-sample, devworkspaces, events, pods, cluster-config, ssh-key, workspace-preferences
 
     await preloadData.init();
 
@@ -81,7 +81,7 @@ describe('Dashboard bootstrap', () => {
       undefined,
     );
     // wait for all GET requests to be sent
-    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(15));
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(16));
 
     await waitFor(() =>
       expect(mockGet).toHaveBeenCalledWith('/dashboard/api/namespace/test-che/ssh-key', undefined),

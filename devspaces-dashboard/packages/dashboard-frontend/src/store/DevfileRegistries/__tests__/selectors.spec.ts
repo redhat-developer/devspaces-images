@@ -20,7 +20,7 @@ import devfileApi from '@/services/devfileApi';
 import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
+import { selectDefaultDevfile, selectIsRegistryDevfile } from '@/store/DevfileRegistries/selectors';
 
 describe('devfileRegistries selectors', () => {
   const registryUrl = 'https://registry-url';
@@ -86,5 +86,36 @@ describe('devfileRegistries selectors', () => {
         },
       ],
     });
+  });
+
+  test('if devfile is from registry or not', () => {
+    const fakeStore = new FakeStoreBuilder()
+      .withDevfileRegistries({
+        registries: {
+          [registryUrl]: {
+            metadata: [registryMetadata],
+          },
+        },
+        devfiles: {
+          [sampleResourceUrl]: {
+            content: sampleContent,
+          },
+        },
+      })
+      .withDwServerConfig({
+        defaults: {
+          components: defaultComponents,
+        },
+      } as api.IServerConfig)
+      .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
+    const state = fakeStore.getState();
+
+    const ifRegistryDevfileFn = selectIsRegistryDevfile(state);
+
+    const registryDevfileUrl = `${registryUrl}/devfile.yaml`;
+    expect(ifRegistryDevfileFn(registryDevfileUrl)).toBeTruthy();
+
+    const otherDevfileUrl = 'https://other-url/devfile.yaml';
+    expect(ifRegistryDevfileFn(otherDevfileUrl)).toBeFalsy();
   });
 });

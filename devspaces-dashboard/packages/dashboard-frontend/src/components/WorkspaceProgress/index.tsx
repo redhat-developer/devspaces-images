@@ -16,6 +16,7 @@ import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
+import UntrustedSourceModal from '@/components/UntrustedSourceModal';
 import { ProgressAlert } from '@/components/WorkspaceProgress/Alert';
 import CommonStepCheckRunningWorkspacesLimit from '@/components/WorkspaceProgress/CommonSteps/CheckRunningWorkspacesLimit';
 import CreatingStepApplyDevfile from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile';
@@ -42,7 +43,9 @@ import { getLoaderMode, LoaderMode } from '@/services/helpers/factoryFlow/getLoa
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
+import { selectIsRegistryDevfile } from '@/store/DevfileRegistries/selectors';
 import * as WorkspaceStore from '@/store/Workspaces';
+import { selectPreferencesIsTrustedSource } from '@/store/Workspaces/Preferences';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps & {
@@ -59,6 +62,7 @@ export type State = {
   doneSteps: StepId[];
   factoryParams: FactoryParams;
   initialLoaderMode: LoaderMode;
+  isSourceTrustedWarningOpen: boolean;
 };
 
 export enum Step {
@@ -93,6 +97,7 @@ class Progress extends React.Component<Props, State> {
       doneSteps: [],
       factoryParams,
       initialLoaderMode,
+      isSourceTrustedWarningOpen: true,
     };
   }
 
@@ -121,6 +126,11 @@ class Progress extends React.Component<Props, State> {
       return true;
     }
 
+    // if confirmation modal is open or closed
+    if (this.state.isSourceTrustedWarningOpen !== nextState.isSourceTrustedWarningOpen) {
+      return true;
+    }
+
     return false;
   }
 
@@ -133,6 +143,18 @@ class Progress extends React.Component<Props, State> {
   }
 
   private init(props: Props, state: State, prevProps: Props | undefined): void {
+    if (this.state.isSourceTrustedWarningOpen === true) {
+      const { sourceUrl } = this.state.factoryParams;
+      const isTrustedSource = this.props.isTrustedSource(sourceUrl);
+      const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
+      // trust source if it is taken from the registry or it is in the list of trusted sources
+      if (isRegistryDevfile || isTrustedSource) {
+        this.setState({
+          isSourceTrustedWarningOpen: false,
+        });
+      }
+    }
+
     const workspace = this.findTargetWorkspace(props);
     const prevWorkspace = this.findTargetWorkspace(prevProps);
 
@@ -628,14 +650,33 @@ class Progress extends React.Component<Props, State> {
     });
   }
 
+  private handleConfirmationOnContinue(): void {
+    this.setState({
+      isSourceTrustedWarningOpen: false,
+    });
+  }
+
+  private handleConfirmationOnClose(): void {
+    this.setState({
+      isSourceTrustedWarningOpen: false,
+    });
+  }
+
   render(): React.ReactNode {
     const { showToastAlert } = this.props;
-    const { alertItems, activeStepId: activeStep } = this.state;
+    const { alertItems, activeStepId: activeStep, isSourceTrustedWarningOpen } = this.state;
 
     const steps = this.getSteps();
+    const { sourceUrl } = this.state.factoryParams;
 
     return (
       <React.Fragment>
+        <UntrustedSourceModal
+          location={sourceUrl}
+          isOpen={isSourceTrustedWarningOpen}
+          onContinue={() => this.handleConfirmationOnContinue()}
+          onClose={() => this.handleConfirmationOnClose()}
+        />
         <ProgressAlert isToast={showToastAlert} alertItems={alertItems} />
         <WorkspaceProgressWizard
           ref={this.wizardRef}
@@ -650,6 +691,8 @@ class Progress extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
+  isRegistryDevfile: selectIsRegistryDevfile(state),
+  isTrustedSource: selectPreferencesIsTrustedSource(state),
 });
 
 const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {

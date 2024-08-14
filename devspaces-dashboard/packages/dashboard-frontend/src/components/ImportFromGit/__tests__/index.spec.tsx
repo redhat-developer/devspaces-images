@@ -48,6 +48,9 @@ describe('GitRepoLocationInput', () => {
           pvcStrategy: 'per-workspace',
         },
       })
+      .withWorkspacePreferences({
+        'trusted-sources': '*',
+      })
       .build();
   });
 
@@ -76,6 +79,63 @@ describe('GitRepoLocationInput', () => {
 
     userEvent.type(input, '{enter}');
     expect(window.open).not.toHaveBeenCalled();
+  });
+
+  describe('trusted/untrusted source', () => {
+    jest.mock('@/components/UntrustedSourceModal');
+
+    test('untrusted source', () => {
+      const store = new FakeStoreBuilder()
+        .withDwServerConfig({
+          defaults: {
+            editor: defaultEditorId,
+            components: [],
+            plugins: [],
+            pvcStrategy: 'per-workspace',
+          },
+        })
+        .withWorkspacePreferences({
+          'trusted-sources': ['repo1', 'repo2'],
+        })
+        .build();
+      renderComponent(store);
+
+      const input = screen.getByRole('textbox');
+      expect(input).toBeValid();
+
+      userEvent.paste(input, 'http://test-location');
+
+      expect(input).toHaveValue('http://test-location');
+
+      const button = screen.getByRole('button', { name: 'Create & Open' });
+      userEvent.click(button);
+
+      const untrustedSourceModal = screen.queryByRole('dialog', {
+        name: /Do you trust the authors of this repository/i,
+      });
+      expect(untrustedSourceModal).not.toBeNull();
+
+      expect(window.open).not.toHaveBeenCalled();
+    });
+
+    test('trusted source', () => {
+      renderComponent(store);
+
+      const input = screen.getByRole('textbox');
+      expect(input).toBeValid();
+
+      userEvent.paste(input, 'http://test-location');
+
+      expect(input).toHaveValue('http://test-location');
+
+      const button = screen.getByRole('button', { name: 'Create & Open' });
+      userEvent.click(button);
+
+      const untrustedSourceModal = screen.queryByRole('dialog', { name: /untrusted source/i });
+      expect(untrustedSourceModal).toBeNull();
+
+      expect(window.open).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('valid HTTP location', () => {
@@ -290,6 +350,9 @@ describe('GitRepoLocationInput', () => {
     test('with SSH keys, the `che-editor` parameter is omitted', () => {
       const store = new FakeStoreBuilder()
         .withSshKeys({ keys: [{ name: 'key1', keyPub: 'publicKey' }] })
+        .withWorkspacePreferences({
+          'trusted-sources': '*',
+        })
         .build();
       renderComponent(store, editorId, editorImage);
 
@@ -316,6 +379,9 @@ describe('GitRepoLocationInput', () => {
     test('with SSH keys, the `che-editor` parameter is set', () => {
       const store = new FakeStoreBuilder()
         .withSshKeys({ keys: [{ name: 'key1', keyPub: 'publicKey' }] })
+        .withWorkspacePreferences({
+          'trusted-sources': '*',
+        })
         .build();
       renderComponent(store, editorId, editorImage);
 

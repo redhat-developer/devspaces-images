@@ -23,6 +23,7 @@ import {
   getRestartInDebugModeLocation,
   getRestartInSafeModeLocation,
 } from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace/prepareRestart';
+import { ToggleBarsContext } from '@/contexts/ToggleBars';
 import styles from '@/pages/Loader/index.module.css';
 import { DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
@@ -40,6 +41,9 @@ export type State = {
 };
 
 export class LoaderPage extends React.PureComponent<Props, State> {
+  static contextType = ToggleBarsContext;
+  readonly context: React.ContextType<typeof ToggleBarsContext>;
+
   private readonly appliedSafeMode: { [key: string]: boolean };
 
   constructor(props: Props) {
@@ -53,6 +57,11 @@ export class LoaderPage extends React.PureComponent<Props, State> {
     };
 
     this.appliedSafeMode = {};
+  }
+
+  componentDidMount(): void {
+    // hide top and side bars
+    this.context.hideAll();
   }
 
   private handleTabClick(tabIndex: React.ReactText): void {

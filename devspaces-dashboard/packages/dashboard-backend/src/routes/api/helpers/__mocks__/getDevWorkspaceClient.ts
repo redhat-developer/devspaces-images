@@ -36,6 +36,7 @@ import {
   IServerConfigApi,
   IShhKeysApi,
   IUserProfileApi,
+  IWorkspacePreferencesApi,
 } from '@/devworkspaceClient';
 import { getDevWorkspaceClient as helper } from '@/routes/api/helpers/getDevWorkspaceClient';
 
@@ -153,6 +154,11 @@ export const stubAutoProvision = true;
 
 export const stubAdvancedAuthorization = {};
 
+export const stubWorkspacePreferences: api.IWorkspacePreferences = {
+  'skip-authorisation': ['github'],
+  'trusted-sources': '*',
+};
+
 export const getDevWorkspaceClient = jest.fn(
   (..._args: Parameters<typeof helper>): ReturnType<typeof helper> => {
     return {
@@ -236,6 +242,12 @@ export const getDevWorkspaceClient = jest.fn(
         delete: (_namespace, _name) => Promise.resolve(),
         list: _namespace => Promise.resolve(stubSshKeysList),
       } as IShhKeysApi,
+      workspacePreferencesApi: {
+        addTrustedSource: (_namespace, _source) => Promise.resolve(),
+        getWorkspacePreferences: _namespace => Promise.resolve(stubWorkspacePreferences),
+        removeProviderFromSkipAuthorizationList: (_namespace, _provider) => Promise.resolve(),
+        removeTrustedSources: _namespace => Promise.resolve(),
+      } as IWorkspacePreferencesApi,
     } as DevWorkspaceClient;
   },
 );

@@ -33,6 +33,11 @@ export const selectRegistriesMetadata = createSelector(selectState, devfileRegis
   return filterDevfileV2Metadata(metadata);
 });
 
+export const selectIsRegistryDevfile = createSelector(selectState, state => {
+  const registriesUrls = Object.keys(state.registries);
+  return (url: string) => registriesUrls.some(registryUrl => url.startsWith(registryUrl));
+});
+
 export const selectRegistriesErrors = createSelector(selectState, state => {
   const errors: Array<{ url: string; errorMessage: string }> = [];
   for (const [url, value] of Object.entries(state.registries)) {

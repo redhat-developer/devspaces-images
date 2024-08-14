@@ -25,7 +25,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import {
   CREATE_DEVWORKSPACE_DELAY,
   CREATE_DEVWORKSPACETEMPLATE_DELAY,
-  DEVWORKSPACE_RESOURSES_DELAY,
+  DEVWORKSPACE_RESOURCES_DELAY,
   devworkspaceResources,
   editors,
   FACTORY_RESOLVER_DELAY,
@@ -96,6 +96,10 @@ describe('Workspace creation time', () => {
               },
             ],
           })
+          .withWorkspacePreferences({
+            'skip-authorisation': ['github'],
+            'trusted-sources': '*',
+          })
           .build(),
       ),
     );
@@ -117,7 +121,7 @@ describe('Workspace creation time', () => {
             resolve({
               data: devworkspaceResources,
             }),
-          DEVWORKSPACE_RESOURSES_DELAY,
+          DEVWORKSPACE_RESOURCES_DELAY,
         ),
       ),
     );
@@ -202,6 +206,7 @@ describe('Workspace creation time', () => {
       ),
     );
 
+    await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(3));
     await waitFor(
       () =>
         expect(mockPost.mock.calls).toEqual([
@@ -213,7 +218,6 @@ describe('Workspace creation time', () => {
         ]),
       { timeout: 1500 },
     );
-    expect(mockPost).toHaveBeenCalledTimes(3);
 
     await waitFor(
       () =>

@@ -34,8 +34,10 @@ import { buildUserPreferencesLocation, toHref } from '@/services/helpers/locatio
 import { AlertItem, UserPreferencesTab } from '@/services/helpers/types';
 import { AppState } from '@/store';
 import { selectAllWorkspacesLimit } from '@/store/ClusterConfig/selectors';
+import { selectIsRegistryDevfile } from '@/store/DevfileRegistries/selectors';
 import { selectInfrastructureNamespaces } from '@/store/InfrastructureNamespaces/selectors';
 import { selectSshKeys } from '@/store/SshKeys/selectors';
+import { selectPreferencesIsTrustedSource } from '@/store/Workspaces/Preferences';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
@@ -44,6 +46,8 @@ export type Props = MappedProps &
   };
 export type State = ProgressStepState & {
   factoryParams: FactoryParams;
+  isSourceTrusted: boolean;
+  isWarning: boolean;
 };
 
 class CreatingStepInitialize extends ProgressStep<Props, State> {
@@ -54,7 +58,9 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
 
     this.state = {
       factoryParams: buildFactoryParams(props.searchParams),
+      isSourceTrusted: false,
       name: this.name,
+      isWarning: false,
     };
   }
 
@@ -89,6 +95,17 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       return true;
     }
 
+    // source URL trusted/untrusted
+    const { sourceUrl } = nextState.factoryParams;
+    if (this.state.isSourceTrusted !== this.isSourceTrusted(sourceUrl)) {
+      return true;
+    }
+
+    // name or warning changed
+    if (this.state.name !== nextState.name || this.state.isWarning !== nextState.isWarning) {
+      return true;
+    }
+
     return false;
   }
 
@@ -105,6 +122,26 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       throw new Error(
         `Repository/Devfile URL is missing. Please specify it via url query param: ${window.location.origin}${window.location.pathname}#${factoryPath}`,
       );
+    }
+
+    // skip source validation for devworkspace resources (samples)
+    if (useDevWorkspaceResources === false) {
+      // check if the source is trusted
+      const isSourceTrusted = this.isSourceTrusted(sourceUrl);
+      if (isSourceTrusted === true) {
+        this.setState({
+          isSourceTrusted,
+          isWarning: false,
+          name: this.name,
+        });
+      } else {
+        this.setState({
+          isSourceTrusted,
+          isWarning: true,
+          name: 'Warning: untrusted source',
+        });
+        return false;
+      }
     }
 
     // find error codes
@@ -200,28 +237,35 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     }
   }
 
+  private isSourceTrusted(sourceUrl: string): boolean {
+    const isTrustedSource = this.props.isTrustedSource(sourceUrl);
+    const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
+    if (isRegistryDevfile || isTrustedSource) {
+      return true;
+    }
+    return false;
+  }
+
   render(): React.ReactElement {
     const { distance, hasChildren } = this.props;
     const { name, lastError } = this.state;
 
     let isError = lastError !== undefined;
     let isWarning = false;
-    if (lastError instanceof NoSshKeysError) {
+    if (lastError instanceof NoSshKeysError || this.state.isWarning) {
       isWarning = true;
       isError = false;
     }
 
     return (
-      <React.Fragment>
-        <ProgressStepTitle
-          distance={distance}
-          hasChildren={hasChildren}
-          isError={isError}
-          isWarning={isWarning}
-        >
-          {name}
-        </ProgressStepTitle>
-      </React.Fragment>
+      <ProgressStepTitle
+        distance={distance}
+        hasChildren={hasChildren}
+        isError={isError}
+        isWarning={isWarning}
+      >
+        {name}
+      </ProgressStepTitle>
     );
   }
 }
@@ -241,9 +285,11 @@ export class NoSshKeysError extends Error {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  infrastructureNamespaces: selectInfrastructureNamespaces(state),
   allWorkspaces: selectAllWorkspaces(state),
   allWorkspacesLimit: selectAllWorkspacesLimit(state),
+  infrastructureNamespaces: selectInfrastructureNamespaces(state),
+  isRegistryDevfile: selectIsRegistryDevfile(state),
+  isTrustedSource: selectPreferencesIsTrustedSource(state),
   sshKeys: selectSshKeys(state),
 });
 

@@ -36,6 +36,10 @@ import * as UserIdStore from '@/store/User/Id';
 import * as UserProfileStore from '@/store/User/Profile';
 import * as WorkspacesStore from '@/store/Workspaces';
 import * as DevWorkspacesStore from '@/store/Workspaces/devWorkspaces';
+import {
+  workspacePreferencesReducer,
+  WorkspacePreferencesState,
+} from '@/store/Workspaces/Preferences';
 
 // the top-level state object
 export interface AppState {
@@ -43,8 +47,8 @@ export interface AppState {
   branding: BrandingStore.State;
   clusterConfig: ClusterConfig.State;
   clusterInfo: ClusterInfo.State;
-  devWorkspaces: DevWorkspacesStore.State;
   devfileRegistries: DevfileRegistriesStore.State;
+  devWorkspaces: DevWorkspacesStore.State;
   dockerConfig: DockerConfigStore.State;
   dwPlugins: DwPluginsStore.State;
   dwServerConfig: DwServerConfigStore.State;
@@ -62,6 +66,7 @@ export interface AppState {
   userId: UserIdStore.State;
   userProfile: UserProfileStore.State;
   workspaces: WorkspacesStore.State;
+  workspacePreferences: WorkspacePreferencesState;
 }
 
 export const reducers = {
@@ -69,8 +74,8 @@ export const reducers = {
   branding: BrandingStore.reducer,
   clusterConfig: ClusterConfig.reducer,
   clusterInfo: ClusterInfo.reducer,
-  devWorkspaces: DevWorkspacesStore.reducer,
   devfileRegistries: DevfileRegistriesStore.reducer,
+  devWorkspaces: DevWorkspacesStore.reducer,
   dockerConfig: DockerConfigStore.reducer,
   dwPlugins: DwPluginsStore.reducer,
   dwServerConfig: DwServerConfigStore.reducer,
@@ -87,6 +92,7 @@ export const reducers = {
   sshKeys: SshKeysStore.reducer,
   userId: UserIdStore.reducer,
   userProfile: UserProfileStore.reducer,
+  workspacePreferences: workspacePreferencesReducer,
   workspaces: WorkspacesStore.reducer,
 };
 

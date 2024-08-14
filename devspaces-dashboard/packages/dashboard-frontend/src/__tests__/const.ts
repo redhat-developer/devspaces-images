@@ -16,7 +16,7 @@ import devfileApi from '@/services/devfileApi';
 import { FactoryResolver } from '@/services/helpers/types';
 
 export const FACTORY_RESOLVER_DELAY = 600;
-export const DEVWORKSPACE_RESOURSES_DELAY = 600;
+export const DEVWORKSPACE_RESOURCES_DELAY = 600;
 export const CREATE_DEVWORKSPACE_DELAY = 200;
 export const CREATE_DEVWORKSPACETEMPLATE_DELAY = 200;
 export const PATCH_DEVWORKSPACE_DELAY = 100;
