@@ -402,7 +402,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
       if [[ ${CONTAINER_IMAGE} == *"@"*  ]]; then
         # We don't need to encode the image name if it contains a digest
         SAMPLE_NAME=$(yq -r '.metadata.name' /tmp/devfile.yaml | sed 's|-|_|g')
-        COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml)
+        COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml | sed 's|-|_|g')
         CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}"
       elif [[ ${CONTAINER_IMAGE} == *":"* ]]; then
         # Encode the image name if it contains a tag
