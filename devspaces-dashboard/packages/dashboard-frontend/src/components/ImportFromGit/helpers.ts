@@ -250,7 +250,7 @@ export function getGitRepoOptionsFromLocation(location: string): {
   location =
     searchParams.toString().length === 0 ? `${path}` : `${path}?${searchParams.toString()}`;
   const hasSupportedGitService = isSupportedGitService(location);
-  let gitBranch = hasSupportedGitService ? getBranchFromLocation(location) : undefined;
+  let gitBranch: string | undefined = undefined;
   if (hasSupportedGitService) {
     try {
       gitBranch = getBranchFromLocation(location);

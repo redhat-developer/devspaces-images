@@ -78,7 +78,7 @@ describe('AdditionalGitRemote', () => {
         const inputURL = screen.getByPlaceholderText('HTTP or SSH URL');
         expect(inputURL).toHaveValue('htps://test-1.repo.git');
 
-        const error = screen.findByText('The URL or SSHLocation is not valid');
+        const error = screen.queryByText('The URL or SSHLocation is not valid');
         expect(error).toBeDefined();
 
         const isValidation = callbacks.getValidation ? callbacks.getValidation() : true;
@@ -94,7 +94,7 @@ describe('AdditionalGitRemote', () => {
         const inputURL = screen.getByPlaceholderText('HTTP or SSH URL');
         expect(inputURL).toHaveValue('git@github.com:eclipse-che/che-dashboard.git');
 
-        const error = screen.findByText('No SSH keys found');
+        const error = screen.queryByText('No SSH keys found');
         expect(error).toBeDefined();
 
         const isValidation = callbacks.getValidation ? callbacks.getValidation() : true;
