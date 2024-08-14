@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.16
-    createdAt: "2024-08-12T09:08:53+00:00"
+    createdAt: "2024-08-14T08:05:24+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
@@ -904,6 +904,12 @@ spec:
                       - name: RELATED_IMAGE_pvc_jobs
                         value: registry.redhat.io/ubi8/ubi-minimal:8.8
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_sample_ansible_demo_tooling-container
+                        value: ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce
+                      - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL2RldnNwYWNlcy91ZGktcmhlbDg6My4xNgo____
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.16
+                      - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL3Joc2NsL21vbmdvZGItMzYtcmhlbDc6MS01MAo____
                         value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                       - name: RELATED_IMAGE_single_host_gateway
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.16
