@@ -115,3 +115,11 @@ commands:
       commandLine: "yarn --cwd  packages/dashboard-backend build --env bundleAnalyzer=true"
       group:
         kind: build
+  - id: install-requirements
+    exec:
+      component: tools
+      commandLine: "npm i yarn@1.22.18 -g"
+      label: Install yarn@1.22.18
+events:
+  postStart:
+    - "install-requirements"
