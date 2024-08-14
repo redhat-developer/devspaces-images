@@ -448,7 +448,7 @@ RUN yarn \
 # NOTE: can't use scatch images in OSBS, because unable to start container process: exec: \"/bin/sh\": stat /bin/sh: no such file or directory
 # so we must rebuild machineexec binary in this build
 # https://registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.21.11-1 as machineexec-builder
+FROM rhel8/go-toolset:1.21.11-8 as machineexec-builder
 ENV GOPATH=/go/
 # hadolint ignore=DL3002
 USER root
