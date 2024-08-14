@@ -416,7 +416,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
           RELATED_IMAGES_ENV="${ENV}"
         elif [[ ! ${RELATED_IMAGES_ENV} =~ ${CONTAINER_IMAGE_ENV_NAME} ]]; then
           RELATED_IMAGES_ENV="${RELATED_IMAGES_ENV}, ${ENV}"
-        fiz
+        fi
       fi
 
       CONTAINER_INDEX=$((CONTAINER_INDEX+1))
