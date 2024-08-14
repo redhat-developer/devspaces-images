@@ -60,7 +60,7 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry
 #
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
 USER 0
 WORKDIR /
 
@@ -184,7 +184,7 @@ RUN \
     chgrp -R 0 /var/lib/pgsql /var/lib/pgsql/15 /var/lib/pgsql/data /var/lib/pgsql/backups && \
     mv /var/lib/pgsql/15/data/database /var/lib/pgsql/15/data/old
 
-ARG DS_BRANCH=devspaces-3-rhel-8
+ARG DS_BRANCH=devspaces-3.16-rhel-8
 ENV DS_BRANCH=${DS_BRANCH}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
