@@ -1,0 +1,350 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> 375c66f48e91
+STEP 3/23: ARG BOOTSTRAP=true
+--> f34013e9e10e
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 2e94aaf18c4c
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> b17608904e51
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 3c1cb79ba8fc
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 9b0c9588436c
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 912967b2c58d
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> c502ad1d68de
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 2b1d19807ed4
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-5.el8.x86_64             chkconfig-1.19.2-1.el8.x86_64           
+  dnf-4.7.0-20.el8.noarch              dnf-data-4.7.0-20.el8.noarch            
+  findutils-1:4.6.0-22.el8.x86_64      git-2.43.5-1.el8_10.x86_64              
+  git-core-2.43.5-1.el8_10.x86_64      git-core-doc-2.43.5-1.el8_10.noarch     
+  perl-Git-2.43.5-1.el8_10.noarch      python3-dnf-4.7.0-20.el8.noarch         
+  wget-1.19.5-12.el8_10.x86_64         yum-4.7.0-20.el8.noarch                 
+Installed:
+  containers-common-2:1-82.module+el8.10.0+22202+761b9a65.x86_64                
+  criu-3.18-5.module+el8.10.0+22202+761b9a65.x86_64                             
+  fuse-common-3.3.0-19.el8.x86_64                                               
+  fuse-overlayfs-1.13-1.module+el8.10.0+22202+761b9a65.x86_64                   
+  fuse3-3.3.0-19.el8.x86_64                                                     
+  fuse3-libs-3.3.0-19.el8.x86_64                                                
+  jq-1.6-9.el8_10.x86_64                                                        
+  kmod-25-20.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-2.module+el8.10.0+22202+761b9a65.x86_64                        
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-3.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.9-2.el8_10.x86_64                                             
+  python3.11-devel-3.11.9-2.el8_10.x86_64                                       
+  python3.11-libs-3.11.9-2.el8_10.x86_64                                        
+  python3.11-pip-22.3.1-5.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-5.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.12-4.module+el8.10.0+22202+761b9a65.x86_64                         
+  skopeo-2:1.14.5-3.module+el8.10.0+22202+761b9a65.x86_64                       
+  slirp4netns-1.2.3-1.module+el8.10.0+22202+761b9a65.x86_64                     
+
+Collecting yq
+  Downloading yq-3.4.3-py3-none-any.whl (18 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.5.0-py3-none-any.whl (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.5/43.5 kB 8.1 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-24.2-py3-none-any.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 1.3 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (762 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 763.0/763.0 kB 1.4 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.13.2-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.2 argcomplete-3.5.0 pip-24.2 tomlkit-0.13.2 xmltodict-0.13.0 yq-3.4.3
+python: Python 3.8.16
+yq: yq 3.4.3
+jq: jq-1.6
+--> 7ac43308f4fe
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 423780ab4df4
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> bbcc23bdb80f
+STEP 14/23: COPY ./VERSION /
+--> da52c006489b
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 1ff2ad263758
+STEP 16/23: WORKDIR /build/
+--> e37f80f1d230
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 83 contributors and audited 31 packages in 4.048s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> ab748f6c8f30
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 5d4dee837728
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.17 PASS - 3.17 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.17 PASS - 3.17 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.17 PASS - 3.17 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 9652d065f931
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> f7635f3fc539
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> f2baa4dcc927
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 7d506b8c9185
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> b74ae035e709
+Successfully tagged localhost/devfileregistry:tmp
+b74ae035e709490d675814e118b2d8e9748c8745f4a0483304c106c0bbc72817
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz from https://pkgs.devel.redhat.com/repo/
+Downloading resources.tgz from https://pkgs.devel.redhat.com/repo/
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/api.py /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/api.py
+--- /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/api.py	2024-08-06 18:22:48.000000000 -0400
++++ /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/api.py	2024-08-15 04:52:17.305473479 -0400
+@@ -75,6 +75,11 @@
+ 
+     :param data: a dict-like object to dump
+     :param sort_keys: if true, sort the keys in alphabetic order
++
++    :Example:
++
++    >>> with open("output.toml", "w") as fp:
++    ...     tomlkit.dump(data, fp)
+     """
+     fp.write(dumps(data, sort_keys=sort_keys))
+ 
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/container.py /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/container.py
+--- /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/container.py	2024-08-06 18:22:48.000000000 -0400
++++ /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/container.py	2024-08-15 04:52:17.305473479 -0400
+@@ -814,7 +814,7 @@
+                 table_idx = len(self._tables) - 1
+                 for k, v in item.value.body:
+                     self._internal_container._raw_append(k, v)
+-                    self._tables_map[k] = table_idx
++                    self._tables_map.setdefault(k, []).append(table_idx)
+                     if k is not None:
+                         dict.__setitem__(self, k.key, v)
+ 
+@@ -835,8 +835,12 @@
+ 
+     def __setitem__(self, key: Key | str, item: Any) -> None:
+         if key in self._tables_map:
+-            table = self._tables[self._tables_map[key]]
+-            table[key] = item
++            # Overwrite the first table and remove others
++            indices = self._tables_map[key]
++            while len(indices) > 1:
++                table = self._tables[indices.pop()]
++                self._remove_table(table)
++            self._tables[indices[0]][key] = item
+         elif self._tables:
+             table = self._tables[0]
+             table[key] = item
+@@ -856,15 +860,16 @@
+                 break
+ 
+     def __delitem__(self, key: Key | str) -> None:
+-        if key in self._tables_map:
+-            table = self._tables[self._tables_map[key]]
++        if key not in self._tables_map:
++            raise NonExistentKey(key)
++
++        for i in reversed(self._tables_map[key]):
++            table = self._tables[i]
+             del table[key]
+             if not table and len(self._tables) > 1:
+                 self._remove_table(table)
+-            del self._tables_map[key]
+-        else:
+-            raise NonExistentKey(key)
+ 
++        del self._tables_map[key]
+         del self._internal_container[key]
+         if key is not None:
+             dict.__delitem__(self, key)
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/__init__.py /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/__init__.py
+--- /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/__init__.py	2024-08-06 18:22:48.000000000 -0400
++++ /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/__init__.py	2024-08-15 04:52:17.305473479 -0400
+@@ -27,7 +27,7 @@
+ from tomlkit.api import ws
+ 
+ 
+-__version__ = "0.13.0"
++__version__ = "0.13.2"
+ __all__ = [
+     "aot",
+     "array",
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/items.py /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/items.py
+--- /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages/tomlkit/items.py	2024-08-06 18:22:48.000000000 -0400
++++ /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages/tomlkit/items.py	2024-08-15 04:52:17.305473479 -0400
+@@ -1621,11 +1621,23 @@
+         If true, it won't appear in the TOML representation."""
+         if self._is_super_table is not None:
+             return self._is_super_table
+-        # If the table has only one child and that child is a table, then it is a super table.
+-        if len(self) != 1:
++        if not self:
+             return False
+-        only_child = next(iter(self.values()))
+-        return isinstance(only_child, (Table, AoT))
++        # If the table has children and all children are tables, then it is a super table.
++        for k, child in self.items():
++            if not isinstance(k, Key):
++                k = SingleKey(k)
++            index = self.value._map[k]
++            if isinstance(index, tuple):
++                return False
++            real_key = self.value.body[index][0]
++            if (
++                not isinstance(child, (Table, AoT))
++                or real_key is None
++                or real_key.is_dotted()
++            ):
++                return False
++        return True
+ 
+     def as_string(self) -> str:
+         return self._value.as_string()
+Only in /tmp/tmp.ZF4oHQOROA/lib/python3.11/site-packages: tomlkit-0.13.0.dist-info
+Only in /tmp/tmp.PnMgjnMXLL/lib/python3.11/site-packages: tomlkit-0.13.2.dist-info
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: b74ae035e709490d675814e118b2d8e9748c8745f4a0483304c106c0bbc72817
+Deleted: 7d506b8c9185c14f28eb91fdb624a697f6587b127502a98a15ef1c49f1b1de93
+Deleted: f2baa4dcc9278a938020f159e9b40769732c40bdbe43c48ef51957edd3b52724
+Deleted: f7635f3fc5399dd2abfbfdcfa4c5fc0f0adae4849bf2aadc4f4b28690d582a54
+Deleted: 9652d065f931080e77f3c4ee9057753a43da01df597f82b8c82c6af58d5029a7
+Deleted: 5d4dee8377281d3d64748b00928985ee6498b9d5697175cba4ccada1602c0a0a
+Deleted: ab748f6c8f3021e23811f6f90c465c1488a5ec99281f0078788378dc9a4495d1
+Deleted: e37f80f1d23083ef88e38d991bd856117d811675771a1748ac7ca284f482b3e8
+Deleted: 1ff2ad2637588746f1b61b776fd6784dbc232a7485b83254dd7ab76b3578c104
+Deleted: da52c006489b9f27e02a2246b85535bfbbb474f3385cb04d9f345e92e8fbaa4a
+Deleted: bbcc23bdb80f26720526e2c7a571391925f387bdc78bcf359cb926229e0e947b
+Deleted: 423780ab4df4fa1224711455bd11d4f4f7aae95392931d8d907f9218406b59b3
+Deleted: 7ac43308f4fec0cb7852b8eb892c1134ee0c6bfb3a41e96190227e17d22bec7b
+Deleted: 2b1d19807ed4f3b5a0bc4cac77f76235400fc8295030c24572a65dc4fae3c442
+Deleted: c502ad1d68deff3c29d74b824e849c7886306b3e018fc8e553e0daa5ca341694
+Deleted: 912967b2c58d436b3e2d1b0159e91b89ac0dcd72a3d84e07fe0ff27b664d07b8
+Deleted: 9b0c9588436cc2ff2336203cca3f13fa50d8b7221c9823c138919df0879b647b
+Deleted: 3c1cb79ba8fc6f997523f7f9947d69e12a781a481cd94ec9b8ecd62687a0f5fb
+Deleted: b17608904e51ddbe28576b642e058ff477d96574a64882d810625c1748cf4d64
+Deleted: 2e94aaf18c4c0e4d9e69b58e245036c8505159a62dac9164c74553473ab9fcf4
+Deleted: f34013e9e10e74b3189e7b14fe2d6cdc4a4092e769bb01e077b80ac39fe87204
+Deleted: 375c66f48e91896e99603a4ae807801060284583f0e091f59a33f4bbe67c2ab1
+Uploading: root-local.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+Uploading: root-local.tgz
+Uploading: resources.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+File already uploaded: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
