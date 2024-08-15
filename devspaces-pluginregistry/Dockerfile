@@ -60,7 +60,7 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry
 #
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1222
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290
 USER 0
 WORKDIR /
 
