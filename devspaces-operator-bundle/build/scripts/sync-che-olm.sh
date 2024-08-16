@@ -355,7 +355,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	done
 	echo "Converted (yq #2) ${CSVFILE}"
 
-  # Update editors definitions environment variables in csv
+  # Update editors definitions environment variables images in csv
   # by removing upstream values and inserting downstream ones
   # https://github.com/eclipse-che/che/issues/22932
   yq -riY "del(.spec.install.spec.deployments[].spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${CSVFILE}"
@@ -371,6 +371,65 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
   done
   echo "Converted (yq #3) ${CSVFILE}"
 
+  # Update samples environment variables images in csv
+  # 1. Downloads samples index.json from devspaces-images repo
+  # 2. For each sample, downloads devfile.yaml from the sample repo
+  # 3. For each component in devfile.yaml, extracts image and updates csv
+  yq -riY "del(.spec.install.spec.deployments[].spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_sample_\")))" "${CSVFILE}"
+  curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-dashboard/samples/index.json --output /tmp/samples.json
+  if [[ $(cat /tmp/samples.json) == *"404"* ]] || [[ $(cat /tmp/samples.json) == *"Not Found"* ]]; then
+      echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-dashboard/samples/index.json"
+      exit 1
+  fi
+  SAMPLE_URLS=(
+    $(yq -r '.[] | .url' /tmp/samples.json)
+  )
+  RELATED_IMAGES_ENV=""
+  for SAMPLE_URL in "${SAMPLE_URLS[@]}"; do
+    SAMPLE_ORG="$(echo "${SAMPLE_URL}" | cut -d '/' -f 4)"
+    SAMPLE_REPOSITORY="$(echo "${SAMPLE_URL}" | cut -d '/' -f 5)"
+    SAMPLE_REF="$(echo "${SAMPLE_URL}" | cut -d '/' -f 7)"
+    curl -sSL https://raw.githubusercontent.com/${SAMPLE_ORG}/${SAMPLE_REPOSITORY}/${SAMPLE_REF}/devfile.yaml --output /tmp/devfile.yaml
+    if [[ $(cat /tmp/devfile.yaml) == *"404"* ]] || [[ $(cat /tmp/devfile.yaml) == *"Not Found"* ]]; then
+        echo "[ERROR] Could not load https://raw.githubusercontent.com/${SAMPLE_ORG}/${SAMPLE_REPOSITORY}/${SAMPLE_REF}/devfile.yaml"
+        exit 1
+    fi
+
+    CONTAINER_INDEX=0
+    while [ "${CONTAINER_INDEX}" -lt "$(yq -r '.components | length' "/tmp/devfile.yaml")" ]; do
+      CONTAINER_IMAGE_ENV_NAME=""
+      CONTAINER_IMAGE=$(yq -r '.components['${CONTAINER_INDEX}'].container.image' /tmp/devfile.yaml)
+
+      # CRW-3177, CRW-3178 sort uniquely; replace quay refs with RHEC refs
+      # remove ghcr.io/ansible/ansible-workspace-env-reference from RELATED_IMAGEs
+      if [[ ! ${CONTAINER_IMAGE} == *"ghcr.io/ansible/ansible-workspace-env-reference"* ]]; then
+        if [[ ${CONTAINER_IMAGE} == *"@"*  ]]; then
+          # We don't need to encode the image name if it contains a digest
+          SAMPLE_NAME=$(yq -r '.metadata.name' /tmp/devfile.yaml | sed 's|-|_|g')
+          COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml | sed 's|-|_|g')
+          CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}"
+        elif [[ ${CONTAINER_IMAGE} == *":"* ]]; then
+          # Encode the image name if it contains a tag
+          # It is used in dashboard to replace the image in the devfile.yaml at startup
+          CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_encoded_$(echo "${CONTAINER_IMAGE}" | base64 -w 0 | sed 's|=|____|g')"
+        fi
+      fi
+
+      if [[ -n ${CONTAINER_IMAGE_ENV_NAME} ]]; then
+        ENV="{name: \"${CONTAINER_IMAGE_ENV_NAME}\", value: \"${CONTAINER_IMAGE}\"}"
+        if [[ -z ${RELATED_IMAGES_ENV} ]]; then
+          RELATED_IMAGES_ENV="${ENV}"
+        elif [[ ! ${RELATED_IMAGES_ENV} =~ ${CONTAINER_IMAGE_ENV_NAME} ]]; then
+          RELATED_IMAGES_ENV="${RELATED_IMAGES_ENV}, ${ENV}"
+        fi
+      fi
+
+      CONTAINER_INDEX=$((CONTAINER_INDEX+1))
+    done
+  done
+  yq -riY "(.spec.install.spec.deployments[].spec.template.spec.containers[0].env ) += [${RELATED_IMAGES_ENV}]" "${CSVFILE}"
+  echo "Converted (yq #4) ${CSVFILE}"
+
 	# insert replaces: field
 	declare -A spec_insertions=(
 		[".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
@@ -384,7 +443,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		updateVal="${spec_insertions[$updateName]}"
 		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
-	echo "Converted (yq #4) ${CSVFILE}"
+	echo "Converted (yq #5) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	bash -e "${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
