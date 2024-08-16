@@ -399,15 +399,20 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
     while [ "${CONTAINER_INDEX}" -lt "$(yq -r '.components | length' "/tmp/devfile.yaml")" ]; do
       CONTAINER_IMAGE_ENV_NAME=""
       CONTAINER_IMAGE=$(yq -r '.components['${CONTAINER_INDEX}'].container.image' /tmp/devfile.yaml)
-      if [[ ${CONTAINER_IMAGE} == *"@"*  ]]; then
-        # We don't need to encode the image name if it contains a digest
-        SAMPLE_NAME=$(yq -r '.metadata.name' /tmp/devfile.yaml | sed 's|-|_|g')
-        COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml | sed 's|-|_|g')
-        CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}"
-      elif [[ ${CONTAINER_IMAGE} == *":"* ]]; then
-        # Encode the image name if it contains a tag
-        # It is used in dashboard to replace the image in the devfile.yaml at startup
-        CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_encoded_$(echo "${CONTAINER_IMAGE}" | base64 -w 0 | sed 's|=|____|g')"
+
+      # CRW-3177, CRW-3178 sort uniquely; replace quay refs with RHEC refs
+      # remove ghcr.io/ansible/ansible-workspace-env-reference from RELATED_IMAGEs
+      if [[ ! ${CONTAINER_IMAGE} == *"ghcr.io/ansible/ansible-workspace-env-reference"* ]]; then
+        if [[ ${CONTAINER_IMAGE} == *"@"*  ]]; then
+          # We don't need to encode the image name if it contains a digest
+          SAMPLE_NAME=$(yq -r '.metadata.name' /tmp/devfile.yaml | sed 's|-|_|g')
+          COMPONENT_NAME=$(yq -r '.components['${CONTAINER_INDEX}'].name' /tmp/devfile.yaml | sed 's|-|_|g')
+          CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_${SAMPLE_NAME}_${COMPONENT_NAME}"
+        elif [[ ${CONTAINER_IMAGE} == *":"* ]]; then
+          # Encode the image name if it contains a tag
+          # It is used in dashboard to replace the image in the devfile.yaml at startup
+          CONTAINER_IMAGE_ENV_NAME="RELATED_IMAGE_sample_encoded_$(echo "${CONTAINER_IMAGE}" | base64 -w 0 | sed 's|=|____|g')"
+        fi
       fi
 
       if [[ -n ${CONTAINER_IMAGE_ENV_NAME} ]]; then
