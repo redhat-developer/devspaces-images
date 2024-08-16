@@ -42,7 +42,7 @@ spec:
             - /manager
           args:
             - --leader-elect
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 60000
               name: metrics
@@ -58,7 +58,7 @@ spec:
                 "SETUID"]}}'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTCOMPONENTS
               value: '[{"name": "universal-developer-image", "container": {"image":
-                "registry.redhat.io/devspaces/udi-rhel8@sha256:2c0af17964f1b84a7c42fd99e856cb002a23df82a6f5228c3269f9b55950911b"}}]'
+                "registry.redhat.io/devspaces/udi-rhel8@sha256:8f90625772014ca1dbb5514567ffbdb711b6e5c33883bfc5e3ef71af91496744"}}]'
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DEFAULTEDITOR
               value: che-incubator/che-code/latest
             - name: CHE_DEFAULT_SPEC_DEVENVIRONMENTS_DISABLECONTAINERBUILDCAPABILITIES

@@ -72,7 +72,7 @@ events:
 components:
   - name: che-code-injector
     container:
-      image: registry.redhat.io/devspaces/code-rhel8@sha256:9f5824832836c3a8dfa93393f18a9888a1b7d25868faf8bae6342e9240723fa5
+      image: registry.redhat.io/devspaces/code-rhel8@sha256:c9b7de745c82023cec48b3762fa40c75b97d79fa7238f169f2e3bca7b938876b
       command:
         - /entrypoint-init-container.sh
       volumeMounts:
