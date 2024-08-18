@@ -1,0 +1,239 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# https://registry.access.redhat.com/ubi8/python-38
+FROM registry.access.redhat.com/ubi8/python-38:1-131 as builder
+#FROM registry-proxy.engineering.redhat.com/ubi8/python-38:1 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry.access.redhat.com/ubi8/python-38:1-131 AS builder
+STEP 2/23: USER 0
+--> aa8b18433ae1
+STEP 3/23: ARG BOOTSTRAP=true
+--> 14d8567aceab
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> ee65e140c24c
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> e810a9275d0d
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 38ad7b307aab
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 34630d4fc8e3
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 6566e8cfbc38
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> ee4b002bf1c7
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 8dd2bcc91374
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-5.el8.x86_64             chkconfig-1.19.2-1.el8.x86_64           
+  dnf-4.7.0-20.el8.noarch              dnf-data-4.7.0-20.el8.noarch            
+  findutils-1:4.6.0-22.el8.x86_64      git-2.43.5-1.el8_10.x86_64              
+  git-core-2.43.5-1.el8_10.x86_64      git-core-doc-2.43.5-1.el8_10.noarch     
+  perl-Git-2.43.5-1.el8_10.noarch      python3-dnf-4.7.0-20.el8.noarch         
+  wget-1.19.5-12.el8_10.x86_64         yum-4.7.0-20.el8.noarch                 
+Installed:
+  containers-common-2:1-82.module+el8.10.0+22202+761b9a65.x86_64                
+  criu-3.18-5.module+el8.10.0+22202+761b9a65.x86_64                             
+  fuse-common-3.3.0-19.el8.x86_64                                               
+  fuse-overlayfs-1.13-1.module+el8.10.0+22202+761b9a65.x86_64                   
+  fuse3-3.3.0-19.el8.x86_64                                                     
+  fuse3-libs-3.3.0-19.el8.x86_64                                                
+  jq-1.6-9.el8_10.x86_64                                                        
+  kmod-25-20.el8.x86_64                                                         
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libslirp-4.4.0-2.module+el8.10.0+22202+761b9a65.x86_64                        
+  mpdecimal-2.5.1-3.el8.x86_64                                                  
+  oniguruma-6.8.2-3.el8.x86_64                                                  
+  protobuf-c-1.3.0-8.el8.x86_64                                                 
+  python3.11-3.11.9-2.el8_10.x86_64                                             
+  python3.11-devel-3.11.9-2.el8_10.x86_64                                       
+  python3.11-libs-3.11.9-2.el8_10.x86_64                                        
+  python3.11-pip-22.3.1-5.el8.noarch                                            
+  python3.11-pip-wheel-22.3.1-5.el8.noarch                                      
+  python3.11-setuptools-65.5.1-2.el8.noarch                                     
+  python3.11-setuptools-wheel-65.5.1-2.el8.noarch                               
+  runc-1:1.1.12-4.module+el8.10.0+22202+761b9a65.x86_64                         
+  skopeo-2:1.14.5-3.module+el8.10.0+22202+761b9a65.x86_64                       
+  slirp4netns-1.2.3-1.module+el8.10.0+22202+761b9a65.x86_64                     
+
+Collecting yq
+  Downloading yq-3.4.3-py3-none-any.whl (18 kB)
+Collecting argcomplete
+  Downloading argcomplete-3.5.0-py3-none-any.whl (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.5/43.5 kB 5.6 MB/s eta 0:00:00
+Requirement already satisfied: pip in /usr/lib/python3.11/site-packages (22.3.1)
+Collecting pip
+  Downloading pip-24.2-py3-none-any.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 53.1 MB/s eta 0:00:00
+Collecting PyYAML>=5.3.1
+  Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (762 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 763.0/763.0 kB 402.3 MB/s eta 0:00:00
+Collecting xmltodict>=0.11.0
+  Downloading xmltodict-0.13.0-py2.py3-none-any.whl (10.0 kB)
+Collecting tomlkit>=0.11.6
+  Downloading tomlkit-0.13.2-py3-none-any.whl (37 kB)
+Installing collected packages: xmltodict, tomlkit, PyYAML, pip, argcomplete, yq
+Successfully installed PyYAML-6.0.2 argcomplete-3.5.0 pip-24.2 tomlkit-0.13.2 xmltodict-0.13.0 yq-3.4.3
+python: Python 3.8.16
+yq: yq 3.4.3
+jq: jq-1.6
+--> 149dc7d4532d
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 2f5535eaa4f3
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> f5534b9a0e74
+STEP 14/23: COPY ./VERSION /
+--> adeb2dc171db
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 0aa002fff3d3
+STEP 16/23: WORKDIR /build/
+--> bcb80bcb0285
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
++ @eclipse-che/che-devworkspace-generator@0.0.1-99986b8
+added 31 packages from 83 contributors and audited 31 packages in 4.553s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+DevWorkspace che-code-ansible-demo was generated.
+DevWorkspace che-idea-ansible-demo was generated.
+DevWorkspace che-code-java-lombok was generated.
+DevWorkspace che-idea-java-lombok was generated.
+DevWorkspace che-code-quarkus-quickstart was generated.
+DevWorkspace che-idea-quarkus-quickstart was generated.
+DevWorkspace che-code-nodejs-mongodb was generated.
+DevWorkspace che-idea-nodejs-mongodb was generated.
+DevWorkspace che-code-nodejs-web-app was generated.
+DevWorkspace che-idea-nodejs-web-app was generated.
+DevWorkspace che-code-python-hello-world was generated.
+DevWorkspace che-idea-python-hello-world was generated.
+DevWorkspace che-code-cpp was generated.
+DevWorkspace che-idea-cpp was generated.
+DevWorkspace che-code-dotnet was generated.
+DevWorkspace che-idea-dotnet was generated.
+DevWorkspace che-code-golang was generated.
+DevWorkspace che-idea-golang was generated.
+DevWorkspace che-code-php-hello-world was generated.
+DevWorkspace che-idea-php-hello-world was generated.
+--> 63afc6ca44a2
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> c48d556bd0b7
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ = ghcr.io/ansible/ansible-workspace-env-reference@sha256:03d7f0fe6caaae62ff2266906b63d67ebd9cf6e4a056c7c0a0c1320e6cfbebce PASS
+ + registry.redhat.io/devspaces/code-rhel8:3.17 PASS - 3.17 allowed
+ + registry.redhat.io/devspaces/idea-rhel8:3.17 PASS - 3.17 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.17 PASS - 3.17 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 6107fd6eb03e
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/TP__cpp__c-plus-plus/meta.yaml'
+Checking devfile 'devfiles/TP__dotnet__dotnet-web-simple/meta.yaml'
+Checking devfile 'devfiles/TP__go__golang-health-check/meta.yaml'
+Checking devfile 'devfiles/TP__php__php-hello-world/meta.yaml'
+Checking devfile 'devfiles/ansible__ansible-demo/meta.yaml'
+Checking devfile 'devfiles/java-maven-lombok__lombok-project-sample/meta.yaml'
+Checking devfile 'devfiles/java-maven-quarkus__quarkus-quickstarts/meta.yaml'
+Checking devfile 'devfiles/nodejs__nodejs-mongodb-sample/meta.yaml'
+Checking devfile 'devfiles/nodejs__web-nodejs-sample/meta.yaml'
+Checking devfile 'devfiles/python__python-hello-world/meta.yaml'
+--> 1de4c5663e12
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 9448abceae12
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 9bb3f938b1c9
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 5f7b09b47f70
+Successfully tagged localhost/devfileregistry:tmp
+5f7b09b47f706275e59e7566c5de0bb8c1cf8127e0c47636f561803a3f387f0a
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz from https://pkgs.devel.redhat.com/repo/
+Downloading resources.tgz from https://pkgs.devel.redhat.com/repo/
+Untagged: localhost/devfileregistry:tmp
+Deleted: 5f7b09b47f706275e59e7566c5de0bb8c1cf8127e0c47636f561803a3f387f0a
+Deleted: 9bb3f938b1c9c146bde2c1aaa1f709d9bdb0bdaa9022d7727f125aad9a4cb569
+Deleted: 9448abceae12ddb938bfd06e59de4ef17f2a1beac4db7588a9a1ef09798fa67c
+Deleted: 1de4c5663e1293ae0da5c62125934f83a11d8e562e923976800fad4fca7d6018
+Deleted: 6107fd6eb03e81920448fbb11453f2578c1f2a15012423030efc628ce754c46d
+Deleted: c48d556bd0b79d1fe5f89c153ec0130e4cd27834ed240563e0c483149af0cbba
+Deleted: 63afc6ca44a26d09d4cffee06f218f8bac7fa6ef03af0ffe7782647b68f014ea
+Deleted: bcb80bcb028525dc78684b6cf2c6dd4b84576e9a57cbdc9384b6eb00e605e606
+Deleted: 0aa002fff3d333ee21f13e30d9cb76b7cd3cc4586e177ed863c250bdc8829c69
+Deleted: adeb2dc171db41c01797a3aa353a730609c86a9e0b3e7200eacfe78689bb648e
+Deleted: f5534b9a0e7426ef40cca538ffc09dbd5376247e26670866f0677e39c6abaffb
+Deleted: 2f5535eaa4f3c3e74e972353865af80c50929502ea3534118f4fbaa4f2dab0fd
+Deleted: 149dc7d4532da1dc64d987b04a107907bcb76c552e44ed9adece8dbf5e21caac
+Deleted: 8dd2bcc9137426a1acff40529252513e798b652fe1bd2fe51edb560eb74f7f7a
+Deleted: ee4b002bf1c727270b1332ddc88fd80c9c05e7b2ea10803b5b8e12d8c14784c8
+Deleted: 6566e8cfbc38fcf9b9cd6365ac637bf922ef231c6527f1f2c56a9bf447c68855
+Deleted: 34630d4fc8e33a7965fff56ad9f86d2ea3bee0903995cc424a60ca35850f45df
+Deleted: 38ad7b307aabaa27ba4e273e8ca3361baced7a190fe414b2e4d8aa6e8f0fbbb3
+Deleted: e810a9275d0d84a239144a0126d3889d927a8de67411c3b8ab6357b27d918efc
+Deleted: ee65e140c24c6d63c3ba8a7c8394c2ead91bc77f345919a8346136f09ea30f69
+Deleted: 14d8567aceab1f829041aecf1fb8bd6b076379c5e16ab16e24e7c092dc0241a7
+Deleted: aa8b18433ae17234960d3fac68c6aa8ccc4c9068982a44b14df64ecb187994ff
+Uploading: root-local.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+File already uploaded: root-local.tgz
+Uploading: resources.tgz to https://pkgs.devel.redhat.com/lookaside/upload.cgi
+File already uploaded: resources.tgz
+All sources were already uploaded.
+rm 'resources.tgz'
+rm 'root-local.tgz'
