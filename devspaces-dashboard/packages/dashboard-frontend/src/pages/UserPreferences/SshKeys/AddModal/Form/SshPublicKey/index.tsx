@@ -50,6 +50,14 @@ export class SshPublicKey extends React.Component<Props, State> {
 
   private onChange(publicKey: string, isUpload: boolean): void {
     const { onChange } = this.props;
+
+    publicKey = publicKey.trim()
+      ? btoa(
+          // expect the only new line at the end
+          publicKey.trim() + '\n',
+        )
+      : '';
+
     const validated = this.validate(publicKey);
     const isValid = validated === ValidatedOptions.success;
 

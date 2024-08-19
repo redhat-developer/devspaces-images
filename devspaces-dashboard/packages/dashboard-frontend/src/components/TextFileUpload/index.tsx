@@ -20,9 +20,6 @@ export type Props = {
   fileNamePlaceholder?: string;
   textAreaPlaceholder?: string;
   validated: ValidatedOptions;
-  /**
-   * @param content base64 encoded file content
-   */
   onChange: (content: string, isUpload: boolean) => void;
 };
 
@@ -66,7 +63,7 @@ export class TextFileUpload extends React.PureComponent<Props, State> {
 
   private handleDataChange(content: string): void {
     this.setState({ content });
-    this.props.onChange(btoa(content), true);
+    this.props.onChange(content, true);
   }
 
   private handleTextChange(content: string): void {
@@ -75,7 +72,7 @@ export class TextFileUpload extends React.PureComponent<Props, State> {
       file: undefined,
       filename: undefined,
     });
-    this.props.onChange(btoa(content), false);
+    this.props.onChange(content, false);
   }
 
   public render(): React.ReactElement {

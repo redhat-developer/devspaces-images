@@ -82,14 +82,13 @@ describe('TextFileUpload', () => {
       /* Upload a file */
 
       const fileContent = 'file-content';
-      const fileContentBase64 = Buffer.from(fileContent).toString('base64');
       const file = new File([fileContent], 'file.txt', { type: 'text/plain' });
 
       const fileUploader = screen.getByTestId(fieldId);
       const fileUploadInput = fileUploader.querySelector('input[type="file"]');
       userEvent.upload(fileUploadInput!, file);
 
-      await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(fileContentBase64, true));
+      await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(fileContent, true));
 
       expect(fileInput).toHaveValue(file.name);
       expect(clearButton).toBeEnabled();
@@ -118,10 +117,9 @@ describe('TextFileUpload', () => {
       /* Paste a content */
 
       const content = 'content';
-      const contentBase64 = Buffer.from(content).toString('base64');
       userEvent.paste(contentInput, content);
 
-      await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(contentBase64, false));
+      await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(content, false));
 
       expect(fileInput).toHaveValue('');
       expect(clearButton).toBeEnabled();
