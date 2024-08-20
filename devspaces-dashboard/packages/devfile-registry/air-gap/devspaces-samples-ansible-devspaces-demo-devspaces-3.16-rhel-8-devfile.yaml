@@ -79,6 +79,9 @@ commands:
         ansible-navigator --ee false
       workingDir: ${PROJECTS_ROOT}/ansible-devspaces-demo
       component: tooling-container
+events:
+  preStop:
+    - "molecule-destroy"
 projects:
   - name: ansible-devspaces-demo
     zip:
