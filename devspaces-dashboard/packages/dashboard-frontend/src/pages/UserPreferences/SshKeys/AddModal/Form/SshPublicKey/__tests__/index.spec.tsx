@@ -45,7 +45,9 @@ describe('SshPublicKey', () => {
       const sshPublicKey = 'ssh-public-key';
       userEvent.paste(input, sshPublicKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, true);
+      const expectedSshPrivateKey = btoa(sshPublicKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPrivateKey, true);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
@@ -67,7 +69,7 @@ describe('SshPublicKey', () => {
       const sshPublicKey = '';
       fireEvent.change(input, { target: { value: sshPublicKey } });
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, false);
+      expect(mockOnChange).toHaveBeenCalledWith('', false);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeTruthy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
@@ -84,7 +86,9 @@ describe('SshPublicKey', () => {
       const sshPublicKey = 'ssh-public-key'.repeat(1000);
       userEvent.paste(input, sshPublicKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshPublicKey, false);
+      const expectedSshPublicKey = btoa(sshPublicKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPublicKey, false);
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeTruthy();
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
@@ -99,10 +103,12 @@ describe('SshPublicKey', () => {
 
       const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
 
-      const sshKeyData = 'ssh-key-data';
-      userEvent.paste(input, sshKeyData);
+      const sshPublicKey = 'ssh-key-data';
+      userEvent.paste(input, sshPublicKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshKeyData, true);
+      const expectedSshPublicKey = btoa(sshPublicKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPublicKey, true);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
@@ -137,10 +143,12 @@ describe('SshPublicKey', () => {
       const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
 
       // fill the SSH key data field
-      const sshKeyData = 'ssh-key-data'.repeat(1000);
-      userEvent.paste(input, sshKeyData);
+      const sshPublicKey = 'ssh-key-data'.repeat(1000);
+      userEvent.paste(input, sshPublicKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshKeyData, false);
+      const expectedSshPublicKey = btoa(sshPublicKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPublicKey, false);
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeTruthy();
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();

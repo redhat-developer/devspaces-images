@@ -45,7 +45,9 @@ describe('SshPrivateKey', () => {
       const sshPrivateKey = 'ssh-private-key';
       userEvent.paste(input, sshPrivateKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshPrivateKey, true);
+      const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPrivateKey, true);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
@@ -81,7 +83,9 @@ describe('SshPrivateKey', () => {
       const sshPrivateKey = 'ssh-private-key'.repeat(5000);
       userEvent.paste(input, sshPrivateKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshPrivateKey, false);
+      const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPrivateKey, false);
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeTruthy();
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
@@ -97,10 +101,12 @@ describe('SshPrivateKey', () => {
       const input = screen.getByPlaceholderText('Or paste the PRIVATE key');
 
       // fill the SSH key data field
-      const sshKeyData = 'ssh-key-data';
-      userEvent.paste(input, sshKeyData);
+      const sshPrivateKey = 'ssh-key-data';
+      userEvent.paste(input, sshPrivateKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshKeyData, true);
+      const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPrivateKey, true);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
       expect(screen.queryByText(REQUIRED_ERROR)).toBeFalsy();
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
@@ -114,8 +120,8 @@ describe('SshPrivateKey', () => {
       const input = screen.getByPlaceholderText('Or paste the PRIVATE key');
 
       // fill the SSH key data field
-      const sshKeyData = 'ssh-key-data';
-      userEvent.paste(input, sshKeyData);
+      const sshPrivateKey = 'ssh-key-data';
+      userEvent.paste(input, sshPrivateKey);
 
       mockOnChange.mockClear();
 
@@ -137,10 +143,12 @@ describe('SshPrivateKey', () => {
       const input = screen.getByPlaceholderText('Or paste the PRIVATE key');
 
       // fill the SSH key data field
-      const sshKeyData = 'ssh-key-data'.repeat(5000);
-      userEvent.paste(input, sshKeyData);
+      const sshPrivateKey = 'ssh-key-data'.repeat(5000);
+      userEvent.paste(input, sshPrivateKey);
 
-      expect(mockOnChange).toHaveBeenCalledWith(sshKeyData, false);
+      const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
+
+      expect(mockOnChange).toHaveBeenCalledWith(expectedSshPrivateKey, false);
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeTruthy();
 
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
