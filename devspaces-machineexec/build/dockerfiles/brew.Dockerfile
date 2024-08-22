@@ -30,7 +30,10 @@ RUN dnf -y install golang && \
 # https://registry.access.redhat.com/rhel9-2-els/rhel
 FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327 as runtime
 COPY --from=builder /rootfs /
-RUN dnf install -y openssl; dnf clean -y all
+RUN dnf install -y openssl && \
+    dnf -y update && \
+    dnf clean -y all
+    
 USER unprivilegeduser
 ENTRYPOINT ["/go/bin/che-machine-exec"]
 
