@@ -368,17 +368,22 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
   # validate che-code editor definitions components
   CHE_CODE_EDITOR_DEFINITION=$(curl -sL "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator/editors-definitions/che-code.yaml")
-  if [[ ! $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.metadata.name')  == "che-code" ]]; then echo "[ERROR] che-code editor definition is invalid"; exit 1; fi
-  if [[ ! $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.metadata.attributes.version')  == "latest" ]]; then echo "[ERROR] che-code editor definition is invalid"; exit 1; fi
-  if [[ $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="che-code-injector") | .container.image')  == "" ]]; then echo "[ERROR] che-code editor definition is invalid"; exit 1; fi
-  if [[ $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="che-code-runtime-description") | .container.image')  == "" ]]; then echo "[ERROR] che-code editor definition is invalid"; exit 1; fi
+  if [[ ! $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.metadata.name')  == "che-code" ]] || \
+    [[ ! $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.metadata.attributes.version')  == "latest" ]] || \
+    [[ $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="che-code-injector") | .container.image')  == "" ]] || \
+    [[ $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="che-code-runtime-description") | .container.image')  == "" ]]; then
+      echo "[ERROR] che-code editor definition is invalid"
+      exit 1;
+  fi
 
   # validate che-idea editor definitions components
   CHE_IDEA_EDITOR_DEFINITION=$(curl -sL "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator/editors-definitions/che-idea.yaml")
-  if [[ ! $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.metadata.name')  == "che-idea" ]]; then echo "[ERROR] che-idea editor definition is invalid"; exit 1; fi
-  if [[ ! $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.metadata.attributes.version')  == "latest" ]]; then echo "[ERROR] che-idea editor definition is invalid"; exit 1; fi
-  if [[ $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="idea-rhel8") | .container.image') == "" ]]; then echo "[ERROR] che-idea definition is invalid"; exit 1; fi
-  if [[ $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="idea-rhel8-injector") | .container.image') == "" ]]; then echo "[ERROR] che-idea editor definition is invalid"; exit 1; fi
+  if [[ ! $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.metadata.name')  == "che-idea" ]] || \
+    [[ ! $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.metadata.attributes.version')  == "latest" ]] || \
+    [[ $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="idea-rhel8") | .container.image') == "" ]] || \
+    [[ $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="idea-rhel8-injector") | .container.image') == "" ]]; then
+    echo "[ERROR] che-idea editor definition is invalid"; exit 1;
+  fi
 
   for updateName in "${!operator_insertion[@]}"; do
     env="{name: \"${updateName}\", value: \"${operator_insertion[$updateName]}\"}"
