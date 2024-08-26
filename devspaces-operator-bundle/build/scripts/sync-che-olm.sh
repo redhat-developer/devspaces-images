@@ -360,11 +360,31 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
   # https://github.com/eclipse-che/che/issues/22932
   yq -riY "del(.spec.install.spec.deployments[].spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${CSVFILE}"
   declare -A operator_insertion=(
-    ["RELATED_IMAGE_editor_definition_che_idea_2022_1_idea_rhel8"]="${UDI_IMAGE_WITH_TAG}"
-    ["RELATED_IMAGE_editor_definition_che_idea_2022_1_idea_rhel8_injector"]="${IDEA_IMAGE_WITH_TAG}"
+    ["RELATED_IMAGE_editor_definition_che_idea_latest_idea_rhel8"]="${UDI_IMAGE_WITH_TAG}"
+    ["RELATED_IMAGE_editor_definition_che_idea_latest_idea_rhel8_injector"]="${IDEA_IMAGE_WITH_TAG}"
     ["RELATED_IMAGE_editor_definition_che_code_latest_che_code_runtime_description"]="${UDI_IMAGE_WITH_TAG}"
     ["RELATED_IMAGE_editor_definition_che_code_latest_che_code_injector"]="${CODE_IMAGE_WITH_TAG}"
   )
+
+  # validate che-code editor definitions components
+  CHE_CODE_EDITOR_DEFINITION=$(curl -sL "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator/editors-definitions/che-code.yaml")
+  if [[ ! $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.metadata.name')  == "che-code" ]] || \
+    [[ ! $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.metadata.attributes.version')  == "latest" ]] || \
+    [[ $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="che-code-injector") | .container.image')  == "" ]] || \
+    [[ $(echo "${CHE_CODE_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="che-code-runtime-description") | .container.image')  == "" ]]; then
+      echo "[ERROR] che-code editor definition is invalid"
+      exit 1;
+  fi
+
+  # validate che-idea editor definitions components
+  CHE_IDEA_EDITOR_DEFINITION=$(curl -sL "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator/editors-definitions/che-idea.yaml")
+  if [[ ! $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.metadata.name')  == "che-idea" ]] || \
+    [[ ! $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.metadata.attributes.version')  == "latest" ]] || \
+    [[ $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="idea-rhel8") | .container.image') == "" ]] || \
+    [[ $(echo "${CHE_IDEA_EDITOR_DEFINITION}" | yq -r '.components[] | select(.name=="idea-rhel8-injector") | .container.image') == "" ]]; then
+    echo "[ERROR] che-idea editor definition is invalid"; exit 1;
+  fi
+
   for updateName in "${!operator_insertion[@]}"; do
     env="{name: \"${updateName}\", value: \"${operator_insertion[$updateName]}\"}"
     yq -riY "(.spec.install.spec.deployments[].spec.template.spec.containers[0].env ) += [${env}]" "${CSVFILE}"

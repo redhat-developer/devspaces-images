@@ -64,16 +64,11 @@ DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 UDI_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1) # get 3.5-16, not 3.5-16.1678881134
 UDI_IMAGE_TAG=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${UDI_VERSION_ZZZ} | yq -r '.Digest')
-UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@${UDI_IMAGE_TAG}"
+UDI_IMAGE="${DS_RRIO}/udi-rhel8@${UDI_IMAGE_TAG}"
+CODE_IMAGE="${DS_RRIO}/code-rhel8:${DS_VERSION}"
+IDEA_IMAGE="${DS_RRIO}/idea-rhel8:${DS_VERSION}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
-
-CODE_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/code-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep -v "source" | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
-CODE_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/devspaces/code-rhel8:${CODE_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
-CODE_IMAGE="${DS_RRIO}/code-rhel8@${CODE_IMAGE_DIGEST}"
-IDEA_IMAGE_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/idea-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1)
-IDEA_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/devspaces/idea-rhel8:${IDEA_IMAGE_VERSION_ZZZ} | yq -r '.Digest')
-IDEA_IMAGE="${DS_RRIO}/idea-rhel8@${IDEA_IMAGE_DIGEST}"
 
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
@@ -262,6 +257,7 @@ echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
 yq -riY "del(.spec.template.spec.containers[0].env[] | select(.name | test(\"^RELATED_IMAGE_editor_definition_\")))" "${OPERATOR_DEPLOYMENT_YAML}"
 echo "Converted (yq #3) ${OPERATOR_DEPLOYMENT_YAML}"
 
+# The images are supposed to be replaced on ones with digest by operator
 yq -riY "(.components[] | select(.name==\"che-code-injector\") | .container.image)=\"${CODE_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-code.yaml"
 yq -riY "(.components[] | select(.name==\"che-code-runtime-description\") | .container.image)=\"${UBI_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-code.yaml"
 yq -riY "(.components[] | select(.name==\"idea-rhel8-injector\") | .container.image)=\"${IDEA_IMAGE}\"" "${TARGETDIR}/editors-definitions/che-idea.yaml"
