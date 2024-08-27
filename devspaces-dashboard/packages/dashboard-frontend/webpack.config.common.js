@@ -91,6 +91,7 @@ const config = {
       "module": false,
       "path": false,
       "os": false,
+      "process/browser": false,
       "crypto": require.resolve("crypto-browserify"),
       "stream": require.resolve("stream-browserify"),
     },

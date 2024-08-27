@@ -3,7 +3,7 @@
 | Packages | License | Resolved CQs |
 | --- | --- | --- |
 | [`@aashutoshrathi/word-wrap@1.2.6`](git+https://github.com/aashutoshrathi/word-wrap.git) | MIT | #9212 |
-| [`@adobe/css-tools@4.3.2`](https://github.com/adobe/css-tools.git) | MIT | #9985 |
+| [`@adobe/css-tools@4.4.0`](https://github.com/adobe/css-tools.git) | MIT | clearlydefined |
 | [`@ampproject/remapping@2.2.1`](git+https://github.com/ampproject/remapping.git) | Apache-2.0 | clearlydefined |
 | [`@babel/code-frame@7.22.13`](https://github.com/babel/babel.git) | MIT | #8946 |
 | [`@babel/compat-data@7.23.2`](https://github.com/babel/babel.git) | MIT | #11554 |
@@ -155,9 +155,8 @@
 | [`@types/babel__template@7.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/babel__traverse@7.20.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8935 |
 | [`@types/caseless@0.12.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/eslint-scope@3.7.6`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10812 |
 | [`@types/eslint@8.44.6`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #9382 |
-| [`@types/estree@1.0.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8266 |
+| [`@types/estree@1.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8266 |
 | [`@types/graceful-fs@4.1.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/history@4.7.11`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/html-minifier-terser@6.1.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -200,10 +199,10 @@
 | [`@typescript-eslint/utils@6.10.0`](https://github.com/typescript-eslint/typescript-eslint.git) | MIT | clearlydefined |
 | [`@typescript-eslint/visitor-keys@6.10.0`](https://github.com/typescript-eslint/typescript-eslint.git) | MIT | clearlydefined |
 | [`@ungap/structured-clone@1.2.0`](git+https://github.com/ungap/structured-clone.git) | ISC | clearlydefined |
-| [`@webassemblyjs/ast@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7953 |
+| [`@webassemblyjs/ast@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
 | [`@webassemblyjs/floating-point-hex-parser@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7959 |
 | [`@webassemblyjs/helper-api-error@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7969 |
-| [`@webassemblyjs/helper-buffer@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7955 |
+| [`@webassemblyjs/helper-buffer@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
 | [`@webassemblyjs/helper-numbers@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7954 |
 | [`@webassemblyjs/helper-wasm-bytecode@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7962 |
 | [`@webassemblyjs/helper-wasm-section@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
@@ -211,9 +210,9 @@
 | [`@webassemblyjs/leb128@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | Apache-2.0 | #7958 |
 | [`@webassemblyjs/utf8@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7966 |
 | [`@webassemblyjs/wasm-edit@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
-| [`@webassemblyjs/wasm-gen@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7964 |
+| [`@webassemblyjs/wasm-gen@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
 | [`@webassemblyjs/wasm-opt@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
-| [`@webassemblyjs/wasm-parser@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7965 |
+| [`@webassemblyjs/wasm-parser@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
 | [`@webassemblyjs/wast-printer@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
 | [`@webpack-cli/configtest@2.1.1`](https://github.com/webpack/webpack-cli.git) | MIT | clearlydefined |
 | [`@webpack-cli/info@2.0.2`](https://github.com/webpack/webpack-cli.git) | MIT | clearlydefined |
@@ -227,7 +226,7 @@
 | [`abab@2.0.6`](git+https://github.com/jsdom/abab.git) | BSD-3-Clause | clearlydefined |
 | [`abbrev@1.1.1`](http://github.com/isaacs/abbrev-js) | ISC | clearlydefined |
 | [`acorn-globals@7.0.1`](https://github.com/ForbesLindesay/acorn-globals.git) | MIT | clearlydefined |
-| [`acorn-import-assertions@1.9.0`](https://github.com/xtuc/acorn-import-assertions) | MIT | clearlydefined |
+| [`acorn-import-attributes@1.9.5`](https://github.com/xtuc/acorn-import-attributes) | MIT | clearlydefined |
 | [`acorn-jsx@5.3.2`](https://github.com/acornjs/acorn-jsx) | MIT | clearlydefined |
 | [`acorn-walk@8.3.0`](https://github.com/acornjs/acorn.git) | MIT | #11942 |
 | [`acorn@8.11.2`](https://github.com/acornjs/acorn.git) | MIT | clearlydefined |
@@ -236,7 +235,7 @@
 | [`agentkeepalive@4.5.0`](git://github.com/node-modules/agentkeepalive.git) | MIT | clearlydefined |
 | [`aggregate-error@3.1.0`](https://github.com/sindresorhus/aggregate-error.git) | MIT | clearlydefined |
 | [`ajv-formats@2.1.1`](git+https://github.com/ajv-validator/ajv-formats.git) | MIT | clearlydefined |
-| [`ajv-keywords@3.5.2`](git+https://github.com/epoberezkin/ajv-keywords.git) | MIT | clearlydefined |
+| [`ajv-keywords@5.1.0`](git+https://github.com/epoberezkin/ajv-keywords.git) | MIT | clearlydefined |
 | [`ajv@8.12.0`](https://github.com/ajv-validator/ajv.git) | MIT | #6025 |
 | [`ansi-colors@4.1.3`](https://github.com/doowb/ansi-colors.git) | MIT | clearlydefined |
 | [`ansi-escapes@4.3.2`](https://github.com/sindresorhus/ansi-escapes.git) | MIT | clearlydefined |
@@ -470,7 +469,7 @@
 | [`for-each@0.3.3`](git://github.com/Raynos/for-each.git) | MIT | clearlydefined |
 | [`foreground-child@3.1.1`](git+https://github.com/tapjs/foreground-child.git) | ISC | #8232 |
 | [`forever-agent@0.6.1`](https://github.com/mikeal/forever-agent) | Apache-2.0 | clearlydefined |
-| [`form-data@4.0.0`](git://github.com/form-data/form-data.git) | MIT | clearlydefined |
+| [`form-data@2.5.1`](git://github.com/form-data/form-data.git) | MIT | clearlydefined |
 | [`fs-constants@1.0.0`](https://github.com/mafintosh/fs-constants.git) | MIT | clearlydefined |
 | [`fs-extra@9.1.0`](https://github.com/jprichardson/node-fs-extra) | MIT | clearlydefined |
 | [`fs-minipass@2.1.0`](git+https://github.com/npm/fs-minipass.git) | ISC | clearlydefined |
@@ -639,7 +638,7 @@
 | [`jsesc@2.5.2`](https://github.com/mathiasbynens/jsesc.git) | MIT | clearlydefined |
 | [`json-buffer@3.0.1`](git://github.com/dominictarr/json-buffer.git) | MIT | clearlydefined |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
-| [`json-parse-even-better-errors@2.3.1`](https://github.com/npm/json-parse-even-better-errors) | MIT | clearlydefined |
+| [`json-parse-even-better-errors@3.0.0`](https://github.com/npm/json-parse-even-better-errors.git) | MIT | #14658 |
 | [`json-schema-traverse@1.0.0`](git+https://github.com/epoberezkin/json-schema-traverse.git) | MIT | clearlydefined |
 | [`json-schema@0.4.0`](http://github.com/kriszyp/json-schema) | (AFL-2.1 OR BSD-3-Clause) | #2410 |
 | [`json-stable-stringify-without-jsonify@1.0.1`](git://github.com/samn/json-stable-stringify.git) | MIT | clearlydefined |
@@ -879,7 +878,7 @@
 | [`safe-array-concat@1.0.1`](git+https://github.com/ljharb/safe-array-concat.git) | MIT | #10335 |
 | [`safe-regex-test@1.0.0`](git+https://github.com/ljharb/safe-regex-test.git) | MIT | clearlydefined |
 | [`saxes@6.0.0`](https://github.com/lddubeau/saxes.git) | ISC | clearlydefined |
-| [`schema-utils@3.3.0`](https://github.com/webpack/schema-utils.git) | MIT | #8952 |
+| [`schema-utils@4.2.0`](https://github.com/webpack/schema-utils.git) | MIT | #8986 |
 | [`semver@7.5.4`](https://github.com/npm/node-semver.git) | ISC | clearlydefined |
 | [`serialize-javascript@6.0.1`](git+https://github.com/yahoo/serialize-javascript.git) | BSD-3-Clause | #12680 |
 | [`set-blocking@2.0.0`](git+https://github.com/yargs/set-blocking.git) | ISC | #5899 |
@@ -1011,8 +1010,8 @@
 | [`webpack-bundle-analyzer@4.10.2`](git+https://github.com/webpack-contrib/webpack-bundle-analyzer.git) | MIT | clearlydefined |
 | [`webpack-cli@5.1.4`](https://github.com/webpack/webpack-cli.git) | MIT | clearlydefined |
 | [`webpack-merge@5.10.0`](https://github.com/survivejs/webpack-merge.git) | MIT | #12055 |
-| [`webpack-sources@3.2.3`](git+https://github.com/webpack/webpack-sources.git) | MIT | clearlydefined |
-| [`webpack@5.91.0`](https://github.com/webpack/webpack.git) | MIT | #13951 |
+| [`webpack-sources@1.4.3`](git+https://github.com/webpack/webpack-sources.git) | MIT | clearlydefined |
+| [`webpack@5.94.0`](https://github.com/webpack/webpack.git) | MIT | clearlydefined |
 | [`whatwg-encoding@2.0.0`](https://github.com/jsdom/whatwg-encoding.git) | MIT | clearlydefined |
 | [`whatwg-mimetype@3.0.0`](https://github.com/jsdom/whatwg-mimetype.git) | MIT | clearlydefined |
 | [`whatwg-url@11.0.0`](https://github.com/jsdom/whatwg-url.git) | MIT | clearlydefined |
