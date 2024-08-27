@@ -20,7 +20,7 @@
 | [`asn1.js@5.4.1`](git@github.com:indutny/asn1.js) | MIT | clearlydefined |
 | [`asynckit@0.4.0`](git+https://github.com/alexindigo/asynckit.git) | MIT | clearlydefined |
 | [`attr-accept@1.1.3`](https://github.com/okonet/attr-accept.git) | MIT | [CQ22348](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22348) |
-| [`axios@1.7.1`](https://github.com/axios/axios.git) | MIT | #14871 |
+| [`axios@1.7.5`](https://github.com/axios/axios.git) | MIT | #14871 |
 | [`base64-js@1.5.1`](git://github.com/beatgammit/base64-js.git) | MIT | clearlydefined |
 | [`blueimp-md5@2.19.0`](git://github.com/blueimp/JavaScript-MD5.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/blueimp-md5/2.19.0) |
 | [`bn.js@4.12.0`](git@github.com:indutny/bn.js) | MIT | clearlydefined |
