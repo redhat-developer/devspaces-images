@@ -19,8 +19,8 @@ remote_sources:
 - name: devspaces-pluginregistry
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: 593fd860980f158888b6dd19838c2dcaf4d0e8ee
-    pkg_managers: [yarn]
+    ref: 1c4e16268ea9aca3722bb6c514a91743f6ef795f
+    pkg_managers: [npm]
     packages:
-      yarn:
+      npm:
         - path: devspaces-pluginregistry/cachito/ovsx

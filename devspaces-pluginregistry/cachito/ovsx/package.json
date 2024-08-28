@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "This project exists to provide  dependencies, that need to be fetched via Cachito.",
   "dependencies": {
-    "ovsx": "0.8.3"
+    "ovsx": "0.8.3",
+    "@vscode/vsce": "2.24.0"
   }
 }
