@@ -10,7 +10,7 @@
 #
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=1
 USER root
@@ -28,7 +28,7 @@ RUN dnf -y install golang && \
     cp -rf /che-machine-exec/che-machine-exec /rootfs/go/bin
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1290 as runtime
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327 as runtime
 COPY --from=builder /rootfs /
 RUN dnf install -y openssl && \
     dnf -y update && \
