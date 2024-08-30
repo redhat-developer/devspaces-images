@@ -97,11 +97,6 @@ rsync -azrlt --checksum "${SOURCEDIR%/*}/job-config.json" "${TARGETDIR}"/
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-# CRW-1792 transform che-editors.yaml to refer to /latest
-pushd "${TARGETDIR}" >/dev/null || exit 1
-sed -i che-editors.yaml -r -e "s|/nightly|/latest|" -e "s|/next|/latest|"
-popd >/dev/null || exit
-
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/rhel.Dockerfile" --regexp-extended \
