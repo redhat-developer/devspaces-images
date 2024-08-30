@@ -144,7 +144,7 @@ SHA_DS=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
 echo "Using: DS_VERSION = $DS_VERSION (SHA_DS = $SHA_DS)"
 
 DS_SHAs="${DS_VERSION} @ ${SHA_DS} #${BUILD_NUMBER} :: Eclipse Che Dashboard ${VER_CHE} @ ${SHA_CHE}"
-DS_DOCS_BASEURL="https://docs.redhat.com/documentation/en/red_hat_openshift_dev_spaces/${DS_VERSION}"
+DS_DOCS_BASEURL="https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/${DS_VERSION}"
 sed -r \
     -e "s|@@devspaces.version@@|${DS_SHAs}|g" \
     -e "s#@@devspaces.docs.baseurl@@#${DS_DOCS_BASEURL}#g" \
