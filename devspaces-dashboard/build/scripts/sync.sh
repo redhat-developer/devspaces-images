@@ -64,6 +64,7 @@ packages/dashboard-frontend/assets/branding/
 packages/devfile-registry/air-gap/index.json
 samples/index.json
 build/scripts/
+build/dockerfiles/brew.Dockerfile
 container.yaml
 /content_sets.*
 /cvp.yml
