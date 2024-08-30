@@ -12,7 +12,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const nodeExternals = require('webpack-node-externals');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = () => {
   return {
@@ -51,15 +51,38 @@ module.exports = () => {
       },
     },
     resolveLoader: {},
-    plugins: [new webpack.ProgressPlugin()],
+    plugins: [
+      new webpack.ProgressPlugin(),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve(
+              '..',
+              '..',
+              'node_modules',
+              '@fastify/swagger-ui',
+              'static',
+              'logo.svg',
+            ),
+            to: 'server/static',
+          },
+        ],
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger-ui', 'static'),
+            to: 'static',
+          },
+        ],
+      }),
+    ],
     node: {
       __dirname: false,
     },
-    externalsPresets: { node: true },
+    target: 'node',
     externals: [
-      nodeExternals({
-        allowlist: [/^@devfile\/api/],
-      }),
+      'bufferutil', 'utf-8-validate',
     ],
   };
 };

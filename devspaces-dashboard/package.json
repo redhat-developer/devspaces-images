@@ -5,10 +5,9 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
-    ],
-    "nohoist": [
-      "**/dashboard-backend/**"
+      "packages/common",
+      "packages/dashboard-backend",
+      "packages/dashboard-frontend"
     ]
   },
   "bugs": {
@@ -16,14 +15,13 @@
   },
   "homepage": "https://github.com/eclipse-che/che-dashboard",
   "engines": {
-    "yarn": ">=1.22.18",
     "node": ">=18"
   },
   "license": "EPL-2.0",
   "scripts": {
-    "build": "lerna run build --scope=@eclipse-che/dashboard-* --concurrency 1",
-    "build:dev": "lerna run build:dev --scope=@eclipse-che/dashboard-*",
-    "prebuild": "lerna run build --scope=@eclipse-che/common",
+    "build": "yarn prebuild && lerna run build --scope=@eclipse-che/dashboard-\\* --concurrency 1",
+    "build:dev": "yarn prebuild && lerna run build:dev --scope=@eclipse-che/dashboard-\\*",
+    "prebuild": "yarn workspace @eclipse-che/common build",
     "prebuild:dev": "yarn prebuild",
     "frontend:start": "yarn workspace @eclipse-che/dashboard-frontend start",
     "start": "${PWD}/run/local-run.sh $@",
@@ -31,13 +29,13 @@
     "start:cleanup": "${PWD}/run/revert-local-run.sh",
     "license:check": "${PWD}/scripts/container_tool.sh run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next --check",
     "license:generate": "${PWD}/scripts/container_tool.sh run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next",
-    "test": "lerna run test --stream -- --no-cache $@",
-    "test:check": "yarn pretest && yarn --cwd packages/dashboard-frontend test --config=jest.config.check.js",
+    "test": "yarn run pretest && lerna run test --stream -- --no-cache $@",
+    "test:check": "yarn run pretest && yarn workspace @eclipse-che/dashboard-frontend test --config=jest.config.check.js",
     "pretest": "yarn run prebuild",
     "test:coverage": "yarn run test -- --coverage",
-    "format:check": "yarn workspaces run format:check",
+    "format:check": "lerna run format:check",
     "format:fix": "lerna run --stream  format:fix",
-    "lint:check": "yarn workspaces run lint:check",
+    "lint:check": "lerna run lint:check",
     "lint:fix": "lerna run --stream lint:fix",
     "patch": "${PWD}/run/patch.sh $@"
   },
@@ -47,9 +45,11 @@
   "resolutions": {
     "@adobe/css-tools": "^4.3.2",
     "axios": "^1.7.4",
+    "braces": "^3.0.3",
+    "elliptic": "^6.5.7",
     "ip": "^2.0.1",
     "undici": "^5.28.3",
-    "webpack": "^5.94.0"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+    "webpack": "^5.94.0",
+    "ws": "^8.17.1"
+  }
 }

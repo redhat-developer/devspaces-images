@@ -35,7 +35,20 @@ export const selectRegistriesMetadata = createSelector(selectState, devfileRegis
 
 export const selectIsRegistryDevfile = createSelector(selectState, state => {
   const registriesUrls = Object.keys(state.registries);
-  return (url: string) => registriesUrls.some(registryUrl => url.startsWith(registryUrl));
+
+  return (url: string) =>
+    registriesUrls.some(registryUrl => {
+      const matchRegistryUrl = url.startsWith(registryUrl);
+      if (matchRegistryUrl === true) {
+        return true;
+      }
+
+      // if the url is not a subpath of the registry url,
+      // check if it equals to a sample source url
+      const registryMetadata = state.registries[registryUrl].metadata || [];
+
+      return registryMetadata.some(meta => meta.links?.v2 === url);
+    });
 });
 
 export const selectRegistriesErrors = createSelector(selectState, state => {

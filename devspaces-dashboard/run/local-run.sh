@@ -67,7 +67,7 @@ CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
 # guide backend to use the current cluster from kubeconfig
 export LOCAL_RUN="true"
 export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
-export CHE_SELF_SIGNED_MOUNT_PATH="${CHE_SELF_SIGNED_MOUNT_PATH:-$PWD/run/public-certs}"
+export CHE_SELF_SIGNED_MOUNT_PATH="${CHE_SELF_SIGNED_MOUNT_PATH:-$(pwd)/run/public-certs}"
 
 DASHBOARD_COMMON=packages/common
 DASHBOARD_FRONTEND=packages/dashboard-frontend
@@ -99,23 +99,22 @@ if [ ! -d $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry ]; then
   cp -r $DEVFILE_REGISTRY $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry
 
   echo "[INFO] Downloading airgap projects"
-  . "${SCRIPT_DIR}/../build/dockerfiles/airgap.sh" \
-      -d "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap"
+  . "${SCRIPT_DIR}/../scripts/airgap.sh" \
+      -o "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap" \
+      -i "packages/devfile-registry/air-gap/index.json"
 
-  sed -i 's|CHE_DASHBOARD_INTERNAL_URL|http://localhost:8080|g' "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/devfiles/airgap.json"
+  sed -i "" 's|CHE_DASHBOARD_INTERNAL_URL|http://localhost:8080|g' "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap/index.json"
 fi
 
 export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
 if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
-  echo 'Cluster access token not found.'
+  echo '[INFO] Cluster access token not found.'
   export DEX_INGRESS=$(kubectl get ingress dex -n dex -o jsonpath='{.spec.rules[0].host}')
   if [[ -n "$DEX_INGRESS" ]]; then
-    echo 'Evaluated Dex ingress'
-
-    echo 'Looking for staticClientID and  staticClientSecret...'
+    echo '[INFO] Evaluated Dex ingress. Looking for staticClientID and  staticClientSecret...'
     export CLIENT_ID=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq ${YQ_FLAGS} ".staticClients[0].id" -)
     export CLIENT_SECRET=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq ${YQ_FLAGS} ".staticClients[0].secret" -)
-    echo 'Done.'
+    echo '[INFO] Done. $CLIENT_ID and $CLIENT_SECRET are set.'
   fi
 fi
 
@@ -159,7 +158,7 @@ PRERUN_COMMAND="echo"
 
 GATEWAY=$(kubectl get deployments.apps -n $CHE_NAMESPACE che-gateway --ignore-not-found -o=json | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")')
 if [ "$GATEWAY" == "true" ]; then
-  echo "Detected gateway and oauth-proxy inside. Running in native auth mode."
+  echo "[INFO] Detected gateway and oauth-proxy inside. Running in native auth mode."
   export NATIVE_AUTH="true"
   if [ "$CHE_IN_CHE" == "false" ]; then
       # when native auth we go though port forward to avoid dealing with OpenShift OAuth Cookies
@@ -169,10 +168,6 @@ if [ "$GATEWAY" == "true" ]; then
   else
     unset CHE_API_PROXY_UPSTREAM
   fi
-fi
-
-if [ ! -d packages/dashboard-backend/node_modules/@eclipse-che/common/lib ]; then
-  ln -sr packages/common/lib packages/dashboard-backend/node_modules/@eclipse-che/common/lib
 fi
 
 # relative path from backend package

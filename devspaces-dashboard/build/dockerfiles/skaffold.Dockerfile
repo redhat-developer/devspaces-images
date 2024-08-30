@@ -10,13 +10,13 @@
 
 FROM docker.io/node:18.19.1-alpine3.19
 
+LABEL quay.expires-after=1w
+
 ENV FRONTEND_LIB=../../packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=../../packages/dashboard-backend/lib
-ENV BACKEND_NODE_MODULES=../../packages/dashboard-backend/node_modules
 ENV DEVFILE_REGISTRY=../../packages/devfile-registry
 
 COPY ${BACKEND_LIB} /backend
-COPY ${BACKEND_NODE_MODULES} /backend/node_modules
 COPY ${FRONTEND_LIB} /public
 COPY ${DEVFILE_REGISTRY} /public/dashboard/devfile-registry
 

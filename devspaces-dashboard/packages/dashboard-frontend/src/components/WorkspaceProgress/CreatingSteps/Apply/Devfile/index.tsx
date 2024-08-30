@@ -244,10 +244,13 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
 
     const workspace = this.findTargetWorkspace(this.props, this.state);
     if (workspace !== undefined) {
+      // preserve the current active tab
+      const tabName = new URLSearchParams(this.props.history.location.search).get('tab');
+
       // the workspace has been created, go to the next step
       const nextLocation = buildIdeLoaderLocation(workspace);
       this.props.history.location.pathname = nextLocation.pathname;
-      this.props.history.location.search = '';
+      this.props.history.location.search = tabName ? `?tab=${tabName}` : '';
 
       const url = toHref(this.props.history, nextLocation);
       this.tabManager.rename(url);

@@ -31,7 +31,7 @@ export function registerAirGapSampleRoute(instance: FastifyInstance) {
   instance.register(async server => {
     server.get(
       `${baseApiPath}/airgap-sample`,
-      Object.assign(rateLimitConfig, getSchema({ tags })),
+      Object.assign({}, rateLimitConfig, getSchema({ tags })),
       async () => {
         const token = getServiceAccountToken();
         const { airGapSampleApi } = getDevWorkspaceClient(token);
@@ -41,7 +41,7 @@ export function registerAirGapSampleRoute(instance: FastifyInstance) {
 
     server.get(
       `${baseApiPath}/airgap-sample/devfile/download`,
-      Object.assign(rateLimitConfig, getSchema({ tags })),
+      Object.assign({}, rateLimitConfig, getSchema({ tags })),
       async function (request: FastifyRequest, reply: FastifyReply) {
         const sampleId = (request.query as { id: string })['id'];
         if (!sampleId) {
@@ -65,7 +65,7 @@ export function registerAirGapSampleRoute(instance: FastifyInstance) {
 
     server.get(
       `${baseApiPath}/airgap-sample/project/download`,
-      Object.assign(rateLimitConfig, getSchema({ tags })),
+      Object.assign({}, rateLimitConfig, getSchema({ tags })),
       async function (request: FastifyRequest, reply: FastifyReply) {
         const sampleId = (request.query as { id: string })['id'];
         if (!sampleId) {

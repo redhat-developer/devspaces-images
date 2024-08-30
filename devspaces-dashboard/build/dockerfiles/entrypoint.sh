@@ -26,7 +26,7 @@ if [ -n "${RELATED_IMAGES_ENVS}" ]; then
   done
 fi
 
-start_server="node /backend/server/backend.js --publicFolder /public"
+start_server="node --no-deprecation /backend/server/backend.js  --publicFolder /public"
 $start_server &
 wait
 echo 'Dashboard backend server is stopped.'

@@ -38,7 +38,6 @@ RUN ln -s "$REMOTE_SOURCES_DIR"/devspaces-images-dashboard/app/devspaces-dashboa
 # cachito:yarn step 5: the actual build!
 # hadolint ignore=DL3059
 RUN yarn build
-RUN yarn workspace @eclipse-che/dashboard-backend install --production
 
 # cachito:yarn step 6: cleanup (required only if not using a builder stage)
 # RUN rm -rf $REMOTE_SOURCES_DIR
@@ -55,11 +54,9 @@ RUN \
 
 ENV FRONTEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-backend/lib
-ENV BACKEND_NODE_MODULES=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-backend/node_modules/
 ENV DEVFILE_REGISTRY=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/devfile-registry
 
 COPY --from=builder ${BACKEND_LIB} /backend
-COPY --from=builder ${BACKEND_NODE_MODULES} /backend/node_modules
 COPY --from=builder ${FRONTEND_LIB} /public
 COPY --from=builder ${DEVFILE_REGISTRY} /public/dashboard/devfile-registry
 

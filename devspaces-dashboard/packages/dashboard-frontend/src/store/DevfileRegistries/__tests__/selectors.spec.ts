@@ -20,11 +20,15 @@ import devfileApi from '@/services/devfileApi';
 import { che } from '@/services/models';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { selectDefaultDevfile, selectIsRegistryDevfile } from '@/store/DevfileRegistries/selectors';
+import {
+  selectDefaultDevfile,
+  selectIsRegistryDevfile,
+  selectRegistriesErrors,
+} from '@/store/DevfileRegistries/selectors';
 
 describe('devfileRegistries selectors', () => {
   const registryUrl = 'https://registry-url';
-  const sampleResourceUrl = 'https://resources-url';
+  const sampleResourceUrl = 'https://resources-url/devfile.yaml';
   const registryMetadata = {
     displayName: 'Empty Workspace',
     description: 'Start an empty remote development environment',
@@ -115,7 +119,33 @@ describe('devfileRegistries selectors', () => {
     const registryDevfileUrl = `${registryUrl}/devfile.yaml`;
     expect(ifRegistryDevfileFn(registryDevfileUrl)).toBeTruthy();
 
+    const registryDevfileUrl2 = sampleResourceUrl;
+    expect(ifRegistryDevfileFn(registryDevfileUrl2)).toBeTruthy();
+
     const otherDevfileUrl = 'https://other-url/devfile.yaml';
     expect(ifRegistryDevfileFn(otherDevfileUrl)).toBeFalsy();
+  });
+
+  it('should return error', () => {
+    const error = `Failed to fetch registry metadata.`;
+    const fakeStore = new FakeStoreBuilder()
+      .withDevfileRegistries({
+        registries: {
+          [registryUrl]: {
+            error,
+          },
+        },
+      })
+      .withDwServerConfig({
+        defaults: {
+          components: defaultComponents,
+        },
+      } as api.IServerConfig)
+      .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
+    const state = fakeStore.getState();
+
+    expect(selectRegistriesErrors(state)).toStrictEqual([
+      { url: registryUrl, errorMessage: error },
+    ]);
   });
 });

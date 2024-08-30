@@ -15,7 +15,7 @@ import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
 
 import UntrustedSourceModal from '@/components/UntrustedSourceModal';
-import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import { AppThunk } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { WorkspacePreferencesActionCreators } from '@/store/Workspaces/Preferences';
@@ -108,12 +108,14 @@ describe('Untrusted Repo Warning Modal', () => {
   });
 
   test('click the continue button', async () => {
+    jest.useFakeTimers();
+
     const store = storeBuilder
       .withWorkspacePreferences({
         'trusted-sources': ['repo1', 'repo2'],
       })
       .build();
-    renderComponent(store, 'source-location');
+    const { reRenderComponent } = renderComponent(store, 'source-location');
 
     const continueButton = screen.getByRole('button', { name: 'Continue' });
 
@@ -122,10 +124,20 @@ describe('Untrusted Repo Warning Modal', () => {
 
     continueButton.click();
 
-    await waitFor(() => expect(mockOnContinue).toHaveBeenCalled());
+    const nextStore = new FakeStoreBuilder()
+      .withWorkspacePreferences({
+        'trusted-sources': ['repo1', 'repo2', 'source-location'],
+      })
+      .build();
+    reRenderComponent(nextStore, 'source-location');
+
+    await jest.advanceTimersByTimeAsync(5000);
 
     expect(mockAddTrustedSource).toHaveBeenCalledTimes(1);
     expect(mockAddTrustedSource).toHaveBeenCalledWith('source-location');
+    expect(mockOnContinue).toHaveBeenCalledTimes(1);
+
+    jest.useRealTimers();
   });
 
   test('trust all checkbox is clicked', () => {
@@ -162,6 +174,28 @@ describe('Untrusted Repo Warning Modal', () => {
     expect(modal).toBeNull();
 
     expect(mockOnContinue).toHaveBeenCalledTimes(1);
+  });
+
+  test('re-check if source is trusted', () => {
+    const store = storeBuilder
+      .withWorkspacePreferences({
+        'trusted-sources': ['source-location'],
+      })
+      .build();
+    const { reRenderComponent } = renderComponent(store, 'source-location', false);
+
+    // no warning window
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // should not call onContinue
+    expect(mockOnContinue).not.toHaveBeenCalled();
+
+    // open the modal
+    reRenderComponent(store, 'source-location', true);
+
+    // should call mockOnContinue
+    expect(mockOnContinue).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
 
