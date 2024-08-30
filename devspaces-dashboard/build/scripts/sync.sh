@@ -159,5 +159,8 @@ while IFS= read -r -d '' d; do
   fi
 done <   <(find ${TARGETDIR}/ -name "*.json" -type f -print0)
 
+# Update to use yarn 1 for brew:
+"${TARGETDIR}"/scripts/yarn/change_package_manager.sh
+
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
