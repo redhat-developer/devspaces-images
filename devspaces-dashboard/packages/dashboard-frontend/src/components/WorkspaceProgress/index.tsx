@@ -144,14 +144,23 @@ class Progress extends React.Component<Props, State> {
 
   private init(props: Props, state: State, prevProps: Props | undefined): void {
     if (this.state.isSourceTrustedWarningOpen === true) {
-      const { sourceUrl } = this.state.factoryParams;
-      const isTrustedSource = this.props.isTrustedSource(sourceUrl);
-      const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
-      // trust source if it is taken from the registry or it is in the list of trusted sources
-      if (isRegistryDevfile || isTrustedSource) {
+      const workspace = this.findTargetWorkspace(props);
+      if (workspace !== undefined) {
+        // if workspace is created, close the warning
         this.setState({
           isSourceTrustedWarningOpen: false,
         });
+      } else {
+        // if workspace is not created yet, check if source is trusted
+        const { sourceUrl } = this.state.factoryParams;
+        const isTrustedSource = this.props.isTrustedSource(sourceUrl);
+        const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
+        // trust source if it is taken from the registry or it is in the list of trusted sources
+        if (isRegistryDevfile || isTrustedSource) {
+          this.setState({
+            isSourceTrustedWarningOpen: false,
+          });
+        }
       }
     }
 

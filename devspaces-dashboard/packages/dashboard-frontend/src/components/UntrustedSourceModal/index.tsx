@@ -39,7 +39,9 @@ export type Props = MappedProps & {
   onContinue: () => void;
 };
 export type State = {
-  continueDisabled: boolean;
+  // true if `onContinue` can be called
+  canContinue: boolean;
+  continueButtonDisabled: boolean;
   isTrusted: boolean;
   trustAllCheckbox: boolean;
 };
@@ -52,20 +54,21 @@ class UntrustedSourceModal extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      continueDisabled: false,
-      isTrusted: this.props.isTrusted(props.location),
+      canContinue: true,
+      continueButtonDisabled: false,
+      isTrusted: this.props.isTrustedSource(props.location),
       trustAllCheckbox: false,
     };
   }
 
   public shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>): boolean {
-    const isTrusted = this.props.isTrusted(this.props.location);
-    const nextIsTrusted = nextProps.isTrusted(nextProps.location);
-    if (isTrusted !== nextIsTrusted || this.state.isTrusted !== nextState.isTrusted) {
+    const isTrusted = this.props.isTrustedSource(this.props.location);
+    const nextIsTrusted = nextProps.isTrustedSource(nextProps.location);
+    if (isTrusted !== nextIsTrusted) {
       return true;
     }
 
-    if (this.state.continueDisabled !== nextState.continueDisabled) {
+    if (this.state.continueButtonDisabled !== nextState.continueButtonDisabled) {
       return true;
     }
 
@@ -85,27 +88,25 @@ class UntrustedSourceModal extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
-    this.init();
+    if (this.props.isOpen && this.state.isTrusted) {
+      this.handleContinue();
+    }
   }
 
-  public componentDidUpdate(): void {
-    this.init();
-  }
+  public componentDidUpdate(prevProps: Readonly<Props>): void {
+    const isTrusted = this.props.isTrustedSource(this.props.location);
 
-  private init() {
-    const isTrusted = this.props.isTrusted(this.props.location);
-    if (this.props.isOpen && isTrusted) {
-      this.setState({
-        continueDisabled: false,
-        isTrusted,
-        trustAllCheckbox: false,
-      });
+    this.setState({
+      isTrusted,
+    });
 
-      this.props.onContinue();
-    } else {
-      this.setState({
-        isTrusted,
-      });
+    if (
+      prevProps.isOpen === false &&
+      this.props.isOpen === true &&
+      isTrusted === true &&
+      this.state.canContinue === true
+    ) {
+      this.handleContinue();
     }
   }
 
@@ -115,18 +116,24 @@ class UntrustedSourceModal extends React.Component<Props, State> {
 
   private handleClose(): void {
     this.setState({
-      continueDisabled: false,
+      canContinue: true,
+      continueButtonDisabled: false,
       trustAllCheckbox: false,
     });
 
     this.props.onClose?.();
   }
 
-  private async handleContinue(): Promise<void> {
+  private async handleContinue(updateSource = false): Promise<void> {
     try {
-      this.setState({ continueDisabled: true });
+      this.setState({
+        canContinue: false,
+        continueButtonDisabled: true,
+      });
 
-      await this.updateTrustedSources();
+      if (updateSource) {
+        await this.updateTrustedSources();
+      }
 
       this.props.onContinue();
     } catch (e) {
@@ -137,8 +144,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
       });
     }
 
-    this.setState({ continueDisabled: false, trustAllCheckbox: false });
-    this.props.onClose?.();
+    this.handleClose();
   }
 
   private async updateTrustedSources(): Promise<void> {
@@ -155,15 +161,15 @@ class UntrustedSourceModal extends React.Component<Props, State> {
   }
 
   private buildModalFooter(): React.ReactNode {
-    const { continueDisabled } = this.state;
+    const { continueButtonDisabled } = this.state;
 
     return (
       <React.Fragment>
         <Button
           key="continue"
           variant={ButtonVariant.primary}
-          onClick={() => this.handleContinue()}
-          isDisabled={continueDisabled}
+          onClick={() => this.handleContinue(true)}
+          isDisabled={continueButtonDisabled}
         >
           Continue
         </Button>
@@ -222,7 +228,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   trustedSources: selectPreferencesTrustedSources(state),
-  isTrusted: selectPreferencesIsTrustedSource(state),
+  isTrustedSource: selectPreferencesIsTrustedSource(state),
 });
 
 const connector = connect(mapStateToProps, workspacePreferencesActionCreators, null, {

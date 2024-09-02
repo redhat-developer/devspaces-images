@@ -91,6 +91,9 @@ export class LoaderPage extends React.PureComponent<Props, State> {
     }
     const showToastAlert = activeTabKey !== LoaderTab.Progress;
 
+    const isLogsTabDisabled = workspace === undefined;
+    const isEventsTabDisabled = workspace === undefined;
+
     return (
       <React.Fragment>
         <Head pageName={pageTitle} />
@@ -126,6 +129,8 @@ export class LoaderPage extends React.PureComponent<Props, State> {
               title={LoaderTab.Logs}
               data-testid="loader-logs-tab"
               id="loader-logs-tab"
+              isDisabled={isLogsTabDisabled}
+              isAriaDisabled={isLogsTabDisabled}
             >
               <WorkspaceLogs workspaceUID={workspace?.uid} />
             </Tab>
@@ -134,6 +139,8 @@ export class LoaderPage extends React.PureComponent<Props, State> {
               title={LoaderTab.Events}
               data-testid="loader-events-tab"
               id="loader-events-tab"
+              isDisabled={isEventsTabDisabled}
+              isAriaDisabled={isEventsTabDisabled}
             >
               <WorkspaceEvents workspaceUID={workspace?.uid} />
             </Tab>

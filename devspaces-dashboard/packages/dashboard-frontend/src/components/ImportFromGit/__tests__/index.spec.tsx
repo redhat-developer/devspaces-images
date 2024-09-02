@@ -22,6 +22,8 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
+jest.mock('@/components/UntrustedSourceModal');
+
 const history = createMemoryHistory({
   initialEntries: ['/'],
 });
@@ -81,63 +83,6 @@ describe('GitRepoLocationInput', () => {
     expect(window.open).not.toHaveBeenCalled();
   });
 
-  describe('trusted/untrusted source', () => {
-    jest.mock('@/components/UntrustedSourceModal');
-
-    test('untrusted source', () => {
-      const store = new FakeStoreBuilder()
-        .withDwServerConfig({
-          defaults: {
-            editor: defaultEditorId,
-            components: [],
-            plugins: [],
-            pvcStrategy: 'per-workspace',
-          },
-        })
-        .withWorkspacePreferences({
-          'trusted-sources': ['repo1', 'repo2'],
-        })
-        .build();
-      renderComponent(store);
-
-      const input = screen.getByRole('textbox');
-      expect(input).toBeValid();
-
-      userEvent.paste(input, 'http://test-location');
-
-      expect(input).toHaveValue('http://test-location');
-
-      const button = screen.getByRole('button', { name: 'Create & Open' });
-      userEvent.click(button);
-
-      const untrustedSourceModal = screen.queryByRole('dialog', {
-        name: /Do you trust the authors of this repository/i,
-      });
-      expect(untrustedSourceModal).not.toBeNull();
-
-      expect(window.open).not.toHaveBeenCalled();
-    });
-
-    test('trusted source', () => {
-      renderComponent(store);
-
-      const input = screen.getByRole('textbox');
-      expect(input).toBeValid();
-
-      userEvent.paste(input, 'http://test-location');
-
-      expect(input).toHaveValue('http://test-location');
-
-      const button = screen.getByRole('button', { name: 'Create & Open' });
-      userEvent.click(button);
-
-      const untrustedSourceModal = screen.queryByRole('dialog', { name: /untrusted source/i });
-      expect(untrustedSourceModal).toBeNull();
-
-      expect(window.open).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('valid HTTP location', () => {
     describe('factory URL w/o other parameters', () => {
       test('trim spaces from the input value', () => {
@@ -156,16 +101,19 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/',
           '_blank',
         );
         expect(window.open).toHaveBeenCalledTimes(1);
-
-        userEvent.type(input, '{enter}');
-        expect(window.open).toHaveBeenCalledTimes(2);
       });
+
       test('editor definition and image are empty', () => {
         renderComponent(store);
 
@@ -181,15 +129,17 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/',
           '_blank',
         );
         expect(window.open).toHaveBeenCalledTimes(1);
-
-        userEvent.type(input, '{enter}');
-        expect(window.open).toHaveBeenCalledTimes(2);
       });
 
       test('editor definition is defined, editor image is empty', () => {
@@ -207,15 +157,17 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/?che-editor=che-incubator%2Fche-code%2Finsiders',
           '_blank',
         );
         expect(window.open).toHaveBeenCalledTimes(1);
-
-        userEvent.type(input, '{enter}');
-        expect(window.open).toHaveBeenCalledTimes(2);
       });
 
       test('editor definition is empty, editor image is defined', () => {
@@ -233,15 +185,17 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/?editor-image=custom-editor-image',
           '_blank',
         );
         expect(window.open).toHaveBeenCalledTimes(1);
-
-        userEvent.type(input, '{enter}');
-        expect(window.open).toHaveBeenCalledTimes(2);
       });
 
       test('editor definition and editor image are defined', () => {
@@ -259,15 +213,17 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/?che-editor=che-incubator%2Fche-code%2Finsiders&editor-image=custom-editor-image',
           '_blank',
         );
         expect(window.open).toHaveBeenCalledTimes(1);
-
-        userEvent.type(input, '{enter}');
-        expect(window.open).toHaveBeenCalledTimes(2);
       });
     });
 
@@ -287,15 +243,17 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should NOT be added to the URL, as the URL parameter has higher priority
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/?che-editor=other-editor-id',
           '_blank',
         );
         expect(window.open).toHaveBeenCalledTimes(1);
-
-        userEvent.type(input, '{enter}');
-        expect(window.open).toHaveBeenCalledTimes(2);
       });
 
       test('editor definition and editor image are defined, and `editor-image` is provided', () => {
@@ -313,6 +271,11 @@ describe('GitRepoLocationInput', () => {
         expect(button).toBeEnabled();
 
         userEvent.click(button);
+
+        // trust the resource
+        const continueButton = screen.getByRole('button', { name: 'Continue' });
+        userEvent.click(continueButton);
+
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
           'http://localhost/#http://test-location/?editor-image=custom-editor-image',
@@ -369,6 +332,10 @@ describe('GitRepoLocationInput', () => {
 
       userEvent.click(buttonCreate);
 
+      // trust the resource
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      userEvent.click(continueButton);
+
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenLastCalledWith(
         'http://localhost/#git@github.com:user/repo.git?che-editor=che-incubator%2Fche-code%2Finsiders&editor-image=custom-editor-image',
@@ -397,6 +364,10 @@ describe('GitRepoLocationInput', () => {
       expect(buttonCreate).toBeEnabled();
 
       userEvent.click(buttonCreate);
+
+      // trust the resource
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      userEvent.click(continueButton);
 
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenLastCalledWith(
