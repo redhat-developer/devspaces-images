@@ -50,6 +50,8 @@ import { AppThunk } from '@/store';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
 import { getEditor } from '@/store/DevfileRegistries/getEditor';
 import { selectDefaultDevfile } from '@/store/DevfileRegistries/selectors';
+import * as DevWorkspacesCluster from '@/store/DevWorkspacesCluster';
+import { checkRunningDevWorkspacesClusterLimitExceeded } from '@/store/DevWorkspacesCluster';
 import { createObject } from '@/store/helpers';
 import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selectors';
 import { selectDefaultEditor } from '@/store/Plugins/devWorkspacePlugins/selectors';
@@ -310,11 +312,15 @@ export const actionCreators: ActionCreators = {
       }
       try {
         await OAuthService.refreshTokenIfProjectExists(workspace);
+        await dispatch(
+          DevWorkspacesCluster.actionCreators.requestRunningDevWorkspacesClusterLimitExceeded(),
+        );
         await dispatch({ type: Type.REQUEST_DEVWORKSPACE, check: AUTHORIZED });
         if (!(await selectAsyncIsAuthorized(getState()))) {
           const error = selectSanityCheckError(getState());
           throw new Error(error);
         }
+        checkRunningDevWorkspacesClusterLimitExceeded(getState());
         checkRunningWorkspacesLimit(getState());
 
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {

@@ -20,6 +20,7 @@ import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
 
 import { container } from '@/inversify.config';
+import { isRunningDevWorkspacesClusterLimitExceeded } from '@/services/backend-client/devWorkspaceClusterApi';
 import { fetchServerConfig } from '@/services/backend-client/serverConfigApi';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
 import devfileApi from '@/services/devfileApi';
@@ -30,6 +31,7 @@ import { AppState } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import * as getEditorModule from '@/store/DevfileRegistries/getEditor';
+import * as testDevWorkspaceClusterStore from '@/store/DevWorkspacesCluster';
 import { AUTHORIZED } from '@/store/sanityCheckMiddleware';
 import * as ServerConfigStore from '@/store/ServerConfig';
 import { checkRunningWorkspacesLimit } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
@@ -41,6 +43,7 @@ jest.mock('@/services/helpers/delay', () => ({
   delay: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('../checkRunningWorkspacesLimit.ts');
+jest.mock('@/services/backend-client/devWorkspaceClusterApi');
 
 jest.mock('@/services/backend-client/devworkspaceResourcesApi', () => ({
   fetchResources: () => `
@@ -401,6 +404,9 @@ describe('DevWorkspace store, actions', () => {
     });
     it('should create REQUEST_DEVWORKSPACE and UPDATE_DEVWORKSPACE when starting DevWorkspace', async () => {
       (checkRunningWorkspacesLimit as jest.Mock).mockImplementation(() => undefined);
+      (isRunningDevWorkspacesClusterLimitExceeded as jest.Mock).mockReturnValue(
+        Promise.resolve(true),
+      );
 
       const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
 
@@ -408,7 +414,19 @@ describe('DevWorkspace store, actions', () => {
 
       const actions = store.getActions();
 
-      const expectedActions: Array<testStore.KnownAction | ServerConfigStore.KnownAction> = [
+      const expectedActions: Array<
+        | testStore.KnownAction
+        | testDevWorkspaceClusterStore.KnownAction
+        | ServerConfigStore.KnownAction
+      > = [
+        {
+          type: testDevWorkspaceClusterStore.Type.REQUEST_DEVWORKSPACES_CLUSTER,
+          check: AUTHORIZED,
+        },
+        {
+          type: testDevWorkspaceClusterStore.Type.RECEIVED_DEVWORKSPACES_CLUSTER,
+          isRunningDevWorkspacesClusterLimitExceeded: true,
+        },
         {
           type: testStore.Type.REQUEST_DEVWORKSPACE,
           check: AUTHORIZED,
@@ -433,6 +451,9 @@ describe('DevWorkspace store, actions', () => {
       (checkRunningWorkspacesLimit as jest.Mock).mockImplementation(() => {
         throw new Error('Limit reached.');
       });
+      (isRunningDevWorkspacesClusterLimitExceeded as jest.Mock).mockReturnValue(
+        Promise.resolve(true),
+      );
 
       const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
 
@@ -444,7 +465,19 @@ describe('DevWorkspace store, actions', () => {
 
       const actions = store.getActions();
 
-      const expectedActions: Array<testStore.KnownAction | ServerConfigStore.KnownAction> = [
+      const expectedActions: Array<
+        | testStore.KnownAction
+        | testDevWorkspaceClusterStore.KnownAction
+        | ServerConfigStore.KnownAction
+      > = [
+        {
+          type: testDevWorkspaceClusterStore.Type.REQUEST_DEVWORKSPACES_CLUSTER,
+          check: AUTHORIZED,
+        },
+        {
+          type: testDevWorkspaceClusterStore.Type.RECEIVED_DEVWORKSPACES_CLUSTER,
+          isRunningDevWorkspacesClusterLimitExceeded: true,
+        },
         {
           type: testStore.Type.REQUEST_DEVWORKSPACE,
           check: AUTHORIZED,

@@ -113,6 +113,11 @@ describe('Server Config API Service', () => {
     expect(res).toEqual(1);
   });
 
+  test('getting running workspaces cluster limit', () => {
+    const res = serverConfigService.getRunningWorkspacesClusterLimit(buildCustomResource());
+    expect(res).toEqual(100);
+  });
+
   test('getting workspace inactivity timeout', () => {
     const res = serverConfigService.getWorkspaceInactivityTimeout(buildCustomResource());
     expect(res).toEqual(1800);
@@ -212,6 +217,7 @@ function buildCustomResource(options?: { openVSXURL?: string }): CheClusterCusto
         defaultEditor: 'eclipse/che-theia/latest',
         secondsOfInactivityBeforeIdling: 1800,
         secondsOfRunBeforeIdling: -1,
+        maxNumberOfRunningWorkspacesPerCluster: 100,
         storage: { pvcStrategy: 'per-user' },
       },
       networking: {

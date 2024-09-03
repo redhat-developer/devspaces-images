@@ -14,6 +14,7 @@ import { FastifyInstance } from 'fastify';
 
 import { setup, teardown } from '@/utils/appBuilder';
 
+jest.mock('../api/helpers/getDevWorkspaceClient.ts');
 describe('Factory Acceptance Redirect', () => {
   let app: FastifyInstance;
 

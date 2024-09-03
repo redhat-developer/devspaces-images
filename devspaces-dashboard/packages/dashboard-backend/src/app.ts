@@ -25,6 +25,7 @@ import { registerAirGapSampleRoute } from '@/routes/api/airGapSample';
 import { registerClusterConfigRoute } from '@/routes/api/clusterConfig';
 import { registerClusterInfoRoute } from '@/routes/api/clusterInfo';
 import { registerDataResolverRoute } from '@/routes/api/dataResolver';
+import { registerDevWorkspaceClusterRoutes } from '@/routes/api/devworkspaceCluster';
 import { registerDevworkspaceResourcesRoute } from '@/routes/api/devworkspaceResources';
 import { registerDevworkspacesRoutes } from '@/routes/api/devworkspaces';
 import { registerDevWorkspaceTemplates } from '@/routes/api/devworkspaceTemplates';
@@ -33,6 +34,7 @@ import { registerEditorsRoutes } from '@/routes/api/editors';
 import { registerEventsRoutes } from '@/routes/api/events';
 import { registerGettingStartedSamplesRoutes } from '@/routes/api/gettingStartedSample';
 import { registerGitConfigRoutes } from '@/routes/api/gitConfig';
+import { getDevWorkspaceSingletonClient } from '@/routes/api/helpers/getDevWorkspaceClient';
 import { registerKubeConfigRoute } from '@/routes/api/kubeConfig';
 import { registerPersonalAccessTokenRoutes } from '@/routes/api/personalAccessToken';
 import { registerPodmanLoginRoute } from '@/routes/api/podmanLogin';
@@ -69,6 +71,9 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
     },
   );
 
+  const { devWorkspaceClusterServiceApi } = getDevWorkspaceSingletonClient();
+  await devWorkspaceClusterServiceApi.watchInAllNamespaces();
+
   server.register(import('@fastify/rate-limit'));
 
   return Promise.allSettled([
@@ -94,6 +99,8 @@ export default async function buildApp(server: FastifyInstance): Promise<unknown
     registerClusterInfoRoute(server),
 
     registerDevWorkspaceTemplates(server),
+
+    registerDevWorkspaceClusterRoutes(server),
 
     registerDevworkspacesRoutes(server),
 

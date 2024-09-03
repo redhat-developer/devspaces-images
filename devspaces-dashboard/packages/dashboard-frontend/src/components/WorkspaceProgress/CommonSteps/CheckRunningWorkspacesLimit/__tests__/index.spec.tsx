@@ -28,6 +28,7 @@ import { constructWorkspace } from '@/services/workspace-adapter';
 import { AppThunk } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+import { ActionCreators as DevWorkspaceClusterActionCreators } from '@/store/DevWorkspacesCluster';
 import { ActionCreators } from '@/store/Workspaces';
 
 import CommonStepCheckRunningWorkspacesLimit, { State } from '..';
@@ -36,6 +37,8 @@ jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
 const mockStartWorkspace = jest.fn();
 const mockStopWorkspace = jest.fn();
+const mockRequestRunningDevWorkspacesClusterLimitExceeded = jest.fn();
+
 jest.mock('@/store/Workspaces/index', () => {
   return {
     actionCreators: {
@@ -50,6 +53,19 @@ jest.mock('@/store/Workspaces/index', () => {
           return mockStopWorkspace(...args);
         },
     } as ActionCreators,
+  };
+});
+
+jest.mock('@/store/DevWorkspacesCluster', () => {
+  const requireActual = jest.requireActual('@/store/DevWorkspacesCluster');
+  return {
+    ...requireActual,
+    actionCreators: {
+      requestRunningDevWorkspacesClusterLimitExceeded:
+        (): AppThunk<Action, Promise<void>> => async (): Promise<void> => {
+          return mockRequestRunningDevWorkspacesClusterLimitExceeded();
+        },
+    } as DevWorkspaceClusterActionCreators,
   };
 });
 
@@ -117,11 +133,82 @@ describe('Common steps, check running workspaces limit', () => {
       })
       .build();
 
-    renderComponent(store);
+    renderComponent(store, {
+      shouldCheckLimits: false,
+      shouldStop: false,
+      name: 'Checking for the limit of running workspaces',
+    });
     await jest.runOnlyPendingTimersAsync();
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
     expect(mockOnError).not.toHaveBeenCalled();
+    expect(mockOnRestart).not.toHaveBeenCalled();
+  });
+
+  test('should check cluster limit of running workspaces', async () => {
+    const runningDevworkspace = runningDevworkspaceBuilder1.build();
+    const stoppedDevworkspace = stoppedDevworkspaceBuilder.build();
+    const store = new FakeStoreBuilder()
+      .withDevWorkspaces({
+        workspaces: [runningDevworkspace, stoppedDevworkspace],
+      })
+      .withDevWorkspacesCluster({
+        isRunningDevWorkspacesClusterLimitExceeded: false,
+      })
+      .build();
+
+    renderComponent(store, {
+      shouldCheckLimits: true,
+      shouldStop: false,
+      name: 'Checking for the limit of running workspaces',
+    });
+    await jest.runOnlyPendingTimersAsync();
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+    expect(mockOnError).not.toHaveBeenCalled();
+    expect(mockOnRestart).not.toHaveBeenCalled();
+  });
+
+  test('should throw error if cluster limit of running workspaces exceeded', async () => {
+    const runningDevworkspace = runningDevworkspaceBuilder1.build();
+    const stoppedDevworkspace = stoppedDevworkspaceBuilder.build();
+    const store = new FakeStoreBuilder()
+      .withDevWorkspaces({
+        workspaces: [runningDevworkspace, stoppedDevworkspace],
+      })
+      .withDevWorkspacesCluster({
+        isRunningDevWorkspacesClusterLimitExceeded: true,
+      })
+      .build();
+
+    renderComponent(store, {
+      shouldCheckLimits: false,
+      shouldStop: false,
+      name: 'Checking for the limit of running workspaces',
+    });
+
+    jest.runAllTimers();
+
+    // need to flush promises
+    await Promise.resolve();
+
+    const expectAlertItem = expect.objectContaining({
+      title: 'Running workspace(s) found.',
+      children: 'Exceeded the cluster limit for running DevWorkspaces',
+      actionCallbacks: [
+        expect.objectContaining({
+          title: 'Close running workspace (wksp-1) and restart',
+          callback: expect.any(Function),
+        }),
+        expect.objectContaining({
+          title: 'Switch to running workspace (wksp-1) to save any changes',
+          callback: expect.any(Function),
+        }),
+      ],
+    });
+    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();
   });
 
@@ -144,7 +231,11 @@ describe('Common steps, check running workspaces limit', () => {
     });
 
     test('alert notification', async () => {
-      renderComponent(store);
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
       jest.runAllTimers();
 
       // need to flush promises
@@ -187,7 +278,11 @@ describe('Common steps, check running workspaces limit', () => {
         }
       });
 
-      renderComponent(store);
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
       await jest.runAllTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
@@ -220,7 +315,11 @@ describe('Common steps, check running workspaces limit', () => {
         }
       });
 
-      renderComponent(store);
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
       await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
@@ -254,6 +353,7 @@ describe('Common steps, check running workspaces limit', () => {
           .build();
         localState = {
           shouldStop: true,
+          shouldCheckLimits: false,
           redundantWorkspaceUID: constructWorkspace(redundantDevworkspace).uid,
         };
       });
@@ -344,7 +444,12 @@ describe('Common steps, check running workspaces limit', () => {
             workspaces: [targetDevworkspace, nextRedundantDevworkspace, stoppedDevworkspace],
           })
           .build();
-        reRenderComponent(nextStore);
+        reRenderComponent(nextStore, {
+          shouldCheckLimits: false,
+          shouldStop: false,
+          redundantWorkspaceUID: nextRedundantDevworkspace.status?.devworkspaceId,
+          name: 'Checking for the limit of running workspaces',
+        });
         await jest.runOnlyPendingTimersAsync();
 
         // switch to the next step
@@ -352,6 +457,66 @@ describe('Common steps, check running workspaces limit', () => {
         expect(mockOnError).not.toHaveBeenCalled();
         expect(mockOnRestart).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('start a workspace above the cluster limit, limit equals 2', () => {
+    let storeBuilder: FakeStoreBuilder;
+    let runningDevworkspace1: devfileApi.DevWorkspace;
+    let runningDevworkspace2: devfileApi.DevWorkspace;
+
+    beforeEach(() => {
+      runningDevworkspace1 = runningDevworkspaceBuilder1.build();
+      runningDevworkspace2 = runningDevworkspaceBuilder1.build();
+      storeBuilder = new FakeStoreBuilder()
+        .withDevWorkspaces({
+          workspaces: [targetDevworkspace, runningDevworkspace1, runningDevworkspace2],
+        })
+        .withClusterConfig({
+          runningWorkspacesLimit: 10,
+        });
+    });
+
+    test('alert notification', async () => {
+      const store = storeBuilder
+        .withDevWorkspacesCluster({ isRunningDevWorkspacesClusterLimitExceeded: true })
+        .build();
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
+      await jest.runAllTimersAsync();
+
+      const expectAlertItem = expect.objectContaining({
+        title: 'Running workspace(s) found.',
+        children: 'Exceeded the cluster limit for running DevWorkspaces',
+        actionCallbacks: [
+          expect.objectContaining({
+            title: 'Return to dashboard',
+            callback: expect.any(Function),
+          }),
+        ],
+      });
+      await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+      expect(mockOnNextStep).not.toHaveBeenCalled();
+      expect(mockOnRestart).not.toHaveBeenCalled();
+    });
+
+    test('start a workspace', async () => {
+      const store = storeBuilder
+        .withDevWorkspacesCluster({ isRunningDevWorkspacesClusterLimitExceeded: false })
+        .build();
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
+      await jest.runAllTimersAsync();
+
+      expect(mockOnError).not.toHaveBeenCalled();
+      expect(mockOnNextStep).toHaveBeenCalled();
+      expect(mockOnRestart).not.toHaveBeenCalled();
     });
   });
 
@@ -381,7 +546,11 @@ describe('Common steps, check running workspaces limit', () => {
     });
 
     test('alert notification', async () => {
-      renderComponent(store);
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
       await jest.runAllTimersAsync();
 
       const expectAlertItem = expect.objectContaining({
@@ -416,7 +585,11 @@ describe('Common steps, check running workspaces limit', () => {
         }
       });
 
-      renderComponent(store);
+      renderComponent(store, {
+        shouldCheckLimits: false,
+        shouldStop: false,
+        name: 'Checking for the limit of running workspaces',
+      });
       await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());

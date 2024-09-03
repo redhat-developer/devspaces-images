@@ -18,6 +18,7 @@ import { createFastifyError } from '@/services/helpers';
 import { setup, teardown } from '@/utils/appBuilder';
 
 jest.mock('@/routes/api/helpers/getCertificateAuthority');
+jest.mock('../helpers/getDevWorkspaceClient.ts');
 const axiosInstanceMock = jest.fn();
 (axiosInstance.get as jest.Mock).mockImplementation(axiosInstanceMock);
 const defaultAxiosInstanceMock = jest.fn();

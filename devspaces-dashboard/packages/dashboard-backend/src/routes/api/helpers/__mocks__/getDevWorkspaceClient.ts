@@ -23,7 +23,9 @@ import { IncomingHttpHeaders } from 'http';
 
 import {
   DevWorkspaceClient,
+  DevWorkspaceSingletonClient,
   IDevWorkspaceApi,
+  IDevWorkspaceClusterApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEditorsApi,
@@ -159,6 +161,8 @@ export const stubWorkspacePreferences: api.IWorkspacePreferences = {
   'trusted-sources': '*',
 };
 
+export const stubIsRunningWorkspaceClusterLimitExceeded = true;
+
 export const getDevWorkspaceClient = jest.fn(
   (..._args: Parameters<typeof helper>): ReturnType<typeof helper> => {
     return {
@@ -249,5 +253,19 @@ export const getDevWorkspaceClient = jest.fn(
         removeTrustedSources: _namespace => Promise.resolve(),
       } as IWorkspacePreferencesApi,
     } as DevWorkspaceClient;
+  },
+);
+
+export const getDevWorkspaceSingletonClient = jest.fn(
+  (..._args: Parameters<typeof helper>): DevWorkspaceSingletonClient => {
+    return {
+      devWorkspaceClusterServiceApi: {
+        isRunningWorkspacesClusterLimitExceeded: () =>
+          Promise.resolve(stubIsRunningWorkspaceClusterLimitExceeded),
+        watchInAllNamespaces(): Promise<void> {
+          return Promise.resolve();
+        },
+      } as IDevWorkspaceClusterApi,
+    };
   },
 );

@@ -19,6 +19,7 @@ const mockProcessExit = jest.fn();
   throw new Error('exit code ' + code);
 });
 
+jest.mock('../routes/api/helpers/getDevWorkspaceClient.ts');
 describe('App', () => {
   afterEach(() => {
     jest.clearAllMocks();

@@ -10,22 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ApplicationId } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
 
 import { baseApiPath } from '@/constants/config';
 import { setup, teardown } from '@/utils/appBuilder';
 
+jest.mock('../helpers/getServiceAccountToken.ts');
 jest.mock('../helpers/getDevWorkspaceClient.ts');
-describe('Cluster Info Route', () => {
+
+describe('DevWorkspace Cluster Route', () => {
   let app: FastifyInstance;
-  const clusterConsoleUrl = 'cluster-console-url';
 
   beforeAll(async () => {
-    const env = {
-      OPENSHIFT_CONSOLE_URL: clusterConsoleUrl,
-    };
-    app = await setup({ env });
+    app = await setup();
   });
 
   afterAll(() => {
@@ -34,18 +31,9 @@ describe('Cluster Info Route', () => {
 
   test('response payload', async () => {
     const res = await app.inject({
-      url: `${baseApiPath}/cluster-info`,
+      url: `${baseApiPath}/devworkspace/running-workspaces-cluster-limit-exceeded`,
     });
     expect(res.statusCode).toEqual(200);
-    expect(res.json()).toEqual({
-      applications: [
-        {
-          icon: `${clusterConsoleUrl}/static/assets/redhat.svg`,
-          title: 'OpenShift console',
-          url: clusterConsoleUrl,
-          id: ApplicationId.CLUSTER_CONSOLE,
-        },
-      ],
-    });
+    expect(res.body).toEqual('true');
   });
 });

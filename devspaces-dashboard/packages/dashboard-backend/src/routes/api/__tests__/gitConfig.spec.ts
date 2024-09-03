@@ -18,11 +18,17 @@ import { setup, teardown } from '@/utils/appBuilder';
 
 const mockRead = jest.fn().mockResolvedValue({});
 const mockPatch = jest.fn().mockResolvedValue({});
+
 jest.mock('../helpers/getDevWorkspaceClient.ts', () => ({
   getDevWorkspaceClient: () => ({
     gitConfigApi: {
       read: mockRead,
       patch: mockPatch,
+    },
+  }),
+  getDevWorkspaceSingletonClient: () => ({
+    devWorkspaceClusterServiceApi: {
+      watchInAllNamespaces: jest.fn().mockResolvedValueOnce(true),
     },
   }),
 }));

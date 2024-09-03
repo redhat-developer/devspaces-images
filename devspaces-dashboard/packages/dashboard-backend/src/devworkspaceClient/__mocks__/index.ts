@@ -13,6 +13,8 @@
 import {
   IAirGapSampleApi,
   IDevWorkspaceApi,
+  IDevWorkspaceClusterApi,
+  IDevWorkspaceSingletonClient,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IEditorsApi,
@@ -81,6 +83,12 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
   }
 
   get editorsApi(): IEditorsApi {
+    throw new Error('Method not implemented.');
+  }
+}
+
+export class DevWorkspaceSingletonClient implements IDevWorkspaceSingletonClient {
+  get devWorkspaceClusterServiceApi(): IDevWorkspaceClusterApi {
     throw new Error('Method not implemented.');
   }
 }

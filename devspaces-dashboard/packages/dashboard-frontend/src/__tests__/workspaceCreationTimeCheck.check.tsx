@@ -71,6 +71,11 @@ describe('Workspace creation time', () => {
   });
 
   it('should be less then the TIME_LIMIT', async () => {
+    // Mock getting cluster limit for running workspaces
+    mockGet.mockResolvedValueOnce(
+      new Promise(resolve => setTimeout(() => resolve(false), FACTORY_RESOLVER_DELAY)),
+    );
+
     mockPost.mockResolvedValueOnce(
       new Promise(resolve =>
         setTimeout(
@@ -88,6 +93,9 @@ describe('Workspace creation time', () => {
         `/load-factory?url=${url}`,
         new FakeStoreBuilder()
           .withInfrastructureNamespace([namespace])
+          .withDevWorkspacesCluster({
+            isRunningDevWorkspacesClusterLimitExceeded: false,
+          })
           .withSshKeys({
             keys: [
               {
@@ -109,7 +117,7 @@ describe('Workspace creation time', () => {
       { timeout: 8000 },
     );
     expect(mockPost).toHaveBeenCalledTimes(1);
-    expect(mockGet).not.toHaveBeenCalled();
+    expect(mockGet).toHaveBeenCalledTimes(1);
     expect(mockPatch).not.toHaveBeenCalled();
     expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
 
@@ -174,6 +182,7 @@ describe('Workspace creation time', () => {
         `/load-factory?url=${url}`,
         new FakeStoreBuilder()
           .withInfrastructureNamespace([namespace])
+          .withDevWorkspacesCluster({ isRunningDevWorkspacesClusterLimitExceeded: false })
           .withFactoryResolver({
             resolver: Object.assign(
               {
@@ -229,7 +238,7 @@ describe('Workspace creation time', () => {
       { timeout: 1500 },
     );
     expect(mockPatch).toHaveBeenCalledTimes(1);
-    expect(mockGet).not.toHaveBeenCalled();
+    expect(mockGet).toHaveBeenCalled();
     expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
 
     expect(execTime).toBeLessThan(TIME_LIMIT);

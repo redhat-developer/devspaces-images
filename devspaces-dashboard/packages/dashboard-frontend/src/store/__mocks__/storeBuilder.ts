@@ -124,6 +124,10 @@ export class FakeStoreBuilder {
       startedWorkspaces: {},
       warnings: {},
     },
+    devWorkspacesCluster: {
+      isLoading: false,
+      isRunningDevWorkspacesClusterLimitExceeded: false,
+    },
     branding: {
       isLoading: false,
       data: {},
@@ -329,6 +333,18 @@ export class FakeStoreBuilder {
       this.state.devfileRegistries.filter = options.filter;
     }
     this.state.devfileRegistries.isLoading = isLoading;
+    return this;
+  }
+
+  public withDevWorkspacesCluster(
+    options: { isRunningDevWorkspacesClusterLimitExceeded: boolean },
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
+    this.state.devWorkspacesCluster.isRunningDevWorkspacesClusterLimitExceeded =
+      options.isRunningDevWorkspacesClusterLimitExceeded;
+    this.state.devWorkspacesCluster.isLoading = isLoading;
+    this.state.devWorkspacesCluster.error = error;
     return this;
   }
 

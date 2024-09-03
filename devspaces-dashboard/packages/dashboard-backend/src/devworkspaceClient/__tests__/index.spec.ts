@@ -14,6 +14,7 @@ import * as mockClientNode from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 
 import { DevWorkspaceApiService } from '@/devworkspaceClient/services/devWorkspaceApi';
+import { DevWorkspaceClusterApiService } from '@/devworkspaceClient/services/devWorkspaceClusterApiService';
 import { DevWorkspaceTemplateApiService } from '@/devworkspaceClient/services/devWorkspaceTemplateApi';
 import { DockerConfigApiService } from '@/devworkspaceClient/services/dockerConfigApi';
 import { EventApiService } from '@/devworkspaceClient/services/eventApi';
@@ -26,7 +27,7 @@ import { ServerConfigApiService } from '@/devworkspaceClient/services/serverConf
 import { SshKeysService } from '@/devworkspaceClient/services/sshKeysApi';
 import { UserProfileApiService } from '@/devworkspaceClient/services/userProfileApi';
 
-import { DevWorkspaceClient } from '..';
+import { DevWorkspaceClient, DevWorkspaceSingletonClient } from '..';
 
 jest.mock('../services/devWorkspaceApi.ts');
 
@@ -57,5 +58,30 @@ describe('DevWorkspace client', () => {
     expect(client.gitConfigApi).toBeInstanceOf(GitConfigApiService);
     expect(client.gettingStartedSampleApi).toBeInstanceOf(GettingStartedSamplesApiService);
     expect(client.sshKeysApi).toBeInstanceOf(SshKeysService);
+  });
+});
+
+describe('DevWorkspace singleton client', () => {
+  let config: KubeConfig;
+  beforeEach(() => {
+    const { KubeConfig } = mockClientNode;
+    config = new KubeConfig();
+    config.makeApiClient = jest.fn().mockImplementation(() => ({}));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('client', () => {
+    const client = DevWorkspaceSingletonClient.getInstance(config);
+
+    expect(client.devWorkspaceClusterServiceApi).toBeInstanceOf(DevWorkspaceClusterApiService);
+  });
+
+  test('return same instance', () => {
+    const client = DevWorkspaceSingletonClient.getInstance(config);
+
+    expect(client.devWorkspaceClusterServiceApi).toEqual(client.devWorkspaceClusterServiceApi);
   });
 });

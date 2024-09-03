@@ -33,6 +33,12 @@ import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/typ
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectRunningWorkspacesLimit } from '@/store/ClusterConfig/selectors';
+import {
+  actionCreators as DevWorkspaceClusterActionCreators,
+  RunningDevWorkspacesClusterLimitExceededError,
+  throwRunningDevWorkspacesClusterLimitExceededError,
+} from '@/store/DevWorkspacesCluster';
+import { selectRunningDevWorkspacesClusterLimitExceeded } from '@/store/DevWorkspacesCluster/selectors';
 import * as WorkspaceStore from '@/store/Workspaces';
 import { RunningWorkspacesExceededError } from '@/store/Workspaces/devWorkspaces';
 import { throwRunningWorkspacesExceededError } from '@/store/Workspaces/devWorkspaces/checkRunningWorkspacesLimit';
@@ -45,6 +51,7 @@ export type Props = MappedProps &
   };
 export type State = ProgressStepState & {
   shouldStop: boolean; // should the loader to stop another workspace if the running workspaces limit is exceeded
+  shouldCheckLimits: boolean; // should send request to figure out if limit is exceeded
   redundantWorkspaceUID?: string;
 };
 
@@ -58,6 +65,7 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
 
     this.state = {
       shouldStop: false,
+      shouldCheckLimits: true,
       name: this.name,
     };
   }
@@ -73,6 +81,14 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
   public shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     // active step changed
     if (this.props.distance !== nextProps.distance) {
+      return true;
+    }
+
+    if (
+      this.props.runningDevWorkspacesClusterLimitExceeded !==
+        nextProps.runningDevWorkspacesClusterLimitExceeded ||
+      this.state.shouldCheckLimits !== nextState.shouldCheckLimits
+    ) {
       return true;
     }
 
@@ -126,8 +142,20 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
    * The resolved boolean indicates whether to go to the next step or not
    */
   protected async runStep(): Promise<boolean> {
-    const { runningWorkspacesLimit } = this.props;
+    const { runningWorkspacesLimit, runningDevWorkspacesClusterLimitExceeded } = this.props;
     const { shouldStop, redundantWorkspaceUID } = this.state;
+
+    if (this.state.shouldCheckLimits === true) {
+      await this.props.requestRunningDevWorkspacesClusterLimitExceeded();
+      this.setState({
+        shouldCheckLimits: false,
+      });
+      return false;
+    }
+
+    if (runningDevWorkspacesClusterLimitExceeded === true) {
+      throwRunningDevWorkspacesClusterLimitExceededError();
+    }
 
     const redundantWorkspace = this.findRedundantWorkspace(this.props, this.state);
 
@@ -260,7 +288,10 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
     const { runningWorkspaces } = this.props;
     const key = this.name;
 
-    if (error instanceof RunningWorkspacesExceededError) {
+    if (
+      error instanceof RunningWorkspacesExceededError ||
+      error instanceof RunningDevWorkspacesClusterLimitExceededError
+    ) {
       const runningWorkspacesAlertItem: AlertItem = {
         key,
         title: 'Running workspace(s) found.',
@@ -339,13 +370,19 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   runningDevWorkspacesLimitExceeded: selectRunningDevWorkspacesLimitExceeded(state),
+  runningDevWorkspacesClusterLimitExceeded: selectRunningDevWorkspacesClusterLimitExceeded(state),
   runningWorkspaces: selectRunningWorkspaces(state),
   runningWorkspacesLimit: selectRunningWorkspacesLimit(state),
 });
 
-const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {
-  // forwardRef is mandatory for using `@react-mock/state` in unit tests
-  forwardRef: true,
-});
+const connector = connect(
+  mapStateToProps,
+  { ...WorkspaceStore.actionCreators, ...DevWorkspaceClusterActionCreators },
+  null,
+  {
+    // forwardRef is mandatory for using `@react-mock/state` in unit tests
+    forwardRef: true,
+  },
+);
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(CommonStepCheckRunningWorkspacesLimit);
