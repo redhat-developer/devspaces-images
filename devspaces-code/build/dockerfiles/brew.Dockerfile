@@ -49,7 +49,7 @@ RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env; \
 
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
 # hadolint ignore=SC2086
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yarn/releases/yarn-*.cjs /usr/local/bin/yarn
 
 
 # VS Code depends on @vscode/ripgrep that downloads the required ripgrep binary from microsoft/ripgrep-prebuilt
@@ -267,7 +267,7 @@ RUN source $REMOTE_SOURCES_DIR/devspaces-images-code/cachito.env; \
 
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
 # hadolint ignore=SC2086
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-code/app/devspaces-dashboard/.yarn/releases/yarn-*.cjs /usr/local/bin/yarn
 
 
 # VS Code depends on @vscode/ripgrep that downloads the required ripgrep binary from microsoft/ripgrep-prebuilt

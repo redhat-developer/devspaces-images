@@ -8,7 +8,7 @@ RUN source $REMOTE_SOURCES_DIR/devspaces-images-traefik/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
 
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
-RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn 
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.yarn/releases/yarn-*.cjs /usr/local/bin/yarn 
 
 # CRW-3531 note: build fails when run with python39 and nodejs:16; so stick with python2 and nodejs:12
 ENV NODEJS_VERSION="12:8020020200326104117/development"
