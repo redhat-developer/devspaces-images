@@ -69,6 +69,7 @@ describe('Creating steps, initializing', () => {
     window.location.reload = reload;
 
     jest.clearAllMocks();
+    jest.resetAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
   });
@@ -375,6 +376,33 @@ describe('Creating steps, initializing', () => {
     expect(stepTitleNext.textContent).not.toContain('untrusted source');
 
     expect(mockOnNextStep).toHaveBeenCalled();
+  });
+
+  test('`ssl_exception` error code', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+      [ERROR_CODE_ATTR]: 'ssl_exception',
+    });
+
+    renderComponent(store, searchParams);
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    const expectAlertItem = expect.objectContaining({
+      title: 'Failed to create the workspace',
+      children: expect.stringContaining(
+        'SSL handshake failed. Please, contact the cluster administrator.',
+      ),
+      actionCallbacks: [
+        expect.objectContaining({
+          title: 'Click to try again',
+          callback: expect.any(Function),
+        }),
+      ],
+    });
+    await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 });
 

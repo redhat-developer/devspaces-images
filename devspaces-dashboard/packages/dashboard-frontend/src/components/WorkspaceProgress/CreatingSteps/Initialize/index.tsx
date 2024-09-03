@@ -149,6 +149,8 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       throw new Error(
         'Could not resolve devfile from private repository because authentication request is missing a parameter, contains an invalid parameter, includes a parameter more than once, or is otherwise invalid.',
       );
+    } else if (errorCode === 'ssl_exception') {
+      throw new Error('SSL handshake failed. Please, contact the cluster administrator.');
     }
 
     // validate creation policies

@@ -63,7 +63,7 @@ export type FactoryParams = {
 
 export type PoliciesCreate = 'perclick' | 'peruser';
 
-export type ErrorCode = 'invalid_request' | 'access_denied';
+export type ErrorCode = 'invalid_request' | 'access_denied' | 'ssl_exception';
 
 export function buildFactoryParams(searchParams: URLSearchParams): FactoryParams {
   return {
