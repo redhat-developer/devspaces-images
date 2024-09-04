@@ -1012,21 +1012,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hoek@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "@hapi/hoek@npm:10.0.1"
-  checksum: 6dbcd7ae138fc751b2d81169516668bc6e4b878bb2bfdfab5eb3d51fdfd361544cc791ff12375587bf71dbeb801810cd62105f5d744dfa457140fb1709bbea6f
-  languageName: node
-  linkType: hard
-
-"@hapi/hoek@npm:^11.0.2":
-  version: 11.0.4
-  resolution: "@hapi/hoek@npm:11.0.4"
-  checksum: 67dc9782a8235e066e3885352e40faa3c239621d7de29bfc88a72aba60eeb8df76b5c05d77962c734c8b0ef3fc7f818cc692689003d270a1b73ea98ba1508c5b
-  languageName: node
-  linkType: hard
-
-"@hapi/hoek@npm:^9.0.0, @hapi/hoek@npm:^9.3.0":
+"@hapi/hoek@npm:9.3.0":
   version: 9.3.0
   resolution: "@hapi/hoek@npm:9.3.0"
   checksum: 4771c7a776242c3c022b168046af4e324d116a9d2e1d60631ee64f474c6e38d1bb07092d898bf95c7bc5d334c5582798a1456321b2e53ca817d4e7c88bc25b43
