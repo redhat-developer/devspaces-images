@@ -73,7 +73,7 @@ USER root
 ENV \
     # We install everything to /home/tooling/ as /home/user/ may get overwritten, see github.com/eclipse/che/issues/22412
     HOME=/home/tooling \
-    NODEJS_VERSION="18" \
+    NODEJS_VERSION="20" \
     PYTHON_VERSION="3.11" \
     PHP_VERSION="7.4" \
     XDEBUG_VERSION="3.1.6" \
@@ -248,7 +248,7 @@ RUN \
     ########################################################################
     # Nodejs
     ########################################################################
-    # see https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
+    # see https://catalog.redhat.com/software/containers/ubi8/nodejs-20/647466671b1440a9c7cd4704?gs=&q=node&container-tabs=dockerfile
     SL=/usr/bin/nodemon; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/bin/python3; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/libexec/platform-python ${SL}; else ls -la ${SL}; fi && \
     ########################################################################
