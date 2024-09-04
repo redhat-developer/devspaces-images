@@ -89,10 +89,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
 
   public componentDidMount(): void {
     if (this.props.isOpen && this.state.isTrusted) {
-      this.setState({
-        canContinue: false,
-      });
-      this.props.onContinue();
+      this.handleContinue();
     }
   }
 
@@ -109,10 +106,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
       isTrusted === true &&
       this.state.canContinue === true
     ) {
-      this.setState({
-        canContinue: false,
-      });
-      this.props.onContinue();
+      this.handleContinue();
     }
   }
 
@@ -130,14 +124,16 @@ class UntrustedSourceModal extends React.Component<Props, State> {
     this.props.onClose?.();
   }
 
-  private async handleContinue(): Promise<void> {
+  private async handleContinue(updateSource = false): Promise<void> {
     try {
       this.setState({
         canContinue: false,
         continueButtonDisabled: true,
       });
 
-      await this.updateTrustedSources();
+      if (updateSource) {
+        await this.updateTrustedSources();
+      }
 
       this.props.onContinue();
     } catch (e) {
@@ -172,7 +168,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
         <Button
           key="continue"
           variant={ButtonVariant.primary}
-          onClick={() => this.handleContinue()}
+          onClick={() => this.handleContinue(true)}
           isDisabled={continueButtonDisabled}
         >
           Continue
