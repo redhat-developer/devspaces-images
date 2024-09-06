@@ -634,7 +634,7 @@
 | [`merge-stream@2.0.0`](https://github.com/grncdr/merge-stream.git) | MIT | clearlydefined |
 | [`merge2@1.4.1`](git@github.com:teambition/merge2.git) | MIT | clearlydefined |
 | [`metric-lcs@0.1.2`](https://github.com/nickdeis/metric-lcs) | MIT | clearlydefined |
-| [`micromatch@4.0.5`](https://github.com/micromatch/micromatch.git) | MIT | clearlydefined |
+| [`micromatch@4.0.8`](https://github.com/micromatch/micromatch.git) | MIT | clearlydefined |
 | [`mimic-fn@2.1.0`](https://github.com/sindresorhus/mimic-fn.git) | MIT | clearlydefined |
 | [`min-indent@1.0.1`](https://github.com/thejameskyle/min-indent) | MIT | clearlydefined |
 | [`mini-css-extract-plugin@2.9.0`](https://github.com/webpack-contrib/mini-css-extract-plugin.git) | MIT | clearlydefined |

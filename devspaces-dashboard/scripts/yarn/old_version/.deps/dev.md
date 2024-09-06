@@ -701,7 +701,7 @@
 | `merge-stream@2.0.0` | MIT | clearlydefined |
 | [`merge2@1.4.1`](git@github.com:teambition/merge2.git) | MIT | clearlydefined |
 | `metric-lcs@0.1.2` | MIT | clearlydefined |
-| [`micromatch@4.0.5`](https://github.com/micromatch/micromatch) | MIT | clearlydefined |
+| [`micromatch@4.0.8`](https://github.com/micromatch/micromatch) | MIT | clearlydefined |
 | `mimic-fn@2.1.0` | MIT | clearlydefined |
 | `mimic-fn@4.0.0` | MIT | clearlydefined |
 | `min-indent@1.0.1` | MIT | clearlydefined |
