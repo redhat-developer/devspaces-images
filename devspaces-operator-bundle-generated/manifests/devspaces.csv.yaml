@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:f1510d76187959931786b7eced15c12e97e9dc75cbae2e3008205d243cfe6568
-    createdAt: "2024-08-26T12:58:22+00:00"
+    createdAt: "2024-09-06T15:25:00+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
@@ -845,7 +845,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
                   value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:ac9c6aa05cd88cb10c46f3d018ffec42868f6909633fbbd75ad1ddc70dacaf7c
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:9674694d47bf0056d6ff9ab3c9f8d0849399ac66c74c98b63bc8fa68c8aaec58
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:f6c37678f1eb3279e603f63d2a821b72394c52d25c2ed5058dc29d4caa15d504
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:b2374ba81eca1d9fb224bf1072a134e34fda510e49e17dabb25fec29d92f758c
                 - name: RELATED_IMAGE_pvc_jobs
@@ -1061,7 +1061,7 @@ spec:
   - name: gateway_authentication_sidecar
     image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:ac9c6aa05cd88cb10c46f3d018ffec42868f6909633fbbd75ad1ddc70dacaf7c
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:9674694d47bf0056d6ff9ab3c9f8d0849399ac66c74c98b63bc8fa68c8aaec58
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:f6c37678f1eb3279e603f63d2a821b72394c52d25c2ed5058dc29d4caa15d504
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:b2374ba81eca1d9fb224bf1072a134e34fda510e49e17dabb25fec29d92f758c
   - name: pvc_jobs
