@@ -67,7 +67,7 @@ UDI_IMAGE_TAG=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${UDI_VERSIO
 UDI_IMAGE="${DS_RRIO}/udi-rhel8@${UDI_IMAGE_TAG}"
 CODE_IMAGE="${DS_RRIO}/code-rhel8:${DS_VERSION}"
 IDEA_IMAGE="${DS_RRIO}/idea-rhel8:${DS_VERSION}"
-RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
+RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.15"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
 # global / generic changes
