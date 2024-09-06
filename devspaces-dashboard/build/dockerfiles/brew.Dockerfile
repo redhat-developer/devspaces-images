@@ -44,7 +44,7 @@ RUN yarn build
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
 # https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-122.1724231540
+FROM ubi8/nodejs-18:1-122.1725330789
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006
@@ -65,6 +65,22 @@ COPY build/dockerfiles/rhel.entrypoint.sh /usr/local/bin
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 
 ## Append Brew metadata
+ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \
+    PRODNAME="devspaces" \
+    COMPNAME="dashboard-rhel8"
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$DESCRIPTION" \
+      io.openshift.tags="$PRODNAME,$COMPNAME" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
+      name="$PRODNAME/$COMPNAME" \
+      version="3.17" \
+      license="EPLv2" \
+      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      io.openshift.expose-services="" \
+      usage=""
 ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \
     PRODNAME="devspaces" \
