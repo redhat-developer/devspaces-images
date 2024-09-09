@@ -19,6 +19,7 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 UBI_TAG=8.8
 OPENSHIFT_TAG="v4.12"
+PROXY_TAG="v4.15"
 
 usage () {
 	echo "Usage:   ${0##*/} -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
@@ -65,8 +66,8 @@ UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 UDI_VERSION_ZZZ=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.RepoTags' | sort -uV | grep "${DS_VERSION}-" | grep -E -v "\.[0-9]{10}" | tr -d '", ' | tail -1) # get 3.5-16, not 3.5-16.1678881134
 UDI_IMAGE_TAG=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${UDI_VERSION_ZZZ} | yq -r '.Digest')
 UDI_IMAGE="registry.redhat.io/devspaces/udi-rhel8@${UDI_IMAGE_TAG}"
-RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.15"
-OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
+RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${PROXY_TAG}"
+OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${PROXY_TAG}"
 
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
