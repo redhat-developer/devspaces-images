@@ -23,7 +23,7 @@ MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
 UBI_TAG=8.8
 OPENSHIFT_TAG="v4.12"
-PROXY_TAG="v4.15"
+PROXY_TAG="v4.14"
 
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
