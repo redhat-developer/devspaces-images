@@ -34,7 +34,6 @@ exports[`Editor Selector Entry snapshot 1`] = `
         <div
           className="pf-c-label-group__main"
         >
-          
           <ul
             aria-label="Label group category"
             className="pf-c-label-group__list"

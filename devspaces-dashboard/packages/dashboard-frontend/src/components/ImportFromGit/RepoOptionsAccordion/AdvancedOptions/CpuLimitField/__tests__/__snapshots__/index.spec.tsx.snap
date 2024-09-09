@@ -27,7 +27,6 @@ exports[`CpuLimitField 2Gi snapshot 1`] = `
       type="range"
       value={2}
     />
-    
   </div>
 </div>
 `;

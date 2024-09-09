@@ -44,11 +44,11 @@ describe('DevfileEditorTab', () => {
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('expanded state', () => {
+    test('expanded state', async () => {
       renderComponent(true, workspace);
 
       const buttonExpand = screen.getByRole('button', { name: 'Expand Editor' });
-      userEvent.click(buttonExpand);
+      await userEvent.click(buttonExpand);
 
       const isExpanded = screen.getByTestId('devfile-viewer-is-expanded');
       expect(isExpanded).toHaveTextContent('true');

@@ -51,7 +51,7 @@ describe('RepoOptionsAccordion', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('update Advanced Options', () => {
+  test('update Advanced Options', async () => {
     renderComponent(store, 'https://testlocation');
 
     let updateAdvancedOptions = screen.queryByRole('button', {
@@ -62,7 +62,7 @@ describe('RepoOptionsAccordion', () => {
 
     const accordionItemAdvancedOptions = screen.getByTestId('accordion-item-advanced-options');
 
-    userEvent.click(accordionItemAdvancedOptions);
+    await userEvent.click(accordionItemAdvancedOptions);
 
     const advancedOptions = screen.queryByTestId('advanced-options');
 
@@ -77,7 +77,7 @@ describe('RepoOptionsAccordion', () => {
 
     expect(updateAdvancedOptions).not.toBeNull();
 
-    userEvent.click(updateAdvancedOptions as HTMLElement);
+    await userEvent.click(updateAdvancedOptions as HTMLElement);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       'https://testlocation?image=newContainerImage&storageType=ephemeral&policies.create=perclick&memoryLimit=1Gi&cpuLimit=1',
@@ -85,7 +85,7 @@ describe('RepoOptionsAccordion', () => {
     );
   });
 
-  test('update Git Repo Options without a supported git service', () => {
+  test('update Git Repo Options without a supported git service', async () => {
     renderComponent(store, 'https://testlocation');
 
     let updateGitRepoOptions = screen.queryByRole('button', {
@@ -96,7 +96,7 @@ describe('RepoOptionsAccordion', () => {
 
     const accordionItemGitRepoOptions = screen.getByTestId('accordion-item-git-repo-options');
 
-    userEvent.click(accordionItemGitRepoOptions);
+    await userEvent.click(accordionItemGitRepoOptions);
 
     const gitRepoOptions = screen.queryByTestId('git-repo-options');
 
@@ -109,7 +109,7 @@ describe('RepoOptionsAccordion', () => {
 
     expect(updateGitRepoOptions).not.toBeNull();
 
-    userEvent.click(updateGitRepoOptions as HTMLElement);
+    await userEvent.click(updateGitRepoOptions as HTMLElement);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       'https://testlocation?remotes={{test-updated,http://test}}&devfilePath=newDevfilePath',
@@ -117,7 +117,7 @@ describe('RepoOptionsAccordion', () => {
     );
   });
 
-  test('update Git Repo Options wit a supported git service', () => {
+  test('update Git Repo Options wit a supported git service', async () => {
     renderComponent(store, 'https://github.com/testlocation');
 
     let updateGitRepoOptions = screen.queryByRole('button', {
@@ -128,7 +128,7 @@ describe('RepoOptionsAccordion', () => {
 
     const accordionItemGitRepoOptions = screen.getByTestId('accordion-item-git-repo-options');
 
-    userEvent.click(accordionItemGitRepoOptions);
+    await userEvent.click(accordionItemGitRepoOptions);
 
     const gitRepoOptions = screen.queryByTestId('git-repo-options');
 
@@ -141,7 +141,7 @@ describe('RepoOptionsAccordion', () => {
 
     expect(updateGitRepoOptions).not.toBeNull();
 
-    userEvent.click(updateGitRepoOptions as HTMLElement);
+    await userEvent.click(updateGitRepoOptions as HTMLElement);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       'https://github.com/testlocation/undefined/tree/newBranch?remotes={{test-updated,http://test}}&devfilePath=newDevfilePath',

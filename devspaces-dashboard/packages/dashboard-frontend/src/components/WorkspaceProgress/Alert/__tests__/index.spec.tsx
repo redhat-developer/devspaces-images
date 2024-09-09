@@ -71,13 +71,13 @@ describe('Loader Alert', () => {
     expect(screen.queryByTestId('loader-alerts-group')).toBeNull();
   });
 
-  it('should handle the close alert action', () => {
+  it('should handle the close alert action', async () => {
     renderComponent([alertItem1, alertItem2]);
 
     const closeButton = screen.getByRole('button', {
       name: /close/i,
     });
-    userEvent.click(closeButton);
+    await userEvent.click(closeButton);
 
     expect(mockOnClose).toHaveBeenCalled();
   });

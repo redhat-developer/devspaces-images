@@ -21,7 +21,7 @@
   "scripts": {
     "build": "yarn prebuild && lerna run build --scope=@eclipse-che/dashboard-\\* --concurrency 1",
     "build:dev": "yarn prebuild && lerna run build:dev --scope=@eclipse-che/dashboard-\\*",
-    "prebuild": "yarn workspace @eclipse-che/common build",
+    "prebuild": "lerna run build --scope=@eclipse-che/common",
     "prebuild:dev": "yarn prebuild",
     "frontend:start": "yarn workspace @eclipse-che/dashboard-frontend start",
     "start": "${PWD}/run/local-run.sh $@",

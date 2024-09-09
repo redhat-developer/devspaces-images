@@ -43,7 +43,6 @@ exports[`TokenData snapshot w/o token data 1`] = `
         type="password"
         value=""
       />
-      
     </div>
   </div>
 </form>
@@ -92,7 +91,6 @@ exports[`TokenData snapshot with token data 1`] = `
         type="password"
         value=""
       />
-      
     </div>
   </div>
 </form>

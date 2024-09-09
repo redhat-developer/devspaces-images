@@ -95,11 +95,11 @@ describe('Devfile Metadata Card', () => {
     expect(screen.queryByText('Tech-Preview')).toBeTruthy();
   });
 
-  it('should handle card click', () => {
+  it('should handle card click', async () => {
     renderComponent(metadata);
 
     const card = screen.getByRole('article');
-    userEvent.click(card);
+    await userEvent.click(card);
 
     expect(onCardClick).toHaveBeenCalledWith();
   });

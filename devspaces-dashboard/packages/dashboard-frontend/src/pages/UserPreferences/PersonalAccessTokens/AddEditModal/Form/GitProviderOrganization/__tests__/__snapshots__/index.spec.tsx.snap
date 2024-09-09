@@ -50,7 +50,6 @@ exports[`GitProviderOrganization snapshot w/o organization 1`] = `
         type="text"
         value=""
       />
-      
     </div>
   </div>
 </form>
@@ -106,7 +105,6 @@ exports[`GitProviderOrganization snapshot with organization 1`] = `
         type="text"
         value="user-organization"
       />
-      
     </div>
   </div>
 </form>

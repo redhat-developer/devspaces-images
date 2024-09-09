@@ -362,7 +362,7 @@ describe('The WorkspaceLogs component', () => {
 
     expect(screen.queryByText(/first line/)).toBeTruthy();
 
-    userEvent.click(container2!);
+    await userEvent.click(container2!);
 
     expect(screen.queryByText(/waiting for container/)).toBeTruthy();
   });
@@ -390,7 +390,7 @@ describe('The WorkspaceLogs component', () => {
 
     expect(screen.queryByText(/Collapsed view/)).toBeTruthy();
 
-    userEvent.click(toggleButton!);
+    await userEvent.click(toggleButton!);
 
     expect(screen.queryByText(/Expanded view/)).toBeTruthy();
 
@@ -398,7 +398,7 @@ describe('The WorkspaceLogs component', () => {
 
     const spyAppendChild = jest.spyOn(document.body, 'appendChild');
 
-    userEvent.click(downloadButton!);
+    await userEvent.click(downloadButton!);
 
     const expectedDownloadAttr = 'dev-wksp-container-1.log';
     expect(spyAppendChild).toHaveBeenCalledWith(

@@ -35,7 +35,7 @@ describe('SshPrivateKey', () => {
   });
 
   describe('file upload', () => {
-    it('should handle SSH private key', () => {
+    it('should handle SSH private key', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -43,7 +43,8 @@ describe('SshPrivateKey', () => {
       const input = screen.getByPlaceholderText('Upload the PRIVATE key');
 
       const sshPrivateKey = 'ssh-private-key';
-      userEvent.paste(input, sshPrivateKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPrivateKey);
 
       const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
 
@@ -53,19 +54,20 @@ describe('SshPrivateKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle the wrong file type', () => {
+    it('should handle the wrong file type', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
 
       const input = screen.getByPlaceholderText('Upload the PRIVATE key');
 
-      userEvent.paste(input, 'ssh-private-key');
+      await userEvent.click(input);
+      await userEvent.paste('ssh-private-key');
 
       mockOnChange.mockClear();
 
       const sshPrivateKey = '';
-      userEvent.clear(input);
+      await userEvent.clear(input);
 
       expect(mockOnChange).toHaveBeenCalledWith(sshPrivateKey, false);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeTruthy();
@@ -73,7 +75,7 @@ describe('SshPrivateKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle large file', () => {
+    it('should handle large file', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -81,7 +83,8 @@ describe('SshPrivateKey', () => {
       const input = screen.getByPlaceholderText('Upload the PRIVATE key');
 
       const sshPrivateKey = 'ssh-private-key'.repeat(5000);
-      userEvent.paste(input, sshPrivateKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPrivateKey);
 
       const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
 
@@ -93,7 +96,7 @@ describe('SshPrivateKey', () => {
   });
 
   describe('text area', () => {
-    it('should handle SSH private key', () => {
+    it('should handle SSH private key', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -102,7 +105,8 @@ describe('SshPrivateKey', () => {
 
       // fill the SSH key data field
       const sshPrivateKey = 'ssh-key-data';
-      userEvent.paste(input, sshPrivateKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPrivateKey);
 
       const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
 
@@ -112,7 +116,7 @@ describe('SshPrivateKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle the empty value', () => {
+    it('should handle the empty value', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -121,12 +125,13 @@ describe('SshPrivateKey', () => {
 
       // fill the SSH key data field
       const sshPrivateKey = 'ssh-key-data';
-      userEvent.paste(input, sshPrivateKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPrivateKey);
 
       mockOnChange.mockClear();
 
       // clear the SSH key data field
-      userEvent.clear(input);
+      await userEvent.clear(input);
 
       expect(mockOnChange).toHaveBeenCalledWith('', false);
       expect(screen.queryByText(REQUIRED_ERROR)).toBeTruthy();
@@ -135,7 +140,7 @@ describe('SshPrivateKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle large text content', () => {
+    it('should handle large text content', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -144,7 +149,8 @@ describe('SshPrivateKey', () => {
 
       // fill the SSH key data field
       const sshPrivateKey = 'ssh-key-data'.repeat(5000);
-      userEvent.paste(input, sshPrivateKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPrivateKey);
 
       const expectedSshPrivateKey = btoa(sshPrivateKey.trim() + '\n');
 

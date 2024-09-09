@@ -103,7 +103,7 @@ describe('AdditionalGitRemote', () => {
     });
   });
 
-  test('delete the remote', () => {
+  test('delete the remote', async () => {
     renderComponent({ name: 'test-1', url: 'https://test-1.repo.git' });
 
     const inputName = screen.getByPlaceholderText('origin');
@@ -113,25 +113,27 @@ describe('AdditionalGitRemote', () => {
     expect(inputURL).toHaveValue('https://test-1.repo.git');
 
     const deleteButton = screen.getByTestId('remove-remote');
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     expect(mockOnDelete).toHaveBeenCalledTimes(1);
   });
 
-  test('git remote change', () => {
+  test('git remote change', async () => {
     const remote = { name: 'test', url: 'https://test' };
     renderComponent(remote);
 
     const inputName = screen.getByPlaceholderText('origin');
 
-    userEvent.paste(inputName, '-updated');
+    await userEvent.click(inputName);
+    await userEvent.paste('-updated');
 
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenNthCalledWith(1, { name: 'test-updated', url: 'https://test' });
 
     const inputURL = screen.getByPlaceholderText('HTTP or SSH URL');
 
-    userEvent.paste(inputURL, '-updated');
+    await userEvent.click(inputURL);
+    await userEvent.paste('-updated');
 
     expect(mockOnChange).toHaveBeenCalledTimes(2);
     expect(mockOnChange).toHaveBeenNthCalledWith(2, {
@@ -139,10 +141,10 @@ describe('AdditionalGitRemote', () => {
       url: 'https://test-updated',
     });
 
-    userEvent.clear(inputURL);
+    await userEvent.clear(inputURL);
     expect(mockOnChange).toHaveBeenNthCalledWith(3, { name: 'test-updated', url: '' });
 
-    userEvent.paste(inputURL, 'https://test2');
+    await userEvent.paste('https://test2');
     expect(mockOnChange).toHaveBeenNthCalledWith(4, { name: 'test-updated', url: 'https://test2' });
   });
 });

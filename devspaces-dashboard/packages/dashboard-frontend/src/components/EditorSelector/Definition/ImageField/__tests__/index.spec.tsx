@@ -30,13 +30,14 @@ describe('EditorDefinitionField', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('image change', () => {
+  test('image change', async () => {
     renderComponent();
 
     const input = screen.getByRole('textbox');
 
     const editorId = 'editor-image';
-    userEvent.paste(input, editorId);
+    await userEvent.click(input);
+    await userEvent.paste(editorId);
 
     expect(mockOnChange).toHaveBeenNthCalledWith(1, editorId);
 

@@ -52,7 +52,6 @@ exports[`SshPublicKey snapshot 1`] = `
           placeholder="Or paste the PUBLIC key"
         />
       </div>
-      
     </div>
   </div>
 </form>

@@ -41,7 +41,7 @@ describe('Editor Selector', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('accordion content toggling', () => {
+  test('accordion content toggling', async () => {
     renderComponent();
 
     const defaultEditorButton = screen.getByRole('button', { name: 'Use a Default Editor' });
@@ -55,7 +55,7 @@ describe('Editor Selector', () => {
 
     /* switch to the editor gallery section */
 
-    userEvent.click(editorGalleryButton);
+    await userEvent.click(editorGalleryButton);
 
     // now the gallery is visible
     expect(screen.getByTestId('editor-gallery-content')).not.toHaveAttribute('hidden');
@@ -64,7 +64,7 @@ describe('Editor Selector', () => {
 
     /* switch to the editor definition section */
 
-    userEvent.click(editorDefinitionButton);
+    await userEvent.click(editorDefinitionButton);
 
     // now the editor definition is visible
     expect(screen.getByTestId('editor-definition-content')).not.toHaveAttribute('hidden');
@@ -73,7 +73,7 @@ describe('Editor Selector', () => {
 
     /* switch back to the default editor section */
 
-    userEvent.click(defaultEditorButton);
+    await userEvent.click(defaultEditorButton);
 
     // now the default editor section is visible
     expect(screen.getByTestId('default-editor-content')).not.toHaveAttribute('hidden');
@@ -81,7 +81,7 @@ describe('Editor Selector', () => {
     expect(screen.getByTestId('editor-definition-content')).toHaveAttribute('hidden');
   });
 
-  test('use a default editor', () => {
+  test('use a default editor', async () => {
     renderComponent();
 
     expect(screen.getByTestId('default-editor-content')).not.toHaveAttribute('hidden');
@@ -90,11 +90,11 @@ describe('Editor Selector', () => {
 
     const defaultEditorButton = screen.getByRole('button', { name: 'Use a Default Editor' });
 
-    userEvent.click(defaultEditorButton);
+    await userEvent.click(defaultEditorButton);
     expect(mockOnSelect).toHaveBeenCalledWith(undefined, undefined);
   });
 
-  test('select editor from gallery', () => {
+  test('select editor from gallery', async () => {
     renderComponent({
       expandedId: 'selector',
       selectorEditorValue: 'some/editor/id',
@@ -117,7 +117,7 @@ describe('Editor Selector', () => {
       name: 'Select Editor',
     });
 
-    userEvent.click(selectEditorButton);
+    await userEvent.click(selectEditorButton);
 
     expect(mockOnSelect).toHaveBeenCalledWith('che-incubator/che-code/latest', undefined);
 
@@ -127,7 +127,7 @@ describe('Editor Selector', () => {
     );
   });
 
-  test('define editor by ID and editor image', () => {
+  test('define editor by ID and editor image', async () => {
     renderComponent({
       expandedId: 'definition',
       selectorEditorValue: 'some/editor/id',
@@ -150,7 +150,7 @@ describe('Editor Selector', () => {
       name: 'Editor Definition Change',
     });
 
-    userEvent.click(changeDefinitionButton);
+    await userEvent.click(changeDefinitionButton);
 
     expect(mockOnSelect).toHaveBeenCalledWith('some/editor/id', 'editor-image');
 

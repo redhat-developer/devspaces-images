@@ -38,17 +38,19 @@ describe('GitBranchField', () => {
     expect(input).toHaveValue('preset-git-branch');
   });
 
-  test('git branch change', () => {
+  test('git branch change', async () => {
     renderComponent();
 
     const input = screen.getByRole('textbox');
 
     const gitBranch = 'new-git-branch';
-    userEvent.paste(input, gitBranch);
+
+    await userEvent.click(input);
+    await userEvent.paste(gitBranch);
 
     expect(mockOnChange).toHaveBeenNthCalledWith(1, gitBranch);
 
-    userEvent.clear(input);
+    await userEvent.clear(input);
     expect(mockOnChange).toHaveBeenNthCalledWith(2, '');
   });
 });

@@ -43,27 +43,27 @@ describe('DeleteModal', () => {
     expect(screen.queryByRole('dialog')).toBeTruthy();
   });
 
-  it('should handle click on Close button', () => {
+  it('should handle click on Close button', async () => {
     renderComponent(true, [sshKey1, sshKey2]);
 
     const closeButton = screen.queryByRole('button', { name: 'Close' });
     expect(closeButton).toBeTruthy();
 
-    userEvent.click(closeButton!);
+    await userEvent.click(closeButton!);
     expect(mockOnCloseModal).toHaveBeenCalledTimes(1);
   });
 
-  it('should handle click on Cancel button', () => {
+  it('should handle click on Cancel button', async () => {
     renderComponent(true, [sshKey1, sshKey2]);
 
     const cancelButton = screen.queryByRole('button', { name: 'Cancel' });
     expect(cancelButton).toBeTruthy();
 
-    userEvent.click(cancelButton!);
+    await userEvent.click(cancelButton!);
     expect(mockOnCloseModal).toHaveBeenCalledTimes(1);
   });
 
-  it('should handle clicks on checkbox and Delete button', () => {
+  it('should handle clicks on checkbox and Delete button', async () => {
     renderComponent(true, [sshKey1, sshKey2]);
 
     const deleteButton = screen.queryByRole('button', { name: 'Delete' });
@@ -73,10 +73,10 @@ describe('DeleteModal', () => {
     const checkbox = screen.queryByRole('checkbox');
     expect(checkbox).toBeTruthy();
 
-    userEvent.click(checkbox!);
+    await userEvent.click(checkbox!);
     expect(deleteButton).toBeEnabled();
 
-    userEvent.click(deleteButton!);
+    await userEvent.click(deleteButton!);
     expect(mockOnDelete).toHaveBeenCalledTimes(1);
   });
 });

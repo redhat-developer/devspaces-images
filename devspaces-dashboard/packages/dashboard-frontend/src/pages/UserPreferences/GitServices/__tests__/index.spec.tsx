@@ -148,13 +148,13 @@ describe('GitServices', () => {
     );
   });
 
-  test('open modal and cancel', () => {
+  test('open modal and cancel', async () => {
     renderComponent(store);
 
     // click on revoke button in the list
     const list = screen.getByTestId('git-services-list');
     const revokeButton = within(list).getByRole('button', { name: 'Revoke' });
-    userEvent.click(revokeButton);
+    await userEvent.click(revokeButton);
 
     // modal is open
     expect(screen.getByTestId('revoke-modal-is-open')).toHaveTextContent('open');
@@ -163,7 +163,7 @@ describe('GitServices', () => {
     const modal = screen.getByTestId('git-services-revoke-modal');
     const cancelButton = within(modal).getByRole('button', { name: 'Cancel' });
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     // modal is closed
     expect(screen.getByTestId('revoke-modal-is-open')).toHaveTextContent('closed');
@@ -185,7 +185,7 @@ describe('GitServices', () => {
     // click on revoke button in the list
     const list = screen.getByTestId('git-services-list');
     const revokeButton = within(list).getByRole('button', { name: 'Revoke' });
-    userEvent.click(revokeButton);
+    await userEvent.click(revokeButton);
 
     // modal is open
     expect(screen.getByTestId('revoke-modal-is-open')).toHaveTextContent('open');
@@ -194,7 +194,7 @@ describe('GitServices', () => {
     const modal = screen.getByTestId('git-services-revoke-modal');
     const revokeButtonOnModal = within(modal).getByRole('button', { name: 'Revoke' });
 
-    userEvent.click(revokeButtonOnModal);
+    await userEvent.click(revokeButtonOnModal);
 
     // modal is closed
     expect(screen.getByTestId('revoke-modal-is-open')).toHaveTextContent('closed');

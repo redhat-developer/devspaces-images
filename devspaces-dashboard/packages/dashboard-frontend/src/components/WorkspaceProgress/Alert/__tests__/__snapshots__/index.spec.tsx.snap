@@ -51,7 +51,6 @@ exports[`Loader Alert snapshot with alert items 1`] = `
         </span>
         Alert title 1
       </h4>
-      
       <div
         className="pf-c-alert__action-group"
       >
@@ -115,7 +114,6 @@ exports[`Loader Alert snapshot with alert items 1`] = `
         </span>
         Alert title 2
       </h4>
-      
       <div
         className="pf-c-alert__action-group"
       />

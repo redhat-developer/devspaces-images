@@ -43,7 +43,7 @@ describe('ProviderWarning', () => {
     renderComponent(true);
 
     const link = screen.getByTestId('tooltip-link');
-    userEvent.click(link);
+    await userEvent.click(link);
 
     expect(window.open).toHaveBeenLastCalledWith('http://dummy.ref', '_blank');
   });

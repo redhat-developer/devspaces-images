@@ -39,66 +39,70 @@ describe('GitProviderEndpoint', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should handle a correct endpoint', () => {
+  it('should handle a correct endpoint', async () => {
     const endpoint = 'https://provider.test/endpoint';
     renderComponent(undefined);
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.paste(input, endpoint);
+    await userEvent.click(input);
+    await userEvent.paste(endpoint);
 
     expect(mockOnChange).toHaveBeenCalledWith(endpoint, true);
     expect(screen.queryByText('The URL is not valid.')).toBeFalsy();
   });
 
-  it('should handle a correct endpoint with the port part', () => {
+  it('should handle a correct endpoint with the port part', async () => {
     const endpoint = 'https://bitbucket.org:8443';
     renderComponent(undefined);
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.paste(input, endpoint);
+    await userEvent.click(input);
+    await userEvent.paste(endpoint);
 
     expect(mockOnChange).toHaveBeenCalledWith(expect.stringContaining(endpoint), true);
     expect(screen.queryByText('The URL is not valid.')).toBeFalsy();
   });
 
-  it('should handle endpoint started with an incorrect protocol', () => {
+  it('should handle endpoint started with an incorrect protocol', async () => {
     const endpoint = 'asdf://provider/endpoint';
     renderComponent(undefined);
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.paste(input, endpoint);
+    await userEvent.click(input);
+    await userEvent.paste(endpoint);
 
     expect(mockOnChange).toHaveBeenCalledWith(endpoint, false);
     expect(screen.queryByText('The URL is not valid.')).toBeTruthy();
   });
 
-  it('should handle endpoint w/o protocol', () => {
+  it('should handle endpoint w/o protocol', async () => {
     const endpoint = 'provider/endpoint';
     renderComponent(undefined);
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.paste(input, endpoint);
+    await userEvent.click(input);
+    await userEvent.paste(endpoint);
 
     expect(mockOnChange).toHaveBeenCalledWith(endpoint, false);
     expect(screen.queryByText('The URL is not valid.')).toBeTruthy();
   });
 
-  it('should handle an empty value', () => {
+  it('should handle an empty value', async () => {
     const endpoint = 'https://provider.test/endpoint';
     renderComponent(endpoint);
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.clear(input);
+    await userEvent.clear(input);
 
     expect(mockOnChange).toHaveBeenCalledWith('', false);
     expect(screen.queryByText('This field is required.')).toBeTruthy();
@@ -117,12 +121,13 @@ describe('GitProviderEndpoint', () => {
       expect(input).toHaveValue(nextDefaultEndpoint);
     });
 
-    it('should not change value if input is modified', () => {
+    it('should not change value if input is modified', async () => {
       const { reRenderComponent } = renderComponent(undefined);
 
       const input = screen.getByRole('textbox');
       const userModifiedEndpoint = 'https://provider.modified/endpoint';
-      userEvent.paste(input, userModifiedEndpoint);
+      await userEvent.click(input);
+      await userEvent.paste(userModifiedEndpoint);
 
       const nextDefaultEndpoint = 'https://provider.next/endpoint';
       reRenderComponent(undefined, nextDefaultEndpoint);

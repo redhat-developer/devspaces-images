@@ -46,13 +46,13 @@ describe('OverviewTab', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('change storage type', () => {
+  test('change storage type', async () => {
     renderComponent(workspace);
     expect(mockOnSave).not.toHaveBeenCalled();
 
     const changeStorageType = screen.getByRole('button', { name: 'Change storage type' });
 
-    userEvent.click(changeStorageType);
+    await userEvent.click(changeStorageType);
 
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({ storageType: 'per-workspace' }),

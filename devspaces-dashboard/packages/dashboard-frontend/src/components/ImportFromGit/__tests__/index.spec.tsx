@@ -17,7 +17,7 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 
 import ImportFromGit from '@/components/ImportFromGit';
-import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
@@ -65,13 +65,14 @@ describe('GitRepoLocationInput', () => {
     expect(component).toMatchSnapshot();
   });
 
-  test('invalid location', () => {
+  test('invalid location', async () => {
     renderComponent(store);
 
     const input = screen.getByRole('textbox');
     expect(input).toBeValid();
 
-    userEvent.paste(input, 'invalid-test-location');
+    await userEvent.click(input);
+    await userEvent.paste('invalid-test-location');
 
     expect(input).toHaveValue('invalid-test-location');
     expect(input).toBeInvalid();
@@ -79,32 +80,32 @@ describe('GitRepoLocationInput', () => {
     const button = screen.getByRole('button', { name: 'Create & Open' });
     expect(button).toBeDisabled();
 
-    userEvent.type(input, '{enter}');
+    await userEvent.type(input, '{enter}');
     expect(window.open).not.toHaveBeenCalled();
   });
 
   describe('valid HTTP location', () => {
     describe('factory URL w/o other parameters', () => {
-      test('trim spaces from the input value', () => {
+      test('trim spaces from the input value', async () => {
         renderComponent(store);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
-        input.focus();
-        userEvent.paste(input, '   http://test-location/  ');
+        await userEvent.click(input);
+        await userEvent.paste('   http://test-location/  ');
         input.blur();
 
-        expect(input).toHaveValue('http://test-location/');
+        await waitFor(() => expect(input).toHaveValue('http://test-location/'));
         expect(input).toBeValid();
 
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
@@ -114,13 +115,14 @@ describe('GitRepoLocationInput', () => {
         expect(window.open).toHaveBeenCalledTimes(1);
       });
 
-      test('editor definition and image are empty', () => {
+      test('editor definition and image are empty', async () => {
         renderComponent(store);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
 
-        userEvent.paste(input, 'http://test-location/');
+        await userEvent.click(input);
+        await userEvent.paste('http://test-location/');
 
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
@@ -128,11 +130,11 @@ describe('GitRepoLocationInput', () => {
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
@@ -142,13 +144,14 @@ describe('GitRepoLocationInput', () => {
         expect(window.open).toHaveBeenCalledTimes(1);
       });
 
-      test('editor definition is defined, editor image is empty', () => {
+      test('editor definition is defined, editor image is empty', async () => {
         renderComponent(store, editorId);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
 
-        userEvent.paste(input, 'http://test-location/');
+        await userEvent.click(input);
+        await userEvent.paste('http://test-location/');
 
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
@@ -156,11 +159,11 @@ describe('GitRepoLocationInput', () => {
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
@@ -170,13 +173,14 @@ describe('GitRepoLocationInput', () => {
         expect(window.open).toHaveBeenCalledTimes(1);
       });
 
-      test('editor definition is empty, editor image is defined', () => {
+      test('editor definition is empty, editor image is defined', async () => {
         renderComponent(store, undefined, editorImage);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
 
-        userEvent.paste(input, 'http://test-location/');
+        await userEvent.click(input);
+        await userEvent.paste('http://test-location/');
 
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
@@ -184,11 +188,11 @@ describe('GitRepoLocationInput', () => {
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
@@ -198,13 +202,14 @@ describe('GitRepoLocationInput', () => {
         expect(window.open).toHaveBeenCalledTimes(1);
       });
 
-      test('editor definition and editor image are defined', () => {
+      test('editor definition and editor image are defined', async () => {
         renderComponent(store, editorId, editorImage);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
 
-        userEvent.paste(input, 'http://test-location/');
+        await userEvent.click(input);
+        await userEvent.paste('http://test-location/');
 
         expect(input).toHaveValue('http://test-location/');
         expect(input).toBeValid();
@@ -212,11 +217,11 @@ describe('GitRepoLocationInput', () => {
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
@@ -228,13 +233,14 @@ describe('GitRepoLocationInput', () => {
     });
 
     describe('factory URL with `che-editor` and/or `editor-image` parameters', () => {
-      test('editor definition and editor image are defined, and `che-editor` is provided', () => {
+      test('editor definition and editor image are defined, and `che-editor` is provided', async () => {
         renderComponent(store, editorId, editorImage);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
 
-        userEvent.paste(input, 'http://test-location/?che-editor=other-editor-id');
+        await userEvent.click(input);
+        await userEvent.paste('http://test-location/?che-editor=other-editor-id');
 
         expect(input).toHaveValue('http://test-location/?che-editor=other-editor-id');
         expect(input).toBeValid();
@@ -242,11 +248,11 @@ describe('GitRepoLocationInput', () => {
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should NOT be added to the URL, as the URL parameter has higher priority
         expect(window.open).toHaveBeenLastCalledWith(
@@ -256,13 +262,14 @@ describe('GitRepoLocationInput', () => {
         expect(window.open).toHaveBeenCalledTimes(1);
       });
 
-      test('editor definition and editor image are defined, and `editor-image` is provided', () => {
+      test('editor definition and editor image are defined, and `editor-image` is provided', async () => {
         renderComponent(store, editorId, editorImage);
 
         const input = screen.getByRole('textbox');
         expect(input).toBeValid();
 
-        userEvent.paste(input, 'http://test-location/?editor-image=custom-editor-image');
+        await userEvent.click(input);
+        await userEvent.paste('http://test-location/?editor-image=custom-editor-image');
 
         expect(input).toHaveValue('http://test-location/?editor-image=custom-editor-image');
         expect(input).toBeValid();
@@ -270,11 +277,11 @@ describe('GitRepoLocationInput', () => {
         const button = screen.getByRole('button', { name: 'Create & Open' });
         expect(button).toBeEnabled();
 
-        userEvent.click(button);
+        await userEvent.click(button);
 
         // trust the resource
         const continueButton = screen.getByRole('button', { name: 'Continue' });
-        userEvent.click(continueButton);
+        await userEvent.click(continueButton);
 
         // the selected editor ID should be added to the URL
         expect(window.open).toHaveBeenLastCalledWith(
@@ -287,14 +294,14 @@ describe('GitRepoLocationInput', () => {
   });
 
   describe('valid Git+SSH location', () => {
-    test('w/o SSH keys', () => {
+    test('w/o SSH keys', async () => {
       renderComponent(store, editorId, editorImage);
 
       const input = screen.getByRole('textbox');
       expect(input).toBeValid();
 
-      input.focus();
-      userEvent.paste(input, 'git@github.com:user/repo.git');
+      await userEvent.click(input);
+      await userEvent.paste('git@github.com:user/repo.git');
       input.blur();
 
       expect(input).toHaveValue('git@github.com:user/repo.git');
@@ -305,12 +312,12 @@ describe('GitRepoLocationInput', () => {
 
       const buttonUserPreferences = screen.getByRole('button', { name: 'User Preferences' });
 
-      userEvent.click(buttonUserPreferences);
+      await userEvent.click(buttonUserPreferences);
       expect(history.location.pathname).toBe('/user-preferences');
       expect(history.location.search).toBe('?tab=SshKeys');
     });
 
-    test('with SSH keys, the `che-editor` parameter is omitted', () => {
+    test('with SSH keys, the `che-editor` parameter is omitted', async () => {
       const store = new FakeStoreBuilder()
         .withSshKeys({ keys: [{ name: 'key1', keyPub: 'publicKey' }] })
         .withWorkspacePreferences({
@@ -322,7 +329,8 @@ describe('GitRepoLocationInput', () => {
       const input = screen.getByRole('textbox');
       expect(input).toBeValid();
 
-      userEvent.paste(input, 'git@github.com:user/repo.git');
+      await userEvent.click(input);
+      await userEvent.paste('git@github.com:user/repo.git');
 
       expect(input).toHaveValue('git@github.com:user/repo.git');
       expect(input).toBeValid();
@@ -330,11 +338,11 @@ describe('GitRepoLocationInput', () => {
       const buttonCreate = screen.getByRole('button', { name: 'Create & Open' });
       expect(buttonCreate).toBeEnabled();
 
-      userEvent.click(buttonCreate);
+      await userEvent.click(buttonCreate);
 
       // trust the resource
       const continueButton = screen.getByRole('button', { name: 'Continue' });
-      userEvent.click(continueButton);
+      await userEvent.click(continueButton);
 
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenLastCalledWith(
@@ -343,7 +351,7 @@ describe('GitRepoLocationInput', () => {
       );
     });
 
-    test('with SSH keys, the `che-editor` parameter is set', () => {
+    test('with SSH keys, the `che-editor` parameter is set', async () => {
       const store = new FakeStoreBuilder()
         .withSshKeys({ keys: [{ name: 'key1', keyPub: 'publicKey' }] })
         .withWorkspacePreferences({
@@ -355,7 +363,8 @@ describe('GitRepoLocationInput', () => {
       const input = screen.getByRole('textbox');
       expect(input).toBeValid();
 
-      userEvent.paste(input, 'git@github.com:user/repo.git?che-editor=other-editor-id');
+      await userEvent.click(input);
+      await userEvent.paste('git@github.com:user/repo.git?che-editor=other-editor-id');
 
       expect(input).toHaveValue('git@github.com:user/repo.git?che-editor=other-editor-id');
       expect(input).toBeValid();
@@ -363,11 +372,11 @@ describe('GitRepoLocationInput', () => {
       const buttonCreate = screen.getByRole('button', { name: 'Create & Open' });
       expect(buttonCreate).toBeEnabled();
 
-      userEvent.click(buttonCreate);
+      await userEvent.click(buttonCreate);
 
       // trust the resource
       const continueButton = screen.getByRole('button', { name: 'Continue' });
-      userEvent.click(continueButton);
+      await userEvent.click(continueButton);
 
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenLastCalledWith(

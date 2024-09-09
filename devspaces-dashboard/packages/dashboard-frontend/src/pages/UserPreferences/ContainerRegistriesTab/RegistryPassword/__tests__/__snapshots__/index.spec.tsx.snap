@@ -91,7 +91,6 @@ exports[`Registry Password Input should correctly render the component 1`] = `
           </svg>
         </button>
       </span>
-      
     </div>
   </div>
 </form>

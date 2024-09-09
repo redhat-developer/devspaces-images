@@ -35,7 +35,7 @@ describe('SshPublicKey', () => {
   });
 
   describe('file upload', () => {
-    it('should handle SSH public key', () => {
+    it('should handle SSH public key', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -43,7 +43,8 @@ describe('SshPublicKey', () => {
       const input = screen.getByPlaceholderText('Upload the PUBLIC key');
 
       const sshPublicKey = 'ssh-public-key';
-      userEvent.paste(input, sshPublicKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPublicKey);
 
       const expectedSshPrivateKey = btoa(sshPublicKey.trim() + '\n');
 
@@ -53,7 +54,7 @@ describe('SshPublicKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle the wrong file type', () => {
+    it('should handle the wrong file type', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -61,7 +62,8 @@ describe('SshPublicKey', () => {
       const input = screen.getByPlaceholderText('Upload the PUBLIC key');
 
       // fill the SSH public key field
-      userEvent.paste(input, 'ssh-public-key');
+      await userEvent.click(input);
+      await userEvent.paste('ssh-public-key');
 
       mockOnChange.mockClear();
 
@@ -75,7 +77,7 @@ describe('SshPublicKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle large file', () => {
+    it('should handle large file', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -84,7 +86,8 @@ describe('SshPublicKey', () => {
 
       // fill the SSH public key field
       const sshPublicKey = 'ssh-public-key'.repeat(1000);
-      userEvent.paste(input, sshPublicKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPublicKey);
 
       const expectedSshPublicKey = btoa(sshPublicKey.trim() + '\n');
 
@@ -96,7 +99,7 @@ describe('SshPublicKey', () => {
   });
 
   describe('text area', () => {
-    it('should handle SSH public key', () => {
+    it('should handle SSH public key', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -104,7 +107,8 @@ describe('SshPublicKey', () => {
       const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
 
       const sshPublicKey = 'ssh-key-data';
-      userEvent.paste(input, sshPublicKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPublicKey);
 
       const expectedSshPublicKey = btoa(sshPublicKey.trim() + '\n');
 
@@ -114,7 +118,7 @@ describe('SshPublicKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle the empty value', () => {
+    it('should handle the empty value', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -122,12 +126,13 @@ describe('SshPublicKey', () => {
       const input = screen.getByPlaceholderText('Or paste the PUBLIC key');
 
       // fill the SSH key data field
-      userEvent.paste(input, 'ssh-key-data');
+      await userEvent.click(input);
+      await userEvent.paste('ssh-key-data');
 
       mockOnChange.mockClear();
 
       // clear the SSH key data field
-      userEvent.clear(input);
+      await userEvent.clear(input);
 
       expect(mockOnChange).toHaveBeenCalledWith('', false);
       expect(screen.queryByText(WRONG_TYPE_ERROR)).toBeFalsy();
@@ -135,7 +140,7 @@ describe('SshPublicKey', () => {
       expect(screen.queryByText(MAX_LENGTH_ERROR)).toBeFalsy();
     });
 
-    it('should handle large file', () => {
+    it('should handle large file', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -144,7 +149,8 @@ describe('SshPublicKey', () => {
 
       // fill the SSH key data field
       const sshPublicKey = 'ssh-key-data'.repeat(1000);
-      userEvent.paste(input, sshPublicKey);
+      await userEvent.click(input);
+      await userEvent.paste(sshPublicKey);
 
       const expectedSshPublicKey = btoa(sshPublicKey.trim() + '\n');
 

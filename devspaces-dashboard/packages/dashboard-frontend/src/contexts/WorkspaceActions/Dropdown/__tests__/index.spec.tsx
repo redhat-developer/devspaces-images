@@ -11,6 +11,7 @@
  */
 
 import { StateMock } from '@react-mock/state';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import React from 'react';
 
 import { ActionContextType } from '@/contexts/WorkspaceActions';
@@ -29,6 +30,7 @@ const mockOnAction = jest.fn();
 
 describe('WorkspaceActionsDropdown', () => {
   let workspace: Workspace;
+  let user: UserEvent;
 
   beforeEach(() => {
     workspace = {
@@ -38,6 +40,8 @@ describe('WorkspaceActionsDropdown', () => {
     } as Workspace;
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
@@ -53,7 +57,7 @@ describe('WorkspaceActionsDropdown', () => {
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('open dropdown', () => {
+    test('open dropdown', async () => {
       renderComponent(workspace, 'kebab-toggle');
 
       const toggle = screen.queryByRole('button', { name: 'Actions' });
@@ -66,7 +70,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       // toggle dropdown
       const kebabToggle = toggle!;
-      kebabToggle.click();
+      await user.click(kebabToggle);
 
       // now the dropdown menu is visible
       expect(screen.queryByRole('menu', { name: 'Actions' })).not.toBeNull();
@@ -79,12 +83,12 @@ describe('WorkspaceActionsDropdown', () => {
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('open dropdown', () => {
+    test('open dropdown', async () => {
       renderComponent(workspace, 'dropdown-toggle');
 
       const toggle = screen.queryByRole('button', { name: 'Actions' });
 
-      expect(toggle).toBeTruthy();
+      expect(toggle).not.toBeNull();
       expect(toggle).toHaveAttribute('data-testtype', 'dropdown-toggle');
 
       // dropdown menu is not visible
@@ -92,7 +96,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       // toggle dropdown
       const dropdownToggle = toggle!;
-      dropdownToggle.click();
+      await user.click(dropdownToggle);
 
       // now the dropdown menu is visible
       expect(screen.queryByRole('menu', { name: 'Actions' })).not.toBeNull();
@@ -109,7 +113,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(actionOpen).not.toBeNull();
 
-      actionOpen!.click();
+      await user.click(actionOpen!);
 
       await jest.advanceTimersByTimeAsync(1000);
 
@@ -133,7 +137,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(actionOpenInDebugMode).not.toBeNull();
 
-      actionOpenInDebugMode!.click();
+      await user.click(actionOpenInDebugMode!);
 
       await jest.advanceTimersByTimeAsync(1000);
 
@@ -160,7 +164,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(actionOpenInBackground).not.toBeNull();
 
-      actionOpenInBackground!.click();
+      await user.click(actionOpenInBackground!);
 
       await jest.advanceTimersByTimeAsync(1000);
 
@@ -188,7 +192,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(actionRestartWorkspace).not.toBeNull();
 
-      actionRestartWorkspace!.click();
+      await user.click(actionRestartWorkspace!);
 
       await jest.advanceTimersByTimeAsync(1000);
 
@@ -216,7 +220,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(actionStopWorkspace).not.toBeNull();
 
-      actionStopWorkspace!.click();
+      await user.click(actionStopWorkspace!);
 
       await jest.advanceTimersByTimeAsync(1000);
 
@@ -245,7 +249,7 @@ describe('WorkspaceActionsDropdown', () => {
 
         expect(actionDeleteWorkspace).not.toBeNull();
 
-        actionDeleteWorkspace!.click();
+        await user.click(actionDeleteWorkspace!);
 
         await jest.advanceTimersByTimeAsync(1000);
 
@@ -273,7 +277,7 @@ describe('WorkspaceActionsDropdown', () => {
 
         expect(actionDeleteWorkspace).not.toBeNull();
 
-        actionDeleteWorkspace!.click();
+        await user.click(actionDeleteWorkspace!);
 
         await jest.advanceTimersByTimeAsync(1000);
 
@@ -307,7 +311,7 @@ describe('WorkspaceActionsDropdown', () => {
 
         expect(actionDeleteWorkspace).not.toBeNull();
 
-        actionDeleteWorkspace!.click();
+        await user.click(actionDeleteWorkspace!);
 
         await jest.advanceTimersByTimeAsync(1000);
 
@@ -562,7 +566,7 @@ describe('WorkspaceActionsDropdown', () => {
 
       expect(actionDeleteWorkspace).not.toBeNull();
 
-      actionDeleteWorkspace!.click();
+      await user.click(actionDeleteWorkspace!);
 
       await jest.advanceTimersByTimeAsync(1000);
 

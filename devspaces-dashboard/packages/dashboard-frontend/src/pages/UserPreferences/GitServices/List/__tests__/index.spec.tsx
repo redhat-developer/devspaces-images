@@ -127,7 +127,7 @@ describe('GitServicesList', () => {
     expect(gitlabKebab).toBeEnabled();
   });
 
-  test('service revocable (github)', () => {
+  test('service revocable (github)', async () => {
     renderComponent(props);
 
     const rows = screen.getAllByRole('row');
@@ -144,11 +144,11 @@ describe('GitServicesList', () => {
     expect(githubCheckbox).not.toBeChecked();
 
     // check the checkbox
-    userEvent.click(githubCheckbox);
+    await userEvent.click(githubCheckbox);
     expect(githubCheckbox).toBeChecked();
 
     // uncheck the checkbox
-    userEvent.click(githubCheckbox);
+    await userEvent.click(githubCheckbox);
     expect(githubCheckbox).not.toBeChecked();
 
     // the kebab button is enabled
@@ -161,14 +161,14 @@ describe('GitServicesList', () => {
     }
 
     // open kebab menu
-    userEvent.click(githubKebab);
+    await userEvent.click(githubKebab);
 
     // the revoke button is present
     const revokeButton = within(githubRow).queryByRole('menuitem', { name: 'Revoke' });
     expect(revokeButton).not.toBeNull();
 
     // click the revoke button
-    userEvent.click(revokeButton!);
+    await userEvent.click(revokeButton!);
 
     expect(props.onRevokeServices).toHaveBeenCalledTimes(1);
     expect(props.onRevokeServices).toHaveBeenCalledWith([
@@ -179,7 +179,7 @@ describe('GitServicesList', () => {
     ]);
   });
 
-  test('can clear opt-out (github)', () => {
+  test('can clear opt-out (github)', async () => {
     props = {
       gitOauth: [
         {
@@ -218,20 +218,20 @@ describe('GitServicesList', () => {
     }
 
     // open kebab menu
-    userEvent.click(githubKebab);
+    await userEvent.click(githubKebab);
 
     // the Clear button is present
     const clearButton = within(githubRow).queryByRole('menuitem', { name: 'Clear' });
     expect(clearButton).not.toBeNull();
 
     // click the Clear button
-    userEvent.click(clearButton!);
+    await userEvent.click(clearButton!);
 
     expect(props.onClearService).toHaveBeenCalledTimes(1);
     expect(props.onClearService).toHaveBeenCalledWith('github');
   });
 
-  test('toolbar', () => {
+  test('toolbar', async () => {
     renderComponent(props);
 
     const selectedItemsCount = screen.getByTestId('selected-items-count');
@@ -244,14 +244,14 @@ describe('GitServicesList', () => {
     // check the github row
     const githubRow = rows[2];
     const githubCheckbox = within(githubRow).getByRole('checkbox');
-    userEvent.click(githubCheckbox);
+    await userEvent.click(githubCheckbox);
 
     // One item selected
     expect(selectedItemsCount).toHaveTextContent('1');
 
     // the revoke button in toolbar
     const revokeButton = screen.getByRole('button', { name: 'Revoke' });
-    userEvent.click(revokeButton);
+    await userEvent.click(revokeButton);
 
     expect(props.onRevokeServices).toHaveBeenCalledTimes(1);
     expect(props.onRevokeServices).toHaveBeenCalledWith([

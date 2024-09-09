@@ -58,31 +58,31 @@ describe('WorkspaceActionsDeleteConfirmation', () => {
     });
   });
 
-  test('click on Close button', () => {
+  test('click on Close button', async () => {
     renderComponent(true, oneWorkspace);
 
     const closeButton = screen.queryByRole('button', { name: /close/i });
 
     expect(closeButton).toBeTruthy();
 
-    userEvent.click(closeButton!);
+    await userEvent.click(closeButton!);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  test('click on Cancel button', () => {
+  test('click on Cancel button', async () => {
     renderComponent(true, oneWorkspace);
 
     const cancelButton = screen.queryByRole('button', { name: /cancel/i });
 
     expect(cancelButton).toBeTruthy();
 
-    userEvent.click(cancelButton!);
+    await userEvent.click(cancelButton!);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  test('click on Confirm button', () => {
+  test('click on Confirm button', async () => {
     renderComponent(true, oneWorkspace);
 
     const checkbox = screen.queryByRole('checkbox', {
@@ -97,10 +97,10 @@ describe('WorkspaceActionsDeleteConfirmation', () => {
     expect(confirmButton).toBeDisabled();
 
     // enable the Delete button
-    userEvent.click(checkbox!);
+    await userEvent.click(checkbox!);
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton!);
+    await userEvent.click(confirmButton!);
     expect(mockOnConfirm).toHaveBeenCalledTimes(1);
   });
 });

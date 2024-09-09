@@ -74,7 +74,7 @@ describe('Edit Registry Modal', () => {
     expect(addRegistryTitle).toBeTruthy();
   });
 
-  it('should fire onChange registries event', () => {
+  it('should fire onChange registries event', async () => {
     const registry = new FakeRegistryBuilder()
       .withUrl('http://test')
       .withPassword('qwerty')
@@ -87,21 +87,21 @@ describe('Edit Registry Modal', () => {
     expect(editButton).toBeDisabled();
 
     const urlInput = screen.getByLabelText('Url input');
-    userEvent.type(urlInput, '.com');
+    await userEvent.type(urlInput, '.com');
     expect(editButton).toBeEnabled();
 
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
     expect(mockOnChange).toHaveBeenCalledWith(
       Object.assign({}, registry, { url: 'http://test.com' }),
     );
   });
 
-  it('should fire onCancel event', () => {
+  it('should fire onCancel event', async () => {
     const component = getComponent(true, false, new FakeRegistryBuilder().build());
     render(component);
 
     const cancelButton = screen.getByTestId('cancel-button');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
   });

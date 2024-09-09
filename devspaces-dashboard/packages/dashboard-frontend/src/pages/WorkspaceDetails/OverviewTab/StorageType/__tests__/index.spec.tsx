@@ -69,13 +69,13 @@ describe('StorageTypeFormGroup', () => {
     });
 
     describe('storage type info modal dialog', () => {
-      test('show modal', () => {
+      test('show modal', async () => {
         renderComponent(store, { readonly });
 
         const button = screen.queryByRole('button', { name: 'Storage Type Info' });
         expect(button).not.toBeNull();
 
-        userEvent.click(button!);
+        await userEvent.click(button!);
 
         const modal = screen.queryByRole('dialog', { name: 'Storage Type Info' });
         const buttonClose = screen.queryByRole('button', { name: 'Close' });
@@ -86,7 +86,7 @@ describe('StorageTypeFormGroup', () => {
         expect(documentationLink).not.toBeNull();
       });
 
-      test('close modal dialog', () => {
+      test('close modal dialog', async () => {
         renderComponent(store, { readonly }, { isInfoOpen: true });
 
         // modal is opened
@@ -94,7 +94,7 @@ describe('StorageTypeFormGroup', () => {
 
         const buttonClose = screen.getByRole('button', { name: 'Close' });
 
-        userEvent.click(buttonClose!);
+        await userEvent.click(buttonClose!);
 
         // modal is closed
         expect(screen.queryByRole('dialog', { name: 'Storage Type Info' })).toBeNull();
@@ -102,13 +102,13 @@ describe('StorageTypeFormGroup', () => {
     });
 
     describe('change storage type modal dialog', () => {
-      test('show modal', () => {
+      test('show modal', async () => {
         renderComponent(store, { readonly });
 
         const button = screen.queryByRole('button', { name: 'Change Storage Type' });
         expect(button).not.toBeNull();
 
-        userEvent.click(button!);
+        await userEvent.click(button!);
 
         const modal = screen.queryByRole('dialog', { name: 'Change Storage Type' });
         const buttonSave = screen.queryByRole('button', { name: 'Save' });
@@ -121,7 +121,7 @@ describe('StorageTypeFormGroup', () => {
         expect(buttonCancel).not.toBeNull();
       });
 
-      test('close modal dialog', () => {
+      test('close modal dialog', async () => {
         renderComponent(store, { readonly }, { isSelectorOpen: true });
 
         // modal is opened
@@ -129,20 +129,20 @@ describe('StorageTypeFormGroup', () => {
 
         const buttonClose = screen.getByRole('button', { name: 'Close' });
 
-        userEvent.click(buttonClose!);
+        await userEvent.click(buttonClose!);
 
         // modal is closed
         expect(screen.queryByRole('dialog', { name: 'Change Storage Type' })).toBeNull();
       });
 
-      test('change storage type', () => {
+      test('change storage type', async () => {
         renderComponent(store, { readonly, storageType: 'ephemeral' }, { isSelectorOpen: true });
 
         const radioPerWorkspace = screen.getByRole('radio', { name: 'Per-workspace' });
         const buttonSave = screen.getByRole('button', { name: 'Save' });
 
-        userEvent.click(radioPerWorkspace);
-        userEvent.click(buttonSave);
+        await userEvent.click(radioPerWorkspace);
+        await userEvent.click(buttonSave);
 
         // modal is closed
         expect(screen.queryByRole('dialog', { name: 'Change Storage Type' })).toBeNull();

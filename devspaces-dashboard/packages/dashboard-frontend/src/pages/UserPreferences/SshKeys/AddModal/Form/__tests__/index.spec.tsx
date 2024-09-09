@@ -43,7 +43,7 @@ describe('AddModalForm', () => {
   });
 
   describe('SSH Private Key', () => {
-    it('should handle a valid value', () => {
+    it('should handle a valid value', async () => {
       renderComponent({
         publicKey: NEW_SSH_PUBLIC_KEY,
         publicKeyIsValid: true,
@@ -53,7 +53,7 @@ describe('AddModalForm', () => {
       const sshKeyNameField = screen.getByRole('button', {
         name: NEW_SSH_PRIVATE_KEY_BUTTON,
       });
-      userEvent.click(sshKeyNameField);
+      await userEvent.click(sshKeyNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -64,7 +64,7 @@ describe('AddModalForm', () => {
       );
     });
 
-    it('should handle an invalid value', () => {
+    it('should handle an invalid value', async () => {
       renderComponent({
         publicKey: NEW_SSH_PUBLIC_KEY,
         publicKeyIsValid: true,
@@ -74,7 +74,7 @@ describe('AddModalForm', () => {
       const sshKeyNameField = screen.getByRole('button', {
         name: INVALID_SSH_PRIVATE_KEY_BUTTON,
       });
-      userEvent.click(sshKeyNameField);
+      await userEvent.click(sshKeyNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe('AddModalForm', () => {
   });
 
   describe('SSH Public Key', () => {
-    it('should handle a valid value', () => {
+    it('should handle a valid value', async () => {
       renderComponent({
         privateKey: NEW_SSH_PRIVATE_KEY,
         privateKeyIsValid: true,
@@ -97,7 +97,7 @@ describe('AddModalForm', () => {
       const sshKeyNameField = screen.getByRole('button', {
         name: NEW_SSH_PUBLIC_KEY_BUTTON,
       });
-      userEvent.click(sshKeyNameField);
+      await userEvent.click(sshKeyNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -108,7 +108,7 @@ describe('AddModalForm', () => {
       );
     });
 
-    it('should handle an invalid value', () => {
+    it('should handle an invalid value', async () => {
       renderComponent({
         privateKey: NEW_SSH_PUBLIC_KEY,
         privateKeyIsValid: true,
@@ -118,7 +118,7 @@ describe('AddModalForm', () => {
       const sshKeyNameField = screen.getByRole('button', {
         name: INVALID_SSH_PUBLIC_KEY_BUTTON,
       });
-      userEvent.click(sshKeyNameField);
+      await userEvent.click(sshKeyNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(

@@ -57,7 +57,8 @@ describe('Samples List Toolbar', () => {
     renderComponent();
 
     const filterInput = screen.getByLabelText('Filter samples list') as HTMLInputElement;
-    userEvent.paste(filterInput, 'bash');
+    await userEvent.click(filterInput);
+    await userEvent.paste('bash');
 
     await waitFor(() =>
       expect(DevfileRegistriesStore.actionCreators.setFilter).toHaveBeenCalledTimes(1),
@@ -76,18 +77,19 @@ describe('Samples List Toolbar', () => {
       .build();
     renderComponent(storeNext);
     const filterInput = screen.getByPlaceholderText('Filter by') as HTMLInputElement;
-    userEvent.paste(filterInput, 'bash');
+    await userEvent.click(filterInput);
+    await userEvent.paste('bash');
 
     await waitFor(() => screen.findByText('1 item'));
   });
 
-  test('switch temporary storage toggle', () => {
+  test('switch temporary storage toggle', async () => {
     renderComponent();
     const switchInput = screen.getByRole('checkbox') as HTMLInputElement;
 
     expect(switchInput.checked).toBeFalsy();
 
-    userEvent.click(switchInput);
+    await userEvent.click(switchInput);
 
     expect(switchInput.checked).toBeTruthy();
   });

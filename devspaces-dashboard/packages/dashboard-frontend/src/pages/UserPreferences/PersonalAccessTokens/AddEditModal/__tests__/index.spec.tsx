@@ -51,23 +51,23 @@ describe('AddEditModal', () => {
     expect(screen.queryByRole('dialog')).toBeTruthy();
   });
 
-  it('should handle click on Close button', () => {
+  it('should handle click on Close button', async () => {
     renderComponent(true, { isEdit: false, token: undefined });
 
     const closeButton = screen.queryByRole('button', { name: 'Close' });
     expect(closeButton).toBeTruthy();
 
-    userEvent.click(closeButton!);
+    await userEvent.click(closeButton!);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should handle click on Cancel button', () => {
+  it('should handle click on Cancel button', async () => {
     renderComponent(true, { isEdit: false, token: undefined });
 
     const cancelButton = screen.queryByRole('button', { name: 'Cancel' });
     expect(cancelButton).toBeTruthy();
 
-    userEvent.click(cancelButton!);
+    await userEvent.click(cancelButton!);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
@@ -136,7 +136,7 @@ describe('AddEditModal', () => {
     const isEdit = false;
     const isOpen = true;
 
-    it('should handle valid personal access token', () => {
+    it('should handle valid personal access token', async () => {
       renderComponent(isOpen, { isEdit, token: undefined });
 
       // expect add button to be disabled
@@ -146,18 +146,18 @@ describe('AddEditModal', () => {
       const SubmitValidFormButton = screen.getByRole('button', {
         name: SUBMIT_VALID_FORM,
       });
-      userEvent.click(SubmitValidFormButton);
+      await userEvent.click(SubmitValidFormButton);
 
       // expect add button to be enabled
       expect(addButton).toBeEnabled();
 
-      userEvent.click(addButton);
+      await userEvent.click(addButton);
 
       // expect onSave to be called
       expect(mockOnSave).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle invalid personal access token', () => {
+    it('should handle invalid personal access token', async () => {
       renderComponent(isOpen, { isEdit, token: undefined });
 
       // expect add button to be enabled
@@ -167,7 +167,7 @@ describe('AddEditModal', () => {
       const SubmitInvalidFormButton = screen.getByRole('button', {
         name: SUBMIT_INVALID_FORM,
       });
-      userEvent.click(SubmitInvalidFormButton);
+      await userEvent.click(SubmitInvalidFormButton);
 
       // expect add button to be disabled
       expect(addButton).toBeDisabled();

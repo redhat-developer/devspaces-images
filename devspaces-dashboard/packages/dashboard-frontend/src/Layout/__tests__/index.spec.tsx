@@ -79,32 +79,32 @@ describe('Layout component', () => {
     expect(snapshot).toMatchSnapshot();
   });
 
-  test('logout', () => {
+  test('logout', async () => {
     renderComponent(store);
     const logoutButton = screen.getByRole('button', { name: 'logout' });
-    userEvent.click(logoutButton);
+    await userEvent.click(logoutButton);
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
-  test('toggleNav', () => {
+  test('toggleNav', async () => {
     renderComponent(store);
 
     expect(screen.getByTestId('isNavOpen')).toHaveTextContent('true');
 
     const toggleNavButton = screen.getByRole('button', { name: 'toggleNav' });
-    userEvent.click(toggleNavButton);
+    await userEvent.click(toggleNavButton);
 
     expect(screen.getByTestId('isNavOpen')).toHaveTextContent('false');
   });
 
-  test('onError', () => {
+  test('onError', async () => {
     mockTestBackends.mockResolvedValue(undefined);
 
     renderComponent(store);
 
     const btn = screen.getByRole('button', { name: 'onError' });
-    userEvent.click(btn);
+    await userEvent.click(btn);
 
     expect(mockTestBackends).toHaveBeenCalled();
   });

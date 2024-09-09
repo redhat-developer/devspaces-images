@@ -4,9 +4,7 @@ exports[`GitConfig snapshot with gitconfig 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <section
     className="pf-c-page__main-section"
   >
@@ -117,9 +115,7 @@ exports[`GitConfig snapshot with no gitconfig 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <div
     className="pf-c-empty-state pf-m-sm pf-m-full-height"
   >

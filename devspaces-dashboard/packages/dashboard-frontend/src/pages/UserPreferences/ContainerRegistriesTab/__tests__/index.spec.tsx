@@ -78,25 +78,25 @@ describe('ContainerRegistries', () => {
     expect(json).toMatchSnapshot();
   });
 
-  it('should add a new registry', () => {
+  it('should add a new registry', async () => {
     const component = getComponent(new FakeStoreBuilder().build());
     render(component);
 
     const addRegistryButton = screen.getByLabelText('add-registry');
-    userEvent.click(addRegistryButton);
+    await userEvent.click(addRegistryButton);
 
     const editButton = screen.getByTestId('edit-button');
     expect(editButton).toBeDisabled();
 
     const urlInput = screen.getByLabelText('Url input');
-    userEvent.type(urlInput, 'http://tst');
+    await userEvent.type(urlInput, 'http://tst');
 
     const passwordInput = screen.getByTestId('registry-password-input');
-    userEvent.type(passwordInput, 'qwe');
+    await userEvent.type(passwordInput, 'qwe');
 
     expect(editButton).toBeEnabled();
 
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
     expect(mockUpdateCredentials).toHaveBeenCalledWith([
       {
         url: 'http://tst',
@@ -106,7 +106,7 @@ describe('ContainerRegistries', () => {
     ]);
   });
 
-  it('should delete a registry', () => {
+  it('should delete a registry', async () => {
     const component = getComponent(
       new FakeStoreBuilder()
         .withDockerConfig([
@@ -117,10 +117,10 @@ describe('ContainerRegistries', () => {
     render(component);
 
     const menuButton = screen.getByLabelText('Actions');
-    userEvent.click(menuButton);
+    await userEvent.click(menuButton);
 
     const deleteItem = screen.getByRole('menuitem', { name: /Delete registry/i });
-    userEvent.click(deleteItem);
+    await userEvent.click(deleteItem);
 
     const label = screen.queryByText("Would you like to delete registry 'http://test.reg'?");
     expect(label).toBeTruthy();
@@ -129,10 +129,10 @@ describe('ContainerRegistries', () => {
     expect(deleteButton).toBeDisabled();
 
     const checkbox = screen.getByTestId('warning-info-checkbox');
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
     expect(deleteButton).toBeEnabled();
 
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
     expect(mockUpdateCredentials).toHaveBeenCalledWith([]);
   });
 });

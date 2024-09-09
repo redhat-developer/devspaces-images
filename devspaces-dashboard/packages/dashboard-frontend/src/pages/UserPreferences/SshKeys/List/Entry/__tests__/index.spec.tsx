@@ -79,15 +79,15 @@ describe('SshKeysListEntry', () => {
       expect(screen.queryByRole('button', { name: 'Actions' })).not.toBeNull();
     });
 
-    it('should reveal the Delete button', () => {
+    it('should reveal the Delete button', async () => {
       renderComponent(props);
       const dropdown = screen.getByRole('button', { name: 'Actions' });
-      userEvent.click(dropdown);
+      await userEvent.click(dropdown);
 
       const deleteItem = screen.queryByRole('menuitem', { name: 'Delete' });
       expect(deleteItem).not.toBeNull();
 
-      userEvent.click(deleteItem!);
+      await userEvent.click(deleteItem!);
       expect(props.onDeleteSshKey).toHaveBeenCalledWith(sshKey);
     });
   });
@@ -101,6 +101,7 @@ describe('SshKeysListEntry', () => {
     it('should copy the SSH key to the clipboard', async () => {
       window.prompt = jest.fn();
       jest.useFakeTimers();
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
       renderComponent(props);
       const copyToClipboard = screen.getByTestId('copy-to-clipboard');
@@ -109,14 +110,14 @@ describe('SshKeysListEntry', () => {
       expect(screen.queryByText('Copied!')).toBeNull();
       expect(screen.queryByText('Copy to clipboard')).not.toBeNull();
 
-      userEvent.click(copyToClipboard);
+      await user.click(copyToClipboard);
 
       // 500ms after click
       await jest.advanceTimersByTimeAsync(500);
       expect(screen.queryByText('Copied!')).not.toBeNull();
       expect(screen.queryByText('Copy to clipboard')).toBeNull();
 
-      userEvent.click(copyToClipboard);
+      await user.click(copyToClipboard);
 
       // 1000ms after after the second click
       await jest.advanceTimersByTimeAsync(500);
@@ -127,6 +128,9 @@ describe('SshKeysListEntry', () => {
       await jest.advanceTimersByTimeAsync(5000);
       expect(screen.queryByText('Copied!')).toBeNull();
       expect(screen.queryByText('Copy to clipboard')).not.toBeNull();
+
+      await jest.runOnlyPendingTimersAsync();
+      jest.useRealTimers();
     });
   });
 });

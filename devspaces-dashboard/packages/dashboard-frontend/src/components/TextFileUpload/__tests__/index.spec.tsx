@@ -15,7 +15,11 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { TextFileUpload } from '@/components/TextFileUpload';
-import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, {
+  fireEvent,
+  screen,
+  waitFor,
+} from '@/services/__mocks__/getComponentRenderer';
 
 const { renderComponent, createSnapshot } = getComponentRenderer(getComponent);
 
@@ -77,7 +81,7 @@ describe('TextFileUpload', () => {
 
       const fileInput = screen.getByPlaceholderText(fileNamePlaceholder);
 
-      const clearButton = screen.getByText('Clear');
+      const clearButton = screen.getByRole('button', { name: 'Clear' });
 
       /* Upload a file */
 
@@ -86,7 +90,9 @@ describe('TextFileUpload', () => {
 
       const fileUploader = screen.getByTestId(fieldId);
       const fileUploadInput = fileUploader.querySelector('input[type="file"]');
-      userEvent.upload(fileUploadInput!, file);
+      // `userEvent` does not accept `Element` as a parameter
+      // use `fireEvent` instead
+      fireEvent.change(fileUploadInput!, { target: { files: [file] } });
 
       await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(fileContent, true));
 
@@ -97,7 +103,7 @@ describe('TextFileUpload', () => {
 
       /* Clear the field */
 
-      userEvent.click(clearButton);
+      await userEvent.click(clearButton);
 
       expect(fileInput).toHaveValue('');
       expect(clearButton).toBeDisabled();
@@ -117,7 +123,8 @@ describe('TextFileUpload', () => {
       /* Paste a content */
 
       const content = 'content';
-      userEvent.paste(contentInput, content);
+      await userEvent.click(contentInput);
+      await userEvent.paste(content);
 
       await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(content, false));
 
@@ -129,7 +136,7 @@ describe('TextFileUpload', () => {
 
       /* Clear the field */
 
-      userEvent.click(clearButton);
+      await userEvent.click(clearButton);
 
       expect(contentInput).toHaveValue('');
       expect(clearButton).toBeDisabled();

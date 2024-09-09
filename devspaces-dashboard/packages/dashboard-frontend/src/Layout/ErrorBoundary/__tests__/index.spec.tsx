@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import React from 'react';
 import renderer from 'react-test-renderer';
 
@@ -61,32 +61,37 @@ describe('Error boundary', () => {
   });
 
   describe('error details', () => {
-    it('should show and hide the error stack', () => {
+    it('should show and hide the error stack', async () => {
       const errorBoundary = wrapComponent(<BadComponent />);
       render(errorBoundary);
 
       const showDetailsAction = screen.getByRole('button', { name: 'View stack' });
-      userEvent.click(showDetailsAction);
+      await userEvent.click(showDetailsAction);
 
       expect(mockOnError).not.toHaveBeenCalled();
-      expect(screen.queryByText('in BadComponent', { exact: false })).toBeTruthy();
-      expect(screen.queryByText('in ErrorBoundary', { exact: false })).toBeTruthy();
+      await waitFor(() =>
+        expect(screen.getByText('at BadComponent', { exact: false })).toBeTruthy(),
+      );
+      expect(screen.queryByText('at ErrorBoundary', { exact: false })).toBeTruthy();
 
-      userEvent.click(showDetailsAction);
+      await userEvent.click(showDetailsAction);
 
-      expect(screen.queryByText('in BadComponent', { exact: false })).toBeFalsy();
-      expect(screen.queryByText('in ErrorBoundary', { exact: false })).toBeFalsy();
+      expect(screen.queryByText('at BadComponent', { exact: false })).toBeFalsy();
+      expect(screen.queryByText('at ErrorBoundary', { exact: false })).toBeFalsy();
     });
   });
 
   describe('when some resources are absent', () => {
     const { reload } = window.location;
+    let user: UserEvent;
 
     beforeEach(() => {
       delete (window as any).location;
       (window.location as any) = { reload: jest.fn() };
 
       jest.useFakeTimers();
+
+      user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     });
 
     afterEach(() => {
@@ -109,9 +114,7 @@ describe('Error boundary', () => {
       ).toBeTruthy();
     });
 
-    it('should provide the countdown to the next page reload', () => {
-      jest.useFakeTimers();
-
+    it('should provide the countdown to the next page reload', async () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
@@ -121,16 +124,16 @@ describe('Error boundary', () => {
       ).toBeTruthy();
       expect(screen.queryByText('30 seconds', { exact: false })).toBeTruthy();
 
-      jest.advanceTimersByTime(5000);
+      await jest.advanceTimersByTimeAsync(5000);
       expect(screen.queryByText('25 seconds', { exact: false })).toBeTruthy();
     });
 
-    it('should hide the countdown when stopped', () => {
+    it('should hide the countdown when stopped', async () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
       const stopCountdownAction = screen.getByRole('button', { name: 'Stop countdown' });
-      userEvent.click(stopCountdownAction);
+      await user.click(stopCountdownAction);
 
       expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(
@@ -138,48 +141,48 @@ describe('Error boundary', () => {
       ).toBeFalsy();
     });
 
-    it('should not reload page when countdown is stopped', () => {
+    it('should not reload page when countdown is stopped', async () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
       const stopCountdownAction = screen.getByRole('button', { name: 'Stop countdown' });
-      userEvent.click(stopCountdownAction);
+      await user.click(stopCountdownAction);
 
       jest.advanceTimersByTime(35000);
     });
 
-    it('should reload the page when countdown ends', () => {
+    it('should reload the page when countdown ends', async () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
-      jest.advanceTimersByTime(35000);
+      await jest.advanceTimersByTimeAsync(35000);
 
       expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(window.location.reload).toHaveBeenCalled();
       expect(window.location.reload).toHaveBeenCalledTimes(1);
     });
 
-    it('should reload the page by action', () => {
+    it('should reload the page by action', async () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
       const reloadNowAction = screen.getByRole('button', { name: 'Reload now' });
-      userEvent.click(reloadNowAction);
-      userEvent.click(reloadNowAction);
-      userEvent.click(reloadNowAction);
+      await user.click(reloadNowAction);
+      await user.click(reloadNowAction);
+      await user.click(reloadNowAction);
 
       expect(mockOnError).toHaveBeenCalledWith('Loading chunk 23 failed.');
       expect(window.location.reload).toHaveBeenCalled();
       expect(window.location.reload).toHaveBeenCalledTimes(3);
     });
 
-    it('should show additional message after a few reloads', () => {
+    it('should show additional message after a few reloads', async () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
       const reloadNowAction = screen.getByRole('button', { name: 'Reload now' });
 
-      userEvent.click(reloadNowAction);
+      await user.click(reloadNowAction);
 
       // jest doesn't trigger the `window.onbeforeunload`
       // so it has to be done manually:
@@ -187,7 +190,7 @@ describe('Error boundary', () => {
       window.dispatchEvent(new Event('beforeunload'));
       render(errorBoundary);
 
-      userEvent.click(reloadNowAction);
+      await user.click(reloadNowAction);
 
       // "refreshing" the page
       window.dispatchEvent(new Event('beforeunload'));
@@ -202,13 +205,13 @@ describe('Error boundary', () => {
       ).toBeTruthy();
     });
 
-    it('should reset the number of reloads', () => {
+    it('should reset the number of reloads', async () => {
       const noResourceComponent = wrapComponent(<NoResourceComponent />);
       render(noResourceComponent);
 
       const reloadNowAction = screen.getByRole('button', { name: 'Reload now' });
 
-      userEvent.click(reloadNowAction);
+      await user.click(reloadNowAction);
 
       // jest doesn't trigger the `window.onbeforeunload`
       // so it has to be done manually:
@@ -216,7 +219,7 @@ describe('Error boundary', () => {
       window.dispatchEvent(new Event('beforeunload'));
       render(noResourceComponent);
 
-      userEvent.click(reloadNowAction);
+      await user.click(reloadNowAction);
 
       // "refreshing" the page
       window.dispatchEvent(new Event('beforeunload'));

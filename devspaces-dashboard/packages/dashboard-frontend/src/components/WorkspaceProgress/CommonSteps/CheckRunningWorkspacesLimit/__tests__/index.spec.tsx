@@ -12,7 +12,7 @@
 
 import { StateMock } from '@react-mock/state';
 import { waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -94,6 +94,7 @@ describe('Common steps, check running workspaces limit', () => {
   let runningDevworkspaceBuilder1: DevWorkspaceBuilder;
   let runningDevworkspaceBuilder2: DevWorkspaceBuilder;
   let stoppedDevworkspaceBuilder: DevWorkspaceBuilder;
+  let user: UserEvent;
 
   beforeEach(() => {
     runningDevworkspaceBuilder1 = new DevWorkspaceBuilder()
@@ -113,11 +114,14 @@ describe('Common steps, check running workspaces limit', () => {
       .withNamespace(namespace);
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
     jest.clearAllTimers();
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 
@@ -363,7 +367,7 @@ describe('Common steps, check running workspaces limit', () => {
 
         // imitate the timeout has been expired
         const timeoutButton = screen.getByRole('button', { name: 'onTimeout' });
-        userEvent.click(timeoutButton);
+        await user.click(timeoutButton);
 
         const expectAlertItem = expect.objectContaining({
           title: 'Failed to open the workspace',
@@ -402,7 +406,7 @@ describe('Common steps, check running workspaces limit', () => {
 
         // imitate the timeout has been expired
         const timeoutButton = screen.getByRole('button', { name: 'onTimeout' });
-        userEvent.click(timeoutButton);
+        await user.click(timeoutButton);
 
         await waitFor(() => expect(mockOnError).toHaveBeenCalled());
         expect(mockOnNextStep).not.toHaveBeenCalled();

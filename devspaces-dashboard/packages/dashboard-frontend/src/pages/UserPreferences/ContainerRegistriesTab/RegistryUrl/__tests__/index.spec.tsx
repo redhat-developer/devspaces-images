@@ -66,13 +66,13 @@ describe('Registry Url Input', () => {
     expect(input).toHaveValue('http://testreg.com');
   });
 
-  it('should fire onChange event', () => {
+  it('should fire onChange event', async () => {
     const component = getComponent('http://t');
     render(component);
 
     const input = screen.getByRole('textbox');
 
-    userEvent.type(input, 'est');
+    await userEvent.type(input, 'est');
 
     expect(mockOnChange).toHaveBeenCalledWith('http://te', 'success');
     expect(mockOnChange).toHaveBeenCalledWith('http://tes', 'success');
@@ -80,13 +80,13 @@ describe('Registry Url Input', () => {
   });
 
   describe('validation', () => {
-    it('should handle empty value', () => {
+    it('should handle empty value', async () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
 
       const input = screen.getByRole('textbox');
 
-      userEvent.clear(input);
+      await userEvent.clear(input);
 
       const label = screen.queryByText('A value is required.');
 
@@ -94,7 +94,7 @@ describe('Registry Url Input', () => {
       expect(input).toBeInvalid();
     });
 
-    it('should handle maximum value length', () => {
+    it('should handle maximum value length', async () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
 
@@ -104,16 +104,16 @@ describe('Registry Url Input', () => {
       const allowedUrl = 'a'.repeat(256);
       let label: HTMLElement | null;
 
-      userEvent.clear(input);
-      userEvent.type(input, allowedUrl);
+      await userEvent.clear(input);
+      await userEvent.type(input, allowedUrl);
 
       label = screen.queryByText(message);
       expect(label).toBeFalsy();
 
       const disallowedUrl = 'a'.repeat(257);
 
-      userEvent.clear(input);
-      userEvent.type(input, disallowedUrl);
+      await userEvent.clear(input);
+      await userEvent.type(input, disallowedUrl);
 
       label = screen.queryByText(message);
       expect(label).toBeTruthy();

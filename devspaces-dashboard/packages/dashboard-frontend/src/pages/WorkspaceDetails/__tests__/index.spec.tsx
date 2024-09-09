@@ -85,14 +85,14 @@ describe('Workspace Details page', () => {
       expect(eventsTab).not.toBeNull();
     });
 
-    it('should switch to the Devfile tab', () => {
+    it('should switch to the Devfile tab', async () => {
       const workspace = constructWorkspace(devWorkspaceBuilder.build());
       renderComponent({
         workspace,
       });
 
       const devfileTab = screen.getByRole('tab', { name: 'Devfile' });
-      userEvent.click(devfileTab);
+      await userEvent.click(devfileTab);
 
       const tabpanel = screen.getByRole('tabpanel', { name: 'Devfile' });
       expect(tabpanel).not.toBeNull();
@@ -124,14 +124,14 @@ describe('Workspace Details page', () => {
     });
   });
 
-  it('should handle the onSave event', () => {
+  it('should handle the onSave event', async () => {
     const workspace = constructWorkspace(devWorkspaceBuilder.build());
     renderComponent({
       workspace,
     });
 
     const saveButton = screen.getByRole('button', { name: 'Update workspace' });
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(mockOnSave).toHaveBeenCalledTimes(1);
   });

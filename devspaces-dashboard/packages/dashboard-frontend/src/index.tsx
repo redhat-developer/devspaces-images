@@ -30,7 +30,7 @@ async function startApp(): Promise<void> {
   const history = createHashHistory();
   const store = configureStore(history);
 
-  const ROOT = document.querySelector('.ui-container');
+  const root = ReactDOM.createRoot(document.querySelector('.ui-container'));
   try {
     // preload app data
     await new PreloadData(store).init();
@@ -43,12 +43,11 @@ async function startApp(): Promise<void> {
     navigator.serviceWorker.register('./service-worker.js');
   }
 
-  ReactDOM.render(
+  root.render(
     <Provider store={store}>
       <WorkspaceActionsProvider history={history}>
         <App history={history} />
       </WorkspaceActionsProvider>
     </Provider>,
-    ROOT,
   );
 }

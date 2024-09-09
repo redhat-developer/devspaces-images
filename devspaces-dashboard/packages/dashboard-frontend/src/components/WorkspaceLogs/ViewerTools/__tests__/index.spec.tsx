@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { ToggleBarsContext } from '@/contexts/ToggleBars';
@@ -34,20 +35,20 @@ describe('The WorkspaceLogsTerminalTools component', () => {
     expect(createSnapshot()).toMatchSnapshot();
   });
 
-  it('should handle download button click', () => {
+  it('should handle download button click', async () => {
     renderComponent();
 
     const downloadButton = screen.getByRole('button', { name: 'Download' });
-    downloadButton.click();
+    await userEvent.click(downloadButton);
 
     expect(mockOnDownload).toHaveBeenCalled();
   });
 
-  it('should handle expand button click', () => {
+  it('should handle expand button click', async () => {
     renderComponent();
 
     const expandButton = screen.getByRole('button', { name: 'Expand' });
-    expandButton.click();
+    await userEvent.click(expandButton);
 
     expect(mockOnToggle).toHaveBeenCalledTimes(1);
     expect(mockHideAll).toHaveBeenCalled();
@@ -55,7 +56,7 @@ describe('The WorkspaceLogsTerminalTools component', () => {
     const compressButton = screen.queryByRole('button', { name: 'Compress' });
     expect(compressButton).not.toBeNull();
 
-    compressButton?.click();
+    await userEvent.click(compressButton!);
 
     expect(mockShowAll).toHaveBeenCalled();
     expect(mockOnToggle).toHaveBeenCalledTimes(2);

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory, History } from 'history';
 import React from 'react';
@@ -70,7 +70,7 @@ describe('Loader page', () => {
     jest.clearAllMocks();
   });
 
-  it('should handle tab click', () => {
+  it('should handle tab click', async () => {
     renderComponent(store, {
       history,
       tabParam,
@@ -78,9 +78,9 @@ describe('Loader page', () => {
     });
 
     const tabButtonLogs = screen.getByRole('tab', { name: 'Logs' });
-    userEvent.click(tabButtonLogs);
+    await userEvent.click(tabButtonLogs);
 
-    expect(mockOnTabChange).toHaveBeenCalledWith(LoaderTab.Logs);
+    await waitFor(() => expect(mockOnTabChange).toHaveBeenCalledWith(LoaderTab.Logs));
   });
 
   it('should render Logs tab active', () => {

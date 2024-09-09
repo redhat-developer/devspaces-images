@@ -12,7 +12,7 @@
 
 import { Form } from '@patternfly/react-core';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import React from 'react';
 import renderer from 'react-test-renderer';
 
@@ -20,6 +20,7 @@ import { RegistryPasswordFormGroup } from '..';
 
 describe('Registry Password Input', () => {
   const mockOnChange = jest.fn();
+  let user: UserEvent;
 
   function getComponent(password: string): React.ReactElement {
     return (
@@ -28,6 +29,10 @@ describe('Registry Password Input', () => {
       </Form>
     );
   }
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -69,7 +74,7 @@ describe('Registry Password Input', () => {
     expect(input).toHaveValue('*testreg#');
   });
 
-  it('should fire onChange event', () => {
+  it('should fire onChange event', async () => {
     const component = getComponent('*te');
     render(component);
 
@@ -78,20 +83,20 @@ describe('Registry Password Input', () => {
     expect(input).toHaveValue('*te');
     expect(mockOnChange).not.toHaveBeenCalled();
 
-    userEvent.type(input, 'st');
+    await user.type(input, 'st');
 
     expect(mockOnChange).toHaveBeenCalledWith('*tes', 'success');
     expect(mockOnChange).toHaveBeenCalledWith('*test', 'success');
   });
 
   describe('validation', () => {
-    it('should handle empty value', () => {
+    it('should handle empty value', async () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
 
       const input = screen.getByTestId('registry-password-input');
 
-      userEvent.clear(input);
+      await user.clear(input);
 
       const label = screen.queryByText('A value is required.');
 
@@ -99,7 +104,7 @@ describe('Registry Password Input', () => {
       expect(input).toBeInvalid();
     });
 
-    it('should handle maximum value length', () => {
+    it('should handle maximum value length', async () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
 
@@ -109,16 +114,20 @@ describe('Registry Password Input', () => {
       const allowedPassword = 'a'.repeat(10000);
       let label: HTMLElement | null;
 
-      userEvent.clear(input);
-      userEvent.type(input, allowedPassword);
+      await user.clear(input);
+
+      await user.click(input);
+      await user.paste(allowedPassword);
 
       label = screen.queryByText(message);
       expect(label).toBeFalsy();
 
       const disallowedPassword = 'a'.repeat(10001);
 
-      userEvent.clear(input);
-      userEvent.type(input, disallowedPassword);
+      await user.clear(input);
+
+      await user.click(input);
+      await user.paste(disallowedPassword);
 
       label = screen.queryByText(message);
       expect(label).toBeTruthy();

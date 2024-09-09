@@ -97,47 +97,47 @@ describe('UserPreferences', () => {
   });
 
   describe('Tabs', () => {
-    it('should activate the Container Registries tab', () => {
+    it('should activate the Container Registries tab', async () => {
       renderComponent();
 
       const tab = screen.getByRole('tab', { name: 'Container Registries' });
-      userEvent.click(tab);
+      await userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Container Registries' })).toBeTruthy();
     });
 
-    it('should activate the Git Services tab', () => {
+    it('should activate the Git Services tab', async () => {
       renderComponent();
 
       const tab = screen.getByRole('tab', { name: 'Git Services' });
-      userEvent.click(tab);
+      await userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Git Services' })).toBeTruthy();
     });
 
-    it('should activate the Personal Access Tokens tab', () => {
+    it('should activate the Personal Access Tokens tab', async () => {
       renderComponent();
 
       const tab = screen.getByRole('tab', { name: 'Personal Access Tokens' });
-      userEvent.click(tab);
+      await userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Personal Access Tokens' })).toBeTruthy();
     });
 
-    it('should activate the Gitconfig tab', () => {
+    it('should activate the Gitconfig tab', async () => {
       renderComponent();
 
       const tab = screen.getByRole('tab', { name: 'Gitconfig' });
-      userEvent.click(tab);
+      await userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'Gitconfig' })).toBeTruthy();
     });
 
-    it('should activate the SSH Keys tab', () => {
+    it('should activate the SSH Keys tab', async () => {
       renderComponent();
 
       const tab = screen.getByRole('tab', { name: 'SSH Keys' });
-      userEvent.click(tab);
+      await userEvent.click(tab);
 
       expect(screen.queryByRole('tabpanel', { name: 'SSH Keys' })).toBeTruthy();
     });

@@ -114,11 +114,11 @@ describe('Editor Selector Entry', () => {
   });
 
   describe('card actions', () => {
-    test('kebab click', () => {
+    test('kebab click', async () => {
       renderComponent(editorGroup[0].id, editorGroup);
 
       const kebab = screen.getByRole('button', { name: 'Actions' });
-      kebab.click();
+      await userEvent.click(kebab);
 
       expect(screen.getByRole('menu')).toBeInTheDocument();
 
@@ -133,7 +133,7 @@ describe('Editor Selector Entry', () => {
         isSelectedGroup: true, // card is selected
       };
 
-      test('select same version', () => {
+      test('select same version', async () => {
         renderComponent(editorGroup[0].id, editorGroup, localState);
 
         const activeDropdownItem = screen.getByRole('menuitem', {
@@ -142,20 +142,20 @@ describe('Editor Selector Entry', () => {
 
         expect(activeDropdownItem).toHaveAttribute('aria-checked', 'true');
 
-        userEvent.click(activeDropdownItem);
+        await userEvent.click(activeDropdownItem);
 
         // should NOT call onSelect
         expect(mockOnSelect).not.toHaveBeenCalled();
       });
 
-      test('select different version', () => {
+      test('select different version', async () => {
         renderComponent(editorGroup[0].id, editorGroup, localState);
 
         const dropdownItem = screen.getByRole('menuitem', { name: editorGroup[1].version });
 
         expect(dropdownItem).toHaveAttribute('aria-checked', 'false');
 
-        userEvent.click(dropdownItem);
+        await userEvent.click(dropdownItem);
 
         // should call onSelect
         expect(mockOnSelect).toHaveBeenCalled();
@@ -169,7 +169,7 @@ describe('Editor Selector Entry', () => {
         isSelectedGroup: false, // card is not selected
       };
 
-      test('select same version', () => {
+      test('select same version', async () => {
         renderComponent('other/editor/id', editorGroup, localState);
 
         const activeDropdownItem = screen.getByRole('menuitem', {
@@ -178,39 +178,39 @@ describe('Editor Selector Entry', () => {
 
         expect(activeDropdownItem).toHaveAttribute('aria-checked', 'true');
 
-        userEvent.click(activeDropdownItem);
+        await userEvent.click(activeDropdownItem);
 
         // should NOT call onSelect
         expect(mockOnSelect).not.toHaveBeenCalled();
       });
 
-      test('select different version', () => {
+      test('select different version', async () => {
         renderComponent('other/editor/id', editorGroup, localState);
 
         const dropdownItem = screen.getByRole('menuitem', { name: editorGroup[1].version });
 
         expect(dropdownItem).toHaveAttribute('aria-checked', 'false');
 
-        userEvent.click(dropdownItem);
+        await userEvent.click(dropdownItem);
 
         // should NOT call onSelect
         expect(mockOnSelect).not.toHaveBeenCalled();
       });
 
-      test('select different version and select the card', () => {
+      test('select different version and select the card', async () => {
         renderComponent('other/editor/id', editorGroup, localState);
 
         const dropdownItem = screen.getByRole('menuitem', { name: editorGroup[1].version });
 
         expect(dropdownItem).toHaveAttribute('aria-checked', 'false');
 
-        userEvent.click(dropdownItem);
+        await userEvent.click(dropdownItem);
 
         // should NOT call onSelect
         expect(mockOnSelect).not.toHaveBeenCalled();
 
         const card = screen.getByRole('article');
-        userEvent.click(card);
+        await userEvent.click(card);
 
         // should call onSelect
         expect(mockOnSelect).toHaveBeenCalledWith(editorGroup[1].id);

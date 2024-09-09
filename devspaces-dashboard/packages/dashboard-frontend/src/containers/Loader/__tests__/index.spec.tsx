@@ -80,7 +80,7 @@ describe('Loader container', () => {
     renderComponent(emptyStore, props);
 
     const tab = screen.getByTestId('tab-button');
-    userEvent.click(tab);
+    await userEvent.click(tab);
 
     await waitFor(() => {
       expect(screen.getByTestId('loader-tab')).toHaveTextContent('Events');

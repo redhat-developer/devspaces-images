@@ -38,17 +38,18 @@ describe('PathToDevfileField', () => {
     expect(input).toHaveValue('preset-devfile-path');
   });
 
-  test('devfile path change', () => {
+  test('devfile path change', async () => {
     renderComponent();
 
     const input = screen.getByRole('textbox');
 
     const devfilePath = 'new-devfile-path';
-    userEvent.paste(input, devfilePath);
+    await userEvent.click(input);
+    await userEvent.paste(devfilePath);
 
     expect(mockOnChange).toHaveBeenNthCalledWith(1, devfilePath);
 
-    userEvent.clear(input);
+    await userEvent.clear(input);
     expect(mockOnChange).toHaveBeenNthCalledWith(2, '');
   });
 });

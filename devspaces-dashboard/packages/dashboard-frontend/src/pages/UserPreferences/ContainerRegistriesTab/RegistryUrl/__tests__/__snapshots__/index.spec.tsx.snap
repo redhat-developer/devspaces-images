@@ -101,7 +101,6 @@ exports[`Registry Url Input should correctly render the component 1`] = `
           </a>
         </button>
       </span>
-      
     </div>
   </div>
 </form>

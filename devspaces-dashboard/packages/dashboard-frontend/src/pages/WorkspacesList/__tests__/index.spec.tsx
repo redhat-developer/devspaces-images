@@ -88,7 +88,7 @@ describe('Workspaces List Page', () => {
   });
 
   describe('Toolbar', () => {
-    it('should select all rows', () => {
+    it('should select all rows', async () => {
       renderComponent();
 
       const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
@@ -99,21 +99,21 @@ describe('Workspaces List Page', () => {
       });
 
       // select all workspaces
-      userEvent.click(selectAllCheckbox);
+      await await userEvent.click(selectAllCheckbox);
 
       rowCheckboxes.forEach(checkbox => {
         expect(checkbox).toBeChecked();
       });
 
       // deselect all workspaces
-      userEvent.click(selectAllCheckbox);
+      await userEvent.click(selectAllCheckbox);
 
       rowCheckboxes.forEach(checkbox => {
         expect(checkbox).not.toBeChecked();
       });
     });
 
-    it('should filter rows', () => {
+    it('should filter rows', async () => {
       renderComponent();
 
       const searchbox = screen.getByRole('searchbox');
@@ -123,8 +123,8 @@ describe('Workspaces List Page', () => {
       // including the header row
       expect(rows.length).toEqual(workspaces.length + 1);
 
-      userEvent.type(searchbox, workspaces[0].name);
-      userEvent.click(searchButton);
+      await userEvent.type(searchbox, workspaces[0].name);
+      await userEvent.click(searchButton);
 
       const rowsFiltered = screen.getAllByRole('row');
       // including the header row
@@ -137,11 +137,11 @@ describe('Workspaces List Page', () => {
       const searchbox = screen.getByRole('searchbox');
       const searchButton = screen.getByRole('button', { name: /filter workspaces/i });
 
-      userEvent.type(searchbox, workspaces[0].name);
-      userEvent.click(searchButton);
+      await userEvent.type(searchbox, workspaces[0].name);
+      await userEvent.click(searchButton);
 
       const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all/i });
-      userEvent.click(selectAllCheckbox);
+      await userEvent.click(selectAllCheckbox);
 
       const bulkDeleteElem = screen.getByTestId('workspace-actions-bulk-delete');
       const workspacesNumber = within(bulkDeleteElem).getByTestId('workspaces-number');
@@ -150,7 +150,7 @@ describe('Workspaces List Page', () => {
   });
 
   describe('Table', () => {
-    it('should select a row', () => {
+    it('should select a row', async () => {
       renderComponent();
 
       const rowCheckboxes = screen.getAllByRole('checkbox', { name: /select row/i });
@@ -158,7 +158,7 @@ describe('Workspaces List Page', () => {
       const rowCheckbox = rowCheckboxes[0];
       expect(rowCheckbox).not.toBeChecked();
 
-      userEvent.click(rowCheckbox);
+      await userEvent.click(rowCheckbox);
 
       expect(rowCheckbox).toBeChecked();
     });
@@ -173,14 +173,14 @@ describe('Workspaces List Page', () => {
       expect(emptyStateTitle).toBeTruthy();
     });
 
-    it('should handle filtering when nothing found', () => {
+    it('should handle filtering when nothing found', async () => {
       renderComponent();
 
       const searchbox = screen.getByRole('searchbox');
       const searchButton = screen.getByRole('button', { name: /filter workspaces/i });
 
-      userEvent.type(searchbox, 'non-existing workspace');
-      userEvent.click(searchButton);
+      await userEvent.type(searchbox, 'non-existing workspace');
+      await userEvent.click(searchButton);
 
       const rowsFiltered = screen.getAllByRole('row');
       // the header row only

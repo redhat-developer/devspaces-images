@@ -35,9 +35,7 @@ exports[`WorkspaceLogsViewer snapshot error logs 1`] = `
     className="logs"
     id="output-logs"
     tabIndex={0}
-  >
-    
-  </pre>
+  />
 </div>
 `;
 

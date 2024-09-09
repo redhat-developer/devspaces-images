@@ -90,23 +90,23 @@ describe('Workspaces List Toolbar', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
 
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
     expect(mockOnToggleSelectAll).toHaveBeenCalledWith(true);
   });
 
-  it('should emit event when filtering workspaces', () => {
+  it('should emit event when filtering workspaces', async () => {
     renderComponent();
 
     const searchbox = screen.getByRole('searchbox');
     const searchButton = screen.getByRole('button', { name: /filter workspaces/i });
 
-    userEvent.type(searchbox, workspaces[0].devfile.metadata.name!);
-    userEvent.click(searchButton);
+    await userEvent.type(searchbox, workspaces[0].devfile.metadata.name!);
+    await userEvent.click(searchButton);
 
     expect(mockOnFilter).toHaveBeenCalledWith([workspaces[0]]);
   });
 
-  it('should emit event when deleting selected workspaces', () => {
+  it('should emit event when deleting selected workspaces', async () => {
     const selected = [workspaces[0].name, workspaces[1].name, workspaces[2].name];
     renderComponent(selected);
 
@@ -114,37 +114,37 @@ describe('Workspaces List Toolbar', () => {
 
     expect(deleteButton).toBeEnabled();
 
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
     expect(mockOnBulkDelete).toHaveBeenCalled();
   });
 
-  it('should emit event when adding a new workspace', () => {
+  it('should emit event when adding a new workspace', async () => {
     renderComponent();
 
     const addButton = screen.getByRole('button', { name: /new workspace/i });
 
-    userEvent.click(addButton);
+    await userEvent.click(addButton);
     expect(mockOnAddWorkspace).toHaveBeenCalled();
   });
 
-  it('should filter workspaces by hitting Enter key', () => {
+  it('should filter workspaces by hitting Enter key', async () => {
     renderComponent();
 
     const searchbox = screen.getByRole('searchbox');
 
-    userEvent.type(searchbox, workspaces[2].devfile.metadata.name!);
+    await userEvent.type(searchbox, workspaces[2].devfile.metadata.name!);
     const enterKeydown = new KeyboardEvent('keydown', { code: 'Enter', key: 'a' });
     fireEvent(searchbox, enterKeydown);
 
     expect(mockOnFilter).toHaveBeenCalledWith([workspaces[2]]);
   });
 
-  it('should clear filter when Escape is pressed', () => {
+  it('should clear filter when Escape is pressed', async () => {
     renderComponent();
 
     const searchbox = screen.getByRole('searchbox');
 
-    userEvent.type(searchbox, workspaces[2].devfile.metadata.name!);
+    await userEvent.type(searchbox, workspaces[2].devfile.metadata.name!);
     const escapeKeydown = new KeyboardEvent('keydown', { code: 'Escape', key: 'a' });
     fireEvent(searchbox, escapeKeydown);
 

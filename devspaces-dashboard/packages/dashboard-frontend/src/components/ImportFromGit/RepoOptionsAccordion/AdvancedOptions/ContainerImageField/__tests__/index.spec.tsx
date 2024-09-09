@@ -38,17 +38,18 @@ describe('ContainerImageField', () => {
     expect(input).toHaveValue('preset-container-image');
   });
 
-  test('container image change', () => {
+  test('container image change', async () => {
     renderComponent();
 
     const input = screen.getByRole('textbox');
 
     const containerImage = 'new-container-image';
-    userEvent.paste(input, containerImage);
+    await userEvent.click(input);
+    await userEvent.paste(containerImage);
 
     expect(mockOnChange).toHaveBeenNthCalledWith(1, containerImage);
 
-    userEvent.clear(input);
+    await userEvent.clear(input);
     expect(mockOnChange).toHaveBeenNthCalledWith(2, undefined);
   });
 });

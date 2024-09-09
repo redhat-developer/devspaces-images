@@ -52,7 +52,6 @@ exports[`SshPrivateKey snapshot 1`] = `
           placeholder="Or paste the PRIVATE key"
         />
       </div>
-      
     </div>
   </div>
 </form>

@@ -102,7 +102,7 @@ describe('AdditionalGitRemotesField', () => {
     expect(inputURLs[2]).toHaveValue('https://test-3.repo.git');
 
     const buttonAdd = screen.getByRole('button', { name: 'Add Remote' });
-    userEvent.click(buttonAdd);
+    await userEvent.click(buttonAdd);
 
     const inputNamesAfter = await screen.findAllByPlaceholderText('origin');
     expect(inputNamesAfter.length).toBe(4);
@@ -150,7 +150,7 @@ describe('AdditionalGitRemotesField', () => {
     expect(inputURLs[2]).toHaveValue('https://test-3.repo.git');
 
     const removeButton = screen.getAllByTestId('remove-remote');
-    userEvent.click(removeButton[0]);
+    await userEvent.click(removeButton[0]);
 
     const inputNamesAfter = await screen.findAllByPlaceholderText('origin');
     expect(inputNamesAfter.length).toBe(2);
@@ -182,7 +182,8 @@ describe('AdditionalGitRemotesField', () => {
     const inputURLs = await screen.findAllByPlaceholderText('HTTP or SSH URL');
     expect(inputURLs.length).toBe(1);
 
-    userEvent.paste(inputNames[0], '-updated');
+    await userEvent.click(inputNames[0]);
+    await userEvent.paste('-updated');
 
     expect(mockOnChange).toHaveBeenCalledTimes(2);
     expect(mockOnChange).toHaveBeenNthCalledWith(
@@ -191,7 +192,8 @@ describe('AdditionalGitRemotesField', () => {
       true,
     );
 
-    userEvent.paste(inputURLs[0], '-updated');
+    await userEvent.click(inputURLs[0]);
+    await userEvent.paste('-updated');
 
     expect(mockOnChange).toHaveBeenCalledTimes(3);
     expect(mockOnChange).toHaveBeenNthCalledWith(
@@ -200,10 +202,10 @@ describe('AdditionalGitRemotesField', () => {
       true,
     );
 
-    userEvent.clear(inputURLs[0]);
+    await userEvent.clear(inputURLs[0]);
     expect(mockOnChange).toHaveBeenNthCalledWith(4, [{ name: 'test-updated', url: '' }], false);
 
-    userEvent.paste(inputURLs[0], 'https://test2');
+    await userEvent.paste('https://test2');
     expect(mockOnChange).toHaveBeenNthCalledWith(
       5,
       [{ name: 'test-updated', url: 'https://test2' }],

@@ -96,14 +96,14 @@ describe('Samples List', () => {
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('default storage type', () => {
+    test('default storage type', async () => {
       renderComponent(store, editorDefinition, editorImage);
 
       const isTemporary = screen.getByTestId('isTemporary');
       expect(isTemporary).toHaveTextContent('false');
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-code%2Finsiders&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-code-insiders.yaml&editor-image=custom-editor-image&storageType=${preferredPvcStrategy}`,
@@ -111,17 +111,17 @@ describe('Samples List', () => {
       );
     });
 
-    test('toggled storage type', () => {
+    test('toggled storage type', async () => {
       renderComponent(store, editorDefinition, editorImage);
 
       const toggleIsTemporaryButton = screen.getByRole('button', { name: 'Toggle isTemporary' });
-      userEvent.click(toggleIsTemporaryButton);
+      await userEvent.click(toggleIsTemporaryButton);
 
       const isTemporary = screen.getByTestId('isTemporary');
       expect(isTemporary).toHaveTextContent('true');
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-code%2Finsiders&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-code-insiders.yaml&editor-image=custom-editor-image&storageType=ephemeral`,
@@ -150,14 +150,14 @@ describe('Samples List', () => {
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('default storage type', () => {
+    test('default storage type', async () => {
       renderComponent(store, editorDefinition, editorImage);
 
       const isTemporary = screen.getByTestId('isTemporary');
       expect(isTemporary).toHaveTextContent('true');
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-code%2Finsiders&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-code-insiders.yaml&editor-image=custom-editor-image&storageType=${preferredPvcStrategy}`,
@@ -165,17 +165,17 @@ describe('Samples List', () => {
       );
     });
 
-    test('toggled storage type', () => {
+    test('toggled storage type', async () => {
       renderComponent(store, editorDefinition, editorImage);
 
       const toggleIsTemporaryButton = screen.getByRole('button', { name: 'Toggle isTemporary' });
-      userEvent.click(toggleIsTemporaryButton);
+      await userEvent.click(toggleIsTemporaryButton);
 
       const isTemporary = screen.getByTestId('isTemporary');
       expect(isTemporary).toHaveTextContent('false');
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-code%2Finsiders&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-code-insiders.yaml&editor-image=custom-editor-image&storageType=persistent`,
@@ -199,12 +199,12 @@ describe('Samples List', () => {
         .build();
     });
 
-    test('provided editor matches some resource', () => {
+    test('provided editor matches some resource', async () => {
       const store = storeBuilder.build();
       renderComponent(store, editorDefinition, editorImage);
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-code%2Finsiders&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-code-insiders.yaml&editor-image=custom-editor-image&storageType=ephemeral`,
@@ -212,12 +212,12 @@ describe('Samples List', () => {
       );
     });
 
-    test('provided editor does not match any resource', () => {
+    test('provided editor does not match any resource', async () => {
       const store = storeBuilder.build();
       renderComponent(store, 'my/custom/editor', editorImage);
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=my%2Fcustom%2Feditor&editor-image=custom-editor-image&storageType=ephemeral`,
@@ -225,14 +225,14 @@ describe('Samples List', () => {
       );
     });
 
-    test('default editor matches some resource', () => {
+    test('default editor matches some resource', async () => {
       const store = storeBuilder
         .withDwPlugins({}, {}, false, [], undefined, 'che-incubator/che-idea/next')
         .build();
       renderComponent(store, undefined, undefined);
 
       const sampleCardButton = screen.getByRole('button', { name: 'Select Sample' });
-      userEvent.click(sampleCardButton);
+      await userEvent.click(sampleCardButton);
 
       expect(mockWindowOpen).toHaveBeenCalledWith(
         `${origin}#${sampleUrl}?df=devfile2.yaml&che-editor=che-incubator%2Fche-idea%2Fnext&devWorkspace=registry-url%2Fdevfile-registry%2Fdevfiles%2Fquarkus%2Fdevworkspace-che-idea-next.yaml&storageType=ephemeral`,

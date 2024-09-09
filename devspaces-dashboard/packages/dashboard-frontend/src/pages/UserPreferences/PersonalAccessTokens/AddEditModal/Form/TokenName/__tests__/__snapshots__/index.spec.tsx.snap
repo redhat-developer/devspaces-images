@@ -113,7 +113,6 @@ exports[`TokenName snapshot with token name 1`] = `
         type="text"
         value="github-token"
       />
-      
     </div>
   </div>
 </form>

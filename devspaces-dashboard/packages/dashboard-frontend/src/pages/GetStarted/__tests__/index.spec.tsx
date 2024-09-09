@@ -16,7 +16,11 @@ import React from 'react';
 import { Provider } from 'react-redux';
 
 import GetStarted from '@/pages/GetStarted';
-import getComponentRenderer, { screen, within } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, {
+  screen,
+  waitFor,
+  within,
+} from '@/services/__mocks__/getComponentRenderer';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 jest.mock('@/components/EditorSelector');
@@ -31,7 +35,7 @@ describe('GetStarted', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('editor definition change', () => {
+  test('editor definition change', async () => {
     renderComponent();
 
     // initial state of import from git
@@ -53,13 +57,13 @@ describe('GetStarted', () => {
     }
 
     const button = screen.getByRole('button', { name: 'Select Editor' });
-    userEvent.click(button);
+    await userEvent.click(button);
 
     // next state of import from git
     {
       const importFromGit = screen.getByTestId('import-from-git');
       const ifgEditorDefinition = within(importFromGit).getByTestId('editor-definition');
-      expect(ifgEditorDefinition).toHaveTextContent('some/editor/id');
+      await waitFor(() => expect(ifgEditorDefinition).toHaveTextContent('some/editor/id'));
       const ifgEditorImage = within(importFromGit).getByTestId('editor-image');
       expect(ifgEditorImage).toHaveTextContent('custom-editor-image');
     }

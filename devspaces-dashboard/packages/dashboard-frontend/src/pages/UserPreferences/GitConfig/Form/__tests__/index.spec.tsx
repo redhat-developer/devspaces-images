@@ -11,6 +11,7 @@
  */
 
 import { StateMock } from '@react-mock/state';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
@@ -81,14 +82,15 @@ describe('GitConfigForm', () => {
       expect(screen.getByRole('button', { name: 'Reload' })).toBeEnabled();
     });
 
-    test('handle valid changes', () => {
+    test('handle valid changes', async () => {
       renderComponent();
 
       // state with no changes
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Reload' })).toBeEnabled();
 
-      screen.getByRole('button', { name: 'Change Email Valid' }).click();
+      const changeEmailButton = screen.getByRole('button', { name: 'Change Email Valid' });
+      await userEvent.click(changeEmailButton);
 
       // state with valid changes
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
@@ -105,7 +107,8 @@ describe('GitConfigForm', () => {
     // expect the name to be changed
     expect(screen.getByTestId('user-name')).toHaveTextContent('new name');
 
-    screen.getByRole('button', { name: 'Reload' }).click();
+    const reloadButton = screen.getByRole('button', { name: 'Reload' });
+    await userEvent.click(reloadButton);
 
     expect(mockOnReload).toHaveBeenCalled();
 

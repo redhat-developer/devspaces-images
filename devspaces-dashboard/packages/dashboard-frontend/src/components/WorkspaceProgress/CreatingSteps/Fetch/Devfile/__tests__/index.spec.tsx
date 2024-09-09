@@ -14,7 +14,7 @@
 
 import { FACTORY_LINK_ATTR } from '@eclipse-che/common';
 import { cleanup, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -80,6 +80,7 @@ describe('Creating steps, fetching a devfile', () => {
   let searchParams: URLSearchParams;
   let store: Store;
   let devfile: devfileApi.Devfile;
+  let user: UserEvent;
 
   beforeEach(() => {
     devfile = {
@@ -104,11 +105,14 @@ describe('Creating steps, fetching a devfile', () => {
     });
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
     jest.clearAllTimers();
+    jest.useRealTimers();
   });
 
   test('factory should not resolve the SSH location', async () => {
@@ -221,10 +225,10 @@ describe('Creating steps, fetching a devfile', () => {
       mockOnError.mockClear();
 
       /* test the action */
+      await jest.runOnlyPendingTimersAsync();
 
       // resolve deferred to trigger the callback
       deferred.resolve();
-      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
       expect(mockOnRestart).not.toHaveBeenCalled();
@@ -262,10 +266,10 @@ describe('Creating steps, fetching a devfile', () => {
       mockOnError.mockClear();
 
       /* test the action */
+      await jest.runOnlyPendingTimersAsync();
 
       // resolve deferred to trigger the callback
       deferred.resolve();
-      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
@@ -291,7 +295,7 @@ describe('Creating steps, fetching a devfile', () => {
       const timeoutButton = screen.getByRole('button', {
         name: 'onTimeout',
       });
-      userEvent.click(timeoutButton);
+      await user.click(timeoutButton);
 
       const expectAlertItem = expect.objectContaining({
         title: 'Failed to create the workspace',
@@ -338,7 +342,7 @@ describe('Creating steps, fetching a devfile', () => {
       const timeoutButton = screen.getByRole('button', {
         name: 'onTimeout',
       });
-      userEvent.click(timeoutButton);
+      await user.click(timeoutButton);
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       mockOnError.mockClear();
@@ -417,10 +421,10 @@ describe('Creating steps, fetching a devfile', () => {
       mockOnError.mockClear();
 
       /* test the action */
+      await jest.runOnlyPendingTimersAsync();
 
       // resolve deferred to trigger the callback
       deferred.resolve();
-      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
       expect(mockOnRestart).not.toHaveBeenCalled();
@@ -459,9 +463,10 @@ describe('Creating steps, fetching a devfile', () => {
 
       /* test the action */
 
+      await jest.runAllTimersAsync();
+
       // resolve deferred to trigger the callback
       deferred.resolve();
-      await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();

@@ -30,7 +30,7 @@ describe('EditorDefinitionField', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('helper text, definition change', () => {
+  test('helper text, definition change', async () => {
     renderComponent();
 
     const helperText = 'Default editor will be used if no definition is provided.';
@@ -40,12 +40,13 @@ describe('EditorDefinitionField', () => {
     const input = screen.getByRole('textbox');
 
     const editorId = 'some/editor/id';
-    userEvent.paste(input, editorId);
+    await userEvent.click(input);
+    await userEvent.paste(editorId);
 
     expect(mockOnChange).toHaveBeenNthCalledWith(1, editorId);
     expect(screen.queryByText(helperText)).toBeNull();
 
-    userEvent.clear(input);
+    await userEvent.clear(input);
 
     expect(mockOnChange).toHaveBeenNthCalledWith(2, undefined);
     expect(screen.queryByText(helperText)).not.toBeNull();

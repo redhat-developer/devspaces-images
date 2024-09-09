@@ -191,7 +191,7 @@ describe('Workspace Details container', () => {
     expect(nextWorkspaceIdEl).toHaveTextContent(WorkspaceAdapter.getId(nextWorkspace));
   });
 
-  it('should update the workspace', () => {
+  it('should update the workspace', async () => {
     const workspace = prevWorkspaceBuilder.build();
     const store = prevStoreBuilder.withDevWorkspaces({ workspaces: [workspace] }).build();
 
@@ -202,7 +202,7 @@ describe('Workspace Details container', () => {
     );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(mockUpdateWorkspace).toHaveBeenCalledWith<Parameters<ActionCreators['updateWorkspace']>>(
       constructWorkspace(workspace),

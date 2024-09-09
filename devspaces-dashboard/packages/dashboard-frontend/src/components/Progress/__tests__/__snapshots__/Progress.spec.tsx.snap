@@ -13,9 +13,7 @@ exports[`Progress component should render progress with loading correctly 1`] = 
       className="pf-c-progress__description"
       id="progress-indicator-description"
       onMouseEnter={null}
-    >
-      
-    </div>
+    />
     <div
       aria-hidden="true"
       className="pf-c-progress__status"
@@ -48,7 +46,5 @@ exports[`Progress component should render progress with loading correctly 1`] = 
 exports[`Progress component should render progress without loading correctly 1`] = `
 <span
   className="progressLine"
->
-  
-</span>
+/>
 `;

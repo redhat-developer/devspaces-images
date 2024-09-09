@@ -62,7 +62,6 @@ exports[`TemporaryStorageField switched off snapshot 1`] = `
         </div>
       </span>
     </label>
-    
   </div>
 </div>
 `;
@@ -129,7 +128,6 @@ exports[`TemporaryStorageField switched on snapshot 1`] = `
         </div>
       </span>
     </label>
-    
   </div>
 </div>
 `;

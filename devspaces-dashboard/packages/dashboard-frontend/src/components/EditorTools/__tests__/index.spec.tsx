@@ -11,6 +11,7 @@
  */
 
 import { ApplicationId } from '@eclipse-che/common';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
@@ -88,7 +89,8 @@ describe('EditorTools', () => {
       expect(snapshot.toJSON()).toMatchSnapshot();
     });
 
-    test('expand and compress', () => {
+    test('expand and compress', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
       renderComponent(devfile);
 
       /* expand the editor */
@@ -96,7 +98,9 @@ describe('EditorTools', () => {
       const expandButtonName = 'Expand';
       expect(screen.getByRole('button', { name: expandButtonName })).toBeTruthy;
 
-      screen.getByRole('button', { name: expandButtonName }).click();
+      const expandButton = screen.getByRole('button', { name: expandButtonName });
+      await user.click(expandButton);
+
       expect(mockOnExpand).toHaveBeenCalledWith(true);
 
       /* compress the editor */
@@ -104,11 +108,15 @@ describe('EditorTools', () => {
       const compressButtonName = 'Compress';
       expect(screen.getByRole('button', { name: compressButtonName })).toBeTruthy;
 
-      screen.getByRole('button', { name: compressButtonName }).click();
+      const compressButton = screen.getByRole('button', { name: compressButtonName });
+      await user.click(compressButton);
+
       expect(mockOnExpand).toHaveBeenCalledWith(false);
     });
 
-    test('copy to clipboard', () => {
+    test('copy to clipboard', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
       const mockCreateObjectURL = jest.fn().mockReturnValue('blob-url');
       URL.createObjectURL = mockCreateObjectURL;
 
@@ -117,7 +125,8 @@ describe('EditorTools', () => {
       const copyButtonName = 'Copy to clipboard';
       expect(screen.queryByRole('button', { name: copyButtonName })).toBeTruthy;
 
-      screen.getByRole('button', { name: copyButtonName }).click();
+      const copyButton = screen.getByRole('button', { name: copyButtonName });
+      await user.click(copyButton);
 
       expect(mockClipboard).toHaveBeenCalledWith(
         'schemaVersion: 2.1.0\nmetadata:\n  name: my-project\n  namespace: user-che\n',

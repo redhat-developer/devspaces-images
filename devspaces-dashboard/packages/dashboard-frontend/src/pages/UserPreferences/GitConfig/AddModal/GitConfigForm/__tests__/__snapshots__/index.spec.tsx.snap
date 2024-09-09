@@ -43,7 +43,6 @@ exports[`GitConfigForm snapshot with predefined git configuration 1`] = `
           type="button"
         />
       </div>
-      
     </div>
   </div>
 </form>
@@ -88,7 +87,6 @@ exports[`GitConfigForm snapshot without predefined git configuration 1`] = `
           type="button"
         />
       </div>
-      
     </div>
   </div>
 </form>

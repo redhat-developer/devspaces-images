@@ -27,7 +27,6 @@ exports[`MemoryLimitField 8Gi snapshot 1`] = `
       type="range"
       value={0}
     />
-    
   </div>
 </div>
 `;

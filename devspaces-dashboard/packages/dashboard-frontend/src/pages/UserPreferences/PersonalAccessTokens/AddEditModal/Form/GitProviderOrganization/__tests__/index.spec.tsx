@@ -37,21 +37,22 @@ describe('GitProviderOrganization', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should handle a correct organization', () => {
+  it('should handle a correct organization', async () => {
     const organization = 'user-organization';
     renderComponent();
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.paste(input, organization);
+    await userEvent.click(input);
+    await userEvent.paste(organization);
 
     expect(mockOnChange).toHaveBeenCalledWith(organization, true);
     expect(screen.queryByText('This field is required.')).toBeFalsy();
     expect(screen.queryByText(/^The Provider Organization is too long./)).toBeFalsy();
   });
 
-  it('should handle a too long organization value', () => {
+  it('should handle a too long organization value', async () => {
     // make it long enough to be invalid
     const organization = 'user-organization'.repeat(20);
     renderComponent();
@@ -59,21 +60,22 @@ describe('GitProviderOrganization', () => {
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.paste(input, organization);
+    await userEvent.click(input);
+    await userEvent.paste(organization);
 
     expect(mockOnChange).toHaveBeenCalledWith(organization, false);
     expect(screen.queryByText('This field is required.')).toBeFalsy();
     expect(screen.queryByText(/^The Provider Organization is too long./)).toBeTruthy();
   });
 
-  it('should handle an empty value', () => {
+  it('should handle an empty value', async () => {
     const organization = 'user-organization';
     renderComponent(organization);
 
     expect(mockOnChange).not.toHaveBeenCalled();
 
     const input = screen.getByRole('textbox');
-    userEvent.clear(input);
+    await userEvent.clear(input);
 
     expect(mockOnChange).toHaveBeenCalledWith('', false);
     expect(screen.queryByText('This field is required.')).toBeTruthy();

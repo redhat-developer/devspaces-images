@@ -38,11 +38,11 @@ describe('GitConfigForm', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should handle a valid value', () => {
+  it('should handle a valid value', async () => {
     renderComponent();
 
     const gitConfigField = screen.getByTestId('submit-valid-git-config');
-    userEvent.click(gitConfigField);
+    await userEvent.click(gitConfigField);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       { user: { email: 'user-1@chetest.com', name: 'User One' } },
@@ -50,11 +50,11 @@ describe('GitConfigForm', () => {
     );
   });
 
-  it('should handle an invalid value', () => {
+  it('should handle an invalid value', async () => {
     renderComponent();
 
     const gitConfigField = screen.getByTestId('submit-invalid-git-config');
-    userEvent.click(gitConfigField);
+    await userEvent.click(gitConfigField);
 
     expect(mockOnChange).toHaveBeenCalledWith({ user: { name: 'User One' } }, false);
   });

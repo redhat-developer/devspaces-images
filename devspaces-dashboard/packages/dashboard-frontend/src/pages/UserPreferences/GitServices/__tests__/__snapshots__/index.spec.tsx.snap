@@ -4,9 +4,7 @@ exports[`GitServices snapshot 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <section
     className="pf-c-page__main-section"
   >

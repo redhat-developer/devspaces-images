@@ -37,7 +37,6 @@ exports[`ContainerImageField snapshot 1`] = `
       type="text"
       value=""
     />
-    
   </div>
 </div>
 `;

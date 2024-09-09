@@ -42,14 +42,10 @@ exports[`GetStarted snapshot 1`] = `
       </div>
       <div
         data-testid="editor-definition"
-      >
-        
-      </div>
+      />
       <div
         data-testid="editor-image"
-      >
-        
-      </div>
+      />
     </div>
     <div
       className="spacer"
@@ -60,14 +56,10 @@ exports[`GetStarted snapshot 1`] = `
     >
       <div
         data-testid="editor-definition"
-      >
-        
-      </div>
+      />
       <div
         data-testid="editor-image"
-      >
-        
-      </div>
+      />
       Samples List
     </div>
   </section>,

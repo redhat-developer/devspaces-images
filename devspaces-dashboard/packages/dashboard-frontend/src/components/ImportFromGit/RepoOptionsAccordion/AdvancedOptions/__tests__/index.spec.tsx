@@ -43,7 +43,7 @@ describe('AdvancedOptions', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  test('update Container Image', () => {
+  test('update Container Image', async () => {
     renderComponent('testimage');
 
     const containerImage = screen.getByTestId('container-image');
@@ -54,7 +54,7 @@ describe('AdvancedOptions', () => {
       name: 'Container Image Change',
     });
 
-    userEvent.click(updateContainerImage);
+    await userEvent.click(updateContainerImage);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       'new-container-image',
@@ -65,7 +65,7 @@ describe('AdvancedOptions', () => {
     );
   });
 
-  test('update Cpu Limit', () => {
+  test('update Cpu Limit', async () => {
     renderComponent(undefined, undefined, undefined, undefined, 8);
 
     const cpuLimit = screen.getByTestId('cpu-limit');
@@ -76,12 +76,12 @@ describe('AdvancedOptions', () => {
       name: 'Cpu Limit Change',
     });
 
-    userEvent.click(updateCpuLimit);
+    await userEvent.click(updateCpuLimit);
 
     expect(mockOnChange).toHaveBeenCalledWith(undefined, undefined, undefined, undefined, 1);
   });
 
-  test('update CreateNewIfExisting', () => {
+  test('update CreateNewIfExisting', async () => {
     renderComponent(undefined, undefined, true);
 
     const createNewIfExisting = screen.getByTestId('create-new-if-existing');
@@ -92,12 +92,12 @@ describe('AdvancedOptions', () => {
       name: 'Create New If Existing Change',
     });
 
-    userEvent.click(updateCreateNewIfExisting);
+    await userEvent.click(updateCreateNewIfExisting);
 
     expect(mockOnChange).toHaveBeenCalledWith(undefined, undefined, false, undefined, undefined);
   });
 
-  test('update Memory Limit', () => {
+  test('update Memory Limit', async () => {
     renderComponent(undefined, undefined, undefined, 4718592);
 
     const memoryLimit = screen.getByTestId('memory-limit');
@@ -108,7 +108,7 @@ describe('AdvancedOptions', () => {
       name: 'Memory Limit Change',
     });
 
-    userEvent.click(updateMemoryLimit);
+    await userEvent.click(updateMemoryLimit);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       undefined,
@@ -119,7 +119,7 @@ describe('AdvancedOptions', () => {
     );
   });
 
-  test('update Temporary Storage', () => {
+  test('update Temporary Storage', async () => {
     renderComponent(undefined, true);
 
     const temporaryStorage = screen.getByTestId('temporary-storage');
@@ -130,7 +130,7 @@ describe('AdvancedOptions', () => {
       name: 'Temporary Storage Change',
     });
 
-    userEvent.click(updateTemporaryStorage);
+    await userEvent.click(updateTemporaryStorage);
 
     expect(mockOnChange).toHaveBeenCalledWith(undefined, false, undefined, undefined, undefined);
   });

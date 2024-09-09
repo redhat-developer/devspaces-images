@@ -88,7 +88,7 @@ describe('Delete Registries Modal', () => {
     expect(label).toBeTruthy();
   });
 
-  it('should fire onDelete the target registry event', () => {
+  it('should fire onDelete the target registry event', async () => {
     const registry = new FakeRegistryBuilder()
       .withUrl('http://test.reg')
       .withPassword('tst')
@@ -100,14 +100,14 @@ describe('Delete Registries Modal', () => {
     expect(deleteButton).toBeDisabled();
 
     const checkbox = screen.getByTestId('warning-info-checkbox');
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
     expect(deleteButton).toBeEnabled();
 
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
     expect(mockOnDelete).toHaveBeenCalledWith(registry);
   });
 
-  it('should fire onDelete registries event', () => {
+  it('should fire onDelete registries event', async () => {
     const component = getComponent(true, ['http://test.reg', 'http://testreg.com']);
     render(component);
 
@@ -115,14 +115,14 @@ describe('Delete Registries Modal', () => {
     expect(deleteButton).toBeDisabled();
 
     const checkbox = screen.getByTestId('warning-info-checkbox');
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
     expect(deleteButton).toBeEnabled();
 
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
     expect(mockOnDelete).toHaveBeenCalledWith(undefined);
   });
 
-  it('should fire onCancel event', () => {
+  it('should fire onCancel event', async () => {
     const component = getComponent(true, ['http://test.reg', 'http://testreg.com']);
     render(component);
 
@@ -130,7 +130,7 @@ describe('Delete Registries Modal', () => {
     expect(deleteButton).toBeDisabled();
 
     const cancelButton = screen.getByTestId('cancel-button');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
   });

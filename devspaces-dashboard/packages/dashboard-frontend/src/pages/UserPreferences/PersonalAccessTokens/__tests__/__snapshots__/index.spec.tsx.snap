@@ -4,9 +4,7 @@ exports[`PersonalAccessTokens should match the snapshot with no tokens 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <div
     className="pf-c-empty-state pf-m-sm pf-m-full-height"
   >
@@ -89,9 +87,7 @@ exports[`PersonalAccessTokens should match the snapshot with tokens 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <div
     data-testid="token-list"
   >

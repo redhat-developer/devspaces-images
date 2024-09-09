@@ -38,7 +38,6 @@
 | [`@babel/plugin-syntax-optional-chaining@7.8.3`](https://github.com/babel/babel/tree/master/packages/babel-plugin-syntax-optional-chaining) | MIT | clearlydefined |
 | [`@babel/plugin-syntax-top-level-await@7.14.5`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@babel/plugin-syntax-typescript@7.22.5`](https://github.com/babel/babel.git) | MIT | #8994 |
-| [`@babel/runtime-corejs3@7.23.2`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@babel/template@7.22.15`](https://github.com/babel/babel.git) | MIT | #9017 |
 | [`@babel/traverse@7.23.2`](https://github.com/babel/babel.git) | MIT | #11520 |
 | [`@babel/types@7.23.0`](https://github.com/babel/babel.git) | MIT | #11521 |
@@ -136,16 +135,16 @@
 | [`@sinclair/typebox@0.27.8`](https://github.com/sinclairzx81/typebox) | MIT | clearlydefined |
 | [`@sinonjs/commons@3.0.0`](git+https://github.com/sinonjs/commons.git) | BSD-3-Clause | #12905 |
 | [`@sinonjs/fake-timers@10.3.0`](https://github.com/sinonjs/fake-timers.git) | BSD-3-Clause | #9214 |
-| [`@testing-library/dom@7.31.2`](https://github.com/testing-library/dom-testing-library) | MIT | transitive dependency |
-| [`@testing-library/jest-dom@6.1.4`](https://github.com/testing-library/jest-dom) | MIT | clearlydefined |
-| [`@testing-library/react@10.4.9`](https://github.com/testing-library/react-testing-library) | MIT | clearlydefined |
-| [`@testing-library/user-event@12.8.3`](https://github.com/testing-library/user-event) | MIT | clearlydefined |
+| [`@testing-library/dom@10.4.0`](https://github.com/testing-library/dom-testing-library) | MIT | #15966 |
+| [`@testing-library/jest-dom@6.5.0`](https://github.com/testing-library/jest-dom) | MIT | clearlydefined |
+| [`@testing-library/react@16.0.1`](https://github.com/testing-library/react-testing-library) | MIT | clearlydefined |
+| [`@testing-library/user-event@14.5.2`](https://github.com/testing-library/user-event) | MIT | clearlydefined |
 | [`@tootallnate/once@2.0.0`](git://github.com/TooTallNate/once.git) | MIT | clearlydefined |
 | [`@trysound/sax@0.2.0`](git://github.com/svg/sax.git) | ISC | clearlydefined |
 | [`@tufjs/canonical-json@1.0.0`](git+https://github.com/theupdateframework/tuf-js.git) | MIT | #8047 |
 | [`@tufjs/models@1.0.4`](git+https://github.com/theupdateframework/tuf-js.git) | MIT | #7600 |
 | [`@types/args@5.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/aria-query@4.2.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/aria-query@5.0.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10958 |
 | [`@types/babel__core@7.20.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/babel__generator@7.6.6`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/babel__template@7.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -172,13 +171,12 @@
 | [`@types/react-copy-to-clipboard@4.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-router-dom@5.3.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-router@5.1.20`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/react-test-renderer@18.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/react-test-renderer@18.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/redux-mock-store@1.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/request@2.48.12`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/sanitize-html@2.9.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/semver@7.5.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10842 |
 | [`@types/stack-utils@2.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/testing-library__jest-dom@5.14.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #9436 |
 | [`@types/webpack@5.28.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/yargs-parser@21.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/yargs@17.0.29`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #7054 |
@@ -233,7 +231,7 @@
 | [`anymatch@3.1.3`](https://github.com/micromatch/anymatch) | ISC | #5050 |
 | [`aproba@2.0.0`](https://github.com/iarna/aproba) | ISC | clearlydefined |
 | [`are-we-there-yet@3.0.1`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
-| [`aria-query@4.2.2`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
+| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
 | [`array-buffer-byte-length@1.0.0`](git+https://github.com/inspect-js/array-buffer-byte-length.git) | MIT | #7548 |
 | [`array-differ@3.0.0`](https://github.com/sindresorhus/array-differ.git) | MIT | clearlydefined |
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify.git) | MIT | clearlydefined |
@@ -321,7 +319,6 @@
 | [`conventional-recommended-bump@6.1.0`](https://github.com/conventional-changelog/conventional-changelog.git) | MIT | clearlydefined |
 | [`convert-source-map@2.0.0`](git://github.com/thlorenz/convert-source-map.git) | MIT | clearlydefined |
 | [`copy-webpack-plugin@11.0.0`](https://github.com/webpack-contrib/copy-webpack-plugin.git) | MIT | clearlydefined |
-| [`core-js-pure@3.33.2`](https://github.com/zloirock/core-js.git) | MIT | #10961 |
 | [`core-util-is@1.0.3`](git://github.com/isaacs/core-util-is) | MIT | #5898 |
 | [`cosmiconfig@7.0.0`](git+https://github.com/davidtheclark/cosmiconfig.git) | MIT | clearlydefined |
 | [`create-jest@29.7.0`](https://github.com/jestjs/jest.git) | MIT | clearlydefined |
@@ -778,7 +775,8 @@
 | [`q@1.5.1`](git://github.com/kriskowal/q.git) | MIT | #1020 |
 | [`queue-microtask@1.2.3`](git://github.com/feross/queue-microtask.git) | MIT | clearlydefined |
 | [`quick-lru@4.0.1`](https://github.com/sindresorhus/quick-lru.git) | MIT | clearlydefined |
-| [`react-test-renderer@16.14.0`](git+https://github.com/facebook/react.git) | MIT | clearlydefined |
+| [`react-shallow-renderer@16.15.0`](https://github.com/NMinhNguyen/react-shallow-renderer.git) | MIT | clearlydefined |
+| [`react-test-renderer@18.3.1`](https://github.com/facebook/react.git) | MIT | #14587 |
 | [`read-cmd-shim@3.0.0`](https://github.com/npm/read-cmd-shim.git) | ISC | clearlydefined |
 | [`read-package-json-fast@3.0.2`](https://github.com/npm/read-package-json-fast.git) | ISC | #5752 |
 | [`read-package-json@5.0.1`](https://github.com/npm/read-package-json.git) | ISC | clearlydefined |

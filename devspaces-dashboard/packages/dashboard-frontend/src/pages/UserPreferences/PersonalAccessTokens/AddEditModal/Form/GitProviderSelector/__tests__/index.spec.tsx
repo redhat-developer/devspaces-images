@@ -41,12 +41,12 @@ describe('Registry Username Input', () => {
     expect(dropdownButton).toBeTruthy();
   });
 
-  test('available provider options', () => {
+  test('available provider options', async () => {
     renderComponent();
 
     // the default dropdown value should be 'GitHub'
     const dropdownButton = screen.getByRole('button', { name: 'GitHub' });
-    userEvent.click(dropdownButton);
+    await userEvent.click(dropdownButton);
 
     expect(screen.queryByRole('menuitem', { name: 'Bitbucket Server' })).toBeTruthy();
     expect(screen.queryByRole('menuitem', { name: 'GitHub' })).toBeTruthy();
@@ -54,16 +54,16 @@ describe('Registry Username Input', () => {
     expect(screen.queryByRole('menuitem', { name: 'Microsoft Azure DevOps' })).toBeTruthy();
   });
 
-  it('should select a provider', () => {
+  it('should select a provider', async () => {
     renderComponent();
 
     // the default dropdown value should be 'GitHub'
     const dropdownButton = screen.getByRole('button', { name: 'GitHub' });
-    userEvent.click(dropdownButton);
+    await userEvent.click(dropdownButton);
 
     const bitbucketMenuitem = screen.getByRole('menuitem', { name: 'Bitbucket Server' });
 
-    userEvent.click(bitbucketMenuitem);
+    await userEvent.click(bitbucketMenuitem);
 
     expect(mockOnSelect).toHaveBeenCalledWith('bitbucket-server');
     expect(screen.queryByRole('button', { name: 'Bitbucket Server' })).toBeTruthy();

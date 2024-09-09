@@ -64,20 +64,20 @@ describe('Registry Username Input', () => {
     expect(input).toHaveValue('Atestregn');
   });
 
-  it('should fire onChange event', () => {
+  it('should fire onChange event', async () => {
     const component = getComponent('Ate');
     render(component);
 
     const input = screen.getByRole('textbox');
 
-    userEvent.type(input, 'st');
+    await userEvent.type(input, 'st');
 
     expect(mockOnChange).toHaveBeenCalledWith('Ates', 'success');
     expect(mockOnChange).toHaveBeenCalledWith('Atest', 'success');
   });
 
   describe('validation', () => {
-    it('should handle maximum value length', () => {
+    it('should handle maximum value length', async () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
 
@@ -87,16 +87,16 @@ describe('Registry Username Input', () => {
       const allowedUsername = 'a'.repeat(100);
       let label: HTMLElement | null;
 
-      userEvent.clear(input);
-      userEvent.type(input, allowedUsername);
+      await userEvent.clear(input);
+      await userEvent.type(input, allowedUsername);
 
       label = screen.queryByText(message);
       expect(label).toBeFalsy();
 
       const disallowedUsername = 'a'.repeat(101);
 
-      userEvent.clear(input);
-      userEvent.type(input, disallowedUsername);
+      await userEvent.clear(input);
+      await userEvent.type(input, disallowedUsername);
 
       label = screen.queryByText(message);
       expect(label).toBeTruthy();

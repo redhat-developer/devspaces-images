@@ -201,9 +201,7 @@ exports[`Editor Selector snapshot 1`] = `
                     </div>
                     <div
                       data-testid="selected-editor-id"
-                    >
-                      
-                    </div>
+                    />
                     <button
                       onClick={[Function]}
                     >

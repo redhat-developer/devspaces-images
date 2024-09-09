@@ -38,29 +38,31 @@ describe('GitConfigUserEmail', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should fail validation if value is empty', () => {
+  it('should fail validation if value is empty', async () => {
     renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.clear(textInput);
+    await userEvent.clear(textInput);
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should fail validation if value is too long', () => {
+  it('should fail validation if value is too long', async () => {
     renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.paste(textInput, 'a'.repeat(129));
+    await userEvent.click(textInput);
+    await userEvent.paste('a'.repeat(129));
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should fail validation if is not a valid email', () => {
+  it('should fail validation if is not a valid email', async () => {
     renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.paste(textInput, '@test');
+    await userEvent.click(textInput);
+    await userEvent.paste('@test');
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
@@ -75,11 +77,12 @@ describe('GitConfigUserEmail', () => {
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default);
   });
 
-  it('should handle value changing', () => {
+  it('should handle value changing', async () => {
     renderComponent('user@che.org', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.paste(textInput, 'a');
+    await userEvent.click(textInput);
+    await userEvent.paste('a');
 
     expect(mockOnChange).toHaveBeenCalledWith('user@che.orga', true);
   });

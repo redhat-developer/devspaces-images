@@ -14,7 +14,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { GitServicesToolbar } from '@/pages/UserPreferences/GitServices/Toolbar';
-import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
 import { IGitOauth } from '@/store/GitOauthConfig/types';
 
 const mockOnRevokeButton = jest.fn();
@@ -59,7 +59,7 @@ describe('GitServicesToolbar', () => {
     expect(revokeButton).toBeDisabled();
   });
 
-  test('revoke button click', () => {
+  test('revoke button click', async () => {
     renderComponent([
       {
         name: 'github',
@@ -70,8 +70,8 @@ describe('GitServicesToolbar', () => {
     const revokeButton = screen.getByRole('button', { name: 'Revoke' });
     expect(revokeButton).toBeEnabled();
 
-    userEvent.click(revokeButton);
-    expect(mockOnRevokeButton).toHaveBeenCalledTimes(1);
+    await userEvent.click(revokeButton);
+    await waitFor(() => expect(mockOnRevokeButton).toHaveBeenCalledTimes(1));
   });
 });
 

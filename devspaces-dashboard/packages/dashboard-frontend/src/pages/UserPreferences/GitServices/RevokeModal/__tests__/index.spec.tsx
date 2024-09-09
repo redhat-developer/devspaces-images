@@ -85,7 +85,7 @@ describe('Revoke Registries Modal', () => {
     });
   });
 
-  test('Cancel button', () => {
+  test('Cancel button', async () => {
     renderComponent([
       {
         name: 'github',
@@ -94,13 +94,13 @@ describe('Revoke Registries Modal', () => {
     ]);
 
     const cancelButton = screen.getByTestId('cancel-button');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
   });
 
   describe('"I understand" checkbox', () => {
-    test('with Cancel afterwards', () => {
+    test('with Cancel afterwards', async () => {
       renderComponent([
         {
           name: 'github',
@@ -113,17 +113,17 @@ describe('Revoke Registries Modal', () => {
       // not checked by default
       expect(checkbox).not.toBeChecked();
 
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       expect(checkbox).toBeChecked();
 
       const cancelButton = screen.getByTestId('cancel-button');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       expect(checkbox).not.toBeChecked();
     });
 
-    test('with Revoke afterwards', () => {
+    test('with Revoke afterwards', async () => {
       renderComponent([
         {
           name: 'github',
@@ -136,18 +136,18 @@ describe('Revoke Registries Modal', () => {
       // not checked by default
       expect(checkbox).not.toBeChecked();
 
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       expect(checkbox).toBeChecked();
 
       const revokeButton = screen.getByTestId('revoke-button');
-      userEvent.click(revokeButton);
+      await userEvent.click(revokeButton);
 
       expect(checkbox).not.toBeChecked();
     });
   });
 
-  test('Revoke button', () => {
+  test('Revoke button', async () => {
     renderComponent([
       {
         name: 'github',
@@ -161,11 +161,11 @@ describe('Revoke Registries Modal', () => {
     expect(revokeButton).toBeDisabled();
 
     const checkbox = screen.getByTestId('warning-info-checkbox');
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
 
     expect(revokeButton).toBeEnabled();
 
-    userEvent.click(revokeButton);
+    await userEvent.click(revokeButton);
 
     expect(mockOnRevoke).toHaveBeenCalled();
   });

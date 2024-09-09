@@ -122,14 +122,14 @@ describe('AddEditModalForm', () => {
   });
 
   describe('Git provider', () => {
-    it('should handle changing the git provider', () => {
+    it('should handle changing the git provider', async () => {
       renderComponent({ isEdit: false, token: undefined });
 
       // git provider name field
       const gitProviderButton = screen.getByRole('button', {
         name: 'Submit Provider GitHub',
       });
-      userEvent.click(gitProviderButton);
+      await userEvent.click(gitProviderButton);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -141,7 +141,7 @@ describe('AddEditModalForm', () => {
       );
     });
 
-    it('should reveal the git organization field', () => {
+    it('should reveal the git organization field', async () => {
       renderComponent({ isEdit: true, token: pat });
 
       // expect there is no organization field
@@ -150,13 +150,13 @@ describe('AddEditModalForm', () => {
       const gitProviderButton = screen.getByRole('button', {
         name: 'Submit Provider Azure DevOps',
       });
-      userEvent.click(gitProviderButton);
+      await userEvent.click(gitProviderButton);
 
       // expect there is the organization field
       () => expect(screen.queryByTestId('git-provider-organization')).toBeTruthy();
     });
 
-    it('should hide the git organization field', () => {
+    it('should hide the git organization field', async () => {
       renderComponent({ isEdit: true, token: patWithOrganization });
 
       // expect the organization field is visible
@@ -166,20 +166,20 @@ describe('AddEditModalForm', () => {
       const gitProviderButton = screen.getByRole('button', {
         name: 'Submit Provider GitHub',
       });
-      userEvent.click(gitProviderButton);
+      await userEvent.click(gitProviderButton);
 
       // expect there is no organization field
       () => expect(screen.queryByTestId('git-provider-organization')).toBeFalsy();
     });
 
-    it('should hide the git organization field and re-validate the form', () => {
+    it('should hide the git organization field and re-validate the form', async () => {
       renderComponent({ isEdit: true, token: patWithOrganization });
 
       // invalidate the form
       const gitProviderOrganizationButton = screen.getByRole('button', {
         name: 'Submit Invalid Git Provider Organization',
       });
-      userEvent.click(gitProviderOrganizationButton);
+      await userEvent.click(gitProviderOrganizationButton);
 
       // expect mockOnChange was called with invalid form
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -194,7 +194,7 @@ describe('AddEditModalForm', () => {
       const gitProviderButton = screen.getByRole('button', {
         name: 'Submit Provider GitHub',
       });
-      userEvent.click(gitProviderButton);
+      await userEvent.click(gitProviderButton);
 
       // expect mockOnChange was called with valid form
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -207,14 +207,14 @@ describe('AddEditModalForm', () => {
   });
 
   describe('Git provider endpoint', () => {
-    it('should handle changing the git provider endpoint to a valid value', () => {
+    it('should handle changing the git provider endpoint to a valid value', async () => {
       renderComponent({ isEdit: true, token: pat });
 
       // git provider endpoint field
       const gitProviderEndpointField = screen.getByRole('button', {
         name: NEW_GIT_PROVIDER_ENDPOINT_BUTTON,
       });
-      userEvent.click(gitProviderEndpointField);
+      await userEvent.click(gitProviderEndpointField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -225,14 +225,14 @@ describe('AddEditModalForm', () => {
       );
     });
 
-    it('should handle changing the git provider endpoint to an invalid value', () => {
+    it('should handle changing the git provider endpoint to an invalid value', async () => {
       renderComponent({ isEdit: true, token: pat });
 
       // git provider endpoint field
       const gitProviderEndpointField = screen.getByRole('button', {
         name: INVALID_GIT_PROVIDER_ENDPOINT_BUTTON,
       });
-      userEvent.click(gitProviderEndpointField);
+      await userEvent.click(gitProviderEndpointField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -243,14 +243,14 @@ describe('AddEditModalForm', () => {
       );
     });
 
-    it('should use the default git provider endpoint', () => {
+    it('should use the default git provider endpoint', async () => {
       renderComponent({ isEdit: false, token: undefined });
 
       // change other field to trigger onChange event
       const tokenNameField = screen.getByRole('button', {
         name: 'Submit Valid Token Name',
       });
-      userEvent.click(tokenNameField);
+      await userEvent.click(tokenNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -264,7 +264,7 @@ describe('AddEditModalForm', () => {
       const gitProviderButton = screen.getByRole('button', {
         name: 'Submit Provider Azure DevOps',
       });
-      userEvent.click(gitProviderButton);
+      await userEvent.click(gitProviderButton);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -277,14 +277,14 @@ describe('AddEditModalForm', () => {
   });
 
   describe('Git provider organization', () => {
-    it('should handle changing the git provider organization to a valid value', () => {
+    it('should handle changing the git provider organization to a valid value', async () => {
       renderComponent({ isEdit: true, token: patWithOrganization });
 
       // git provider name field
       const gitProviderOrganizationField = screen.getByRole('button', {
         name: NEW_GIT_PROVIDER_ORGANIZATION_BUTTON,
       });
-      userEvent.click(gitProviderOrganizationField);
+      await userEvent.click(gitProviderOrganizationField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -295,14 +295,14 @@ describe('AddEditModalForm', () => {
       );
     });
 
-    it('should handle changing the git provider organization to a an invalid value', () => {
+    it('should handle changing the git provider organization to a an invalid value', async () => {
       renderComponent({ isEdit: true, token: patWithOrganization });
 
       // git provider name field
       const gitProviderOrganizationField = screen.getByRole('button', {
         name: INVALID_GIT_PROVIDER_ORGANIZATION_BUTTON,
       });
-      userEvent.click(gitProviderOrganizationField);
+      await userEvent.click(gitProviderOrganizationField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenLastCalledWith(
@@ -315,14 +315,14 @@ describe('AddEditModalForm', () => {
   });
 
   describe('Token Name', () => {
-    it('should handle a valid value', () => {
+    it('should handle a valid value', async () => {
       renderComponent({ isEdit: true, token: pat });
 
       // token name field
       const tokenNameField = screen.getByRole('button', {
         name: NEW_TOKEN_NAME_BUTTON,
       });
-      userEvent.click(tokenNameField);
+      await userEvent.click(tokenNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -333,14 +333,14 @@ describe('AddEditModalForm', () => {
       );
     });
 
-    it('should handle an invalid value', () => {
+    it('should handle an invalid value', async () => {
       renderComponent({ isEdit: true, token: pat });
 
       // token name field
       const tokenNameField = screen.getByRole('button', {
         name: INVALID_TOKEN_NAME_BUTTON,
       });
-      userEvent.click(tokenNameField);
+      await userEvent.click(tokenNameField);
 
       // expect mockOnChange was called
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -354,14 +354,14 @@ describe('AddEditModalForm', () => {
 
   describe('Token Data', () => {
     describe('in add mode', () => {
-      it('should handle a valid value', () => {
+      it('should handle a valid value', async () => {
         renderComponent({ isEdit: false, token: undefined });
 
         // token data field
         const tokenNameField = screen.getByRole('button', {
           name: NEW_TOKEN_DATA_BUTTON,
         });
-        userEvent.click(tokenNameField);
+        await userEvent.click(tokenNameField);
 
         // expect mockOnChange was called
         expect(mockOnChange).toHaveBeenCalledWith(
@@ -372,14 +372,14 @@ describe('AddEditModalForm', () => {
         );
       });
 
-      it('should handle an invalid value', () => {
+      it('should handle an invalid value', async () => {
         renderComponent({ isEdit: false, token: undefined });
 
         // token data field
         const tokenNameField = screen.getByRole('button', {
           name: INVALID_TOKEN_DATA_BUTTON,
         });
-        userEvent.click(tokenNameField);
+        await userEvent.click(tokenNameField);
 
         // expect mockOnChange was called
         expect(mockOnChange).toHaveBeenCalledWith(
@@ -392,14 +392,14 @@ describe('AddEditModalForm', () => {
     });
 
     describe('in edit mode', () => {
-      it('should handle a valid value', () => {
+      it('should handle a valid value', async () => {
         renderComponent({ isEdit: true, token: pat });
 
         // token data field
         const tokenNameField = screen.getByRole('button', {
           name: NEW_TOKEN_DATA_BUTTON,
         });
-        userEvent.click(tokenNameField);
+        await userEvent.click(tokenNameField);
 
         // expect mockOnChange was called
         expect(mockOnChange).toHaveBeenCalledWith(
@@ -410,14 +410,14 @@ describe('AddEditModalForm', () => {
         );
       });
 
-      it('should ignore an invalid value', () => {
+      it('should ignore an invalid value', async () => {
         renderComponent({ isEdit: true, token: pat });
 
         // token data field
         const tokenNameField = screen.getByRole('button', {
           name: INVALID_TOKEN_DATA_BUTTON,
         });
-        userEvent.click(tokenNameField);
+        await userEvent.click(tokenNameField);
 
         // expect mockOnChange was called
         expect(mockOnChange).toHaveBeenCalledWith(

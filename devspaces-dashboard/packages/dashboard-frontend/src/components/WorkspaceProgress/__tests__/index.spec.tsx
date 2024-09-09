@@ -11,7 +11,7 @@
  */
 
 import { StateMock } from '@react-mock/state';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory, History, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -59,6 +59,7 @@ describe('LoaderProgress', () => {
   let history: MemoryHistory;
   let searchParams: URLSearchParams;
   let store: Store;
+  let user: UserEvent;
 
   beforeEach(() => {
     store = new FakeStoreBuilder()
@@ -67,6 +68,7 @@ describe('LoaderProgress', () => {
       })
       .build();
     jest.useFakeTimers();
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
@@ -142,13 +144,16 @@ describe('LoaderProgress', () => {
         return screen.queryByRole('list', { name: 'Loader Alerts Group' });
       }
 
-      function triggerStepEvent(step: HTMLElement, event: 'onError' | 'onNextStep' | 'onRestart') {
+      async function triggerStepEvent(
+        step: HTMLElement,
+        event: 'onError' | 'onNextStep' | 'onRestart',
+      ) {
         const errorButton = within(step).getByRole('button', { name: event });
-        userEvent.click(errorButton);
+        await user.click(errorButton);
       }
 
       describe('onError', () => {
-        test('alert notification for the active step', () => {
+        test('alert notification for the active step', async () => {
           renderComponent(history, store, searchParams, false);
 
           /* no alert notification */
@@ -157,7 +162,7 @@ describe('LoaderProgress', () => {
           const steps = getSteps();
 
           // trigger an error in the first (active) step
-          triggerStepEvent(steps[0], 'onError');
+          await triggerStepEvent(steps[0], 'onError');
 
           /* alert notification in document */
 
@@ -170,7 +175,7 @@ describe('LoaderProgress', () => {
           ).not.toBeNull();
         });
 
-        test('handle error for an non-active step', () => {
+        test('handle error for an non-active step', async () => {
           renderComponent(history, store, searchParams, false);
 
           /* no alert notification */
@@ -179,7 +184,7 @@ describe('LoaderProgress', () => {
           const steps = getSteps();
 
           /* trigger an error in the second (non-active) step */
-          triggerStepEvent(steps[1], 'onError');
+          await triggerStepEvent(steps[1], 'onError');
 
           /* still no alert notifications in the document */
           expect(getAlertGroup()).toBeNull();
@@ -200,7 +205,7 @@ describe('LoaderProgress', () => {
 
           // trigger onNextStep on the active step
           const onNextStepButton = within(steps[0]).getByRole('button', { name: 'onNextStep' });
-          userEvent.click(onNextStepButton);
+          await user.click(onNextStepButton);
 
           // first step distance incremented (non-active)
           await waitFor(() =>
@@ -224,7 +229,7 @@ describe('LoaderProgress', () => {
 
           // trigger onNextStep on the non-active step
           const onNextStepButton = within(steps[1]).getByRole('button', { name: 'onNextStep' });
-          userEvent.click(onNextStepButton);
+          await user.click(onNextStepButton);
 
           // first step distance does not change (active)
           await waitFor(() =>
@@ -262,7 +267,7 @@ describe('LoaderProgress', () => {
 
           // trigger onRestart on the active step
           const onRestart = within(steps[1]).getByRole('button', { name: 'onRestart' });
-          userEvent.click(onRestart);
+          await user.click(onRestart);
 
           // first step distance becomes 0 (active)
           await waitFor(() =>
@@ -316,7 +321,7 @@ describe('LoaderProgress', () => {
 
           // trigger onRestart on the active step
           const onRestart = within(steps[4]).getByRole('button', { name: 'onRestart' });
-          userEvent.click(onRestart);
+          await user.click(onRestart);
 
           // 4th step distance becomes 0 (active)
           await waitFor(() =>
@@ -352,7 +357,7 @@ describe('LoaderProgress', () => {
 
           // trigger onRestart on the non-active step
           const onRestart = within(steps[0]).getByRole('button', { name: 'onRestart' });
-          userEvent.click(onRestart);
+          await user.click(onRestart);
 
           // first step distance becomes 0 (active)
           await waitFor(() =>

@@ -11,7 +11,7 @@
  */
 
 import { AlertVariant } from '@patternfly/react-core';
-import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
+import { fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { container } from '@/inversify.config';
@@ -34,40 +34,41 @@ describe('AppAlertGroup component', () => {
   };
 
   beforeEach(() => {
+    container.snapshot();
     jest.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    container.restore();
     jest.useRealTimers();
   });
 
-  it('should show the alert and hide with a close button', () => {
+  it('should show the alert and hide with a close button', async () => {
     renderComponent(<AppAlertGroup />);
 
     const title = 'test 1 message';
     showAlert(title);
 
-    expect(screen.queryAllByText(title).length).toEqual(1);
+    await waitFor(() => expect(screen.queryAllByText(title).length).toEqual(1));
 
     const closeButton = screen.getByRole('button');
     fireEvent.click(closeButton);
 
-    expect(screen.queryAllByText(title).length).toEqual(0);
+    await waitFor(() => expect(screen.queryAllByText(title).length).toEqual(0));
   });
 
-  it('should show the alert and hide after timeout', () => {
+  it('should show the alert and hide after timeout', async () => {
     renderComponent(<AppAlertGroup />);
 
     const title = 'test 2 message';
     showAlert(title);
 
-    expect(screen.queryAllByText(title).length).toEqual(1);
+    await waitFor(() => expect(screen.queryAllByText(title).length).toEqual(1));
 
     // Fast-forward until pending timers have been executed
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
 
-    expect(screen.queryAllByText(title).length).toEqual(0);
+    await waitFor(() => expect(screen.queryAllByText(title).length).toEqual(0));
   });
 });
 

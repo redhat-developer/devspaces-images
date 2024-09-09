@@ -26,7 +26,6 @@ exports[`WorkspaceNameLink screenshot when cluster console is NOT available 1`] 
     >
       my-project
     </span>
-    
   </div>
 </div>
 `;
@@ -93,7 +92,6 @@ exports[`WorkspaceNameLink screenshot when cluster console is available 1`] = `
         </span>
       </a>
     </span>
-    
   </div>
 </div>
 `;

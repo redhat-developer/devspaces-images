@@ -39,7 +39,7 @@ export class AppAlerts {
   }
 
   public showAlert(alert: AlertItem): void {
-    this.removeAlert(alert.key);
+    this.alerts = this.alerts.filter(_alert => _alert.key !== alert.key);
     this.alerts.push(alert);
     this.onChange();
   }

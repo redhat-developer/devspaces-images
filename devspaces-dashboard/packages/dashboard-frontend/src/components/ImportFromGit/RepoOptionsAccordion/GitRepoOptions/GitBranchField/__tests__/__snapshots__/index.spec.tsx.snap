@@ -37,7 +37,6 @@ exports[`GitBranchField snapshot 1`] = `
       type="text"
       value=""
     />
-    
   </div>
 </div>
 `;

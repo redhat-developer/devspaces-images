@@ -20,7 +20,11 @@ import {
   GitConfigImport,
   textAreaPlaceholder,
 } from '@/pages/UserPreferences/GitConfig/GitConfigImport';
-import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, {
+  fireEvent,
+  screen,
+  waitFor,
+} from '@/services/__mocks__/getComponentRenderer';
 
 const { renderComponent, createSnapshot } = getComponentRenderer(getComponent);
 
@@ -94,7 +98,9 @@ describe('GitConfigUpload', () => {
 
       const fileUploader = screen.getByTestId(fieldId);
       const fileUploadInput = fileUploader.querySelector('input[type="file"]');
-      userEvent.upload(fileUploadInput!, file);
+      // `userEvent` does not accept `Element` as a parameter
+      // use `fireEvent` instead
+      fireEvent.change(fileUploadInput!, { target: { files: [file] } });
 
       await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(fileContent, true));
 
@@ -103,7 +109,7 @@ describe('GitConfigUpload', () => {
 
       /* Clear the field */
 
-      userEvent.click(clearButton);
+      await userEvent.click(clearButton);
 
       expect(fileInput).toHaveValue('');
       expect(clearButton).toBeDisabled();
@@ -123,7 +129,8 @@ describe('GitConfigUpload', () => {
       /* Paste a content */
 
       const content = 'content';
-      userEvent.paste(contentInput, content);
+      await userEvent.click(contentInput);
+      await userEvent.paste(content);
 
       await waitFor(() => expect(mockOnChange).toHaveBeenCalledWith(content, false));
 
@@ -134,7 +141,7 @@ describe('GitConfigUpload', () => {
 
       /* Clear the field */
 
-      userEvent.click(clearButton);
+      await userEvent.click(clearButton);
 
       expect(contentInput).toHaveValue('');
       expect(clearButton).toBeDisabled();

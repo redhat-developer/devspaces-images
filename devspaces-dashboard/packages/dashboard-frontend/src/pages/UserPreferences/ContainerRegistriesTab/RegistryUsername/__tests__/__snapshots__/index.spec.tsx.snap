@@ -48,7 +48,6 @@ exports[`Registry Username Input should correctly render the component 1`] = `
         type="text"
         value="Attt"
       />
-      
     </div>
   </div>
 </form>

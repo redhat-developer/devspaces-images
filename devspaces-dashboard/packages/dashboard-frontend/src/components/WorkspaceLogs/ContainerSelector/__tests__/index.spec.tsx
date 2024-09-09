@@ -13,6 +13,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { V1Pod } from '@kubernetes/client-node';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
@@ -69,11 +70,11 @@ describe('WorkspaceLogsContainerSelector', () => {
     expect(screen.queryByRole('button', { name: new RegExp(NO_CONTAINERS) })).not.toBeNull();
   });
 
-  it('should toggle dropdown', () => {
+  it('should toggle dropdown', async () => {
     renderComponent(pod);
 
     const dropdown = screen.getByRole('button', { name: /container1/ });
-    dropdown.click();
+    await userEvent.click(dropdown);
 
     expect(screen.queryByRole('menu')).not.toBeNull();
     expect(screen.queryByRole('menuitem', { name: /container1/ })).not.toBeNull();
@@ -89,27 +90,27 @@ describe('WorkspaceLogsContainerSelector', () => {
     expect(mockOnContainerChange).toHaveBeenLastCalledWith('container1');
   });
 
-  it('should select an init container', () => {
+  it('should select an init container', async () => {
     renderComponent(pod);
 
     const dropdown = screen.getByRole('button', { name: /container1/ });
-    dropdown.click();
+    await userEvent.click(dropdown);
 
     const initContainer = screen.getByRole('menuitem', { name: /initContainer1/ });
-    initContainer.click();
+    await userEvent.click(initContainer);
 
     expect(screen.queryByRole('button', { name: /initContainer1/ })).not.toBeNull();
     expect(mockOnContainerChange).toHaveBeenLastCalledWith('initContainer1');
   });
 
-  it('should select container', () => {
+  it('should select container', async () => {
     renderComponent(pod);
 
     const dropdown = screen.getByRole('button', { name: /container1/ });
-    dropdown.click();
+    await userEvent.click(dropdown);
 
     const container = screen.getByRole('menuitem', { name: /container2/ });
-    container.click();
+    await userEvent.click(container);
 
     expect(screen.queryByRole('button', { name: /container2/ })).not.toBeNull();
     expect(mockOnContainerChange).toHaveBeenLastCalledWith('container2');

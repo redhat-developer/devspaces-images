@@ -130,7 +130,7 @@ describe('GitConfig', () => {
       renderComponent(store);
 
       const saveConfigButton = screen.getByRole('button', { name: 'Save Config' });
-      userEvent.click(saveConfigButton);
+      await userEvent.click(saveConfigButton);
 
       // mock should be called
       expect(mockUpdateGitConfig).toHaveBeenCalled();
@@ -151,7 +151,7 @@ describe('GitConfig', () => {
       mockUpdateGitConfig.mockRejectedValueOnce(new Error('update gitconfig error'));
 
       const saveConfigButton = screen.getByRole('button', { name: 'Save Config' });
-      userEvent.click(saveConfigButton);
+      await userEvent.click(saveConfigButton);
 
       // mock should be called
       expect(mockUpdateGitConfig).toHaveBeenCalled();
@@ -188,7 +188,7 @@ describe('GitConfig', () => {
       renderComponent(store);
 
       const reloadConfigButton = screen.getByRole('button', { name: 'Reload Config' });
-      userEvent.click(reloadConfigButton);
+      await userEvent.click(reloadConfigButton);
 
       // mock should be called
       expect(mockRequestGitConfig).toHaveBeenCalled();

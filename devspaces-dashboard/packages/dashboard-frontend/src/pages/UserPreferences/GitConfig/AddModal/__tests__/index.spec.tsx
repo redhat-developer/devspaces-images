@@ -43,23 +43,23 @@ describe('AddModal', () => {
     expect(screen.queryByRole('dialog')).toBeTruthy();
   });
 
-  it('should handle click on Close button', () => {
+  it('should handle click on Close button', async () => {
     renderComponent(true);
 
     const closeButton = screen.queryByRole('button', { name: 'Close' });
     expect(closeButton).toBeTruthy();
 
-    userEvent.click(closeButton!);
+    await userEvent.click(closeButton!);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should handle click on Cancel button', () => {
+  it('should handle click on Cancel button', async () => {
     renderComponent(true);
 
     const cancelButton = screen.queryByRole('button', { name: 'Cancel' });
     expect(cancelButton).toBeTruthy();
 
-    userEvent.click(cancelButton!);
+    await userEvent.click(cancelButton!);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
@@ -95,7 +95,7 @@ describe('AddModal', () => {
   describe('should handle saving git configuration', () => {
     const isOpen = true;
 
-    it('should handle valid git configuration', () => {
+    it('should handle valid git configuration', async () => {
       renderComponent(isOpen);
 
       // expect add button to be disabled
@@ -103,18 +103,18 @@ describe('AddModal', () => {
       expect(addButton).toBeDisabled();
 
       const SubmitValidFormButton = screen.getByTestId('submit-valid-git-config');
-      userEvent.click(SubmitValidFormButton);
+      await userEvent.click(SubmitValidFormButton);
 
       // expect add button to be enabled
       expect(addButton).toBeEnabled();
 
-      userEvent.click(addButton);
+      await userEvent.click(addButton);
 
       // expect onSave to be called
       expect(mockOnSave).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle invalid git configuration', () => {
+    it('should handle invalid git configuration', async () => {
       renderComponent(isOpen);
 
       // expect add button to be enabled
@@ -122,7 +122,7 @@ describe('AddModal', () => {
       expect(addButton).toBeDisabled();
 
       const SubmitInvalidFormButton = screen.getByTestId('submit-invalid-git-config');
-      userEvent.click(SubmitInvalidFormButton);
+      await userEvent.click(SubmitInvalidFormButton);
 
       // expect add button to be disabled
       expect(addButton).toBeDisabled();

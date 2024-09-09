@@ -4,9 +4,7 @@ exports[`SshKeys should match the snapshot with SSH keys 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <div>
     <div
       data-testid="ssh-keys-list-entry"
@@ -36,9 +34,7 @@ exports[`SshKeys should match the snapshot with no SSH keys 1`] = `
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <div
     className="pf-c-empty-state pf-m-sm pf-m-full-height"
   >

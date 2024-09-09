@@ -64,7 +64,6 @@ exports[`GitConfigUserName snapshot, loading 1`] = `
         type="button"
       />
     </div>
-    
   </div>
 </div>
 `;
@@ -133,7 +132,6 @@ exports[`GitConfigUserName snapshot, not loading 1`] = `
         type="button"
       />
     </div>
-    
   </div>
 </div>
 `;

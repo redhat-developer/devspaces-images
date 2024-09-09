@@ -4,9 +4,7 @@ exports[`ContainerRegistries should correctly render the component which contain
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <section
     className="pf-c-page__main-section"
   >
@@ -137,7 +135,6 @@ exports[`ContainerRegistries should correctly render the component which contain
                 type="checkbox"
               />
             </label>
-            
           </td>
           <th
             className=""
@@ -163,9 +160,7 @@ exports[`ContainerRegistries should correctly render the component which contain
             data-label=""
             onMouseEnter={[Function]}
             scope={null}
-          >
-            
-          </td>
+          />
         </tr>
       </thead>
       <tbody
@@ -372,9 +367,7 @@ exports[`ContainerRegistries should correctly render the component without regis
 [
   <span
     className="progressLine"
-  >
-    
-  </span>,
+  />,
   <section
     className="pf-c-page__main-section"
   >

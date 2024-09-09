@@ -13,7 +13,7 @@
 import { api } from '@eclipse-che/common';
 import { StateMock } from '@react-mock/state';
 import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { dump } from 'js-yaml';
 import React from 'react';
@@ -79,6 +79,7 @@ const devfile = {
 describe('Creating steps, applying a devfile', () => {
   let searchParams: URLSearchParams;
   let factoryId: string;
+  let user: UserEvent;
 
   beforeEach(() => {
     mockCreateWorkspaceFromDevfile = jest.fn().mockResolvedValue(undefined);
@@ -96,6 +97,8 @@ describe('Creating steps, applying a devfile', () => {
     });
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
@@ -725,7 +728,7 @@ describe('Creating steps, applying a devfile', () => {
 
     // imitate the timeout has been expired
     const timeoutButton = screen.getByRole('button', { name: 'onTimeout' });
-    userEvent.click(timeoutButton);
+    await user.click(timeoutButton);
 
     const expectAlertItem = expect.objectContaining({
       title: 'Failed to create the workspace',

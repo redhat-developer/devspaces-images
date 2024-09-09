@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -69,6 +69,7 @@ const mockHandleAction: jest.Mock = jest.fn();
 
 describe('WorkspaceActionsProvider', () => {
   let store: Store;
+  let user: UserEvent;
 
   beforeEach(() => {
     store = new FakeStoreBuilder()
@@ -89,6 +90,8 @@ describe('WorkspaceActionsProvider', () => {
       .build();
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
@@ -97,37 +100,37 @@ describe('WorkspaceActionsProvider', () => {
   });
 
   describe('confirmation dialog', () => {
-    test('show up and accept', () => {
+    test('show up and accept', async () => {
       renderComponent(store, WorkspaceAction.DELETE_WORKSPACE, wantDelete[0]);
 
       // get and click confirmation button
       const showConfirmationBtn = screen.getByTestId('test-component-show-confirmation');
-      userEvent.click(showConfirmationBtn);
+      await user.click(showConfirmationBtn);
 
       // check if confirmation dialog is shown
       expect(screen.queryByTestId('workspace-delete-modal')).toBeInTheDocument();
 
       // get and click the confirmation button
       const acceptConfirmationBtn = screen.getByTestId('delete-workspace');
-      userEvent.click(acceptConfirmationBtn);
+      await user.click(acceptConfirmationBtn);
 
       // check if confirmation dialog is removed
       expect(screen.queryByTestId('workspace-delete-modal')).not.toBeInTheDocument();
     });
 
-    test('show up and decline', () => {
+    test('show up and decline', async () => {
       renderComponent(store, WorkspaceAction.DELETE_WORKSPACE, wantDelete[0]);
 
       // get and click confirmation button
       const showConfirmationBtn = screen.getByTestId('test-component-show-confirmation');
-      userEvent.click(showConfirmationBtn);
+      await user.click(showConfirmationBtn);
 
       // check if confirmation dialog is shown
       expect(screen.queryByTestId('workspace-delete-modal')).toBeInTheDocument();
 
       // get and click the close button
       const declineConfirmationBtn = screen.getByTestId('close-modal');
-      userEvent.click(declineConfirmationBtn);
+      await user.click(declineConfirmationBtn);
 
       // check if confirmation dialog is removed
       expect(screen.queryByTestId('workspace-delete-modal')).not.toBeInTheDocument();
@@ -149,15 +152,17 @@ describe('WorkspaceActionsProvider', () => {
         const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
         // try to delete the workspace tree times in a row
-        userEvent.click(handleActionBtn);
-        userEvent.click(handleActionBtn);
-        userEvent.click(handleActionBtn);
-
-        // check if workspace is added to the toDelete list
-        expect(screen.getByTestId('test-component-to-delete')).toHaveTextContent('1234');
+        Promise.allSettled([
+          user.click(handleActionBtn),
+          user.click(handleActionBtn),
+          user.click(handleActionBtn),
+        ]);
 
         // make sure all timers are executed
-        await jest.advanceTimersByTimeAsync(1000);
+        await jest.runAllTimersAsync();
+
+        // check if workspace is added to the toDelete list
+        expect(await screen.findByTestId('test-component-to-delete')).toHaveTextContent('1234');
 
         // workspace deletion is debounced, so it called only once
         expect(mockDeleteWorkspace).toHaveBeenCalledTimes(1);
@@ -177,7 +182,7 @@ describe('WorkspaceActionsProvider', () => {
         // get and click delete button
         const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
-        userEvent.click(handleActionBtn);
+        await user.click(handleActionBtn);
 
         // make sure all timers are executed
         await jest.advanceTimersByTimeAsync(1000);
@@ -199,7 +204,7 @@ describe('WorkspaceActionsProvider', () => {
       // get and click start button
       const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
-      userEvent.click(handleActionBtn);
+      await user.click(handleActionBtn);
 
       // make sure all timers are executed
       await jest.advanceTimersByTimeAsync(1000);
@@ -219,7 +224,7 @@ describe('WorkspaceActionsProvider', () => {
       // get and click start button
       const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
-      userEvent.click(handleActionBtn);
+      await user.click(handleActionBtn);
 
       // make sure all timers are executed
       await jest.advanceTimersByTimeAsync(1000);
@@ -244,7 +249,7 @@ describe('WorkspaceActionsProvider', () => {
       // get and click start button
       const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
-      userEvent.click(handleActionBtn);
+      await user.click(handleActionBtn);
 
       // make sure all timers are executed
       await jest.advanceTimersByTimeAsync(1000);
@@ -263,7 +268,7 @@ describe('WorkspaceActionsProvider', () => {
       // get and click stop button
       const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
-      userEvent.click(handleActionBtn);
+      await user.click(handleActionBtn);
 
       // make sure all timers are executed
       await jest.advanceTimersByTimeAsync(1000);
@@ -282,7 +287,7 @@ describe('WorkspaceActionsProvider', () => {
       // get and click delete button
       const handleActionBtn = screen.getByTestId('test-component-handle-action');
 
-      userEvent.click(handleActionBtn);
+      await user.click(handleActionBtn);
 
       // make sure all timers are executed
       await jest.advanceTimersByTimeAsync(1000);

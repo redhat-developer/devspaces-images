@@ -27,7 +27,6 @@ exports[`ProjectsFormGroup screenshot 1`] = `
     >
       project1, project2
     </div>
-    
   </div>
 </div>
 `;

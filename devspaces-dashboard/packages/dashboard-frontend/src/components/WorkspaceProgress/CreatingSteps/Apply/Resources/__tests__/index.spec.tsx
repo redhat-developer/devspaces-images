@@ -11,7 +11,7 @@
  */
 
 import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -77,6 +77,7 @@ const resources = [
 describe('Creating steps, applying resources', () => {
   let searchParams: URLSearchParams;
   let factoryId: string;
+  let user: UserEvent;
 
   beforeEach(() => {
     (prepareResources as jest.Mock).mockReturnValue(resources);
@@ -93,6 +94,8 @@ describe('Creating steps, applying resources', () => {
     });
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
@@ -211,7 +214,7 @@ describe('Creating steps, applying resources', () => {
       const timeoutButton = screen.getByRole('button', {
         name: 'onTimeout',
       });
-      userEvent.click(timeoutButton);
+      await user.click(timeoutButton);
 
       const expectAlertItem = expect.objectContaining({
         title: 'Failed to create the workspace',
@@ -254,7 +257,7 @@ describe('Creating steps, applying resources', () => {
       const timeoutButton = screen.getByRole('button', {
         name: 'onTimeout',
       });
-      userEvent.click(timeoutButton);
+      await user.click(timeoutButton);
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       mockOnError.mockClear();

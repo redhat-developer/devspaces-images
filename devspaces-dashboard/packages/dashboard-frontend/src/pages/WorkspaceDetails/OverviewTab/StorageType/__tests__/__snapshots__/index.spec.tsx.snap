@@ -92,7 +92,6 @@ exports[`StorageTypeFormGroup editable storage type screenshot 1`] = `
         </svg>
       </button>
     </span>
-    
   </div>
 </div>
 `;
@@ -156,7 +155,6 @@ exports[`StorageTypeFormGroup readonly storage type screenshot 1`] = `
     >
       per-workspace
     </span>
-    
   </div>
 </div>
 `;

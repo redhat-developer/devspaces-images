@@ -11,7 +11,7 @@
  */
 
 import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -52,6 +52,7 @@ const matchParams: WorkspaceParams = {
 
 describe('Starting steps, opening an editor', () => {
   let tabManager: TabManager;
+  let user: UserEvent;
 
   beforeEach(() => {
     container.snapshot();
@@ -59,6 +60,8 @@ describe('Starting steps, opening an editor', () => {
     tabManager.replace = jest.fn();
 
     jest.useFakeTimers();
+
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   });
 
   afterEach(() => {
@@ -143,15 +146,15 @@ describe('Starting steps, opening an editor', () => {
       expect(mockOnRestart).not.toHaveBeenCalled();
 
       /* test the action */
+      await jest.runOnlyPendingTimersAsync();
 
       // resolve deferred to trigger the callback
       deferred.resolve();
-      await jest.runOnlyPendingTimersAsync();
 
       // this mock is called from the action callback above
       await waitFor(() => expect(mockOnRestart).toHaveBeenCalled());
       expect(mockOnNextStep).not.toHaveBeenCalled();
-      expect(mockOnError).toHaveBeenCalled();
+      expect(mockOnError).not.toHaveBeenCalled();
     });
   });
 
@@ -396,7 +399,7 @@ describe('Starting steps, opening an editor', () => {
       const timeoutButton = screen.getByRole('button', {
         name: 'onTimeout',
       });
-      userEvent.click(timeoutButton);
+      await user.click(timeoutButton);
 
       const expectAlertItem = expect.objectContaining({
         title: 'Failed to open the workspace',
@@ -443,7 +446,7 @@ describe('Starting steps, opening an editor', () => {
       const timeoutButton = screen.getByRole('button', {
         name: 'onTimeout',
       });
-      userEvent.click(timeoutButton);
+      await user.click(timeoutButton);
 
       await waitFor(() => expect(mockOnError).toHaveBeenCalled());
       mockOnError.mockClear();

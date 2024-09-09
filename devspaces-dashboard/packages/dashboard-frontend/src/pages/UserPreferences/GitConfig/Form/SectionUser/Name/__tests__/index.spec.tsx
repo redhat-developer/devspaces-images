@@ -39,11 +39,11 @@ describe('GitConfigUserName', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should fail validation if value is empty', () => {
+  it('should fail validation if value is empty', async () => {
     renderComponent('user one', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.clear(textInput);
+    await userEvent.clear(textInput);
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
@@ -52,7 +52,8 @@ describe('GitConfigUserName', () => {
     renderComponent('user one', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.paste(textInput, 'a'.repeat(129));
+    await userEvent.click(textInput);
+    await userEvent.paste('a'.repeat(129));
 
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
@@ -67,11 +68,12 @@ describe('GitConfigUserName', () => {
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default);
   });
 
-  it('should handle value changing', () => {
+  it('should handle value changing', async () => {
     renderComponent('user one', false);
 
     const textInput = screen.getByRole('textbox');
-    userEvent.paste(textInput, ' two');
+    await userEvent.click(textInput);
+    await userEvent.paste(' two');
 
     expect(mockOnChange).toHaveBeenCalledWith('user one two', true);
   });

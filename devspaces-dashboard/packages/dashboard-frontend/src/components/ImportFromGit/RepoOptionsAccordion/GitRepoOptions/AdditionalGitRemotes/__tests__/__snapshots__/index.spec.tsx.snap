@@ -68,7 +68,6 @@ exports[`AdditionalGitRemotesField snapshot 1`] = `
                 type="text"
                 value="test-1"
               />
-              
             </div>
           </div>
         </div>
@@ -118,7 +117,6 @@ exports[`AdditionalGitRemotesField snapshot 1`] = `
                 type="text"
                 value="https://test-1.repo.git"
               />
-              
             </div>
           </div>
         </div>
@@ -211,7 +209,6 @@ exports[`AdditionalGitRemotesField snapshot 1`] = `
                 type="text"
                 value="test-2"
               />
-              
             </div>
           </div>
         </div>
@@ -261,7 +258,6 @@ exports[`AdditionalGitRemotesField snapshot 1`] = `
                 type="text"
                 value="https://test-2.repo.git"
               />
-              
             </div>
           </div>
         </div>
@@ -354,7 +350,6 @@ exports[`AdditionalGitRemotesField snapshot 1`] = `
                 type="text"
                 value="test-3"
               />
-              
             </div>
           </div>
         </div>
@@ -404,7 +399,6 @@ exports[`AdditionalGitRemotesField snapshot 1`] = `
                 type="text"
                 value="https://test-3.repo.git"
               />
-              
             </div>
           </div>
         </div>

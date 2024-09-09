@@ -38,20 +38,20 @@ describe('EditorDefinition', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
-  it('should handle editor definition change', () => {
+  it('should handle editor definition change', async () => {
     renderComponent(undefined, undefined);
 
     const definitionChangeButton = screen.getByRole('button', { name: 'Editor Definition Change' });
-    userEvent.click(definitionChangeButton);
+    await userEvent.click(definitionChangeButton);
 
     expect(mockOnChange).toHaveBeenCalledWith('some/editor/id', undefined);
   });
 
-  it('should handle editor image change', () => {
+  it('should handle editor image change', async () => {
     renderComponent(undefined, undefined);
 
     const imageChangeButton = screen.getByRole('button', { name: 'Editor Image Change' });
-    userEvent.click(imageChangeButton);
+    await userEvent.click(imageChangeButton);
 
     expect(mockOnChange).toHaveBeenCalledWith(undefined, 'editor-image');
   });

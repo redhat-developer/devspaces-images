@@ -75,13 +75,13 @@ describe('Samples List Gallery', () => {
     expect(cards.length).toEqual(20);
   });
 
-  it('should handle click on card', () => {
+  it('should handle click on card', async () => {
     renderComponent(store, metadata);
 
     const cards = screen.getAllByTestId('sample-card');
 
     const button = within(cards[0]).getByRole('button');
-    userEvent.click(button);
+    await userEvent.click(button);
 
     expect(mockOnCardClick).toHaveBeenCalledTimes(1);
     expect(mockOnCardClick).toHaveBeenCalledWith(metadata[0]);

@@ -58,7 +58,7 @@ describe('GitRepoOptions', () => {
     expect(screen.queryByTestId('git-branch-component')).toBeNull();
   });
 
-  test('update Git Branch', () => {
+  test('update Git Branch', async () => {
     renderComponent('test-git-branch');
 
     const gitBranch = screen.getByTestId('git-branch');
@@ -69,12 +69,12 @@ describe('GitRepoOptions', () => {
       name: 'Git Branch Change',
     });
 
-    userEvent.click(updateGitBranch);
+    await userEvent.click(updateGitBranch);
 
     expect(mockOnChange).toHaveBeenCalledWith('new-branch', undefined, undefined, true);
   });
 
-  test('update Remotes', () => {
+  test('update Remotes', async () => {
     renderComponent(undefined, [{ name: 'test', url: 'http://test' }]);
 
     const gitRemotes = screen.getByTestId('git-remotes');
@@ -85,7 +85,7 @@ describe('GitRepoOptions', () => {
       name: 'Git Remotes Change',
     });
 
-    userEvent.click(updateGitRemotes);
+    await userEvent.click(updateGitRemotes);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       undefined,
@@ -95,7 +95,7 @@ describe('GitRepoOptions', () => {
     );
   });
 
-  test('update PathToDevfile', () => {
+  test('update PathToDevfile', async () => {
     renderComponent(undefined, undefined, 'test-devfile-path');
 
     const pathToDevfile = screen.getByTestId('devfile-path');
@@ -106,7 +106,7 @@ describe('GitRepoOptions', () => {
       name: 'Devfile Path Change',
     });
 
-    userEvent.click(updatePathToDevfile);
+    await userEvent.click(updatePathToDevfile);
 
     expect(mockOnChange).toHaveBeenCalledWith(undefined, undefined, 'new-devfile-path', true);
   });

@@ -1,31 +1,35 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "jsx": "react",
-    "module": "esnext",
-    "noImplicitAny": false,
-    "preserveConstEnums": true,
-    "removeComments": true,
-    "target": "ES2021",
     "lib": [
       "ES2021",
       "dom"
     ],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "baseUrl": "./",
+    "module": "esnext",
     "moduleResolution": "node",
+    "noImplicitAny": false,
+    "outDir": "lib",
     "paths": {
       "@/*": [
-        "./src/*",
-      ],
+        "./src/*"
+      ]
     },
-    "outDir": "lib",
-    "rootDir": "src"
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "strictPropertyInitialization": false,
+    "target": "ES2021",
+    "types": [
+      "jest",
+      "@testing-library/jest-dom"
+    ]
   },
   "include": [
     "src",
