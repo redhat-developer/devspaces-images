@@ -12,7 +12,7 @@
 #
 
 # https://registry.access.redhat.com/rhel8/postgresql-15
-FROM registry.redhat.io/rhel8/postgresql-15:1-77.1724231535
+FROM registry.redhat.io/rhel8/postgresql-15:1-77.1724921975
 USER 0
 WORKDIR /
 
@@ -53,8 +53,6 @@ RUN chmod -R g+rwx /openvsx-server
 RUN mkdir -p /tmp/opt
 COPY --chown=0:0 /ovsx.tar.gz .
 RUN tar -xf ovsx.tar.gz -C / && rm ovsx.tar.gz && ls -la /tmp/opt/ovsx/bin/
-
-RUN mkdir -p /var/www/html/v3/plugins/
 
 RUN \
     # Apply permissions to later change these files on httpd
