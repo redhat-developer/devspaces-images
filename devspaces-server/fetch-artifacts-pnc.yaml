@@ -1,7 +1,7 @@
 builds:
-  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/BCQ2IF6NF7AAA
+  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/BCRVDZSVN7AAA
   # build id must be string
-  - build_id: 'BCQ2IF6NF7AAA'
+  - build_id: 'BCRVDZSVN7AAA'
     artifacts:
       # https://orch.psi.redhat.com/pnc-web/#/artifacts/
       # ==> org.eclipse.che:assembly-main:tar.gz:7.92.0.redhat-00002
