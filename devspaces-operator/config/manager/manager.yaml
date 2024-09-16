@@ -87,8 +87,6 @@ spec:
               value: registry.redhat.io/devspaces/server-rhel8:3.17
             - name: RELATED_IMAGE_dashboard
               value: registry.redhat.io/devspaces/dashboard-rhel8:3.17
-            - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/devspaces/devfileregistry-rhel8:3.17
             - name: RELATED_IMAGE_devworkspace_controller
               value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator
             - name: RELATED_IMAGE_gateway_authentication_sidecar

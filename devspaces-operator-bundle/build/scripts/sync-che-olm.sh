@@ -85,7 +85,6 @@ DS_RRIO="registry.redhat.io/devspaces"
 DS_OPERATOR="devspaces-rhel8-operator"
 DS_CONFIGBUMP_IMAGE="${DS_RRIO}/configbump-rhel8:${DS_VERSION}"
 DS_DASHBOARD_IMAGE="${DS_RRIO}/dashboard-rhel8:${DS_VERSION}"
-DS_DEVFILEREGISTRY_IMAGE="${DS_RRIO}/devfileregistry-rhel8:${DS_VERSION}"
 DS_PLUGINREGISTRY_IMAGE="${DS_RRIO}/pluginregistry-rhel8:${DS_VERSION}"
 DS_SERVER_IMAGE="${DS_RRIO}/server-rhel8:${DS_VERSION}"
 DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
@@ -208,7 +207,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|(registry.redhat.io/devspaces/${DS_OPERATOR}:${DS_VERSION}).+|\1|" \
 		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/devspaces/server-rhel8:${DS_VERSION}|" \
 		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/devspaces/pluginregistry-rhel8:${DS_VERSION}|" \
-		-e "s|quay.io/eclipse/che-devfile-registry:.+|registry.redhat.io/devspaces/devfileregistry-rhel8:${DS_VERSION}|" \
 		\
 		`# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
 		-e "s|/ubi8-minimal|/ubi8/ubi-minimal|g" \
@@ -318,7 +316,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 		["RELATED_IMAGE_che_server"]="${DS_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${DS_DASHBOARD_IMAGE}"
-		["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
 		["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
 
 		["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
@@ -466,10 +463,16 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	done
 	echo "Converted (yq #5) ${CSVFILE}"
 
-	# add more RELATED_IMAGE_ fields for the images referenced by the registries
-	bash -e "${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
-	RETURN_CODE=$?
-	if [[ $RETURN_CODE -gt 0 ]]; then echo "[ERROR] Problem occurred inserting related images into CSV: exit code: $RETURN_CODE"; exit $RETURN_CODE; fi
+	# CRW-7151v Removing devfile registry references and scripts. 
+	# Moving the ubi8 sed statements that were in insert-related-images-to-csv.sh here
+	# replace external devspaces refs with internal ones, and quay refs (from v2 devfiles) with RHEC ones
+	sed -r -i $CSVFILE \
+  	-e "s@registry.access.redhat.com/ubi8-minimal@registry.redhat.io/ubi8-minimal@g" \
+  	-e "s@registry.access.redhat.com/ubi8/ubi-minimal@registry.redhat.io/ubi8/ubi-minimal@g" \
+  	`# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
+  	-e "s@/ubi8-minimal@/ubi8/ubi-minimal@g" \
+  	`# replace quay urls with RHEC urls` \
+  	-e "s|quay.io/devspaces/(.+)|registry.redhat.io/devspaces/\\1|g"
 
 	# echo "    ${0##*/} :: Sort env var in ${CSVFILE}:"
 	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}2"
