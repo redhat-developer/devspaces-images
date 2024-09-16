@@ -14,6 +14,7 @@ import { api } from '@eclipse-che/common';
 import { Form } from '@patternfly/react-core';
 import React from 'react';
 
+import { SshPassphrase } from '@/pages/UserPreferences/SshKeys/AddModal/Form/SshPassphrase';
 import { SshPrivateKey } from '@/pages/UserPreferences/SshKeys/AddModal/Form/SshPrivateKey';
 import { SshPublicKey } from '@/pages/UserPreferences/SshKeys/AddModal/Form/SshPublicKey';
 
@@ -27,6 +28,7 @@ export type State = {
   privateKeyIsValid: boolean;
   publicKey: string | undefined;
   publicKeyIsValid: boolean;
+  passphrase: string | undefined;
 };
 
 export class AddModalForm extends React.PureComponent<Props, State> {
@@ -38,6 +40,7 @@ export class AddModalForm extends React.PureComponent<Props, State> {
       privateKeyIsValid: false,
       publicKey: undefined,
       publicKeyIsValid: false,
+      passphrase: undefined,
     };
   }
 
@@ -45,12 +48,19 @@ export class AddModalForm extends React.PureComponent<Props, State> {
     const nextState = { ...this.state, ...partialState };
     this.setState(nextState);
 
-    const { privateKey = '', privateKeyIsValid, publicKey = '', publicKeyIsValid } = nextState;
+    const {
+      privateKey = '',
+      privateKeyIsValid,
+      publicKey = '',
+      publicKeyIsValid,
+      passphrase = '',
+    } = nextState;
 
     const newSshKey: api.NewSshKey = {
       name: SSH_KEY_NAME,
       key: privateKey,
       keyPub: publicKey,
+      passphrase: passphrase,
     };
     const isValid = privateKeyIsValid && publicKeyIsValid;
     this.props.onChange(newSshKey, isValid);
@@ -70,11 +80,18 @@ export class AddModalForm extends React.PureComponent<Props, State> {
     });
   }
 
+  private handleChangeSshPassphrase(passphrase: string): void {
+    this.updateChangeSshKey({
+      passphrase,
+    });
+  }
+
   public render(): React.ReactElement {
     return (
       <Form onSubmit={e => e.preventDefault()}>
         <SshPrivateKey onChange={(...args) => this.handleChangeSshPrivateKey(...args)} />
         <SshPublicKey onChange={(...args) => this.handleChangeSshPublicKey(...args)} />
+        <SshPassphrase onChange={(...args) => this.handleChangeSshPassphrase(...args)} />
       </Form>
     );
   }

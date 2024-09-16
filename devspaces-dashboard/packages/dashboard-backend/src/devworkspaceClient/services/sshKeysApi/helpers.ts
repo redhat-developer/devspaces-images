@@ -38,6 +38,7 @@ export interface SshKeySecret extends k8s.V1Secret {
   data: {
     dwo_ssh_key: string;
     'dwo_ssh_key.pub': string;
+    passphrase?: string;
     ssh_config: string;
   };
 }
@@ -88,6 +89,7 @@ export function toSecret(namespace: string, sshKey: api.NewSshKey): SshKeySecret
       'dwo_ssh_key.pub': sshKey.keyPub,
       dwo_ssh_key: sshKey.key,
       ssh_config: btoa(SSH_CONFIG),
+      ...(sshKey.passphrase && { passphrase: btoa(sshKey.passphrase) }),
     },
   };
 }

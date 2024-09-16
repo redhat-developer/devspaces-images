@@ -59,6 +59,7 @@ export type SshKey = {
    * base64 encoded public key.
    */
   keyPub: string;
+  passphrase?: string;
 };
 export type NewSshKey = Omit<SshKey, 'creationTimestamp'> & {
   /**
