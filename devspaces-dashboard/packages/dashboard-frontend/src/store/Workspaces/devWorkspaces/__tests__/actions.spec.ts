@@ -12,7 +12,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { api } from '@eclipse-che/common';
+import common, { api } from '@eclipse-che/common';
 import { V1Status } from '@kubernetes/client-node';
 import { dump } from 'js-yaml';
 import { AnyAction } from 'redux';
@@ -21,6 +21,7 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import { container } from '@/inversify.config';
 import { isRunningDevWorkspacesClusterLimitExceeded } from '@/services/backend-client/devWorkspaceClusterApi';
+import * as factoryApi from '@/services/backend-client/factoryApi';
 import { fetchServerConfig } from '@/services/backend-client/serverConfigApi';
 import { WebsocketClient } from '@/services/backend-client/websocketClient';
 import devfileApi from '@/services/devfileApi';
@@ -144,6 +145,8 @@ const mockManagePvcStrategy = jest.fn();
 const mockOnStart = jest.fn();
 const mockUpdate = jest.fn();
 const mockUpdateAnnotation = jest.fn();
+
+const refreshFactoryOauthTokenSpy = jest.spyOn(factoryApi, 'refreshFactoryOauthToken');
 
 describe('DevWorkspace store, actions', () => {
   const devWorkspaceClient = container.get(DevWorkspaceClient);
@@ -489,6 +492,61 @@ describe('DevWorkspace store, actions', () => {
       ];
 
       expect(actions).toStrictEqual(expectedActions);
+    });
+    it('should refresh token', async () => {
+      // given
+      const projects = [
+        {
+          name: 'project',
+          git: {
+            remotes: {
+              origin: 'origin:project',
+            },
+          },
+        },
+      ];
+      const devWorkspace = new DevWorkspaceBuilder().withProjects(projects).build();
+      const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
+      refreshFactoryOauthTokenSpy.mockResolvedValueOnce();
+
+      // when
+      await store.dispatch(testStore.actionCreators.startWorkspace(devWorkspace));
+
+      // then
+      expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
+    });
+
+    it('should dispatch notification on refresh token failure', async () => {
+      // given
+      const projects = [
+        {
+          name: 'project',
+          git: {
+            remotes: {
+              origin: 'origin:project',
+            },
+          },
+        },
+      ];
+      const devWorkspace = new DevWorkspaceBuilder().withProjects(projects).build();
+      const store = storeBuilder.withDevWorkspaces({ workspaces: [devWorkspace] }).build();
+      const error = {
+        response: {
+          data: { attributes: { provider: 'github' }, message: 'test message' },
+        },
+      };
+      jest.spyOn(common.helpers.errors, 'includesAxiosResponse').mockImplementation(() => true);
+      refreshFactoryOauthTokenSpy.mockRejectedValueOnce(error);
+
+      // when
+      await store.dispatch(testStore.actionCreators.startWorkspace(devWorkspace));
+
+      // then
+      const actions = store.getActions();
+      expect(actions[0].type).toBe('UPDATE_WARNING');
+      expect(actions[0].warning).toBe(
+        "GitHub might not be operational, please check the provider's status page.",
+      );
     });
   });
 

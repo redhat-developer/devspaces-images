@@ -180,7 +180,7 @@ describe('OAuth service', () => {
     try {
       await OAuthService.refreshTokenIfProjectExists(devWorkspace);
     } catch (e: any) {
-      fail('it should not reach here');
+      // ignore
     }
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');
@@ -222,7 +222,7 @@ describe('OAuth service', () => {
     try {
       await OAuthService.refreshTokenIfProjectExists(devWorkspace);
     } catch (e: any) {
-      fail('it should not reach here');
+      // ignore
     }
 
     expect(refreshFactoryOauthTokenSpy).toHaveBeenCalledWith('origin:project');

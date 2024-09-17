@@ -34,20 +34,20 @@ describe('SshPassphrase', () => {
   });
 
   describe('text area', () => {
-    it('should handle SSH passphrase', () => {
+    it('should handle SSH passphrase', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
 
       const input = screen.getByPlaceholderText('Enter passphrase (optional)');
-
       const passphrase = 'passphrase';
-      userEvent.paste(input, passphrase);
+      await userEvent.click(input);
+      await userEvent.paste(passphrase);
 
       expect(mockOnChange).toHaveBeenCalledWith(passphrase);
     });
 
-    it('should handle the empty value', () => {
+    it('should handle the empty value', async () => {
       renderComponent();
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -55,7 +55,8 @@ describe('SshPassphrase', () => {
       const input = screen.getByPlaceholderText('Enter passphrase (optional)');
 
       // fill the SSH key data field
-      userEvent.paste(input, 'ssh-key-data');
+      await userEvent.click(input);
+      await userEvent.paste('ssh-key-data');
 
       mockOnChange.mockClear();
 

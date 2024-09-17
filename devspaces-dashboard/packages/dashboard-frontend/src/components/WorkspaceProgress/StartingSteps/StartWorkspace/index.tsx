@@ -30,7 +30,9 @@ import {
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import workspaceStatusIs from '@/components/WorkspaceProgress/workspaceStatusIs';
+import { lazyInject } from '@/inversify.config';
 import { WorkspaceParams } from '@/Routes/routes';
+import { AppAlerts } from '@/services/alerts/appAlerts';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
 import { Workspace, WorkspaceAdapter } from '@/services/workspace-adapter';
@@ -38,6 +40,7 @@ import { AppState } from '@/store';
 import { selectApplications } from '@/store/ClusterInfo/selectors';
 import { selectStartTimeout } from '@/store/ServerConfig/selectors';
 import * as WorkspaceStore from '@/store/Workspaces';
+import { selectDevWorkspaceWarnings } from '@/store/Workspaces/devWorkspaces/selectors';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
@@ -47,15 +50,20 @@ export type Props = MappedProps &
 export type State = ProgressStepState & {
   shouldStart: boolean; // should the loader start a workspace?
   shouldUpdateWithDefaultDevfile: boolean;
+  warning: string | undefined;
 };
 
 class StartingStepStartWorkspace extends ProgressStep<Props, State> {
   protected readonly name = 'Waiting for workspace to start';
 
+  @lazyInject(AppAlerts)
+  private readonly appAlerts: AppAlerts;
+
   constructor(props: Props) {
     super(props);
 
     this.state = {
+      warning: undefined,
       shouldStart: true,
       name: this.name,
       shouldUpdateWithDefaultDevfile: false,
@@ -112,6 +120,15 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
       return true;
     }
 
+    if (
+      workspace !== undefined &&
+      nextWorkspace !== undefined &&
+      this.props.devWorkspaceWarnings[workspace.uid] !==
+        nextProps.devWorkspaceWarnings[nextWorkspace.uid]
+    ) {
+      return true;
+    }
+
     return false;
   }
 
@@ -130,6 +147,15 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
       this.setState({
         shouldStart: false,
       });
+    }
+
+    if (workspace !== undefined) {
+      const warning = this.props.devWorkspaceWarnings[workspace.uid];
+      if (warning) {
+        this.setState({
+          warning,
+        });
+      }
     }
 
     this.prepareAndRun();
@@ -167,6 +193,15 @@ class StartingStepStartWorkspace extends ProgressStep<Props, State> {
       throw new Error(
         `Workspace "${matchParams.namespace}/${matchParams.workspaceName}" not found.`,
       );
+    }
+
+    if (this.state.warning !== undefined) {
+      this.appAlerts.showAlert({
+        key: 'start-workspace-warning',
+        title: `WARNING: ${this.state.warning}`,
+        variant: AlertVariant.warning,
+      });
+      return true;
     }
 
     if (this.state.shouldUpdateWithDefaultDevfile) {
@@ -298,6 +333,7 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   applications: selectApplications(state),
   startTimeout: selectStartTimeout(state),
+  devWorkspaceWarnings: selectDevWorkspaceWarnings(state),
 });
 
 const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {

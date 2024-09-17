@@ -56,10 +56,8 @@ export class OAuthService {
           response.data.attributes.oauth_authentication_url,
           redirectUrl.toString(),
         );
-        // Interrupt the workspace start. The workspace should start again after the authentication.
-        throw e;
       }
-      // Skip other exceptions to proceed the workspace start.
+      throw e;
     }
   }
 }

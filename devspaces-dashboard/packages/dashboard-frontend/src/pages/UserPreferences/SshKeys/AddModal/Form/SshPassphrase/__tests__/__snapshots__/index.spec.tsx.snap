@@ -41,7 +41,6 @@ exports[`SshPassphrase snapshot 1`] = `
         required={false}
         type="password"
       />
-      
     </div>
   </div>
 </form>

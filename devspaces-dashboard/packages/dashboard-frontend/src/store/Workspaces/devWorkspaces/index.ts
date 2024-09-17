@@ -12,6 +12,7 @@
 
 import { V1alpha2DevWorkspaceStatus } from '@devfile/api';
 import common, { api, ApplicationId } from '@eclipse-che/common';
+import { includesAxiosResponse } from '@eclipse-che/common/lib/helpers/errors';
 import { dump } from 'js-yaml';
 import { Action, Reducer } from 'redux';
 
@@ -312,6 +313,36 @@ export const actionCreators: ActionCreators = {
       }
       try {
         await OAuthService.refreshTokenIfProjectExists(workspace);
+      } catch (e: unknown) {
+        if (includesAxiosResponse(e)) {
+          // Do not interrupt the workspace start, but show a warning notification.
+          const response = e.response;
+          const attributes = response.data.attributes;
+          let message = response.data.message;
+          let provider = '';
+          if (attributes !== undefined && attributes.provider !== undefined) {
+            const providerAttribute: string = attributes.provider;
+            if (providerAttribute.startsWith('github')) {
+              provider = 'GitHub';
+            } else if (providerAttribute.startsWith('gitlab')) {
+              provider = 'Gitlab';
+            } else if (providerAttribute.startsWith('bitbucket')) {
+              provider = 'Bitbucket';
+            }
+          }
+          if (provider.length > 0) {
+            // eslint-disable-next-line no-warning-comments
+            // TODO add status page url for each provider when https://github.com/eclipse-che/che/issues/23142 is fixed
+            message = `${provider} might not be operational, please check the provider's status page.`;
+          }
+          dispatch({
+            type: Type.UPDATE_WARNING,
+            workspace: workspace,
+            warning: message,
+          });
+        }
+      }
+      try {
         await dispatch(
           DevWorkspacesCluster.actionCreators.requestRunningDevWorkspacesClusterLimitExceeded(),
         );
