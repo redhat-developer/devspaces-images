@@ -20,10 +20,8 @@ remote_sources:
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
     ref: 985ed2db598f8f342ee9640134eca9946882c749
-    pkg_managers: [gomod, yarn]
+    pkg_managers: [gomod]
     flags: [gomod-vendor-check]
     packages: 
       gomod: 
         - path: devspaces-traefik
-      yarn:
-        - path: devspaces-traefik/webui
