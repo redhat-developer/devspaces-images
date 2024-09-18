@@ -58,8 +58,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5345c165faed7b05bf4c9c333200723dfa834ec3bceb1b891fcc7143282393a6
-    createdAt: "2024-09-11T08:51:20+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3aa846045ea144ce63a374c1662461bedd9c76c8adffd4b6c5690c65edb861d9
+    createdAt: "2024-09-18T19:22:01+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
@@ -852,6 +852,8 @@ spec:
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
+                - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL2RldnNwYWNlcy91ZGktcmhlbDg6My4xNQo____
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:07710186c1638b48af11350ccba36e5f5fed9ad0888da8400c6e0eaab404f04f
                 - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL2RldnNwYWNlcy91ZGktcmhlbDg6My4xNwo____
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:88bf0cc5be56d88d2f98f728949f356634a4d7ad950df59f458db68dbb607576
                 - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL3Joc2NsL21vbmdvZGItMzYtcmhlbDc6MS01MAo____
@@ -864,7 +866,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5345c165faed7b05bf4c9c333200723dfa834ec3bceb1b891fcc7143282393a6
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3aa846045ea144ce63a374c1662461bedd9c76c8adffd4b6c5690c65edb861d9
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1034,10 +1036,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.15.0
   relatedImages:
-  - name: devspaces-rhel8-operator-5345c165faed7b05bf4c9c333200723dfa834ec3bceb1b891fcc7143282393a6-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5345c165faed7b05bf4c9c333200723dfa834ec3bceb1b891fcc7143282393a6
+  - name: devspaces-rhel8-operator-3aa846045ea144ce63a374c1662461bedd9c76c8adffd4b6c5690c65edb861d9-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3aa846045ea144ce63a374c1662461bedd9c76c8adffd4b6c5690c65edb861d9
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:5345c165faed7b05bf4c9c333200723dfa834ec3bceb1b891fcc7143282393a6
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3aa846045ea144ce63a374c1662461bedd9c76c8adffd4b6c5690c65edb861d9
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:7b18600149adb7ef2bb2ea6a91d429443410f4e30b24de47b5f05f2791d59b77
   - name: dashboard
@@ -1068,6 +1070,8 @@ spec:
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
+  - name: sample_encoded_cmvnaxn0cnkucmvkagf0lmlvl2rldnnwywnlcy91zgktcmhlbdg6my4xnqo____
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:07710186c1638b48af11350ccba36e5f5fed9ad0888da8400c6e0eaab404f04f
   - name: sample_encoded_cmvnaxn0cnkucmvkagf0lmlvl2rldnnwywnlcy91zgktcmhlbdg6my4xnwo____
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:88bf0cc5be56d88d2f98f728949f356634a4d7ad950df59f458db68dbb607576
   - name: sample_encoded_cmvnaxn0cnkucmvkagf0lmlvl3joc2nsl21vbmdvzgitmzytcmhlbdc6ms01mao____
