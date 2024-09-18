@@ -136,6 +136,7 @@ export interface IServerConfig {
   pluginRegistryURL: string;
   pluginRegistryInternalURL: string;
   dashboardLogo?: { base64data: string; mediatype: string };
+  allowedSourceUrls: string[];
 }
 
 export interface IAdvancedAuthorization {

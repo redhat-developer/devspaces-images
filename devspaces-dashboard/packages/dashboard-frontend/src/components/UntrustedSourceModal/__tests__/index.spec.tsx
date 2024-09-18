@@ -62,6 +62,17 @@ describe('Untrusted Repo Warning Modal', () => {
     expect(modal).toBeNull();
   });
 
+  test('modal is hidden :: allowed sources configured', () => {
+    const store = storeBuilder
+      .withDwServerConfig({
+        allowedSourceUrls: ['*'],
+      })
+      .build();
+    renderComponent(store, 'source-location', false);
+    const modal = screen.queryByRole('dialog');
+    expect(modal).toBeNull();
+  });
+
   test('modal is visible', () => {
     const store = storeBuilder
       .withWorkspacePreferences({

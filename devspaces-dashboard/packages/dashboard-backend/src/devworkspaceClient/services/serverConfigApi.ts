@@ -228,4 +228,8 @@ export class ServerConfigApiService implements IServerConfigApi {
   getAutoProvision(cheCustomResource: CheClusterCustomResource): boolean {
     return cheCustomResource.spec.devEnvironments?.defaultNamespace?.autoProvision || false;
   }
+
+  getAllowedSourceUrls(cheCustomResource: CheClusterCustomResource): string[] {
+    return cheCustomResource.spec.devEnvironments?.allowedSources?.urls || [];
+  }
 }

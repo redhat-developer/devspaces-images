@@ -86,6 +86,7 @@ const serverConfig: api.IServerConfig = {
   },
   pluginRegistryURL: '',
   pluginRegistryInternalURL: '',
+  allowedSourceUrls: [],
 };
 
 describe('Starting steps, starting a workspace', () => {

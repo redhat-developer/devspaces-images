@@ -73,4 +73,16 @@ export const selectAutoProvision = createSelector(
   state => state.config.defaultNamespace.autoProvision,
 );
 
+export const selectAllowedSources = createSelector(
+  selectState,
+  state => state.config.allowedSourceUrls || [],
+);
+
+export const selectIsAllowedSourcesConfigured = createSelector(
+  selectAllowedSources,
+  allowedSources => {
+    return allowedSources.length > 0;
+  },
+);
+
 export const selectServerConfigError = createSelector(selectState, state => state.error);

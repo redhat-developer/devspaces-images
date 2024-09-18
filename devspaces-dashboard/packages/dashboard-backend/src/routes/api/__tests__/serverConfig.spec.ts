@@ -67,6 +67,7 @@ describe('Server Config Route', () => {
         base64data: 'base64-encoded-data',
         mediatype: 'image/svg+xml',
       },
+      allowedSourceUrls: [],
     });
   });
 });

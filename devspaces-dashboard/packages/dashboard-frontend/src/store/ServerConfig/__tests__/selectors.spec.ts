@@ -20,11 +20,13 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { serverConfig } from '@/store/ServerConfig/__tests__/stubs';
 import {
   selectAdvancedAuthorization,
+  selectAllowedSources,
   selectAutoProvision,
   selectDashboardLogo,
   selectDefaultComponents,
   selectDefaultEditor,
   selectDefaultPlugins,
+  selectIsAllowedSourcesConfigured,
   selectOpenVSXUrl,
   selectPluginRegistryInternalUrl,
   selectPluginRegistryUrl,
@@ -268,6 +270,60 @@ describe('serverConfig selectors', () => {
 
       const selectedDashboardLogo = selectAutoProvision(state);
       expect(selectedDashboardLogo).toBeTruthy();
+    });
+  });
+
+  describe('selectAllowedSources', () => {
+    it('should return provided value', () => {
+      const fakeStore = new FakeStoreBuilder()
+        .withDwServerConfig(
+          Object.assign({}, serverConfig, {
+            allowedSourceUrls: ['https://test.com'],
+          } as api.IServerConfig),
+        )
+        .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
+      const state = fakeStore.getState();
+
+      const allowedSourceUrls = selectAllowedSources(state);
+      expect(allowedSourceUrls).toEqual(['https://test.com']);
+    });
+
+    it('should return default value', () => {
+      const fakeStore = new FakeStoreBuilder().build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, AnyAction>
+      >;
+      const state = fakeStore.getState();
+
+      const allowedSourceUrls = selectAllowedSources(state);
+      expect(allowedSourceUrls).toEqual([]);
+    });
+  });
+
+  describe('selectIsAllowedSourcesConfigured', () => {
+    it('allowed sources configured', () => {
+      const fakeStore = new FakeStoreBuilder()
+        .withDwServerConfig(
+          Object.assign({}, serverConfig, {
+            allowedSourceUrls: ['https://test.com'],
+          } as api.IServerConfig),
+        )
+        .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
+      const state = fakeStore.getState();
+
+      const isAllowedSourcesConfigured = selectIsAllowedSourcesConfigured(state);
+      expect(isAllowedSourcesConfigured).toBeTruthy();
+    });
+
+    it('allowed sources NOT configured', () => {
+      const fakeStore = new FakeStoreBuilder().build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, AnyAction>
+      >;
+      const state = fakeStore.getState();
+
+      const isAllowedSourcesConfigured = selectIsAllowedSourcesConfigured(state);
+      expect(isAllowedSourcesConfigured).toBeFalsy();
     });
   });
 });

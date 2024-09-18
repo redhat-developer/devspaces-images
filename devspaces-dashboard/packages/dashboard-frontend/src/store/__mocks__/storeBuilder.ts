@@ -84,6 +84,7 @@ export class FakeStoreBuilder {
         },
         pluginRegistryURL: '',
         pluginRegistryInternalURL: '',
+        allowedSourceUrls: [],
       } as api.IServerConfig,
     },
     clusterInfo: {

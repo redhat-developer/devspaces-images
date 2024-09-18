@@ -103,7 +103,9 @@ if [ ! -d $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry ]; then
       -o "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap" \
       -i "packages/devfile-registry/air-gap/index.json"
 
-  sed -i "" 's|CHE_DASHBOARD_INTERNAL_URL|http://localhost:8080|g' "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap/index.json"
+  if [ -s "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap/index.json" ]; then
+    sed -i 's|CHE_DASHBOARD_INTERNAL_URL|http://localhost:8080|g' "$DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry/air-gap/index.json"
+  fi
 fi
 
 export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)

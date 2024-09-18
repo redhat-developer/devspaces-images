@@ -47,6 +47,7 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
       const dashboardLogo = serverConfigApi.getDashboardLogo(cheCustomResource);
       const advancedAuthorization = serverConfigApi.getAdvancedAuthorization(cheCustomResource);
       const autoProvision = serverConfigApi.getAutoProvision(cheCustomResource);
+      const allowedSourceUrls = serverConfigApi.getAllowedSourceUrls(cheCustomResource);
 
       const serverConfig: api.IServerConfig = {
         containerBuild,
@@ -72,6 +73,7 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
         cheNamespace,
         pluginRegistryURL,
         pluginRegistryInternalURL,
+        allowedSourceUrls,
       };
 
       if (dashboardLogo !== undefined) {

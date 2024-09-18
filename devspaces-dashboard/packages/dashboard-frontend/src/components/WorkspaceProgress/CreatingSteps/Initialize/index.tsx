@@ -36,6 +36,8 @@ import { AppState } from '@/store';
 import { selectAllWorkspacesLimit } from '@/store/ClusterConfig/selectors';
 import { selectIsRegistryDevfile } from '@/store/DevfileRegistries/selectors';
 import { selectInfrastructureNamespaces } from '@/store/InfrastructureNamespaces/selectors';
+import { isSourceAllowed } from '@/store/ServerConfig/helpers';
+import { selectAllowedSources } from '@/store/ServerConfig/selectors';
 import { selectSshKeys } from '@/store/SshKeys/selectors';
 import { selectPreferencesIsTrustedSource } from '@/store/Workspaces/Preferences';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
@@ -47,6 +49,8 @@ export type Props = MappedProps &
 export type State = ProgressStepState & {
   factoryParams: FactoryParams;
   isSourceTrusted: boolean;
+  allowedSources: string[];
+  isSourceAllowed: boolean;
   isWarning: boolean;
 };
 
@@ -61,6 +65,8 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       isSourceTrusted: false,
       name: this.name,
       isWarning: false,
+      allowedSources: [],
+      isSourceAllowed: false,
     };
   }
 
@@ -101,6 +107,13 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
       return true;
     }
 
+    if (
+      this.state.isSourceAllowed !== nextState.isSourceAllowed ||
+      this.state.allowedSources !== nextState.allowedSources
+    ) {
+      return true;
+    }
+
     // name or warning changed
     if (this.state.name !== nextState.name || this.state.isWarning !== nextState.isWarning) {
       return true;
@@ -126,8 +139,17 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
 
     // skip source validation for devworkspace resources (samples)
     if (useDevWorkspaceResources === false) {
+      const isSourceAllowed = this.isSourceAllowed(sourceUrl);
+      if (isSourceAllowed === false) {
+        throw new Error(
+          `The specified source URL "${sourceUrl}" is not permitted for creating a workspace. Please contact your system administrator.`,
+        );
+      }
+
       // check if the source is trusted
-      const isSourceTrusted = this.isSourceTrusted(sourceUrl);
+      const isSourceTrusted =
+        this.isSourceTrusted(sourceUrl) || this.props.allowedSources.length > 0;
+
       if (isSourceTrusted === true) {
         this.setState({
           isSourceTrusted,
@@ -248,6 +270,12 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     return false;
   }
 
+  private isSourceAllowed(sourceUrl: string): boolean {
+    const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
+    const isAllowed = isSourceAllowed(this.props.allowedSources, sourceUrl);
+
+    return isRegistryDevfile || isAllowed;
+  }
   render(): React.ReactElement {
     const { distance, hasChildren } = this.props;
     const { name, lastError } = this.state;
@@ -292,6 +320,7 @@ const mapStateToProps = (state: AppState) => ({
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
   isRegistryDevfile: selectIsRegistryDevfile(state),
   isTrustedSource: selectPreferencesIsTrustedSource(state),
+  allowedSources: selectAllowedSources(state),
   sshKeys: selectSshKeys(state),
 });
 

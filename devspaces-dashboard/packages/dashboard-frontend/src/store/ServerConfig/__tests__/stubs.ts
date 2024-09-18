@@ -59,4 +59,5 @@ export const serverConfig: api.IServerConfig = {
     base64data: 'base64-encoded-data',
     mediatype: 'image/png',
   },
+  allowedSourceUrls: [],
 };

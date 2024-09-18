@@ -156,6 +156,8 @@ export const stubAutoProvision = true;
 
 export const stubAdvancedAuthorization = {};
 
+export const stubAllowedSourceUrls: string[] = [];
+
 export const stubWorkspacePreferences: api.IWorkspacePreferences = {
   'skip-authorisation': ['github'],
   'trusted-sources': '*',
@@ -186,6 +188,7 @@ export const getDevWorkspaceClient = jest.fn(
         getDashboardLogo: _cheCustomResource => dashboardLogo,
         getAutoProvision: _cheCustomResource => stubAutoProvision,
         getAdvancedAuthorization: _cheCustomResource => stubAdvancedAuthorization,
+        getAllowedSourceUrls: _cheCustomResource => stubAllowedSourceUrls,
       } as IServerConfigApi,
       devworkspaceApi: {
         create: (_devworkspace, _namespace) =>

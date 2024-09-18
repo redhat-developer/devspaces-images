@@ -26,6 +26,7 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import { AppAlerts } from '@/services/alerts/appAlerts';
 import { AppState } from '@/store';
+import { selectIsAllowedSourcesConfigured } from '@/store/ServerConfig/selectors';
 import { workspacePreferencesActionCreators } from '@/store/Workspaces/Preferences';
 import {
   selectPreferencesIsTrustedSource,
@@ -43,6 +44,7 @@ export type State = {
   canContinue: boolean;
   continueButtonDisabled: boolean;
   isTrusted: boolean;
+  isAllowedSourcesConfigured: boolean;
   trustAllCheckbox: boolean;
 };
 
@@ -57,6 +59,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
       canContinue: true,
       continueButtonDisabled: false,
       isTrusted: this.props.isTrustedSource(props.location),
+      isAllowedSourcesConfigured: this.props.isAllowedSourcesConfigured,
       trustAllCheckbox: false,
     };
   }
@@ -84,26 +87,32 @@ class UntrustedSourceModal extends React.Component<Props, State> {
       return true;
     }
 
+    if (this.state.isAllowedSourcesConfigured !== nextState.isAllowedSourcesConfigured) {
+      return true;
+    }
+
     return false;
   }
 
   public componentDidMount(): void {
-    if (this.props.isOpen && this.state.isTrusted) {
+    if (this.props.isOpen && (this.state.isTrusted || this.state.isAllowedSourcesConfigured)) {
       this.handleContinue();
     }
   }
 
   public componentDidUpdate(prevProps: Readonly<Props>): void {
     const isTrusted = this.props.isTrustedSource(this.props.location);
+    const isAllowedSourcesConfigured = this.props.isAllowedSourcesConfigured;
 
     this.setState({
       isTrusted,
+      isAllowedSourcesConfigured,
     });
 
     if (
       prevProps.isOpen === false &&
       this.props.isOpen === true &&
-      isTrusted === true &&
+      (isTrusted === true || isAllowedSourcesConfigured) &&
       this.state.canContinue === true
     ) {
       this.handleContinue();
@@ -229,6 +238,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   trustedSources: selectPreferencesTrustedSources(state),
   isTrustedSource: selectPreferencesIsTrustedSource(state),
+  isAllowedSourcesConfigured: selectIsAllowedSourcesConfigured(state),
 });
 
 const connector = connect(mapStateToProps, workspacePreferencesActionCreators, null, {

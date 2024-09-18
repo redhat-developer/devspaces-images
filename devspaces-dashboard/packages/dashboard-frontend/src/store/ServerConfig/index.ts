@@ -95,6 +95,7 @@ const unloadedState: State = {
     cheNamespace: '',
     pluginRegistryURL: '',
     pluginRegistryInternalURL: '',
+    allowedSourceUrls: [],
   },
   error: undefined,
 };

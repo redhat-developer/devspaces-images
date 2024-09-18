@@ -160,6 +160,11 @@ describe('Server Config API Service', () => {
     const res = serverConfigService.getAdvancedAuthorization(buildCustomResource());
     expect(res).toEqual({ allowUsers: ['user1', 'user2'] });
   });
+
+  test('getting allowed source urls', () => {
+    const res = serverConfigService.getAllowedSourceUrls(buildCustomResource());
+    expect(res).toEqual(['https://github.com']);
+  });
 });
 
 function buildCustomResourceList(): { body: CustomResourceDefinitionList } {
@@ -219,6 +224,9 @@ function buildCustomResource(options?: { openVSXURL?: string }): CheClusterCusto
         secondsOfRunBeforeIdling: -1,
         maxNumberOfRunningWorkspacesPerCluster: 100,
         storage: { pvcStrategy: 'per-user' },
+        allowedSources: {
+          urls: ['https://github.com'],
+        },
       },
       networking: {
         auth: {

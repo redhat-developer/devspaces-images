@@ -351,6 +351,32 @@ describe('Creating steps, initializing', () => {
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 
+  test('source URL is not allowed', async () => {
+    const store = new FakeStoreBuilder()
+      .withDwServerConfig({ allowedSourceUrls: ['allowed-source'] })
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withSshKeys({
+        keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
+      .build();
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    renderComponent(store, searchParams);
+
+    const stepTitle = screen.getByTestId('step-title');
+    expect(stepTitle.textContent).toContain('Initializing');
+
+    await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
+
+    const stepTitleNext = screen.getByTestId('step-title');
+    expect(stepTitleNext.textContent).toContain('Initializing');
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+    expect(mockOnError).toHaveBeenCalled();
+  });
+
   test('samples are trusted', async () => {
     const store = new FakeStoreBuilder()
       .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
