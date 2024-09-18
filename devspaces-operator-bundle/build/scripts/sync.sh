@@ -201,7 +201,7 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${DS_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Anatolii Bazko <abazko@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>, Samantha Dawley <sdawley@redhat.com>,  Nick Boldt <nboldt@redhat.com>" \\
+      maintainer="Anatolii Bazko <abazko@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>, Samantha Dawley <sdawley@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT

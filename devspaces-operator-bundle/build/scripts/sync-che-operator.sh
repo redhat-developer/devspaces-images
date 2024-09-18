@@ -57,7 +57,6 @@ DS_RRIO="registry.redhat.io/devspaces"
 DS_OPERATOR="devspaces-rhel8-operator"
 DS_CONFIGBUMP_IMAGE="${DS_RRIO}/configbump-rhel8:${DS_VERSION}"
 DS_DASHBOARD_IMAGE="${DS_RRIO}/dashboard-rhel8:${DS_VERSION}"
-DS_DEVFILEREGISTRY_IMAGE="${DS_RRIO}/devfileregistry-rhel8:${DS_VERSION}"
 DS_PLUGINREGISTRY_IMAGE="${DS_RRIO}/pluginregistry-rhel8:${DS_VERSION}"
 DS_SERVER_IMAGE="${DS_RRIO}/server-rhel8:${DS_VERSION}"
 DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
@@ -196,7 +195,6 @@ declare -A operator_replacements=(
 
 	["RELATED_IMAGE_che_server"]="${DS_SERVER_IMAGE}"
 	["RELATED_IMAGE_dashboard"]="${DS_DASHBOARD_IMAGE}"
-	["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
 	["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
 
 	["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
