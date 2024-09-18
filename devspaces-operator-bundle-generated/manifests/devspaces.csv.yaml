@@ -59,7 +59,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3aa846045ea144ce63a374c1662461bedd9c76c8adffd4b6c5690c65edb861d9
-    createdAt: "2024-09-18T19:22:01+00:00"
+    createdAt: "2024-09-18T19:43:39+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
@@ -826,14 +826,6 @@ spec:
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:7b18600149adb7ef2bb2ea6a91d429443410f4e30b24de47b5f05f2791d59b77
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:731b93329666335f482134d421a57fd61a25cfd03e23ba2add813ffa263d8947
-                - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:ac5730278c2be8c4101ad9c177dce95d105ef70153a09f1d582b96042ab8917e
-                - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCNYK
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:051a5d15896bde85687e82213ddf9ddfd879cc8bfa9209e65bbdf3c14e055d83
-                - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCNYK
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:dead81e240493631f37ff7b88bddf8ad4e406ba54a1fafd04e09816a0bb42cc1
-                - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCNYK
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:88bf0cc5be56d88d2f98f728949f356634a4d7ad950df59f458db68dbb607576
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_injector
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:051a5d15896bde85687e82213ddf9ddfd879cc8bfa9209e65bbdf3c14e055d83
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_runtime_description
@@ -850,8 +842,6 @@ spec:
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:b82c1fb89fe0f19855b91fa64896b32fd61ed04d49c0de3097632dd82fff44b4
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
-                - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
-                  value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL2RldnNwYWNlcy91ZGktcmhlbDg6My4xNQo____
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:07710186c1638b48af11350ccba36e5f5fed9ad0888da8400c6e0eaab404f04f
                 - name: RELATED_IMAGE_sample_encoded_cmVnaXN0cnkucmVkaGF0LmlvL2RldnNwYWNlcy91ZGktcmhlbDg6My4xNwo____
@@ -1044,14 +1034,6 @@ spec:
     image: registry.redhat.io/devspaces/server-rhel8@sha256:7b18600149adb7ef2bb2ea6a91d429443410f4e30b24de47b5f05f2791d59b77
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:731b93329666335f482134d421a57fd61a25cfd03e23ba2add813ffa263d8947
-  - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:ac5730278c2be8c4101ad9c177dce95d105ef70153a09f1d582b96042ab8917e
-  - name: devspaces_code_devfile_registry_image_gmxdcnyk
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:051a5d15896bde85687e82213ddf9ddfd879cc8bfa9209e65bbdf3c14e055d83
-  - name: devspaces_idea_devfile_registry_image_gmxdcnyk
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:dead81e240493631f37ff7b88bddf8ad4e406ba54a1fafd04e09816a0bb42cc1
-  - name: devspaces_udi_devfile_registry_image_gmxdcnyk
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:88bf0cc5be56d88d2f98f728949f356634a4d7ad950df59f458db68dbb607576
   - name: editor_definition_che_code_latest_che_code_injector
     image: registry.redhat.io/devspaces/code-rhel8@sha256:051a5d15896bde85687e82213ddf9ddfd879cc8bfa9209e65bbdf3c14e055d83
   - name: editor_definition_che_code_latest_che_code_runtime_description
@@ -1068,8 +1050,6 @@ spec:
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:b82c1fb89fe0f19855b91fa64896b32fd61ed04d49c0de3097632dd82fff44b4
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:b93deceb59a58588d5b16429fc47f98920f84740a1f2ed6454e33275f0701b59
-  - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
-    image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: sample_encoded_cmvnaxn0cnkucmvkagf0lmlvl2rldnnwywnlcy91zgktcmhlbdg6my4xnqo____
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:07710186c1638b48af11350ccba36e5f5fed9ad0888da8400c6e0eaab404f04f
   - name: sample_encoded_cmvnaxn0cnkucmvkagf0lmlvl2rldnnwywnlcy91zgktcmhlbdg6my4xnwo____
