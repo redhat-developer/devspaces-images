@@ -30,7 +30,11 @@ import StartingStepInitialize from '@/components/WorkspaceProgress/StartingSteps
 import StartingStepOpenWorkspace from '@/components/WorkspaceProgress/StartingSteps/OpenWorkspace';
 import StartingStepStartWorkspace from '@/components/WorkspaceProgress/StartingSteps/StartWorkspace';
 import StartingStepWorkspaceConditions from '@/components/WorkspaceProgress/StartingSteps/WorkspaceConditions';
-import { ConditionType, isWorkspaceStatusCondition } from '@/components/WorkspaceProgress/utils';
+import {
+  ConditionType,
+  getStartWorkspaceConditions,
+  isWorkspaceStatusCondition,
+} from '@/components/WorkspaceProgress/utils';
 import WorkspaceProgressWizard, {
   WorkspaceProgressWizardStep,
 } from '@/components/WorkspaceProgress/Wizard';
@@ -184,7 +188,7 @@ class Progress extends React.Component<Props, State> {
         workspace.status === DevWorkspaceStatus.FAILING ||
         workspace.status === DevWorkspaceStatus.FAILED)
     ) {
-      const conditions = workspace.ref.status?.conditions || [];
+      const conditions = getStartWorkspaceConditions(workspace.ref);
 
       const lastScore = this.scoreConditions(this.state.conditions);
       const score = this.scoreConditions(conditions);

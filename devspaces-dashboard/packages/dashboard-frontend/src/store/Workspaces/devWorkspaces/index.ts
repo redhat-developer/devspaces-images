@@ -311,6 +311,13 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
+      if (workspace.status?.conditions && workspace.status?.conditions?.length > 0) {
+        workspace.status.conditions = [];
+        dispatch({
+          type: Type.UPDATE_DEVWORKSPACE,
+          workspace,
+        });
+      }
       try {
         await OAuthService.refreshTokenIfProjectExists(workspace);
       } catch (e: unknown) {
@@ -421,8 +428,6 @@ export const actionCreators: ActionCreators = {
         const startingTimeout = 10000;
         await Promise.race([defer.promise, delay(startingTimeout)]);
         toDispose.dispose();
-
-        getDevWorkspaceClient().checkForDevWorkspaceError(startingWorkspace);
       } catch (e) {
         // Skip unauthorised errors. The page is redirecting to an SCM authentication page.
         if (common.helpers.errors.includesAxiosResponse(e) && isOAuthResponse(e.response.data)) {

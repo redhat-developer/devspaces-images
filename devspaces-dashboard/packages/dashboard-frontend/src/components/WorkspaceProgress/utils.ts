@@ -12,6 +12,8 @@
 
 import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
 
+import devfileApi from '@/services/devfileApi';
+
 export type ConditionType = V1alpha2DevWorkspaceStatusConditions & {
   status: 'True' | 'False' | 'Unknown';
 };
@@ -35,6 +37,24 @@ export function isConditionReady(
     condition.status === 'True' ||
     (condition.status === 'Unknown' && prevCondition?.status === 'True')
   );
+}
+
+export function getStartWorkspaceConditions(
+  workspace: devfileApi.DevWorkspace,
+): V1alpha2DevWorkspaceStatusConditions[] {
+  if (!workspace.status?.conditions || workspace.status.conditions.length === 0) {
+    return [];
+  }
+  const conditions = [...workspace.status.conditions];
+  // remove all conditions that are not related to the workspace start
+  for (let i = conditions.length; i > 0; i--) {
+    if (conditions[i - 1].type === 'ServiceAccountReady') {
+      conditions.length = i;
+      break;
+    }
+  }
+
+  return conditions;
 }
 
 export function isConditionError(
