@@ -51,8 +51,7 @@ Artifact builder + sync job; triggers brew after syncing
 <ul>
 <li>for changes to 
     <a href=https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/che-plugin-registry>devspaces/che-plugin-registry</a>, </li>
-<li>causing a rebuild of the <a href=https://redhat-developer.github.io/devspaces/che-plugin-registry/next/x86_64/v3/plugins/>redhat-developer.github.io/devspaces/che-plugin-registry</a>, and</li>
-<li><a href=https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml>trigger</a> a rebuild of the <a href=../devfileregistry_''' + JOB_BRANCH + '''/>devfile registry</a> (see <a href=https://github.com/redhat-developer/devspaces/commits/devspaces-3-rhel-8/dependencies/che-devfile-registry/webhook_trigger.txt>webhook_trigger.txt</a>)</li>
+<li>causing a rebuild of the <a href=https://redhat-developer.github.io/devspaces/che-plugin-registry/next/x86_64/v3/plugins/>redhat-developer.github.io/devspaces/che-plugin-registry</a>.</li>
 </ul></p>
 
 <p>If <b style="color:green">downstream job fires</b>, see 

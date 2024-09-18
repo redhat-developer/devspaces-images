@@ -42,15 +42,14 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
 
         </td><td>
 
-        <li> <a href=https://quay.io/repository/devspaces/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
         <li> <a href=https://quay.io/repository/devspaces/idea-rhel8?tab=tags>idea</a></li>
         <li> <a href=https://quay.io/repository/devspaces/imagepuller-rhel8?tab=tags>imagepuller</a></li>
         <li> <a href=https://quay.io/repository/devspaces/machineexec-rhel8?tab=tags>machineexec</a> </li>
         <li> <a href=https://quay.io/repository/devspaces/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
+        <li> <a href=https://quay.io/repository/devspaces/server-rhel8?tab=tags>server</a> </li>
 
         </td><td>
 
-        <li> <a href=https://quay.io/repository/devspaces/server-rhel8?tab=tags>server</a> </li>
         <li> <a href=https://quay.io/repository/devspaces/traefik-rhel8?tab=tags>traefik</a> </li>
         <li> <a href=https://quay.io/repository/devspaces/udi-rhel8?tab=tags>udi</a></li>
         </td><td>
@@ -98,7 +97,7 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
 
             parameters{ 
                 textParam("CONTAINERS", '''\
-code configbump operator operator-bundle dashboard devfileregistry \
+code configbump operator operator-bundle dashboard \
 idea imagepuller machineexec pluginregistry server traefik udi''', '''list of 13 containers to copy:<br/>
 * no 'devspaces/' or 'devspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>

@@ -58,7 +58,7 @@ for global CVE updates.
 
             parameters{
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
-                stringParam("PHASES", "1 2 3 4", '''
+                stringParam("PHASES", "1 2 3", '''
 Phases:
 <ol>
     <li> build internals in parallel (10 images): 
@@ -71,11 +71,6 @@ Phases:
         <ul>
             <li> code [depends on machineexec and pluginregistry-plugins] </li>
             <li> idea [depends on machineexec] </li>
-        </ul>
-    </li>
-    <li> build registry (1 image): 
-        <ul>
-            <li> devfileregistry [depends on pluginregistry] </li>
         </ul>
     </li>
     <li> build bundle image + IIBs</li>

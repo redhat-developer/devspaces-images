@@ -58,7 +58,6 @@ for d in \
     code\
     configbump\
     dashboard\
-    devfileregistry\
     idea\
     imagepuller\
     machineexec\
