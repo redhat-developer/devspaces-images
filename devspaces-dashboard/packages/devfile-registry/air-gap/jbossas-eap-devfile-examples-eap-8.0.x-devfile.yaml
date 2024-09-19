@@ -1,0 +1,116 @@
+schemaVersion: 2.2.0
+metadata:
+  name: java-jboss-eap
+  version: 1.0.0
+  displayName: JBoss EAP 8
+  description: Java stack with EAP 8, OpenJDK 17 and Maven 3.9
+  tags: ["RHEL8", "Java", "OpenJDK", "Maven", "EAP"]
+  icon: https://raw.githubusercontent.com/redhat-developer/devfile-registry/main/icons/type-jboss.svg
+  projectType: "JBoss EAP"
+  language: "java"
+  website: https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/
+variables:
+  imageRegistry: 'image-registry.openshift-image-registry.svc:5000'
+  imageName: 'getting-started'
+  imageVersion: 'latest'
+  applicationName: 'start'
+  nodeName: 'getting-started'
+  target-namespace: 'getting-started'
+starterProjects:
+  - name: getting-started
+    description: Red Hat JBoss EAP Getting Started
+    git:
+      checkoutFrom:
+        remote: eap-devfile-examples
+        revision: eap-8.0.x
+      remotes:
+        eap-devfile-examples: https://github.com/jbossas/eap-devfile-examples.git
+components:
+  - name: tools
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel8:3.15
+      memoryLimit: 1512Mi
+      mountSources: true
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+      env:
+        - name: JAVA_OPTS
+          value: '-Djava.security.egd=file:/dev/urandom -Djboss.host.name=localhost'
+        - name: DEBUG_PORT
+          value: '5005'
+        - name: NODE_NAME
+          value: '{{nodeName}}'
+        - name: IMAGE_REGISTRY
+          value: '{{imageRegistry}}'
+        - name: IMAGE
+          value: '{{imageName}}'
+        - name: TARGET_NAMESPACE
+          value: '{{target-namespace}}'
+        - name: VSCODE_DEFAULT_WORKSPACE
+          value: /projects/wildfly-devfile-examples/.code-workspace
+        - name: USE_JAVA17
+          value: 'true'
+      endpoints:
+        - name: debug
+          exposure: internal
+          protocol: tcp
+          targetPort: 5005
+        - name: 'http'
+          protocol: http
+          targetPort: 8080
+          exposure: public
+        - name: 'management'
+          targetPort: 9990
+          protocol: http
+          exposure: internal
+        - name: 'transactions'
+          targetPort: 4172
+          protocol: tcp
+          exposure: internal
+  - name: m2
+    volume:
+      size: 3Gi
+commands:
+  - id: package
+    exec:
+      label: "01 - Build the application."
+      component: tools
+      commandLine: mvn clean verify -Dmaven.wagon.http.ssl.insecure=true
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+        isDefault: true
+  - id: run
+    exec:
+      label: "02 - Run the application in dev mode."
+      component: tools
+      commandLine: ./target/server/bin/standalone.sh -Djboss.host.name=${NODE_NAME}
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: run
+        isDefault: true
+  - id: debug
+    exec:
+      label: "03 - Debug the application in dev mode."
+      component: tools
+      commandLine: ./target/server/bin/standalone.sh -Djboss.host.name=${NODE_NAME}
+        --debug
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: debug
+        isDefault: true
+  - id: shutdown
+    exec:
+      label: "04 - Shutdown the server."
+      component: tools
+      commandLine: ./target/server/bin/jboss-cli.sh -c --command=shutdown
+      workingDir: ${PROJECT_SOURCE}
+      hotReloadCapable: false
+      group:
+        kind: run
+        isDefault: false
+projects:
+  - name: eap-devfile-examples
+    zip:
+      location: CHE_DASHBOARD_INTERNAL_URL/dashboard/api/airgap-sample/project/download?id=java-jboss-eap

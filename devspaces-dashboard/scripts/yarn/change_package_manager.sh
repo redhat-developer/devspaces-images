@@ -10,13 +10,18 @@
 
 # The script is used to change current package manager(yarn 1 vs yarn 3)
 
-export OLD_VERSION_DIR=$(pwd)/scripts/yarn/old_version
-export TMP_DIR=$(pwd)/scripts/yarn/tmp
+OLD_VERSION_DIR=$(pwd)/scripts/yarn/old_version
+TMP_DIR=$(pwd)/scripts/yarn/tmp
+
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
 
 #==========================Clean temporary directory============================
 if [ -d $TMP_DIR ]; then
     echo "[INFO]: Clean temporary directory"
-    rm -rf $(pwd)/scripts/yarn/tmp
+    rm -rf $TMP_DIR
 else
     echo "[INFO]: Create temporary directory"
 fi
@@ -49,19 +54,24 @@ fi
 #==========================Restore old version=================================
 if [ -d $OLD_VERSION_DIR ]; then
     echo "[INFO]: Restore old package manager version"
-    mv -f $OLD_VERSION_DIR/{*,.*} $(pwd)/ > /dev/null 2>&1
+    find "$OLD_VERSION_DIR" -mindepth 1 -maxdepth 1 -exec mv -f {} $(pwd)/ \;
 fi
 #==========================Cleanup=============================================
 if [ -d $TMP_DIR ]; then
     echo "[INFO]: Cleanup"
-    mv -f $TMP_DIR/{*,.*} $OLD_VERSION_DIR/ > /dev/null 2>&1
+    find "$TMP_DIR" -mindepth 1 -maxdepth 1 -exec mv -f {} "$OLD_VERSION_DIR"/ \;
 fi
 
+#==========================Check current version================================
 VER=$(yarn --cwd $(pwd) -v | sed -e s/\\./\\n/g | sed -n 1p)
 
-echo
-echo "**********************"
-echo "*****   Yarn $VER   *****"
-echo "**********************"
+if [ -z "$VER" ]; then
+    echo "${RED}[ERROR]: Unable to get the current version of yarn. Please check the yarn installation.${NC}"
+    exit 1
+else
+    echo "${GREEN}**********************${NC}"
+    echo "${GREEN}*****   Yarn $VER   *****${NC}"
+    echo "${GREEN}**********************${NC}"
+fi
 
 exit 0
