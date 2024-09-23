@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getStartWorkspaceConditions } from '@/components/WorkspaceProgress/utils';
+import { getWorkspaceConditions } from '@/components/WorkspaceProgress/utils';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 describe('WorkspaceProgress utils', () => {
@@ -20,13 +20,13 @@ describe('WorkspaceProgress utils', () => {
     jest.clearAllMocks();
   });
 
-  describe('getStartWorkspaceCondition', () => {
+  describe('getWorkspaceCondition', () => {
     it('should return an empty array as a default value', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
 
       expect(devWorkspace.status?.conditions).toBeUndefined();
 
-      const conditions = getStartWorkspaceConditions(devWorkspace);
+      const conditions = getWorkspaceConditions(devWorkspace);
 
       expect(conditions).toEqual([]);
     });
@@ -43,19 +43,15 @@ describe('WorkspaceProgress utils', () => {
       };
       const devWorkspace = new DevWorkspaceBuilder().withStatus(status).build();
 
-      const conditions = getStartWorkspaceConditions(devWorkspace);
+      const conditions = getWorkspaceConditions(devWorkspace);
 
       expect(conditions).toEqual(status.conditions);
     });
   });
-  it('should filter conditions that are not related to the workspace start', () => {
+  it('should return default value if one of conditions has special type that is shown when workspace start failed', () => {
     const status = {
+      phase: 'Starting',
       conditions: [
-        {
-          message: 'DevWorkspace is starting',
-          status: 'True',
-          type: 'Started',
-        },
         {
           message: 'Resolved plugins and parents from DevWorkspace',
           status: 'True',
@@ -81,39 +77,19 @@ describe('WorkspaceProgress utils', () => {
           status: 'False',
           type: 'DeploymentReady',
         },
+        {
+          message:
+            'Error creating DevWorkspace deployment: Container tools has state ImagePullBackOff',
+          reason: 'InfrastructureFailure',
+          status: 'True',
+          type: 'FailedStart',
+        },
       ],
     };
     const devWorkspace = new DevWorkspaceBuilder().withStatus(status).build();
 
-    const conditions = getStartWorkspaceConditions(devWorkspace);
+    const conditions = getWorkspaceConditions(devWorkspace);
 
-    expect(conditions).not.toEqual(status.conditions);
-    expect(conditions).toEqual([
-      {
-        message: 'DevWorkspace is starting',
-        status: 'True',
-        type: 'Started',
-      },
-      {
-        message: 'Resolved plugins and parents from DevWorkspace',
-        status: 'True',
-        type: 'DevWorkspaceResolved',
-      },
-      {
-        message: 'Storage ready',
-        status: 'True',
-        type: 'StorageReady',
-      },
-      {
-        message: 'Networking ready',
-        status: 'True',
-        type: 'RoutingReady',
-      },
-      {
-        message: 'DevWorkspace serviceaccount ready',
-        status: 'True',
-        type: 'ServiceAccountReady',
-      },
-    ]);
+    expect(conditions).toEqual([]);
   });
 });

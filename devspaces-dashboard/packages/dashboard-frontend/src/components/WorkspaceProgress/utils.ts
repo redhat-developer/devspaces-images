@@ -13,6 +13,7 @@
 import { V1alpha2DevWorkspaceStatusConditions } from '@devfile/api';
 
 import devfileApi from '@/services/devfileApi';
+import { DevWorkspaceStatus } from '@/services/helpers/types';
 
 export type ConditionType = V1alpha2DevWorkspaceStatusConditions & {
   status: 'True' | 'False' | 'Unknown';
@@ -39,18 +40,23 @@ export function isConditionReady(
   );
 }
 
-export function getStartWorkspaceConditions(
+export function getWorkspaceConditions(
   workspace: devfileApi.DevWorkspace,
 ): V1alpha2DevWorkspaceStatusConditions[] {
   if (!workspace.status?.conditions || workspace.status.conditions.length === 0) {
     return [];
   }
+
   const conditions = [...workspace.status.conditions];
-  // remove all conditions that are not related to the workspace start
-  for (let i = conditions.length; i > 0; i--) {
-    if (conditions[i - 1].type === 'ServiceAccountReady') {
-      conditions.length = i;
-      break;
+
+  // if the target workspace has status starting
+  if (workspace.status.phase === DevWorkspaceStatus.STARTING) {
+    // if one of conditions has special type that is shown when workspace start failed
+    const failedStart = conditions.find(condition => condition.type === 'FailedStart');
+    // this is a special condition that is shown when workspace start failed
+    if (failedStart !== undefined) {
+      // it means that all the conditions are from the previous start
+      return [];
     }
   }
 

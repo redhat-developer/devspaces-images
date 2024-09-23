@@ -103,7 +103,7 @@ export class DevWorkspaceBuilder {
 
   withStatus(status: {
     conditions?: Array<V1alpha2DevWorkspaceStatusConditions>;
-    phase?: keyof typeof DevWorkspaceStatus;
+    phase?: keyof typeof DevWorkspaceStatus | string;
     devworkspaceId?: string;
     mainUrl?: string;
     message?: string;
@@ -115,7 +115,11 @@ export class DevWorkspaceBuilder {
       this.workspace.status.conditions = Object.assign([], status.conditions);
     }
     if (status.phase) {
-      this.workspace.status.phase = DevWorkspaceStatus[status.phase];
+      if (DevWorkspaceStatus[status.phase]) {
+        this.workspace.status.phase = DevWorkspaceStatus[status.phase];
+      } else {
+        this.workspace.status.phase = status.phase;
+      }
     }
     if (status.devworkspaceId) {
       this.workspace.status.devworkspaceId = status.devworkspaceId;

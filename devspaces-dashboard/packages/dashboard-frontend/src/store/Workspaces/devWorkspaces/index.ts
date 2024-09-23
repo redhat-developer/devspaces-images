@@ -311,13 +311,6 @@ export const actionCreators: ActionCreators = {
         console.warn(`Workspace ${_workspace.metadata.name} already started`);
         return;
       }
-      if (workspace.status?.conditions && workspace.status?.conditions?.length > 0) {
-        workspace.status.conditions = [];
-        dispatch({
-          type: Type.UPDATE_DEVWORKSPACE,
-          workspace,
-        });
-      }
       try {
         await OAuthService.refreshTokenIfProjectExists(workspace);
       } catch (e: unknown) {

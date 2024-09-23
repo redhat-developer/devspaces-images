@@ -114,7 +114,6 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
         break;
       }
       case WorkspaceAction.START_DEBUG_AND_OPEN_LOGS: {
-        // todo: open a new tab with the DEBUG_WORKSPACE_START parameter instead
         await this.props.startWorkspace(workspace, {
           'debug-workspace-start': true,
         });

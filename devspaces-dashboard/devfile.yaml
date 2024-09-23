@@ -14,13 +14,13 @@ components:
       endpoints:
         - exposure: public
           name: local-server
-          protocol: http
+          protocol: https
           targetPort: 8080
           path: /
         - exposure: public
           name: bundle-analyzer
           path: /
-          protocol: http
+          protocol: https
           targetPort: 8888
       env:
         - name: KUBEDOCK_ENABLED
@@ -31,7 +31,7 @@ commands:
       label: "[UD] install dependencies"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn install --non-interactive"
+      commandLine: "yarn install"
       group:
         kind: build
         isDefault: true
@@ -40,7 +40,7 @@ commands:
       label: "[UD] build"
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "yarn install --non-interactive && yarn build"
+      commandLine: "yarn install && yarn build"
       group:
         kind: build
   - id: watchfrontend
@@ -115,11 +115,3 @@ commands:
       commandLine: "yarn --cwd  packages/dashboard-backend build --env bundleAnalyzer=true"
       group:
         kind: build
-  - id: install-requirements
-    exec:
-      component: tools
-      commandLine: "npm i yarn@1.22.18 -g"
-      label: Install yarn@1.22.18
-events:
-  postStart:
-    - "install-requirements"
