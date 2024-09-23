@@ -76,7 +76,8 @@ function update_pkgs_versions() {
   # update root `package.json` version
   npm --no-git-tag-version version --allow-same-version "${VER}"
   # update each package version
-  lerna version --no-git-tag-version -y "${VER}"
+  yarn install --frozen-lockfile --no-immutable
+  npx lerna version --no-git-tag-version -y "${VER}"
   if [[ ${VER} != *"-next" ]]; then
     # update devworkspace generator version for release
     jq ".\"dependencies\".\"@eclipse-che/che-devworkspace-generator\" = \"${VER}\"" packages/dashboard-backend/package.json > packages/dashboard-backend/package.json.update
@@ -86,12 +87,12 @@ function update_pkgs_versions() {
     jq ".\"dependencies\".\"@eclipse-che/che-devworkspace-generator\" = \"next-${BRANCH}\"" packages/dashboard-backend/package.json > packages/dashboard-backend/package.json.update
     mv packages/dashboard-backend/package.json.update packages/dashboard-backend/package.json
   fi
-  # update excluded dependencies vesion
+  # update excluded dependencies version
   sed_in_place -e "s/@eclipse-che\/dashboard-backend@.*\`/@eclipse-che\/dashboard-backend@${VER}\`/" .deps/EXCLUDED/prod.md
   sed_in_place -e "s/@eclipse-che\/dashboard-frontend@.*\`/@eclipse-che\/dashboard-frontend@${VER}\`/" .deps/EXCLUDED/prod.md
   sed_in_place -e "s/@eclipse-che\/common@.*\`/@eclipse-che\/common@${VER}\`/" .deps/EXCLUDED/prod.md
   # regenerate yarn.lock
-  yarn
+  yarn --no-immutable
   # regenerate license files
   yarn license:generate || true
 }
