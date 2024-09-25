@@ -11,7 +11,6 @@
  */
 
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 
@@ -81,10 +80,9 @@ describe('GetStarted', () => {
 
 function getComponent() {
   const store = new FakeStoreBuilder().build();
-  const history = createMemoryHistory();
   return (
     <Provider store={store}>
-      <GetStarted history={history} />
+      <GetStarted navigate={jest.fn()} />
     </Provider>
   );
 }

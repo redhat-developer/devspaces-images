@@ -28,7 +28,7 @@ import { CheTooltip } from '@/components/CheTooltip';
 import { validateBrName, validateLocation } from '@/components/ImportFromGit/helpers';
 import styles from '@/components/ImportFromGit/RepoOptionsAccordion/GitRepoOptions/AdditionalGitRemotes/index.module.css';
 import { GitRemote } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/getGitRemotes';
-import { ROUTE } from '@/Routes/routes';
+import { ROUTE } from '@/Routes';
 import { FactoryLocationAdapter } from '@/services/factory-location-adapter';
 import { UserPreferencesTab } from '@/services/helpers/types';
 import { AppState } from '@/store';

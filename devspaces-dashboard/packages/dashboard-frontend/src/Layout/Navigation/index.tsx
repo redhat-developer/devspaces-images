@@ -17,7 +17,7 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import NavigationMainList from '@/Layout/Navigation/MainList';
 import NavigationRecentList from '@/Layout/Navigation/RecentList';
-import { ROUTE } from '@/Routes/routes';
+import { ROUTE } from '@/Routes';
 import { buildGettingStartedLocation, buildWorkspacesLocation } from '@/services/helpers/location';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';

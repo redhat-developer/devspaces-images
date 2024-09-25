@@ -29,7 +29,7 @@ import {
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import { lazyInject } from '@/inversify.config';
-import { WorkspaceParams } from '@/Routes/routes';
+import { WorkspaceRouteParams } from '@/Routes';
 import { isAvailableEndpoint } from '@/services/helpers/api-ping';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
@@ -42,7 +42,7 @@ import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {
-    matchParams: WorkspaceParams | undefined;
+    matchParams: WorkspaceRouteParams | undefined;
   };
 export type State = ProgressStepState;
 
@@ -178,14 +178,14 @@ class StartingStepOpenWorkspace extends ProgressStep<Props, State> {
       {
         title: 'Restart',
         callback: () => {
-          applyRestartDefaultLocation(this.props.history.location);
+          applyRestartDefaultLocation(this.props.location);
           this.handleRestart(key, LoaderTab.Progress);
         },
       },
       {
         title: 'Restart with default devfile',
         callback: () => {
-          applyRestartInSafeModeLocation(this.props.history.location);
+          applyRestartInSafeModeLocation(this.props.location);
           this.handleRestart(key, LoaderTab.Progress);
         },
       },

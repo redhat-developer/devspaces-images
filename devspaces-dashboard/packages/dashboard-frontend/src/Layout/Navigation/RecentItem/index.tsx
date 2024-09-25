@@ -11,7 +11,6 @@
  */
 
 import { NavItem } from '@patternfly/react-core';
-import { History } from 'history';
 import React from 'react';
 
 import { WorkspaceStatusIndicator } from '@/components/Workspace/Status/Indicator';
@@ -26,7 +25,6 @@ import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 
 export type Props = {
-  history: History;
   item: NavigationRecentItemObject;
   activePath: string;
 };
@@ -37,7 +35,7 @@ export class NavigationRecentItem extends React.PureComponent<Props> {
 
   private handleClick(workspace: Workspace) {
     const location = buildIdeLoaderLocation(workspace);
-    const href = toHref(this.props.history, location);
+    const href = toHref(location);
     this.tabManager.open(href);
   }
 

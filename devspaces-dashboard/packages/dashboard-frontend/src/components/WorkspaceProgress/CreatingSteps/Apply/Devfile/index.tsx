@@ -245,14 +245,14 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
     const workspace = this.findTargetWorkspace(this.props, this.state);
     if (workspace !== undefined) {
       // preserve the current active tab
-      const tabName = new URLSearchParams(this.props.history.location.search).get('tab');
+      const tabName = new URLSearchParams(this.props.location.search).get('tab');
 
       // the workspace has been created, go to the next step
       const nextLocation = buildIdeLoaderLocation(workspace);
-      this.props.history.location.pathname = nextLocation.pathname;
-      this.props.history.location.search = tabName ? `?tab=${tabName}` : '';
+      this.props.location.pathname = nextLocation.pathname;
+      this.props.location.search = tabName ? `?tab=${tabName}` : '';
 
-      const url = toHref(this.props.history, nextLocation);
+      const url = toHref(nextLocation);
       this.tabManager.rename(url);
 
       return true;
@@ -358,9 +358,9 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   protected handleRestart(alertKey: string): void {
-    const searchParams = new URLSearchParams(this.props.history.location.search);
+    const searchParams = new URLSearchParams(this.props.location.search);
     searchParams.delete(USE_DEFAULT_DEVFILE);
-    this.props.history.location.search = searchParams.toString();
+    this.props.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -372,9 +372,9 @@ class CreatingStepApplyDevfile extends ProgressStep<Props, State> {
   }
 
   private handleContinueWithDefaultDevfile(alertKey: string): void {
-    const searchParams = new URLSearchParams(this.props.history.location.search);
+    const searchParams = new URLSearchParams(this.props.location.search);
     searchParams.set(USE_DEFAULT_DEVFILE, 'true');
-    this.props.history.location.search = searchParams.toString();
+    this.props.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({

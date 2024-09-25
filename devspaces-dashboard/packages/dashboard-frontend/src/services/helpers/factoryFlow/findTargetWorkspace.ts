@@ -10,11 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { WorkspaceRouteParams } from '@/Routes';
 import { Workspace } from '@/services/workspace-adapter';
 
 export function findTargetWorkspace(
   workspaces: Workspace[],
-  matchParams: { namespace: string; workspaceName: string },
+  matchParams: WorkspaceRouteParams,
 ): Workspace | undefined {
   return workspaces.find(
     w => w.name === matchParams.workspaceName && w.namespace === matchParams.namespace,

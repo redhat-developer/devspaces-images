@@ -158,9 +158,9 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
   }
 
   protected handleRestart(alertKey: string): void {
-    const searchParams = new URLSearchParams(this.props.history.location.search);
+    const searchParams = new URLSearchParams(this.props.location.search);
     searchParams.delete(USE_DEFAULT_DEVFILE);
-    this.props.history.location.search = searchParams.toString();
+    this.props.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -171,9 +171,9 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
   }
 
   private handleDefaultDevfile(alertKey: string): void {
-    const searchParams = new URLSearchParams(this.props.history.location.search);
+    const searchParams = new URLSearchParams(this.props.location.search);
     searchParams.set(USE_DEFAULT_DEVFILE, 'true');
-    this.props.history.location.search = searchParams.toString();
+    this.props.location.search = searchParams.toString();
     this.props.onHideError(alertKey);
 
     this.setState({
@@ -262,7 +262,7 @@ class CreatingStepFetchDevfile extends ProgressStep<Props, State> {
         redirectUrl.searchParams.set(
           FACTORY_LINK_ATTR,
           // encode to base64
-          btoa(this.props.history.location.search.replace(/^\?/, '')),
+          btoa(this.props.location.search.replace(/^\?/, '')),
         );
 
         OAuthService.openOAuthPage(e.attributes.oauth_authentication_url, redirectUrl.toString());

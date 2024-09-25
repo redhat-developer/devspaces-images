@@ -12,10 +12,9 @@
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createHashHistory, History, Location } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Router } from 'react-router';
+import { Location, MemoryRouter } from 'react-router-dom';
 
 import { Props, WorkspaceDetails } from '@/pages/WorkspaceDetails';
 import devfileApi from '@/services/devfileApi';
@@ -30,17 +29,17 @@ jest.mock('@/pages/WorkspaceDetails/OverviewTab');
 jest.mock('@/components/WorkspaceLogs');
 jest.mock('@/components/WorkspaceEvents');
 
-let history: History;
+const workspaceName = 'wksp';
+const namespace = 'che-user';
 
 describe('Workspace Details page', () => {
   let devWorkspaceBuilder: DevWorkspaceBuilder;
-  const workspaceName = 'wksp';
 
   beforeEach(() => {
-    history = createHashHistory();
+    // history = createHashHistory();
     devWorkspaceBuilder = new DevWorkspaceBuilder()
       .withName(workspaceName)
-      .withNamespace('user-che');
+      .withNamespace(namespace);
   });
 
   afterEach(() => {
@@ -111,6 +110,7 @@ describe('Workspace Details page', () => {
     it('should show the link', () => {
       const workspace = constructWorkspace(devWorkspaceBuilder.build());
       const oldWorkspacePath: Location = {
+        key: 'old-workspace-key',
         hash: '',
         pathname: '/workspace/che-user/che-wksp',
         search: '',
@@ -140,11 +140,16 @@ describe('Workspace Details page', () => {
 function renderComponent(props?: Partial<Props>): void {
   const workspaces = props?.workspace ? [props.workspace.ref as devfileApi.DevWorkspace] : [];
   const store = new FakeStoreBuilder().withDevWorkspaces({ workspaces }).build();
+  const location = {
+    key: 'workspace-details-key',
+    pathname: `/workspace/${namespace}/${workspaceName}`,
+  } as Location;
   render(
-    <Router history={history}>
+    <MemoryRouter>
       <Provider store={store}>
         <WorkspaceDetails
-          history={history}
+          location={location}
+          navigate={jest.fn()}
           isLoading={props?.isLoading || false}
           oldWorkspaceLocation={props?.oldWorkspaceLocation}
           workspace={props?.workspace}
@@ -152,6 +157,6 @@ function renderComponent(props?: Partial<Props>): void {
           onSave={mockOnSave}
         />
       </Provider>
-    </Router>,
+    </MemoryRouter>,
   );
 }

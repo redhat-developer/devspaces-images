@@ -27,9 +27,9 @@ import {
   ValidatedOptions,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
-import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { NavigateFunction } from 'react-router-dom';
 
 import { validateLocation } from '@/components/ImportFromGit/helpers';
 import RepoOptionsAccordion from '@/components/ImportFromGit/RepoOptionsAccordion';
@@ -45,9 +45,9 @@ import * as WorkspacesStore from '@/store/Workspaces';
 const FIELD_ID = 'git-repo-url';
 
 export type Props = MappedProps & {
-  history: History;
   editorDefinition: string | undefined;
   editorImage: string | undefined;
+  navigate: NavigateFunction;
 };
 export type State = {
   hasSshKeys: boolean;
@@ -147,7 +147,7 @@ class ImportFromGit extends React.PureComponent<Props, State> {
 
   private openUserPreferences(): void {
     const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
-    this.props.history.push(location);
+    this.props.navigate(location);
   }
 
   public buildForm(): React.JSX.Element {
@@ -211,7 +211,6 @@ class ImportFromGit extends React.PureComponent<Props, State> {
   }
 
   public render() {
-    const { history } = this.props;
     const { isConfirmationOpen, location, locationValidated } = this.state;
     return (
       <>
@@ -233,7 +232,6 @@ class ImportFromGit extends React.PureComponent<Props, State> {
               <PanelMainBody>
                 <RepoOptionsAccordion
                   location={location}
-                  history={history}
                   onChange={(location: string, remotesValidated: ValidatedOptions) => {
                     const locationValidated = validateLocation(location, this.state.hasSshKeys);
                     this.setState({ location, remotesValidated, locationValidated });

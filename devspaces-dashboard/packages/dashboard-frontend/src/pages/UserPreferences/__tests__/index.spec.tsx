@@ -11,16 +11,15 @@
  */
 
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Router } from 'react-router';
+import { Location } from 'react-router-dom';
 
+import UserPreferences from '@/pages/UserPreferences';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+import { buildUserPreferencesLocation } from '@/services/helpers/location';
 import { UserPreferencesTab } from '@/services/helpers/types';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-
-import UserPreferences from '..';
 
 jest.mock('../ContainerRegistriesTab');
 jest.mock('../GitConfig');
@@ -28,18 +27,16 @@ jest.mock('../GitServices');
 jest.mock('../PersonalAccessTokens');
 jest.mock('../SshKeys');
 
-const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
+const { renderComponent } = getComponentRenderer(getComponent);
 
-const history = createMemoryHistory();
+const mockNavigate = jest.fn();
 
-function getComponent(): React.ReactElement {
+function getComponent(location: Location): React.ReactElement {
   const store = new FakeStoreBuilder().build();
   return (
-    <Router history={history}>
-      <Provider store={store}>
-        <UserPreferences history={history} />
-      </Provider>
-    </Router>
+    <Provider store={store}>
+      <UserPreferences location={location} navigate={mockNavigate} />
+    </Provider>
   );
 }
 
@@ -49,48 +46,45 @@ describe('UserPreferences', () => {
   });
 
   test('snapshot', () => {
-    const snapshot = createSnapshot();
-    expect(snapshot.toJSON()).toMatchSnapshot();
-    snapshot.unmount();
+    const location = buildUserPreferencesLocation();
+    renderComponent(location);
+
+    expect(document.body).toMatchSnapshot();
   });
 
   it('should activate the Container Registries tab by default', () => {
-    history.push('/user-preferences?tab=unknown-tab-name');
+    const location = buildUserPreferencesLocation('unknown-tab-name' as UserPreferencesTab);
 
-    renderComponent();
+    renderComponent(location);
 
     expect(screen.queryByRole('tabpanel', { name: 'Container Registries' })).toBeTruthy();
   });
 
   describe('Location change', () => {
     it('should activate the Container Registries tab', () => {
-      history.push('/user-preferences?tab=container-registries');
-
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.CONTAINER_REGISTRIES);
+      renderComponent(location);
 
       expect(screen.queryByRole('tabpanel', { name: 'Container Registries' })).toBeTruthy();
     });
 
     it('should activate the Git Services tab', () => {
-      history.push(`/user-preferences?tab=${UserPreferencesTab.GIT_SERVICES}`);
-
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.GIT_SERVICES);
+      renderComponent(location);
 
       expect(screen.queryByRole('tabpanel', { name: 'Git Services' })).toBeTruthy();
     });
 
     it('should activate the Personal Access Tokens tab', () => {
-      history.push(`/user-preferences?tab=${UserPreferencesTab.PERSONAL_ACCESS_TOKENS}`);
-
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.PERSONAL_ACCESS_TOKENS);
+      renderComponent(location);
 
       expect(screen.queryByRole('tabpanel', { name: 'Personal Access Tokens' })).toBeTruthy();
     });
 
     it('should activate the SSH Keys tab', () => {
-      history.push(`/user-preferences?tab=${UserPreferencesTab.SSH_KEYS}`);
-
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
+      renderComponent(location);
 
       expect(screen.queryByRole('tabpanel', { name: 'SSH Keys' })).toBeTruthy();
     });
@@ -98,7 +92,8 @@ describe('UserPreferences', () => {
 
   describe('Tabs', () => {
     it('should activate the Container Registries tab', async () => {
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
+      renderComponent(location);
 
       const tab = screen.getByRole('tab', { name: 'Container Registries' });
       await userEvent.click(tab);
@@ -107,7 +102,8 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the Git Services tab', async () => {
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
+      renderComponent(location);
 
       const tab = screen.getByRole('tab', { name: 'Git Services' });
       await userEvent.click(tab);
@@ -116,7 +112,8 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the Personal Access Tokens tab', async () => {
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
+      renderComponent(location);
 
       const tab = screen.getByRole('tab', { name: 'Personal Access Tokens' });
       await userEvent.click(tab);
@@ -125,7 +122,8 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the Gitconfig tab', async () => {
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.SSH_KEYS);
+      renderComponent(location);
 
       const tab = screen.getByRole('tab', { name: 'Gitconfig' });
       await userEvent.click(tab);
@@ -134,7 +132,8 @@ describe('UserPreferences', () => {
     });
 
     it('should activate the SSH Keys tab', async () => {
-      renderComponent();
+      const location = buildUserPreferencesLocation(UserPreferencesTab.CONTAINER_REGISTRIES);
+      renderComponent(location);
 
       const tab = screen.getByRole('tab', { name: 'SSH Keys' });
       await userEvent.click(tab);

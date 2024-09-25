@@ -13,8 +13,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { screen, waitFor } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
 import React from 'react';
+import { Location } from 'react-router-dom';
 
 import {
   conditionChangedTo,
@@ -23,7 +23,7 @@ import {
   conditionStatusTrue,
 } from '@/components/WorkspaceProgress/StartingSteps/WorkspaceConditions/__tests__/fixtures';
 import { ConditionType } from '@/components/WorkspaceProgress/utils';
-import { WorkspaceParams } from '@/Routes/routes';
+import { WorkspaceRouteParams } from '@/Routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 
 import StartingStepWorkspaceConditions from '..';
@@ -40,7 +40,7 @@ const { renderComponent, createSnapshot } = getComponentRenderer(getComponent);
 
 const namespace = 'che-user';
 const workspaceName = 'test-workspace';
-const matchParams: WorkspaceParams = {
+const matchParams: WorkspaceRouteParams = {
   namespace,
   workspaceName,
 };
@@ -167,14 +167,14 @@ describe('Starting steps, checking workspace conditions', () => {
 });
 
 function getComponent(condition: ConditionType, _matchParams = matchParams): React.ReactElement {
-  const history = createMemoryHistory();
   return (
     <React.Fragment>
       <StartingStepWorkspaceConditions
         distance={0}
         hasChildren={false}
         condition={condition}
-        history={history}
+        location={{} as Location}
+        navigate={jest.fn()}
         matchParams={_matchParams}
         onNextStep={mockOnNextStep}
         onRestart={mockOnRestart}

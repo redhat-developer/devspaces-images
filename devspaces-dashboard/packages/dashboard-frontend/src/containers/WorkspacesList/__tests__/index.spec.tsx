@@ -12,13 +12,15 @@
 
 import 'reflect-metadata';
 
-import { render, RenderResult, screen } from '@testing-library/react';
-import { createHashHistory } from 'history';
+import { screen } from '@testing-library/react';
+import { InitialEntry } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Action, Store } from 'redux';
 
 import WorkspacesList from '@/containers/WorkspacesList';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppThunk } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
@@ -52,6 +54,8 @@ jest.mock('@/pages/WorkspacesList', () => {
   return FakeWorkspacesList;
 });
 jest.mock('@/components/Fallback', () => <div>Fallback Spinner</div>);
+
+const { renderComponent } = getComponentRenderer(getComponent);
 
 describe('Workspaces List Container', () => {
   afterEach(() => {
@@ -89,11 +93,15 @@ describe('Workspaces List Container', () => {
   });
 });
 
-function renderComponent(store: Store): RenderResult {
-  const history = createHashHistory();
-  return render(
+function getComponent(store: Store): React.ReactElement {
+  const initialEntries: InitialEntry[] = ['/workspaces'];
+  return (
     <Provider store={store}>
-      <WorkspacesList history={history}></WorkspacesList>
-    </Provider>,
+      <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+          <Route path="/workspaces" element={<WorkspacesList />} />
+        </Routes>
+      </MemoryRouter>
+    </Provider>
   );
 }

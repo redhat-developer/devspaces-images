@@ -15,7 +15,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import NavigationMainItem from '@/Layout/Navigation/MainItem';
-import { ROUTE } from '@/Routes/routes';
+import { ROUTE } from '@/Routes';
 import { AppState } from '@/store';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 

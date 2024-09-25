@@ -11,56 +11,58 @@
  */
 
 import React from 'react';
-import { Redirect, Route, RouteComponentProps, Switch } from 'react-router';
+import { Params, Route, Routes } from 'react-router-dom';
 
+import GetStartedContainer from '@/containers/GetStarted';
+import UserPreferencesContainer from '@/containers/UserPreferences';
 import WorkspaceDetailsContainer from '@/containers/WorkspaceDetails';
 import WorkspacesListContainer from '@/containers/WorkspacesList';
-import GetStarted from '@/pages/GetStarted';
-import UserPreferences from '@/pages/UserPreferences';
-import { buildFactoryLoaderPath } from '@/preload/main';
-import { ROUTE } from '@/Routes/routes';
+import { Redirects } from '@/Routes/Redirects';
+
+export enum ROUTE {
+  HOME = '/',
+  GET_STARTED = '/create-workspace',
+  WORKSPACES = '/workspaces',
+  WORKSPACE_DETAILS = '/workspace/:namespace/:workspaceName',
+  WORKSPACE_DETAILS_TAB = '/workspace/:namespace/:workspaceName?tab=:tabId',
+  IDE_LOADER = '/ide/:namespace/:workspaceName',
+  IDE_LOADER_TAB = '/ide/:namespace/:workspaceName?tab=:tabId',
+  FACTORY_LOADER = '/load-factory',
+  FACTORY_LOADER_URL = '/load-factory?url=:url',
+  USER_PREFERENCES = '/user-preferences',
+  USER_PREFERENCES_TAB = '/user-preferences?tab=:tabId',
+  USER_ACCOUNT = '/user-account',
+}
+
+export type WorkspaceRouteParams = Params<'namespace' | 'workspaceName'>;
 
 const LoaderContainer = React.lazy(() => import('../containers/Loader'));
 // temporary hidden, https://github.com/eclipse/che/issues/21595
 // const UserAccount = React.lazy(() => import('../pages/UserAccount'));
 
-export interface RouteItem {
-  to: ROUTE;
-  component: React.FunctionComponent<any>;
-}
-
-const items: RouteItem[] = [
-  { to: ROUTE.GET_STARTED, component: GetStarted },
-  { to: ROUTE.HOME, component: GetStarted },
-  { to: ROUTE.WORKSPACES, component: WorkspacesListContainer },
-  { to: ROUTE.WORKSPACE_DETAILS, component: WorkspaceDetailsContainer },
-  { to: ROUTE.IDE_LOADER, component: LoaderContainer },
-  { to: ROUTE.FACTORY_LOADER, component: LoaderContainer },
-  { to: ROUTE.USER_PREFERENCES, component: UserPreferences },
-  // temporary hidden, https://github.com/eclipse/che/issues/21595
-  // { to: ROUTE.USER_ACCOUNT, component: UserAccount },
-];
-
-function Routes(): React.ReactElement {
-  const routes = items.map(item => (
-    <Route exact key={item.to} path={item.to} component={item.component} />
-  ));
+export function AppRoutes(): React.ReactElement {
   return (
-    <Switch>
-      <Route key="simple-factory-location-1" path="/http*" render={redirectToFactoryLoader} />
-      <Route key="simple-factory-location-2" path="/git@*" render={redirectToFactoryLoader} />
-      {...routes}
-      <Route key="redirect-to-home" path="*" render={() => <Redirect to={ROUTE.HOME} />} />
-    </Switch>
+    <Routes>
+      <Route key="get-started" path={ROUTE.GET_STARTED} element={<GetStartedContainer />} />
+      <Route key="home" path={ROUTE.HOME} element={<GetStartedContainer />} />
+      <Route key="workspaces-list" path={ROUTE.WORKSPACES} element={<WorkspacesListContainer />} />
+      <Route
+        key="workspace-details"
+        path={ROUTE.WORKSPACE_DETAILS}
+        element={<WorkspaceDetailsContainer />}
+      />
+      <Route key="ide-loader" path={ROUTE.IDE_LOADER} element={<LoaderContainer />} />
+      <Route key="factory-loader" path={ROUTE.FACTORY_LOADER} element={<LoaderContainer />} />
+      <Route
+        key="user-preferences"
+        path={ROUTE.USER_PREFERENCES}
+        element={<UserPreferencesContainer />}
+      />
+
+      {/* temporary hidden, https://github.com/eclipse/che/issues/21595
+      <Route key="user-account" path={ROUTE.USER_ACCOUNT} element={<UserAccount />} /> */}
+
+      <Route key="redirects" path="*" element={<Redirects />} />
+    </Routes>
   );
 }
-
-function redirectToFactoryLoader(props: RouteComponentProps): React.ReactElement {
-  const { pathname, search } = props.location;
-  const location = pathname.substring(1) + search;
-  const factoryLoaderPath = buildFactoryLoaderPath(location).replace(/^\/f/, ROUTE.FACTORY_LOADER);
-  return <Redirect key="redirect-to-factory" to={factoryLoaderPath} />;
-}
-
-Routes.displayName = 'RoutesComponent';
-export default Routes;

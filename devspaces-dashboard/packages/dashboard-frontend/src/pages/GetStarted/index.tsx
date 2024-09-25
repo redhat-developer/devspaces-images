@@ -11,9 +11,9 @@
  */
 
 import { Divider, PageSection, PageSectionVariants, Title } from '@patternfly/react-core';
-import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { NavigateFunction } from 'react-router-dom';
 
 import EditorSelector from '@/components/EditorSelector';
 import Head from '@/components/Head';
@@ -24,7 +24,7 @@ import { AppState } from '@/store';
 import { selectDefaultEditor } from '@/store/ServerConfig/selectors';
 
 type Props = MappedProps & {
-  history: History;
+  navigate: NavigateFunction;
 };
 type State = {
   editorDefinition: string | undefined;
@@ -52,7 +52,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactNode {
-    const { defaultEditor, history } = this.props;
+    const { defaultEditor, navigate } = this.props;
     const { editorDefinition, editorImage } = this.state;
 
     const title = 'Create Workspace';
@@ -80,16 +80,12 @@ export class GetStarted extends React.PureComponent<Props, State> {
           <ImportFromGit
             editorDefinition={editorDefinition}
             editorImage={editorImage}
-            history={history}
+            navigate={navigate}
           />
 
           <Spacer />
 
-          <SamplesList
-            editorDefinition={editorDefinition}
-            editorImage={editorImage}
-            history={history}
-          />
+          <SamplesList editorDefinition={editorDefinition} editorImage={editorImage} />
         </PageSection>
       </React.Fragment>
     );

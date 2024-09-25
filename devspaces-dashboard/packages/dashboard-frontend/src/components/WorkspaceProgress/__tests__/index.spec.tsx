@@ -12,13 +12,12 @@
 
 import { StateMock } from '@react-mock/state';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import { createMemoryHistory, History, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Location } from 'react-router-dom';
 import { Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
-import { ROUTE } from '@/Routes/routes';
 import getComponentRenderer, {
   screen,
   waitFor,
@@ -31,7 +30,7 @@ import {
   FACTORY_URL_ATTR,
   FactoryParams,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { buildFactoryLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
 import { constructWorkspace } from '@/services/workspace-adapter';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
@@ -56,7 +55,7 @@ const { renderComponent, createSnapshot } = getComponentRenderer(getComponent);
 const mockOnTabChange = jest.fn();
 
 describe('LoaderProgress', () => {
-  let history: MemoryHistory;
+  let location: Location;
   let searchParams: URLSearchParams;
   let store: Store;
   let user: UserEvent;
@@ -80,23 +79,22 @@ describe('LoaderProgress', () => {
     const factoryUrl = 'https://factory-url';
 
     beforeEach(() => {
-      history = createMemoryHistory({
-        initialEntries: [ROUTE.FACTORY_LOADER],
-      });
-
       searchParams = new URLSearchParams({
         [FACTORY_URL_ATTR]: factoryUrl,
       });
+
+      location = buildFactoryLocation();
+      location.search = searchParams.toString();
     });
 
     test('snapshot', () => {
-      const snapshot = createSnapshot(history, store, searchParams, false);
+      const snapshot = createSnapshot(location, store, searchParams, false);
       expect(snapshot).toMatchSnapshot();
     });
 
     describe('steps number', () => {
       test('flow with devfile', () => {
-        renderComponent(history, store, searchParams, false);
+        renderComponent(location, store, searchParams, false);
 
         const steps = getSteps();
 
@@ -118,7 +116,7 @@ describe('LoaderProgress', () => {
 
       test('flow with resources', () => {
         searchParams.append(DEV_WORKSPACE_ATTR, 'resources-location');
-        renderComponent(history, store, searchParams, false);
+        renderComponent(location, store, searchParams, false);
 
         const steps = getSteps();
 
@@ -154,7 +152,7 @@ describe('LoaderProgress', () => {
 
       describe('onError', () => {
         test('alert notification for the active step', async () => {
-          renderComponent(history, store, searchParams, false);
+          renderComponent(location, store, searchParams, false);
 
           /* no alert notification */
           expect(getAlertGroup()).toBeNull();
@@ -176,7 +174,7 @@ describe('LoaderProgress', () => {
         });
 
         test('handle error for an non-active step', async () => {
-          renderComponent(history, store, searchParams, false);
+          renderComponent(location, store, searchParams, false);
 
           /* no alert notification */
           expect(getAlertGroup()).toBeNull();
@@ -193,7 +191,7 @@ describe('LoaderProgress', () => {
 
       describe('onNextStep', () => {
         test('on active step', async () => {
-          renderComponent(history, store, searchParams, false);
+          renderComponent(location, store, searchParams, false);
 
           const steps = getSteps();
 
@@ -217,7 +215,7 @@ describe('LoaderProgress', () => {
         });
 
         test('on non-active step', async () => {
-          renderComponent(history, store, searchParams, false);
+          renderComponent(location, store, searchParams, false);
 
           const steps = getSteps();
 
@@ -255,7 +253,7 @@ describe('LoaderProgress', () => {
               mode: 'factory',
             },
           };
-          renderComponent(history, store, searchParams, false, localState);
+          renderComponent(location, store, searchParams, false, localState);
 
           const steps = getSteps();
 
@@ -285,9 +283,6 @@ describe('LoaderProgress', () => {
             .withNamespace('user-che')
             .build();
           const location = buildIdeLoaderLocation(constructWorkspace(devWorkspace));
-          history = createMemoryHistory({
-            initialEntries: [location],
-          });
 
           const factoryParams = buildFactoryParams(searchParams);
           const localState: Partial<State> = {
@@ -309,7 +304,7 @@ describe('LoaderProgress', () => {
             },
             conditions: [],
           };
-          renderComponent(history, store, searchParams, false, localState);
+          renderComponent(location, store, searchParams, false, localState);
 
           const steps = getSteps();
 
@@ -345,7 +340,7 @@ describe('LoaderProgress', () => {
               mode: 'factory',
             },
           };
-          renderComponent(history, store, searchParams, false, localState);
+          renderComponent(location, store, searchParams, false, localState);
 
           const steps = getSteps();
 
@@ -378,7 +373,8 @@ describe('LoaderProgress', () => {
         .build();
 
       searchParams.append(FACTORY_URL_ATTR, 'devfile-location');
-      renderComponent(history, store, searchParams, false);
+      location.search = searchParams.toString();
+      renderComponent(location, store, searchParams, false);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -400,7 +396,8 @@ describe('LoaderProgress', () => {
         .build();
 
       searchParams.set(FACTORY_URL_ATTR, `${registryLocation}devfile-location`);
-      renderComponent(history, store, searchParams, false);
+      location.search = searchParams.toString();
+      renderComponent(location, store, searchParams, false);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -435,16 +432,15 @@ describe('LoaderProgress', () => {
           phase: 'STARTING',
         })
         .build();
-      const location = buildIdeLoaderLocation(constructWorkspace(devWorkspace));
-      history = createMemoryHistory({
-        initialEntries: [location],
-      });
 
       searchParams = new URLSearchParams({});
+
+      location = buildIdeLoaderLocation(constructWorkspace(devWorkspace));
+      location.search = searchParams.toString();
     });
 
     test('snapshot', () => {
-      const snapshot = createSnapshot(history, store, searchParams, false);
+      const snapshot = createSnapshot(location, store, searchParams, false);
       expect(snapshot).toMatchSnapshot();
     });
 
@@ -452,7 +448,7 @@ describe('LoaderProgress', () => {
       test('no condition steps', () => {
         const store = new FakeStoreBuilder().build();
 
-        renderComponent(history, store, searchParams, false);
+        renderComponent(location, store, searchParams, false);
 
         const steps = getSteps();
 
@@ -471,7 +467,7 @@ describe('LoaderProgress', () => {
           .withDevWorkspaces({ workspaces: [devWorkspace] })
           .build();
 
-        renderComponent(history, store, searchParams, false, {
+        renderComponent(location, store, searchParams, false, {
           activeStepId: Step.START,
           alertItems: [],
           conditions: [],
@@ -512,7 +508,7 @@ function getSteps() {
 }
 
 function getComponent(
-  history: History,
+  location: Location,
   store: Store,
   searchParams: URLSearchParams,
   showToastAlert: boolean,
@@ -520,7 +516,8 @@ function getComponent(
 ) {
   const component = (
     <Progress
-      history={history}
+      location={location}
+      navigate={jest.fn()}
       searchParams={searchParams}
       showToastAlert={showToastAlert}
       onTabChange={mockOnTabChange}

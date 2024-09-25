@@ -14,7 +14,7 @@ import { HomeIcon } from '@patternfly/react-icons';
 import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 
 import NavigationMainItem from '@/Layout/Navigation/MainItem';
 import devfileApi from '@/services/devfileApi';

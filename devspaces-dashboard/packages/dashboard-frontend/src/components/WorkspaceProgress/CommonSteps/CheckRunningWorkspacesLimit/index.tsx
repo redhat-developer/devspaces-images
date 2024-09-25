@@ -26,10 +26,12 @@ import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
 import workspaceStatusIs from '@/components/WorkspaceProgress/workspaceStatusIs';
 import { ToggleBarsContext } from '@/contexts/ToggleBars';
-import { WorkspaceParams } from '@/Routes/routes';
+import { lazyInject } from '@/inversify.config';
+import { WorkspaceRouteParams } from '@/Routes';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
-import { buildHomeLocation, buildIdeLoaderLocation } from '@/services/helpers/location';
+import { buildHomeLocation, buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectRunningWorkspacesLimit } from '@/store/ClusterConfig/selectors';
@@ -47,7 +49,7 @@ import { selectAllWorkspaces, selectRunningWorkspaces } from '@/store/Workspaces
 
 export type Props = MappedProps &
   ProgressStepProps & {
-    matchParams: WorkspaceParams | undefined;
+    matchParams: WorkspaceRouteParams | undefined;
   };
 export type State = ProgressStepState & {
   shouldStop: boolean; // should the loader to stop another workspace if the running workspaces limit is exceeded
@@ -59,6 +61,9 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
   protected readonly name = 'Checking for the limit of running workspaces';
   static contextType = ToggleBarsContext;
   readonly context: React.ContextType<typeof ToggleBarsContext>;
+
+  @lazyInject(TabManager)
+  private readonly tabManager: TabManager;
 
   constructor(props: Props) {
     super(props);
@@ -242,7 +247,7 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
     this.context.showAll();
 
     const homeLocation = buildHomeLocation();
-    this.props.history.push(homeLocation);
+    this.props.navigate(homeLocation);
   }
 
   private handleStopRedundantWorkspace(alertKey: string, redundantWorkspace: Workspace): void {
@@ -261,8 +266,9 @@ class CommonStepCheckRunningWorkspacesLimit extends ProgressStep<Props, State> {
     window.name = workspace.uid;
 
     const workspaceLoaderLocation = buildIdeLoaderLocation(workspace);
-    this.props.history.push(workspaceLoaderLocation);
-    this.props.history.go(0);
+
+    const url = toHref(workspaceLoaderLocation);
+    this.tabManager.open(url);
   }
 
   protected handleTimeout(redundantWorkspace: Workspace | undefined): void {

@@ -15,9 +15,9 @@
 import { FACTORY_LINK_ATTR } from '@eclipse-che/common';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Location } from 'react-router-dom';
 import { Action, Store } from 'redux';
 
 import ExpandableWarning from '@/components/ExpandableWarning';
@@ -34,8 +34,7 @@ import {
 import { AlertItem } from '@/services/helpers/types';
 import { AppThunk } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-import { OAuthResponse } from '@/store/FactoryResolver';
-import { FactoryResolverActionCreators } from '@/store/FactoryResolver';
+import { FactoryResolverActionCreators, OAuthResponse } from '@/store/FactoryResolver';
 
 jest.mock('@/components/WorkspaceProgress/TimeLimit');
 
@@ -557,7 +556,7 @@ describe('Creating steps, fetching a devfile', () => {
     const host = 'che-host';
     const protocol = 'http://';
     let spyWindowLocation: jest.SpyInstance;
-    let history: MemoryHistory;
+    let location: Location;
 
     beforeEach(() => {
       mockIsOAuthResponse.mockReturnValue(true);
@@ -570,13 +569,9 @@ describe('Creating steps, fetching a devfile', () => {
 
       spyWindowLocation = createWindowLocationSpy(host, protocol);
 
-      history = createMemoryHistory({
-        initialEntries: [
-          {
-            search: searchParams.toString(),
-          },
-        ],
-      });
+      location = {
+        search: searchParams.toString(),
+      } as Location;
     });
 
     afterEach(() => {
@@ -587,7 +582,7 @@ describe('Creating steps, fetching a devfile', () => {
     test('redirect to an authentication URL', async () => {
       const emptyStore = new FakeStoreBuilder().build();
 
-      renderComponent(emptyStore, searchParams, history);
+      renderComponent(emptyStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -606,7 +601,7 @@ describe('Creating steps, fetching a devfile', () => {
     test('authentication fails', async () => {
       const emptyStore = new FakeStoreBuilder().build();
 
-      renderComponent(emptyStore, searchParams, history);
+      renderComponent(emptyStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -622,7 +617,7 @@ describe('Creating steps, fetching a devfile', () => {
       cleanup();
 
       // first unsuccessful try to resolve devfile after authentication
-      renderComponent(emptyStore, searchParams, history);
+      renderComponent(emptyStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -636,7 +631,7 @@ describe('Creating steps, fetching a devfile', () => {
       cleanup();
 
       // second unsuccessful try to resolve devfile after authentication
-      renderComponent(emptyStore, searchParams, history);
+      renderComponent(emptyStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -667,7 +662,7 @@ describe('Creating steps, fetching a devfile', () => {
     test('authentication passes', async () => {
       const emptyStore = new FakeStoreBuilder().build();
 
-      renderComponent(emptyStore, searchParams);
+      renderComponent(emptyStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -700,7 +695,7 @@ describe('Creating steps, fetching a devfile', () => {
           },
         })
         .build();
-      reRenderComponent(nextStore, searchParams);
+      reRenderComponent(nextStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -715,7 +710,7 @@ describe('Creating steps, fetching a devfile', () => {
     const factoryUrl = 'git@github.com:user/repository-name.git';
 
     let spyWindowLocation: jest.SpyInstance;
-    let history: MemoryHistory;
+    let location: Location;
 
     beforeEach(() => {
       store = new FakeStoreBuilder().build();
@@ -728,13 +723,9 @@ describe('Creating steps, fetching a devfile', () => {
 
       spyWindowLocation = createWindowLocationSpy(host, protocol);
 
-      history = createMemoryHistory({
-        initialEntries: [
-          {
-            search: searchParams.toString(),
-          },
-        ],
-      });
+      location = {
+        search: searchParams.toString(),
+      } as Location;
     });
 
     afterEach(() => {
@@ -745,7 +736,7 @@ describe('Creating steps, fetching a devfile', () => {
     it('should go to next step', async () => {
       const emptyStore = new FakeStoreBuilder().build();
 
-      renderComponent(emptyStore, searchParams, history);
+      renderComponent(emptyStore, searchParams, location);
 
       await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
@@ -776,14 +767,15 @@ function createWindowLocationSpy(host: string, protocol: string): jest.SpyInstan
 function getComponent(
   store: Store,
   searchParams: URLSearchParams,
-  history = createMemoryHistory(),
+  location = {} as Location,
 ): React.ReactElement {
   return (
     <Provider store={store}>
       <CreatingStepFetchDevfile
         distance={0}
         hasChildren={false}
-        history={history}
+        location={location}
+        navigate={jest.fn()}
         searchParams={searchParams}
         onNextStep={mockOnNextStep}
         onRestart={mockOnRestart}

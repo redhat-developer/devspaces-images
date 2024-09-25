@@ -17,7 +17,7 @@ import { Location } from 'history';
 import { dump } from 'js-yaml';
 import React, { Suspense } from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { AnyAction } from 'redux';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
@@ -39,7 +39,7 @@ import {
   url,
 } from '@/__tests__/const';
 import Fallback from '@/components/Fallback';
-import Routes from '@/Routes';
+import { AppRoutes } from '@/Routes';
 import devfileApi from '@/services/devfileApi';
 import { AppState } from '@/store';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
@@ -253,7 +253,7 @@ function getComponent(
     <Provider store={store}>
       <MemoryRouter initialEntries={[locationOrPath]}>
         <Suspense fallback={Fallback}>
-          <Routes />
+          <AppRoutes />
         </Suspense>
       </MemoryRouter>
     </Provider>

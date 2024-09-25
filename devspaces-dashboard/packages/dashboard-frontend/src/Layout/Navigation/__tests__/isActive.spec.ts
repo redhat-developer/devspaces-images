@@ -11,7 +11,7 @@
  */
 
 import isActive from '@/Layout/Navigation/isActive';
-import { ROUTE } from '@/Routes/routes';
+import { ROUTE } from '@/Routes';
 
 describe('Active navigation item', () => {
   it('should match equal paths', () => {

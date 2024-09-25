@@ -11,13 +11,13 @@
  */
 
 import { waitFor } from '@testing-library/react';
-import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Location } from 'react-router-dom';
 import { Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
-import { ROUTE } from '@/Routes/routes';
+import { container } from '@/inversify.config';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import devfileApi from '@/services/devfileApi';
 import { getDefer } from '@/services/helpers/deferred';
@@ -26,7 +26,9 @@ import {
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
+import { buildFactoryLocation } from '@/services/helpers/location';
 import { AlertItem } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import { DevWorkspaceResources } from '@/store/DevfileRegistries';
@@ -34,7 +36,11 @@ import { DevWorkspaceResources } from '@/store/DevfileRegistries';
 import CreatingStepCheckExistingWorkspaces from '..';
 
 const { renderComponent } = getComponentRenderer(getComponent);
-let history: MemoryHistory;
+
+let location: Location;
+const mockNavigate = jest.fn();
+
+const mockTabManagerReplace = jest.fn();
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
@@ -46,14 +52,22 @@ const factoryUrl = 'https://factory-url';
 
 describe('Creating steps, checking existing workspaces', () => {
   beforeEach(() => {
-    history = createMemoryHistory({
-      initialEntries: [ROUTE.FACTORY_LOADER],
-    });
+    location = buildFactoryLocation();
 
     jest.useFakeTimers();
+
+    class MockTabManager extends TabManager {
+      public replace(url: string): void {
+        mockTabManagerReplace(url);
+      }
+    }
+
+    container.snapshot();
+    container.rebind(TabManager).to(MockTabManager).inSingletonScope();
   });
 
   afterEach(() => {
+    container.restore();
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
@@ -215,7 +229,11 @@ describe('Creating steps, checking existing workspaces', () => {
         deferred.resolve();
         await jest.runOnlyPendingTimersAsync();
 
-        await waitFor(() => expect(history.location.pathname).toEqual('/ide/user-che/my-project'));
+        await waitFor(() =>
+          expect(mockTabManagerReplace).toHaveBeenCalledWith(
+            expect.stringContaining(`/ide/user-che/my-project`),
+          ),
+        );
 
         expect(mockOnNextStep).not.toHaveBeenCalled();
         expect(mockOnRestart).not.toHaveBeenCalled();
@@ -325,7 +343,8 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
       distance={0}
       hasChildren={false}
       searchParams={searchParams}
-      history={history}
+      location={location}
+      navigate={mockNavigate}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
       onError={mockOnError}

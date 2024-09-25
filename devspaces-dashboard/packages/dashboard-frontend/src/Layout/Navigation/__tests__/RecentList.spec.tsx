@@ -14,7 +14,7 @@ import { Nav } from '@patternfly/react-core';
 import { render, RenderResult, screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { Store } from 'redux';
 
 import NavigationRecentList from '@/Layout/Navigation/RecentList';

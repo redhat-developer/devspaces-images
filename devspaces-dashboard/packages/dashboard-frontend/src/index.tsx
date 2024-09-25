@@ -16,7 +16,7 @@ import '@/overrides.css';
 
 import { createHashHistory } from 'history';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 
 import App from '@/App';
@@ -30,7 +30,8 @@ async function startApp(): Promise<void> {
   const history = createHashHistory();
   const store = configureStore(history);
 
-  const root = ReactDOM.createRoot(document.querySelector('.ui-container'));
+  const container = document.getElementById('ui-container')!;
+  const root = ReactDOM.createRoot(container);
   try {
     // preload app data
     await new PreloadData(store).init();

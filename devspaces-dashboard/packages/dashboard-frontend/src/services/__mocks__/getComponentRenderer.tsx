@@ -19,6 +19,10 @@ export * from '@testing-library/react';
 export default function <T extends Array<unknown>>(
   getComponent: (..._args: T) => React.ReactElement,
 ): {
+  /**
+   * @deprecated
+   * see https://react.dev/warnings/react-test-renderer#reacttestrenderercreate-warning
+   */
   createSnapshot: (...args: T) => renderer.ReactTestRenderer;
   renderComponent: (...args: T) => {
     reRenderComponent: (..._args: T) => void;

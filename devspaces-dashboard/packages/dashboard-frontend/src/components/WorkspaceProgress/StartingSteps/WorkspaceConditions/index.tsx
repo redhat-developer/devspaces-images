@@ -27,12 +27,12 @@ import {
   isConditionError,
   isConditionReady,
 } from '@/components/WorkspaceProgress/utils';
-import { WorkspaceParams } from '@/Routes/routes';
+import { WorkspaceRouteParams } from '@/Routes';
 import { AlertItem, LoaderTab } from '@/services/helpers/types';
 
 export type Props = ProgressStepProps & {
   condition: ConditionType;
-  matchParams: WorkspaceParams;
+  matchParams: WorkspaceRouteParams;
 };
 export type State = ProgressStepState & {
   isWarning: boolean;

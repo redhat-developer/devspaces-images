@@ -13,13 +13,13 @@
 import { api } from '@eclipse-che/common';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Location } from 'react-router-dom';
 import { Action, Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
-import { WorkspaceParams } from '@/Routes/routes';
+import { WorkspaceRouteParams } from '@/Routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import { getDefer } from '@/services/helpers/deferred';
 import { AlertItem } from '@/services/helpers/types';
@@ -54,7 +54,7 @@ const { renderComponent } = getComponentRenderer(getComponent);
 
 const namespace = 'che-user';
 const workspaceName = 'test-workspace';
-const matchParams: WorkspaceParams = {
+const matchParams: WorkspaceRouteParams = {
   namespace,
   workspaceName,
 };
@@ -107,7 +107,7 @@ describe('Starting steps, starting a workspace', () => {
   describe('workspace not found', () => {
     const wrongWorkspaceName = 'wrong-workspace-name';
     let store: Store;
-    let paramsWithWrongName: WorkspaceParams;
+    let paramsWithWrongName: WorkspaceRouteParams;
 
     beforeEach(() => {
       store = new FakeStoreBuilder()
@@ -695,15 +695,15 @@ describe('Starting steps, starting a workspace', () => {
 
 function getComponent(
   store: Store,
-  params: { namespace: string; workspaceName: string } = matchParams,
+  params: WorkspaceRouteParams = matchParams,
 ): React.ReactElement {
-  const history = createMemoryHistory();
   return (
     <Provider store={store}>
       <StartingStepStartWorkspace
         distance={0}
         hasChildren={true}
-        history={history}
+        location={{} as Location}
+        navigate={jest.fn()}
         matchParams={params}
         onNextStep={mockOnNextStep}
         onRestart={mockOnRestart}

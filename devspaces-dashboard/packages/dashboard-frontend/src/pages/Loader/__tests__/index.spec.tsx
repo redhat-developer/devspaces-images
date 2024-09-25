@@ -12,9 +12,9 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory, History } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Location } from 'react-router-dom';
 import { Store } from 'redux';
 
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
@@ -48,11 +48,8 @@ describe('Loader page', () => {
   let devWorkspace: devfileApi.DevWorkspace;
   let workspace: Workspace;
   let store: Store;
-  let history: History;
 
   beforeEach(() => {
-    history = createMemoryHistory();
-
     devWorkspace = new DevWorkspaceBuilder()
       .withNamespace(namespace)
       .withName(workspaceName)
@@ -72,7 +69,6 @@ describe('Loader page', () => {
 
   it('should handle tab click', async () => {
     renderComponent(store, {
-      history,
       tabParam,
       workspace,
     });
@@ -85,7 +81,6 @@ describe('Loader page', () => {
 
   it('should render Logs tab active', () => {
     renderComponent(store, {
-      history,
       tabParam: LoaderTab.Logs,
       workspace,
     });
@@ -102,7 +97,6 @@ describe('Loader page', () => {
   it('should update the section header when the workspace is ready', () => {
     const store = new FakeStoreBuilder().build();
     const { reRenderComponent } = renderComponent(store, {
-      history,
       tabParam,
       workspace: undefined,
     });
@@ -121,7 +115,6 @@ describe('Loader page', () => {
       .build();
 
     reRenderComponent(storeReady, {
-      history,
       tabParam,
       workspace: constructWorkspace(devWorkspaceReady),
     });
@@ -132,12 +125,13 @@ describe('Loader page', () => {
 
 function getComponent(
   store: Store,
-  props: Omit<Props, 'onTabChange' | 'searchParams'>,
+  props: Omit<Props, 'onTabChange' | 'searchParams' | 'location' | 'navigate'>,
 ): React.ReactElement {
   return (
     <Provider store={store}>
       <LoaderPage
-        history={props.history}
+        location={{} as Location}
+        navigate={jest.fn()}
         tabParam={props.tabParam}
         searchParams={new URLSearchParams()}
         workspace={props.workspace}

@@ -11,8 +11,8 @@
  */
 
 import { helpers } from '@eclipse-che/common';
-import { History } from 'history';
 import React from 'react';
+import { Location, NavigateFunction } from 'react-router-dom';
 
 import { MIN_STEP_DURATION_MS } from '@/components/WorkspaceProgress/const';
 import { Debounce } from '@/services/helpers/debounce';
@@ -22,7 +22,8 @@ import { AlertItem, LoaderTab } from '@/services/helpers/types';
 export type ProgressStepProps = {
   distance: -1 | 0 | 1 | undefined;
   hasChildren: boolean;
-  history: History;
+  location: Location;
+  navigate: NavigateFunction;
   onError: (alertItem: AlertItem) => void;
   onHideError: (key: string) => void;
   onNextStep: () => void;

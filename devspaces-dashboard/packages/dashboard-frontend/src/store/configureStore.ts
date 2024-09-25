@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { History } from 'history';
 import { applyMiddleware, combineReducers, compose, createStore, Store } from 'redux';
 import thunk from 'redux-thunk';
@@ -22,10 +21,9 @@ import { AppState, reducers } from '.';
 export default function configureStore(history: History, initialState?: AppState): Store<AppState> {
   const rootReducer = combineReducers({
     ...reducers,
-    router: connectRouter(history),
   });
 
-  const middleware = [thunk, routerMiddleware(history), sanityCheckMiddleware];
+  const middleware = [thunk, sanityCheckMiddleware];
 
   const enhancers: Array<() => void> = [];
   const windowIfDefined = typeof window === 'undefined' ? null : (window as Window);

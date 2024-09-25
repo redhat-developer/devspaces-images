@@ -24,7 +24,7 @@ import {
 } from '@/components/WorkspaceProgress/ProgressStep';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
 import { TimeLimit } from '@/components/WorkspaceProgress/TimeLimit';
-import { WorkspaceParams } from '@/Routes/routes';
+import { WorkspaceRouteParams } from '@/Routes';
 import { delay } from '@/services/helpers/delay';
 import { findTargetWorkspace } from '@/services/helpers/factoryFlow/findTargetWorkspace';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
@@ -35,7 +35,7 @@ import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
   ProgressStepProps & {
-    matchParams: WorkspaceParams | undefined;
+    matchParams: WorkspaceRouteParams | undefined;
   };
 export type State = ProgressStepState;
 

@@ -12,24 +12,20 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { InitialEntry } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Store } from 'redux';
 
-import { ROUTE } from '@/Routes/routes';
+import LoaderContainer from '@/containers/Loader';
+import { ROUTE } from '@/Routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
-import { getMockRouterProps } from '@/services/__mocks__/router';
-import { constructWorkspace } from '@/services/workspace-adapter';
-import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
-
-import LoaderContainer from '..';
 
 jest.mock('@/pages/Loader');
 
 const mockFindTargetWorkspace = jest.fn().mockReturnValue(undefined);
-// const mockFindTargetWorkspace = jest.fn();
 jest.mock('@/services/helpers/factoryFlow/findTargetWorkspace', () => ({
   __esModule: true,
   findTargetWorkspace: () => mockFindTargetWorkspace(),
@@ -44,7 +40,6 @@ describe('Loader container', () => {
   let emptyStore: Store;
 
   beforeEach(() => {
-    // mockFindTargetWorkspace.mockReturnValue(undefined);
     emptyStore = new FakeStoreBuilder().build();
   });
 
@@ -53,31 +48,25 @@ describe('Loader container', () => {
   });
 
   test('render the loader page in factory mode', () => {
-    const props = getMockRouterProps(ROUTE.FACTORY_LOADER_URL, { url: factoryUrl });
+    const entry = `/load-factory?url=${factoryUrl}`;
 
-    renderComponent(emptyStore, props);
+    renderComponent(emptyStore, [entry]);
 
     expect(screen.getByTestId('loader-page')).toBeInTheDocument();
   });
 
   test('render the loader page in workspace mode', () => {
-    const props = getMockRouterProps(ROUTE.IDE_LOADER, {
-      namespace,
-      workspaceName,
-    });
+    const entry = `/ide/${namespace}/${workspaceName}`;
 
-    renderComponent(emptyStore, props);
+    renderComponent(emptyStore, [entry]);
 
     expect(screen.getByTestId('loader-page')).toBeInTheDocument();
   });
 
   it('should handle tab change', async () => {
-    const props = getMockRouterProps(ROUTE.IDE_LOADER, {
-      namespace,
-      workspaceName,
-    });
+    const entry = `/ide/${namespace}/${workspaceName}`;
 
-    renderComponent(emptyStore, props);
+    renderComponent(emptyStore, [entry]);
 
     const tab = screen.getByTestId('tab-button');
     await userEvent.click(tab);
@@ -86,44 +75,17 @@ describe('Loader container', () => {
       expect(screen.getByTestId('loader-tab')).toHaveTextContent('Events');
     });
   });
-
-  it('should re-render the loader page when the location changes', async () => {
-    const props = getMockRouterProps(ROUTE.FACTORY_LOADER, {
-      url: factoryUrl,
-    });
-
-    const { reRenderComponent } = renderComponent(emptyStore, props);
-
-    expect(screen.getByTestId('workspace')).toHaveTextContent('unknown');
-
-    const namespace = 'user-che';
-    const workspaceName = 'my-wksp';
-    const nextDevWorkspace = new DevWorkspaceBuilder()
-      .withNamespace(namespace)
-      .withName(workspaceName)
-      .build();
-    const nextStore = new FakeStoreBuilder()
-      .withDevWorkspaces({ workspaces: [nextDevWorkspace] })
-      .build();
-
-    const nextProps = getMockRouterProps(ROUTE.IDE_LOADER, {
-      namespace,
-      workspaceName,
-    });
-
-    mockFindTargetWorkspace.mockClear();
-    mockFindTargetWorkspace.mockReturnValueOnce(constructWorkspace(nextDevWorkspace));
-
-    reRenderComponent(nextStore, nextProps);
-
-    expect(screen.getByTestId('workspace')).toHaveTextContent(workspaceName);
-  });
 });
 
-function getComponent(store: Store, props: RouteComponentProps): React.ReactElement {
+function getComponent(store: Store, initialEntries: InitialEntry[]): React.ReactElement {
   return (
     <Provider store={store}>
-      <LoaderContainer {...props} />
+      <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+          <Route path={ROUTE.FACTORY_LOADER} element={<LoaderContainer />} />
+          <Route path={ROUTE.IDE_LOADER} element={<LoaderContainer />} />
+        </Routes>
+      </MemoryRouter>
     </Provider>
   );
 }

@@ -67,17 +67,22 @@ export class TabManager {
     if (success === false) {
       // browser fails to open the tab
       // redirect to the URL
-      window.location.replace(url);
+      this.replace(url);
     }
   }
 
   // replace the current window with the new URL
   public replace(url: string): void {
+    this.rename(url);
     window.location.replace(url);
   }
 
   // set the current window browser context
   public rename(url: string): void {
     window.name = url;
+  }
+
+  public reload(): void {
+    window.location.reload();
   }
 }

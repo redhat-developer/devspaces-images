@@ -16,7 +16,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { lazyInject } from '@/inversify.config';
-import { ROUTE } from '@/Routes/routes';
+import { ROUTE } from '@/Routes';
 import { AppAlerts } from '@/services/alerts/appAlerts';
 import { BrandingData } from '@/services/bootstrap/branding.constant';
 import * as InfrastructureNamespacesStore from '@/store/InfrastructureNamespaces';

@@ -13,17 +13,17 @@
 import { Location } from 'history';
 import { matchPath } from 'react-router-dom';
 
-import { ROUTE, WorkspaceParams } from '@/Routes/routes';
+import { ROUTE, WorkspaceRouteParams } from '@/Routes';
 
 export type LoaderMode =
   | { mode: 'factory' }
-  | { mode: 'workspace'; workspaceParams: WorkspaceParams };
+  | {
+      mode: 'workspace';
+      workspaceParams: WorkspaceRouteParams;
+    };
 
 export function getLoaderMode(location: Location<unknown>): LoaderMode {
-  const workspaceLoaderPath = matchPath<WorkspaceParams>(location.pathname, {
-    path: ROUTE.IDE_LOADER,
-    exact: true,
-  });
+  const workspaceLoaderPath = matchPath(ROUTE.IDE_LOADER, location.pathname);
   if (workspaceLoaderPath) {
     return { mode: 'workspace', workspaceParams: workspaceLoaderPath.params };
   } else {

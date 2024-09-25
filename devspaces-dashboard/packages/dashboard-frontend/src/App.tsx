@@ -12,27 +12,27 @@
 
 import '@/app.css';
 
-import { ConnectedRouter } from 'connected-react-router';
 import { History } from 'history';
 import React, { Suspense } from 'react';
+import { HashRouter } from 'react-router-dom';
 
 import AppAlertGroup from '@/components/AppAlertGroup';
 import Fallback from '@/components/Fallback';
 import Head from '@/components/Head';
 import Layout from '@/Layout';
-import Routes from '@/Routes';
+import { AppRoutes } from '@/Routes';
 
 function AppComponent(props: { history: History }): React.ReactElement {
   return (
-    <ConnectedRouter history={props.history}>
+    <HashRouter>
       <Head />
       <AppAlertGroup />
       <Layout history={props.history}>
         <Suspense fallback={Fallback}>
-          <Routes />
+          <AppRoutes />
         </Suspense>
       </Layout>
-    </ConnectedRouter>
+    </HashRouter>
   );
 }
 AppComponent.displayName = 'AppComponent';

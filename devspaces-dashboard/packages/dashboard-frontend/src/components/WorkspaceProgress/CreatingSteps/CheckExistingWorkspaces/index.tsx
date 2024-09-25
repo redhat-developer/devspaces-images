@@ -22,12 +22,14 @@ import {
   ProgressStepState,
 } from '@/components/WorkspaceProgress/ProgressStep';
 import { ProgressStepTitle } from '@/components/WorkspaceProgress/StepTitle';
+import { lazyInject } from '@/inversify.config';
 import {
   buildFactoryParams,
   FactoryParams,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { buildIdeLoaderLocation } from '@/services/helpers/location';
+import { buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
 import { AlertItem } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectDevWorkspaceResources } from '@/store/DevfileRegistries/selectors';
@@ -47,6 +49,9 @@ export type State = ProgressStepState & {
 
 class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
   protected readonly name = 'Checking if a workspace with the same name exists';
+
+  @lazyInject(TabManager)
+  private readonly tabManager: TabManager;
 
   constructor(props: Props) {
     super(props);
@@ -122,12 +127,16 @@ class CreatingStepCheckExistingWorkspaces extends ProgressStep<Props, State> {
     }
 
     // open workspace flow for the existing workspace
-    const { existingWorkspace } = this.state;
     // at this moment existing workspace must be defined
+
+    const { existingWorkspace } = this.state;
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const nextLocation = buildIdeLoaderLocation(existingWorkspace!);
-    this.props.history.push(nextLocation);
-    this.props.history.go(0);
+    const workspaceLocation = buildIdeLoaderLocation(existingWorkspace!);
+
+    const url = toHref(workspaceLocation);
+    this.tabManager.replace(url);
+    this.tabManager.reload();
   }
 
   protected async runStep(): Promise<boolean> {

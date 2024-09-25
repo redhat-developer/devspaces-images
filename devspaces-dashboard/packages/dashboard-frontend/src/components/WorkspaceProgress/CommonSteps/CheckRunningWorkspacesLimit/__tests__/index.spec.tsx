@@ -13,17 +13,19 @@
 import { StateMock } from '@react-mock/state';
 import { waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { Location } from 'react-router-dom';
 import { Action, Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_STOP_SEC } from '@/components/WorkspaceProgress/const';
-import { WorkspaceParams } from '@/Routes/routes';
+import { container } from '@/inversify.config';
+import { WorkspaceRouteParams } from '@/Routes';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import devfileApi from '@/services/devfileApi';
 import { getDefer } from '@/services/helpers/deferred';
 import { AlertItem } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { constructWorkspace } from '@/services/workspace-adapter';
 import { AppThunk } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
@@ -74,14 +76,15 @@ const mockOnRestart = jest.fn();
 const mockOnError = jest.fn();
 const mockOnHideError = jest.fn();
 
-const history = createMemoryHistory();
+const mockNavigate = jest.fn();
+const mockTabManagerOpen = jest.fn();
 
 const { renderComponent } = getComponentRenderer(getComponent);
 
 const namespace = 'che-user';
 
 const workspaceName = 'test-workspace';
-const matchParams: WorkspaceParams = {
+const matchParams: WorkspaceRouteParams = {
   namespace,
   workspaceName,
 };
@@ -116,9 +119,19 @@ describe('Common steps, check running workspaces limit', () => {
     jest.useFakeTimers();
 
     user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    class MockTabManager extends TabManager {
+      public open(url: string): void {
+        mockTabManagerOpen(url);
+      }
+    }
+
+    container.snapshot();
+    container.rebind(TabManager).to(MockTabManager).inSingletonScope();
   });
 
   afterEach(() => {
+    container.restore();
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.runOnlyPendingTimers();
@@ -332,17 +345,13 @@ describe('Common steps, check running workspaces limit', () => {
 
       /* test the action */
 
-      const spyHistoryPush = jest.spyOn(history, 'push');
-
       // resolve deferred to trigger restart
       deferred.resolve();
       await jest.runOnlyPendingTimersAsync();
 
       await waitFor(() =>
-        expect(spyHistoryPush).toHaveBeenCalledWith(
-          expect.objectContaining({
-            pathname: `/ide/${namespace}/${runningDevworkspace.metadata.name}`,
-          }),
+        expect(mockTabManagerOpen).toHaveBeenCalledWith(
+          expect.stringContaining(`/ide/${namespace}/${runningDevworkspace.metadata.name}`),
         ),
       );
     });
@@ -602,17 +611,13 @@ describe('Common steps, check running workspaces limit', () => {
 
       /* test the callback */
 
-      const spyHistoryPush = jest.spyOn(history, 'push');
-
       // resolve deferred to trigger restart
       deferred.resolve();
       await jest.runAllTimersAsync();
 
       await waitFor(() =>
-        expect(spyHistoryPush).toHaveBeenCalledWith(
-          expect.objectContaining({
-            pathname: `/`,
-          }),
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.objectContaining({ pathname: `/`, search: '' }),
         ),
       );
     });
@@ -624,7 +629,8 @@ function getComponent(store: Store, localState?: Partial<State>): React.ReactEle
     <CommonStepCheckRunningWorkspacesLimit
       distance={0}
       hasChildren={false}
-      history={history}
+      location={{} as Location}
+      navigate={mockNavigate}
       matchParams={matchParams}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}

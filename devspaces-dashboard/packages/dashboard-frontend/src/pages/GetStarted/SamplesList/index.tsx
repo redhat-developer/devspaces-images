@@ -19,7 +19,6 @@ import {
   TextContent,
   Title,
 } from '@patternfly/react-core';
-import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
@@ -36,7 +35,6 @@ import { selectDefaultEditor } from '@/store/Plugins/devWorkspacePlugins/selecto
 import { selectPvcStrategy } from '@/store/ServerConfig/selectors';
 
 export type Props = {
-  history: History;
   editorDefinition: string | undefined;
   editorImage: string | undefined;
 } & MappedProps;

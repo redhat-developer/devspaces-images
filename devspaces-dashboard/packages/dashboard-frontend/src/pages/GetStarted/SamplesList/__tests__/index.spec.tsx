@@ -12,7 +12,6 @@
 
 import { api } from '@eclipse-che/common';
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
@@ -247,15 +246,9 @@ function getComponent(
   editorDefinition: string | undefined,
   editorImage: string | undefined,
 ) {
-  const history = createMemoryHistory();
-
   return (
     <Provider store={store}>
-      <SamplesList
-        editorDefinition={editorDefinition}
-        editorImage={editorImage}
-        history={history}
-      />
+      <SamplesList editorDefinition={editorDefinition} editorImage={editorImage} />
     </Provider>
   );
 }

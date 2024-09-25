@@ -11,7 +11,6 @@
  */
 
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
@@ -24,9 +23,7 @@ const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
 
 jest.mock('@/components/UntrustedSourceModal');
 
-const history = createMemoryHistory({
-  initialEntries: ['/'],
-});
+const mockNavigate = jest.fn();
 
 global.window.open = jest.fn();
 
@@ -313,8 +310,12 @@ describe('GitRepoLocationInput', () => {
       const buttonUserPreferences = screen.getByRole('button', { name: 'User Preferences' });
 
       await userEvent.click(buttonUserPreferences);
-      expect(history.location.pathname).toBe('/user-preferences');
-      expect(history.location.search).toBe('?tab=SshKeys');
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pathname: '/user-preferences',
+          search: '?tab=SshKeys',
+        }),
+      );
     });
 
     test('with SSH keys, the `che-editor` parameter is omitted', async () => {
@@ -395,7 +396,7 @@ function getComponent(
   return (
     <Provider store={store}>
       <ImportFromGit
-        history={history}
+        navigate={mockNavigate}
         editorDefinition={editorDefinition}
         editorImage={editorImage}
       />

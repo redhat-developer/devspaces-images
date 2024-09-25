@@ -20,7 +20,6 @@ import {
   PanelMainBody,
   ValidatedOptions,
 } from '@patternfly/react-core';
-import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
@@ -42,7 +41,6 @@ type AccordionId = 'git-repo-options' | 'advanced-options';
 export type Props = MappedProps & {
   location: string;
   onChange: (location: string, remotesValidated: ValidatedOptions) => void;
-  history: History;
 };
 export type State = {
   location: string;

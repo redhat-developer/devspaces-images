@@ -41,6 +41,7 @@
 | [`@patternfly/react-table@4.113.6`](https://github.com/patternfly/patternfly-react.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-table/4.113.6) |
 | [`@patternfly/react-tokens@4.94.7`](https://github.com/patternfly/patternfly-react.git) | MIT | clearlydefined |
 | [`@pkgjs/parseargs@0.11.0`](git@github.com:pkgjs/parseargs.git) | MIT | #8236 |
+| [`@remix-run/router@1.19.1`](https://github.com/remix-run/react-router) | MIT | clearlydefined |
 | `@sideway/address@4.1.5` | BSD-3-Clause | #3098 |
 | `@sideway/formula@3.0.1` | BSD-3-Clause | clearlydefined |
 | `@sideway/pinpoint@2.0.0` | BSD-3-Clause | clearlydefined |
@@ -115,7 +116,6 @@
 | [`color-name@1.1.4`](git@github.com:colorjs/color-name.git) | MIT | clearlydefined |
 | `colorette@2.0.20` | MIT | clearlydefined |
 | [`combined-stream@1.0.8`](git://github.com/felixge/node-combined-stream.git) | MIT | clearlydefined |
-| [`connected-react-router@6.9.3`](https://github.com/supasate/connected-react-router.git) | MIT | clearlydefined |
 | `content-disposition@0.5.4` | MIT | clearlydefined |
 | [`cookie-signature@1.2.1`](https://github.com/visionmedia/node-cookie-signature.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/cookie-signature/1.2.1) |
 | `cookie@0.5.0` | MIT | clearlydefined |
@@ -227,7 +227,6 @@
 | `https@1.0.0` | ISC | clearlydefined |
 | [`iconv-lite@0.6.3`](git://github.com/ashtuchkin/iconv-lite.git) | MIT | clearlydefined |
 | [`ieee754@1.2.1`](git://github.com/feross/ieee754.git) | BSD-3-Clause | clearlydefined |
-| [`immutable@4.3.4`](git://github.com/immutable-js/immutable-js.git) | MIT | #7353 |
 | [`imurmurhash@0.1.4`](https://github.com/jensyt/imurmurhash-js) | MIT | clearlydefined |
 | `indent-string@4.0.0` | MIT | clearlydefined |
 | [`inflight@1.0.6`](https://github.com/npm/inflight.git) | ISC | clearlydefined |
@@ -241,7 +240,6 @@
 | [`is-lambda@1.0.1`](https://github.com/watson/is-lambda.git) | MIT | clearlydefined |
 | [`is-plain-object@5.0.0`](https://github.com/jonschlinkert/is-plain-object) | MIT | clearlydefined |
 | [`is-typedarray@1.0.0`](git://github.com/hughsk/is-typedarray.git) | MIT | #2531 |
-| [`isarray@0.0.1`](git://github.com/juliangruber/isarray.git) | MIT | clearlydefined |
 | [`isexe@2.0.0`](git+https://github.com/isaacs/isexe.git) | ISC | clearlydefined |
 | `isexe@3.1.1` | ISC | clearlydefined |
 | [`isomorphic-ws@5.0.0`](git+https://github.com/heineiuo/isomorphic-ws.git) | MIT | clearlydefined |
@@ -268,7 +266,6 @@
 | [`jsprim@1.4.2`](git://github.com/joyent/node-jsprim.git) | MIT | clearlydefined |
 | `leven@2.1.0` | MIT | clearlydefined |
 | [`light-my-request@5.11.0`](https://github.com/fastify/light-my-request.git) | BSD-3-Clause | clearlydefined |
-| [`lodash.isequalwith@4.4.0`](https://lodash.com/) | MIT | clearlydefined |
 | [`lodash@4.17.21`](https://lodash.com/) | MIT | #2096 |
 | [`loose-envify@1.4.0`](git://github.com/zertosh/loose-envify.git) | MIT | clearlydefined |
 | `lru-cache@10.0.1` | ISC | #11688 |
@@ -328,7 +325,6 @@
 | `path-key@3.1.1` | MIT | clearlydefined |
 | [`path-scurry@1.10.1`](git+https://github.com/isaacs/path-scurry) | BlueOak-1.0.0 | #9370 |
 | [`path-scurry@1.11.1`](git+https://github.com/isaacs/path-scurry) | BlueOak-1.0.0 | clearlydefined |
-| [`path-to-regexp@1.8.0`](https://github.com/pillarjs/path-to-regexp.git) | MIT | clearlydefined |
 | [`pbkdf2@3.1.2`](https://github.com/crypto-browserify/pbkdf2.git) | MIT | clearlydefined |
 | [`performance-now@2.1.0`](git://github.com/braveg1rl/performance-now.git) | MIT | clearlydefined |
 | `picocolors@1.0.0` | ISC | #14718 |
@@ -370,8 +366,8 @@
 | [`react-is@17.0.2`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`react-pluralize@1.6.3`](https://github.com/tsmith123/react-pluralize) | MIT | clearlydefined |
 | [`react-redux@7.2.9`](https://github.com/reduxjs/react-redux) | MIT | #2978 |
-| [`react-router-dom@5.3.4`](https://github.com/remix-run/react-router.git) | MIT | #3023 |
-| [`react-router@5.3.4`](https://github.com/remix-run/react-router.git) | MIT | #3024 |
+| [`react-router-dom@6.26.1`](https://github.com/remix-run/react-router) | MIT | #15860 |
+| [`react-router@6.26.1`](https://github.com/remix-run/react-router) | MIT | clearlydefined |
 | [`react-side-effect@2.1.2`](https://github.com/gaearon/react-side-effect.git) | MIT | clearlydefined |
 | [`react-tooltip@4.5.1`](https://github.com/ReactTooltip/react-tooltip#readme) | MIT | #5006 |
 | [`react@18.3.1`](https://github.com/facebook/react.git) | MIT | clearlydefined |
@@ -403,7 +399,6 @@
 | [`safer-buffer@2.1.2`](git+https://github.com/ChALkeR/safer-buffer.git) | MIT | clearlydefined |
 | [`sanitize-html@2.13.0`](https://github.com/apostrophecms/sanitize-html.git) | MIT | clearlydefined |
 | [`scheduler@0.23.2`](https://github.com/facebook/react.git) | MIT | #14588 |
-| [`seamless-immutable@7.1.4`](https://github.com/rtfeldman/seamless-immutable.git) | BSD-3-Clause | clearlydefined |
 | [`secure-json-parse@2.7.0`](git+https://github.com/fastify/secure-json-parse.git) | BSD-3-Clause | clearlydefined |
 | [`semver@7.5.4`](https://github.com/npm/node-semver.git) | ISC | clearlydefined |
 | [`set-cookie-parser@2.6.0`](https://github.com/nfriedly/set-cookie-parser) | MIT | clearlydefined |
