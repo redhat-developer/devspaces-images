@@ -117,7 +117,7 @@
 | `@octokit/types@9.3.2` | MIT | #9081 |
 | [`@parcel/watcher@2.0.4`](https://github.com/parcel-bundler/watcher.git) | MIT | clearlydefined |
 | [`@pkgr/utils@2.4.2`](https://github.com/un-ts/pkgr/blob/master/packages/utils) | MIT | clearlydefined |
-| `@polka/url@1.0.0-next.23` | MIT | clearlydefined |
+| `@polka/url@1.0.0-next.23` | MIT | #16183 |
 | `@react-mock/state@0.1.8` | MIT | clearlydefined |
 | [`@sigstore/bundle@1.1.0`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | clearlydefined |
 | [`@sigstore/protobuf-specs@0.2.1`](git+https://github.com/sigstore/protobuf-specs.git) | Apache-2.0 | clearlydefined |

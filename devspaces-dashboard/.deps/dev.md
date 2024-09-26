@@ -126,7 +126,7 @@
 | [`@octokit/types@9.3.2`](https://github.com/octokit/types.ts.git) | MIT | #9081 |
 | [`@parcel/watcher@2.0.4`](https://github.com/parcel-bundler/watcher.git) | MIT | clearlydefined |
 | [`@pkgr/utils@2.4.2`](git+https://github.com/un-ts/pkgr.git) | MIT | clearlydefined |
-| [`@polka/url@1.0.0-next.23`](https://github.com/lukeed/polka.git) | MIT | clearlydefined |
+| [`@polka/url@1.0.0-next.23`](https://github.com/lukeed/polka.git) | MIT | #16183 |
 | [`@react-mock/state@0.1.8`](https://github.com/skidding/react-mock) | MIT | clearlydefined |
 | [`@sigstore/bundle@1.1.0`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | clearlydefined |
 | [`@sigstore/protobuf-specs@0.2.1`](git+https://github.com/sigstore/protobuf-specs.git) | Apache-2.0 | clearlydefined |
@@ -168,7 +168,8 @@
 | [`@types/normalize-package-data@2.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10792 |
 | [`@types/parse-json@4.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/qs@6.9.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #13991 |
-| [`@types/react-copy-to-clipboard@4.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/react-copy-to-clipboard@5.0.7`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/react-dom@18.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-router-dom@5.3.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-router@5.1.20`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-test-renderer@18.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -319,7 +320,6 @@
 | [`conventional-recommended-bump@6.1.0`](https://github.com/conventional-changelog/conventional-changelog.git) | MIT | clearlydefined |
 | [`convert-source-map@2.0.0`](git://github.com/thlorenz/convert-source-map.git) | MIT | clearlydefined |
 | [`copy-webpack-plugin@11.0.0`](https://github.com/webpack-contrib/copy-webpack-plugin.git) | MIT | clearlydefined |
-| [`core-util-is@1.0.3`](git://github.com/isaacs/core-util-is) | MIT | #5898 |
 | [`cosmiconfig@7.0.0`](git+https://github.com/davidtheclark/cosmiconfig.git) | MIT | clearlydefined |
 | [`create-jest@29.7.0`](https://github.com/jestjs/jest.git) | MIT | clearlydefined |
 | [`crypto-random-string@2.0.0`](https://github.com/sindresorhus/crypto-random-string.git) | MIT | clearlydefined |
@@ -761,7 +761,6 @@
 | [`pretty-error@4.0.0`](https://github.com/AriaMinaei/pretty-error.git) | MIT | clearlydefined |
 | [`pretty-format@29.7.0`](https://github.com/jestjs/jest.git) | MIT | clearlydefined |
 | [`proc-log@3.0.0`](https://github.com/npm/proc-log.git) | ISC | clearlydefined |
-| [`process-nextick-args@2.0.1`](https://github.com/calvinmetcalf/process-nextick-args.git) | MIT | clearlydefined |
 | `promise-all-reject-late@1.0.1` | ISC | clearlydefined |
 | [`promise-call-limit@1.0.2`](git+https://github.com/isaacs/promise-call-limit) | ISC | clearlydefined |
 | [`promise-inflight@1.0.1`](git+https://github.com/iarna/promise-inflight.git) | ISC | clearlydefined |

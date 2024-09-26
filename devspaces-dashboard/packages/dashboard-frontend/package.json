@@ -64,8 +64,7 @@
     "redux-thunk": "^2.4.2",
     "reflect-metadata": "^0.1.13",
     "reselect": "^4.1.8",
-    "sanitize-html": "^2.11.0",
-    "stream-browserify": "^3.0.0"
+    "sanitize-html": "^2.11.0"
   },
   "devDependencies": {
     "@devfile/api": "2.3.0-1721400636",
