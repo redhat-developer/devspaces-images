@@ -66,7 +66,7 @@ RUN \
     # END stow
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.10-1052
+FROM ubi8-minimal:8.10-1086
 
 USER root
 
