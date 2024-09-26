@@ -142,7 +142,7 @@ RUN \
     dnf -y -q install 'dnf-command(config-manager)' && \
     dnf config-manager --set-disabled codeready-* && \
     dnf -y -q module reset container-tools maven nodejs php; \
-    dnf -y -q module install container-tools:rhel8 maven:3.6 nodejs:$NODEJS_VERSION php:$PHP_VERSION && \
+    dnf -y -q module install container-tools:rhel8 maven:3.8 nodejs:$NODEJS_VERSION php:$PHP_VERSION && \
     dnf -y -q install --setopt=tsflags=nodocs \
         golang \
         java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
