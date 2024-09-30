@@ -4,7 +4,7 @@ metadata:
 components:
   - name: nodejs
     container:
-      image: registry.redhat.io/devspaces/udi-rhel8:3.17
+      image: registry.redhat.io/devspaces/udi-rhel8:3.18
       env:
         - name: SECRET
           value: 220fd770-c028-480d-8f95-f84353c7d55a
