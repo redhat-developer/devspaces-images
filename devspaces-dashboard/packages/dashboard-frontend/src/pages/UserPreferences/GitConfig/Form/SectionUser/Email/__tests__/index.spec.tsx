@@ -11,15 +11,12 @@
  */
 
 import { ValidatedOptions } from '@patternfly/react-core';
-import { StateMock } from '@react-mock/state';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import {
-  GitConfigUserEmail,
-  State,
-} from '@/pages/UserPreferences/GitConfig/Form/SectionUser/Email';
-import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
+import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
+
+import { GitConfigUserEmail } from '..';
 
 jest.mock('@/components/InputGroupExtended');
 
@@ -70,18 +67,14 @@ describe('GitConfigUserEmail', () => {
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should reset validation', async () => {
-    const localState: Partial<State> = {
-      value: '',
-      validated: ValidatedOptions.error,
-    };
-    const { reRenderComponent } = renderComponent('user@che.org', true, localState);
+  it('should re-validate on component update', () => {
+    const { reRenderComponent } = renderComponent('', false);
 
-    reRenderComponent('user@che.org', false, localState);
+    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
 
-    await waitFor(() =>
-      expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default),
-    );
+    reRenderComponent('user@che.com', false);
+
+    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default);
   });
 
   it('should handle value changing', async () => {
@@ -95,17 +88,6 @@ describe('GitConfigUserEmail', () => {
   });
 });
 
-function getComponent(
-  value: string,
-  isLoading: boolean,
-  localState?: Partial<State>,
-): React.ReactElement {
-  if (localState) {
-    return (
-      <StateMock state={localState}>
-        <GitConfigUserEmail isLoading={isLoading} value={value} onChange={mockOnChange} />
-      </StateMock>
-    );
-  }
+function getComponent(value: string, isLoading: boolean): React.ReactElement {
   return <GitConfigUserEmail isLoading={isLoading} value={value} onChange={mockOnChange} />;
 }

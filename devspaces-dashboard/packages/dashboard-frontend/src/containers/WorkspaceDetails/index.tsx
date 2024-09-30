@@ -10,13 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Location } from 'history';
 import { isEqual } from 'lodash';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Location, NavigateFunction, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router';
 
 import { WorkspaceDetails } from '@/pages/WorkspaceDetails';
-import { WorkspaceRouteParams } from '@/Routes';
 import { isDevWorkspace } from '@/services/devfileApi';
 import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '@/services/devfileApi/devWorkspace/metadata';
 import { buildDetailsLocation, buildWorkspacesLocation, toHref } from '@/services/helpers/location';
@@ -27,13 +27,11 @@ import { selectDefaultNamespace } from '@/store/InfrastructureNamespaces/selecto
 import * as WorkspacesStore from '@/store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading } from '@/store/Workspaces/selectors';
 
-type RouteParams = Partial<WorkspaceRouteParams>;
-
-type Props = MappedProps & {
-  routeParams: RouteParams;
-  location: Location;
-  navigate: NavigateFunction;
-};
+type Props = MappedProps &
+  RouteComponentProps<{
+    namespace: string;
+    workspaceName: string;
+  }>;
 
 type State = {
   workspace?: Workspace;
@@ -45,17 +43,39 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.workspacesLink = toHref(buildWorkspacesLocation());
+    this.workspacesLink = toHref(this.props.history, buildWorkspacesLocation());
 
-    const workspace = props.allWorkspaces.find(
-      workspace =>
-        workspace.namespace === props.routeParams.namespace &&
-        workspace.name === props.routeParams.workspaceName,
-    );
+    const namespace = this.props.match.params.namespace;
+    const workspaceName = this.props.match.params.workspaceName.split('&')[0];
+    if (workspaceName !== this.props.match.params.workspaceName) {
+      const pathname = `/workspace/${namespace}/${workspaceName}`;
+      this.props.history.replace({ pathname });
+    }
 
     this.state = {
-      workspace,
+      workspace: undefined,
     };
+  }
+
+  private async init(): Promise<void> {
+    const {
+      match: { params },
+      allWorkspaces,
+      isLoading,
+      requestWorkspaces,
+    } = this.props;
+    let workspace = allWorkspaces.find(
+      workspace =>
+        workspace.namespace === params.namespace && workspace.name === params.workspaceName,
+    );
+    if (!isLoading && !workspace) {
+      await requestWorkspaces();
+      workspace = allWorkspaces?.find(
+        workspace =>
+          workspace.namespace === params.namespace && workspace.name === params.workspaceName,
+      );
+    }
+    this.setState({ workspace });
   }
 
   private getOldWorkspaceLocation(workspace?: Workspace): Location | undefined {
@@ -79,26 +99,18 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
-    const { routeParams, allWorkspaces, isLoading, requestWorkspaces } = this.props;
-    const workspace = allWorkspaces.find(
-      workspace =>
-        workspace.namespace === routeParams.namespace &&
-        workspace.name === routeParams.workspaceName,
-    );
-    if (!isLoading && !workspace) {
-      requestWorkspaces();
-    }
+    this.init();
   }
 
   public componentDidUpdate(prevProps: Props): void {
-    const namespace = this.props.routeParams.namespace;
-    const workspaceName = this.props.routeParams.workspaceName;
+    const namespace = this.props.match.params.namespace;
+    const workspaceName = this.props.match.params.workspaceName;
     const workspace = this.props.allWorkspaces.find(
       workspace => workspace.namespace === namespace && workspace.name === workspaceName,
     );
     if (!workspace) {
       const workspacesListLocation = buildWorkspacesLocation();
-      this.props.navigate(workspacesListLocation);
+      this.props.history.push(workspacesListLocation);
     } else if (
       this.props.location.pathname !== prevProps.location.pathname ||
       !isEqual(workspace, this.state.workspace)
@@ -108,15 +120,13 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { location, navigate } = this.props;
     const { workspace } = this.state;
 
     const oldWorkspaceLocation = this.getOldWorkspaceLocation(workspace);
 
     return (
       <WorkspaceDetails
-        location={location}
-        navigate={navigate}
+        history={this.props.history}
         isLoading={this.props.isLoading}
         oldWorkspaceLocation={oldWorkspaceLocation}
         workspace={workspace}
@@ -131,30 +141,6 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
   }
 }
 
-function ContainerWrapper(props: MappedProps) {
-  const params = useParams<RouteParams>();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const namespace = params.namespace;
-    const workspaceName = (params.workspaceName || '').split('&')[0];
-    if (workspaceName !== params.workspaceName) {
-      const pathname = `/workspace/${namespace}/${workspaceName}`;
-      navigate(pathname, { replace: true });
-    }
-  }, [params, location.pathname, navigate]);
-
-  return (
-    <WorkspaceDetailsContainer
-      {...props}
-      location={location}
-      navigate={navigate}
-      routeParams={params}
-    />
-  );
-}
-
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   defaultNamespace: selectDefaultNamespace(state),
@@ -166,4 +152,4 @@ const connector = connect(mapStateToProps, WorkspacesStore.actionCreators, null,
 });
 
 type MappedProps = ConnectedProps<typeof connector>;
-export default connector(ContainerWrapper);
+export default connector(WorkspaceDetailsContainer);

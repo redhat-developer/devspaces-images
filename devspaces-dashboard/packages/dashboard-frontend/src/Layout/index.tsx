@@ -14,7 +14,7 @@ import { AlertVariant, Brand, Page } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { matchPath } from 'react-router-dom';
+import { matchPath } from 'react-router';
 
 import { BannerAlert } from '@/components/BannerAlert';
 import { ToggleBarsContext } from '@/contexts/ToggleBars';
@@ -25,7 +25,7 @@ import { IssueComponent } from '@/Layout/ErrorReporter/Issue';
 import { Header } from '@/Layout/Header';
 import { Sidebar } from '@/Layout/Sidebar';
 import StoreErrorsAlert from '@/Layout/StoreErrorsAlert';
-import { ROUTE } from '@/Routes';
+import { ROUTE } from '@/Routes/routes';
 import { AppAlerts } from '@/services/alerts/appAlerts';
 import { IssuesReporterService } from '@/services/bootstrap/issuesReporter';
 import { WarningsReporterService } from '@/services/bootstrap/warningsReporter';
@@ -87,11 +87,12 @@ export class Layout extends React.PureComponent<Props, State> {
   }
 
   public componentDidMount(): void {
-    const matchFactoryLoaderPath = matchPath(
-      ROUTE.FACTORY_LOADER,
-      this.props.history.location.pathname,
-    );
-    const matchIdeLoaderPath = matchPath(ROUTE.IDE_LOADER, this.props.history.location.pathname);
+    const matchFactoryLoaderPath = matchPath(this.props.history.location.pathname, {
+      path: ROUTE.FACTORY_LOADER,
+    });
+    const matchIdeLoaderPath = matchPath(this.props.history.location.pathname, {
+      path: ROUTE.IDE_LOADER,
+    });
     if (matchFactoryLoaderPath !== null || matchIdeLoaderPath !== null) {
       this.hideAllBars();
     }

@@ -13,10 +13,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { Location } from 'history';
 import React, { Suspense } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router';
 
 import Fallback from '@/components/Fallback';
-import { AppRoutes, ROUTE } from '@/Routes';
+import { ROUTE } from '@/Routes/routes';
 import {
   buildDetailsLocation,
   buildGettingStartedLocation,
@@ -26,13 +27,16 @@ import {
 import { LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
 import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
+
+import Routes from '..';
 
 jest.mock('@/pages/GetStarted', () => {
   return function GetStarted() {
     return <span>Create Workspace</span>;
   };
 });
-jest.mock('@/containers/WorkspacesList', () => {
+jest.mock('@/containers/WorkspacesList.tsx', () => {
   return function WorkspacesList() {
     return <span>Workspaces List</span>;
   };
@@ -194,11 +198,14 @@ describe('Routes', () => {
 });
 
 function getComponent(locationOrPath: Location | string): React.ReactElement {
+  const store = new FakeStoreBuilder().build();
   return (
-    <MemoryRouter initialEntries={[locationOrPath]}>
-      <Suspense fallback={Fallback}>
-        <AppRoutes />
-      </Suspense>
-    </MemoryRouter>
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[locationOrPath]}>
+        <Suspense fallback={Fallback}>
+          <Routes />
+        </Suspense>
+      </MemoryRouter>
+    </Provider>
   );
 }

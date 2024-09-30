@@ -10,10 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { History } from 'history';
+import { History, Location } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Location } from 'react-router-dom';
 
 import { WorkspaceActionsDeleteConfirmation } from '@/contexts/WorkspaceActions/DeleteConfirmation';
 import { lazyInject } from '@/inversify.config';
@@ -63,7 +62,7 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
    * open the action in a new tab for DevWorkspaces
    */
   private handleLocation(location: Location): void {
-    const link = toHref(location);
+    const link = toHref(this.props.history, location);
     this.tabManager.open(link);
   }
 

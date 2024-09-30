@@ -29,270 +29,198 @@ const responseBody = {
 describe('Gitconfig API', () => {
   let gitConfigApiService: GitConfigApiService;
 
-  describe('configmap not found', () => {
-    const stubCoreV1Api = {
-      createNamespacedConfigMap: () => {
-        return Promise.resolve({
-          body: responseBody as V1ConfigMap,
-          response: {} as IncomingMessage,
-        });
-      },
-      readNamespacedConfigMap: () => {
-        return Promise.reject({
-          body: {},
-          response: {} as IncomingMessage,
-          statusCode: 404,
-          name: 'HttpError',
-          message: 'Not Found',
-        });
-      },
-    } as unknown as CoreV1Api;
-    const spyCreateNamespacedConfigMap = jest.spyOn(stubCoreV1Api, 'createNamespacedConfigMap');
+  const stubCoreV1Api = {
+    readNamespacedConfigMap: () => {
+      return Promise.resolve({
+        body: responseBody as V1ConfigMap,
+        response: {} as IncomingMessage,
+      });
+    },
+    patchNamespacedConfigMap: () => {
+      return Promise.resolve({
+        body: responseBody as V1ConfigMap,
+        response: {} as IncomingMessage,
+      });
+    },
+  } as unknown as CoreV1Api;
+  const spyReadNamespacedConfigMap = jest.spyOn(stubCoreV1Api, 'readNamespacedConfigMap');
+  const spyPatchNamespacedConfigMap = jest.spyOn(stubCoreV1Api, 'patchNamespacedConfigMap');
 
-    beforeEach(() => {
-      const { KubeConfig } = mockClient;
-      const kubeConfig = new KubeConfig();
-      kubeConfig.makeApiClient = jest.fn().mockImplementation(() => stubCoreV1Api);
+  beforeEach(() => {
+    const { KubeConfig } = mockClient;
+    const kubeConfig = new KubeConfig();
+    kubeConfig.makeApiClient = jest.fn().mockImplementation(() => stubCoreV1Api);
 
-      gitConfigApiService = new GitConfigApiService(kubeConfig);
-    });
+    gitConfigApiService = new GitConfigApiService(kubeConfig);
+  });
 
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    it('should create the configmap and return gitconfig', async () => {
+  describe('reading gitconfig', () => {
+    it('should return gitconfig', async () => {
       const resp = await gitConfigApiService.read(namespace);
 
-      expect(resp.gitconfig).toStrictEqual({
-        user: {
-          name: 'User One',
-          email: 'user-1@che',
-        },
-      });
+      expect(resp.gitconfig).toStrictEqual(
+        expect.objectContaining({
+          user: expect.objectContaining({
+            name: 'User One',
+            email: 'user-1@che',
+          }),
+        }),
+      );
 
-      expect(spyCreateNamespacedConfigMap).toHaveBeenCalledTimes(1);
-      expect(spyCreateNamespacedConfigMap).toHaveBeenCalledWith(namespace, {
-        data: {
-          gitconfig: `[user]
-name=""
-email=""
-`,
-        },
-        metadata: {
-          annotations: {
-            'controller.devfile.io/mount-as': 'subpath',
-            'controller.devfile.io/mount-path': '/etc/',
-          },
-          labels: {
-            'controller.devfile.io/mount-to-devworkspace': 'true',
-            'controller.devfile.io/watch-configmap': 'true',
-          },
-          name: 'workspace-userdata-gitconfig-configmap',
-          namespace,
-        },
-      });
+      expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).not.toHaveBeenCalled();
+    });
+
+    it('should throw', async () => {
+      spyReadNamespacedConfigMap.mockRejectedValueOnce('404 not found');
+
+      try {
+        await gitConfigApiService.read(namespace);
+
+        // should not reach here
+        expect(false).toBeTruthy();
+      } catch (e) {
+        expect((e as Error).message).toBe(
+          'Unable to read gitconfig in the namespace "user-che": 404 not found',
+        );
+      }
+
+      expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).not.toHaveBeenCalled();
     });
   });
 
-  describe('configmap found', () => {
-    const stubCoreV1Api = {
-      readNamespacedConfigMap: () => {
-        return Promise.resolve({
-          body: responseBody as V1ConfigMap,
-          response: {} as IncomingMessage,
-        });
-      },
-      patchNamespacedConfigMap: () => {
-        return Promise.resolve({
-          body: responseBody as V1ConfigMap,
-          response: {} as IncomingMessage,
-        });
-      },
-    } as unknown as CoreV1Api;
-    const spyReadNamespacedConfigMap = jest.spyOn(stubCoreV1Api, 'readNamespacedConfigMap');
-    const spyPatchNamespacedConfigMap = jest.spyOn(stubCoreV1Api, 'patchNamespacedConfigMap');
-
-    beforeEach(() => {
-      const { KubeConfig } = mockClient;
-      const kubeConfig = new KubeConfig();
-      kubeConfig.makeApiClient = jest.fn().mockImplementation(() => stubCoreV1Api);
-
-      gitConfigApiService = new GitConfigApiService(kubeConfig);
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-
-    describe('reading gitconfig', () => {
-      it('should return gitconfig', async () => {
-        const resp = await gitConfigApiService.read(namespace);
-
-        expect(resp.gitconfig).toStrictEqual(
-          expect.objectContaining({
-            user: expect.objectContaining({
-              name: 'User One',
-              email: 'user-1@che',
-            }),
-          }),
-        );
-
-        expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).not.toHaveBeenCalled();
-      });
-
-      it('should throw', async () => {
-        spyReadNamespacedConfigMap.mockRejectedValueOnce('404 not found');
-
-        try {
-          await gitConfigApiService.read(namespace);
-
-          // should not reach here
-          expect(false).toBeTruthy();
-        } catch (e) {
-          expect((e as Error).message).toBe(
-            'Unable to read gitconfig in the namespace "user-che": 404 not found',
-          );
-        }
-
-        expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('patching gitconfig', () => {
-      it('should patch and return gitconfig', async () => {
-        const newGitConfig = {
-          gitconfig: {
-            user: {
-              email: 'user-2@che',
-              name: 'User Two',
-            },
+  describe('patching gitconfig', () => {
+    it('should patch and return gitconfig', async () => {
+      const newGitConfig = {
+        gitconfig: {
+          user: {
+            email: 'user-2@che',
+            name: 'User Two',
           },
-        } as api.IGitConfig;
+        },
+      } as api.IGitConfig;
+      await gitConfigApiService.patch(namespace, newGitConfig);
+
+      expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).toHaveBeenCalledWith(
+        'workspace-userdata-gitconfig-configmap',
+        'user-che',
+        {
+          data: {
+            gitconfig: `[user]
+email="user-2@che"
+name="User Two"
+`,
+          },
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'content-type': 'application/strategic-merge-patch+json' } },
+      );
+    });
+
+    it('should throw when can`t read the ConfigMap', async () => {
+      spyReadNamespacedConfigMap.mockRejectedValueOnce('404 not found');
+
+      const newGitConfig = {
+        gitconfig: {
+          user: {
+            email: 'user-2@che',
+            name: 'User Two',
+          },
+        },
+      } as api.IGitConfig;
+
+      try {
         await gitConfigApiService.patch(namespace, newGitConfig);
 
-        expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).toHaveBeenCalledWith(
-          'workspace-userdata-gitconfig-configmap',
-          'user-che',
-          {
-            data: {
-              gitconfig: `[user]
-email="user-2@che"
-name="User Two"
-`,
-            },
-          },
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'content-type': 'application/strategic-merge-patch+json' } },
+        // should not reach here
+        expect(false).toBeTruthy();
+      } catch (e) {
+        expect((e as Error).message).toBe(
+          'Unable to update gitconfig in the namespace "user-che".',
         );
-      });
+      }
 
-      it('should throw when can`t read the ConfigMap', async () => {
-        spyReadNamespacedConfigMap.mockRejectedValueOnce('404 not found');
+      expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(0);
+    });
 
-        const newGitConfig = {
-          gitconfig: {
-            user: {
-              email: 'user-2@che',
-              name: 'User Two',
-            },
+    it('should throw when failed to patch the ConfigMap', async () => {
+      spyPatchNamespacedConfigMap.mockRejectedValueOnce('some error');
+
+      const newGitConfig = {
+        gitconfig: {
+          user: {
+            email: 'user-2@che',
+            name: 'User Two',
           },
-        } as api.IGitConfig;
+        },
+      } as api.IGitConfig;
 
-        try {
-          await gitConfigApiService.patch(namespace, newGitConfig);
+      try {
+        await gitConfigApiService.patch(namespace, newGitConfig);
 
-          // should not reach here
-          expect(false).toBeTruthy();
-        } catch (e) {
-          expect((e as Error).message).toBe(
-            'Unable to update gitconfig in the namespace "user-che".',
-          );
-        }
+        // should not reach here
+        expect(false).toBeTruthy();
+      } catch (e) {
+        expect((e as Error).message).toBe(
+          'Unable to update gitconfig in the namespace "user-che": some error',
+        );
+      }
 
-        expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(0);
-      });
+      expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(1);
+    });
 
-      it('should throw when failed to patch the ConfigMap', async () => {
-        spyPatchNamespacedConfigMap.mockRejectedValueOnce('some error');
-
-        const newGitConfig = {
-          gitconfig: {
-            user: {
-              email: 'user-2@che',
-              name: 'User Two',
-            },
+    it('should throw when conflict detected', async () => {
+      spyReadNamespacedConfigMap.mockResolvedValueOnce({
+        body: {
+          metadata: {
+            resourceVersion: '2',
           },
-        } as api.IGitConfig;
-
-        try {
-          await gitConfigApiService.patch(namespace, newGitConfig);
-
-          // should not reach here
-          expect(false).toBeTruthy();
-        } catch (e) {
-          expect((e as Error).message).toBe(
-            'Unable to update gitconfig in the namespace "user-che": some error',
-          );
-        }
-
-        expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(1);
-      });
-
-      it('should throw when conflict detected', async () => {
-        spyReadNamespacedConfigMap.mockResolvedValueOnce({
-          body: {
-            metadata: {
-              resourceVersion: '2',
-            },
-            data: {
-              gitconfig: `[user]
+          data: {
+            gitconfig: `[user]
 name="User Two"
 email="user-2@che"
 `,
-            },
-          } as V1ConfigMap,
-          response: {} as IncomingMessage,
-        });
-
-        const newGitConfig = {
-          gitconfig: {
-            user: {
-              email: 'user-2@che',
-              name: 'User Two',
-            },
           },
-          resourceVersion: '1',
-        } as api.IGitConfig;
+        } as V1ConfigMap,
+        response: {} as IncomingMessage,
+      });
 
-        let isPatched = false;
-        let errorMessage = '';
+      const newGitConfig = {
+        gitconfig: {
+          user: {
+            email: 'user-2@che',
+            name: 'User Two',
+          },
+        },
+        resourceVersion: '1',
+      } as api.IGitConfig;
 
-        try {
-          await gitConfigApiService.patch(namespace, newGitConfig);
-          isPatched = true;
-        } catch (e: unknown) {
-          errorMessage = (e as Error).message;
-        }
+      try {
+        await gitConfigApiService.patch(namespace, newGitConfig);
 
-        expect(isPatched).toBe(false);
-        expect(errorMessage).toBe(
+        // should not reach here
+        expect(false).toBeTruthy();
+      } catch (e) {
+        expect((e as Error).message).toBe(
           'Conflict detected. The gitconfig was modified in the namespace "user-che".',
         );
+      }
 
-        expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
-        expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(0);
-      });
+      expect(spyReadNamespacedConfigMap).toHaveBeenCalledTimes(1);
+      expect(spyPatchNamespacedConfigMap).toHaveBeenCalledTimes(0);
     });
   });
 });

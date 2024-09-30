@@ -12,9 +12,10 @@
 
 import { NavGroup, NavList } from '@patternfly/react-core';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 import { NavigationRecentItem } from '@/Layout/Navigation/RecentItem';
-import { ROUTE } from '@/Routes';
+import { ROUTE } from '@/Routes/routes';
 import { Workspace } from '@/services/workspace-adapter';
 
 import { NavigationRecentItemObject } from '.';
@@ -34,7 +35,8 @@ function RecentWorkspaceItem(props: {
     label: workspaceName,
     workspace: props.workspace,
   };
-  return <NavigationRecentItem item={item} activePath={props.activePath} />;
+  const history = useHistory();
+  return <NavigationRecentItem history={history} item={item} activePath={props.activePath} />;
 }
 
 function NavigationRecentList(props: {

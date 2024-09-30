@@ -117,7 +117,7 @@
 | `@octokit/types@9.3.2` | MIT | #9081 |
 | [`@parcel/watcher@2.0.4`](https://github.com/parcel-bundler/watcher.git) | MIT | clearlydefined |
 | [`@pkgr/utils@2.4.2`](https://github.com/un-ts/pkgr/blob/master/packages/utils) | MIT | clearlydefined |
-| `@polka/url@1.0.0-next.23` | MIT | #16183 |
+| `@polka/url@1.0.0-next.23` | MIT | clearlydefined |
 | `@react-mock/state@0.1.8` | MIT | clearlydefined |
 | [`@sigstore/bundle@1.1.0`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | clearlydefined |
 | [`@sigstore/protobuf-specs@0.2.1`](git+https://github.com/sigstore/protobuf-specs.git) | Apache-2.0 | clearlydefined |
@@ -161,8 +161,7 @@
 | [`@types/normalize-package-data@2.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10792 |
 | [`@types/parse-json@4.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/qs@6.9.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #13991 |
-| [`@types/react-copy-to-clipboard@5.0.7`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/react-dom@18.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/react-copy-to-clipboard@4.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-router-dom@5.3.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-router@5.1.20`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/react-test-renderer@18.3.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |

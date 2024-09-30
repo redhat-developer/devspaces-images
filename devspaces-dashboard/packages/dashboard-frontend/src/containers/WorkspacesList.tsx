@@ -10,9 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Location, NavigateFunction, useLocation, useNavigate } from 'react-router-dom';
 
 import Fallback from '@/components/Fallback';
 import WorkspacesList from '@/pages/WorkspacesList';
@@ -21,35 +21,18 @@ import { selectBranding } from '@/store/Branding/selectors';
 import * as WorkspacesStore from '@/store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading } from '@/store/Workspaces/selectors';
 
-type Props = MappedProps & {
-  location: Location;
-  navigate: NavigateFunction;
-};
+type Props = MappedProps & { history: History };
 
 export class WorkspacesListContainer extends React.PureComponent<Props> {
   render() {
-    const { branding, allWorkspaces, isLoading, location, navigate } = this.props;
+    const { branding, history, allWorkspaces, isLoading } = this.props;
 
     if (isLoading) {
       return Fallback;
     }
 
-    return (
-      <WorkspacesList
-        branding={branding}
-        location={location}
-        navigate={navigate}
-        workspaces={allWorkspaces}
-      />
-    );
+    return <WorkspacesList branding={branding} history={history} workspaces={allWorkspaces} />;
   }
-}
-
-function ContainerWrapper(props: MappedProps) {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  return <WorkspacesListContainer {...props} location={location} navigate={navigate} />;
 }
 
 const mapStateToProps = (state: AppState) => {
@@ -63,4 +46,4 @@ const mapStateToProps = (state: AppState) => {
 const connector = connect(mapStateToProps, WorkspacesStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
-export default connector(ContainerWrapper);
+export default connector(WorkspacesListContainer);

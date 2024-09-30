@@ -13,6 +13,7 @@
 import { Button } from '@patternfly/react-core';
 import { IRow, SortByDirection } from '@patternfly/react-table';
 import { Location } from 'history';
+import { History } from 'history';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -34,6 +35,7 @@ export interface RowData extends IRow {
 }
 
 export function buildRows(
+  history: History,
   workspaces: Workspace[],
   toDelete: string[],
   filtered: string[],
@@ -64,7 +66,7 @@ export function buildRows(
       const overviewPageLocation = buildDetailsLocation(workspace);
       const ideLoaderLocation = buildIdeLoaderLocation(workspace);
 
-      const ideLoaderHref = toHref(ideLoaderLocation);
+      const ideLoaderHref = toHref(history, ideLoaderLocation);
 
       try {
         rows.push(buildRow(workspace, isSelected, isDeleted, overviewPageLocation, ideLoaderHref));

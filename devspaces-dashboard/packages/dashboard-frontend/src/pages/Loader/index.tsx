@@ -11,8 +11,8 @@
  */
 
 import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
+import { History } from 'history';
 import React from 'react';
-import { Location, NavigateFunction } from 'react-router-dom';
 
 import Head from '@/components/Head';
 import Header from '@/components/Header';
@@ -29,10 +29,9 @@ import { DevWorkspaceStatus, LoaderTab } from '@/services/helpers/types';
 import { Workspace } from '@/services/workspace-adapter';
 
 export type Props = {
-  location: Location;
-  navigate: NavigateFunction;
-  searchParams: URLSearchParams;
+  history: History;
   tabParam: string | undefined;
+  searchParams: URLSearchParams;
   workspace: Workspace | undefined;
   onTabChange: (tab: LoaderTab) => void;
 };
@@ -76,15 +75,18 @@ export class LoaderPage extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactNode {
-    const { searchParams, workspace, location, navigate } = this.props;
+    const { history, searchParams, workspace } = this.props;
     const { activeTabKey } = this.state;
 
     let pageTitle = workspace ? `Starting workspace ${workspace.name}` : 'Creating a workspace';
     const workspaceStatus = workspace?.status || DevWorkspaceStatus.STOPPED;
-    if (getRestartInSafeModeLocation(location) || this.appliedSafeMode[location.pathname]) {
+    if (
+      getRestartInSafeModeLocation(this.props.history.location) ||
+      this.appliedSafeMode[this.props.history.location.pathname]
+    ) {
       pageTitle += ' with default devfile';
-      this.appliedSafeMode[location.pathname] = true;
-    } else if (getRestartInDebugModeLocation(location)) {
+      this.appliedSafeMode[this.props.history.location.pathname] = true;
+    } else if (getRestartInDebugModeLocation(this.props.history.location)) {
       pageTitle += ' in Debug mode';
     }
     const showToastAlert = activeTabKey !== LoaderTab.Progress;
@@ -115,8 +117,7 @@ export class LoaderPage extends React.PureComponent<Props, State> {
             >
               <PageSection isFilled={true}>
                 <WorkspaceProgress
-                  location={location}
-                  navigate={navigate}
+                  history={history}
                   searchParams={searchParams}
                   showToastAlert={showToastAlert}
                   onTabChange={tab => this.handleTabClick(tab)}

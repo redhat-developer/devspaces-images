@@ -12,14 +12,14 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Location } from 'react-router-dom';
 import { Action, Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_CREATE_SEC } from '@/components/WorkspaceProgress/const';
 import prepareResources from '@/components/WorkspaceProgress/CreatingSteps/Apply/Resources/prepareResources';
-import { container } from '@/inversify.config';
+import { ROUTE } from '@/Routes/routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import devfileApi from '@/services/devfileApi';
 import { getDefer } from '@/services/helpers/deferred';
@@ -28,9 +28,7 @@ import {
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { buildFactoryLocation } from '@/services/helpers/location';
 import { AlertItem } from '@/services/helpers/types';
-import { TabManager } from '@/services/tabManager';
 import { AppThunk } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
@@ -57,10 +55,7 @@ jest.mock('@/store/Workspaces/devWorkspaces', () => {
 });
 
 const { renderComponent } = getComponentRenderer(getComponent);
-
-let location: Location;
-const mockNavigate = jest.fn();
-const mockTabManagerRename = jest.fn();
+let history: MemoryHistory;
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
@@ -87,32 +82,23 @@ describe('Creating steps, applying resources', () => {
   beforeEach(() => {
     (prepareResources as jest.Mock).mockReturnValue(resources);
 
+    history = createMemoryHistory({
+      initialEntries: [ROUTE.FACTORY_LOADER],
+    });
+
     factoryId = `${DEV_WORKSPACE_ATTR}=${resourcesUrl}&${FACTORY_URL_ATTR}=${factoryUrl}`;
 
     searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
       [DEV_WORKSPACE_ATTR]: resourcesUrl,
     });
-    location = buildFactoryLocation();
-    location.search = searchParams.toString();
 
     jest.useFakeTimers();
 
     user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    class MockTabManager extends TabManager {
-      public rename(url: string): void {
-        mockTabManagerRename(url);
-      }
-    }
-
-    container.snapshot();
-    container.rebind(TabManager).to(MockTabManager).inSingletonScope();
   });
 
   afterEach(() => {
-    container.restore();
-
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
@@ -136,8 +122,7 @@ describe('Creating steps, applying resources', () => {
     await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
 
     // stay on the factory loader page
-    expect(location.pathname).toContain('/load-factory');
-    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(history.location.pathname).toContain('/load-factory');
 
     expect(mockOnNextStep).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();
@@ -315,9 +300,7 @@ describe('Creating steps, applying resources', () => {
     await waitFor(() => expect(mockCreateWorkspaceFromResources).toHaveBeenCalled());
 
     // stay on the factory loader page
-    expect(location.pathname).toContain('/load-factory');
-    expect(mockNavigate).not.toHaveBeenCalled();
-
+    expect(history.location.pathname).toContain('/load-factory');
     expect(mockOnNextStep).not.toHaveBeenCalled();
     expect(mockOnError).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();
@@ -352,10 +335,7 @@ describe('Creating steps, applying resources', () => {
     expect(mockOnError).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();
 
-    expect(location.pathname).toEqual(`/ide/user-che/${resourceDevworkspaceName}`);
-    expect(mockTabManagerRename).toHaveBeenCalledWith(
-      expect.stringContaining(`/ide/user-che/${resourceDevworkspaceName}`),
-    );
+    expect(history.location.pathname).toEqual(`/ide/user-che/${resourceDevworkspaceName}`);
   });
 
   test('handle warning when creating a workspace', async () => {
@@ -406,8 +386,7 @@ function getComponent(store: Store, searchParams: URLSearchParams): React.ReactE
       distance={0}
       hasChildren={false}
       searchParams={searchParams}
-      location={location}
-      navigate={mockNavigate}
+      history={history}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
       onError={mockOnError}

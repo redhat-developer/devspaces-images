@@ -32,8 +32,8 @@ import {
   TableVariant,
   Visibility,
 } from '@patternfly/react-table';
+import { History } from 'history';
 import React from 'react';
-import { Location, NavigateFunction } from 'react-router-dom';
 
 import Head from '@/components/Head';
 import NothingFoundEmptyState from '@/pages/WorkspacesList/EmptyState/NothingFound';
@@ -47,8 +47,7 @@ import { Workspace } from '@/services/workspace-adapter';
 
 type Props = {
   branding: BrandingData;
-  location: Location;
-  navigate: NavigateFunction;
+  history: History;
   workspaces: Workspace[];
 };
 type State = {
@@ -128,10 +127,10 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private buildRows(): RowData[] {
-    const { workspaces } = this.props;
+    const { history, workspaces } = this.props;
     const { filtered, selected, sortBy } = this.state;
 
-    return buildRows(workspaces, [], filtered, selected, sortBy);
+    return buildRows(history, workspaces, [], filtered, selected, sortBy);
   }
 
   private handleFilter(filtered: Workspace[]): void {
@@ -191,7 +190,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
   private handleAddWorkspace(): void {
     const location = buildGettingStartedLocation();
-    this.props.navigate(location);
+    this.props.history.push(location);
   }
 
   private handleSort(event: React.MouseEvent, index: number, direction: SortByDirection): void {

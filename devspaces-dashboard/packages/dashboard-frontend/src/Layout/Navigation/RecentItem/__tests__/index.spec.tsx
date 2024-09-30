@@ -11,9 +11,10 @@
  */
 
 import { Nav } from '@patternfly/react-core';
+import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import { NavigationRecentItemObject } from '@/Layout/Navigation';
 import { NavigationRecentItem } from '@/Layout/Navigation/RecentItem';
@@ -112,11 +113,12 @@ describe('Navigation Item', () => {
 
 function getComponent(item: NavigationRecentItemObject, activeItem = ''): React.ReactElement {
   const store = new FakeStoreBuilder().build();
+  const history = createMemoryHistory();
   return (
     <Provider store={store}>
       <MemoryRouter>
         <Nav>
-          <NavigationRecentItem item={item} activePath={activeItem} />
+          <NavigationRecentItem history={history} item={item} activePath={activeItem} />
         </Nav>
       </MemoryRouter>
     </Provider>

@@ -11,9 +11,9 @@
  */
 
 import { PageSection, PageSectionVariants, Tab, Tabs, Title } from '@patternfly/react-core';
+import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Location, NavigateFunction } from 'react-router-dom';
 
 import Head from '@/components/Head';
 import ContainerRegistries from '@/pages/UserPreferences/ContainerRegistriesTab';
@@ -21,22 +21,21 @@ import GitConfig from '@/pages/UserPreferences/GitConfig';
 import GitServices from '@/pages/UserPreferences/GitServices';
 import PersonalAccessTokens from '@/pages/UserPreferences/PersonalAccessTokens';
 import SshKeys from '@/pages/UserPreferences/SshKeys';
-import { ROUTE } from '@/Routes';
+import { ROUTE } from '@/Routes/routes';
 import { UserPreferencesTab } from '@/services/helpers/types';
 import { AppState } from '@/store';
 import { actionCreators } from '@/store/GitOauthConfig';
 import { selectIsLoading } from '@/store/GitOauthConfig/selectors';
 
 export type Props = {
-  location: Location;
-  navigate: NavigateFunction;
+  history: History;
 } & MappedProps;
 
 export type State = {
   activeTabKey: UserPreferencesTab;
 };
 
-class UserPreferences extends React.PureComponent<Props, State> {
+export class UserPreferences extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -48,7 +47,7 @@ class UserPreferences extends React.PureComponent<Props, State> {
   }
 
   private getActiveTabKey(): UserPreferencesTab {
-    const { pathname, search } = this.props.location;
+    const { pathname, search } = this.props.history.location;
 
     if (search) {
       const searchParam = new URLSearchParams(search);
@@ -73,7 +72,7 @@ class UserPreferences extends React.PureComponent<Props, State> {
     activeTabKey: string | number,
   ): void {
     event.stopPropagation();
-    this.props.navigate(`${ROUTE.USER_PREFERENCES}?tab=${activeTabKey}`);
+    this.props.history.push(`${ROUTE.USER_PREFERENCES}?tab=${activeTabKey}`);
 
     this.setState({
       activeTabKey: activeTabKey as UserPreferencesTab,

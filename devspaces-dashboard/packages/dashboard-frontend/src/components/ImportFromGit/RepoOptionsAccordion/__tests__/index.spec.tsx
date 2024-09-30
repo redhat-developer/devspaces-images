@@ -11,6 +11,7 @@
  */
 
 import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
@@ -20,6 +21,10 @@ import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentR
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
 const { createSnapshot, renderComponent } = getComponentRenderer(getComponent);
+
+const history = createMemoryHistory({
+  initialEntries: ['/'],
+});
 
 jest.mock('@/components/ImportFromGit/RepoOptionsAccordion/AdvancedOptions');
 jest.mock('@/components/ImportFromGit/RepoOptionsAccordion/GitRepoOptions');
@@ -148,7 +153,7 @@ describe('RepoOptionsAccordion', () => {
 function getComponent(store: Store, location: string) {
   return (
     <Provider store={store}>
-      <RepoOptionsAccordion location={location} onChange={mockOnChange} />
+      <RepoOptionsAccordion history={history} location={location} onChange={mockOnChange} />
     </Provider>
   );
 }

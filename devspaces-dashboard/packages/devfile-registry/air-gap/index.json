@@ -15,11 +15,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-php-hello-world-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-php-hello-world-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-php-hello-world-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-php-hello-world-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -43,11 +43,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-dotnet-web-simple-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-dotnet-web-simple-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-dotnet-web-simple-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-dotnet-web-simple-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -68,11 +68,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-nodejs-mongodb-sample-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-nodejs-mongodb-sample-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-nodejs-mongodb-sample-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-nodejs-mongodb-sample-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -93,11 +93,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-lombok-project-sample-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-lombok-project-sample-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-lombok-project-sample-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-lombok-project-sample-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -117,11 +117,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-web-nodejs-sample-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-web-nodejs-sample-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-web-nodejs-sample-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-web-nodejs-sample-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -146,11 +146,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-c-plus-plus-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-c-plus-plus-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-c-plus-plus-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-c-plus-plus-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -169,11 +169,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-ansible-devspaces-demo-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-ansible-devspaces-demo-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-ansible-devspaces-demo-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-ansible-devspaces-demo-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -194,11 +194,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-quarkus-quickstarts-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-quarkus-quickstarts-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-quarkus-quickstarts-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-quarkus-quickstarts-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -218,11 +218,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-golang-health-check-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-golang-health-check-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-golang-health-check-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-golang-health-check-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {
@@ -241,11 +241,11 @@
     },
     "project": {
       "zip": {
-        "filename": "devspaces-samples-python-hello-world-devspaces-3-rhel-8.zip"
+        "filename": "devspaces-samples-python-hello-world-devspaces-3.17-rhel-8.zip"
       }
     },
     "devfile": {
-      "filename": "devspaces-samples-python-hello-world-devspaces-3-rhel-8-devfile.yaml"
+      "filename": "devspaces-samples-python-hello-world-devspaces-3.17-rhel-8-devfile.yaml"
     }
   },
   {

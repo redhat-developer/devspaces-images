@@ -14,10 +14,10 @@ import { api } from '@eclipse-che/common';
 import { StateMock } from '@react-mock/state';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import { dump } from 'js-yaml';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Location } from 'react-router-dom';
 import { Action, Store } from 'redux';
 
 import ExpandableWarning from '@/components/ExpandableWarning';
@@ -26,6 +26,7 @@ import CreatingStepApplyDevfile, {
   State,
 } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile';
 import { prepareDevfile } from '@/components/WorkspaceProgress/CreatingSteps/Apply/Devfile/prepareDevfile';
+import { ROUTE } from '@/Routes/routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import devfileApi from '@/services/devfileApi';
 import { getDefer } from '@/services/helpers/deferred';
@@ -34,7 +35,6 @@ import {
   FACTORY_URL_ATTR,
   POLICIES_CREATE_ATTR,
 } from '@/services/helpers/factoryFlow/buildFactoryParams';
-import { buildFactoryLocation } from '@/services/helpers/location';
 import { AlertItem } from '@/services/helpers/types';
 import { che } from '@/services/models';
 import { AppThunk } from '@/store';
@@ -60,8 +60,7 @@ jest.mock('@/store/Workspaces/index', () => {
 });
 
 const { renderComponent } = getComponentRenderer(getComponent);
-
-let location: Location;
+let history: MemoryHistory;
 
 const mockOnNextStep = jest.fn();
 const mockOnRestart = jest.fn();
@@ -87,13 +86,15 @@ describe('Creating steps, applying a devfile', () => {
 
     (prepareDevfile as jest.Mock).mockReturnValue(devfile);
 
+    history = createMemoryHistory({
+      initialEntries: [ROUTE.FACTORY_LOADER],
+    });
+
     factoryId = `${FACTORY_URL_ATTR}=${factoryUrl}`;
 
     searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
     });
-    location = buildFactoryLocation();
-    location.search = searchParams.toString();
 
     jest.useFakeTimers();
 
@@ -133,7 +134,7 @@ describe('Creating steps, applying a devfile', () => {
       expect(mockOnRestart).not.toHaveBeenCalled();
 
       // stay on the factory loader page
-      expect(location.pathname).toContain('/load-factory');
+      expect(history.location.pathname).toContain('/load-factory');
     });
 
     test('action callback to restart the step', async () => {
@@ -723,7 +724,7 @@ describe('Creating steps, applying a devfile', () => {
     expect(mockOnRestart).not.toHaveBeenCalled();
 
     // stay on the factory loader page
-    expect(location.pathname).toContain('/load-factory');
+    expect(history.location.pathname).toContain('/load-factory');
 
     // imitate the timeout has been expired
     const timeoutButton = screen.getByRole('button', { name: 'onTimeout' });
@@ -746,7 +747,7 @@ describe('Creating steps, applying a devfile', () => {
     await waitFor(() => expect(mockOnError).toHaveBeenCalledWith(expectAlertItem));
 
     // stay on the factory loader page
-    expect(location.pathname).toContain('/load-factory');
+    expect(history.location.pathname).toContain('/load-factory');
     expect(mockOnNextStep).not.toHaveBeenCalled();
     expect(mockOnRestart).not.toHaveBeenCalled();
   });
@@ -769,7 +770,7 @@ describe('Creating steps, applying a devfile', () => {
     expect(mockOnError).not.toHaveBeenCalled();
 
     // stay on the factory loader page
-    expect(location.pathname).toContain('/load-factory');
+    expect(history.location.pathname).toContain('/load-factory');
     expect(mockOnNextStep).not.toHaveBeenCalled();
 
     // build next store
@@ -790,7 +791,7 @@ describe('Creating steps, applying a devfile', () => {
     await jest.advanceTimersByTimeAsync(MIN_STEP_DURATION_MS);
 
     await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
-    expect(location.pathname).toEqual(`/ide/user-che/${devfileName}`);
+    expect(history.location.pathname).toEqual(`/ide/user-che/${devfileName}`);
 
     await waitFor(() => expect(screen.queryByTestId('loader-alert')).toBeFalsy());
   });
@@ -846,8 +847,7 @@ function getComponent(
       distance={0}
       hasChildren={false}
       searchParams={searchParams}
-      location={location}
-      navigate={jest.fn()}
+      history={history}
       onNextStep={mockOnNextStep}
       onRestart={mockOnRestart}
       onError={mockOnError}

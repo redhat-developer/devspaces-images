@@ -12,14 +12,14 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Location } from 'react-router-dom';
 import { Store } from 'redux';
 
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '@/components/WorkspaceProgress/const';
 import { container } from '@/inversify.config';
-import { WorkspaceRouteParams } from '@/Routes';
+import { WorkspaceParams } from '@/Routes/routes';
 import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import { getDefer } from '@/services/helpers/deferred';
 import { AlertItem } from '@/services/helpers/types';
@@ -45,7 +45,7 @@ const mockOnHideError = jest.fn();
 
 const namespace = 'che-user';
 const workspaceName = 'test-workspace';
-const matchParams: WorkspaceRouteParams = {
+const matchParams: WorkspaceParams = {
   namespace,
   workspaceName,
 };
@@ -74,7 +74,7 @@ describe('Starting steps, opening an editor', () => {
   describe('workspace not found', () => {
     const wrongWorkspaceName = 'wrong-workspace-name';
     let store: Store;
-    let paramsWithWrongName: WorkspaceRouteParams;
+    let paramsWithWrongName: WorkspaceParams;
 
     beforeEach(() => {
       store = new FakeStoreBuilder()
@@ -468,15 +468,15 @@ describe('Starting steps, opening an editor', () => {
 
 function getComponent(
   store: Store,
-  params: WorkspaceRouteParams = matchParams,
+  params: { namespace: string; workspaceName: string } = matchParams,
 ): React.ReactElement {
+  const history = createMemoryHistory();
   return (
     <Provider store={store}>
       <StartingStepOpenWorkspace
         distance={0}
         hasChildren={false}
-        location={{} as Location}
-        navigate={jest.fn()}
+        history={history}
         matchParams={params}
         onNextStep={mockOnNextStep}
         onRestart={mockOnRestart}
