@@ -11,12 +11,12 @@
  */
 
 import { ValidatedOptions } from '@patternfly/react-core';
+import { StateMock } from '@react-mock/state';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
-
-import { GitConfigUserName } from '..';
+import { GitConfigUserName, State } from '@/pages/UserPreferences/GitConfig/Form/SectionUser/Name';
+import getComponentRenderer, { screen, waitFor } from '@/services/__mocks__/getComponentRenderer';
 
 jest.mock('@/components/InputGroupExtended');
 
@@ -58,14 +58,20 @@ describe('GitConfigUserName', () => {
     expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
   });
 
-  it('should re-validate on component update', () => {
-    const { reRenderComponent } = renderComponent('', false);
+  it('should reset validation', async () => {
+    const initialValue = 'user name';
+    const localState: Partial<State> = {
+      value: '',
+      validated: ValidatedOptions.error,
+    };
 
-    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.error);
+    const { reRenderComponent } = renderComponent(initialValue, true, localState);
 
-    reRenderComponent('valid name', false);
+    reRenderComponent(initialValue, false, localState);
 
-    expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default);
+    await waitFor(() =>
+      expect(screen.getByTestId('validated')).toHaveTextContent(ValidatedOptions.default),
+    );
   });
 
   it('should handle value changing', async () => {
@@ -79,6 +85,17 @@ describe('GitConfigUserName', () => {
   });
 });
 
-function getComponent(value: string, isLoading: boolean): React.ReactElement {
+function getComponent(
+  value: string,
+  isLoading: boolean,
+  localState?: Partial<State>,
+): React.ReactElement {
+  if (localState) {
+    return (
+      <StateMock state={localState}>
+        <GitConfigUserName isLoading={isLoading} value={value} onChange={mockOnChange} />
+      </StateMock>
+    );
+  }
   return <GitConfigUserName isLoading={isLoading} value={value} onChange={mockOnChange} />;
 }

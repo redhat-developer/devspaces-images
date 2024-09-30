@@ -28,8 +28,8 @@ export type Props = {
   onChange: (value: string, isValid: boolean) => void;
 };
 export type State = {
-  errorMessage?: string;
   validated: ValidatedOptions | undefined;
+  value: string | undefined;
 };
 
 export class GitConfigUserEmail extends React.PureComponent<Props, State> {
@@ -37,59 +37,59 @@ export class GitConfigUserEmail extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      validated: undefined,
+      validated: ValidatedOptions.default,
+      value: props.value,
     };
   }
 
-  public componentDidMount(): void {
-    const { value } = this.props;
-    this.validate(value, true);
-  }
-
-  public componentDidUpdate(prevProps: Readonly<Props>): void {
-    const { value } = this.props;
-    if (value !== prevProps.value) {
-      this.validate(value, true);
+  public componentDidUpdate(_prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (prevState.value === this.state.value && this.props.value !== this.state.value) {
+      // reset the initial value
+      this.setState({
+        value: this.props.value,
+        validated: ValidatedOptions.default,
+      });
     }
   }
 
   private handleChange(value: string): void {
-    const isValid = this.validate(value);
+    const validate = this.validate(value);
+    const isValid = validate === ValidatedOptions.success;
+
+    this.setState({
+      value,
+      validated: validate,
+    });
     this.props.onChange(value, isValid);
   }
 
-  private validate(value: string, initial = false): boolean {
+  private validate(value: string): ValidatedOptions {
     if (value.length === 0) {
-      this.setState({
-        errorMessage: ERROR_REQUIRED_VALUE,
-        validated: ValidatedOptions.error,
-      });
-      return false;
+      return ValidatedOptions.error;
     }
     if (value.length > MAX_LENGTH) {
-      this.setState({
-        errorMessage: ERROR_MAX_LENGTH,
-        validated: ValidatedOptions.error,
-      });
-      return false;
+      return ValidatedOptions.error;
     }
     if (!REGEX.test(value)) {
-      this.setState({
-        errorMessage: ERROR_INVALID_EMAIL,
-        validated: ValidatedOptions.error,
-      });
-      return false;
+      return ValidatedOptions.error;
     }
-    this.setState({
-      errorMessage: undefined,
-      validated: initial === true ? ValidatedOptions.default : ValidatedOptions.success,
-    });
-    return true;
+    return ValidatedOptions.success;
   }
 
   public render(): React.ReactElement {
-    const { isLoading, value } = this.props;
-    const { errorMessage, validated } = this.state;
+    const { isLoading } = this.props;
+    const { value = '', validated } = this.state;
+
+    let errorMessage: string;
+    if (value.length === 0) {
+      errorMessage = ERROR_REQUIRED_VALUE;
+    } else if (value.length > MAX_LENGTH) {
+      errorMessage = ERROR_MAX_LENGTH;
+    } else if (!REGEX.test(value)) {
+      errorMessage = ERROR_INVALID_EMAIL;
+    } else {
+      errorMessage = '';
+    }
 
     const fieldId = 'gitconfig-user-email';
 

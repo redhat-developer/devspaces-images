@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { api } from '@eclipse-che/common';
+import { api, helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 import * as ini from 'multi-ini';
 
@@ -41,7 +41,50 @@ export class GitConfigApiService implements IGitConfigApi {
 
       return this.toGitConfig(response.body);
     } catch (error) {
+      if (helpers.errors.isKubeClientError(error) && error.statusCode === 404) {
+        // Create gitconfig configmap if it does not exist
+        return this.createGitConfigMap(namespace);
+      }
+
       const message = `Unable to read gitconfig in the namespace "${namespace}"`;
+      throw createError(error, GITCONFIG_API_ERROR_LABEL, message);
+    }
+  }
+
+  /**
+   * @throws
+   * Creates `gitconfig` ConfigMap in the given `namespace`.
+   */
+  private async createGitConfigMap(namespace: string): Promise<api.IGitConfig> {
+    const configMap = new k8s.V1ConfigMap();
+    configMap.metadata = {
+      name: GITCONFIG_CONFIGMAP,
+      namespace,
+      labels: {
+        'controller.devfile.io/mount-to-devworkspace': 'true',
+        'controller.devfile.io/watch-configmap': 'true',
+      },
+      annotations: {
+        'controller.devfile.io/mount-as': 'subpath',
+        'controller.devfile.io/mount-path': '/etc/',
+      },
+    };
+    configMap.data = {
+      gitconfig: this.fromGitConfig({
+        gitconfig: {
+          user: {
+            name: '',
+            email: '',
+          },
+        },
+      }),
+    };
+
+    try {
+      const response = await this.coreV1API.createNamespacedConfigMap(namespace, configMap);
+      return this.toGitConfig(response.body);
+    } catch (error) {
+      const message = `Unable to create gitconfig in the namespace "${namespace}"`;
       throw createError(error, GITCONFIG_API_ERROR_LABEL, message);
     }
   }

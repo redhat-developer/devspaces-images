@@ -26,8 +26,8 @@ export type Props = {
   onChange: (value: string, isValid: boolean) => void;
 };
 export type State = {
-  errorMessage?: string;
   validated: ValidatedOptions | undefined;
+  value: string | undefined;
 };
 
 export class GitConfigUserName extends React.PureComponent<Props, State> {
@@ -35,53 +35,55 @@ export class GitConfigUserName extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      validated: undefined,
+      validated: ValidatedOptions.default,
+      value: props.value,
     };
   }
 
-  public componentDidMount(): void {
-    const { value } = this.props;
-    this.validate(value, true);
-  }
-
-  public componentDidUpdate(prevProps: Readonly<Props>): void {
-    const { value } = this.props;
-    if (value !== prevProps.value) {
-      this.validate(value, true);
+  public componentDidUpdate(_prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (prevState.value === this.state.value && this.props.value !== this.state.value) {
+      // reset the initial value
+      this.setState({
+        value: this.props.value,
+        validated: ValidatedOptions.default,
+      });
     }
   }
 
   private handleChange(value: string): void {
-    const isValid = this.validate(value);
+    const validated = this.validate(value);
+    const isValid = validated === ValidatedOptions.success;
+
+    this.setState({
+      value,
+      validated,
+    });
     this.props.onChange(value, isValid);
   }
 
-  private validate(value: string, initial = false): boolean {
+  private validate(value: string): ValidatedOptions {
     if (value.length === 0) {
-      this.setState({
-        errorMessage: ERROR_REQUIRED_VALUE,
-        validated: ValidatedOptions.error,
-      });
-      return false;
+      return ValidatedOptions.error;
     }
     if (value.length > MAX_LENGTH) {
-      this.setState({
-        errorMessage: ERROR_MAX_LENGTH,
-        validated: ValidatedOptions.error,
-      });
-      return false;
+      return ValidatedOptions.error;
     }
 
-    this.setState({
-      errorMessage: undefined,
-      validated: initial === true ? ValidatedOptions.default : ValidatedOptions.success,
-    });
-    return true;
+    return ValidatedOptions.success;
   }
 
   public render(): React.ReactElement {
-    const { isLoading, value } = this.props;
-    const { errorMessage, validated } = this.state;
+    const { isLoading } = this.props;
+    const { value = '', validated } = this.state;
+
+    let errorMessage: string;
+    if (value.length === 0) {
+      errorMessage = ERROR_REQUIRED_VALUE;
+    } else if (value.length > MAX_LENGTH) {
+      errorMessage = ERROR_MAX_LENGTH;
+    } else {
+      errorMessage = '';
+    }
 
     const fieldId = 'gitconfig-user-name';
 
