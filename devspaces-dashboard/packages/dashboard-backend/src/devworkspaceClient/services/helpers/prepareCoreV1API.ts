@@ -16,6 +16,7 @@ import { retryableExec } from '@/devworkspaceClient/services/helpers/retryableEx
 
 export type CoreV1API = Pick<
   k8s.CoreV1Api,
+  | 'createNamespacedConfigMap'
   | 'createNamespacedSecret'
   | 'listNamespace'
   | 'listNamespacedEvent'
@@ -33,6 +34,8 @@ export type CoreV1API = Pick<
 export function prepareCoreV1API(kc: k8s.KubeConfig): CoreV1API {
   const coreV1API = kc.makeApiClient(k8s.CoreV1Api);
   return {
+    createNamespacedConfigMap: (...args: Parameters<typeof coreV1API.createNamespacedConfigMap>) =>
+      retryableExec(() => coreV1API.createNamespacedConfigMap(...args)),
     createNamespacedSecret: (...args: Parameters<typeof coreV1API.createNamespacedSecret>) =>
       retryableExec(() => coreV1API.createNamespacedSecret(...args)),
     listNamespace: (...args: Parameters<typeof coreV1API.listNamespace>) =>

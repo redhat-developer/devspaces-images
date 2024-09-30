@@ -391,6 +391,29 @@ describe('Starting steps, opening an editor', () => {
         .build();
     });
 
+    test('should not show notification alert if STARTING', async () => {
+      store = new FakeStoreBuilder()
+        .withDevWorkspaces({
+          workspaces: [
+            new DevWorkspaceBuilder()
+              .withName(workspaceName)
+              .withNamespace(namespace)
+              .withStatus({ phase: 'STARTING' })
+              .build(),
+          ],
+        })
+        .build();
+      renderComponent(store);
+      jest.runAllTimers();
+
+      // trigger timeout
+      const timeoutButton = screen.queryByRole('button', {
+        name: 'onTimeout',
+      });
+      expect(timeoutButton).toBeNull();
+      expect(mockOnError).not.toHaveBeenCalled();
+    });
+
     test('notification alert', async () => {
       renderComponent(store);
       jest.runAllTimers();
