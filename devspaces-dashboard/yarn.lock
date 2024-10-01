@@ -353,6 +353,18 @@
     node-fetch "^2.6.0"
     url-parse "^1.4.3"
 
+"@devfile/api@2.3.0-1725380172":
+  version "2.3.0-1725380172"
+  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.3.0-1725380172.tgz#516b91e95c84d46468afd1fff4dc68e124a5fb41"
+  integrity sha512-J0O2h81M3kcbkwLnod64aHH9PAUzHRJyOvfDyOE8LSv62Yj+3tf0MYHPXOFWMwQWFUFTymMK2fHPnINWaV6MxQ==
+  dependencies:
+    "@types/node" "*"
+    "@types/node-fetch" "^2.5.7"
+    es6-promise "^4.2.4"
+    form-data "^2.5.0"
+    node-fetch "^2.6.0"
+    url-parse "^1.4.3"
+
 "@discoveryjs/json-ext@0.5.7", "@discoveryjs/json-ext@^0.5.0":
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
@@ -363,13 +375,13 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.86.0.tgz#c4bfe23fb0a34e864ba5a45cd3d5b7f3332cef13"
   integrity sha512-WDmnzopqKXPO3jozfrZ8mXVxdy/7KnzOv/+o3SzIqKYfEXXcmulG2+FYxzWUAA37T3wgqE1lQ+MACwO7v4PhtA==
 
-"@eclipse-che/che-devworkspace-generator@7.90.0-next-4510df7":
-  version "7.90.0-next-4510df7"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.90.0-next-4510df7.tgz#62b4966c39542f9b96a1d6c260cdaa4eb500340a"
-  integrity sha512-i5tReZa6snaZ7A0hbP+iowZecdOyXdK8crnbIkM+kMKZmElDehxDFuwHZ/I2B/QliAt/2LiBXAk0TBaG8Xm21w==
+"@eclipse-che/che-devworkspace-generator@7.92.0":
+  version "7.92.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-devworkspace-generator/-/che-devworkspace-generator-7.92.0.tgz#708a7e34ac584acaf44bca06825337f682ec45bf"
+  integrity sha512-++P+eIOFepeURSEaZrWvCV5LFslPOihcEm2bAOLdbkRUwN5UuLmgz7O/SgmcLBORXeqoD9vKTZQjh9WP4BaFYg==
   dependencies:
-    "@devfile/api" "2.3.0-1721400636"
-    axios "^1.7.0"
+    "@devfile/api" "2.3.0-1725380172"
+    axios "^1.7.4"
     fs-extra "^11.2.0"
     inversify "^6.0.2"
     js-yaml "^4.0.0"

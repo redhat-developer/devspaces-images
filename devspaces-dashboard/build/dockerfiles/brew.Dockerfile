@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362 as builder
 # hadolint ignore=DL3002
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
@@ -65,6 +65,22 @@ COPY build/dockerfiles/rhel.entrypoint.sh /usr/local/bin
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 
 ## Append Brew metadata
+ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \
+    PRODNAME="devspaces" \
+    COMPNAME="dashboard-rhel8"
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$DESCRIPTION" \
+      io.openshift.tags="$PRODNAME,$COMPNAME" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
+      name="$PRODNAME/$COMPNAME" \
+      version="3.17" \
+      license="EPLv2" \
+      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      io.openshift.expose-services="" \
+      usage=""
 ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \
     PRODNAME="devspaces" \
