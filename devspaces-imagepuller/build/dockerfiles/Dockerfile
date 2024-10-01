@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362 as builder
 ENV GOPATH=/go/ \
     GO111MODULE=on
 
@@ -39,7 +39,7 @@ RUN dnf -y install golang make && \
   make build 
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362
 USER root
 RUN dnf -y update && dnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 # CRW-528 copy actual cert
