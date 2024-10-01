@@ -60,7 +60,6 @@ build/scripts/sync.sh
 build/scripts/sync-builtins.sh
 build/scripts/collect-assets.sh
 build/dockerfiles
-cachito
 code/src/vs/code/electron-main
 code/src/vs/platform/environment/test/node/nativeModules.test.ts
 code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
@@ -116,7 +115,6 @@ pushd "${TARGETDIR}"/ >/dev/null
   CONTAINER_YAML_MODULE_LIST=${CONTAINER_YAML_MODULE_LIST:2}
 
   CONTAINER_YAML_MODULE_LIST+="\n        - path: devspaces-code/launcher"
-  CONTAINER_YAML_MODULE_LIST+="\n        - path: devspaces-code/cachito"
 
   # remove trailing \
   DOCKERFILE_YAML_BUILD_COMMAND=${DOCKERFILE_YAML_BUILD_COMMAND%\\\\}
