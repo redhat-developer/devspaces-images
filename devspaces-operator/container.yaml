@@ -19,7 +19,7 @@ remote_sources:
 - name: devspaces-images-operator
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: cb353791cd0eca2410a438edd3744f546155a2f7
+    ref: fc570cc215ac9e686f4e7d0ae1bfd060016677a4
     pkg_managers: [gomod]
     flags: [gomod-vendor-check]
     packages: 
