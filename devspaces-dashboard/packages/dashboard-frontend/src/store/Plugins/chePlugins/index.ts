@@ -16,6 +16,7 @@ import { Action, Reducer } from 'redux';
 import { che } from '@/services/models';
 import { AppThunk } from '@/store';
 import { createObject } from '@/store/helpers';
+import { convertToEditorPlugin } from '@/store/Plugins/chePlugins/helpers';
 import * as devWorkspacePlugins from '@/store/Plugins/devWorkspacePlugins';
 import { SanityCheckAction } from '@/store/sanityCheckMiddleware';
 
@@ -57,28 +58,7 @@ export const actionCreators: ActionCreators = {
 
         const state = getState();
         const editors = state.dwPlugins.cmEditors || [];
-        const editorsPlugins: che.Plugin[] = editors.map(editor => {
-          return {
-            id:
-              editor.metadata.attributes.publisher +
-              '/' +
-              editor.metadata.name +
-              '/' +
-              editor.metadata.attributes.version,
-            name: editor.metadata.name,
-            description: editor.metadata.description,
-            displayName: editor.metadata.displayName,
-            publisher: editor.metadata.attributes.publisher,
-            type: 'Che Editor',
-            tags: editor.metadata.attributes.tags,
-            version: editor.metadata.attributes.version,
-            links: {
-              devfile: '',
-            },
-            icon: editor.metadata.attributes.iconData,
-            iconMediatype: editor.metadata.attributes.iconMediatype,
-          };
-        });
+        const editorsPlugins = editors.map(editor => convertToEditorPlugin(editor));
         dispatch({
           type: 'RECEIVE_PLUGINS',
           plugins: editorsPlugins,

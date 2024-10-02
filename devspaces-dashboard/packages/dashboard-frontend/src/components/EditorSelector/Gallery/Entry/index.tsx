@@ -150,9 +150,9 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
       groupIconMediatype === 'image/svg+xml'
         ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(groupIcon)}`
         : groupIcon;
-    const hasTechPreviewTag =
-      (activeEditor.tags || []).includes('tech-preview') === true ||
-      /idea/i.test(activeEditor.id) === true;
+    const hasTechPreviewTag = (activeEditor.tags || [])
+      .map(tag => tag.toLowerCase())
+      .includes('tech-preview');
     const tagsGroup = (
       <LabelGroup isVertical>
         <TagLabel type="version" text={activeEditor.version} />
