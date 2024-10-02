@@ -67,6 +67,35 @@ describe('Editor Selector Entry', () => {
     expect(snapshot.toJSON()).toMatchSnapshot();
   });
 
+  describe('Tech-Preview labels', () => {
+    test('should not show without proper tag', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: [] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).toBeNull();
+    });
+
+    test('show if has proper tag "tech-preview"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['tech-preview'] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).not.toBeNull();
+    });
+
+    test('show if has proper tag "Tech-Preview"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['Tech-Preview'] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).not.toBeNull();
+    });
+  });
+
   describe('props change', () => {
     test('sibling editor ID provided later', () => {
       const { reRenderComponent } = renderComponent(editorGroup[0].id, editorGroup);
