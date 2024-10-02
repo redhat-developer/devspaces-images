@@ -103,24 +103,20 @@ if [[ $GET_YARN -eq 1 ]]; then
   chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
 fi
 
-cat << EOT >> ${TARGETDIR}/build/dockerfiles/brew.Dockerfile
-ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \\
-    DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \\
-    PRODNAME="devspaces" \\
-    COMPNAME="dashboard-rhel8"
-LABEL summary="\$SUMMARY" \\
-      description="\$DESCRIPTION" \\
-      io.k8s.description="\$DESCRIPTION" \\
-      io.k8s.display-name="\$DESCRIPTION" \\
-      io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
-      com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
-      name="\$PRODNAME/\$COMPNAME" \\
-      version="${DS_VERSION}" \\
-      license="EPLv2" \\
-      maintainer="Nick Boldt <nboldt@redhat.com>" \\
-      io.openshift.expose-services="" \\
-      usage=""
-EOT
+sed_in_place() {
+    SHORT_UNAME=$(uname -s)
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "$@"
+  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+    sed -i "$@"
+  fi
+}
+
+sed_in_place -r \
+  `# Update DevSpaces version for Dockerfile` \
+  -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
+  "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
+
 echo "Converted brew.Dockerfile"
 
 # apply DS branding styles
