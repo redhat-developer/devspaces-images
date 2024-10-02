@@ -43,8 +43,8 @@ RUN yarn build
 # cachito:yarn step 6: cleanup (required only if not using a builder stage)
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
-# https://registry.access.redhat.com/ubi8/nodejs-18
-FROM ubi8/nodejs-18:1-127
+# https://registry.access.redhat.com/rhel9-2-els/rhel
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006
