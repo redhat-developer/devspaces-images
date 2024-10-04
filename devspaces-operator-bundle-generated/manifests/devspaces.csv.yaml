@@ -823,9 +823,9 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:d8a5a7e71a78a62adaee4812636e4b9fa7e5b6d3225a59c101284e31cee6ca7e
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:202cd7babba5dbc75e99ecb6131a51327c28a2e4a9f367bcf10fbdff027e29e1
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:61067e57c5cb23873fa095587387b28560ca8d630b49f137f217dd5bb024665b
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:69fd9014302e8df021f555ea240356d397ecfaad213e4ca2b07f2a5b6a8e0525
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_injector
                   value: registry.redhat.io/devspaces/code-rhel8@sha256:0f19a4c395bca95628b75bb9d3e86168c53406fbb4635c93c2be2d70b6770aa7
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_runtime_description
@@ -1031,9 +1031,9 @@ spec:
   - name: devspaces-operator
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:896128ff7641db7670fa60339820a648432e3cf6a75f55d1f28005bdfde32711
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:d8a5a7e71a78a62adaee4812636e4b9fa7e5b6d3225a59c101284e31cee6ca7e
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:202cd7babba5dbc75e99ecb6131a51327c28a2e4a9f367bcf10fbdff027e29e1
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:61067e57c5cb23873fa095587387b28560ca8d630b49f137f217dd5bb024665b
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:69fd9014302e8df021f555ea240356d397ecfaad213e4ca2b07f2a5b6a8e0525
   - name: editor_definition_che_code_latest_che_code_injector
     image: registry.redhat.io/devspaces/code-rhel8@sha256:0f19a4c395bca95628b75bb9d3e86168c53406fbb4635c93c2be2d70b6770aa7
   - name: editor_definition_che_code_latest_che_code_runtime_description
