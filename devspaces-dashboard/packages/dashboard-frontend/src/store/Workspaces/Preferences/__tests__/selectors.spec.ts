@@ -16,7 +16,6 @@ import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 import {
   selectPreferences,
   selectPreferencesError,
-  selectPreferencesIsTrustedSource,
   selectPreferencesSkipAuthorization,
   selectPreferencesTrustedSources,
 } from '@/store/Workspaces/Preferences/selectors';
@@ -63,53 +62,5 @@ describe('Workspace preferences, selectors', () => {
     const result = selectPreferencesTrustedSources(state);
 
     expect(result).toEqual(mockState.preferences['trusted-sources']);
-  });
-
-  describe('check if a location is a trusted source', () => {
-    it('some sources are trusted', () => {
-      const store = new FakeStoreBuilder()
-        .withWorkspacePreferences({
-          'skip-authorisation': mockState.preferences['skip-authorisation'],
-          'trusted-sources': ['source1'],
-          error: mockState.error,
-        })
-        .build();
-      const state = store.getState();
-      const result = selectPreferencesIsTrustedSource(state);
-
-      expect(result('source1')).toBeTruthy();
-      expect(result('source2')).toBeFalsy();
-    });
-
-    it('all sources are trusted', () => {
-      const store = new FakeStoreBuilder()
-        .withWorkspacePreferences({
-          'skip-authorisation': mockState.preferences['skip-authorisation'],
-          'trusted-sources': '*',
-          error: mockState.error,
-        })
-        .build();
-      const state = store.getState();
-
-      selectPreferences(state);
-      const result = selectPreferencesIsTrustedSource(state);
-
-      expect(result('any-source')).toBeTruthy();
-    });
-
-    it('no sources are trusted', () => {
-      const store = new FakeStoreBuilder()
-        .withWorkspacePreferences({
-          'skip-authorisation': mockState.preferences['skip-authorisation'],
-          'trusted-sources': undefined,
-          error: mockState.error,
-        })
-        .build();
-      const state = store.getState();
-
-      const result = selectPreferencesIsTrustedSource(state);
-
-      expect(result('any-source')).toBeFalsy();
-    });
   });
 });

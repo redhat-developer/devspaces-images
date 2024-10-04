@@ -13,7 +13,6 @@
 import { createSelector } from 'reselect';
 
 import { AppState } from '@/store';
-import { isTrustedRepo } from '@/store/Workspaces/Preferences/helpers';
 
 const selectState = (state: AppState) => state.workspacePreferences;
 
@@ -29,21 +28,4 @@ export const selectPreferencesSkipAuthorization = createSelector(
 export const selectPreferencesTrustedSources = createSelector(
   selectPreferences,
   state => state['trusted-sources'],
-);
-
-export const selectPreferencesIsTrustedSource = createSelector(
-  selectPreferencesTrustedSources,
-  trustedSources => {
-    return (location: string) => {
-      if (!trustedSources || (Array.isArray(trustedSources) && trustedSources.length === 0)) {
-        // no trusted sources yet
-        return false;
-      } else if (trustedSources === '*') {
-        // all sources are trusted
-        return true;
-      }
-
-      return isTrustedRepo(trustedSources, location);
-    };
-  },
 );

@@ -10,6 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
+
 export const gitProviderPatterns = {
   github: {
     https: /^https:\/\/github\.com\/([^\\/]+\/[^\\/]+)(?:\/.*)?$/,
@@ -100,13 +102,23 @@ function getRepoPattern(url: string): RegExp | undefined {
   }
 }
 
-export function isTrustedRepo(trustedUrls: string[], url: string | URL): boolean {
+export function isTrustedRepo(
+  trustedSources: api.TrustedSources | undefined,
+  url: string | URL,
+): boolean {
+  if (trustedSources === undefined) {
+    return false;
+  }
+  if (trustedSources === '*') {
+    return true;
+  }
+
   const urlString = url.toString();
   const urlPattern = getRepoPattern(urlString);
   const urlRepo = extractRepo(urlString, urlPattern);
 
   // Check if the URL matches any of the trusted repositories
-  return trustedUrls.some(trustedUrl => {
+  return trustedSources.some(trustedUrl => {
     const trustedUrlPattern = getRepoPattern(trustedUrl);
     const trustedUrlRepo = extractRepo(trustedUrl, trustedUrlPattern);
 

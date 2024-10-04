@@ -49,7 +49,8 @@ import { Workspace } from '@/services/workspace-adapter';
 import { AppState } from '@/store';
 import { selectIsRegistryDevfile } from '@/store/DevfileRegistries/selectors';
 import * as WorkspaceStore from '@/store/Workspaces';
-import { selectPreferencesIsTrustedSource } from '@/store/Workspaces/Preferences';
+import { selectPreferencesTrustedSources } from '@/store/Workspaces/Preferences';
+import { isTrustedRepo } from '@/store/Workspaces/Preferences/helpers';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps & {
@@ -157,7 +158,7 @@ class Progress extends React.Component<Props, State> {
       } else {
         // if workspace is not created yet, check if source is trusted
         const { sourceUrl } = this.state.factoryParams;
-        const isTrustedSource = this.props.isTrustedSource(sourceUrl);
+        const isTrustedSource = isTrustedRepo(props.trustedSources, sourceUrl);
         const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
         // trust source if it is taken from the registry or it is in the list of trusted sources
         if (isRegistryDevfile || isTrustedSource) {
@@ -705,7 +706,7 @@ class Progress extends React.Component<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   isRegistryDevfile: selectIsRegistryDevfile(state),
-  isTrustedSource: selectPreferencesIsTrustedSource(state),
+  trustedSources: selectPreferencesTrustedSources(state),
 });
 
 const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {

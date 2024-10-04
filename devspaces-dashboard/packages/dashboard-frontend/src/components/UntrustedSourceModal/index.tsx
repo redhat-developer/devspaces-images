@@ -28,10 +28,8 @@ import { AppAlerts } from '@/services/alerts/appAlerts';
 import { AppState } from '@/store';
 import { selectIsAllowedSourcesConfigured } from '@/store/ServerConfig/selectors';
 import { workspacePreferencesActionCreators } from '@/store/Workspaces/Preferences';
-import {
-  selectPreferencesIsTrustedSource,
-  selectPreferencesTrustedSources,
-} from '@/store/Workspaces/Preferences/selectors';
+import { isTrustedRepo } from '@/store/Workspaces/Preferences/helpers';
+import { selectPreferencesTrustedSources } from '@/store/Workspaces/Preferences/selectors';
 
 export type Props = MappedProps & {
   location: string;
@@ -58,15 +56,15 @@ class UntrustedSourceModal extends React.Component<Props, State> {
     this.state = {
       canContinue: true,
       continueButtonDisabled: false,
-      isTrusted: this.props.isTrustedSource(props.location),
+      isTrusted: isTrustedRepo(props.trustedSources, props.location),
       isAllowedSourcesConfigured: this.props.isAllowedSourcesConfigured,
       trustAllCheckbox: false,
     };
   }
 
   public shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>): boolean {
-    const isTrusted = this.props.isTrustedSource(this.props.location);
-    const nextIsTrusted = nextProps.isTrustedSource(nextProps.location);
+    const isTrusted = isTrustedRepo(this.props.trustedSources, this.props.location);
+    const nextIsTrusted = isTrustedRepo(nextProps.trustedSources, nextProps.location);
     if (isTrusted !== nextIsTrusted) {
       return true;
     }
@@ -101,7 +99,7 @@ class UntrustedSourceModal extends React.Component<Props, State> {
   }
 
   public componentDidUpdate(prevProps: Readonly<Props>): void {
-    const isTrusted = this.props.isTrustedSource(this.props.location);
+    const isTrusted = isTrustedRepo(this.props.trustedSources, this.props.location);
     const isAllowedSourcesConfigured = this.props.isAllowedSourcesConfigured;
 
     this.setState({
@@ -237,7 +235,6 @@ class UntrustedSourceModal extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   trustedSources: selectPreferencesTrustedSources(state),
-  isTrustedSource: selectPreferencesIsTrustedSource(state),
   isAllowedSourcesConfigured: selectIsAllowedSourcesConfigured(state),
 });
 
