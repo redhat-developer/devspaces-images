@@ -44,7 +44,7 @@ RUN yarn build
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
 # https://registry.access.redhat.com/ubi9/nodejs-18
-FROM ubi9/nodejs-18:1-123
+FROM ubi9/nodejs-18:1-123.1726663411
 # hadolint ignore=DL3002
 USER 0
 # hadolint ignore=DL4006

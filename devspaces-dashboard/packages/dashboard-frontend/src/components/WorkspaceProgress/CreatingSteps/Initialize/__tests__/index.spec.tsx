@@ -338,7 +338,7 @@ describe('Creating steps, initializing', () => {
       [FACTORY_URL_ATTR]: factoryUrl,
     });
 
-    renderComponent(store, searchParams);
+    const { reRenderComponent } = renderComponent(store, searchParams);
 
     const stepTitle = screen.getByTestId('step-title');
     expect(stepTitle.textContent).not.toContain('untrusted source');
@@ -349,6 +349,26 @@ describe('Creating steps, initializing', () => {
     expect(stepTitleNext.textContent).toContain('untrusted source');
 
     expect(mockOnNextStep).not.toHaveBeenCalled();
+
+    // add factory URL to trusted sources
+    const nextStore = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .withSshKeys({
+        keys: [{ name: 'key1', keyPub: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD' }],
+      })
+      .withWorkspacePreferences({
+        'trusted-sources': ['some-trusted-source', factoryUrl],
+      })
+      .build();
+
+    reRenderComponent(nextStore, searchParams);
+
+    await jest.runOnlyPendingTimersAsync();
+
+    const _stepTitleNext = screen.getByTestId('step-title');
+    await waitFor(() => expect(_stepTitleNext.textContent).not.toContain('untrusted source'));
+
+    await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
   });
 
   test('source URL is not allowed', async () => {

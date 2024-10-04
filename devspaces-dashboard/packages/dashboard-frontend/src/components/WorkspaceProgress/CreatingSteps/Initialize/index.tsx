@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { helpers } from '@eclipse-che/common';
+import { api, helpers } from '@eclipse-che/common';
 import { AlertVariant, pluralize } from '@patternfly/react-core';
 import isEqual from 'lodash/isEqual';
 import React from 'react';
@@ -39,7 +39,8 @@ import { selectInfrastructureNamespaces } from '@/store/InfrastructureNamespaces
 import { isSourceAllowed } from '@/store/ServerConfig/helpers';
 import { selectAllowedSources } from '@/store/ServerConfig/selectors';
 import { selectSshKeys } from '@/store/SshKeys/selectors';
-import { selectPreferencesIsTrustedSource } from '@/store/Workspaces/Preferences';
+import { selectPreferencesTrustedSources } from '@/store/Workspaces/Preferences';
+import { isTrustedRepo } from '@/store/Workspaces/Preferences/helpers';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 export type Props = MappedProps &
@@ -102,8 +103,13 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     }
 
     // source URL trusted/untrusted
-    const { sourceUrl } = nextState.factoryParams;
-    if (this.state.isSourceTrusted !== this.isSourceTrusted(sourceUrl)) {
+    const trustedSourcesStr = Array.isArray(this.props.trustedSources)
+      ? this.props.trustedSources.join(',')
+      : this.props.trustedSources;
+    const nextTrustedSourcesStr = Array.isArray(nextProps.trustedSources)
+      ? nextProps.trustedSources.join(',')
+      : nextProps.trustedSources;
+    if (trustedSourcesStr !== nextTrustedSourcesStr) {
       return true;
     }
 
@@ -148,7 +154,8 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
 
       // check if the source is trusted
       const isSourceTrusted =
-        this.isSourceTrusted(sourceUrl) || this.props.allowedSources.length > 0;
+        this.isSourceTrusted(this.props.trustedSources, sourceUrl) ||
+        this.props.allowedSources.length > 0;
 
       if (isSourceTrusted === true) {
         this.setState({
@@ -261,8 +268,11 @@ class CreatingStepInitialize extends ProgressStep<Props, State> {
     }
   }
 
-  private isSourceTrusted(sourceUrl: string): boolean {
-    const isTrustedSource = this.props.isTrustedSource(sourceUrl);
+  private isSourceTrusted(
+    trustedSources: api.TrustedSources | undefined,
+    sourceUrl: string,
+  ): boolean {
+    const isTrustedSource = isTrustedRepo(trustedSources, sourceUrl);
     const isRegistryDevfile = this.props.isRegistryDevfile(sourceUrl);
     if (isRegistryDevfile || isTrustedSource) {
       return true;
@@ -319,7 +329,7 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspacesLimit: selectAllWorkspacesLimit(state),
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
   isRegistryDevfile: selectIsRegistryDevfile(state),
-  isTrustedSource: selectPreferencesIsTrustedSource(state),
+  trustedSources: selectPreferencesTrustedSources(state),
   allowedSources: selectAllowedSources(state),
   sshKeys: selectSshKeys(state),
 });
