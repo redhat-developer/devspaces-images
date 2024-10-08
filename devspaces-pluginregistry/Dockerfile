@@ -16,7 +16,7 @@
 # The directory is located at /tmp/opt/ovsx/node_modules
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327 as builder
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362 as builder
 
 # hadolint ignore=DL3002
 USER root
@@ -56,7 +56,7 @@ RUN cd $REMOTE_SOURCES_DIR/devspaces-pluginregistry/app/devspaces-pluginregistry
 #
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1327
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362
 USER 0
 WORKDIR /
 
