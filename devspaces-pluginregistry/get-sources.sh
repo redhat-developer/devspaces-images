@@ -72,20 +72,6 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	# TODO replace this with cachito
 	#
 
-	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
-	sed bootstrap.Dockerfile -i --regexp-extended \
-		`# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
-		-e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1-\2:\3#" \
-		`# replace ubi8-minimal:tag with reg-proxy/rh-osbs/ubi-minimal:tag` \
-		-e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#"
-	echo "======= BOOTSTRAP DOCKERFILE =======>"
-	cat bootstrap.Dockerfile
-	echo "<======= BOOTSTRAP DOCKERFILE ======="
-	echo "======= START BOOTSTRAP BUILD =======>"
-	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
-		--target builder --build-arg BOOTSTRAP=true
-	echo "<======= END BOOTSTRAP BUILD ======="
-
 	# update tarballs - step 2 - check old sources' tarballs
 	git rm -f *.tar.gz *.tgz 2>/dev/null || rm -f *.tar.gz *.tgz || true
 	rhpkg sources || true
@@ -116,15 +102,6 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 		pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz .
 	fi
 	sudo rm -fr ${tmpDir}
-
-	# we always need a fresh resources.tgz to guarantee proper timestamps and latest vsix files
-	rm -f ./resources.tgz || true
-	${BUILDER} create --name pluginregistryBuilder ${tmpContainer}
-	${BUILDER} cp pluginregistryBuilder:/tmp/resources/resources.tgz .
-	${BUILDER} rm -f pluginregistryBuilder
-	${BUILDER} rmi ${tmpContainer}
-	# add to TARGZs list
-	TARGZs="${TARGZs} resources.tgz"
 
 	SCRIPT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 	if [[ $SCRIPT_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
