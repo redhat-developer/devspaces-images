@@ -182,8 +182,6 @@ export interface IDevWorkspaceList {
 export interface IDevWorkspaceResources {
   devfileContent: string | undefined;
   editorPath: string | undefined;
-  pluginRegistryUrl: string | undefined;
-  editorId: string | undefined;
   editorContent: string | undefined;
 }
 

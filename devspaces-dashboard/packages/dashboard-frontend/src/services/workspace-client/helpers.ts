@@ -137,7 +137,6 @@ export const CHE_EDITOR_YAML_PATH = '.che/che-editor.yaml';
  * Look for the custom editor in .che/che-editor.yaml
  */
 export async function getCustomEditor(
-  pluginRegistryUrl: string | undefined,
   optionalFilesContent: { [fileName: string]: string },
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
   getState: () => AppState,

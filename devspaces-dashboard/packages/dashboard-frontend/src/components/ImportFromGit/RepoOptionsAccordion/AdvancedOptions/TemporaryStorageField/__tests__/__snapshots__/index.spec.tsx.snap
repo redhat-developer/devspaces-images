@@ -26,7 +26,7 @@ exports[`TemporaryStorageField switched off snapshot 1`] = `
       data-ouia-component-id="OUIA-Generated-Switch-1"
       data-ouia-component-type="PF4/Switch"
       data-ouia-safe={true}
-      htmlFor="temporary-storage-switch"
+      htmlFor="adv-temporary-storage-switch"
     >
       <input
         aria-label="Temporary Storage"
@@ -34,7 +34,7 @@ exports[`TemporaryStorageField switched off snapshot 1`] = `
         checked={false}
         className="pf-c-switch__input"
         disabled={false}
-        id="temporary-storage-switch"
+        id="adv-temporary-storage-switch"
         onChange={[Function]}
         type="checkbox"
       />
@@ -92,7 +92,7 @@ exports[`TemporaryStorageField switched on snapshot 1`] = `
       data-ouia-component-id="OUIA-Generated-Switch-2"
       data-ouia-component-type="PF4/Switch"
       data-ouia-safe={true}
-      htmlFor="temporary-storage-switch"
+      htmlFor="adv-temporary-storage-switch"
     >
       <input
         aria-label="Temporary Storage"
@@ -100,7 +100,7 @@ exports[`TemporaryStorageField switched on snapshot 1`] = `
         checked={true}
         className="pf-c-switch__input"
         disabled={false}
-        id="temporary-storage-switch"
+        id="adv-temporary-storage-switch"
         onChange={[Function]}
         type="checkbox"
       />

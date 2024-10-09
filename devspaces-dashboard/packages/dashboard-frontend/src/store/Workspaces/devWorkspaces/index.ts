@@ -721,10 +721,8 @@ export const actionCreators: ActionCreators = {
           editorContent = updateEditorDevfile(editorContent, editorImage);
         }
         const resourcesContent = await fetchResources({
-          pluginRegistryUrl,
           devfileContent: dump(defaultsDevfile),
           editorPath: undefined,
-          editorId: undefined,
           editorContent,
         });
         const resources = loadResourcesContent(resourcesContent);
@@ -877,7 +875,6 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const state = getState();
-      const pluginRegistryUrl = selectPluginRegistryUrl(state);
       let devWorkspaceResource: devfileApi.DevWorkspace;
       let devWorkspaceTemplateResource: devfileApi.DevWorkspaceTemplate;
       let editorContent: string | undefined;
@@ -895,12 +892,7 @@ export const actionCreators: ActionCreators = {
       } else {
         // do we have the custom editor in `.che/che-editor.yaml` ?
         try {
-          editorContent = await getCustomEditor(
-            pluginRegistryUrl,
-            optionalFilesContent,
-            dispatch,
-            getState,
-          );
+          editorContent = await getCustomEditor(optionalFilesContent, dispatch, getState);
           if (!editorContent) {
             console.warn('No custom editor found');
           }
@@ -932,10 +924,8 @@ export const actionCreators: ActionCreators = {
         }
         editorContent = updateEditorDevfile(editorContent, params.editorImage);
         const resourcesContent = await fetchResources({
-          pluginRegistryUrl,
           devfileContent: dump(devfile),
           editorPath: undefined,
-          editorId: undefined,
           editorContent: editorContent,
         });
         const resources = loadResourcesContent(resourcesContent);

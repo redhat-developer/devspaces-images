@@ -31,14 +31,14 @@ export function registerDevworkspaceResourcesRoute(instance: FastifyInstance) {
       `${baseApiPath}/devworkspace-resources`,
       getSchema({ tags, body: devWorkspaceResourcesSchema }),
       async function (request: FastifyRequest) {
-        const { devfileContent, editorPath, pluginRegistryUrl, editorId, editorContent } =
+        const { devfileContent, editorPath, editorContent } =
           request.body as api.IDevWorkspaceResources;
         const context = await generator.generateDevfileContext(
           {
             devfileContent,
             editorPath,
-            pluginRegistryUrl,
-            editorEntry: editorId,
+            pluginRegistryUrl: undefined,
+            editorEntry: undefined,
             editorContent,
             projects: [],
           },

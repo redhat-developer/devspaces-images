@@ -269,7 +269,6 @@ describe('Workspace-client helpers', () => {
   });
 
   describe('Look for the custom editor', () => {
-    const pluginRegistryUrl = 'https://dummy-plugin-registry';
     let optionalFilesContent: { [fileName: string]: string };
     let editor: devfileApi.Devfile;
 
@@ -285,7 +284,6 @@ describe('Workspace-client helpers', () => {
     it('should return undefined without optionalFilesContent', async () => {
       const store = new FakeStoreBuilder().build();
       const customEditor = await getCustomEditor(
-        pluginRegistryUrl,
         optionalFilesContent,
         store.dispatch,
         store.getState,
@@ -300,7 +298,6 @@ describe('Workspace-client helpers', () => {
         const store = new FakeStoreBuilder().build();
 
         const customEditor = await getCustomEditor(
-          pluginRegistryUrl,
           optionalFilesContent,
           store.dispatch,
           store.getState,
@@ -324,7 +321,6 @@ describe('Workspace-client helpers', () => {
         const store = new FakeStoreBuilder().build();
 
         const customEditor = await getCustomEditor(
-          pluginRegistryUrl,
           optionalFilesContent,
           store.dispatch,
           store.getState,
@@ -342,12 +338,7 @@ describe('Workspace-client helpers', () => {
         let errorText: string | undefined;
 
         try {
-          await getCustomEditor(
-            pluginRegistryUrl,
-            optionalFilesContent,
-            store.dispatch,
-            store.getState,
-          );
+          await getCustomEditor(optionalFilesContent, store.dispatch, store.getState);
         } catch (e) {
           errorText = common.helpers.errors.getMessage(e);
         }
@@ -393,7 +384,6 @@ describe('Workspace-client helpers', () => {
             .build();
 
           const customEditor = await getCustomEditor(
-            pluginRegistryUrl,
             optionalFilesContent,
             store.dispatch,
             store.getState,
@@ -452,7 +442,6 @@ describe('Workspace-client helpers', () => {
             .build();
 
           const customEditor = await getCustomEditor(
-            pluginRegistryUrl,
             optionalFilesContent,
             store.dispatch,
             store.getState,
@@ -505,12 +494,7 @@ describe('Workspace-client helpers', () => {
 
           let errorText: string | undefined;
           try {
-            await getCustomEditor(
-              pluginRegistryUrl,
-              optionalFilesContent,
-              store.dispatch,
-              store.getState,
-            );
+            await getCustomEditor(optionalFilesContent, store.dispatch, store.getState);
           } catch (e) {
             errorText = common.helpers.errors.getMessage(e);
           }
@@ -539,7 +523,6 @@ describe('Workspace-client helpers', () => {
             .build();
 
           const customEditor = await getCustomEditor(
-            pluginRegistryUrl,
             optionalFilesContent,
             store.dispatch,
             store.getState,
@@ -573,7 +556,6 @@ describe('Workspace-client helpers', () => {
             .build();
 
           const customEditor = await getCustomEditor(
-            pluginRegistryUrl,
             optionalFilesContent,
             store.dispatch,
             store.getState,
@@ -602,12 +584,7 @@ describe('Workspace-client helpers', () => {
 
           let errorText: string | undefined;
           try {
-            await getCustomEditor(
-              pluginRegistryUrl,
-              optionalFilesContent,
-              store.dispatch,
-              store.getState,
-            );
+            await getCustomEditor(optionalFilesContent, store.dispatch, store.getState);
           } catch (e) {
             errorText = common.helpers.errors.getMessage(e);
           }
