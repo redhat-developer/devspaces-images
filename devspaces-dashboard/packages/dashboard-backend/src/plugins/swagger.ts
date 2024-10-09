@@ -32,6 +32,7 @@ export function registerSwagger(server: FastifyInstance) {
   server.register(fastifySwagger, {
     mode: 'dynamic',
     openapi: {
+      openapi: '3.0.0',
       info: {
         title: 'Che Dashboard Backend Swagger',
         description: 'Testing the Dashboard Backend API',

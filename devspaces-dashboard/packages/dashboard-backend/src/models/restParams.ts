@@ -13,9 +13,22 @@
 import { V1alpha2DevWorkspace, V1alpha2DevWorkspaceTemplate } from '@devfile/api';
 import { api } from '@eclipse-che/common';
 
-export interface INamespacedParams {
-  namespace: string;
+export interface ISchemaParams {
+  [key: string]: unknown;
 }
+
+export interface ITemplateBodyParams {
+  template: V1alpha2DevWorkspaceTemplate;
+}
+
+export interface IDevWorkspaceSpecParams {
+  devworkspace: V1alpha2DevWorkspace;
+}
+
+export interface IYamlResolverParams {
+  url: string;
+}
+
 export interface IWorkspacePreferencesParams {
   namespace: string;
   provider: api.GitProvider;
@@ -24,6 +37,15 @@ export interface IWorkspacePreferencesParams {
 export interface IDockerConfigParams {
   dockerconfig: string;
   resourceVersion?: string;
+}
+
+export interface IEditorsDevfileParams {
+  'che-editor': string;
+}
+
+// --- Namespaced Params ---
+export interface INamespacedParams {
+  namespace: string;
 }
 
 export interface INamespacedWorkspaceParams extends INamespacedParams {
@@ -38,38 +60,10 @@ export interface INamespacedPodParams extends INamespacedParams {
   devworkspaceId: string;
 }
 
-export interface ISchemaParams {
-  [key: string]: unknown;
-}
-
-export interface ITemplateBodyParams {
-  template: V1alpha2DevWorkspaceTemplate;
-}
-
-export interface IDevWorkspaceSpecParams {
-  devworkspace: V1alpha2DevWorkspace;
-}
-
-export interface IDevfileVersionParams {
-  version: string;
-}
-
-export interface IYamlResolverParams {
-  url: string;
-}
-
-export interface INamespacedContainerParams extends INamespacedParams {
-  containerName: string;
-  namespace: string;
-  podName: string;
-}
-
 export interface PersonalAccessTokenNamespacedParams extends INamespacedParams {
-  namespace: string;
   tokenName: string;
 }
 
 export interface ShhKeyNamespacedParams extends INamespacedParams {
-  namespace: string;
   name: string;
 }

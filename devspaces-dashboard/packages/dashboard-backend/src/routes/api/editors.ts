@@ -14,7 +14,9 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { dump } from 'js-yaml';
 
 import { baseApiPath } from '@/constants/config';
+import { authenticationHeaderSchema } from '@/constants/schemas';
 import { EditorNotFoundError } from '@/devworkspaceClient/services/editorsApi';
+import { IEditorsDevfileParams } from '@/models/restParams';
 import { getDevWorkspaceClient } from '@/routes/api/helpers/getDevWorkspaceClient';
 import { getServiceAccountToken } from '@/routes/api/helpers/getServiceAccountToken';
 import { getSchema } from '@/services/helpers';
@@ -30,11 +32,24 @@ export function registerEditorsRoutes(instance: FastifyInstance) {
       return editorsApi.list();
     });
 
-    server.get(
-      `${baseApiPath}/editors/devfile`,
-      getSchema({ tags }),
-      async function (request: FastifyRequest, reply: FastifyReply) {
-        const editorId = (request.query as { 'che-editor': string })['che-editor'];
+    server.route({
+      method: 'GET',
+      url: `${baseApiPath}/editors/devfile`,
+      schema: {
+        headers: authenticationHeaderSchema,
+        tags,
+        querystring: {
+          type: 'object',
+          required: ['che-editor'],
+          properties: {
+            'che-editor': {
+              type: 'string',
+            },
+          },
+        },
+      },
+      async handler(request: FastifyRequest, reply: FastifyReply) {
+        const editorId = (request.query as IEditorsDevfileParams)['che-editor'];
 
         if (!editorId) {
           return reply.status(400).send('The che-editor query parameter is required');
@@ -54,6 +69,6 @@ export function registerEditorsRoutes(instance: FastifyInstance) {
 
         return dump(editor);
       },
-    );
+    });
   });
 }

@@ -58,7 +58,83 @@ export const devWorkspaceResourcesExample = {
 
     return dump(devfile, { indent: 2 });
   },
-  editorId: 'che-incubator/che-code/insiders',
-  pluginRegistryUrl: 'http://plugin-registry.eclipse-che.svc:8080/v3',
-  projects: [],
+  get editorContent() {
+    const devfile = {
+      schemaVersion: '2.2.2',
+      metadata: {
+        description:
+          'Microsoft Visual Studio Code - Open Source IDE for Eclipse Che - Insiders build',
+        displayName: 'VS Code - Open Source',
+        name: 'che-code',
+        tags: ['Tech-Preview'],
+      },
+      commands: [
+        {
+          apply: {
+            component: 'che-code-injector',
+          },
+          id: 'init-container-command',
+        },
+        {
+          exec: {
+            commandLine:
+              'nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &',
+            component: 'che-code-runtime-description',
+          },
+          id: 'init-che-code-command',
+        },
+      ],
+      components: [
+        {
+          container: {
+            command: ['/entrypoint-init-container.sh'],
+            image: 'quay.io/che-incubator/che-code:insiders',
+          },
+          name: 'che-code-injector',
+        },
+        {
+          attributes: {
+            'app.kubernetes.io/component': 'che-code-runtime',
+            'app.kubernetes.io/part-of': 'che-code.eclipse.org',
+            'controller.devfile.io/container-contribution': true,
+          },
+          container: {
+            endpoints: [
+              {
+                attributes: {
+                  cookiesAuthEnabled: true,
+                  discoverable: false,
+                  type: 'main',
+                  urlRewriteSupported: true,
+                },
+                exposure: 'public',
+                name: 'che-code',
+                protocol: 'https',
+                secure: true,
+                targetPort: 3100,
+              },
+            ],
+            image: 'quay.io/devfile/universal-developer-image:latest',
+            volumeMounts: [
+              {
+                name: 'checode',
+                path: '/checode',
+              },
+            ],
+          },
+          name: 'che-code-runtime-description',
+        },
+        {
+          name: 'checode',
+          volume: {},
+        },
+      ],
+      events: {
+        postStart: ['init-che-code-command'],
+        preStart: ['init-container-command'],
+      },
+    };
+
+    return dump(devfile, { indent: 2 });
+  },
 };

@@ -27,78 +27,6 @@ export const authenticationHeaderSchema: JSONSchema7 = {
   },
 };
 
-export const namespacedKubeConfigSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-    devworkspaceId: {
-      type: 'string',
-    },
-  },
-  required: ['namespace', 'devworkspaceId'],
-};
-
-export const namespacedWorkspaceSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-    workspaceName: {
-      type: 'string',
-    },
-  },
-  required: ['namespace', 'workspaceName'],
-};
-
-export const namespacedTemplateSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-    templateName: {
-      type: 'string',
-    },
-  },
-  required: ['namespace', 'templateName'],
-};
-
-export const namespacedWorkspacePreferencesAuthorizationSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-    provider: {
-      type: 'string',
-    },
-  },
-  required: ['namespace', 'provider'],
-};
-
-export const namespacedWorkspacePreferencesTrustedSourceSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    source: {
-      type: 'string',
-    },
-  },
-  required: ['source'],
-};
-
-export const namespacedSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-  },
-  required: ['namespace'],
-};
-
 export const dwTemplatePatchSchema: JSONSchema7 = {
   type: 'array',
   items: {
@@ -120,7 +48,7 @@ export const dwTemplatePatchSchema: JSONSchema7 = {
   ],
 };
 
-export const devworkspacePatchSchema: JSONSchema7 = {
+export const devWorkspacePatchSchema: JSONSchema7 = {
   type: 'array',
   items: {
     type: 'object',
@@ -166,17 +94,6 @@ export const gitConfigSchema: JSONSchema7 = {
     },
   },
   required: ['gitconfig'],
-};
-
-export const devfileVersionSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    version: {
-      type: 'string',
-      pattern: '^[1-2]\\.[0-2]\\.[0-2](?:-alpha)?$',
-    },
-  },
-  required: ['version'],
 };
 
 export const dataResolverSchema: JSONSchema7 = {
@@ -345,4 +262,78 @@ export const sshKeyParamsSchema: JSONSchema7 = {
     },
   },
   required: ['namespace', 'name'],
+};
+
+// namespaced schemas
+
+export const namespacedSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+  },
+  required: ['namespace'],
+};
+
+export const namespacedKubeConfigSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    devworkspaceId: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'devworkspaceId'],
+};
+
+export const namespacedWorkspaceSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    workspaceName: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'workspaceName'],
+};
+
+export const namespacedTemplateSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    templateName: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'templateName'],
+};
+
+export const namespacedWorkspacePreferencesAuthorizationSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    provider: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'provider'],
+};
+
+export const namespacedWorkspacePreferencesTrustedSourceSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    source: {
+      type: 'string',
+    },
+  },
+  required: ['source'],
 };

@@ -44,7 +44,7 @@
   },
   "resolutions": {
     "@adobe/css-tools": "^4.3.2",
-    "@hapi/hoek": "9.3.0",
+    "@hapi/hoek": "^10.0.1",
     "axios": "^1.7.4",
     "braces": "^3.0.3",
     "elliptic": "^6.5.7",

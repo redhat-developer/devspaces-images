@@ -226,13 +226,14 @@
 | [`agentkeepalive@4.5.0`](git://github.com/node-modules/agentkeepalive.git) | MIT | clearlydefined |
 | [`aggregate-error@3.1.0`](https://github.com/sindresorhus/aggregate-error.git) | MIT | clearlydefined |
 | [`ajv-keywords@5.1.0`](git+https://github.com/epoberezkin/ajv-keywords.git) | MIT | clearlydefined |
+| [`ajv@6.12.6`](https://github.com/ajv-validator/ajv.git) | MIT | #15286 |
 | [`ansi-colors@4.1.3`](https://github.com/doowb/ansi-colors.git) | MIT | clearlydefined |
 | [`ansi-escapes@4.3.2`](https://github.com/sindresorhus/ansi-escapes.git) | MIT | clearlydefined |
 | [`ansi-styles@4.3.0`](https://github.com/chalk/ansi-styles.git) | MIT | clearlydefined |
 | [`anymatch@3.1.3`](https://github.com/micromatch/anymatch) | ISC | #5050 |
 | [`aproba@2.0.0`](https://github.com/iarna/aproba) | ISC | clearlydefined |
 | [`are-we-there-yet@3.0.1`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
-| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
+| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | #16427 |
 | [`array-buffer-byte-length@1.0.0`](git+https://github.com/inspect-js/array-buffer-byte-length.git) | MIT | #7548 |
 | [`array-differ@3.0.0`](https://github.com/sindresorhus/array-differ.git) | MIT | clearlydefined |
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify.git) | MIT | clearlydefined |
@@ -692,6 +693,7 @@
 | [`ora@5.4.1`](https://github.com/sindresorhus/ora.git) | MIT | clearlydefined |
 | [`os-tmpdir@1.0.2`](https://github.com/sindresorhus/os-tmpdir.git) | MIT | clearlydefined |
 | [`p-finally@1.0.0`](https://github.com/sindresorhus/p-finally.git) | MIT | clearlydefined |
+| [`p-limit@3.1.0`](https://github.com/sindresorhus/p-limit.git) | MIT | clearlydefined |
 | [`p-locate@4.1.0`](https://github.com/sindresorhus/p-locate.git) | MIT | clearlydefined |
 | [`p-map-series@2.1.0`](https://github.com/sindresorhus/p-map-series.git) | MIT | clearlydefined |
 | [`p-map@4.0.0`](https://github.com/sindresorhus/p-map.git) | MIT | clearlydefined |
@@ -806,6 +808,7 @@
 | [`safe-regex-test@1.0.0`](git+https://github.com/ljharb/safe-regex-test.git) | MIT | clearlydefined |
 | [`saxes@6.0.0`](https://github.com/lddubeau/saxes.git) | ISC | clearlydefined |
 | [`schema-utils@4.2.0`](https://github.com/webpack/schema-utils.git) | MIT | #8986 |
+| [`semver@7.5.4`](https://github.com/npm/node-semver.git) | ISC | clearlydefined |
 | [`serialize-javascript@6.0.1`](git+https://github.com/yahoo/serialize-javascript.git) | BSD-3-Clause | #12680 |
 | [`set-blocking@2.0.0`](git+https://github.com/yargs/set-blocking.git) | ISC | #5899 |
 | [`set-function-length@1.1.1`](git+https://github.com/ljharb/set-function-length.git) | MIT | #11090 |
@@ -944,5 +947,7 @@
 | [`xmlchars@2.2.0`](https://github.com/lddubeau/xmlchars.git) | MIT | clearlydefined |
 | [`xtend@4.0.2`](git://github.com/Raynos/xtend.git) | MIT | clearlydefined |
 | [`y18n@5.0.8`](https://github.com/yargs/y18n.git) | ISC | clearlydefined |
+| [`yallist@4.0.0`](git+https://github.com/isaacs/yallist.git) | ISC | clearlydefined |
 | [`yargs-parser@20.2.9`](https://github.com/yargs/yargs-parser.git) | ISC | clearlydefined |
 | [`yargs@16.2.0`](https://github.com/yargs/yargs.git) | MIT | clearlydefined |
+| [`yocto-queue@0.1.0`](https://github.com/sindresorhus/yocto-queue.git) | MIT | clearlydefined |

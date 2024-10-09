@@ -214,6 +214,7 @@
 | [`add-stream@1.0.0`](https://github.com/wilsonjackson/add-stream) | MIT | clearlydefined |
 | [`agent-base@6.0.2`](git://github.com/TooTallNate/node-agent-base.git) | MIT | clearlydefined |
 | [`agentkeepalive@4.5.0`](git://github.com/node-modules/agentkeepalive.git) | MIT | clearlydefined |
+| [`ajv-formats@2.1.1`](git+https://github.com/ajv-validator/ajv-formats.git) | MIT | clearlydefined |
 | [`ajv-keywords@3.5.2`](git+https://github.com/epoberezkin/ajv-keywords.git) | MIT | clearlydefined |
 | [`ajv-keywords@5.1.0`](git+https://github.com/epoberezkin/ajv-keywords.git) | MIT | clearlydefined |
 | [`ansi-colors@4.1.3`](https://github.com/doowb/ansi-colors) | MIT | clearlydefined |
@@ -224,7 +225,7 @@
 | [`are-we-there-yet@3.0.1`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
 | [`are-we-there-yet@4.0.2`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
 | `argparse@1.0.10` | MIT | #2174 |
-| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
+| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | #16427 |
 | [`array-buffer-byte-length@1.0.0`](git+https://github.com/inspect-js/array-buffer-byte-length.git) | MIT | #7548 |
 | `array-differ@3.0.0` | MIT | clearlydefined |
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify) | MIT | clearlydefined |
@@ -778,6 +779,7 @@
 | `p-finally@1.0.0` | MIT | clearlydefined |
 | `p-limit@1.3.0` | MIT | clearlydefined |
 | `p-limit@2.3.0` | MIT | clearlydefined |
+| `p-limit@3.1.0` | MIT | clearlydefined |
 | `p-locate@2.0.0` | MIT | clearlydefined |
 | `p-locate@3.0.0` | MIT | clearlydefined |
 | `p-locate@4.1.0` | MIT | clearlydefined |
@@ -928,7 +930,6 @@
 | [`semver@5.7.2`](https://github.com/npm/node-semver.git) | ISC | #5900 |
 | [`semver@6.3.1`](https://github.com/npm/node-semver.git) | ISC | clearlydefined |
 | [`semver@7.3.8`](https://github.com/npm/node-semver.git) | ISC | clearlydefined |
-| [`semver@7.6.3`](git+https://github.com/npm/node-semver.git) | ISC | #14659 |
 | [`serialize-javascript@6.0.1`](git+https://github.com/yahoo/serialize-javascript.git) | BSD-3-Clause | #12680 |
 | [`set-blocking@2.0.0`](git+https://github.com/yargs/set-blocking.git) | ISC | #5899 |
 | [`set-function-length@1.1.1`](git+https://github.com/ljharb/set-function-length.git) | MIT | #11090 |
@@ -1105,3 +1106,4 @@
 | [`yargs-parser@21.1.1`](https://github.com/yargs/yargs-parser.git) | ISC | clearlydefined |
 | [`yargs@16.2.0`](https://github.com/yargs/yargs.git) | MIT | clearlydefined |
 | [`yargs@17.7.2`](https://github.com/yargs/yargs.git) | MIT | #8222 |
+| `yocto-queue@0.1.0` | MIT | clearlydefined |
