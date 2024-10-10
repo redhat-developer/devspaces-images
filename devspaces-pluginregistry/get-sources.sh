@@ -117,15 +117,6 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	fi
 	sudo rm -fr ${tmpDir}
 
-	# we always need a fresh resources.tgz to guarantee proper timestamps and latest vsix files
-	rm -f ./resources.tgz || true
-	${BUILDER} create --name pluginregistryBuilder ${tmpContainer}
-	${BUILDER} cp pluginregistryBuilder:/tmp/resources/resources.tgz .
-	${BUILDER} rm -f pluginregistryBuilder
-	${BUILDER} rmi ${tmpContainer}
-	# add to TARGZs list
-	TARGZs="${TARGZs} resources.tgz"
-
 	SCRIPT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 	if [[ $SCRIPT_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
 		SCRIPT_BRANCH="devspaces-3-rhel-8"
