@@ -16,6 +16,5 @@ This is a dirty hack for https://issues.redhat.com/browse/CRW-4328 and https://p
 
 # workaround for https://issues.redhat.com/browse/CRW-4378 - must list all the files already in the sources file, because reasons.
 Source001: root-local.tgz
-Source002: resources.tgz
 Source003: openvsx-server.tar.gz
 Source004: ovsx.tar.gz
