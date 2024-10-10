@@ -37,6 +37,10 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
         nodeLabelLoop=nodeLabels[j]+"-rhel8"
         print "[" + (j+1) + "/" + nodeLabels.size() + "] Create task to copy IIBs: operator-bundle " + nodeLabel
         def String thisArch=nodeLabelLoop
+        // CRW-7263 Set s390x to run on crwjen-3 only until we either fix crwjen-2 or move to Konflux
+        if (thisArch.contains("s390x")) {
+          thisArch="crwjen-3"
+        }
         // copy & filter IIB for this arch
         tasks["operator-bundle " + thisArch] = { ->
           timeout(copyIIBsToQuayTimeout) {
