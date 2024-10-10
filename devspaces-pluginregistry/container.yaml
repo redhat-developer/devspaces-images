@@ -19,7 +19,7 @@ remote_sources:
 - name: devspaces-pluginregistry
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: 1c4e16268ea9aca3722bb6c514a91743f6ef795f
+    ref: d6e26805f1d97fe56a458a08533295018cb20edb
     pkg_managers: [npm]
     packages:
       npm:
