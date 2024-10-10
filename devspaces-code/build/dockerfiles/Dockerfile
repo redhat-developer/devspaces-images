@@ -35,9 +35,7 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi
 COPY ./build/dockerfiles/content_sets_pulp.repo /etc/yum.repos.d/
 
 RUN yum install -y nodejs-devel libsecret-devel libsecret make cmake gcc gcc-c++ python3.9 git git-core-doc openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon bash tar gzip rsync patch \
-    && yum -y clean all && rm -rf /var/cache/yum \
-    && npm install -g yarn@1.22.17 \
-    && npm install -g node-gyp@9.4.1
+    && yum -y clean all && rm -rf /var/cache/yum
 
 # Copy VS Code to the container
 COPY code /checode-compilation
@@ -51,16 +49,16 @@ ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
 RUN git init .
 
 # change network timeout (slow using multi-arch build)
-RUN yarn config set network-timeout 600000 -g
+RUN npm config set fetch-retry-mintimeout 1000000 && npm config set fetch-retry-maxtimeout 600000
 
-# Install node-gyp, then yarn dependencies (force update to yarn.lock)
-RUN yarn add -W -D node-gyp; yarn install --force
+# Grab dependencies (and force to rebuild them)
+RUN npm install --force
 
 RUN echo "$(ulimit -a)"
 
 # Compile
 RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
-    && NODE_VERSION=$(cat /checode-compilation/remote/.yarnrc | grep target | cut -d ' ' -f 2 | tr -d '"') \
+    && NODE_VERSION=$(cat /checode-compilation/remote/.npmrc | grep target | cut -d '=' -f 2 | tr -d '"') \
     # cache node from this image to avoid to grab it from within the build
     && mkdir -p /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH} \
     && echo "caching /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH}/node" \
@@ -74,7 +72,7 @@ RUN chmod a+x /checode/out/server-main.js \
 # Copy VS Code launcher to the container
 COPY launcher /checode-launcher
 WORKDIR /checode-launcher
-RUN yarn \
+RUN npm install \
     && mkdir /checode/launcher \
     && cp -r out/src/*.js /checode/launcher \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
@@ -116,9 +114,7 @@ RUN \
     --enablerepo=rhel-9-for-codeready-builder-rpms-pulp \
     nodejs-devel libsecret-devel libsecret krb5-devel make cmake gcc gcc-c++ git git-core-doc \
     openssh less libX11-devel libxkbfile-devel libxkbfile libxkbcommon  bash tar gzip rsync patch npm \
-    && dnf -y clean all && rm -rf /var/cache/dnf \
-    && npm install -g yarn@1.22.17 \
-    && npm install -g node-gyp@9.4.1
+    && dnf -y clean all && rm -rf /var/cache/dnf
 
 # Copy VS Code to the container
 COPY code /checode-compilation
@@ -132,13 +128,13 @@ ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
 RUN git init .
 
 # change network timeout (slow using multi-arch build)
-RUN yarn config set network-timeout 600000 -g
+RUN npm config set fetch-retry-mintimeout 1000000 && npm config set fetch-retry-maxtimeout 600000
 
-# Install node-gyp, then yarn dependencies (force update to yarn.lock)
-RUN yarn add -W -D node-gyp; yarn install --force
+# Grab dependencies (and force to rebuild them)
+RUN npm install --force
 
 RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
-    && NODE_VERSION=$(cat /checode-compilation/remote/.yarnrc | grep target | cut -d ' ' -f 2 | tr -d '"') \
+    && NODE_VERSION=$(cat /checode-compilation/remote/.npmrc | grep target | cut -d '=' -f 2 | tr -d '"') \
     # cache node from this image to avoid to grab it from within the build
     && mkdir -p /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH} \
     && echo "caching /checode-compilation/.build/node/v${NODE_VERSION}/linux-${NODE_ARCH}/node" \
@@ -155,7 +151,7 @@ RUN chmod a+x /checode/out/server-main.js \
 # Copy VS Code launcher to the container
 COPY launcher /checode-launcher
 WORKDIR /checode-launcher
-RUN yarn \
+RUN npm install \
     && mkdir /checode/launcher \
     && cp -r out/src/*.js /checode/launcher \
     && chgrp -R 0 /checode && chmod -R g+rwX /checode
