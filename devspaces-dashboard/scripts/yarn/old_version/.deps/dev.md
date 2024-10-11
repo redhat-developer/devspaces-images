@@ -117,7 +117,7 @@
 | `@octokit/types@9.3.2` | MIT | #9081 |
 | [`@parcel/watcher@2.0.4`](https://github.com/parcel-bundler/watcher.git) | MIT | clearlydefined |
 | [`@pkgr/utils@2.4.2`](https://github.com/un-ts/pkgr/blob/master/packages/utils) | MIT | clearlydefined |
-| `@polka/url@1.0.0-next.23` | MIT | clearlydefined |
+| `@polka/url@1.0.0-next.23` | MIT | #16183 |
 | `@react-mock/state@0.1.8` | MIT | clearlydefined |
 | [`@sigstore/bundle@1.1.0`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | clearlydefined |
 | [`@sigstore/protobuf-specs@0.2.1`](git+https://github.com/sigstore/protobuf-specs.git) | Apache-2.0 | clearlydefined |
@@ -223,7 +223,7 @@
 | [`are-we-there-yet@3.0.1`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
 | [`are-we-there-yet@4.0.2`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
 | `argparse@1.0.10` | MIT | #2174 |
-| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
+| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | #16427 |
 | [`array-buffer-byte-length@1.0.0`](git+https://github.com/inspect-js/array-buffer-byte-length.git) | MIT | #7548 |
 | `array-differ@3.0.0` | MIT | clearlydefined |
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify) | MIT | clearlydefined |

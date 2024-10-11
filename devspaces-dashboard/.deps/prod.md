@@ -4,10 +4,10 @@
 | --- | --- | --- |
 | [`@babel/runtime@7.23.2`](https://github.com/babel/babel.git) | MIT | #10718 |
 | [`@devfile/api@2.3.0-1721400636`](https://github.com/GIT_USER_ID/GIT_REPO_ID.git) | Apache-2.0 | clearlydefined |
-| [`@eclipse-che/che-devworkspace-generator@7.90.0-next-4510df7`](git+https://github.com/devfile/devworkspace-generator.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.92.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.92.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.92.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/che-devworkspace-generator@7.92.0`](git+https://github.com/devfile/devworkspace-generator.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.92.1-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.92.1-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.92.1-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@fastify/accept-negotiator@1.1.0`](git+https://github.com/fastify/accept-negotiator.git) | MIT | clearlydefined |
 | [`@fastify/ajv-compiler@3.5.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@fastify/busboy@2.0.0`](https://github.com/fastify/busboy.git) | MIT | clearlydefined |
@@ -32,6 +32,8 @@
 | [`@hapi/wreck@18.0.1`](git://github.com/hapijs/wreck) | BSD-3-Clause | clearlydefined |
 | [`@isaacs/cliui@8.0.2`](https://github.com/yargs/cliui.git) | ISC | #8260 |
 | [`@isaacs/fs-minipass@4.0.1`](https://github.com/npm/fs-minipass.git) | ISC | clearlydefined |
+| [`@jsep-plugin/assignment@1.2.1`](https://github.com/EricSmekens/jsep.git) | MIT | clearlydefined |
+| [`@jsep-plugin/regex@1.0.3`](https://github.com/EricSmekens/jsep.git) | MIT | clearlydefined |
 | [`@kubernetes/client-node@0.21.0`](https://github.com/kubernetes-client/javascript.git) | Apache-2.0 | clearlydefined |
 | [`@lukeed/ms@2.0.1`](https://github.com/lukeed/ms.git) | MIT | clearlydefined |
 | [`@patternfly/react-core@4.278.0`](https://github.com/patternfly/patternfly-react.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-core/4.278.0) |
@@ -48,7 +50,7 @@
 | [`@types/js-yaml@4.0.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/node-fetch@2.6.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #11004 |
 | [`@types/node@20.8.10`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10804 |
-| [`@types/prop-types@15.7.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/prop-types@15.7.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #16176 |
 | [`@types/react-redux@7.1.33`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #10970 |
 | [`@types/react@18.2.36`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8234 |
 | [`@types/request@2.48.11`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -214,6 +216,7 @@
 | [`js-tokens@4.0.0`](https://github.com/lydell/js-tokens.git) | MIT | #2401 |
 | [`js-yaml@4.1.0`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT | #14597 |
+| [`jsep@1.3.9`](https://github.com/EricSmekens/jsep.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsep/1.3.9) |
 | [`json-schema-ref-resolver@1.0.1`](git+https://github.com/fastify/json-schema-ref-resolver.git) | MIT | clearlydefined |
 | [`json-schema-resolver@2.0.0`](git+https://github.com/Eomm/json-schema-resolver.git) | MIT | clearlydefined |
 | [`json-schema-traverse@1.0.0`](git+https://github.com/epoberezkin/json-schema-traverse.git) | MIT | clearlydefined |
@@ -221,7 +224,7 @@
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
 | [`jsonc-parser@3.2.0`](https://github.com/microsoft/node-jsonc-parser) | MIT | #12891 |
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
-| [`jsonpath-plus@8.1.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
+| [`jsonpath-plus@10.0.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
 | [`jsonschema@1.4.1`](git://github.com/tdegrunt/jsonschema.git) | MIT | clearlydefined |
 | [`jsprim@1.4.2`](git://github.com/joyent/node-jsprim.git) | MIT | clearlydefined |
 | [`leven@2.1.0`](https://github.com/sindresorhus/leven.git) | MIT | clearlydefined |

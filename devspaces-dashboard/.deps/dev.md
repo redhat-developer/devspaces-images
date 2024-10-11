@@ -126,7 +126,7 @@
 | [`@octokit/types@9.3.2`](https://github.com/octokit/types.ts.git) | MIT | #9081 |
 | [`@parcel/watcher@2.0.4`](https://github.com/parcel-bundler/watcher.git) | MIT | clearlydefined |
 | [`@pkgr/utils@2.4.2`](git+https://github.com/un-ts/pkgr.git) | MIT | clearlydefined |
-| [`@polka/url@1.0.0-next.23`](https://github.com/lukeed/polka.git) | MIT | clearlydefined |
+| [`@polka/url@1.0.0-next.23`](https://github.com/lukeed/polka.git) | MIT | #16183 |
 | [`@react-mock/state@0.1.8`](https://github.com/skidding/react-mock) | MIT | clearlydefined |
 | [`@sigstore/bundle@1.1.0`](git+https://github.com/sigstore/sigstore-js.git) | Apache-2.0 | clearlydefined |
 | [`@sigstore/protobuf-specs@0.2.1`](git+https://github.com/sigstore/protobuf-specs.git) | Apache-2.0 | clearlydefined |
@@ -231,7 +231,7 @@
 | [`anymatch@3.1.3`](https://github.com/micromatch/anymatch) | ISC | #5050 |
 | [`aproba@2.0.0`](https://github.com/iarna/aproba) | ISC | clearlydefined |
 | [`are-we-there-yet@3.0.1`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
-| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
+| [`aria-query@5.3.0`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | #16427 |
 | [`array-buffer-byte-length@1.0.0`](git+https://github.com/inspect-js/array-buffer-byte-length.git) | MIT | #7548 |
 | [`array-differ@3.0.0`](https://github.com/sindresorhus/array-differ.git) | MIT | clearlydefined |
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify.git) | MIT | clearlydefined |
@@ -657,7 +657,6 @@
 | [`neo-async@2.6.2`](git@github.com:suguru03/neo-async.git) | MIT | clearlydefined |
 | [`no-case@3.0.4`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
 | [`node-addon-api@3.2.1`](git://github.com/nodejs/node-addon-api.git) | MIT | clearlydefined |
-| [`node-fetch@2.6.7`](https://github.com/bitinn/node-fetch.git) | MIT | #6954 |
 | [`node-gyp-build@4.8.1`](https://github.com/prebuild/node-gyp-build.git) | MIT | #14661 |
 | [`node-gyp@9.4.1`](git://github.com/nodejs/node-gyp.git) | MIT | #9085 |
 | [`node-int64@0.4.0`](https://github.com/broofa/node-int64) | MIT | clearlydefined |
