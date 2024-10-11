@@ -31,6 +31,8 @@
 | `@hapi/wreck@18.0.1` | BSD-3-Clause | clearlydefined |
 | `@isaacs/cliui@8.0.2` | ISC | #8260 |
 | [`@isaacs/fs-minipass@4.0.1`](https://github.com/npm/fs-minipass.git) | ISC | clearlydefined |
+| [`@jsep-plugin/assignment@1.2.1`](EricSmekens/jsep) | MIT | clearlydefined |
+| [`@jsep-plugin/regex@1.0.3`](EricSmekens/jsep) | MIT | clearlydefined |
 | [`@kubernetes/client-node@0.21.0`](https://github.com/kubernetes-client/javascript.git) | Apache-2.0 | clearlydefined |
 | `@lukeed/ms@2.0.2` | MIT | clearlydefined |
 | [`@npmcli/agent@2.2.2`](https://github.com/npm/agent.git) | ISC | clearlydefined |
@@ -248,7 +250,7 @@
 | [`isstream@0.1.2`](https://github.com/rvagg/isstream.git) | MIT | clearlydefined |
 | [`jackspeak@2.3.6`](git+https://github.com/isaacs/jackspeak.git) | BlueOak-1.0.0 | #10783 |
 | [`jackspeak@3.1.2`](git+https://github.com/isaacs/jackspeak.git) | BlueOak-1.0.0 | clearlydefined |
-| [`jackspeak@4.0.2`](git+https://github.com/isaacs/jackspeak.git) | BlueOak-1.0.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jackspeak/4.0.2) |
+| [`jackspeak@4.0.2`](git+https://github.com/isaacs/jackspeak.git) | BlueOak-1.0.0 | clearlydefined |
 | `joi@17.12.3` | BSD-3-Clause | #13097 |
 | [`jose@4.15.5`](https://github.com/panva/jose) | MIT | clearlydefined |
 | [`joycon@3.1.1`](egoist/joycon) | MIT | clearlydefined |
@@ -256,6 +258,7 @@
 | `js-yaml@4.1.0` | MIT | clearlydefined |
 | [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT | #14597 |
 | [`jsbn@1.1.0`](https://github.com/andyperlitch/jsbn.git) | MIT | #13331 |
+| [`jsep@1.3.9`](https://github.com/EricSmekens/jsep.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsep/1.3.9) |
 | [`json-schema-ref-resolver@1.0.1`](git+https://github.com/fastify/json-schema-ref-resolver.git) | MIT | clearlydefined |
 | [`json-schema-resolver@2.0.0`](git+https://github.com/Eomm/json-schema-resolver.git) | MIT | clearlydefined |
 | [`json-schema-traverse@0.4.1`](git+https://github.com/epoberezkin/json-schema-traverse.git) | MIT | clearlydefined |
@@ -264,7 +267,7 @@
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
 | [`jsonc-parser@3.2.0`](https://github.com/microsoft/node-jsonc-parser) | MIT | #12891 |
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
-| [`jsonpath-plus@8.1.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
+| [`jsonpath-plus@10.0.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
 | [`jsonschema@1.4.1`](git://github.com/tdegrunt/jsonschema.git) | MIT | clearlydefined |
 | [`jsprim@1.4.2`](git://github.com/joyent/node-jsprim.git) | MIT | clearlydefined |
 | `leven@2.1.0` | MIT | clearlydefined |
