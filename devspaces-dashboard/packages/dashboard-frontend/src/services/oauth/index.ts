@@ -34,7 +34,7 @@ export class OAuthService {
     project = project || workspace.spec.template.dependentProjects?.find(project => !!project.git);
 
     try {
-      if (project) {
+      if (project?.git?.remotes?.origin) {
         await refreshFactoryOauthToken(project.git!.remotes.origin);
       }
     } catch (e) {
