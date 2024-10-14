@@ -1,0 +1,26 @@
+---
+platforms:
+  # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
+
+  only:
+    - x86_64
+    # - s390x
+    # - ppc64le
+
+compose:
+  inherit: false
+  pulp_repos: true
+  signing_intent: release
+
+# instead of docker_api, use imagebuilder for multistage builds
+image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-jetbrains-ide
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: f97ea1ad39e256141c0af7e8d338659b6cbd5fee
+    pkg_managers: [npm]
+    packages:
+      npm:
+        - path: devspaces-jetbrains-ide/status-app/
