@@ -19,7 +19,7 @@ remote_sources:
 - name: devspaces-images-jetbrains-ide
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: f97ea1ad39e256141c0af7e8d338659b6cbd5fee
+    ref: 5797bdde686f36207837c367b5f8861e739fd51d
     pkg_managers: [npm]
     packages:
       npm:

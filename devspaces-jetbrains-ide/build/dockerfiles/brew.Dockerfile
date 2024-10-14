@@ -15,7 +15,7 @@
 FROM ubi8/nodejs-20:1-58.1724661482 as ubi8
 
 # https://registry.access.redhat.com/rhel9-2-els/rhel
-FROM rhel9-2-els/rhel:9.2-1327
+FROM registry.redhat.io/rhel9-2-els/rhel:9.2-1362
 
 USER 0
 
@@ -43,8 +43,7 @@ RUN for f in "${HOME}" "/etc/passwd" "/etc/group" "/status-app" "/idea-server"; 
     done
 
 # Build the status app.
-WORKDIR /status-app/
-RUN npm install
+RUN cd $REMOTE_SOURCES_DIR/devspaces-images-jetbrains-ide/app/devspaces-jetbrains-ide/status-app/ && npm install
 
 # to provide to a UBI8-based user's container
 COPY --from=ubi8 /usr/bin/node /node-ubi8
