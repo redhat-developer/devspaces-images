@@ -18,9 +18,9 @@ import styles from '@/components/WorkspaceProgress/StepTitle/index.module.css';
 export type Props = PropsWithChildren<{
   className?: string;
   distance: -1 | 0 | 1 | undefined;
-  hasChildren: boolean;
-  isError: boolean;
-  isWarning: boolean;
+  hasChildren?: boolean;
+  isError?: boolean;
+  isWarning?: boolean;
 }>;
 
 export class ProgressStepTitle extends React.Component<Props> {
@@ -41,7 +41,11 @@ export class ProgressStepTitle extends React.Component<Props> {
 
     return (
       <>
-        <ProgressStepTitleIcon distance={dist} isError={isError} isWarning={isWarning} />
+        <ProgressStepTitleIcon
+          distance={dist}
+          isError={isError === true}
+          isWarning={isWarning === true}
+        />
         <span data-testid="step-title" className={fullClassName}>
           {children}
         </span>

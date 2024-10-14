@@ -12,12 +12,13 @@
 
 import React from 'react';
 import { Provider } from 'react-redux';
-import renderer from 'react-test-renderer';
 
+import Head from '@/components/Head';
+import getComponentRenderer from '@/services/__mocks__/getComponentRenderer';
 import { BrandingData } from '@/services/bootstrap/branding.constant';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
 
-import Head from '..';
+const { createSnapshot } = getComponentRenderer(getComponent);
 
 jest.mock('react-helmet', () => {
   const Helmet = (props: { children: React.ReactElement[] }) => {
@@ -28,27 +29,29 @@ jest.mock('react-helmet', () => {
 });
 
 describe('The head component for setting document title', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should render default title correctly', () => {
+    const snapshot = createSnapshot();
+    expect(snapshot.toJSON()).toMatchSnapshot();
+  });
+
+  it('should render Quick Add page title correctly', () => {
+    const snapshot = createSnapshot('Quick Add');
+    expect(snapshot.toJSON()).toMatchSnapshot();
+  });
+});
+
+function getComponent(pageName?: string): React.ReactElement {
   const store = new FakeStoreBuilder()
     .withBranding({ title: 'Dummy product title' } as BrandingData)
     .build();
 
-  it('should render default title correctly', () => {
-    const element = (
-      <Provider store={store}>
-        <Head />
-      </Provider>
-    );
-
-    expect(renderer.create(element).toJSON()).toMatchSnapshot();
-  });
-
-  it('should render Quick Add page title correctly', () => {
-    const element = (
-      <Provider store={store}>
-        <Head pageName="Quick Add" />
-      </Provider>
-    );
-
-    expect(renderer.create(element).toJSON()).toMatchSnapshot();
-  });
-});
+  return (
+    <Provider store={store}>
+      <Head pageName={pageName} />
+    </Provider>
+  );
+}

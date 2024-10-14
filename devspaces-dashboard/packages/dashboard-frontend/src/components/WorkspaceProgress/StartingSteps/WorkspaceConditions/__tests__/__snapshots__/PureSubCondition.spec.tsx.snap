@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Starting sub-steps, checking rendering snapshot with a title 1`] = `
+<ol
+  className="pf-c-wizard__nav-list"
+>
+  <li
+    className="pf-c-wizard__nav-item"
+  >
+    <div
+      className="pf-c-wizard__nav-link"
+    >
+      <div>
+        <div
+          data-testid="distance"
+        >
+          1
+        </div>
+        <span
+          className="done"
+          data-testid="step-title"
+        >
+          sub-step test
+        </span>
+      </div>
+    </div>
+  </li>
+</ol>
+`;
+
+exports[`Starting sub-steps, checking rendering snapshot with no title 1`] = `null`;
