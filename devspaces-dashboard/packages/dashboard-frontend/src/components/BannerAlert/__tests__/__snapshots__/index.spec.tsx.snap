@@ -17,5 +17,10 @@ exports[`BannerAlert snapshot 1`] = `
       Mock BannerAlertCustomWarning component
     </div>
   </div>
+  <div>
+    <div>
+      Mock BannerAlertNoNodeAvailable component
+    </div>
+  </div>
 </div>
 `;

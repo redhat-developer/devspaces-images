@@ -19,6 +19,7 @@ jest.mock('@/components/BannerAlert/Branding');
 jest.mock('@/components/BannerAlert/Custom');
 jest.mock('@/components/BannerAlert/NotSupportedBrowser');
 jest.mock('@/components/BannerAlert/WebSocket');
+jest.mock('@/components/BannerAlert/NoNodeAvailable');
 
 const { createSnapshot } = getComponentRenderer(getComponent);
 

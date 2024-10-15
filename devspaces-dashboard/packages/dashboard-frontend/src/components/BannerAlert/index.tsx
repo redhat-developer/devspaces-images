@@ -14,6 +14,7 @@ import React from 'react';
 
 import BannerAlertBranding from '@/components/BannerAlert/Branding';
 import BannerAlertCustomWarning from '@/components/BannerAlert/Custom';
+import BannerAlertNoNodeAvailable from '@/components/BannerAlert/NoNodeAvailable';
 import BannerAlertWebSocket from '@/components/BannerAlert/WebSocket';
 
 type Props = unknown;
@@ -30,6 +31,7 @@ export class BannerAlert extends React.PureComponent<Props, State> {
         <BannerAlertWebSocket key="BannerAlertWebSocket"></BannerAlertWebSocket>,
         <BannerAlertBranding key="BannerAlertBranding"></BannerAlertBranding>,
         <BannerAlertCustomWarning key="BannerAlertCustomWarning"></BannerAlertCustomWarning>,
+        <BannerAlertNoNodeAvailable key="BannerAlertNoNodeAvailable"></BannerAlertNoNodeAvailable>,
       ],
     };
   }
