@@ -96,6 +96,82 @@ describe('Editor Selector Entry', () => {
     });
   });
 
+  describe('Tech Preview label', () => {
+    test('should not show without proper tag', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: [] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).toBeNull();
+    });
+
+    test('show if has proper tag "tech-preview"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['tech-preview'] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).not.toBeNull();
+    });
+
+    test('show if has proper tag "tech preview"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['tech preview'] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).not.toBeNull();
+    });
+
+    test('show if has proper tag "Tech-Preview"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['Tech-Preview'] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).not.toBeNull();
+    });
+
+    test('show if has proper tag "Tech Preview"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['Tech Preview'] })),
+      );
+
+      expect(screen.queryByText('Tech Preview')).not.toBeNull();
+    });
+  });
+
+  describe('Deprecated label', () => {
+    test('should not show without proper tag', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: [] })),
+      );
+
+      expect(screen.queryByText('Deprecated')).toBeNull();
+    });
+
+    test('show if has proper tag "deprecated"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['deprecated'] })),
+      );
+
+      expect(screen.queryByText('Deprecated')).not.toBeNull();
+    });
+
+    test('show if has proper tag "Deprecated"', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { tags: ['Deprecated'] })),
+      );
+
+      expect(screen.queryByText('Deprecated')).not.toBeNull();
+    });
+  });
+
   describe('props change', () => {
     test('sibling editor ID provided later', () => {
       const { reRenderComponent } = renderComponent(editorGroup[0].id, editorGroup);
