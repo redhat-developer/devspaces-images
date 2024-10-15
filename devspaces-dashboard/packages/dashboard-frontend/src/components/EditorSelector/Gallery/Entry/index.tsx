@@ -41,6 +41,8 @@ export type State = {
   isSelectedGroup: boolean;
 };
 
+const allowedTags = ['Tech Preview', 'Deprecated'];
+
 export class EditorSelectorEntry extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -150,14 +152,18 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
       groupIconMediatype === 'image/svg+xml'
         ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(groupIcon)}`
         : groupIcon;
-    const hasTechPreviewTag = (activeEditor.tags || [])
-      .map(tag => tag.toLowerCase())
-      .includes('tech-preview');
+
+    const tags = (activeEditor.tags || [])
+      .map(tag => {
+        const words = tag.trim().toLowerCase().replace(/-/g, ' ').split(' ');
+        return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      })
+      .filter(tag => allowedTags.includes(tag));
     const tagsGroup = (
       <LabelGroup isVertical>
         <TagLabel type="version" text={activeEditor.version} />
-        {hasTechPreviewTag ? (
-          <TagLabel type="tag" text="Tech Preview" />
+        {tags.length > 0 ? (
+          tags.map(tag => <TagLabel key={tag} type="tag" text={tag} />)
         ) : (
           <span style={{ padding: '0 5px', lineHeight: '12px', visibility: 'hidden' }}>&nbsp;</span>
         )}
