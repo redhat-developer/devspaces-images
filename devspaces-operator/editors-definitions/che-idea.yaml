@@ -5,7 +5,7 @@ metadata:
   description: Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community
     IDE
   tags:
-    - Tech-Preview
+    - Deprecated
   attributes:
     publisher: che-incubator
     version: latest
