@@ -184,7 +184,7 @@
 | [`fastify@5.0.0`](git+https://github.com/fastify/fastify.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/5.0.0) |
 | [`fastq@1.17.1`](git+https://github.com/mcollina/fastq.git) | ISC | clearlydefined |
 | [`file-selector@0.1.19`](https://github.com/react-dropzone/file-selector.git) | MIT | [CQ22350](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22350) |
-| [`find-my-way@8.2.2`](git+https://github.com/delvedor/find-my-way.git) | MIT | clearlydefined |
+| [`find-my-way@9.0.1`](git+https://github.com/delvedor/find-my-way.git) | MIT | clearlydefined |
 | [`focus-trap@6.9.2`](git+https://github.com/focus-trap/focus-trap.git) | MIT | clearlydefined |
 | [`follow-redirects@1.15.6`](git@github.com:follow-redirects/follow-redirects.git) | MIT | #10782 |
 | [`foreground-child@3.1.1`](git+https://github.com/tapjs/foreground-child.git) | ISC | #8232 |
