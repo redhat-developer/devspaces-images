@@ -222,7 +222,7 @@
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
 | [`jsonc-parser@3.2.0`](https://github.com/microsoft/node-jsonc-parser) | MIT | #12891 |
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
-| [`jsonpath-plus@10.0.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
+| [`jsonpath-plus@10.0.1`](git://github.com/s3u/JSONPath.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsonpath-plus/10.0.1) |
 | [`jsonschema@1.4.1`](git://github.com/tdegrunt/jsonschema.git) | MIT | clearlydefined |
 | [`jsprim@1.4.2`](git://github.com/joyent/node-jsprim.git) | MIT | clearlydefined |
 | [`leven@2.1.0`](https://github.com/sindresorhus/leven.git) | MIT | clearlydefined |

@@ -267,7 +267,7 @@
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
 | [`jsonc-parser@3.2.0`](https://github.com/microsoft/node-jsonc-parser) | MIT | #12891 |
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
-| [`jsonpath-plus@10.0.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
+| [`jsonpath-plus@10.0.1`](git://github.com/s3u/JSONPath.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsonpath-plus/10.0.1) |
 | [`jsonschema@1.4.1`](git://github.com/tdegrunt/jsonschema.git) | MIT | clearlydefined |
 | [`jsprim@1.4.2`](git://github.com/joyent/node-jsprim.git) | MIT | clearlydefined |
 | `leven@2.1.0` | MIT | clearlydefined |
@@ -395,7 +395,7 @@
 | [`requires-port@1.0.0`](https://github.com/unshiftio/requires-port) | MIT | clearlydefined |
 | [`reselect@4.1.8`](https://github.com/reduxjs/reselect.git) | MIT | clearlydefined |
 | `resolve-pathname@3.0.0` | MIT | clearlydefined |
-| [`ret@0.4.3`](git://github.com/fent/ret.js.git) | MIT | clearlydefined |
+| [`ret@0.5.0`](git://github.com/fent/ret.js.git) | MIT | clearlydefined |
 | [`retry@0.12.0`](git://github.com/tim-kos/node-retry.git) | MIT | clearlydefined |
 | [`reusify@1.0.4`](git+https://github.com/mcollina/reusify.git) | MIT | clearlydefined |
 | [`rfc4648@1.5.3`](git@github.com:swansontec/rfc4648.js.git) | MIT | clearlydefined |
@@ -404,7 +404,7 @@
 | `rimraf@5.0.7` | ISC | #10787 |
 | [`ripemd160@2.0.2`](https://github.com/crypto-browserify/ripemd160) | MIT | #1001 |
 | [`safe-buffer@5.2.1`](git://github.com/feross/safe-buffer.git) | MIT | clearlydefined |
-| [`safe-regex2@3.1.0`](git://github.com/fastify/safe-regex.git) | MIT | clearlydefined |
+| [`safe-regex2@4.0.0`](git://github.com/fastify/safe-regex.git) | MIT | clearlydefined |
 | [`safe-stable-stringify@2.4.3`](git+https://github.com/BridgeAR/safe-stable-stringify.git) | MIT | clearlydefined |
 | [`safer-buffer@2.1.2`](git+https://github.com/ChALkeR/safer-buffer.git) | MIT | clearlydefined |
 | [`sanitize-html@2.13.0`](https://github.com/apostrophecms/sanitize-html.git) | MIT | clearlydefined |
