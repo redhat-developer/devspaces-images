@@ -825,9 +825,9 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:202cd7babba5dbc75e99ecb6131a51327c28a2e4a9f367bcf10fbdff027e29e1
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:c191fd4e8f70da684a2448c2846c5f11d888cbf8c4033195eef7ff53a1ba3b15
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:b53ee568e6e0eb92e242bdb2db370f0f6a4260aa495fc843030f6b11893cb860
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_injector
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:f86f5323a0eb467d3e782dc0438163b3dcd7b309bfedb460744ba244f4b601ff
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:96766cc129ac26ae59f046c75a875ab234f7bfeee4778369422ace622872c555
                 - name: RELATED_IMAGE_editor_definition_che_code_latest_che_code_runtime_description
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:ef47509acf12ca5660aaee1099cb4b3de97cc4cb8b2e256020e6df72c7720197
                 - name: RELATED_IMAGE_editor_definition_che_idea_latest_idea_rhel8
@@ -1033,9 +1033,9 @@ spec:
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:202cd7babba5dbc75e99ecb6131a51327c28a2e4a9f367bcf10fbdff027e29e1
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:c191fd4e8f70da684a2448c2846c5f11d888cbf8c4033195eef7ff53a1ba3b15
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:b53ee568e6e0eb92e242bdb2db370f0f6a4260aa495fc843030f6b11893cb860
   - name: editor_definition_che_code_latest_che_code_injector
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:f86f5323a0eb467d3e782dc0438163b3dcd7b309bfedb460744ba244f4b601ff
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:96766cc129ac26ae59f046c75a875ab234f7bfeee4778369422ace622872c555
   - name: editor_definition_che_code_latest_che_code_runtime_description
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:ef47509acf12ca5660aaee1099cb4b3de97cc4cb8b2e256020e6df72c7720197
   - name: editor_definition_che_idea_latest_idea_rhel8
