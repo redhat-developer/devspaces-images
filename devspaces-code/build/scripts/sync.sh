@@ -97,7 +97,8 @@ sed_in_place -r \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
   "${TARGETDIR}"/build/dockerfiles/brew.Dockerfile
 
-  (cd "$TARGETDIR/branding" && ./branding.sh)
+# apply branding
+(cd "$TARGETDIR/branding" && ./branding.sh)
 
 pushd "${TARGETDIR}"/ >/dev/null
   # --- BEGIN update container.yaml and brew.Dockerfile - generate list of packages
@@ -105,12 +106,12 @@ pushd "${TARGETDIR}"/ >/dev/null
   DOCKERFILE_YAML_BUILD_COMMAND=
 
   # collect list of modules from 'code/build/npm/dirs.js' (except the 'test' folder) 
-  readarray -t YARN_MODULES  < <(cat code/build/npm/dirs.js | sed -n "/const dirs/,/]/{/'/p};" | sed "s/,//g;s/\s'/devspaces-code\/code\//g;s/'//g;/devspaces-code\/code\/test/d")
+  readarray -t NPM_MODULES  < <(cat code/build/npm/dirs.js | sed -n "/const dirs/,/]/{/'/p};" | sed "s/,//g;s/\s'/devspaces-code\/code\//g;s/'//g;/devspaces-code\/code\/test/d")
 
   # prepare generated content 
-  for yarn_module in "${YARN_MODULES[@]}"; do
-    DOCKERFILE_YAML_BUILD_COMMAND+="\n    && cd \$REMOTE_SOURCES_DIR/devspaces-images-code/app/${yarn_module} && yarn \\\\"
-    CONTAINER_YAML_MODULE_LIST+="\n        - path: $yarn_module"
+  for npm_module in "${NPM_MODULES[@]}"; do
+    DOCKERFILE_YAML_BUILD_COMMAND+="\n    && cd \$REMOTE_SOURCES_DIR/devspaces-images-code/app/${npm_module} && npm install \\\\"
+    CONTAINER_YAML_MODULE_LIST+="\n        - path: $npm_module"
   done
   # remove leading new line from container yaml module list
   CONTAINER_YAML_MODULE_LIST=${CONTAINER_YAML_MODULE_LIST:2}
