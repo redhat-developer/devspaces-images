@@ -61,9 +61,7 @@ build/scripts/sync-builtins.sh
 build/scripts/collect-assets.sh
 build/dockerfiles
 cachito
-code/src/vs/code/electron-main
 code/src/vs/platform/environment/test/node/nativeModules.test.ts
-code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
 /container.yaml
 /content_sets.*
 /cvp.yml
