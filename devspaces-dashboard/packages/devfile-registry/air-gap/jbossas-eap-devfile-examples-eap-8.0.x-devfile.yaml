@@ -28,7 +28,7 @@ starterProjects:
 components:
   - name: tools
     container:
-      image: registry.redhat.io/devspaces/udi-rhel8:3.15
+      image: registry.redhat.io/devspaces/udi-rhel8:3.17
       memoryLimit: 1512Mi
       mountSources: true
       volumeMounts:

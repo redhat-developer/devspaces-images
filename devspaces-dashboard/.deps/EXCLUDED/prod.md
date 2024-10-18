@@ -14,6 +14,6 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | `fastify@5.0.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/5.0.0) |
 | `glob@11.0.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/glob/11.0.0) |
 | `jsep@1.3.9` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsep/1.3.9) |
-| `jsonpath-plus@10.0.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsonpath-plus/10.0.1) |
+| `jsonpath-plus@10.0.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsonpath-plus/10.0.6) |
 | `real-require@0.2.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/real-require/0.2.0) |
 | `light-my-request@6.0.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/light-my-request/6.0.0) |
