@@ -75,7 +75,7 @@ sources.spec
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
+rsync -azrlt --checksum "${SOURCEDIR}"/ "${TARGETDIR}"/ --exclude-from /tmp/rsync-excludes --delete 
 rm -f /tmp/rsync-excludes
 
 # ensure shell scripts are executable
