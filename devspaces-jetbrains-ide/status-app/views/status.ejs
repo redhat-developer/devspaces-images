@@ -1,0 +1,42 @@
+<!--
+
+    Copyright (c) 2023-2024 Red Hat, Inc.
+    This program and the accompanying materials are made
+    available under the terms of the Eclipse Public License 2.0
+    which is available at https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+
+    Contributors:
+      Red Hat, Inc. - initial API and implementation
+
+-->
+<!-- views/status.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Eclipse Che</title>
+  </head>
+  <body>
+    <script>
+      (function () {    
+          window.onload = function () {
+            const gatewayLink = "jetbrains-gateway://connect#type=devspaces&dwNamespace=<%= dwNamespace %>&dwName=<%= dwName %>&link=<%= invitationLink %>"
+            console.log("Opening Gateway app: " + gatewayLink);
+            window.open(gatewayLink, "_self");
+          };
+      }());
+    </script>
+
+    <h1>Workspace "<%= dwName %>" with <%= ideName %> is running</h1>
+
+    <h3>How to connect to this DevWorkspace?</h3>
+
+    <h4>Make sure your local oc client is logged in to your OpenShift server</h4>
+    <p>Go to the <a href="<%= clusterConsoleURL %>" target="_blank">Open OpenShift Console</a> to get the login command from the top right menu.</p>
+
+    <h4>Connect to the remote backend with your local JetBrains Client</h4>
+    <i>Install <a href="https://www.jetbrains.com/remote-development/gateway/" target="_blank">JetBrains Gateway</a> if not installed.</i>
+    <p>Use the browser confirmation dialog or this link: <a href="jetbrains-gateway://connect#type=devspaces&dwNamespace=<%= dwNamespace %>&dwName=<%= dwName %>&link=<%= invitationLink %>">Open JetBrains Gateway</a></p>
+  </body>
+</html>
