@@ -8,7 +8,7 @@ import groovy.transform.Field
 //  SLACK_NOTIFICATION
 
 def String nodeLabel = '(x86_64-rhel8||ppc64le-rhel8)'
-def copyIIBsToQuayTimeout=120
+def copyIIBsToQuayTimeout=180
 def util = null
 node(nodeLabel){ 
   stage ("Update metadata") {
