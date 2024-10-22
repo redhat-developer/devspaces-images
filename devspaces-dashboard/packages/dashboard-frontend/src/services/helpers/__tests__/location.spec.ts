@@ -12,7 +12,9 @@
 
 import { Location } from 'react-router-dom';
 
-import { toHref } from '@/services/helpers/location';
+import { buildWorkspaceDetailsLocation, toHref } from '@/services/helpers/location';
+import { constructWorkspace } from '@/services/workspace-adapter';
+import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
 describe('location', () => {
   test('toHref', () => {
@@ -24,5 +26,13 @@ describe('location', () => {
       state: {},
     };
     expect(toHref(location)).toEqual(`${window.location.origin}/#/foo?bar=baz`);
+  });
+
+  test('buildWorkspaceDetailsLocation', () => {
+    const devWorkspaceBuilder = new DevWorkspaceBuilder()
+      .withName('wksp')
+      .withNamespace('che-user');
+    const workspace = constructWorkspace(devWorkspaceBuilder.build());
+    expect(buildWorkspaceDetailsLocation(workspace).pathname).toEqual(`/workspace/che-user/wksp`);
   });
 });

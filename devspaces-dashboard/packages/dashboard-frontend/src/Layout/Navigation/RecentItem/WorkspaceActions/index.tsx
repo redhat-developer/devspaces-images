@@ -42,9 +42,6 @@ export class RecentItemWorkspaceActions extends React.PureComponent<Props> {
                 context={context}
                 isPlain
                 menuAppendTo={menuAppendTo}
-                onAction={async () => {
-                  // no-op
-                }}
                 position="right"
                 toggle="kebab-toggle"
                 workspace={item.workspace}

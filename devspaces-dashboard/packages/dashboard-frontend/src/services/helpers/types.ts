@@ -99,6 +99,7 @@ export enum WorkspaceAction {
   START_DEBUG_AND_OPEN_LOGS = 'Open in Debug mode',
   START_IN_BACKGROUND = 'Start in background',
   STOP_WORKSPACE = 'Stop Workspace',
+  WORKSPACE_DETAILS = 'Workspace Details',
 }
 
 export enum UserPreferencesTab {

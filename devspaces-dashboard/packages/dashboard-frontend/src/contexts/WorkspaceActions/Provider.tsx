@@ -17,7 +17,11 @@ import { Location } from 'react-router-dom';
 
 import { WorkspaceActionsDeleteConfirmation } from '@/contexts/WorkspaceActions/DeleteConfirmation';
 import { lazyInject } from '@/inversify.config';
-import { buildIdeLoaderLocation, toHref } from '@/services/helpers/location';
+import {
+  buildIdeLoaderLocation,
+  buildWorkspaceDetailsLocation,
+  toHref,
+} from '@/services/helpers/location';
 import { LoaderTab, WorkspaceAction } from '@/services/helpers/types';
 import { TabManager } from '@/services/tabManager';
 import { Workspace } from '@/services/workspace-adapter';
@@ -67,6 +71,14 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
     this.tabManager.open(link);
   }
 
+  /**
+   * replace the current tab with the given location
+   */
+  private replaceLocation(location: Location): void {
+    const link = toHref(location);
+    this.tabManager.replace(link);
+  }
+
   private async deleteWorkspace(workspace: Workspace): Promise<void> {
     if (this.deleting.has(workspace.uid)) {
       console.warn(`Workspace "${workspace.name}" is being deleted.`);
@@ -112,6 +124,10 @@ class WorkspaceActionsProvider extends React.Component<Props, State> {
     switch (action) {
       case WorkspaceAction.OPEN_IDE: {
         this.handleLocation(buildIdeLoaderLocation(workspace));
+        break;
+      }
+      case WorkspaceAction.WORKSPACE_DETAILS: {
+        this.replaceLocation(buildWorkspaceDetailsLocation(workspace));
         break;
       }
       case WorkspaceAction.START_DEBUG_AND_OPEN_LOGS: {

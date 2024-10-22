@@ -59,10 +59,14 @@ export class WorkspaceActionsDropdown extends React.PureComponent<Props, State> 
     };
   }
 
-  private buildToggle(): React.ReactElement {
-    const { isDisabled = false, toggle, workspace } = this.props;
+  private get hasKebabToggle(): boolean {
+    return this.props.toggle === 'kebab-toggle';
+  }
 
-    if (toggle === 'kebab-toggle') {
+  private buildToggle(): React.ReactElement {
+    const { isDisabled = false, workspace } = this.props;
+
+    if (this.hasKebabToggle) {
       return (
         <KebabToggle
           aria-label="Actions"
@@ -157,14 +161,21 @@ export class WorkspaceActionsDropdown extends React.PureComponent<Props, State> 
       );
     };
 
-    return [
+    const items = [
       getItem(WorkspaceAction.OPEN_IDE, isTerminating),
-      getItem(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, isTerminating || isStopped === false),
-      getItem(WorkspaceAction.START_IN_BACKGROUND, isTerminating || isStopped === false),
+      getItem(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, isTerminating || !isStopped),
+      getItem(WorkspaceAction.START_IN_BACKGROUND, isTerminating || !isStopped),
       getItem(WorkspaceAction.RESTART_WORKSPACE, isTerminating || isStopped),
       getItem(WorkspaceAction.STOP_WORKSPACE, isTerminating || isStopped),
       getItem(WorkspaceAction.DELETE_WORKSPACE, isTerminating),
     ];
+
+    // The 'Workspace Details' action is available only with kebab-toggle because this actions widget is used on the workspace details page without kebab-toggle
+    if (this.hasKebabToggle) {
+      items.push(getItem(WorkspaceAction.WORKSPACE_DETAILS, false));
+    }
+
+    return items;
   }
 
   render(): React.ReactElement {

@@ -43,6 +43,14 @@ export function buildWorkspacesLocation(): Location {
   return _buildLocationObject(ROUTE.WORKSPACES);
 }
 
+export function buildWorkspaceDetailsLocation(workspace: Workspace): Location {
+  const path = ROUTE.WORKSPACE_DETAILS.replace(':namespace', workspace.namespace).replace(
+    ':workspaceName',
+    workspace.name,
+  );
+  return _buildLocationObject(path);
+}
+
 export function buildUserPreferencesLocation(tab?: UserPreferencesTab): Location {
   let pathAndQuery: string;
   if (!tab) {

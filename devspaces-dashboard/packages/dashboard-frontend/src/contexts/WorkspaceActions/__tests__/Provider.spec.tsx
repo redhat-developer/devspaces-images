@@ -22,8 +22,10 @@ import {
   WorkspaceActionsConsumer,
 } from '@/contexts/WorkspaceActions';
 import WorkspaceActionsProvider from '@/contexts/WorkspaceActions/Provider';
+import { container } from '@/inversify.config';
 import getComponentRenderer, { screen } from '@/services/__mocks__/getComponentRenderer';
 import { WorkspaceAction } from '@/services/helpers/types';
+import { TabManager } from '@/services/tabManager';
 import { AppThunk } from '@/store';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '@/store/__mocks__/storeBuilder';
@@ -67,6 +69,10 @@ const wantDelete = ['1234', '5678'] as WantDelete;
 
 const mockHandleAction: jest.Mock = jest.fn();
 
+const mockWindowReplace = jest.fn();
+
+const mockTabManagerOpen = jest.fn();
+
 describe('WorkspaceActionsProvider', () => {
   let store: Store;
   let user: UserEvent;
@@ -92,6 +98,18 @@ describe('WorkspaceActionsProvider', () => {
     jest.useFakeTimers();
 
     user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    class MockTabManager extends TabManager {
+      public open(url: string): void {
+        mockTabManagerOpen(url);
+      }
+      public replace(url: string): void {
+        mockWindowReplace(url);
+      }
+    }
+
+    container.snapshot();
+    container.rebind(TabManager).to(MockTabManager).inSingletonScope();
   });
 
   afterEach(() => {
@@ -138,8 +156,6 @@ describe('WorkspaceActionsProvider', () => {
   });
 
   describe('handle actions', () => {
-    window.open = jest.fn();
-
     describe('delete workspace', () => {
       test('succeeded (with debouncing)', async () => {
         console.warn = jest.fn();
@@ -209,10 +225,24 @@ describe('WorkspaceActionsProvider', () => {
       // make sure all timers are executed
       await jest.advanceTimersByTimeAsync(1000);
 
-      expect(window.open).toHaveBeenCalledTimes(1);
-      expect(window.open).toHaveBeenCalledWith(
-        expect.stringContaining('/ide/user-che/wksp-1234'),
-        expect.stringContaining('/ide/user-che/wksp-1234'),
+      expect(mockTabManagerOpen).toHaveBeenCalledTimes(1);
+      expect(mockTabManagerOpen).toHaveBeenCalledWith('http://localhost/#/ide/user-che/wksp-1234');
+    });
+
+    test('open workspace details', async () => {
+      renderComponent(store, WorkspaceAction.WORKSPACE_DETAILS, '1234');
+
+      // get and click start button
+      const handleActionBtn = screen.getByTestId('test-component-handle-action');
+
+      await user.click(handleActionBtn);
+
+      // make sure all timers are executed
+      await jest.advanceTimersByTimeAsync(1000);
+
+      expect(mockWindowReplace).toHaveBeenCalledTimes(1);
+      expect(mockWindowReplace).toHaveBeenCalledWith(
+        'http://localhost/#/workspace/user-che/wksp-1234',
       );
     });
 
@@ -235,9 +265,8 @@ describe('WorkspaceActionsProvider', () => {
         { 'debug-workspace-start': true },
       );
 
-      expect(window.open).toHaveBeenCalledWith(
-        expect.stringContaining('/ide/user-che/wksp-5678?tab=Logs'),
-        expect.stringContaining('/ide/user-che/wksp-5678?tab=Logs'),
+      expect(mockTabManagerOpen).toHaveBeenCalledWith(
+        'http://localhost/#/ide/user-che/wksp-5678?tab=Logs',
       );
     });
 
