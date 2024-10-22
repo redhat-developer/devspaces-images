@@ -31,7 +31,8 @@
   "dependencies": {
     "@types/node": "20.x",
     "axios": "^1.7.4",
-    "@kubernetes/client-node": "^0.22.0"
+    "@kubernetes/client-node": "^0.22.0",
+    "@devfile/api": "^2.3.0-1723034342"
   },
   "repository": {
     "type": "git",
