@@ -54,6 +54,6 @@
     "find-my-way": "9.0.1",
     "webpack": "^5.94.0",
     "ws": "^8.17.1",
-    "jsonpath-plus": "10.0.6"
+    "jsonpath-plus": "10.1.0"
   }
 }
