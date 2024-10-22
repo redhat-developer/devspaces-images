@@ -11,5 +11,4 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | `cookie-signature@1.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/cookie-signature/1.2.1) |
 | `fastify@4.27.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/4.27.0) |
 | `jsep@1.3.9` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsep/1.3.9) |
-| `jsonpath-plus@10.0.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsonpath-plus/10.0.6) |
 | `real-require@0.2.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/real-require/0.2.0) |
