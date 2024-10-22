@@ -20,9 +20,9 @@ remote_sources:
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
     ref: b00b8788a363a1e81e4ffbd29a2f68a990925155
-    pkg_managers: [yarn]
+    pkg_managers: [npm]
     packages:
-      yarn: 
+      npm: 
       # CRW-3160 this section is automatically generated in sync.sh 
         - path: devspaces-code/code/
         - path: devspaces-code/code/build
