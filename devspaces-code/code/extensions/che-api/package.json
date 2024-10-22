@@ -29,27 +29,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@devfile/api": "^2.3.0-1723034342",
-    "axios": "^1.7.4",
-    "@kubernetes/client-node": "^0.22.0",
-    "fs-extra": "^11.2.0",
-    "inversify": "^6.0.2",
-    "js-yaml": "^4.1.0",
-    "reflect-metadata": "^0.2.2",
-    "vscode-nls": "^5.0.0",
-    "@eclipse-che/workspace-telemetry-client": "^0.0.1-1685523760"
-  },
-  "devDependencies": {
-    "@types/fs-extra": "^9.0.13",
-    "@types/jest": "^27.4.0",
-    "@types/js-yaml": "^4.0.5",
-    "@types/node": "20.x",
-    "jest": "^27.4.7",
-    "ts-jest": "^27.1.2",
-    "webpack-node-externals": "^3.0.0"
-  },
-  "overrides": {
-    "jsonpath-plus": "10.0.1"
+    "@devfile/api": "^2.3.0-1723034342"
   },
   "repository": {
     "type": "git",
