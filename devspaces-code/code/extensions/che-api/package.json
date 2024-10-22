@@ -32,7 +32,13 @@
     "@types/node": "20.x",
     "axios": "^1.7.4",
     "@kubernetes/client-node": "^0.22.0",
-    "@devfile/api": "^2.3.0-1723034342"
+    "@devfile/api": "^2.3.0-1723034342",
+    "fs-extra": "^11.2.0",
+    "inversify": "^6.0.2",
+    "js-yaml": "^4.1.0",
+    "reflect-metadata": "^0.2.2",
+    "vscode-nls": "^5.0.0",
+    "@eclipse-che/workspace-telemetry-client": "^0.0.1-1685523760"
   },
   "repository": {
     "type": "git",
