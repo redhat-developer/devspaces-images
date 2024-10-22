@@ -29,7 +29,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "util": "^0.12.4"
+    "@types/node": "20.x"
   },
   "repository": {
     "type": "git",
