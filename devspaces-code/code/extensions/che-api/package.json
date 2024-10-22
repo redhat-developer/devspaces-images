@@ -29,7 +29,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@types/node": "20.x"
+    "@types/node": "20.x",
+    "axios": "^1.7.4"
   },
   "repository": {
     "type": "git",
