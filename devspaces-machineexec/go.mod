@@ -123,12 +123,12 @@ replace (
 	golang.org/x/lint => golang.org/x/lint v0.0.0-20200130185559-910be7a94367
 	golang.org/x/mobile => golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028
 	golang.org/x/mod => golang.org/x/mod v0.4.0
-	golang.org/x/net => golang.org/x/net v0.0.0-20201026091529-146b70c837a4
+	golang.org/x/net => golang.org/x/net v0.23.0
 	golang.org/x/oauth2 => golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync => golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4
 	golang.org/x/term => golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
-	golang.org/x/text => golang.org/x/text v0.3.4
+	golang.org/x/text => golang.org/x/text v0.3.8
 	golang.org/x/time => golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
 	golang.org/x/tools => golang.org/x/tools v0.0.0-20190729092621-ff9f1409240a
 	golang.org/x/xerrors => golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
@@ -137,7 +137,7 @@ replace (
 	google.golang.org/appengine => google.golang.org/appengine v1.6.5
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20201022181438-0ff5f38871d5
 	google.golang.org/grpc => google.golang.org/grpc v1.27.0
-	google.golang.org/protobuf => google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
 	gopkg.in/check.v1 => gopkg.in/check.v1 v1.0.0-20141024133853-64131543e789
 	gopkg.in/errgo.v2 => gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/fsnotify.v1 => gopkg.in/fsnotify.v1 v1.4.7
@@ -168,14 +168,14 @@ replace (
 
 require (
 	github.com/eclipse/che-go-jsonrpc v0.0.0-20200317130110-931966b891fe
-	github.com/gin-gonic/gin v1.9.1
-	github.com/gorilla/websocket v1.5.0
+	github.com/gin-gonic/gin v1.10.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.8.1
+	github.com/sirupsen/logrus v1.9.3
+	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.26.1
-	k8s.io/apimachinery v0.26.1
+	k8s.io/api v0.31.1
+	k8s.io/apimachinery v0.31.1
 	k8s.io/client-go v1.5.2
 )
 
@@ -188,8 +188,8 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.4.3 // indirect
-	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -203,12 +203,12 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/ugorji/go v1.1.1 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
-	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
