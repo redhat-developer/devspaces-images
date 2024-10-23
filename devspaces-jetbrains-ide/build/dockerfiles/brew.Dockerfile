@@ -11,6 +11,7 @@
 # The Dockerfile works only in Brew, as it is customized for Cachito fetching
 # project sources and npm dependencies, and performing an offline build with them
 
+# The image to get the Node.js binary to support running an IDE in a UBI8-based user container.
 # https://registry.access.redhat.com/ubi8/nodejs-20
 FROM ubi8/nodejs-20:1-58.1724661482 as ubi8
 
