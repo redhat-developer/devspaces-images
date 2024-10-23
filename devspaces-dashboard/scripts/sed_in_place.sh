@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright (c) 2021-2024 Red Hat, Inc.
 # This program and the accompanying materials are made

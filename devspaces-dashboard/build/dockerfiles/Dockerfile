@@ -21,8 +21,8 @@ RUN if ! [ type "yarn" &> /dev/null ]; then \
 
 COPY package.json /dashboard/
 COPY yarn.lock /dashboard/
-COPY lerna.json /dashboard/
 COPY tsconfig.json /dashboard/
+COPY run/wrksps.sh /dashboard/run/
 
 ENV COMMON=packages/common
 COPY ${COMMON}/package.json /dashboard/${COMMON}/

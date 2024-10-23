@@ -75,9 +75,11 @@ function update_pkgs_versions() {
   local VER=$1
   # update root `package.json` version
   npm --no-git-tag-version version --allow-same-version "${VER}"
-  # update each package version
-  yarn install --frozen-lockfile --no-immutable
-  npx lerna version --no-git-tag-version -y "${VER}"
+  # update packages versions
+  sed_in_place -e "s/\"version\": \".*\"/\"version\": \"${VER}\"/" package.json
+  sed_in_place -e "s/\"version\": \".*\"/\"version\": \"${VER}\"/" packages/dashboard-backend/package.json
+  sed_in_place -e "s/\"version\": \".*\"/\"version\": \"${VER}\"/" packages/dashboard-frontend/package.json
+  sed_in_place -e "s/\"version\": \".*\"/\"version\": \"${VER}\"/" packages/common/package.json
   if [[ ${VER} != *"-next" ]]; then
     # update devworkspace generator version for release
     jq ".\"dependencies\".\"@eclipse-che/che-devworkspace-generator\" = \"${VER}\"" packages/dashboard-backend/package.json > packages/dashboard-backend/package.json.update

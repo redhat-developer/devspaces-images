@@ -313,6 +313,7 @@
 | [`multi-ini@2.3.2`](git://github.com/evangelion1204/multi-ini.git) | MIT | clearlydefined |
 | `nanoid@3.3.7` | MIT | #7571 |
 | `negotiator@0.6.3` | MIT | clearlydefined |
+| [`node-fetch@2.7.0`](https://github.com/bitinn/node-fetch.git) | MIT | #10509 |
 | [`node-gyp@10.2.0`](git://github.com/nodejs/node-gyp.git) | MIT | #15698 |
 | [`nopt@7.2.0`](https://github.com/npm/nopt.git) | ISC | #9086 |
 | [`oauth-sign@0.9.0`](https://github.com/mikeal/oauth-sign) | Apache-2.0 | clearlydefined |
