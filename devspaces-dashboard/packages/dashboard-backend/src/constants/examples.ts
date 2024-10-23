@@ -67,6 +67,9 @@ export const devWorkspaceResourcesExample = {
         displayName: 'VS Code - Open Source',
         name: 'che-code',
         tags: ['Tech-Preview'],
+        attributes: {
+          title: 'VS Code - Open Source',
+        },
       },
       commands: [
         {

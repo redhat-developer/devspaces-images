@@ -99,7 +99,7 @@
 | [`@types/babel__template@7.4.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/babel__traverse@7.20.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8935 |
 | [`@types/eslint@8.44.6`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #9382 |
-| [`@types/estree@1.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8266 |
+| [`@types/estree@1.0.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #8266 |
 | [`@types/fs-extra@11.0.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/graceful-fs@4.1.8`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/history@4.7.11`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -136,7 +136,6 @@
 | [`@typescript-eslint/typescript-estree@6.10.0`](https://github.com/typescript-eslint/typescript-eslint.git) | BSD-2-Clause | #14423 |
 | [`@typescript-eslint/utils@6.10.0`](https://github.com/typescript-eslint/typescript-eslint.git) | MIT | clearlydefined |
 | [`@typescript-eslint/visitor-keys@6.10.0`](https://github.com/typescript-eslint/typescript-eslint.git) | MIT | clearlydefined |
-| [`@ungap/structured-clone@1.2.0`](git+https://github.com/ungap/structured-clone.git) | ISC | clearlydefined |
 | [`@webassemblyjs/ast@1.12.1`](https://github.com/xtuc/webassemblyjs.git) | MIT | clearlydefined |
 | [`@webassemblyjs/floating-point-hex-parser@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7959 |
 | [`@webassemblyjs/helper-api-error@1.11.6`](https://github.com/xtuc/webassemblyjs.git) | MIT | #7969 |
@@ -255,7 +254,6 @@
 | [`define-data-property@1.1.1`](git+https://github.com/ljharb/define-data-property.git) | MIT | #10591 |
 | [`define-lazy-prop@3.0.0`](https://github.com/sindresorhus/define-lazy-prop.git) | MIT | clearlydefined |
 | [`define-properties@1.2.1`](git://github.com/ljharb/define-properties.git) | MIT | #7116 |
-| [`dequal@2.0.3`](https://github.com/lukeed/dequal.git) | MIT | clearlydefined |
 | [`detect-indent@5.0.0`](https://github.com/sindresorhus/detect-indent.git) | MIT | clearlydefined |
 | [`detect-newline@3.1.0`](https://github.com/sindresorhus/detect-newline.git) | MIT | clearlydefined |
 | [`diff-sequences@29.6.3`](https://github.com/jestjs/jest.git) | MIT | clearlydefined |

@@ -78,8 +78,7 @@ describe('convertToEditorPlugin', () => {
     const plugin = convertToEditorPlugin(editor);
 
     expect(plugin).toEqual({
-      description:
-        'Microsoft Visual Studio Code - Open Source IDE for Eclipse Che - Insiders build',
+      description: 'Open Source IDE for Eclipse Che....',
       displayName: 'VS Code - Open Source',
       icon: `<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>`,
       iconMediatype: 'image/svg+xml',
@@ -88,6 +87,7 @@ describe('convertToEditorPlugin', () => {
         devfile: '',
       },
       name: 'che-code',
+      provider: 'Provided by ....',
       publisher: 'che-incubator',
       tags: ['Tech-Preview'],
       type: 'Che Editor',
@@ -123,11 +123,11 @@ function getEditor(): devfileApi.Devfile {
         iconMediatype: 'image/svg+xml',
         publisher: 'che-incubator',
         repository: 'https://github.com/che-incubator/che-code',
-        title: 'Microsoft Visual Studio Code - Open Source IDE for Eclipse Che - Insiders build',
+        title: 'Open Source IDE for Eclipse Che ....',
         version: 'insiders',
+        provider: 'Provided by ....',
       },
-      description:
-        'Microsoft Visual Studio Code - Open Source IDE for Eclipse Che - Insiders build',
+      description: 'Open Source IDE for Eclipse Che....',
       displayName: 'VS Code - Open Source',
       name: 'che-code',
       tags: ['Tech-Preview'],
