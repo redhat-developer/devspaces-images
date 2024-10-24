@@ -1,0 +1,15 @@
+{
+    "name": "idea-status",
+    "version": "1.0.0",
+    "description": "The app helps the user to connect a local JB Client to the in-cluster IDEA dev server over JB Gateway",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "license": "EPL-2.0",
+    "dependencies": {
+        "chokidar": "^3.5.3",
+        "ejs": "^3.1.10",
+        "express": "^4.19.2"
+    }
+}

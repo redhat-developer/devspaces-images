@@ -43,6 +43,7 @@ operator_manifests:
         devspaces-configbump-rhel8-container: devspaces/configbump-rhel8
         devspaces-dashboard-rhel8-container: devspaces/dashboard-rhel8
         devspaces-idea-rhel8-container: devspaces/idea-rhel8
+        devspaces-jetbrains-ide-rhel9-container: devspaces/jetbrains-ide-rhel9
         devspaces-imagepuller-rhel8-container: devspaces/imagepuller-rhel8
         devspaces-machineexec-rhel8-container: devspaces/machineexec-rhel8
         devspaces-pluginregistry-rhel8-container: devspaces/pluginregistry-rhel8
