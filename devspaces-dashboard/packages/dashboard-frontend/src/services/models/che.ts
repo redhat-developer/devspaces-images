@@ -29,6 +29,7 @@ export interface Plugin {
   type: string;
   version: string;
   description?: string;
+  provider?: string;
   links: {
     devfile: string;
   };

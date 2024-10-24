@@ -22,7 +22,7 @@ export function convertToEditorPlugin(editor: devfileApi.Devfile): che.Plugin {
   ) {
     throw new Error('Invalid editor metadata');
   }
-  return {
+  const plugin: che.Plugin = {
     id:
       editor.metadata.attributes.publisher +
       '/' +
@@ -42,4 +42,10 @@ export function convertToEditorPlugin(editor: devfileApi.Devfile): che.Plugin {
     icon: editor.metadata.attributes.iconData,
     iconMediatype: editor.metadata.attributes.iconMediatype,
   };
+
+  if (editor.metadata.attributes?.provider) {
+    plugin.provider = editor.metadata.attributes.provider;
+  }
+
+  return plugin;
 }

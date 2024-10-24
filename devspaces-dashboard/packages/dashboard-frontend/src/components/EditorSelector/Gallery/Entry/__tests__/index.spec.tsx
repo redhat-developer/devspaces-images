@@ -172,6 +172,17 @@ describe('Editor Selector Entry', () => {
     });
   });
 
+  describe('provider info', () => {
+    test('show text', () => {
+      renderComponent(
+        editorGroup[0].id,
+        [...editorGroup].map(editor => Object.assign({}, editor, { provider: 'Provided by...' })),
+      );
+
+      expect(screen.queryByText('Provided by...')).not.toBeNull();
+    });
+  });
+
   describe('props change', () => {
     test('sibling editor ID provided later', () => {
       const { reRenderComponent } = renderComponent(editorGroup[0].id, editorGroup);

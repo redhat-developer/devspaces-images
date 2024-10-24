@@ -22,6 +22,7 @@ import {
 } from '@patternfly/react-core';
 import { CheckIcon } from '@patternfly/react-icons';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 import styles from '@/components/EditorSelector/Gallery/Entry/index.module.css';
 import { TagLabel } from '@/components/TagLabel';
@@ -79,10 +80,12 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
   }
 
   private handleCardClick(event: React.MouseEvent) {
-    event.preventDefault();
-
     const { selectedId, onSelect } = this.props;
     const { activeEditor } = this.state;
+
+    if (!activeEditor.provider) {
+      event.preventDefault();
+    }
 
     if (activeEditor.id === selectedId) {
       return;
@@ -199,6 +202,11 @@ export class EditorSelectorEntry extends React.PureComponent<Props, State> {
         </CardHeader>
         <CardBody>
           <span className={titleClassName}>{groupName}</span>
+          {activeEditor.provider && (
+            <div style={{ fontSize: '75%' }}>
+              <ReactMarkdown>{activeEditor.provider}</ReactMarkdown>
+            </div>
+          )}
         </CardBody>
       </Card>
     );
